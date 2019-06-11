@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel>
+      <module name=".generated" target="1.8" />
+      <module name=".main" target="1.8" />
+      <module name=".test" target="1.8" />
+      <module name="hitalk.generated" target="1.8" />
+      <module name="hitalk.main" target="1.8" />
+      <module name="hitalk.test" target="1.8" />
+      <module name="hitalk_wam.generated" target="1.8" />
+      <module name="hitalk_wam.main" target="1.8" />
+      <module name="hitalk_wam.test" target="1.8" />
+      <module name="logt.generated" target="1.8" />
+      <module name="logt.main" target="1.8" />
+      <module name="logt.test" target="1.8" />
+      <module name="logtalk_compi.generated" target="1.8" />
+      <module name="logtalk_compi.main" target="1.8" />
+      <module name="logtalk_compi.test" target="1.8" />
+      <module name="logtalk_compiler.generated" target="1.8" />
+      <module name="logtalk_compiler.main" target="1.8" />
+      <module name="logtalk_compiler.test" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

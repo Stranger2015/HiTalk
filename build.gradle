@@ -1,0 +1,28 @@
+plugins {
+    id 'java'
+ //   id 'java-gradle-plugin'
+    id 'antlr'
+    
+}
+
+group 'hitalk'
+version '0.1-alpha.1'
+
+//https://github.com/antlr/intellij-plugin-v4
+
+//targetCompatibility = 1.8
+//sourceCompatibility = 1.8
+apply plugin: 'java'
+//apply plugin: 'antlr'
+apply plugin: 'idea'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+ ///   testCompile group: 'junit', name: 'junit', version: '4.12'
+//    antlr "org.antlr:antlr4:4.7.1" // use ANTLR version 4
+}

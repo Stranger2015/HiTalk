@@ -1,0 +1,38 @@
+<component name="libraryTable">
+  <library name="com.thesett:wam_prolog:0.9.117" type="repository">
+    <properties maven-id="com.thesett:wam_prolog:0.9.117" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/wam_prolog-0.9.117.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/common-0.9.117.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/logic-0.9.117.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/power_model-0.9.117.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/search-0.9.117.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/state-0.9.117.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/interpreter-0.9.117.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/text_model-0.9.117.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jline-1.0.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/lib/wam_prolog-0.9.117-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/common-0.9.117-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/logic-0.9.117-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/power_model-0.9.117-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/search-0.9.117-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/state-0.9.117-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/interpreter-0.9.117-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/text_model-0.9.117-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jline-1.0-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/lib/wam_prolog-0.9.117-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/common-0.9.117-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/logic-0.9.117-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/power_model-0.9.117-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/search-0.9.117-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/state-0.9.117-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/interpreter-0.9.117-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/text_model-0.9.117-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jline-1.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
