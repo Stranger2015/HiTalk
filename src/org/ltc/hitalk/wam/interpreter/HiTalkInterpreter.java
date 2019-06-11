@@ -9,6 +9,7 @@ import com.thesett.aima.logic.fol.interpreter.ResolutionEngine;
 import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.common.parsing.SourceCodeException;
 import jline.ConsoleReader;
+import org.ltc.hitalk.entities.HtEntity;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -53,6 +54,14 @@ class HiTalkInterpreter<T, Q> implements IInterpreter {
     @Override
     public
     void setConsoleReader ( ConsoleReader reader ) {
+
+    }
+
+    /**
+     *
+     */
+    public
+    void sendMessage ( HtEntity sender, ) {
 
     }
 
