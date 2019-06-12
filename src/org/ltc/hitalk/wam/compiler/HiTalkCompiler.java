@@ -7,7 +7,6 @@ import com.thesett.aima.logic.fol.isoprologparser.PrologParser;
 import com.thesett.aima.logic.fol.isoprologparser.TokenSource;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
-import org.ltc.hitalk.HiTalkApp;
 import org.ltc.hitalk.compiler.parser.HiTalkParser;
 import org.ltc.hitalk.term.Atom;
 
@@ -235,6 +234,16 @@ class HiTalkCompiler extends BaseMachine implements LogicCompiler <Clause, HiTal
     void initDirectives () {
         initRuntimeDirectives();
         initCompilerDirectives();
+    }
+
+    private
+    void initCompilerDirectives () {
+
+    }
+
+    private
+    void initRuntimeDirectives () {
+
     }
 //
 //
@@ -675,6 +684,33 @@ class HiTalkCompiler extends BaseMachine implements LogicCompiler <Clause, HiTal
     /**
      * loads all built-in entities if not already loaded (when embedding
      * Logtalk, the pre-compiled entities are loaded prior to this file)
+     * <p>
+     * loadBuiltInEntities(ScratchDirectory) :-
+     * //            (
+     * //                loadBuiltInEntity(expanding, protocol, 'expanding', ScratchDirectory),
+     * //            loadBuiltInEntity(monitoring, protocol, 'monitoring', ScratchDirectory),
+     * //            loadBuiltInEntity(forwarding, protocol, 'forwarding', ScratchDirectory),
+     * //            loadBuiltInEntity(user, object, 'user', ScratchDirectory),
+     * //            loadBuiltInEntity(logtalk, object, 'logtalk', ScratchDirectory),
+     * //            loadBuiltInEntity(core_messages, category, 'core_messages', ScratchDirectory),
+     * //
+     * //
+     * //            loadBuiltInEntity(Entity, Type, File, ScratchDirectory) :-
+     * //            (	Type == protocol,
+     * //            Current_protocol_(Entity, _, _, _, _) ->
+     * //            true
+     * //    ;	Type == category,
+     * //            CurrentCategory_(Entity, _, _, _, _, _) ->
+     * //            true
+     * //    ;	Type == object,
+     * //            Current_object_(Entity, _, _, _, _, _, _, _, _, _, _) ->
+     * //            true
+     * //    ;	% not an embedded entity; compile and load it
+     * //    logtalkLoad(
+     * //            core(File),
+     * //        [	% we need a fixed code prefix as some of the entity predicates may need
+     * //to be called directly by the compiler/runtime
+     * //        code_prefix('$'),
      */
     private
     String loadBuiltInEntities () {
@@ -711,64 +747,15 @@ class HiTalkCompiler extends BaseMachine implements LogicCompiler <Clause, HiTal
 //        return null;
 //    }
 
-    //        loadBuiltInEntities(ScratchDirectory) :-
-//            (
-//                loadBuiltInEntity(expanding, protocol, 'expanding', ScratchDirectory),
-//            loadBuiltInEntity(monitoring, protocol, 'monitoring', ScratchDirectory),
-//            loadBuiltInEntity(forwarding, protocol, 'forwarding', ScratchDirectory),
-//            loadBuiltInEntity(user, object, 'user', ScratchDirectory),
-//            loadBuiltInEntity(logtalk, object, 'logtalk', ScratchDirectory),
-//            loadBuiltInEntity(core_messages, category, 'core_messages', ScratchDirectory),
-//
-//
-//            loadBuiltInEntity(Entity, Type, File, ScratchDirectory) :-
-//            (	Type == protocol,
-//            Current_protocol_(Entity, _, _, _, _) ->
-//            true
-//    ;	Type == category,
-//            CurrentCategory_(Entity, _, _, _, _, _) ->
-//            true
-//    ;	Type == object,
-//            Current_object_(Entity, _, _, _, _, _, _, _, _, _, _) ->
-//            true
-//    ;	% not an embedded entity; compile and load it
-//    logtalkLoad(
-//            core(File),
-//        [	% we need a fixed code prefix as some of the entity predicates may need
-    //to be called directly by the compiler/runtime
-//        code_prefix('$'),
     private
     void setCompilerFlag ( String scratch ) {
 
     }
-
-    /**
-     * Establishes an observer on the compiled forms that the compiler outputs.
-     *
-     * @param observer The compiler output observer.
-     */
-    @Override
-    public
-    void setCompilerObserver ( LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer ) {
-        this.observer = observer;
-    }
-
-    /**
-     * Signal the end of a compilation scope, to trigger completion of the compilation of its contents.
-     *
-     * @throws SourceCodeException If there is an error in the source to be compiled that prevents its compilation.
-     */
-    @Override
-    public
-    void endScope () throws SourceCodeException {
-
-    }
-
-    public
-    void setApplication ( HiTalkApp app ) {
-
-    }
-}
+//
+//    public
+//    void setApplication ( HiTalkApp app ) {
+//
+//    }
 
     public
     String getScratchDirectory () {
@@ -800,7 +787,7 @@ class HiTalkCompiler extends BaseMachine implements LogicCompiler <Clause, HiTal
     @Override
     public
     void setCompilerObserver ( LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer ) {
-
+        this.observer = observer;
     }
 
     /**
@@ -814,54 +801,25 @@ class HiTalkCompiler extends BaseMachine implements LogicCompiler <Clause, HiTal
 
     }
 
-class ClauseChainObserver implements LogicCompilerObserver <Clause, Clause> {
-    /**
-     * {@inheritDoc}
-     */
-    public
-    void onCompilation ( Sentence <Clause> sentence ) throws SourceCodeException {
-        instructionCompiler.compile(sentence);
-    }
+    class ClauseChainObserver implements LogicCompilerObserver <Clause, Clause> {
+        /**
+         * {@inheritDoc}
+         */
+        public
+        void onCompilation ( Sentence <Clause> sentence ) throws SourceCodeException {
+            instructionCompiler.compile(sentence);
+        }
 
-    /**
-     * {@inheritDoc}
-     */
-    public
-    void onQueryCompilation ( Sentence <Clause> sentence ) throws SourceCodeException {
-        instructionCompiler.compile(sentence);
-    }
-}
-
-private
-class
-
-
-ClauseChainObserver implements LogicCompilerObserver <Clause, Clause> {
-    /**
-     * Accepts notification of the completion of the compilation of a sentence into a (binary) form.
-     *
-     * @param sentence The compiled form of the sentence.
-     * @throws SourceCodeException If there is an error in the compiled code that prevents its further processing.
-     */
-    @Override
-    public
-    void onCompilation ( Sentence <Clause> sentence ) throws SourceCodeException {
-
-    }
-
-    /**
-     * Accepts notification of the completion of the compilation of a query into binary form.
-     *
-     * @param sentence The compiled query.
-     * @throws SourceCodeException If there is an error in the compiled code that prevents its further processing.
-     */
-    @Override
-    public
-    void onQueryCompilation ( Sentence <Clause> sentence ) throws SourceCodeException {
-
+        /**
+         * {@inheritDoc}
+         */
+        public
+        void onQueryCompilation ( Sentence <Clause> sentence ) throws SourceCodeException {
+            instructionCompiler.compile(sentence);
+        }
     }
 }
-}
+
 
 /*
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

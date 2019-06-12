@@ -40,7 +40,6 @@ class CompilerTask implements Runnable {
             invoke();
         } catch (StopRequestException ignored) {
         }
-//        }
     }
 
     /**
@@ -56,7 +55,7 @@ class CompilerTask implements Runnable {
      */
     private
     void banner ( Logger logger ) {
-        logger.info(format("Performing %s task ...", getClass().getSimpleName()));
+        logger.info(format("\nPerforming %s task ...", getClass().getSimpleName()));
     }
 
 }

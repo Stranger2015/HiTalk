@@ -32,6 +32,7 @@ import com.thesett.common.util.SizeableLinkedList;
 import com.thesett.common.util.SizeableList;
 import com.thesett.common.util.doublemaps.SymbolKey;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn.VarIntroduction;
 import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
 
 import java.util.*;
@@ -147,7 +148,8 @@ import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.STACK_ADDR;
  * @author Rupert Smith
  */
 public
-class HiTalkInstructionCompiler extends HiTalkDefaultBuiltIn implements LogicCompiler <Clause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> {
+class HiTalkInstructionCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> implements HiTalkBuiltIn {
+    private final HiTalkDefaultBuiltIn defaultBuiltIn;
 
     /* Used for debugging. */
     /* private static final Logger log = Logger.getLogger(HiTalkInstructionCompiler.class.getName()); */
@@ -155,7 +157,7 @@ class HiTalkInstructionCompiler extends HiTalkDefaultBuiltIn implements LogicCom
     /**
      * Holds the instruction optimizer.
      */
-    private final HiTalkOptimizer optimizer;
+    protected HiTalkOptimizer optimizer;
     /**
      * Holds a list of all predicates encountered in the current scope.
      */
@@ -183,6 +185,8 @@ class HiTalkInstructionCompiler extends HiTalkDefaultBuiltIn implements LogicCom
      * Holds the current nested compilation scope symbol table.
      */
     private SymbolTable <Integer, String, Object> scopeTable;
+    private Collection <Integer> seenRegisters;
+    private int lastAllocatedTempReg;
 
     /**
      * Creates a new HiTalkInstructionCompiler.
@@ -194,6 +198,7 @@ class HiTalkInstructionCompiler extends HiTalkDefaultBuiltIn implements LogicCom
     HiTalkInstructionCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner ) {
         super(symbolTable, interner);
         optimizer = new HiTalkWAMOptimizer(symbolTable, interner);
+        defaultBuiltIn = new HiTalkDefaultBuiltIn(symbolTable, interner);
     }
 
     /**
@@ -450,12 +455,12 @@ class HiTalkInstructionCompiler extends HiTalkDefaultBuiltIn implements LogicCom
 
         // A mapping from top stack frame slots to interned variable names is built up in this.
         // This is used to track the stack positions that variables in a query are assigned to.
-        Map <Byte, Integer> varNames = new TreeMap <Byte, Integer>();
+        Map <Byte, Integer> varNames = new TreeMap <>();
 
         // Used to keep track of registers as they are seen during compilation. The first time a variable is seen,
         // a variable is written onto the heap, subsequent times its value. The first time a functor is seen,
         // its structure is written onto the heap, subsequent times it is compared with.
-        seenRegisters = new TreeSet <Integer>();
+        seenRegisters = new TreeSet <>();
 
         // This is used to keep track of the next temporary register available to allocate.
         lastAllocatedTempReg = findMaxArgumentsInClause(clause);
@@ -469,8 +474,8 @@ class HiTalkInstructionCompiler extends HiTalkDefaultBuiltIn implements LogicCom
 
         // These are used to generate pre and post instructions for the clause, for example, for the creation and
         // clean-up of stack frames.
-        SizeableList <HiTalkWAMInstruction> preFixInstructions = new SizeableLinkedList <HiTalkWAMInstruction>();
-        SizeableList <HiTalkWAMInstruction> postFixInstructions = new SizeableLinkedList <HiTalkWAMInstruction>();
+        SizeableList <HiTalkWAMInstruction> preFixInstructions = new SizeableLinkedList <>();
+        SizeableList <HiTalkWAMInstruction> postFixInstructions = new SizeableLinkedList <>();
 
         // Find all the free non-anonymous variables in the clause.
         Set <Variable> freeVars = TermUtils.findFreeNonAnonymousVariables(clause);
@@ -590,8 +595,8 @@ class HiTalkInstructionCompiler extends HiTalkDefaultBuiltIn implements LogicCom
 
         // Allocate argument registers on the body, to all functors as outermost arguments.
         // Allocate temporary registers on the body, to all terms not already allocated.
-        allocateArgumentRegisters(expression);
-        allocateTemporaryRegisters(expression);
+        defaultBuiltIn.allocateArgumentRegisters(expression);
+        defaultBuiltIn.allocateTemporaryRegisters(expression);
 
         // Program instructions are generated in the same order as the registers are assigned, the postfix
         // ordering used for queries is not needed.
@@ -652,7 +657,7 @@ class HiTalkInstructionCompiler extends HiTalkDefaultBuiltIn implements LogicCom
                         instruction = new HiTalkWAMInstruction(UnifyVar, addrMode, address, nextArg);
 
                         // Record the way in which this variable was introduced into the clause.
-                        symbolTable.put(nextArg.getSymbolKey(), SYMKEY_VARIABLE_INTRO, HiTalkDefaultBuiltIn.VarIntroduction.Unify);
+                        symbolTable.put(nextArg.getSymbolKey(), SYMKEY_VARIABLE_INTRO, VarIntroduction.Unify);
                     }
                     else {
                         // Check if the variable is 'local' and use a local instruction on the first occurrence.
@@ -707,6 +712,11 @@ class HiTalkInstructionCompiler extends HiTalkDefaultBuiltIn implements LogicCom
         }
 
         return instructions;
+    }
+
+    private
+    boolean isLocalVariable ( VarIntroduction introduction, byte addrMode ) {
+        return false;
     }
 
     /**
@@ -896,6 +906,42 @@ class HiTalkInstructionCompiler extends HiTalkDefaultBuiltIn implements LogicCom
         TermWalkers.positionalWalker(displayVisitor).walk(query);
 
         /*log.fine(result.toString());*/
+    }
+
+    /**
+     * Compiles the arguments to a call to a body of a clause into an instruction listing in WAM.
+     * <p>
+     * <p/>The name of the clause containing the body, and the position of the body within this clause are passed as
+     * arguments, mainly so that these coordinates can be used to help make any labels generated within the generated
+     * code unique.
+     *
+     * @param expression  The clause body to compile.
+     * @param isFirstBody <tt>true</tt> iff this is the first body of a program clause.
+     * @param clauseName  The name of the clause within which this body appears.
+     * @param bodyNumber  The body position within the containing clause.
+     * @return A listing of the instructions for the clause body in the WAM instruction set.
+     */
+    @Override
+    public
+    SizeableLinkedList <HiTalkWAMInstruction> compileBodyArguments ( Functor expression, boolean isFirstBody, FunctorName clauseName, int bodyNumber ) {
+        return defaultBuiltIn.compileBodyArguments(expression, isFirstBody, clauseName, bodyNumber);
+    }
+
+    /**
+     * Compiles a call to a body of a clause into an instruction listing in WAM.
+     *
+     * @param expression        The body functor to call.
+     * @param isFirstBody       Iff this is the first body in a clause.
+     * @param isLastBody        Iff this is the last body in a clause.
+     * @param chainRule         Iff the clause is a chain rule, so has no environment frame.
+     * @param permVarsRemaining The number of permanent variables remaining at this point in the calling clause. Used
+     *                          for environment trimming.
+     * @return A list of instructions for the body call.
+     */
+    @Override
+    public
+    SizeableLinkedList <HiTalkWAMInstruction> compileBodyCall ( Functor expression, boolean isFirstBody, boolean isLastBody, boolean chainRule, int permVarsRemaining ) {
+        return defaultBuiltIn.compileBodyCall(expression, isFirstBody, isLastBody, chainRule, permVarsRemaining);
     }
 
     /**

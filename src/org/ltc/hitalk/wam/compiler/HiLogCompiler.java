@@ -1,13 +1,12 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.*;
-import com.thesett.aima.logic.fol.bytecode.BaseMachine;
+import com.thesett.aima.logic.fol.Clause;
+import com.thesett.aima.logic.fol.LogicCompilerObserver;
+import com.thesett.aima.logic.fol.Sentence;
+import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.aima.logic.fol.isoprologparser.TokenSource;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
-import com.thesett.common.util.doublemaps.SymbolTableImpl;
-import org.ltc.hitalk.compiler.IApplication;
-import org.ltc.hitalk.compiler.IConfig;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +15,7 @@ import java.io.IOException;
  *
  */
 public
-class HiLogCompiler extends BaseMachine implements LogicCompiler <Clause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>, IApplication {
+class HiLogCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> {
 
     /**
      * Creates a base machine over the specified symbol table.
@@ -30,19 +29,19 @@ class HiLogCompiler extends BaseMachine implements LogicCompiler <Clause, HiTalk
     }
 
 
-    public static
-    void main ( String[] args ) {
-        HiLogCompiler compiler = new HiLogCompiler(new SymbolTableImpl <>(), new VariableAndFunctorInternerImpl("HiLog_Variable_Namespace", "HiLog_Functor_Namespace"));
+//    public static
+//    void main ( String[] args ) {
+//        HiLogCompiler compiler = new HiLogCompiler(new SymbolTableImpl <>(), new VariableAndFunctorInternerImpl("HiLog_Variable_Namespace", "HiLog_Functor_Namespace"));
+//
+//        try {
+//            compiler.compileFile(args[0]);
+//        } catch (IOException | SourceCodeException e) {
+//            e.printStackTrace();
+//            throw new Error(e);
+//        }
+//    }
 
-        try {
-            compiler.compileFile(args[0]);
-        } catch (IOException | SourceCodeException e) {
-            e.printStackTrace();
-            throw new Error(e);
-        }
-    }
-
-    private
+    protected
     void compileFile ( String fn ) throws IOException, SourceCodeException {
         compile(TokenSource.getTokenSourceForFile(new File(fn)));
     }
@@ -89,57 +88,6 @@ class HiLogCompiler extends BaseMachine implements LogicCompiler <Clause, HiTalk
     @Override
     public
     void endScope () throws SourceCodeException {
-
-    }
-
-    @Override
-    public
-    IConfig getConfig () {
-        return null;
-    }
-
-    /**
-     *
-     */
-    @Override
-    public
-    void start () throws IOException {
-
-    }
-
-    /**
-     * @return
-     */
-    @Override
-    public
-    int end () {
-        return 0;
-    }
-
-    /**
-     * @return
-     */
-    @Override
-    public
-    boolean isStarted () {
-        return false;
-    }
-
-    /**
-     * @return
-     */
-    @Override
-    public
-    boolean isStopped () {
-        return false;
-    }
-
-    /**
-     *
-     */
-    @Override
-    public
-    void banner () {
 
     }
 }

@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.TreeSet;
 
+import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.HiTalkWAMInstructionSet.*;
 import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.REG_ADDR;
 import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.STACK_ADDR;
 
@@ -100,13 +101,13 @@ class HiTalkDefaultBuiltIn extends BaseMachine implements HiTalkBuiltIn {
             // body predicate.
             // This is not required for chain rules, as they do not need a stack frame.
             if (!chainRule) {
-                instructions.add(new HiTalkWAMInstruction(HiTalkWAMInstruction.HiTalkWAMInstructionSet.Deallocate));
+                instructions.add(new HiTalkWAMInstruction(Deallocate));
             }
 
-            instructions.add(new HiTalkWAMInstruction(HiTalkWAMInstruction.HiTalkWAMInstructionSet.Execute, interner.getFunctorFunctorName(expression)));
+            instructions.add(new HiTalkWAMInstruction(Execute, interner.getFunctorFunctorName(expression)));
         }
         else {
-            instructions.add(new HiTalkWAMInstruction(HiTalkWAMInstruction.HiTalkWAMInstructionSet.Call, (byte) (permVarsRemaining & 0xff), interner.getFunctorFunctorName(expression)));
+            instructions.add(new HiTalkWAMInstruction(Call, (byte) (permVarsRemaining & 0xff), interner.getFunctorFunctorName(expression)));
         }
 
         return instructions;
@@ -151,7 +152,7 @@ class HiTalkDefaultBuiltIn extends BaseMachine implements HiTalkBuiltIn {
 
                 /*log.fine("PUT_VAR " + ((addrMode == REG_ADDR) ? "X" : "Y") + address + ", A" + j);*/
 
-                HiTalkWAMInstruction instruction = new HiTalkWAMInstruction(HiTalkWAMInstruction.HiTalkWAMInstructionSet.PutVar, addrMode, address, (byte) (j & 0xff));
+                HiTalkWAMInstruction instruction = new HiTalkWAMInstruction(PutVar, addrMode, address, (byte) (j & 0xff));
                 instructions.add(instruction);
 
                 // Record the way in which this variable was introduced into the clause.
@@ -165,7 +166,7 @@ class HiTalkDefaultBuiltIn extends BaseMachine implements HiTalkBuiltIn {
                     /*log.fine("PUT_UNSAFE_VAL " + ((addrMode == REG_ADDR) ? "X" : "Y") + address + ", A" +
                         j);*/
 
-                    HiTalkWAMInstruction instruction = new HiTalkWAMInstruction(HiTalkWAMInstruction.HiTalkWAMInstructionSet.PutUnsafeVal, addrMode, address, (byte) (j & 0xff));
+                    HiTalkWAMInstruction instruction = new HiTalkWAMInstruction(PutUnsafeVal, addrMode, address, (byte) (j & 0xff));
                     instructions.add(instruction);
 
                     symbolTable.put(nextOutermostArg.getSymbolKey(), SymbolTableKeys.SYMKEY_VAR_LAST_ARG_FUNCTOR, null);
@@ -173,7 +174,7 @@ class HiTalkDefaultBuiltIn extends BaseMachine implements HiTalkBuiltIn {
                 else {
                     /*log.fine("PUT_VAL " + ((addrMode == REG_ADDR) ? "X" : "Y") + address + ", A" + j);*/
 
-                    HiTalkWAMInstruction instruction = new HiTalkWAMInstruction(HiTalkWAMInstruction.HiTalkWAMInstructionSet.PutVal, addrMode, address, (byte) (j & 0xff));
+                    HiTalkWAMInstruction instruction = new HiTalkWAMInstruction(PutVal, addrMode, address, (byte) (j & 0xff));
                     instructions.add(instruction);
                 }
             }
@@ -204,7 +205,7 @@ class HiTalkDefaultBuiltIn extends BaseMachine implements HiTalkBuiltIn {
                     /*log.fine("PUT_STRUC " + interner.getFunctorName(nextFunctor) + "/" + nextFunctor.getArity() +
                         ((addrMode == REG_ADDR) ? ", X" : ", Y") + address);*/
 
-                    HiTalkWAMInstruction instruction = new HiTalkWAMInstruction(HiTalkWAMInstruction.HiTalkWAMInstructionSet.PutStruc, addrMode, address, interner.getDeinternedFunctorName(nextFunctor.getName()), nextFunctor);
+                    HiTalkWAMInstruction instruction = new HiTalkWAMInstruction(PutStruc, addrMode, address, interner.getDeinternedFunctorName(nextFunctor.getName()), nextFunctor);
                     instructions.add(instruction);
 
                     // For each argument of the functor.
@@ -222,7 +223,7 @@ class HiTalkDefaultBuiltIn extends BaseMachine implements HiTalkBuiltIn {
                             seenRegisters.add(allocation);
 
                             /*log.fine("SET_VAR " + ((addrMode == REG_ADDR) ? "X" : "Y") + address);*/
-                            instruction = new HiTalkWAMInstruction(HiTalkWAMInstruction.HiTalkWAMInstructionSet.SetVar, addrMode, address, nextArg);
+                            instruction = new HiTalkWAMInstruction(SetVar, addrMode, address, nextArg);
 
                             // Record the way in which this variable was introduced into the clause.
                             symbolTable.put(nextArg.getSymbolKey(), SymbolTableKeys.SYMKEY_VARIABLE_INTRO, VarIntroduction.Set);
@@ -235,13 +236,13 @@ class HiTalkDefaultBuiltIn extends BaseMachine implements HiTalkBuiltIn {
                                 /*log.fine("SET_LOCAL_VAL " + ((addrMode == REG_ADDR) ? "X" : "Y") +
                                     address);*/
 
-                                instruction = new HiTalkWAMInstruction(HiTalkWAMInstruction.HiTalkWAMInstructionSet.SetLocalVal, addrMode, address, nextArg);
+                                instruction = new HiTalkWAMInstruction(SetLocalVal, addrMode, address, nextArg);
 
                                 symbolTable.put(nextArg.getSymbolKey(), SymbolTableKeys.SYMKEY_VARIABLE_INTRO, null);
                             }
                             else {
                                 /*log.fine("SET_VAL " + ((addrMode == REG_ADDR) ? "X" : "Y") + address);*/
-                                instruction = new HiTalkWAMInstruction(HiTalkWAMInstruction.HiTalkWAMInstructionSet.SetVal, addrMode, address, nextArg);
+                                instruction = new HiTalkWAMInstruction(SetVal, addrMode, address, nextArg);
                             }
                         }
 

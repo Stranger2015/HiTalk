@@ -1,7 +1,6 @@
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.*;
-import com.thesett.aima.logic.fol.bytecode.BaseMachine;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IComposite;
@@ -18,7 +17,7 @@ import java.util.List;
  *
  */
 public
-class HiTalkCompilerPreprocessor extends BaseMachine implements LogicCompiler <Clause, Clause, Clause>, IComposite <Term, TransformTask <Term>> {
+class HiTalkCompilerPreprocessor extends BaseCompiler <Clause, Clause, Clause> implements IComposite <Term, TransformTask <Term>> {
 
     protected final DefaultTransformer defaultTransformer;
     protected final DefaultTermExpander defaultExpander;
@@ -27,7 +26,7 @@ class HiTalkCompilerPreprocessor extends BaseMachine implements LogicCompiler <C
     protected final HiTalkDefaultBuiltIn defaultBuiltIn;
     protected final HiTalkBuiltInTransform builtInTransform;
     protected final List <TransformTask <Term>> components = new ArrayList <>();
-    protected final LogicCompilerObserver <Clause, Clause> observer;
+    protected LogicCompilerObserver <Clause, Clause> observer;
 
 
     /**
@@ -74,7 +73,7 @@ class HiTalkCompilerPreprocessor extends BaseMachine implements LogicCompiler <C
     void process ( Clause clause ) throws SourceCodeException {
         if (clause.isQuery()) {
             endScope();
-            executeQuery(clause);//directivei
+            executeQuery(clause);//directivei compileQuery
             //preprocess
         }
         else {
@@ -92,12 +91,6 @@ class HiTalkCompilerPreprocessor extends BaseMachine implements LogicCompiler <C
         HiTalkInterpreter interpreter = new HiTalkInterpreter(Mode.ProgramMultiLine);
         interpreter.getMode();
     }
-
-    /*
-     * Signal the end of a compilation scope, to trigger completion of the compilation of its contents.
-     *
-     * @throws SourceCodeException If there is an error in the source to be compiled that prevents its compilation.
-     */
 
 //
 //        enum MessaqeKind {

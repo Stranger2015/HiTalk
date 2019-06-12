@@ -3,8 +3,8 @@ package org.ltc.hitalk.wam.task;
 
 import com.thesett.aima.logic.fol.Term;
 import org.jetbrains.annotations.Contract;
-import org.ltc.hitalk.compiler.IApplication;
 import org.ltc.hitalk.compiler.IComposite;
+import org.ltc.hitalk.compiler.error.StopRequestException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,10 +14,12 @@ abstract public
 class CompositeTask<T extends Term> extends CompilerTask implements IComposite <T, TransformTask <T>> {
 
     protected List <TransformTask <T>> tasks = new ArrayList <>();
+    private T target;
 
     public
-    CompositeTask ( IApplication app, T target ) {
-        super(app);
+    CompositeTask ( T target ) {
+        super();
+        this.target = target;
     }
 
     /**
@@ -43,6 +45,7 @@ class CompositeTask<T extends Term> extends CompilerTask implements IComposite <
 
     private
     void accept ( int i ) {
+//        T target;
         tasks.get(i).transform(target);
     }//fixme
 }

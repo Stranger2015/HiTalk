@@ -1,9 +1,6 @@
 package org.ltc.hitalk.wam.interpreter;
 
-import com.thesett.aima.logic.fol.Clause;
-import com.thesett.aima.logic.fol.Parser;
-import com.thesett.aima.logic.fol.Sentence;
-import com.thesett.aima.logic.fol.Variable;
+import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.logic.fol.interpreter.InteractiveParser;
 import com.thesett.aima.logic.fol.interpreter.ResolutionEngine;
 import com.thesett.aima.logic.fol.isoprologparser.Token;
@@ -37,6 +34,8 @@ import java.util.Set;
  */
 public
 class HiTalkInterpreter<T, Q> implements IInterpreter {
+    private ConsoleReader reader;
+
     public
     HiTalkInterpreter ( Mode program ) {
 
@@ -54,14 +53,14 @@ class HiTalkInterpreter<T, Q> implements IInterpreter {
     @Override
     public
     void setConsoleReader ( ConsoleReader reader ) {
-
+        this.reader = reader;
     }
 
     /**
      *
      */
     public
-    void sendMessage ( HtEntity sender, ) {
+    void sendMessage ( HtEntity sender, Predicate <Clause> pred ) {
 
     }
 
@@ -118,12 +117,12 @@ class HiTalkInterpreter<T, Q> implements IInterpreter {
     /**
      * Holds the interactive parser that the interpreter loop runs on.
      */
-    protected final InteractiveParser parser;
+    protected InteractiveParser parser;
 
     /**
      * Holds the resolution engine that the interpreter loop runs on.
      */
-    protected final ResolutionEngine <Clause, T, Q> engine;
+    protected ResolutionEngine <Clause, T, Q> engine;
 
     @Override
     public
@@ -331,5 +330,10 @@ class HiTalkInterpreter<T, Q> implements IInterpreter {
         /*log.fine("Read program clause from input.");*/
 
         engine.compile(sentence);
+    }
+
+    public
+    ConsoleReader getReader () {
+        return reader;
     }
 }
