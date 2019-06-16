@@ -1,9 +1,6 @@
-package org.ltc.hitalk.compiler.parser;
+package org.ltc.hitalk.compiler.bktables.parser;
 
-import com.thesett.aima.logic.fol.Cons;
-import com.thesett.aima.logic.fol.Nil;
-import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
+import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.logic.fol.isoprologparser.PrologParser;
 import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.aima.logic.fol.isoprologparser.TokenSource;
@@ -11,20 +8,24 @@ import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.parsing.SourceCodePosition;
 import com.thesett.common.parsing.SourceCodePositionImpl;
 import org.ltc.hitalk.term.HiLogCompound;
-import org.ltc.hitalk.term.ListTerm;
 
 import java.util.Arrays;
 
 import static com.thesett.aima.logic.fol.OpSymbol.Associativity.FX;
 
+/**
+ * @param <T>
+ */
 public
-class HiLogParser extends PrologParser {
+class HiLogParser<T extends Clause> extends PrologParser {
 
     final protected static int HILOG_COMPOUND = 38;
     private static final String BEGIN_TERM_TOKENS = Arrays.toString(new String[]{
             tokenImage[FUNCTOR], tokenImage[LSQPAREN], tokenImage[VAR], tokenImage[INTEGER_LITERAL], tokenImage[FLOATING_POINT_LITERAL], tokenImage[STRING_LITERAL], tokenImage[ATOM], tokenImage[LPAREN]
     });
-    protected static final ListTerm NIL = new ListTerm(new Term[0]);//fixme
+    protected final TokenSource tokenSource;
+    protected final VariableAndFunctorInterner interner;
+//    protected static final ListTerm NIL = new ListTerm(new Term[0]);//fixme
 
     /**
      * Builds a
@@ -37,7 +38,9 @@ class HiLogParser extends PrologParser {
     HiLogParser ( TokenSource source, VariableAndFunctorInterner interner ) {
         super(source, interner);
         //
-
+        this.interner = interner;
+        tokenSource = source;
+//        parser = new PrologParser(source, interner);
     }
 
     /**
@@ -176,6 +179,9 @@ class HiLogParser extends PrologParser {
         return listFunctor(RSQPAREN);
     }
 
+    /**
+     * @return
+     */
     public
     Term getHilogCompound () {
         Term c = null;
@@ -230,7 +236,6 @@ class HiLogParser extends PrologParser {
 
         return super.functor();
     }
-
 
     /**
      * Interns and inserts into the operator table all of the built in operators and functors in Prolog.

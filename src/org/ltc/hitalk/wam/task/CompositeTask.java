@@ -3,8 +3,8 @@ package org.ltc.hitalk.wam.task;
 
 import com.thesett.aima.logic.fol.Term;
 import org.jetbrains.annotations.Contract;
-import org.ltc.hitalk.compiler.IComposite;
-import org.ltc.hitalk.compiler.error.StopRequestException;
+import org.ltc.hitalk.compiler.bktables.IComposite;
+import org.ltc.hitalk.compiler.bktables.error.StopRequestException;
 
 import java.util.ArrayList;
 import java.util.List;

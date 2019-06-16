@@ -14,7 +14,7 @@ import java.util.List;
  * Created by Anthony on 19.07.2016.
  */
 public
-class DefaultTransformer implements ITransformer <Term> {
+class DefaultTransformer<T extends Term> implements ITransformer <T> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
@@ -24,15 +24,15 @@ class DefaultTransformer implements ITransformer <Term> {
     protected ExecutionInfo executionInfo;
     protected ExecutionInfo executionInfoBefore;
     //    protected final IApplication app;
-    protected Term term;
-    protected final ITransformer <Term> transformer;
+    protected T term;
+    protected final ITransformer <T> transformer;
     protected Object result;
 
     public
-    DefaultTransformer ( Term term ) {
+    DefaultTransformer ( T term ) {
 //        this.app = app;
         this.term = term;
-        this.transformer = new ZeroTransformer();
+        this.transformer = new <T>ZeroTransformer <T>();
     }
 
     @Override
@@ -42,7 +42,7 @@ class DefaultTransformer implements ITransformer <Term> {
     }
 
     public
-    ITransformer <Term> getTransformer () {
+    ITransformer <T> getTransformer () {
         return null;
     }
 
@@ -52,7 +52,7 @@ class DefaultTransformer implements ITransformer <Term> {
     @Override
     public
     void message () {
-        logger.info("Default transformer is launched...");
+        logger.info("Zero transformer is launched...");
     }
 
     /**
@@ -60,9 +60,9 @@ class DefaultTransformer implements ITransformer <Term> {
      * @return
      */
     public
-    Term transform ( Term target ) {
+    T transform ( Term target ) {
         message();
-        List <Term> termList = Collections.emptyList();// execute();
+        List <T> termList = Collections.emptyList();// execute();
         IMetrics after = context.getCurrentMetrics();
         IMetrics delta = after.subtract(contextBefore.getCurrentMetrics());
         if (termList.size() > 0) {
@@ -76,25 +76,9 @@ class DefaultTransformer implements ITransformer <Term> {
             result = new TransformInfo(context, executionInfo, delta, term); //todo
         }
         //
-        return target;
+        return (T) target;
     }
 
-    /**
-     *
-     */
-//    @Override
-//    public
-//    List <Term> execute () {
-////        List <Term> l = new ArrayList <>();
-//        List <Term> l = execute0();
-////        for (Term t : r) {
-////            setTerm(t);
-////            l.addAll(getNext().execute());
-////        }
-//        //
-//        return l;
-//    }
-//
     @Override
     public
     void reset () {

@@ -17,6 +17,4 @@ class StandardPreprocessor<T extends Term> extends TransformTask <T> {
     StandardPreprocessor ( T target, ITransformer <T> transformer ) {
         super(target, transformer);
     }
-
-
 }

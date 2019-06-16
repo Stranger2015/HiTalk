@@ -2,8 +2,8 @@ package org.ltc.hitalk.wam.transformers;
 
 
 import com.thesett.aima.logic.fol.Term;
-import org.ltc.hitalk.compiler.IApplication;
-import org.ltc.hitalk.compiler.IComposite;
+import org.ltc.hitalk.compiler.bktables.IApplication;
+import org.ltc.hitalk.compiler.bktables.IComposite;
 import org.ltc.hitalk.wam.task.TransformTask;
 
 import java.util.ArrayList;

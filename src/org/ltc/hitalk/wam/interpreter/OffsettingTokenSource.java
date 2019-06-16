@@ -8,6 +8,7 @@ public
 class OffsettingTokenSource implements Source <Token> {
     public
     OffsettingTokenSource ( TokenSource tokenSource, int lineNo ) {
+
     }
 
     /**

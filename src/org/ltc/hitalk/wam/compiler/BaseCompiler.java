@@ -1,16 +1,22 @@
 package org.ltc.hitalk.wam.compiler;
 
+import com.thesett.aima.logic.fol.Clause;
 import com.thesett.aima.logic.fol.LogicCompiler;
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
-import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.aima.logic.fol.bytecode.BaseMachine;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.wam.interpreter.ICompiler;
+import org.ltc.wam.hitalk.parser.HtPrologParser;
 
-public
-class BaseCompiler<T, T1, T2> extends BaseMachine implements LogicCompiler <T, T1, T2> {
+import java.util.logging.Logger;
+
+public abstract
+class BaseCompiler<T extends Clause, T1, T2> extends BaseMachine implements LogicCompiler <T, T1, T2>, ICompiler <T> {
     protected LogicCompilerObserver <T1, T2> observer;
+    protected HtPrologParser parser;
+    protected Logger console;
 
     /**
      * Creates a base machine over the specified symbol table.
@@ -23,17 +29,15 @@ class BaseCompiler<T, T1, T2> extends BaseMachine implements LogicCompiler <T, T
         super(symbolTable, interner);
     }
 
-    /**
-     * Compiles a sentence into a (presumably binary) form, that provides a Java interface into the compiled structure.
-     *
-     * @param sentence The sentence to compile.
-     * @throws SourceCodeException If there is an error in the source to be compiled that prevents its compilation.
-     */
-    @Override
-    public
-    void compile ( Sentence <T> sentence ) throws SourceCodeException {
 
-    }
+//    /**
+//     * @param tokenSource
+//     */
+//    public
+//    void compile ( TokenSource tokenSource ) throws SourceCodeException {
+//        ICompiler.super.compile( tokenSource );
+//
+//    }
 
     /**
      * Establishes an observer on the compiled forms that the compiler outputs.
@@ -43,7 +47,6 @@ class BaseCompiler<T, T1, T2> extends BaseMachine implements LogicCompiler <T, T
     @Override
     public
     void setCompilerObserver ( LogicCompilerObserver <T1, T2> observer ) {
-
         this.observer = observer;
     }
 
@@ -57,4 +60,16 @@ class BaseCompiler<T, T1, T2> extends BaseMachine implements LogicCompiler <T, T
     void endScope () throws SourceCodeException {
 
     }
+
+    @Override
+    public
+    Logger getConsole () {
+        return console;
+    }
+//
+//    @Override
+//    public
+//    HiTalkCompilerPreprocessor getPreCompiler () {
+//        return co
+//    }
 }

@@ -1,4 +1,4 @@
-package org.ltc.hitalk.compiler;
+package org.ltc.hitalk.compiler.bktables;
 
 
 /**

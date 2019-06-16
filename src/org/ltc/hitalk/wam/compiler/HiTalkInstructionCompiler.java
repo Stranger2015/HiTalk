@@ -20,6 +20,7 @@ import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.logic.fol.compiler.PositionalTermTraverser;
 import com.thesett.aima.logic.fol.compiler.PositionalTermTraverserImpl;
 import com.thesett.aima.logic.fol.compiler.TermWalker;
+import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.aima.logic.fol.wam.TermWalkers;
 import com.thesett.aima.logic.fol.wam.builtins.Cut;
 import com.thesett.aima.logic.fol.wam.compiler.*;
@@ -149,6 +150,7 @@ import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.STACK_ADDR;
  */
 public
 class HiTalkInstructionCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> implements HiTalkBuiltIn {
+
     private final HiTalkDefaultBuiltIn defaultBuiltIn;
 
     /* Used for debugging. */
@@ -739,13 +741,13 @@ class HiTalkInstructionCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledP
     private
     void allocatePermanentProgramRegisters ( Clause clause ) {
         // A bag to hold variable occurrence counts in.
-        Map <Variable, Integer> variableCountBag = new HashMap <Variable, Integer>();
+        Map <Variable, Integer> variableCountBag = new HashMap <>();
 
         // A mapping from variables to the body number in which they appear last.
-        Map <Variable, Integer> lastBodyMap = new HashMap <Variable, Integer>();
+        Map <Variable, Integer> lastBodyMap = new HashMap <>();
 
         // Holds the variable that are in the head and first clause body argument.
-        Collection <Variable> firstGroupVariables = new HashSet <Variable>();
+        Collection <Variable> firstGroupVariables = new HashSet <>();
 
         // Get the occurrence counts of variables in all clauses after the initial head and first body grouping.
         // In the same pass, pick out which body variables last occur in.
@@ -882,7 +884,7 @@ class HiTalkInstructionCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledP
     private
     void displayCompiledPredicate ( Term predicate ) {
         // Pretty print the clause.
-        StringBuffer result = new StringBuffer();
+        StringBuffer result = new StringBuffer();//fixme StringBuilder
 
         PositionalTermVisitor displayVisitor = new WAMCompiledPredicatePrintingVisitor(interner, symbolTable, result);
 
@@ -944,6 +946,31 @@ class HiTalkInstructionCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledP
         return defaultBuiltIn.compileBodyCall(expression, isFirstBody, isLastBody, chainRule, permVarsRemaining);
     }
 
+    @Override
+    public
+    LogicCompiler <Clause, Clause, Clause> getPreCompiler () {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public
+    Parser <Clause, Token> getParser () {
+        return null;
+    }
+
+//    @Override
+//    public
+//    Logger getConsole () {
+//        return null;
+//    }
+//
+//    @Override
+//    public
+//    HiTalkCompilerPreprocessor getPreCompiler () {
+//        return null;
+//    }
+
+
     /**
      * QueryRegisterAllocatingVisitor visits named variables in a query, and if they are not already allocated to a
      * permanent stack slot, allocates them one. All named variables in queries are stack allocated, so that they are
@@ -1004,4 +1031,3 @@ class HiTalkInstructionCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledP
         }
     }
 }
-

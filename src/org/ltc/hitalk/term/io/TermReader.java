@@ -9,7 +9,7 @@ import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.Source;
 import org.jetbrains.annotations.Nullable;
-import org.ltc.hitalk.compiler.LogtalkFlag;
+import org.ltc.hitalk.compiler.bktables.LogtalkFlag;
 
 import java.util.ArrayList;
 import java.util.List;

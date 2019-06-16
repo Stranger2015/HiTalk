@@ -2,20 +2,14 @@ package org.ltc.hitalk.wam.compiler;
 
 
 import com.thesett.aima.logic.fol.*;
-import com.thesett.aima.logic.fol.bytecode.BaseMachine;
-import com.thesett.aima.logic.fol.isoprologparser.PrologParser;
-import com.thesett.aima.logic.fol.isoprologparser.TokenSource;
+import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
-import org.ltc.hitalk.compiler.parser.HiTalkParser;
+import org.ltc.hitalk.compiler.bktables.parser.HiTalkParser;
 import org.ltc.hitalk.term.Atom;
+import org.ltc.hitalk.wam.interpreter.ICompiler;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static com.thesett.aima.logic.fol.isoprologparser.TokenSource.getTokenSourceForFile;
 
 /**
  * Reloading files, active code and threads
@@ -117,7 +111,7 @@ import static com.thesett.aima.logic.fol.isoprologparser.TokenSource.getTokenSou
  * This problem can be avoided if a mutually dependent collection of files is always loaded from the same start file.
  */
 public
-class HiTalkCompiler extends BaseMachine implements LogicCompiler <Clause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> {
+class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> implements ICompiler <Clause> {
 
     private static final String SCRATCH_DIRECTORY = "scratch";
     private static final String DEFAULT_FLAGS = "";
@@ -137,7 +131,7 @@ class HiTalkCompiler extends BaseMachine implements LogicCompiler <Clause, HiTal
     /**
      * Used for logging to the console.
      */
-    private static final Logger console = Logger.getLogger("CONSOLE." + PrologParser.class.getName());
+    private static final Logger console = Logger.getLogger("CONSOLE." + HiTalkParser.class.getName());
 
     /**
      * Holds the pre-compiler, for analyzing and transforming terms prior to compilation proper.
@@ -147,21 +141,11 @@ class HiTalkCompiler extends BaseMachine implements LogicCompiler <Clause, HiTal
     /**
      * Holds the instruction generating compiler.
      */
-    private HiTalkInstructionCompiler instructionCompiler;
-    //
-//    private Map <FunctorName, HtEntity> entityTable = new HashMap <>();
-    //
-//    private Iterator <HtObject> currentObject;
-//    private Iterator <HtCategory> currentCategory;
-//    private Iterator <HtProtocol> currentProtocol;
-//
-//    private Iterator <HtEntity> currentEntity = new HtEntityIterator <HtEntity>() {
-//
-//        Iterator[] subIterators = new Iterator[]{currentObject, currentProtocol, currentCategory};
+    private final HiTalkInstructionCompiler instructionCompiler;
+    private final String scratchDirectory;
 
-    private HiTalkParser parser;
-    private String scratchDirectory;
-    private LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer;
+    protected LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer1;
+    protected LogicCompilerObserver <Clause, Clause> observer2;
 
     /**
      * Creates a new WAMCompiler.
@@ -170,52 +154,34 @@ class HiTalkCompiler extends BaseMachine implements LogicCompiler <Clause, HiTal
     HiTalkCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner, HiTalkDefaultBuiltIn defaultBuiltIn ) {
         super(symbolTable, interner);
 
-        parser = new HiTalkParser(null, interner);
-        instructionCompiler = new HiTalkInstructionCompiler(symbolTable, interner);
         preCompiler = new HiTalkCompilerPreprocessor(symbolTable, interner, defaultBuiltIn);
+        observer2 = new ClauseChainObserver();
+        preCompiler.setCompilerObserver(observer2);
 
-        preCompiler.setCompilerObserver(new HiTalkCompiler.ClauseChainObserver());
-
+        instructionCompiler = new HiTalkInstructionCompiler(symbolTable, interner);
+        observer = new ChainedCompilerObserver();
+        instructionCompiler.setCompilerObserver(observer);
+        scratchDirectory = ".\\scratch";
     }
-
-    /**
-     * @param source
-     */
-    public
-    void compileString ( String source ) {
-        compile(TokenSource.getTokenSourceForString(source));
-    }
-
-    private
-    void compile ( TokenSource tokenSource ) {
-        parser.setTokenSource(tokenSource);
-        try {
-            while (true) {
-                // Parse the next sentence or directive.
-                Clause clause = parser.clause();
-
-                console.info(clause.toString());
-                preCompiler.process(clause);
-            }
-        } catch (Exception e) {
-            console.log(Level.SEVERE, e.getMessage(), e);
-            System.exit(1);
-        }
-    }
-
-    /**
-     * @param fn
-     * @throws IOException
-     */
-    public
-    void compileFile ( String fn ) throws IOException {
-        compile(getTokenSourceForFile(new File(fn)));
-    }
+//
+//    /**
+//     * @param source
+//     */
+//    public
+//    void compileString ( String source ) {
+//        compile(getTokenSourceForString(source));
+//    }
+//
+//    @Override
+//    public
+//    Parser <Clause, Token> getParser () {
+//        return null;
+//    }
 
     /**
      *
      */
-    private
+    protected
     void initialize () {
         initDirectives();
         cacheCompilerFlags();
@@ -245,12 +211,14 @@ class HiTalkCompiler extends BaseMachine implements LogicCompiler <Clause, HiTal
     void initRuntimeDirectives () {
 
     }
+
+
 //
 //
 //
 //        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //        %
-//        // runtime directives (bookkeeping tables)
+//        % runtime directives (bookkeeping tables)
 //        %
 //        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //
@@ -310,18 +278,7 @@ class HiTalkCompiler extends BaseMachine implements LogicCompiler <Clause, HiTal
 //
 //        //table of loaded files
 //
-//        //LoadedFile_(Basename, Directory, Mode, Flags, TextProperties, ObjectFile, TimeStamp)
-//        :- multifile(LoadedFile_'/7).
-//        :- dynamic(LoadedFile_'/7).
-//        //IncludedFile_(File, MainBasename, MainDirectory, TimeStamp)
-//        :- multifile(IncludedFile_'/4).
-//        :- dynamic(IncludedFile_'/4).
-//        //FailedFile_(SourceFile)
-//        :- dynamic(FailedFile_'/1).
-//        //parentFile_(SourceFile, ParentSourceFile)
-//        :- dynamic(parentFile_'/2).
-//        //FileLoadingStack_(SourceFile, Directory)
-//        :- dynamic(FileLoadingStack_'/2).
+//
 //
 //
 //        //runtime flag values
@@ -714,9 +671,9 @@ class HiTalkCompiler extends BaseMachine implements LogicCompiler <Clause, HiTal
      */
     private
     String loadBuiltInEntities () {
-        String scratchDirectory = getScratchDirectory();
 
-        return scratchDirectory;
+
+        return getScratchDirectory();
     }
 
 
@@ -776,7 +733,7 @@ class HiTalkCompiler extends BaseMachine implements LogicCompiler <Clause, HiTal
     @Override
     public
     void compile ( Sentence <Clause> sentence ) throws SourceCodeException {
-
+        ICompiler.super.compile(sentence);
     }
 
     /**
@@ -801,6 +758,21 @@ class HiTalkCompiler extends BaseMachine implements LogicCompiler <Clause, HiTal
 
     }
 
+    @Override
+    public
+    HiTalkCompilerPreprocessor getPreCompiler () {
+        return preCompiler;
+    }
+
+    @Override
+    public
+    Parser <Clause, Token> getParser () {
+        return null;
+    }
+
+    /**
+     *
+     */
     class ClauseChainObserver implements LogicCompilerObserver <Clause, Clause> {
         /**
          * {@inheritDoc}
@@ -818,38 +790,66 @@ class HiTalkCompiler extends BaseMachine implements LogicCompiler <Clause, HiTal
             instructionCompiler.compile(sentence);
         }
     }
+
+    /**
+     * ChainedCompilerObserver implements the compiler observer for this resolution engine. Compiled programs are added
+     * to the resolvers domain. Compiled queries are executed.
+     * <p>
+     * <p/>If a chained observer is set up, all compiler outputs are forwarded onto it.
+     */
+    private
+    class ChainedCompilerObserver implements LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> {
+        /**
+         * Holds the chained observer for compiler outputs.
+         */
+        private LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer;
+
+        /**
+         * Sets the chained observer for compiler outputs.
+         *
+         * @param observer The chained observer.
+         */
+        public
+        void setCompilerObserver ( LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer ) {
+            this.observer = observer;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public
+        void onCompilation ( Sentence <HiTalkWAMCompiledPredicate> sentence ) throws SourceCodeException {
+            if (observer != null) {
+                observer.onCompilation(sentence);
+            }
+
+            getResolver().addToDomain(sentence.getT());
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public
+        void onQueryCompilation ( Sentence <HiTalkWAMCompiledQuery> sentence ) throws SourceCodeException {
+            if (observer != null) {
+                observer.onQueryCompilation(sentence);
+            }
+
+            getResolver().setQuery(sentence.getT());
+        }
+    }
+
+    private
+    <Q> Resolver <HiTalkWAMCompiledPredicate, Q> getResolver () {
+        return null;
+    }
 }
 
 
 /*
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %
-   // core compiler and runtime
-        %
-   // This file is part of Logtalk <https://logtalk.org/>
-   // Copyright 1998-2019 Paulo Moura <pmoura@logtalk.org>
-        %
-   // Licensed under the Apache License, Version 2.0 (the "License");
-   // you may not use this file except in compliance with the License.
-   // You may obtain a copy of the License at
-        %
-   //     http://www.apache.org/licenses/LICENSE-2.0
-        %
-   // Unless required by applicable law or agreed to in writing, software
-   // distributed under the License is distributed on an "AS IS" BASIS,
-   // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   // See the License for the specific language governing permissions and
-   // limitations under the License.
-        %
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %
-   // top-level interpreter versions of the message sending and context
-   // switching call control constructs
-        %
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
    //top-level interpreter message sending calls
 

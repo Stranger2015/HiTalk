@@ -1,4 +1,4 @@
-package org.ltc.hitalk.compiler.error;
+package org.ltc.hitalk.compiler.bktables.error;
 
 public
 class ExecutionError extends RuntimeException {

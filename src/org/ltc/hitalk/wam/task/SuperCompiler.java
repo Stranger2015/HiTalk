@@ -12,7 +12,7 @@ import org.ltc.hitalk.wam.transformers.ITransformer;
  *
  */
 public
-class SuperCompiler extends StandardPreprocessor <Term> implements IInliner, ISpecializer, IGeneralizer, ITransformer <Term> {
+class SuperCompiler<T extends Term> extends StandardPreprocessor <T> implements IInliner, ISpecializer, IGeneralizer, ITransformer <T> {
 
     private ProcessTree pTree;
 
@@ -21,12 +21,12 @@ class SuperCompiler extends StandardPreprocessor <Term> implements IInliner, ISp
      * @param transformer
      */
     public
-    SuperCompiler ( Term target, ITransformer <Term> transformer ) {
+    SuperCompiler ( T target, ITransformer <T> transformer ) {
         super(target, transformer);
     }
 
     public
-    ProcessTree buildProcessTree ( Term term ) {
+    ProcessTree buildProcessTree ( T term ) {
 //        repeat,
 //                unprocessed_node( ProcessTree, Beta )-> true; ignore(fail),
 //                relevant_ancestors( Ancestors, Beta ),

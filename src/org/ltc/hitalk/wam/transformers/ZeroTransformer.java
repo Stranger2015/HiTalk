@@ -1,6 +1,8 @@
 package org.ltc.hitalk.wam.transformers;
 
 
+import com.thesett.aima.logic.fol.Term;
+
 /**
  * Doing-no-transforming transformer.
  * it is needed to support transformation subsystem when no optimizing transformers are set.
@@ -8,7 +10,7 @@ package org.ltc.hitalk.wam.transformers;
  * Created by Anthony on 28.06.2015.
  */
 public
-class ZeroTransformer extends DefaultTransformer {
+class ZeroTransformer<T extends Term> extends DefaultTransformer <T> {
 //       private static final Logger logger = LoggerFactory.getLogger( ZeroTransformer.class.getName() );
 
     /**
@@ -29,7 +31,7 @@ class ZeroTransformer extends DefaultTransformer {
 
     @Override
     public
-    ITransformer getTransformer () {
+    ITransformer <T> getTransformer () {
         return this;
     }
 

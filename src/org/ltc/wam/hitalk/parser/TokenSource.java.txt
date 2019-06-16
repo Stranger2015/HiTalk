@@ -64,8 +64,7 @@ public class TokenSource implements Source<Token>
      *
      * @return A token source.
      */
-    public static
-    com.thesett.aima.logic.fol.isoprologparser.TokenSource getTokenSourceForString( String stringToTokenize)
+    public static TokenSource getTokenSourceForString( String stringToTokenize)
     {
         SimpleCharStream inputStream = new SimpleCharStream(new StringReader(stringToTokenize), 1, 1);
         PrologParserTokenManager tokenManager = new PrologParserTokenManager(inputStream);

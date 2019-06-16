@@ -1,13 +1,13 @@
 package org.ltc.hitalk.wam.task;
 
 import com.thesett.aima.logic.fol.*;
-import org.ltc.hitalk.compiler.error.ExecutionError;
+import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.term.ListTerm;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ltc.hitalk.compiler.error.ExecutionError.Kind.TYPE_ERROR;
+import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.TYPE_ERROR;
 
 /**
  *

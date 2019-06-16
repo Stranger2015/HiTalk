@@ -1,8 +1,11 @@
 <component name="ProjectDictionaryState">
   <dictionary name="Anthony_2">
     <words>
+      <w>arglist</w>
       <w>associativities</w>
       <w>builtins</w>
+      <w>coinduction</w>
+      <w>coinductive</w>
       <w>danilov</w>
       <w>delim</w>
       <w>deref</w>
@@ -16,6 +19,8 @@
       <w>inliner</w>
       <w>interner</w>
       <w>logtalk</w>
+      <w>multifile</w>
+      <w>nonvar</w>
       <w>optimizeable</w>
       <w>prolog</w>
       <w>rewriter</w>

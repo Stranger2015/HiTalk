@@ -1,13 +1,17 @@
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
-import org.ltc.hitalk.compiler.IComposite;
+import org.ltc.hitalk.compiler.bktables.IComposite;
 import org.ltc.hitalk.wam.compiler.expander.DefaultTermExpander;
 import org.ltc.hitalk.wam.interpreter.HiTalkInterpreter;
 import org.ltc.hitalk.wam.interpreter.Mode;
-import org.ltc.hitalk.wam.task.*;
+import org.ltc.hitalk.wam.task.HiLogPreprocessor;
+import org.ltc.hitalk.wam.task.StandardPreprocessor;
+import org.ltc.hitalk.wam.task.SuperCompiler;
+import org.ltc.hitalk.wam.task.TransformTask;
 import org.ltc.hitalk.wam.transformers.DefaultTransformer;
 
 import java.util.ArrayList;
@@ -17,15 +21,14 @@ import java.util.List;
  *
  */
 public
-class HiTalkCompilerPreprocessor extends BaseCompiler <Clause, Clause, Clause> implements IComposite <Term, TransformTask <Term>> {
+class HiTalkCompilerPreprocessor<T extends Term> extends BaseCompiler <Clause, Clause, Clause> implements IComposite <Term, TransformTask <Term>> {
 
     protected final DefaultTransformer defaultTransformer;
-    protected final DefaultTermExpander defaultExpander;
 
     //    protected final IApplication app;
     protected final HiTalkDefaultBuiltIn defaultBuiltIn;
     protected final HiTalkBuiltInTransform builtInTransform;
-    protected final List <TransformTask <Term>> components = new ArrayList <>();
+    protected final List <TransformTask <T>> components = new ArrayList <>();
     protected LogicCompilerObserver <Clause, Clause> observer;
 
 
@@ -43,13 +46,12 @@ class HiTalkCompilerPreprocessor extends BaseCompiler <Clause, Clause, Clause> i
         this.defaultBuiltIn = defaultBuiltIn;
         this.builtInTransform = new HiTalkBuiltInTransform(defaultBuiltIn);
 
-        defaultTransformer = new DefaultTransformer(null);
-        defaultExpander = new DefaultTermExpander();
+        defaultTransformer = new DefaultTransformer <T>(null);
 
         //
-        components.add(new TermRewriteTask(defaultExpander));
+        components.add(new DefaultTermExpander(null, defaultTransformer));
         components.add(new HiLogPreprocessor(defaultTransformer, interner));
-        components.add(new StandardPreprocessor(null, defaultTransformer));
+        components.add(new StandardPreprocessor <T>(null, defaultTransformer));
         components.add(new SuperCompiler(null, defaultTransformer));
     }
 
@@ -137,9 +139,27 @@ class HiTalkCompilerPreprocessor extends BaseCompiler <Clause, Clause, Clause> i
 
     }
 
+//    @Override
+//    public
+//    List <StandardPreprocessor <T>> getComponents () {
+//        return components;
+//    }
+
+    @Override
+    public
+    LogicCompiler <Clause, Clause, Clause> getPreCompiler () {
+        return null;
+    }
+
+    @Override
+    public
+    Parser <Clause, Token> getParser () {
+        return null;
+    }
+
     @Override
     public
     List <TransformTask <Term>> getComponents () {
-        return components;
+        return null;
     }
 }

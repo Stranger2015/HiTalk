@@ -1,6 +1,6 @@
 package org.ltc.hitalk.wam.task;
 
-import org.ltc.hitalk.compiler.error.StopRequestException;
+import org.ltc.hitalk.compiler.bktables.error.StopRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,7 +1,7 @@
 package org.ltc.hitalk.term.io;
 
 import com.thesett.aima.logic.fol.Term;
-import org.ltc.hitalk.compiler.LogtalkFlag;
+import org.ltc.hitalk.compiler.bktables.LogtalkFlag;
 
 import java.io.IOException;
 import java.util.Collections;

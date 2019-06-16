@@ -12,12 +12,12 @@ import java.util.List;
  *
  */
 public
-class HiLogPreprocessor extends StandardPreprocessor <Term> implements ISpecializer {
+class HiLogPreprocessor<T extends Term> extends StandardPreprocessor <T> implements ISpecializer {
 
     private final HiLogToPrologBiDiConverter converter;
 
     public
-    HiLogPreprocessor ( ITransformer <Term> transformer, VariableAndFunctorInterner interner ) {
+    HiLogPreprocessor ( ITransformer <T> transformer, VariableAndFunctorInterner interner ) {
         super(null, transformer);
         converter = new HiLogToPrologBiDiConverter(interner);
     }
@@ -47,8 +47,8 @@ class HiLogPreprocessor extends StandardPreprocessor <Term> implements ISpeciali
 
         @Override
         public
-        Term transform ( Term term ) {
-            return term;
+        T transform ( Term term ) {
+            return (T) term;
         }
     }
 
@@ -60,6 +60,9 @@ class HiLogPreprocessor extends StandardPreprocessor <Term> implements ISpeciali
      */
     class PiCallsCollector {
 
+        /**
+         * @return
+         */
         List <Functor> collect () {
             List <Functor> piCalls = new ArrayList <>();
             PredicateVisitor visitor = new PredicateVisitor() {

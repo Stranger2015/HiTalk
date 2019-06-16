@@ -1,8 +1,7 @@
 package org.ltc.hitalk.wam.task;
 
 import com.thesett.aima.logic.fol.Term;
-import org.ltc.hitalk.compiler.IComposite;
-import org.ltc.hitalk.wam.compiler.expander.DefaultTermExpander;
+import org.ltc.hitalk.compiler.bktables.IComposite;
 import org.ltc.hitalk.wam.transformers.ITransformer;
 
 import java.util.ArrayList;
@@ -41,11 +40,12 @@ class TermRewriteTask<T extends Term, TT extends TermRewriteTask <T, TT>> extend
     protected List <TT> rewriterTasks = new ArrayList <>();
 
     /**
-     * @param defaultExpander
+     * @param target
+     * @param transformer
      */
     public
-    TermRewriteTask ( DefaultTermExpander defaultExpander ) {
-        super(null);
+    TermRewriteTask ( T target, ITransformer <T> transformer ) {
+        super(target, transformer);
     }
 
     /**
@@ -65,5 +65,4 @@ class TermRewriteTask<T extends Term, TT extends TermRewriteTask <T, TT>> extend
     List <TT> getComponents () {
         return rewriterTasks;
     }
-
 }

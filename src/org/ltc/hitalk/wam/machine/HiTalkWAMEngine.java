@@ -27,7 +27,7 @@ class HiTalkWAMEngine extends ResolutionEngine <Clause, HiTalkWAMCompiledPredica
      */
 
 //Holds the name of the resource on the classpath that contains the built-in library.
-    private static final String BUILT_IN_LIB = "wam_builtins.pl";
+    private static final String BUILT_IN_LIB = "wam_builtins.hlgt";
     protected final Parser <Clause, Token> parser;
     protected final VariableAndFunctorInterner interner;
 

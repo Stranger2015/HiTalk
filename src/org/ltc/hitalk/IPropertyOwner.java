@@ -1,10 +1,18 @@
 package org.ltc.hitalk;
 
-import javafx.beans.property.Property;
+import com.thesett.aima.logic.fol.Term;
+import org.ltc.hitalk.wam.compiler.HtProperty;
 
 import java.util.List;
 
 public
-interface IPropertyOwner {
-    List <Property> getProperties ();
+interface IPropertyOwner<NT> {
+
+    List <HtProperty> getProperties ();
+
+    List <NT> getNames ();
+
+    List <Term> getValues ();
+
+    List <HtType> getTypes ();
 }
