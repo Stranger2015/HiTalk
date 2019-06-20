@@ -857,7 +857,7 @@ class HtPrologParser implements PrologParserConstants {
     }
 
     /**
-     * Peeks ahead for the given token type, and if one is foudn with that type, it is consumed.
+     * Peeks ahead for the given token entityKind, and if one is foudn with that entityKind, it is consumed.
      *
      * @param kind The token kind to look for.
      * @return <tt>true</tt> iff the token was found and consumed.

@@ -14,7 +14,7 @@ import java.util.Map;
 
 /**
  * BuiltInTransform implements a compilation transformation over term syntax trees, that substitutes for functors that
- * map onto Prolog built-ins, an extension of the functor type that implements the built-in.
+ * map onto Prolog built-ins, an extension of the functor entityKind that implements the built-in.
  *
  * <pre><p/><table id="crc"><caption>CRC Card</caption>
  * <tr><th> Responsibilities <th> Collaborations

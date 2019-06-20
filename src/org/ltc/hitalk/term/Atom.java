@@ -2,11 +2,17 @@ package org.ltc.hitalk.term;
 
 import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.logic.fol.Term;
+import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 
 public
 class Atom extends Functor {
 
     public static final Term[] EMPTY_TERM_ARRAY = new Term[0];
+
+    static
+    Functor create ( String name, VariableAndFunctorInterner interner ) {
+        return new Functor(interner.internFunctorName(name, 0));
+    }
 
     /**
      * Creates a new Atom.

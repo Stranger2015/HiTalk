@@ -35,7 +35,7 @@ interface HiTalkOptimizer {
      * Applies optimizations to an instruction listing.
      *
      * @param listing The instruction listing.
-     * @param <T>     The type of the instruction listing.
+     * @param <T>     The entityKind of the instruction listing.
      * @return An optimized instruction listing.
      */
     <T extends HiTalkWAMOptimizeableListing> T apply ( HiTalkWAMOptimizeableListing listing );

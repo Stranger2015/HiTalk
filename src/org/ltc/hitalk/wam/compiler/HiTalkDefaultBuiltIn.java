@@ -336,7 +336,7 @@ class HiTalkDefaultBuiltIn extends BaseMachine implements HiTalkBuiltIn {
      * </li>
      * </ul>
      *
-     * @param introduction The type of instruction that introduced the variable into the clause.
+     * @param introduction The entityKind of instruction that introduced the variable into the clause.
      * @param addrMode     The addressing mode of the variable, permanent variables are stack allocated.
      * @return <tt>true</tt> iff the variable is unsafe.
      */

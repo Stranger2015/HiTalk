@@ -1,16 +1,16 @@
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.FunctorName;
-import org.ltc.hitalk.entities.HtEntity;
+import org.ltc.hitalk.entities.HtEntityIdentifier;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
 public
-class HtEntityIterator<FN extends FunctorName, T extends HtEntity> implements Iterator <T> {
+class HtEntityIterator<FN extends FunctorName, T extends HtEntityIdentifier.HtEntity> implements Iterator <T> {
     protected final Map <FN, T> entityTable;
-    protected HtEntity currentEntity;
+    protected HtEntityIdentifier.HtEntity currentEntity;
 
     public
     HtEntityIterator ( Map <FN, T> entityTable ) {

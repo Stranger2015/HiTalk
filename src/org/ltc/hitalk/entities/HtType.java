@@ -1,4 +1,4 @@
-package org.ltc.hitalk;
+package org.ltc.hitalk.entities;
 
 
 import org.ltc.enumus.Hierarchy;
@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 
 /**
- * type ::=
+ * entityKind ::=
  * <p>
  * prolog_type | logtalk_type | user_defined_type
  * <p>
@@ -19,7 +19,8 @@ import java.util.EnumSet;
  * “number” | “integer” | “float”
  * <p>
  * logtalk_type ::=
- * “object” | “category” | “protocol” | “event”
+ * “object” | “category” | “protocol” | “event” | "entity"
+ *
  * <p>
  * user_defined_type
  * ::=
@@ -40,9 +41,12 @@ enum HtType {
     USER_DEFINED_TYPE,
 
     ENTITY_TYPE(LOGTALK_TYPE),
+    EVENT(LOGTALK_TYPE),
+
     OBJECT(ENTITY_TYPE),
     PROTOCOL(ENTITY_TYPE),
     CATEGORY(ENTITY_TYPE),
+    MODULE(ENTITY_TYPE),
 
     TERM(PROLOG_TYPE),
     ATOMIC(TERM),

@@ -94,29 +94,6 @@ class HiTalkCompilerPreprocessor<T extends Term> extends BaseCompiler <Clause, C
         interpreter.getMode();
     }
 
-//
-//        enum MessaqeKind {
-//            BANNER,
-//            COMMENT(
-//
-//            );
-//
-//
-//
-//            MessaqeKind () {
-//
-//            }
-//
-//            enum Subkind {
-//                SETTINGS,
-//                HELP
-//            }
-//
-//
-//
-//
-
-
     /**
      * Establishes an observer on the compiled forms that the compiler outputs.
      *
@@ -139,16 +116,10 @@ class HiTalkCompilerPreprocessor<T extends Term> extends BaseCompiler <Clause, C
 
     }
 
-//    @Override
-//    public
-//    List <StandardPreprocessor <T>> getComponents () {
-//        return components;
-//    }
-
     @Override
     public
     LogicCompiler <Clause, Clause, Clause> getPreCompiler () {
-        return null;
+        return this;
     }
 
     @Override

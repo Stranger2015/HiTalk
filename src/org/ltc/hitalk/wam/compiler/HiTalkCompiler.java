@@ -5,10 +5,13 @@ import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.bktables.BookKeepingTables;
 import org.ltc.hitalk.compiler.bktables.parser.HiTalkParser;
+import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.term.Atom;
 import org.ltc.hitalk.wam.interpreter.ICompiler;
 
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -120,32 +123,34 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
     private static final String EXPANDING = "expanding";
     private static final String MONITORING = "monitoring";
     private static final String FORWARDING = "forwarding";
-    private static final String USER = "user";
+    private static final Functor USER = null;
     private static final String LOGTALK = "logtalk";
     private static final String CORE_MESSAGES = "core_messages";
     //
     private static final String OBJECT = "object";
     private static final String PROTOCOL = "protocol";
     private static final String CATEGORY = "category";
-
     /**
      * Used for logging to the console.
      */
-    private static final Logger console = Logger.getLogger("CONSOLE." + HiTalkParser.class.getName());
+    private static final Logger console = Logger.getLogger("CONSOLE." + HiTalkParser.class.getSimpleName());
 
-    /**
-     * Holds the pre-compiler, for analyzing and transforming terms prior to compilation proper.
-     */
-    private HiTalkCompilerPreprocessor preCompiler;
+//    static {
+//        USER = Atom.create("user", 0);
+//    }
 
     /**
      * Holds the instruction generating compiler.
      */
     private final HiTalkInstructionCompiler instructionCompiler;
     private final String scratchDirectory;
-
     protected LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer1;
     protected LogicCompilerObserver <Clause, Clause> observer2;
+    BookKeepingTables bkt = new BookKeepingTables();
+    /**
+     * Holds the pre-compiler, for analyzing and transforming terms prior to compilation proper.
+     */
+    private HiTalkCompilerPreprocessor preCompiler;
 
     /**
      * Creates a new WAMCompiler.
@@ -163,38 +168,87 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
         instructionCompiler.setCompilerObserver(observer);
         scratchDirectory = ".\\scratch";
     }
-//
-//    /**
-//     * @param source
-//     */
-//    public
-//    void compileString ( String source ) {
-//        compile(getTokenSourceForString(source));
-//    }
-//
-//    @Override
-//    public
-//    Parser <Clause, Token> getParser () {
-//        return null;
-//    }
 
     /**
      *
      */
-    protected
+    private
     void initialize () {
+        initBookKeepingTables();
         initDirectives();
         cacheCompilerFlags();
         String scratchDirectory = loadBuiltInEntities();
         Object result = loadSettingsFile(scratchDirectory);
 //        printMessage(BANNER, CORE, BANNER);
 //        printMessage(comment(settings), CORE, DEFAULT_FLAGS);
-        compileDefaultHooks();
+//        expandGoals()
+//        ;
+
+
+        compileHooks();
         startRuntimeThreading();
         reportSettingsFile(result);
 //        printMessage(comment(help), CORE, HELP);
 //       checkPrologVersion();
     }
+
+    /**
+     * //Compile_hooks(+callable)
+     * %
+     * //compiles the user-defined default compiler hooks
+     * //(replacing any existing defined hooks)
+     * <p>
+     * Compile_hooks(HookEntity) :-
+     * CompCtx(Ctx, _, _, user, user, user, HookEntity, _, [], [], ExCtx, runtime, [], _),
+     * executionContext(ExCtx, user, user, user, HookEntity, [], []),
+     * CurrentFlag_(events, Events),
+     * Compile_message_to_object(term_expansion(Term, ExpandedTerm), HookEntity, TermExpansionGoal, Events, Ctx),
+     * Compile_message_to_object(goal_expansion(Term, ExpandedTerm), HookEntity, GoalExpansionGoal, Events, Ctx),
+     * retractall(hook_term_expansion_(_, _)),
+     * assertz((
+     * hook_term_expansion_(Term, ExpandedTerm) :-
+     * catch(TermExpansionGoal, Error, term_expansion_error(HookEntity, Term, Error))
+     * )),
+     * retractall(hook_goal_expansion_(_, _)),
+     * assertz((
+     * hook_goal_expansion_(Term, ExpandedTerm) :-
+     * catch(GoalExpansionGoal, Error, goal_expansion_error(HookEntity, Term, Error))
+     * )).
+     */
+
+    private
+    void initBookKeepingTables () {
+        bkt = new BookKeepingTables();
+    }
+
+    /**
+     * compiles the user-defined default compiler hooks
+     * (replacing any existing defined hooks)
+     */
+    private
+    void compileHooks () {
+        Map <?, ?> table; //= bkt.getTable(TERM_EXPANSION_DEFAULT_HOOKS);
+//        LogtalkFlag.Hook
+//        table=bkt.getTable(RUNTIME_FLAGS);
+//        table.forEach(new BiConsumer<String, HtEntity>(){
+//
+//            /**
+//             * Performs this operation on the given arguments.
+//             *
+//             * @param s        the first input argument
+//             * @param htEntity the second input argument
+//             */
+//            @Override
+//            public
+//            void accept ( String s, HtEntity htEntity ) {
+//
+//            }
+//        });
+//        CurrentFlag_(events, Events),
+//                Compile_message_to_object(term_expansion(Term, Terms), HookEntity, TermExpansionGoal, Events, Ctx),
+//                Compile_message_to_object(goal_expansion(Goal, ExpandedGoal), HookEntity, GoalExpansionGoal, Events, Ctx)
+    }
+
 
     private
     void initDirectives () {
@@ -212,6 +266,346 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
 
     }
 
+    //Compile_message_to_object(@term, @objectIdentifier, -callable, +atom, +compilationContext)
+
+    //compiles a message sending call
+
+
+    //messages to the pseudo-object "user"
+
+    private
+    void compileMmessageToObject ( Term pred, HtEntityIdentifier Obj, ICallable call, Atom atom, CompilationContext obj ) {
+        if (obj == USER && pred.isVar() || pred.isFunctor()) {
+
+        }
+    }
+
+//    Obj == USER,
+//            !,
+//    Check(var_orCallable, Pred).
+//
+//    //convenient access to parametric object proxies
+//
+//    Compile_message_to_object(Pred, Obj, (CallProxy, TPred), Events, Ctx) :-
+//    nonvar(Obj),
+//    Obj = {Proxy},
+//            !,
+//    Check(var_orCallable, Proxy),
+//        (	var(Proxy) ->
+//    CallProxy = call(Proxy)
+//            ;	CallProxy = Proxy
+//        ),
+//    CompCtx(Ctx, _, _, _, _, This, _, _, _, _, ExCtx, _, _, _),
+//    executionContext_this_entity(ExCtx, This, _),
+//    Compile_message_to_object(Pred, Proxy, TPred, Events, Ctx).
+//
+//    //entityKind and lint checks
+//
+//    Compile_message_to_object(_, Obj, _, _, Ctx) :-
+//            (	callable(Obj) ->
+//    //remember the object receiving the message
+//    AddReferenced_object(Obj, Ctx),
+//    fail
+//    ;	nonvar(Obj),
+//    //invalid object identifier
+//        throw(type_error(objectIdentifier, Obj))
+//            ).
+//
+//    //suspicious use of ::/2 instead of ::/1 to send a message to "self"
+//
+//    Compile_message_to_object(Pred, Obj, _, _, Ctx) :-
+//    CompCtx(Ctx, _, _, _, _, _, _, _, _, _, ExCtx, compile(_), _, _),
+//    CompilerFlag(suspiciousCalls, warning),
+//    executionContext(ExCtx, _, _, _, Self, _, _),
+//    Self == Obj,
+//    IncrementCompiling_warningsCounter',
+//    SourceFileContext(File, Lines, Type, Entity),
+//    print_message(warning(suspiciousCalls), core, suspiciousCall(File, Lines, Type, Entity, Obj::Pred, ::Pred)),
+//            fail.
+//
+//                    //suspicious use of ::/2 in objects to call a local predicate
+//
+//                    Compile_message_to_object(Pred, Obj, _, _, Ctx) :-
+//    CompCtx(Ctx, _, _, _, _, _, _, _, _, _, ExCtx, compile(_), _, _),
+//    pp_entity_(object, _, _, _, _),
+//    CompilerFlag(suspiciousCalls, warning),
+//    executionContext(ExCtx, _, _, This, _, _, _),
+//    This == Obj,
+//    IncrementCompiling_warningsCounter',
+//    SourceFileContext(File, Lines, Type, Entity),
+//    print_message(warning(suspiciousCalls), core, suspiciousCall(File, Lines, Type, Entity, Obj::Pred, Pred)),
+//            fail.
+//
+//                    //translation performed at runtime
+//
+//                    Compile_message_to_object(Pred, Obj, Send_to_objRt(Obj, Pred, Events, NewCtx), Events, Ctx) :-
+//    var(Pred),
+//        !,
+//    CompCtx(Ctx, Head, _, Entity, Sender, This, Self, Prefix, MetaVars, MetaCallCtx, ExCtx, _, Stack, Lines),
+//    CompCtx(NewCtx, Head, _, Entity, Sender, This, Self, Prefix, MetaVars, MetaCallCtx, ExCtx, runtime, Stack, Lines).
+//
+//    //broadcasting control constructs
+//
+//    Compile_message_to_object((Pred1, Pred2), Obj, (TPred1, TPred2), Events, Ctx) :-
+//            !,
+//    Compile_message_to_object(Pred1, Obj, TPred1, Events, Ctx),
+//    Compile_message_to_object(Pred2, Obj, TPred2, Events, Ctx).
+//
+//    Compile_message_to_object((Pred1; Pred2), Obj, (TPred1; TPred2), Events, Ctx) :-
+//            !,
+//    Compile_message_to_object(Pred1, Obj, TPred1, Events, Ctx),
+//    Compile_message_to_object(Pred2, Obj, TPred2, Events, Ctx).
+//
+//    Compile_message_to_object((Pred1 -> Pred2), Obj, (TPred1 -> TPred2), Events, Ctx) :-
+//            !,
+//    Compile_message_to_object(Pred1, Obj, TPred1, Events, Ctx),
+//    Compile_message_to_object(Pred2, Obj, TPred2, Events, Ctx).
+//
+//    Compile_message_to_object('*->(Pred1, Pred2), Obj, '*->(TPred1, TPred2), Events, Ctx) :-
+//    predicate_property('*->(_, _), builtIn),
+//                               !,
+//                       Compile_message_to_object(Pred1, Obj, TPred1, Events, Ctx),
+//    Compile_message_to_object(Pred2, Obj, TPred2, Events, Ctx).
+//
+//    //built-in methods that cannot be redefined
+//
+//    Compile_message_to_object(!, Obj, (object_exists(Obj, !, ExCtx), !), _, Ctx) :-
+//            !,
+//    CompCtx_execCtx(Ctx, ExCtx).
+//
+//    Compile_message_to_object(true, Obj, (object_exists(Obj, true, ExCtx), true), _, Ctx) :-
+//            !,
+//    CompCtx_execCtx(Ctx, ExCtx).
+//
+//    Compile_message_to_object(fail, Obj, (object_exists(Obj, fail, ExCtx), fail), _, Ctx) :-
+//            !,
+//    CompCtx_execCtx(Ctx, ExCtx).
+//
+//    Compile_message_to_object(false, Obj, (object_exists(Obj, false, ExCtx), false), _, Ctx) :-
+//            !,
+//    CompCtx_execCtx(Ctx, ExCtx).
+//
+//    Compile_message_to_object(repeat, Obj, (object_exists(Obj, repeat, ExCtx), repeat), _, Ctx) :-
+//            !,
+//    CompCtx_execCtx(Ctx, ExCtx).
+//
+//    //reflection built-in predicates
+//
+//    Compile_message_to_object( current_op(Priority, Specifier, Operator ), Obj, Current_op(Obj, Priority, Specifier, Operator, This, p( p(p)), ExCtx), _, Ctx) :-
+//            !,
+//    Check(var_or_operator_priority, Priority),
+//    Check(var_or_operatorSpecifier, Specifier),
+//    Check(var_orAtom, Operator),
+//    CompCtx(Ctx, _, _, _, _, This, _, _, _, _, ExCtx, _, _, _),
+//    executionContext_this_entity(ExCtx, This, _).
+//
+//    Compile_message_to_object(current_predicate(Pred), Obj, Current_predicate(Obj, Pred, This, p(p(p)), ExCtx), _, Ctx) :-
+//            !,
+//    Check(var_or_predicateIndicator, Pred),
+//    CompCtx(Ctx, _, _, _, _, This, _, _, _, _, ExCtx, _, _, _),
+//    executionContext_this_entity(ExCtx, This, _).
+//
+//    Compile_message_to_object(predicate_property(Pred, Prop), Obj, predicate_property(Obj, Pred, Prop, This, p(p(p)), ExCtx), _, Ctx) :-
+//            !,
+//    Check(var_orCallable, Pred),
+//    Check(var_or_predicate_property, Prop),
+//    CompCtx(Ctx, _, _, _, _, This, _, _, _, _, ExCtx, _, _, _),
+//    executionContext_this_entity(ExCtx, This, _).
+//
+//    //database handling built-in predicates
+//
+//    Compile_message_to_object(abolish(Pred), Obj, TPred, _, Ctx) :-
+//            !,
+//    Check(var_or_predicateIndicator, Pred),
+//    CompCtx(Ctx, Head, _, _, _, This, _, _, _, _, ExCtx, Mode, _, _),
+//    executionContext_this_entity(ExCtx, This, _),
+//        (	var(Obj) ->
+//    TPred = Abolish(Obj, Pred, This, p(p(p)), ExCtx)
+//    ;	ground(Pred) ->
+//    TPred = AbolishChecked(Obj, Pred, This, p(p(p)), ExCtx),
+//    Remember_updated_predicate(Mode, Obj::Pred, Head)
+//            ;	% partially instantiated predicate indicator; runtime check required
+//            TPred = Abolish(Obj, Pred, This, p(p(p)), ExCtx)
+//        ).
+//
+//    Compile_message_to_object(assert(Clause), Obj, TPred, Events, Ctx) :-
+//            !,
+//            (	CompCtx_mode(Ctx, compile(_)),
+//    CompilerFlag(deprecated, warning),
+//    SourceFileContext(File, Lines),
+//    pp_entity_(Type, Entity, _, _, _) ->
+//    IncrementCompiling_warningsCounter',
+//    print_message(warning(deprecated), core, deprecated_predicate(File, Lines, Type, Entity, assert/1))
+//    ;	true
+//            ),
+//    Compile_message_to_object(assertz(Clause), Obj, TPred, Events, Ctx).
+//
+//    Compile_message_to_object(asserta(Clause), Obj, TPred, _, Ctx) :-
+//            !,
+//    CompCtx(Ctx, CallerHead, _, _, _, This, _, _, _, _, ExCtx, Mode, _, _),
+//    executionContext_this_entity(ExCtx, This, _),
+//        (	RuntimeCheckedDbClause(Clause) ->
+//    TPred = Asserta(Obj, Clause, This, p(p(_)), p(p(p)), ExCtx)
+//    ;	var(Obj) ->
+//    Check(clause_or_partialClause, Clause),
+//    TPred = Asserta(Obj, Clause, This, p(p(_)), p(p(p)), ExCtx)
+//    ;	Check(clause_or_partialClause, Clause),
+//        (	(Clause = (Head :- Body) -> Body == true; Clause = Head) ->
+//            (	CompilerFlag(optimize, on),
+//    Send_to_objDb_msgStatic_binding(Obj, Head, THead) ->
+//    TPred = asserta(THead)
+//            ;	TPred = AssertaFactChecked(Obj, Head, This, p(p(_)), p(p(p)), ExCtx)
+//            ),
+//    functor(Head, Functor, Arity),
+//    Remember_updated_predicate(Mode, Obj::Functor/Arity, CallerHead)
+//            ;	TPred = AssertaRuleChecked(Obj, Clause, This, p(p(_)), p(p(p)), ExCtx),
+//    Clause = (Head :- _),
+//    functor(Head, Functor, Arity),
+//    Remember_updated_predicate(Mode, Obj::Functor/Arity, CallerHead)
+//        )
+//                ).
+//
+//    Compile_message_to_object(assertz(Clause), Obj, TPred, _, Ctx) :-
+//            !,
+//    CompCtx(Ctx, CallerHead, _, _, _, This, _, _, _, _, ExCtx, Mode, _, _),
+//    executionContext_this_entity(ExCtx, This, _),
+//        (	RuntimeCheckedDbClause(Clause) ->
+//    TPred = Assertz(Obj, Clause, This, p(p(_)), p(p(p)), ExCtx)
+//    ;	var(Obj) ->
+//    Check(clause_or_partialClause, Clause),
+//    TPred = Assertz(Obj, Clause, This, p(p(_)), p(p(p)), ExCtx)
+//    ;	Check(clause_or_partialClause, Clause),
+//        (	(Clause = (Head :- Body) -> Body == true; Clause = Head) ->
+//            (	CompilerFlag(optimize, on),
+//    Send_to_objDb_msgStatic_binding(Obj, Head, THead) ->
+//    TPred = assertz(THead)
+//            ;	TPred = AssertzFactChecked(Obj, Head, This, p(p(_)), p(p(p)), ExCtx)
+//            ),
+//    functor(Head, Functor, Arity),
+//    Remember_updated_predicate(Mode, Obj::Functor/Arity, CallerHead)
+//            ;	TPred = AssertzRuleChecked(Obj, Clause, This, p(p(_)), p(p(p)), ExCtx),
+//    Clause = (Head :- _),
+//    functor(Head, Functor, Arity),
+//    Remember_updated_predicate(Mode, Obj::Functor/Arity, CallerHead)
+//        )
+//                ).
+//
+//    Compile_message_to_object(clause(Head, Body), Obj, TPred, _, Ctx) :-
+//            !,
+//    CompCtx(Ctx, CallerHead, _, _, _, This, _, _, _, _, ExCtx, Mode, _, _),
+//    executionContext_this_entity(ExCtx, This, _),
+//        (	RuntimeCheckedDbClause((Head :- Body)) ->
+//    TPred = Clause(Obj, Head, Body, This, p(p(p)), ExCtx)
+//    ;	Check(clause_or_partialClause, (Head :- Body)),
+//            (	var(Obj) ->
+//    TPred = Clause(Obj, Head, Body, This, p(p(p)), ExCtx)
+//    ;	TPred = ClauseChecked(Obj, Head, Body, This, p(p(p)), ExCtx),
+//    functor(Head, Functor, Arity),
+//    Remember_updated_predicate(Mode, Obj::Functor/Arity, CallerHead)
+//        )
+//                ).
+//
+//    Compile_message_to_object(retract(Clause), Obj, TPred, _, Ctx) :-
+//            !,
+//    CompCtx(Ctx, CallerHead, _, _, _, This, _, _, _, _, ExCtx, Mode, _, _),
+//    executionContext_this_entity(ExCtx, This, _),
+//        (	RuntimeCheckedDbClause(Clause) ->
+//    TPred = Retract(Obj, Clause, This, p(p(p)), ExCtx)
+//    ;	var(Obj) ->
+//    Check(clause_or_partialClause, Clause),
+//    TPred = Retract(Obj, Clause, This, p(p(p)), ExCtx)
+//    ;	Check(clause_or_partialClause, Clause),
+//        (	Clause = (Head :- Body) ->
+//            (	var(Body) ->
+//    Retract_var_bodyChecked(Obj, Clause, This, p(p(p)), ExCtx)
+//    ;	Body == true ->
+//            (	CompilerFlag(optimize, on),
+//    Send_to_objDb_msgStatic_binding(Obj, Head, THead) ->
+//    TPred = retract(THead)
+//            ;	TPred = RetractFactChecked(Obj, Head, This, p(p(p)), ExCtx)
+//            )
+//    ;	TPred = RetractRuleChecked(Obj, Clause, This, p(p(p)), ExCtx)
+//            ),
+//    functor(Head, Functor, Arity),
+//    Remember_updated_predicate(Mode, Obj::Functor/Arity, CallerHead)
+//            ;	TPred = RetractFactChecked(Obj, Clause, This, p(p(p)), ExCtx),
+//    functor(Clause, Functor, Arity),
+//    Remember_updated_predicate(Mode, Obj::Functor/Arity, CallerHead)
+//        )
+//                ).
+//
+//    Compile_message_to_object(retractall(Head), Obj, TPred, _, Ctx) :-
+//            !,
+//    CompCtx(Ctx, CallerHead, _, _, _, This, _, _, _, _, ExCtx, Mode, _, _),
+//    executionContext_this_entity(ExCtx, This, _),
+//        (	var(Head) ->
+//    TPred = Retractall(Obj, Head, This, p(p(p)), ExCtx)
+//    ;	var(Obj) ->
+//    Check(callable, Head),
+//    TPred = Retractall(Obj, Head, This, p(p(p)), ExCtx)
+//    ;	Check(callable, Head),
+//        (	CompilerFlag(optimize, on),
+//    Send_to_objDb_msgStatic_binding(Obj, Head, THead) ->
+//    TPred = retractall(THead)
+//            ;	TPred = RetractallChecked(Obj, Head, This, p(p(p)), ExCtx)
+//            ),
+//    functor(Head, Functor, Arity),
+//    Remember_updated_predicate(Mode, Obj::Functor/Arity, CallerHead)
+//        ).
+//
+//    //term and goal expansion predicates
+//
+//    Compile_message_to_object(expand_term(Term, Expansion), Obj, expand_term_message(Obj, Term, Expansion, This, p(p(p)), ExCtx), _, Ctx) :-
+//            !,
+//    CompCtx(Ctx, _, _, _, _, This, _, _, _, _, ExCtx, _, _, _),
+//    executionContext_this_entity(ExCtx, This, _).
+//
+//    Compile_message_to_object(expand_goal(Goal, ExpandedGoal), Obj, expand_goal_message(Obj, Goal, ExpandedGoal, This, p(p(p))), _, Ctx) :-
+//            !,
+//    CompCtx(Ctx, _, _, _, _, This, _, _, _, _, ExCtx, _, _, _),
+//    executionContext_this_entity(ExCtx, This, _).
+//
+//    //compiler bypass control construct
+//
+//    Compile_message_to_object({Goal}, _, call(Goal), _, _) :-
+//            !,
+//    Check(var_orCallable, Goal).
+//
+//    //invalid message
+//
+//    Compile_message_to_object(Pred, _, _, _, _) :-
+//            \+ callable(Pred),
+//        throw(type_error(callable, Pred)).
+//
+//    //message is not a built-in control construct or a call to a built-in (meta-)predicate
+//
+//    Compile_message_to_object(Pred, Obj, TPred, Events, Ctx) :-
+//    var(Obj),
+//    //translation performed at runtime
+//        !,
+//    CompCtx(Ctx, Head, _, _, _, _, _, _, _, _, ExCtx, Mode, _, _),
+//    AddReferenced_object_message(Mode, Obj, Pred, Pred, Head),
+//        (	Events == allow ->
+//    TPred = Send_to_obj(Obj, Pred, ExCtx)
+//            ;	TPred = Send_to_obj_ne(Obj, Pred, ExCtx)
+//        ).
+//
+//    Compile_message_to_object(Pred, Obj, TPred, Events, Ctx) :-
+//    CompCtx(Ctx, Head, _, _, _, This, _, _, _, _, ExCtx, Mode, _, _),
+//    AddReferenced_object_message(Mode, Obj, Pred, Pred, Head),
+//        (	Events == allow ->
+//            (	CompilerFlag(optimize, on),
+//    Send_to_objStatic_binding(Obj, Pred, Call, Ctx) ->
+//    executionContext_this_entity(ExCtx, This, _),
+//    TPred = guarded_methodCall(Obj, Pred, This, Call)
+//            ;	TPred = Send_to_obj_(Obj, Pred, ExCtx)
+//        )
+//    ;	(	CompilerFlag(optimize, on),
+//    Send_to_objStatic_binding(Obj, Pred, TPred, Ctx) ->
+//            true
+//    ;	TPred = Send_to_obj_ne_(Obj, Pred, ExCtx)
+//        )
+//                ).
 
 //
 //
@@ -293,18 +687,6 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
 //        :- dynamic(Send_to_objStatic_binding_'/4).
 //
 //
-//        //dynamic binding lookup caches for messages and super calls
-//
-//        //Send_to_obj_(Obj, Pred, ExCtx)
-//        :- dynamic(Send_to_obj_'/3).
-//        //Send_to_obj_ne_(Obj, Pred, ExCtx)
-//        :- dynamic(Send_to_obj_ne_'/3).
-//        //Send_toSelf_(Obj, Pred, ExCtx)
-//        :- dynamic(Send_toSelf_'/3).
-//        //objSuperCall_(Super, Pred, ExCtx)
-//        :- dynamic(objSuperCall_'/3).
-//        //CtgSuperCall_(Ctg, Pred, ExCtx)
-//        :- dynamic(CtgSuperCall_'/3).
 //
 //
 //        //dynamic binding lookup cache for asserting and retracting dynamic facts
@@ -373,7 +755,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
 //
 //
 //
-//                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //        %
 //        // compiler directives
 //        %
@@ -611,6 +993,288 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
     private
     void cacheCompilerFlags () {
 
+        //compiling and loading built-in predicates
+
+
+        //CompilerFlag(+atom, ?nonvar)
+
+        //gets/checks the current value of a compiler flag; the default flag
+        //values and the backend Prolog feature flags are cached at startup
+
+//        getCompilerFlag(Name, Value) :-
+//                (	pp_entityCompilerFlag_(Name, CurrentValue) ->
+//        //flag value as defined within the entity being compiled
+//        Value = CurrentValue
+//        ;	ppFileCompilerFlag_(Name, CurrentValue) ->
+//        //flag value as defined in the flags argument of the
+//        //compiling/loading predicates or in the source file
+//        Value = CurrentValue
+//        ;	CurrentFlag_(Name, Value)
+//        //default value for the current Logtalk session,
+//        //cached or set by calls to the setLogtalkFlag/2 predicate
+//        ).
+//
+
+
+        //logtalkCompile(@sourceFile_name)
+        //logtalkCompile(@list(sourceFile_name))
+
+        //compiles to disk a source file or list of source files using default flags
+
+        //top-level calls use the current working directory for resolving any relative
+        //source file paths while compiled calls in a source file use the source file
+        //directory by default
+
+//        logtalkCompile(Files) :-
+//                executionContext(ExCtx, user, user, user, user, [], []),
+//                CurrentDirectory(Directory),
+//                LogtalkCompile(Files, Directory, ExCtx).
+//
+//
+//        LogtalkCompile(Files, Directory, ExCtx) :-
+//        catch(
+//                LogtalkCompileFiles(Files, Directory),
+//                error(Error, _),
+//                LogtalkCompile_error_handler(Error, Files, ExCtx)
+//        ).
+//
+//
+//        LogtalkCompileFiles(Files, Directory) :-
+//                Init_warningsCounter(logtalkCompile(Files)),
+//                CheckAnd_expandSourceFiles(Files, ExpandedFiles),
+//                CompileFiles(ExpandedFiles, ['$relative_to(Directory)]),
+//        Report_warning_numbers(logtalkCompile(Files)),
+//                Clean_ppFileClauses'.
+//
+//
+//        LogtalkCompile_error_handler(Error, Files, ExCtx) :-
+//                Clean_ppFileClauses',
+//        Clean_pp_entityClauses',
+//        Reset_warningsCounter',
+//        throw(error(Error, logtalk(logtalkCompile(Files), ExCtx))).
+
+
+        //logtalkCompile(@sourceFile_name, @list(compilerFlag))
+        //logtalkCompile(@list(sourceFile_name), @list(compilerFlag))
+
+        //compiles to disk a source file or a list of source files using a list of flags
+
+        //top-level calls use the current working directory for resolving any relative
+        //source file paths while compiled calls in a source file use the source file
+        //directory by default
+        %
+        //note that we can only clean the compiler flags after reporting warning numbers as the
+        //report/1 flag might be included in the list of flags but we cannot test for it as its
+        //value should only be used in the default code for printing messages
+
+        logtalkCompile(Files, Flags) :-executionContext(ExCtx, user, user, user, user,[], []),
+        CurrentDirectory(Directory), LogtalkCompile(Files, Flags, Directory, ExCtx).
+
+
+                LogtalkCompile(Files, Flags, Directory, ExCtx) :-
+        catch
+        (LogtalkCompileFiles(Files, Flags, Directory), error(Error, _), LogtalkCompile_error_handler(Error, Files, Flags, ExCtx)
+        ).
+
+
+        LogtalkCompileFiles(Files, Flags, Directory) :
+        -Init_warningsCounter(logtalkCompile(Files, Flags)), CheckAnd_expandSourceFiles(Files, ExpandedFiles), CheckCompilerFlags(Flags), (member(relative_to(_), Flags) ->
+        CompileFiles(ExpandedFiles, Flags);
+        CompileFiles(ExpandedFiles,['$relative_to(Directory)| Flags])
+        ),
+        Report_warning_numbers(logtalkCompile(Files, Flags)), Clean_ppFileClauses '.
+
+
+        LogtalkCompile_error_handler(Error, Files, Flags, ExCtx) :-Clean_ppFileClauses
+        ', Clean_pp_entityClauses ', Reset_warningsCounter
+        ', throw (error(Error, logtalk(logtalkCompile(Files, Flags), ExCtx))).
+
+
+        //predicates for compilation warning counting and reporting
+
+        Reset_warningsCounter ' :-
+        retractall(pp_warnings_top_goal_(_)), retractall(ppCompiling_warningsCounter_(_)), retractall(ppLoading_warningsCounter_(_)).
+
+
+                Init_warningsCounter(Goal) :-(pp_warnings_top_goal_(_) ->
+        //not top compilation/loading goal; do nothing
+        true;	%remember top compilation / loading goal assertz (pp_warnings_top_goal_(Goal)),
+                //initialize compilation warnings counter
+                retractall(ppCompiling_warningsCounter_(_)), assertz(ppCompiling_warningsCounter_(0)),
+                //initialize loading warnings counter
+                retractall(ppLoading_warningsCounter_(_)), assertz(ppLoading_warningsCounter_(0))
+        ).
+
+
+        IncrementCompiling_warningsCounter
+        ' :- retract(ppCompiling_warningsCounter_(Old)), New is Old + 1, assertz(ppCompiling_warningsCounter_(New)).
+
+
+                IncrementLoading_warningsCounter
+        ' :- retract(ppLoading_warningsCounter_(Old)), New is Old + 1, assertz(ppLoading_warningsCounter_(New)).
+
+
+                Report_warning_numbers(Goal) :-(retract(pp_warnings_top_goal_(Goal)),
+                //top compilation/loading goal
+                retract(ppCompiling_warningsCounter_(CCounter)), retract(ppLoading_warningsCounter_(LCounter)) ->
+        //report compilation and loading warnings
+        print_message(comment(warnings), core, compilationAndLoading_warnings(CCounter, LCounter));	%not top
+        compilation / loading goal true
+        ).
+
+
+        //CheckAnd_expandSourceFiles(@nonvar, -nonvar)
+        //CheckAnd_expandSourceFiles(@list, -list)
+        %
+        //check if the source file names are valid (but not if the file exists)
+        //and return their absolute paths when using library notation or when
+        //they start with an environment variable (assumes environment variables
+        //use POSIX syntax in Prolog internal file paths)
+
+        CheckAnd_expandSourceFiles([File | Files], [Path | Paths]) :
+        -!, CheckAnd_expandSourceFile(File, Path), CheckAnd_expandSourceFiles(Files, Paths).
+
+                CheckAnd_expandSourceFiles([], []) :-!.
+
+        CheckAnd_expandSourceFiles(File, Path) :-CheckAnd_expandSourceFile(File, Path).
+
+
+                CheckAnd_expandSourceFile(File, Path) :-(atom(File) ->
+        prolog_osFile_name(NormalizedFile, File), (subAtom(NormalizedFile, 0, 1, _, '$') ->
+        expand_path(NormalizedFile, Path);
+        Path = NormalizedFile
+        )
+        ;
+        compound(File), File =.. [Library, Basename],
+        atom(Basename) ->
+        //library notation
+        prolog_osFile_name(NormalizedBasename, Basename), (expandLibraryAlias(Library, Directory) ->
+        atomConcat(Directory, NormalizedBasename, Path);
+        throw (error(existence_error(library, Library), _))
+        )
+        ;	%invalid source file specification ground(File) ->
+        throw (error(type_error(sourceFile_name, File), _))
+                ;
+        throw (error(instantiation_error, _))
+        ).
+
+
+        //expandLibraryAlias(+atom, -atom)
+        %
+        //converts a library alias into its corresponding path; uses a depth
+        //bound to prevent loops (inspired by similar code in SWI-Prolog)
+
+        expandLibraryAlias(Library, Path) :-expandLibraryAlias(Library, Path0, 16),
+                //expand the library path into an absolute path as it may
+                //contain environment variables that need to be expanded
+                expand_path(Path0, Path1),
+                //make sure that the library path ends with a slash
+                (subAtom(Path1, _, 1, 0, '/') ->
+        Path = Path1;
+        atomConcat(Path1, '/', Path)
+        ).
+
+
+        expandLibraryAlias(Library, Path, Depth) :
+        -logtalkLibrary_path(Library, Location), !, (compound(Location), Location =.. [Prefix, Directory],
+        atom(Directory) ->
+        //assume library notation (a compound term)
+        Depth > 0, NewDepth is Depth -1, expandLibraryAlias(Prefix, PrefixPath0, NewDepth),
+                //make sure that the prefix path ends with a slash
+                (subAtom(PrefixPath0, _, 1, 0, '/') ->
+        atomConcat(PrefixPath0, Directory, Path);
+        atomConcat(PrefixPath0, '/', PrefixPath1), atomConcat(PrefixPath1, Directory, Path)
+        )
+        ;
+        atom(Location) ->
+        //assume the final component of the library path
+        Path = Location;
+        ground(Location) ->
+        throw (error(type_error(library_path, Location), _))
+                ;
+        throw (error(instantiation_error, _))
+        ).
+
+
+        //CheckCompilerFlags(@list)
+        %
+        //checks if the compiler flags are valid
+
+        CheckCompilerFlags([Flag | Flags]) :-!, (var(Flag) ->
+        throw (error(instantiation_error, _))
+                ;
+        Flag =.. [Name, Value] ->
+        Check(read_writeFlag, Name, _), Check(flag_value, Name + Value, _);	%invalid flag syntax compound ( Flag ) ->
+        throw (error(domain_error(compilerFlag, Flag), _))
+                ;
+        throw (error(type_error(compound, Flag), _))
+        ),
+        CheckCompilerFlags(Flags).
+
+                CheckCompilerFlags([]) :-!.
+
+        CheckCompilerFlags(Flags) :- throw (error(type_error(list, Flags), _)).
+
+
+                //SetCompilerFlags(@list)
+                %
+                //sets the compiler flags
+
+                SetCompilerFlags(Flags) :-AssertCompilerFlags(Flags),
+                //only one of the optimize and debug flags can be turned on at the same time
+                (member(optimize(on), Flags) ->
+        retractall(ppFileCompilerFlag_(debug, _)), assertz(ppFileCompilerFlag_(debug, off));
+        member(debug(on), Flags) ->
+        retractall(ppFileCompilerFlag_(optimize, _)), assertz(ppFileCompilerFlag_(optimize, off));
+        true
+        ),
+        (ppFileCompilerFlag_(hook, HookEntity) ->
+        //pre-compile hooks in order to speed up entity compilation
+        (current_object(HookEntity) ->
+        CompCtx(Ctx, _, _, user, user, user, HookEntity, _,[], [],ExCtx, runtime, [],_),
+        executionContext(ExCtx, user, user, user, HookEntity,[], []),
+        CurrentFlag_(events, Events), Compile_message_to_object(term_expansion(Term, Terms), HookEntity, TermExpansionGoal, Events, Ctx), Compile_message_to_object(goal_expansion(Goal, ExpandedGoal), HookEntity, GoalExpansionGoal, Events, Ctx);
+        atom(HookEntity), prologFeature(modules, supported), current_module(HookEntity) ->
+        TermExpansionGoal = ':(HookEntity, term_expansion(Term, Terms)),
+        GoalExpansionGoal = ':(HookEntity, goal_expansion(Goal, ExpandedGoal)) ;
+        throw (error(existence_error(object, HookEntity), _))
+        ),
+        assertz((pp_hook_term_expansion_(Term, Terms) :-
+        catch(TermExpansionGoal, Error, term_expansion_error(HookEntity, Term, Error))
+        )),
+        assertz((pp_hook_goal_expansion_(Goal, ExpandedGoal) :-
+        catch(GoalExpansionGoal, Error, goal_expansion_error(HookEntity, Goal, Error))
+        ))
+        ;
+        true
+        ).
+
+
+        //term-expansion errors result in a warning message and a failure
+
+        term_expansion_error(HookEntity, Term, Error) :
+        -SourceFileContext(File, Lines), (pp_entity_(Type, Entity, _, _, _) ->
+        print_message(warning(expansion), core, term_expansion_error(File, Lines, Type, Entity, HookEntity, Term, Error));
+        print_message(warning(expansion), core, term_expansion_error(File, Lines, HookEntity, Term, Error))
+        ),
+        fail.
+
+
+                //goal-expansion errors result in a warning message and a failure
+
+                        goal_expansion_error(HookEntity, Goal, Error) :
+        -SourceFileContext(File, Lines), (pp_entity_(Type, Entity, _, _, _) ->
+        print_message(warning(expansion), core, goal_expansion_error(File, Lines, Type, Entity, HookEntity, Goal, Error));
+        print_message(warning(expansion), core, goal_expansion_error(File, Lines, HookEntity, Goal, Error))
+        ),
+        fail.
+
+
+                AssertCompilerFlags([]).
+
+        AssertCompilerFlags([Flag | Flags]) :-Flag =.. [Name, Value],
+        retractall(ppFileCompilerFlag_(Name, _)), assertz(ppFileCompilerFlag_(Name, Value)), AssertCompilerFlags(Flags).
+
 
     }
 
@@ -770,6 +1434,11 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
         return null;
     }
 
+    private
+    <Q> Resolver <HiTalkWAMCompiledPredicate, Q> getResolver () {
+        return null;
+    }
+
     /**
      *
      */
@@ -839,11 +1508,6 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
 
             getResolver().setQuery(sentence.getT());
         }
-    }
-
-    private
-    <Q> Resolver <HiTalkWAMCompiledPredicate, Q> getResolver () {
-        return null;
     }
 }
 
@@ -1795,7 +2459,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
         atomCodes(Identifier, [Code| Codes]),
    //objects, protocols, and categories share a single namespace and there's
    //no guarantee that a user named entity will not clash with the generated
-   //identifier despite the use of a per entity type base character
+   //identifier despite the use of a per entity entityKind base character
         \+ Current_protocol_(Identifier, _, _, _, _),
         \+ Current_object_(Identifier, _, _, _, _, _, _, _, _, _, _),
         \+ CurrentCategory_(Identifier, _, _, _, _, _),
@@ -3425,7 +4089,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
    //construct reference term for missing entities and predicates
 
         missingReference(Entity, Location, reference(Kind,Entity,Path,StartLine)) :-
-   //find the entity type
+   //find the entity entityKind
         (	Current_protocol_(Entity, _, _, _, _) ->
         Kind = protocol
         ;	CurrentCategory_(Entity, _, _, _, _, _) ->
@@ -3674,7 +4338,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
         member(Option, Options),
         Option \= access(_),
         Option \= keep(_),
-        Option \= type(_),
+        Option \= entityKind(_),
         throw(error(domain_error(flag_option,Option), logtalk(createLogtalkFlag(Flag, Value, Options), ExCtx))).
 
         CreateLogtalkFlag(Flag, Value, Options, ExCtx) :-
@@ -3690,13 +4354,13 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
         throw(error(domain_error(flag_option,keep(Keep)), logtalk(createLogtalkFlag(Flag, Value, Options), ExCtx))).
 
         CreateLogtalkFlag(Flag, Value, Options, ExCtx) :-
-        member(type(Type0), Options),
+        member(entityKind(Type0), Options),
         (	map_userDefinedFlag_type(Type0, Type) ->
         (	call(Type, Value) ->
         fail
         ;	throw(error(type_error(Type0,Value), logtalk(createLogtalkFlag(Flag, Value, Options), ExCtx)))
         )
-        ;	throw(error(domain_error(flag_option,type(Type0)), logtalk(createLogtalkFlag(Flag, Value, Options), ExCtx)))
+        ;	throw(error(domain_error(flag_option,entityKind(Type0)), logtalk(createLogtalkFlag(Flag, Value, Options), ExCtx)))
         ).
 
         CreateLogtalkFlag(Flag, _, Options, _) :-
@@ -3709,9 +4373,9 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
         true
         ;	Access = read_write
         ),
-        (	member(type(Type0), Options) ->
+        (	member(entityKind(Type0), Options) ->
         map_userDefinedFlag_type(Type0, Type)
-        ;	% infer type from the initial value
+        ;	% infer entityKind from the initial value
         Value == true ->
         Type = Is_boolean'
         ;	Value == false ->
@@ -3731,8 +4395,8 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
         assertz(CurrentFlag_(Flag, Value)).
 
 
-   //map the flag type to a closure that can be called with the flag
-   //value as argument for type-checking
+   //map the flag entityKind to a closure that can be called with the flag
+   //value as argument for entityKind-checking
         map_userDefinedFlag_type(boolean, Is_boolean').
         map_userDefinedFlag_type(atom, atom).
         map_userDefinedFlag_type(integer, integer).
@@ -4500,7 +5164,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
 
         Assert_predDcl(Obj, Dcl, DDcl, DDef, ObjFlags, Pred, Scope, Type, Meta, SCtn, DclScope, Goal, ExCtx) :-
         (	call(Dcl, Pred, Scope, Meta, PredFlags, SCtn, _) ->
-   //predicate declaration found; get predicate type
+   //predicate declaration found; get predicate entityKind
         (	PredFlags /\ 2 =:= 2 ->
         Type = (dynamic)
         ;	Type = (static)
@@ -5343,7 +6007,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
    //Send_toSelf_nv(+objectIdentifier, +callable, +executionContext)
         %
    //runtime processing of a message sending call when the arguments have already
-   //been type-checked; generates a cache entry to speed up future calls
+   //been entityKind-checked; generates a cache entry to speed up future calls
 
         Send_toSelf_nv(Obj, Pred, SenderExCtx) :-
         Current_object_(Obj, _, Dcl, Def, _, _, _, _, _, _, _),
@@ -5435,7 +6099,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
    //Send_to_obj_nv(+objectIdentifier, +callable, +executionContext)
         %
    //runtime processing of an event-aware message sending call when the arguments
-   //have already been type-checked; generates a cache entry to speed up future calls
+   //have already been entityKind-checked; generates a cache entry to speed up future calls
 
         Send_to_obj_nv(Obj, Pred, SenderExCtx) :-
         executionContext(SenderExCtx, _, _, Sender, _, _, _),
@@ -5577,7 +6241,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
    //Send_to_obj_ne_nv(+objectIdentifier, +term, +executionContext)
         %
    //runtime processing of an event-transparent message sending call when the arguments
-   //have already been type-checked; generates a cache entry to speed up future calls
+   //have already been entityKind-checked; generates a cache entry to speed up future calls
 
         Send_to_obj_ne_nv(Obj, Pred, SenderExCtx) :-
         Current_object_(Obj, _, Dcl, Def, _, _, _, _, _, _, _),
@@ -5691,7 +6355,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
    //objSuperCall_nv(+atom, +callable, +executionContext)
         %
    //runtime processing of an object "super" call when the arguments have already
-   //been type-checked; generates a cache entry to speed up future calls
+   //been entityKind-checked; generates a cache entry to speed up future calls
         %
    //we may need to pass "self" when looking for the inherited predicate definition
    //in order to be able to select the correct "super" clause for those cases where
@@ -5772,7 +6436,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
    //CtgSuperCall_nv(+categoryIdentifier, +callable, +executionContext)
         %
    //runtime processing of a category "super" call when the arguments have already
-   //been type-checked; generates a cache entry to speed up future calls
+   //been entityKind-checked; generates a cache entry to speed up future calls
 
         CtgSuperCall_nv(Ctg, Pred, ExCtx) :-
         CurrentCategory_(Ctg, _, Dcl, Def, _, _),
@@ -6286,7 +6950,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
 
    //Call_withinContext_nv(+objectIdentifier, +callable, +executionContext)
         %
-   //calls a goal within the context of the specified object (arguments type-checked
+   //calls a goal within the context of the specified object (arguments entityKind-checked
    //at compile time)
 
         Call_withinContext_nv(Obj, Goal, ExCtx) :-
@@ -6649,7 +7313,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
 
    //Redefined_entity(@entityIdentifier, -atom, -atom, -atom, -pair(integer))
         %
-   //true if an entity of the same name is already loaded; returns entity type
+   //true if an entity of the same name is already loaded; returns entity entityKind
 
         Redefined_entity(Entity, Type, OldFile, NewFile, Lines) :-
    //check that an entity with the same identifier is already loaded
@@ -6876,9 +7540,9 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
         ),
         DecomposeFile_name(SourceFile0, Directory, Name0, Extension0),
         (	% file extensions are defined in the Prolog adapter files (there
-   //might be multiple extensions defined for the same type of file)
+   //might be multiple extensions defined for the same entityKind of file)
         File_extension(logtalk, Extension0) ->
-   //declared extension for this type of file is present
+   //declared extension for this entityKind of file is present
         SourceFile = SourceFile0,
         Name = Name0,
         Extension = Extension0
@@ -6887,7 +7551,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
         SourceFile = SourceFile0,
         Name = Name0,
         Extension = Extension0
-        ;	% no Logtalk or Prolog extension for this type of file; generate possible
+        ;	% no Logtalk or Prolog extension for this entityKind of file; generate possible
    //basenames starting with Logtalk extensions followed by Prolog extensions
         (	File_extension(logtalk, Extension)
         ;	File_extension(prolog, Extension)
@@ -8234,7 +8898,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
         expandFileDirective_goal(predicate_property(Pred, Prop), predicate_property(Pred, Prop)) :-
         !.
 
-   //expand calls to setLogtalkFlag/2 when possible to avoid the need of runtime type-checking
+   //expand calls to setLogtalkFlag/2 when possible to avoid the need of runtime entityKind-checking
 
         expandFileDirective_goal(setLogtalkFlag(Flag, Value), SetCompilerFlag(Flag, Value)) :-
         nonvar(Flag),
@@ -8972,7 +9636,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
 
         CheckFile_predicateDirectiveArgument(Obj::Pred, Property) :-
    //Logtalk entity predicates must be defined within an entity but be
-   //sure there aren't instantiation or type errors in the directive
+   //sure there aren't instantiation or entityKind errors in the directive
         !,
         Check(objectIdentifier, Obj),
         Check(predicate_or_non_terminalIndicator, Pred),
@@ -11331,7 +11995,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
    //head predicate indicator to be used as key to compute the clause number
 
 
-   //pre-compiled clause head (we only check for basic instantiation and type errors)
+   //pre-compiled clause head (we only check for basic instantiation and entityKind errors)
 
         Compile_head({Head}, {Functor/Arity}, Head, _) :-
         !,
@@ -12316,7 +12980,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
         Compile_body(threaded_exit(Goal, Tag), TGoal, Debug(goal(threaded_exit(Goal, Tag), TGoal), ExCtx), Ctx) :-
         !,
         CompCtx_execCtx(Ctx, ExCtx),
-   //compile the goal just for type-checking and collecting source data
+   //compile the goal just for entityKind-checking and collecting source data
         Compile_body(Goal, _, _, Ctx),
         TGoal = threaded_exit_tagged(Goal, ExCtx, Tag).
 
@@ -12329,7 +12993,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
         Compile_body(threaded_exit(Goal), TGoal, Debug(goal(threaded_exit(Goal), TGoal), ExCtx), Ctx) :-
         !,
         CompCtx_execCtx(Ctx, ExCtx),
-   //compile the goal just for type-checking and collecting source data
+   //compile the goal just for entityKind-checking and collecting source data
         Compile_body(Goal, _, _, Ctx),
         TGoal = threaded_exit(Goal, ExCtx).
 
@@ -12342,7 +13006,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
         Compile_body(threaded_peek(Goal, Tag), TGoal, Debug(goal(threaded_peek(Goal, Tag), TGoal), ExCtx), Ctx) :-
         !,
         CompCtx_execCtx(Ctx, ExCtx),
-   //compile the goal just for type-checking and collecting source data
+   //compile the goal just for entityKind-checking and collecting source data
         Compile_body(Goal, _, _, Ctx),
         TGoal = threaded_peek_tagged(Goal, ExCtx, Tag).
 
@@ -12355,7 +13019,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
         Compile_body(threaded_peek(Goal), TGoal, Debug(goal(threaded_peek(Goal), TGoal), ExCtx), Ctx) :-
         !,
         CompCtx_execCtx(Ctx, ExCtx),
-   //compile the goal just for type-checking and collecting source data
+   //compile the goal just for entityKind-checking and collecting source data
         Compile_body(Goal, _, _, Ctx),
         TGoal = threaded_peek(Goal, ExCtx).
 
@@ -14088,7 +14752,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
         Candidate_tautology_orFalsehood_goal(_ =:= _).
         Candidate_tautology_orFalsehood_goal(_ =\= _).
         Candidate_tautology_orFalsehood_goal(compare(_, _, _)).
-   //type testing
+   //entityKind testing
         Candidate_tautology_orFalsehood_goal(acyclic_term(_)).
         Candidate_tautology_orFalsehood_goal(atom(_)).
         Candidate_tautology_orFalsehood_goal(atomic(_)).
@@ -14833,7 +15497,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
         executionContext_this_entity(ExCtx, This, _),
         Compile_message_to_object(Pred, Proxy, TPred, Events, Ctx).
 
-   //type and lint checks
+   //entityKind and lint checks
 
         Compile_message_to_object(_, Obj, _, _, Ctx) :-
         (	callable(Obj) ->
@@ -20446,7 +21110,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
         validFlag_value(relative_to, Directory) :-
         atom(Directory).
         validFlag_value('$relative_to', Directory) :-
-   //internal flag; just for documenting value type
+   //internal flag; just for documenting value entityKind
         atom(Directory).
 
         validFlag_value(debug, on) :- !.
@@ -23032,7 +23696,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
 
    //Check(+atom, @term, @callable)
         %
-   //type-checking for built-in predicate arguments
+   //entityKind-checking for built-in predicate arguments
 
         Check(var, Term, Context) :-
         (	var(Term) ->

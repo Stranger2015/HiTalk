@@ -22,9 +22,11 @@
       <w>multifile</w>
       <w>nonvar</w>
       <w>optimizeable</w>
+      <w>preds</w>
       <w>prolog</w>
       <w>rewriter</w>
       <w>specializer</w>
+      <w>supercall</w>
     </words>
   </dictionary>
 </component>

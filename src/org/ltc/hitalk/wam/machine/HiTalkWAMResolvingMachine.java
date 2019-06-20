@@ -437,7 +437,7 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine implements Resolver
             }
 
             default:
-                throw new IllegalStateException("Encountered unknown tag type on the heap.");
+                throw new IllegalStateException("Encountered unknown tag entityKind on the heap.");
         }
 
         return result;

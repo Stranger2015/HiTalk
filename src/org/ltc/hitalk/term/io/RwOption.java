@@ -127,7 +127,7 @@ import java.util.List;
      * If true (default), write {}(X) as {X}. See also dotlists and ignore_ops.
      * <p>
      * blobs(Atom)
-     * Define how non-text blobs are handled. By default, this is left to the write handler specified with the blob type. Using portray, portray/1 is called for each blob encountered. See section 12.4.8.
+     * Define how non-text blobs are handled. By default, this is left to the write handler specified with the blob entityKind. Using portray, portray/1 is called for each blob encountered. See section 12.4.8.
      * <p>
      * character_escapes(Bool)
      * If true and quoted(true) is active, special characters in quoted atoms and strings are emitted as ISO escape sequences. Default is taken from the reference module (see below).

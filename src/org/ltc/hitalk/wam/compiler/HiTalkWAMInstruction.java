@@ -327,22 +327,22 @@ class HiTalkWAMInstruction implements Sizeable {
     // === Defines the heap cell marker types.
 
     /**
-     * Indicates a reference data type.
+     * Indicates a reference data entityKind.
      */
     public static final byte REF = 0x00;
 
     /**
-     * Indicates a structure data type.
+     * Indicates a structure data entityKind.
      */
     public static final byte STR = 0x01;
 
     /**
-     * Indicates a constant atom data type.
+     * Indicates a constant atom data entityKind.
      */
     public static final byte CON = 0x02;
 
     /**
-     * Indicates a list data type.
+     * Indicates a list data entityKind.
      */
     public static final byte LIS = 0x03;
     /**
@@ -509,7 +509,7 @@ class HiTalkWAMInstruction implements Sizeable {
 
     /**
      * Creates an instruction for the specified mnemonic that takes a single register argument, and no addressing mode,
-     * for situations where the addressing mode is already inferred by the instruction type.
+     * for situations where the addressing mode is already inferred by the instruction entityKind.
      *
      * @param mnemonic The instruction mnemonic.
      * @param reg1     The single register argument.

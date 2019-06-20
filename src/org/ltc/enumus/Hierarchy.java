@@ -6,9 +6,7 @@ import java.util.*;
 import java.util.function.Function;
 
 /**
- * <code/>private static Hierarchy<OsType> hierarchy =
- * new Hierarchy<>(OsType.class, e -> e.parent);<code/>
- *
+ * @code private static Hierarchy<Type> hierarchy = new Hierarchy<>(Type.class, e -> e.parent);
  * @param <T>
  */
 public

@@ -180,6 +180,4 @@ class LogtalkFlag extends Flag {
             super("clean");
         }
     }
-
 }
-

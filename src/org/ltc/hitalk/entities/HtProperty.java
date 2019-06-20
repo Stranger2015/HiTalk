@@ -1,15 +1,15 @@
-package org.ltc.hitalk.wam.compiler;
+package org.ltc.hitalk.entities;
 
 import com.thesett.aima.logic.fol.Term;
 
 public
 class HtProperty {
-    protected HiTalkType type;
+    protected HtType type;
     protected String name;
     protected Term value;
 
     public
-    HiTalkType getType () {
+    HtType getType () {
         return type;
     }
 
@@ -24,7 +24,7 @@ class HtProperty {
     }
 
     public
-    HtProperty ( HiTalkType type, String name, Term value ) {
+    HtProperty ( HtType type, String name, Term value ) {
         this.type = type;
         this.name = name;
         this.value = value;

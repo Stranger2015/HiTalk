@@ -28,8 +28,8 @@ import java.util.Set;
  *     <td> {@link com.thesett.aima.logic.fol.VariableAndFunctorInterner}.
  * </table></pre>
  *
- * @param <T> The compiled clause type that the compiler produces.
- * @param <Q> The compiled query type that the compiler produces.
+ * @param <T> The compiled clause entityKind that the compiler produces.
+ * @param <Q> The compiled query entityKind that the compiler produces.
  * @author Rupert Smith
  */
 public
