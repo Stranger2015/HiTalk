@@ -27,11 +27,17 @@ class HtRelation {
         return entityKind;
     }
 
+    /**
+     * @return
+     */
     public
     HtEntityHierarchyKind getHierarchyKind () {
         return hierarchyKind;
     }
 
+    /**
+     * @return
+     */
     public
     HtRelationKind getRelationKind () {
         return relationKind;

@@ -1,18 +1,21 @@
 package org.ltc.hitalk.wam.compiler;
 
-
 import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.bktables.BookKeepingTables;
-import org.ltc.hitalk.compiler.bktables.parser.HiTalkParser;
+import org.ltc.hitalk.compiler.bktables.INameable;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
+import org.ltc.hitalk.entities.HtEntityKind;
+import org.ltc.hitalk.entities.context.CompilationContext;
 import org.ltc.hitalk.term.Atom;
 import org.ltc.hitalk.wam.interpreter.ICompiler;
 
 import java.util.Map;
 import java.util.logging.Logger;
+
+import static org.ltc.hitalk.compiler.bktables.BookKeepingTables.BkTableKind.LOADED_ENTITIES;
 
 /**
  * Reloading files, active code and threads
@@ -118,39 +121,35 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
 
     private static final String SCRATCH_DIRECTORY = "scratch";
     private static final String DEFAULT_FLAGS = "";
-    private static final String BANNER = "\nHiTalk compiler, v0.1-alpha.1 Anton Danilov (c) 2019, All rights reserved\n";
+    private static final String BANNER = "\nHiTalk compiler, v0.0.1-b#%d Anton Danilov (c) 2019, All rights reserved\n";
     //library entity names
-    private static final String EXPANDING = "expanding";
-    private static final String MONITORING = "monitoring";
-    private static final String FORWARDING = "forwarding";
-    private static final Functor USER = null;
-    private static final String LOGTALK = "logtalk";
-    private static final String CORE_MESSAGES = "core_messages";
+    private static final FunctorName EXPANDING = new FunctorName("expanding", 0);
+    private static final FunctorName MONITORING = new FunctorName("monitoring", 0);
+    private static final FunctorName FORWARDING = new FunctorName("forwarding", 0);
+    private static final FunctorName USER = new FunctorName("user", 0);
+    private static final FunctorName LOGTALK = new FunctorName("logtalk", 0);
+    private static final FunctorName CORE_MESSAGES = new FunctorName("core_messages", 0);
     //
-    private static final String OBJECT = "object";
-    private static final String PROTOCOL = "protocol";
-    private static final String CATEGORY = "category";
+    private static final FunctorName OBJECT = new FunctorName("object", 0);
+    private static final FunctorName PROTOCOL = new FunctorName("protocol", 0);
+    private static final FunctorName CATEGORY = new FunctorName("category", 0);
     /**
      * Used for logging to the console.
      */
-    private static final Logger console = Logger.getLogger("CONSOLE." + HiTalkParser.class.getSimpleName());
-
-//    static {
-//        USER = Atom.create("user", 0);
-//    }
+    private /*static*/ final Logger console = Logger.getLogger("CONSOLE." + getClass().getSimpleName());
 
     /**
      * Holds the instruction generating compiler.
      */
     private final HiTalkInstructionCompiler instructionCompiler;
     private final String scratchDirectory;
-    protected LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer1;
+    protected LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer;
     protected LogicCompilerObserver <Clause, Clause> observer2;
-    BookKeepingTables bkt = new BookKeepingTables();
+    private BookKeepingTables <FunctorName, ? extends org.ltc.hitalk.compiler.bktables.INameable <? extends FunctorName>> bkt = new BookKeepingTables <FunctorName, org.ltc.hitalk.compiler.bktables.INameable <? extends FunctorName>>();
     /**
      * Holds the pre-compiler, for analyzing and transforming terms prior to compilation proper.
      */
-    private HiTalkCompilerPreprocessor preCompiler;
+    private HiTalkCompilerPreprocessor <? extends Term> preCompiler;
 
     /**
      * Creates a new WAMCompiler.
@@ -159,14 +158,14 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
     HiTalkCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner, HiTalkDefaultBuiltIn defaultBuiltIn ) {
         super(symbolTable, interner);
 
-        preCompiler = new HiTalkCompilerPreprocessor(symbolTable, interner, defaultBuiltIn);
+        preCompiler = new HiTalkCompilerPreprocessor <>(symbolTable, interner, defaultBuiltIn);
         observer2 = new ClauseChainObserver();
         preCompiler.setCompilerObserver(observer2);
 
         instructionCompiler = new HiTalkInstructionCompiler(symbolTable, interner);
         observer = new ChainedCompilerObserver();
         instructionCompiler.setCompilerObserver(observer);
-        scratchDirectory = ".\\scratch";
+        scratchDirectory = ".\\" + SCRATCH_DIRECTORY;
     }
 
     /**
@@ -183,13 +182,64 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
 //        printMessage(comment(settings), CORE, DEFAULT_FLAGS);
 //        expandGoals()
 //        ;
-
-
-        compileHooks();
+//        compileHooks();
         startRuntimeThreading();
         reportSettingsFile(result);
-//        printMessage(comment(help), CORE, HELP);
-//       checkPrologVersion();
+    }
+
+    private
+    void reportSettingsFile ( Object result ) {
+
+    }
+
+    private
+    Object loadSettingsFile ( String scratchDir ) {
+        return null;
+    }
+
+    private
+    void loadBuiltInEntity ( HtEntityIdentifier identifier, HtEntityKind entityKind, String fileName, String scratchDir ) {
+        Map <FunctorName, INameable <FunctorName>> loadedEntsTable = (Map <FunctorName, INameable <FunctorName>>) bkt.getTables()[LOADED_ENTITIES.ordinal()];
+//        Iterator <? extends INameable <? extends FunctorName>> iter = bkt.getIterator(new identifier, entityKind);
+//
+//        while (iter.hasNext()) {
+//            INameable <? extends FunctorName> next = iter.next();
+//
+//        }
+
+        //   HtEntity entity=current(entityKind);
+
+//        bkt
+//            (	Type == protocol,
+//                    Current_protocol_(Entity, _, _, _, _) ->
+//        true
+//        ;	Type == category,
+//                CurrentCategory_(Entity, _, _, _, _, _) ->
+//        true
+//        ;	Type == object,
+//                Current_object_(Entity, _, _, _, _, _, _, _, _, _, _) ->
+//        true
+//        ;	% not an embedded entity; compile and load it
+//        logtalkLoad(
+//                core(File),
+//                [	% we need a fixed code prefix as some of the entity predicates may need
+//        //to be called directly by the compiler/runtime
+//        code_prefix('$'),
+//                //delete the generated intermediate files as they may be non-portable
+//                //between backend Prolog compilers
+//                clean(on),
+//                //use a scratch directory where we expect to have writing permission
+//                scratchDirectory(ScratchDirectory),
+//                //optimize entity code, allowing static binding to this entity resources
+//                optimize(on),
+//                //don't print any messages on the compilation and loading of these entities
+//                report(off),
+//                //prevent any attempts of logtalk_make(all) to reload this file
+//                reload(skip)
+//        ]
+//        )
+//        ).
+
     }
 
     /**
@@ -215,10 +265,9 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
      * catch(GoalExpansionGoal, Error, goal_expansion_error(HookEntity, Term, Error))
      * )).
      */
-
     private
     void initBookKeepingTables () {
-        bkt = new BookKeepingTables();
+        bkt = new BookKeepingTables <>();
     }
 
     /**
@@ -270,12 +319,11 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
 
     //compiles a message sending call
 
-
     //messages to the pseudo-object "user"
 
     private
-    void compileMmessageToObject ( Term pred, HtEntityIdentifier Obj, ICallable call, Atom atom, CompilationContext obj ) {
-        if (obj == USER && pred.isVar() || pred.isFunctor()) {
+    void compileMmessageToObject ( Term pred, HtEntityIdentifier obj, ICallable call, Atom atom, CompilationContext ctx ) {
+        if (obj.equals(USER) && pred.isVar() || pred.isFunctor()) {
 
         }
     }
@@ -1062,235 +1110,226 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
         //top-level calls use the current working directory for resolving any relative
         //source file paths while compiled calls in a source file use the source file
         //directory by default
-        %
+
         //note that we can only clean the compiler flags after reporting warning numbers as the
         //report/1 flag might be included in the list of flags but we cannot test for it as its
-        //value should only be used in the default code for printing messages
+//        //value should only be used in the default code for printing messages
+//        private void logtalkCompile (List < String > files, List < Flag > flags){
+//
+//        }
 
-        logtalkCompile(Files, Flags) :-executionContext(ExCtx, user, user, user, user,[], []),
-        CurrentDirectory(Directory), LogtalkCompile(Files, Flags, Directory, ExCtx).
+//        }
+//        CurrentDirectory(Directory), LogtalkCompile(Files, Flags, Directory, ExCtx).
+//
+//
+//                LogtalkCompile(Files, Flags, Directory, ExCtx) :-
+//        catch
+//        (LogtalkCompileFiles(Files, Flags, Directory), error(Error, _), LogtalkCompile_error_handler(Error, Files, Flags, ExCtx)
+//        ).
+//
+//
+//        LogtalkCompileFiles(Files, Flags, Directory) :
+//        -Init_warningsCounter(logtalkCompile(Files, Flags)), CheckAnd_expandSourceFiles(Files, ExpandedFiles), CheckCompilerFlags(Flags), (member(relative_to(_), Flags) ->
+//        CompileFiles(ExpandedFiles, Flags);
+//        CompileFiles(ExpandedFiles,['$relative_to(Directory)| Flags])
+//        ),
+//        Report_warning_numbers(logtalkCompile(Files, Flags)), Clean_ppFileClauses '.
+//
+//
+//        LogtalkCompile_error_handler(Error, Files, Flags, ExCtx) :-Clean_ppFileClauses
+//        ', Clean_pp_entityClauses ', Reset_warningsCounter
+//        ', throw (error(Error, logtalk(logtalkCompile(Files, Flags), ExCtx))).
+//
+//
+//        //predicates for compilation warning counting and reporting
+//
+//        Reset_warningsCounter ' :-
+//        retractall(pp_warnings_top_goal_(_)), retractall(ppCompiling_warningsCounter_(_)), retractall(ppLoading_warningsCounter_(_)).
+//
+//
+//                Init_warningsCounter(Goal) :-(pp_warnings_top_goal_(_) ->
+//        //not top compilation/loading goal; do nothing
+//        true;	%remember top compilation / loading goal assertz (pp_warnings_top_goal_(Goal)),
+//                //initialize compilation warnings counter
+//                retractall(ppCompiling_warningsCounter_(_)), assertz(ppCompiling_warningsCounter_(0)),
+//                //initialize loading warnings counter
+//                retractall(ppLoading_warningsCounter_(_)), assertz(ppLoading_warningsCounter_(0))
+//        ).
+//
+//
+//        IncrementCompiling_warningsCounter
+//        ' :- retract(ppCompiling_warningsCounter_(Old)), New is Old + 1, assertz(ppCompiling_warningsCounter_(New)).
+//
+//
+//                IncrementLoading_warningsCounter
+//        ' :- retract(ppLoading_warningsCounter_(Old)), New is Old + 1, assertz(ppLoading_warningsCounter_(New)).
+//
+//
+//                Report_warning_numbers(Goal) :-(retract(pp_warnings_top_goal_(Goal)),
+//                //top compilation/loading goal
+//                retract(ppCompiling_warningsCounter_(CCounter)), retract(ppLoading_warningsCounter_(LCounter)) ->
+//        //report compilation and loading warnings
+//        print_message(comment(warnings), core, compilationAndLoading_warnings(CCounter, LCounter));	%not top
+//        compilation / loading goal true
+//        ).
+//
+//
+//        //CheckAnd_expandSourceFiles(@nonvar, -nonvar)
+//        //CheckAnd_expandSourceFiles(@list, -list)
+//        %
+//        //check if the source file names are valid (but not if the file exists)
+//        //and return their absolute paths when using library notation or when
+//        //they start with an environment variable (assumes environment variables
+//        //use POSIX syntax in Prolog internal file paths)
+//
+//        CheckAnd_expandSourceFiles([File | Files], [Path | Paths]) :
+//        -!, CheckAnd_expandSourceFile(File, Path), CheckAnd_expandSourceFiles(Files, Paths).
+//
+//                CheckAnd_expandSourceFiles([], []) :-!.
+//
+//        CheckAnd_expandSourceFiles(File, Path) :-CheckAnd_expandSourceFile(File, Path).
+//
+//
+//                CheckAnd_expandSourceFile(File, Path) :-(atom(File) ->
+//        prolog_osFile_name(NormalizedFile, File), (subAtom(NormalizedFile, 0, 1, _, '$') ->
+//        expand_path(NormalizedFile, Path);
+//        Path = NormalizedFile
+//        )
+//        ;
+//        compound(File), File =.. [Library, Basename],
+//        atom(Basename) ->
+//        //library notation
+//        prolog_osFile_name(NormalizedBasename, Basename), (expandLibraryAlias(Library, Directory) ->
+//        atomConcat(Directory, NormalizedBasename, Path);
+//        throw (error(existence_error(library, Library), _))
+//        )
+//        ;	%invalid source file specification ground(File) ->
+//        throw (error(type_error(sourceFile_name, File), _))
+//                ;
+//        throw (error(instantiation_error, _))
+//        ).
+//
+//
+//        //expandLibraryAlias(+atom, -atom)
+//        %
+//        //converts a library alias into its corresponding path; uses a depth
+//        //bound to prevent loops (inspired by similar code in SWI-Prolog)
+//
+//        expandLibraryAlias(Library, Path) :-expandLibraryAlias(Library, Path0, 16),
+//                //expand the library path into an absolute path as it may
+//                //contain environment variables that need to be expanded
+//                expand_path(Path0, Path1),
+//                //make sure that the library path ends with a slash
+//                (subAtom(Path1, _, 1, 0, '/') ->
+//        Path = Path1;
+//        atomConcat(Path1, '/', Path)
+//        ).
+//
+//
+//        expandLibraryAlias(Library, Path, Depth) :
+//        -logtalkLibrary_path(Library, Location), !, (compound(Location), Location =.. [Prefix, Directory],
+//        atom(Directory) ->
+//        //assume library notation (a compound term)
+//        Depth > 0, NewDepth is Depth -1, expandLibraryAlias(Prefix, PrefixPath0, NewDepth),
+//                //make sure that the prefix path ends with a slash
+//                (subAtom(PrefixPath0, _, 1, 0, '/') ->
+//        atomConcat(PrefixPath0, Directory, Path);
+//        atomConcat(PrefixPath0, '/', PrefixPath1), atomConcat(PrefixPath1, Directory, Path)
+//        )
+//        ;
+//        atom(Location) ->
+//        //assume the final component of the library path
+//        Path = Location;
+//        ground(Location) ->
+//        throw (error(type_error(library_path, Location), _))
+//                ;
+//        throw (error(instantiation_error, _))
+//        ).
+//
+//
+//        //CheckCompilerFlags(@list)
+//        %
+//        //checks if the compiler flags are valid
+//
+//        CheckCompilerFlags([Flag | Flags]) :-!, (var(Flag) ->
+//        throw (error(instantiation_error, _))
+//                ;
+//        Flag =.. [Name, Value] ->
+//        Check(read_writeFlag, Name, _), Check(flag_value, Name + Value, _);	%invalid flag syntax compound ( Flag ) ->
+//        throw (error(domain_error(compilerFlag, Flag), _))
+//                ;
+//        throw (error(type_error(compound, Flag), _))
+//        ),
+//        CheckCompilerFlags(Flags).
+//
+//                CheckCompilerFlags([]) :-!.
+//
+//        CheckCompilerFlags(Flags) :- throw (error(type_error(list, Flags), _)).
+//
+//
+//                //SetCompilerFlags(@list)
+//                %
+//                //sets the compiler flags
+//
+//                SetCompilerFlags(Flags) :-AssertCompilerFlags(Flags),
+//                //only one of the optimize and debug flags can be turned on at the same time
+//                (member(optimize(on), Flags) ->
+//        retractall(ppFileCompilerFlag_(debug, _)), assertz(ppFileCompilerFlag_(debug, off));
+//        member(debug(on), Flags) ->
+//        retractall(ppFileCompilerFlag_(optimize, _)), assertz(ppFileCompilerFlag_(optimize, off));
+//        true
+//        ),
+//        (ppFileCompilerFlag_(hook, HookEntity) ->
+//        //pre-compile hooks in order to speed up entity compilation
+//        (current_object(HookEntity) ->
+//        CompCtx(Ctx, _, _, user, user, user, HookEntity, _,[], [],ExCtx, runtime, [],_),
+//        executionContext(ExCtx, user, user, user, HookEntity,[], []),
+//        CurrentFlag_(events, Events), Compile_message_to_object(term_expansion(Term, Terms), HookEntity, TermExpansionGoal, Events, Ctx), Compile_message_to_object(goal_expansion(Goal, ExpandedGoal), HookEntity, GoalExpansionGoal, Events, Ctx);
+//        atom(HookEntity), prologFeature(modules, supported), current_module(HookEntity) ->
+//        TermExpansionGoal = ':(HookEntity, term_expansion(Term, Terms)),
+//        GoalExpansionGoal = ':(HookEntity, goal_expansion(Goal, ExpandedGoal)) ;
+//        throw (error(existence_error(object, HookEntity), _))
+//        ),
+//        assertz((pp_hook_term_expansion_(Term, Terms) :-
+//        catch(TermExpansionGoal, Error, term_expansion_error(HookEntity, Term, Error))
+//        )),
+//        assertz((pp_hook_goal_expansion_(Goal, ExpandedGoal) :-
+//        catch(GoalExpansionGoal, Error, goal_expansion_error(HookEntity, Goal, Error))
+//        ))
+//        ;
+//        true
+//        ).
+//
+//
+//        //term-expansion errors result in a warning message and a failure
+//
+//        term_expansion_error(HookEntity, Term, Error) :
+//        -SourceFileContext(File, Lines), (pp_entity_(Type, Entity, _, _, _) ->
+//        print_message(warning(expansion), core, term_expansion_error(File, Lines, Type, Entity, HookEntity, Term, Error));
+//        print_message(warning(expansion), core, term_expansion_error(File, Lines, HookEntity, Term, Error))
+//        ),
+//        fail.
+//
+//
+//                //goal-expansion errors result in a warning message and a failure
+//
+//                        goal_expansion_error(HookEntity, Goal, Error) :
+//        -SourceFileContext(File, Lines), (pp_entity_(Type, Entity, _, _, _) ->
+//        print_message(warning(expansion), core, (File, Lines, Type, Entity, HookEntity, Goal, Error));
+//        print_message(warning(expansion), core, (File, Lines, Type, Entity, HookEntity, Goal, Error));
+//        print_message(warning(expansion), core, goal_expansion_error(File, Lines, HookEntity, Goal, Error))
+//        ),
+//        fail.
+//
+//
+//                AssertCompilerFlags([]).
 
-
-                LogtalkCompile(Files, Flags, Directory, ExCtx) :-
-        catch
-        (LogtalkCompileFiles(Files, Flags, Directory), error(Error, _), LogtalkCompile_error_handler(Error, Files, Flags, ExCtx)
-        ).
-
-
-        LogtalkCompileFiles(Files, Flags, Directory) :
-        -Init_warningsCounter(logtalkCompile(Files, Flags)), CheckAnd_expandSourceFiles(Files, ExpandedFiles), CheckCompilerFlags(Flags), (member(relative_to(_), Flags) ->
-        CompileFiles(ExpandedFiles, Flags);
-        CompileFiles(ExpandedFiles,['$relative_to(Directory)| Flags])
-        ),
-        Report_warning_numbers(logtalkCompile(Files, Flags)), Clean_ppFileClauses '.
-
-
-        LogtalkCompile_error_handler(Error, Files, Flags, ExCtx) :-Clean_ppFileClauses
-        ', Clean_pp_entityClauses ', Reset_warningsCounter
-        ', throw (error(Error, logtalk(logtalkCompile(Files, Flags), ExCtx))).
-
-
-        //predicates for compilation warning counting and reporting
-
-        Reset_warningsCounter ' :-
-        retractall(pp_warnings_top_goal_(_)), retractall(ppCompiling_warningsCounter_(_)), retractall(ppLoading_warningsCounter_(_)).
-
-
-                Init_warningsCounter(Goal) :-(pp_warnings_top_goal_(_) ->
-        //not top compilation/loading goal; do nothing
-        true;	%remember top compilation / loading goal assertz (pp_warnings_top_goal_(Goal)),
-                //initialize compilation warnings counter
-                retractall(ppCompiling_warningsCounter_(_)), assertz(ppCompiling_warningsCounter_(0)),
-                //initialize loading warnings counter
-                retractall(ppLoading_warningsCounter_(_)), assertz(ppLoading_warningsCounter_(0))
-        ).
-
-
-        IncrementCompiling_warningsCounter
-        ' :- retract(ppCompiling_warningsCounter_(Old)), New is Old + 1, assertz(ppCompiling_warningsCounter_(New)).
-
-
-                IncrementLoading_warningsCounter
-        ' :- retract(ppLoading_warningsCounter_(Old)), New is Old + 1, assertz(ppLoading_warningsCounter_(New)).
-
-
-                Report_warning_numbers(Goal) :-(retract(pp_warnings_top_goal_(Goal)),
-                //top compilation/loading goal
-                retract(ppCompiling_warningsCounter_(CCounter)), retract(ppLoading_warningsCounter_(LCounter)) ->
-        //report compilation and loading warnings
-        print_message(comment(warnings), core, compilationAndLoading_warnings(CCounter, LCounter));	%not top
-        compilation / loading goal true
-        ).
-
-
-        //CheckAnd_expandSourceFiles(@nonvar, -nonvar)
-        //CheckAnd_expandSourceFiles(@list, -list)
-        %
-        //check if the source file names are valid (but not if the file exists)
-        //and return their absolute paths when using library notation or when
-        //they start with an environment variable (assumes environment variables
-        //use POSIX syntax in Prolog internal file paths)
-
-        CheckAnd_expandSourceFiles([File | Files], [Path | Paths]) :
-        -!, CheckAnd_expandSourceFile(File, Path), CheckAnd_expandSourceFiles(Files, Paths).
-
-                CheckAnd_expandSourceFiles([], []) :-!.
-
-        CheckAnd_expandSourceFiles(File, Path) :-CheckAnd_expandSourceFile(File, Path).
-
-
-                CheckAnd_expandSourceFile(File, Path) :-(atom(File) ->
-        prolog_osFile_name(NormalizedFile, File), (subAtom(NormalizedFile, 0, 1, _, '$') ->
-        expand_path(NormalizedFile, Path);
-        Path = NormalizedFile
-        )
-        ;
-        compound(File), File =.. [Library, Basename],
-        atom(Basename) ->
-        //library notation
-        prolog_osFile_name(NormalizedBasename, Basename), (expandLibraryAlias(Library, Directory) ->
-        atomConcat(Directory, NormalizedBasename, Path);
-        throw (error(existence_error(library, Library), _))
-        )
-        ;	%invalid source file specification ground(File) ->
-        throw (error(type_error(sourceFile_name, File), _))
-                ;
-        throw (error(instantiation_error, _))
-        ).
-
-
-        //expandLibraryAlias(+atom, -atom)
-        %
-        //converts a library alias into its corresponding path; uses a depth
-        //bound to prevent loops (inspired by similar code in SWI-Prolog)
-
-        expandLibraryAlias(Library, Path) :-expandLibraryAlias(Library, Path0, 16),
-                //expand the library path into an absolute path as it may
-                //contain environment variables that need to be expanded
-                expand_path(Path0, Path1),
-                //make sure that the library path ends with a slash
-                (subAtom(Path1, _, 1, 0, '/') ->
-        Path = Path1;
-        atomConcat(Path1, '/', Path)
-        ).
-
-
-        expandLibraryAlias(Library, Path, Depth) :
-        -logtalkLibrary_path(Library, Location), !, (compound(Location), Location =.. [Prefix, Directory],
-        atom(Directory) ->
-        //assume library notation (a compound term)
-        Depth > 0, NewDepth is Depth -1, expandLibraryAlias(Prefix, PrefixPath0, NewDepth),
-                //make sure that the prefix path ends with a slash
-                (subAtom(PrefixPath0, _, 1, 0, '/') ->
-        atomConcat(PrefixPath0, Directory, Path);
-        atomConcat(PrefixPath0, '/', PrefixPath1), atomConcat(PrefixPath1, Directory, Path)
-        )
-        ;
-        atom(Location) ->
-        //assume the final component of the library path
-        Path = Location;
-        ground(Location) ->
-        throw (error(type_error(library_path, Location), _))
-                ;
-        throw (error(instantiation_error, _))
-        ).
-
-
-        //CheckCompilerFlags(@list)
-        %
-        //checks if the compiler flags are valid
-
-        CheckCompilerFlags([Flag | Flags]) :-!, (var(Flag) ->
-        throw (error(instantiation_error, _))
-                ;
-        Flag =.. [Name, Value] ->
-        Check(read_writeFlag, Name, _), Check(flag_value, Name + Value, _);	%invalid flag syntax compound ( Flag ) ->
-        throw (error(domain_error(compilerFlag, Flag), _))
-                ;
-        throw (error(type_error(compound, Flag), _))
-        ),
-        CheckCompilerFlags(Flags).
-
-                CheckCompilerFlags([]) :-!.
-
-        CheckCompilerFlags(Flags) :- throw (error(type_error(list, Flags), _)).
-
-
-                //SetCompilerFlags(@list)
-                %
-                //sets the compiler flags
-
-                SetCompilerFlags(Flags) :-AssertCompilerFlags(Flags),
-                //only one of the optimize and debug flags can be turned on at the same time
-                (member(optimize(on), Flags) ->
-        retractall(ppFileCompilerFlag_(debug, _)), assertz(ppFileCompilerFlag_(debug, off));
-        member(debug(on), Flags) ->
-        retractall(ppFileCompilerFlag_(optimize, _)), assertz(ppFileCompilerFlag_(optimize, off));
-        true
-        ),
-        (ppFileCompilerFlag_(hook, HookEntity) ->
-        //pre-compile hooks in order to speed up entity compilation
-        (current_object(HookEntity) ->
-        CompCtx(Ctx, _, _, user, user, user, HookEntity, _,[], [],ExCtx, runtime, [],_),
-        executionContext(ExCtx, user, user, user, HookEntity,[], []),
-        CurrentFlag_(events, Events), Compile_message_to_object(term_expansion(Term, Terms), HookEntity, TermExpansionGoal, Events, Ctx), Compile_message_to_object(goal_expansion(Goal, ExpandedGoal), HookEntity, GoalExpansionGoal, Events, Ctx);
-        atom(HookEntity), prologFeature(modules, supported), current_module(HookEntity) ->
-        TermExpansionGoal = ':(HookEntity, term_expansion(Term, Terms)),
-        GoalExpansionGoal = ':(HookEntity, goal_expansion(Goal, ExpandedGoal)) ;
-        throw (error(existence_error(object, HookEntity), _))
-        ),
-        assertz((pp_hook_term_expansion_(Term, Terms) :-
-        catch(TermExpansionGoal, Error, term_expansion_error(HookEntity, Term, Error))
-        )),
-        assertz((pp_hook_goal_expansion_(Goal, ExpandedGoal) :-
-        catch(GoalExpansionGoal, Error, goal_expansion_error(HookEntity, Goal, Error))
-        ))
-        ;
-        true
-        ).
-
-
-        //term-expansion errors result in a warning message and a failure
-
-        term_expansion_error(HookEntity, Term, Error) :
-        -SourceFileContext(File, Lines), (pp_entity_(Type, Entity, _, _, _) ->
-        print_message(warning(expansion), core, term_expansion_error(File, Lines, Type, Entity, HookEntity, Term, Error));
-        print_message(warning(expansion), core, term_expansion_error(File, Lines, HookEntity, Term, Error))
-        ),
-        fail.
-
-
-                //goal-expansion errors result in a warning message and a failure
-
-                        goal_expansion_error(HookEntity, Goal, Error) :
-        -SourceFileContext(File, Lines), (pp_entity_(Type, Entity, _, _, _) ->
-        print_message(warning(expansion), core, goal_expansion_error(File, Lines, Type, Entity, HookEntity, Goal, Error));
-        print_message(warning(expansion), core, goal_expansion_error(File, Lines, HookEntity, Goal, Error))
-        ),
-        fail.
-
-
-                AssertCompilerFlags([]).
-
-        AssertCompilerFlags([Flag | Flags]) :-Flag =.. [Name, Value],
-        retractall(ppFileCompilerFlag_(Name, _)), assertz(ppFileCompilerFlag_(Name, Value)), AssertCompilerFlags(Flags).
+//        AssertCompilerFlags([Flag | Flags]) :-Flag =.. [Name, Value],
+//        retractall(ppFileCompilerFlag_(Name, _)), assertz(ppFileCompilerFlag_(Name, Value)), AssertCompilerFlags(Flags).
 
 
     }
 
-    private
-    void reportSettingsFile ( Object result ) {
-
-    }
-
-    private
-    Object loadSettingsFile ( String scratchDirectory ) {
-        return null;
-    }
-
-    /**
-     *
-     */
     private
     void startRuntimeThreading () {
 
@@ -1308,12 +1347,12 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
      * <p>
      * loadBuiltInEntities(ScratchDirectory) :-
      * //            (
-     * //                loadBuiltInEntity(expanding, protocol, 'expanding', ScratchDirectory),
-     * //            loadBuiltInEntity(monitoring, protocol, 'monitoring', ScratchDirectory),
-     * //            loadBuiltInEntity(forwarding, protocol, 'forwarding', ScratchDirectory),
-     * //            loadBuiltInEntity(user, object, 'user', ScratchDirectory),
-     * //            loadBuiltInEntity(logtalk, object, 'logtalk', ScratchDirectory),
-     * //            loadBuiltInEntity(core_messages, category, 'core_messages', ScratchDirectory),
+     * //            loadBuiltInEntity(expanding, protocol, "expanding", ScratchDirectory),
+     * //            loadBuiltInEntity(monitoring, protocol, "monitoring", ScratchDirectory),
+     * //            loadBuiltInEntity(forwarding, protocol, "forwarding", ScratchDirectory),
+     * //            loadBuiltInEntity(user, object, "user", ScratchDirectory),
+     * //            loadBuiltInEntity(logtalk, object, "logtalk", ScratchDirectory),
+     * //            loadBuiltInEntity(core_messages, category, "core_messages", ScratchDirectory),
      * //
      * //
      * //            loadBuiltInEntity(Entity, Type, File, ScratchDirectory) :-
@@ -1331,13 +1370,14 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
      * //            core(File),
      * //        [	% we need a fixed code prefix as some of the entity predicates may need
      * //to be called directly by the compiler/runtime
-     * //        code_prefix('$'),
+     * //        code_prefix("$"),
      */
     private
     String loadBuiltInEntities () {
+        String scratchDir = getScratchDirectory();
+        loadBuiltInEntity(EXPANDING, PROTOCOL, "expanding", scratchDir), loadBuiltInEntity(MONITORING, PROTOCOL, "monitoring", scratchDir), loadBuiltInEntity(FORWARDING, PROTOCOL, "forwarding", scratchDir), loadBuiltInEntity(USER, OBJECT, "user", scratchDir), loadBuiltInEntity(LOGTALK, OBJECT, "logtalk", scratchDir), loadBuiltInEntity(CORE_MESSAGES, CATEGORY, "core_messages", scratchDir);
 
-
-        return getScratchDirectory();
+        return scratchDir;
     }
 
 

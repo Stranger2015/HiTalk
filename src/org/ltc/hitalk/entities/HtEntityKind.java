@@ -3,6 +3,7 @@ package org.ltc.hitalk.entities;
 /**
  *
  */
+public
 enum HtEntityKind {
     ENTITY(true, 14, "alias(predicate_indicator,predicate_alias_property_list)", "built_in", "debugging", "declares(predicate_indicator,predicate_declaration_property_list)", "dynamic", "events", "file(atom)", "file(atom,atom)", "lines(integer,integer)", "private(predicate_indicator_list)", "protected(predicate_indicator_list)", "public(predicate_indicator_list)", "source_data", "static"),
     OBJECT_OR_CATEGORY(ENTITY, true, 9, "calls(predicate,predicate_call_update_property_list)", "defines(predicate_indicator,predicate_definition_property_list)", "includes(predicate_indicator,object_identifier_category_identifier, predicate_definition_property_list)", "number_of_clauses(integer)", "number_of_rules(integer)", "number_of_user_clauses(integer)", "number_of_user_rules(integer)", "provides(predicate_indicator,object_identifier_category_identifier, predicate_definition_property_list)", "updates(predicate,predicate_call_update_pro)"),

@@ -1,6 +1,7 @@
 package org.ltc.hitalk.entities;
 
 import com.thesett.aima.logic.fol.Functor;
+import com.thesett.aima.logic.fol.FunctorName;
 import com.thesett.aima.logic.fol.Term;
 
 /**
@@ -37,72 +38,10 @@ class HtEntityIdentifier extends Functor {
     }
 
     /**
-     * @param <NT>
-     */
-    public static
-    class HtEntity<NT> implements IPropertyOwner <NT> {
-
-        /**
-         *
-         */
-        protected final NT name;
-        private final HtEntityKind entityKind;
-
-        /**
-         *
-         */
-        private HtProperty[] properties;
-
-        /**
-         * @param name
-         * @param entityKind
-         * @param htEntityKind
-         */
-        protected
-        HtEntity ( NT name, org.ltc.hitalk.entities.HtEntityKind entityKind, org.ltc.hitalk.entities.HtEntityKind htEntityKind ) {
-            this.name = name;
-            this.entityKind = entityKind;
-            HtEntityKind = htEntityKind;
-            initProperties();
-        }
-
-        /**
-         *
-         */
-        protected final org.ltc.hitalk.entities.HtEntityKind HtEntityKind;
-
-        /**
-         *
-         */
-        private
-        void initProperties () {
-            switch (entityKind) {
-                case ENTITY:
-
-                    break;
-                case OBJECT:
-                    //                getProperty();
-                    break;
-                case CATEGORY:
-                case OBJECT_OR_CATEGORY:
-                    break;
-                case PROTOCOL:
-
-                    break;
-                case MODULE:
-
-                    break;
-
-                default:
-                    throw new IllegalStateException("Unexpected value: " + entityKind);
-            }
-        }
-
-        /**
          * @return
          */
         public final
-        NT getName () {
+        FunctorName getName () {
             return name;
         }
 
