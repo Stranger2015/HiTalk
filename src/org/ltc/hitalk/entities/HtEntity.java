@@ -1,55 +1,50 @@
 package org.ltc.hitalk.entities;
 
-import com.thesett.aima.logic.fol.FunctorName;
+import org.ltc.hitalk.compiler.bktables.INameable;
 
 /**
  *
  */
 public
-class HtEntity implements IPropertyOwner <FunctorName> {
+class HtEntity extends PropertyOwner implements INameable <HtEntityIdentifier> {
 
     /**
      *
      */
-    protected final FunctorName name;
-    protected final HtEntityKind entityKind;
+    protected final HtEntityIdentifier identifier;
 
     /**
      *
-     */
-    private HtProperty[] properties;
-
-    /**
-     * @param name
-     * @param entityKind
+     * @param identifier
      */
     protected
-    HtEntity ( String name, HtEntityKind entityKind ) {
-        this.name = new FunctorName(name, 0);
-        this.entityKind = entityKind;
+    HtEntity ( HtEntityIdentifier identifier ) {
+        this.identifier = identifier;
     }
 
-    /**
-     *
-     */
-    public
-    HtEntityKind getEntityKind () {
-        return entityKind;
-    }
+
+//    /**
+//     * @return
+//     */
+//    @Override
+//    public
+//    int getPropLength () {
+//        HtEntityKind kind = entityKind;
+//
+//        for (int length = kind.getPropsLength(); kind != null; kind = kind.getParent()) {
+//
+//        }
+//
+//        return 0;
+//    }
 
     /**
      * @return
      */
     @Override
     public
-    int getPropLength () {
-        HtEntityKind kind = entityKind;
-
-        for (; ; kind) {
-
-        }
-
-        return 0;
+    HtEntityIdentifier getName () {
+        return identifier;
     }
 
 //    /**

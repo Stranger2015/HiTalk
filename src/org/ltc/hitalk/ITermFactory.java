@@ -2,6 +2,10 @@ package org.ltc.hitalk;
 
 import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.logic.fol.Term;
+import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
+import org.ltc.hitalk.entities.HtEntityIdentifier;
+import org.ltc.hitalk.entities.HtEntityKind;
+import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.term.Atom;
 import org.ltc.hitalk.term.HiLogCompound;
 import org.ltc.hitalk.term.ListTerm;
@@ -24,6 +28,26 @@ interface ITermFactory {
     Atom createAtom ( String s );
 
     Functor createCompound ( String s, Term[] head, Term tail );
+
+    HiTalkFlag createFlag ( String flagName, String flagValue );
+
+    /**
+     * @param name
+     * @param args
+     * @param kind
+     * @return
+     */
+    HtEntityIdentifier createIdentifier ( HtEntityKind kind, String name, Term... args );
+
+    /**
+     * @param name
+     * @param args
+     * @return
+     */
+    HiTalkFlag createFlag ( String name, Term... args );
+
+    HtProperty createProperty ( String name, Term... args );
+
 }
 /*
     public static final String ANON_VAR = PrologConstants.UNDERSCORE_VAR_NAME;

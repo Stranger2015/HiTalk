@@ -6,6 +6,11 @@ package org.ltc.hitalk.entities;
 public
 class HtRelation {
 
+    /**
+     * @param hierarchyKind
+     * @param relationKind
+     * @param entityKind
+     */
     public
     HtRelation ( HtEntityHierarchyKind hierarchyKind, HtRelationKind relationKind, HtEntityKind entityKind ) {
         this.hierarchyKind = hierarchyKind;

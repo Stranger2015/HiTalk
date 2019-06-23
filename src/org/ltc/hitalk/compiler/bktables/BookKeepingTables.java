@@ -1,24 +1,23 @@
 package org.ltc.hitalk.compiler.bktables;
 
-import com.thesett.aima.logic.fol.FunctorName;
-import org.ltc.hitalk.entities.HtEntityIdentifier;
-import org.ltc.hitalk.entities.HtEntityKind;
+import com.thesett.aima.logic.fol.Functor;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.BiConsumer;
 
 /**
  * @param <T>
  */
 public
-class BookKeepingTables<NT extends FunctorName, T extends INameable <NT>> {
+class BookKeepingTables<NT extends Functor, T extends INameable <NT>> implements IRegistry {
 
     private final static int TAB_LENGTH = BkTableKind.USER_DEFINED_FLAGS.ordinal() + 1;
+
     private final Map <NT, T>[] tables = new HashMap[TAB_LENGTH];
     private final BiConsumer <NT, T>[] actions = new BiConsumer[TAB_LENGTH];
+
+    private IRegistry registry;
 
     /**
      *
@@ -27,7 +26,6 @@ class BookKeepingTables<NT extends FunctorName, T extends INameable <NT>> {
     BookKeepingTables () {
 
     }
-
 
     /**
      * @return
@@ -46,19 +44,35 @@ class BookKeepingTables<NT extends FunctorName, T extends INameable <NT>> {
         return actions[identifier.ordinal()];
     }
 
+
+    /**
+     * @param clazz
+     * @return
+     */
+    @Override
     public
-    Iterator <T> getIterator ( HtEntityIdentifier identifier, HtEntityKind entityKind ) {
-        Map <NT, T> item = tables[entityKind.ordinal()];
-        Set <Map.Entry <NT, T>> set = item.entrySet();
-
-
-//        Set<T> valueSet = filterEntrySet(set, entityKind);
-//        return valueSet.iterator();
+    boolean isRegistered ( Class <? extends IIdentifiable> clazz ) {
+        return tables;
     }
 
-    private
-    Set <T> filterEntrySet ( Set <Map.Entry <NT, T>> set, HtEntityKind entityKind ) {
+    /**
+     * @param iIdentifiable
+     * @return
+     */
+    @Override
+    public
+    IIdentifiable register ( IIdentifiable iIdentifiable ) {
+        return tables;
+    }
 
+    /**
+     * @param id
+     * @return
+     */
+    @Override
+    public
+    IIdentifiable getById ( int id ) {
+        return registry.getById(id);
     }
 
     /**

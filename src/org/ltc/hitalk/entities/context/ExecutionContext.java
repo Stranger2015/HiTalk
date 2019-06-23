@@ -30,10 +30,10 @@ import java.util.List;
  */
 public
 class ExecutionContext {
-    HtEntityIdentifier.HtEntity sender;
-    HtEntityIdentifier.HtEntity this_;
-    HtEntityIdentifier.HtEntity self;
-    HtEntityIdentifier.HtEntity entity;
+    HtEntityIdentifier sender;
+    HtEntityIdentifier this_;
+    HtEntityIdentifier self;
+    HtEntityIdentifier entity;
     List <ICallable>
 
             metaCallContext, coinductionStack;

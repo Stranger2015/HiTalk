@@ -1,31 +1,23 @@
 package org.ltc.hitalk.compiler.bktables;
 
+import com.thesett.aima.logic.fol.Functor;
+import com.thesett.aima.logic.fol.Term;
+import org.ltc.hitalk.entities.HtProperty;
+import org.ltc.hitalk.entities.HtType;
+
+/**
+ *
+ */
 public abstract
-class Flag //implements TermConvertable {
-{
-    private String name;
+class Flag extends HtProperty {
 
+    /**
+     * @param type
+     * @param name
+     * @param value
+     */
     public
-    Flag ( String name ) {
-        this.name = name;
+    Flag ( HtType type, Functor name, Term value ) {
+        super(type, name, value);
     }
-
-    public
-    String getName () {
-        return name;
-    }
-
-    @Override
-    public
-    String toString () {
-        return getName();
-    }
-
-
-//    @NotNull
-//    public
-//    Term asTerm() {
-//        /*return createAtom(name, VariableAndFunctorInterner interner)*/;
-//    }
-
 }

@@ -1,7 +1,6 @@
 package org.ltc.hitalk.entities;
 
 import com.thesett.aima.logic.fol.Functor;
-import com.thesett.aima.logic.fol.FunctorName;
 import org.ltc.enumus.Hierarchy;
 import org.ltc.hitalk.compiler.bktables.INameable;
 
@@ -11,7 +10,7 @@ import java.util.function.Function;
  *
  */
 public
-class HtPredicateIndicator extends FunctorName implements INameable <String> {
+class HtPredicateIndicator extends Functor implements INameable <String> {
 
     private boolean bool;
     private Functor functor;

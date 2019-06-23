@@ -1,14 +1,25 @@
 package org.ltc.hitalk.entities;
 
-import com.thesett.aima.logic.fol.FunctorName;
+import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.compiler.bktables.INameable;
+import org.ltc.hitalk.term.ListTerm;
 
+/**
+ *
+ */
 public
-class HtProperty implements INameable <FunctorName> {
+class HtProperty implements INameable <Functor> {
     protected HtType type;
-    protected String name;
+    protected Functor name;
     protected Term value;
+
+    public
+    HtProperty ( Functor name, ListTerm args ) {
+
+        this.name = name;
+        this.value = args;
+    }
 
     /**
      * @return
@@ -22,7 +33,7 @@ class HtProperty implements INameable <FunctorName> {
      * @return
      */
     public
-    String getName () {
+    Functor getName () {
         return name;
     }
 
@@ -40,7 +51,7 @@ class HtProperty implements INameable <FunctorName> {
      * @param value
      */
     public
-    HtProperty ( HtType type, String name, Term value ) {
+    HtProperty ( HtType type, Functor name, Term value ) {
         this.type = type;
         this.name = name;
         this.value = value;

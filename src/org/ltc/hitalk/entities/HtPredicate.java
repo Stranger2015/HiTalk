@@ -47,7 +47,8 @@ import com.thesett.aima.logic.fol.Predicate;
  */
 public
 class HtPredicate extends Predicate <Clause> implements IPropertyOwner <FunctorName> {
-    private final static int PROPS_LENGTH = 29;
+    //    private final static int PROPS_LENGTH = 29;
+    private final HtProperty[] props;
 
     /**
      * Creates a predicate formed from a set of clauses.
@@ -55,14 +56,17 @@ class HtPredicate extends Predicate <Clause> implements IPropertyOwner <FunctorN
      * @param body The clauses that make up the body of the predicate.
      */
     public
-    HtPredicate ( Clause[] body ) {
+    HtPredicate ( Clause[] body, HtProperty... props ) {
         super(body);
+        this.props = props;
     }
 
+    /**
+     * @return
+     */
     @Override
     public
     int getPropLength () {
-        return PROPS_LENGTH;
+        return props.length;
     }
-
 }

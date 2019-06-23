@@ -8,10 +8,6 @@ import com.thesett.aima.logic.fol.Term;
 public
 interface IPropertyOwner<NT> {
 
-//    enum Properties {
-//BUILT_IN,
-//    }
-
     /**
      * @return
      */
@@ -20,7 +16,9 @@ interface IPropertyOwner<NT> {
         return new HtProperty[getPropLength()];
     }
 
-
+    /**
+     * @return
+     */
     int getPropLength ();
 
     /**

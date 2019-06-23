@@ -1,6 +1,7 @@
 package org.ltc.hitalk.term.io;
 
 import com.thesett.aima.logic.fol.Term;
+import com.thesett.aima.logic.fol.isoprologparser.ParseException;
 import org.ltc.hitalk.compiler.bktables.LogtalkFlag;
 
 import java.io.IOException;
@@ -9,16 +10,6 @@ import java.util.List;
 
 public
 class RwOption extends LogtalkFlag {
-
-    package org.ltc.pscc.core.compiler;
-
-
-import org.ltc.pscc.core.parser.ParseException;
-import org.ltc.pscc.core.term.Term;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 
     /**
      * read_term options

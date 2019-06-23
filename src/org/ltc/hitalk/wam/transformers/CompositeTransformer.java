@@ -2,7 +2,6 @@ package org.ltc.hitalk.wam.transformers;
 
 
 import com.thesett.aima.logic.fol.Term;
-import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.compiler.bktables.IComposite;
 import org.ltc.hitalk.wam.task.TransformTask;
 
@@ -18,8 +17,8 @@ class CompositeTransformer<T extends Term, TT extends TransformTask <T>> extends
     protected final List <TT> transformers = new ArrayList <>();
 
     public
-    CompositeTransformer ( IApplication app, T target, ITransformer <T> transformer ) {
-        super(app, target, transformer);
+    CompositeTransformer ( T target, ITransformer <T> transformer ) {
+        super(target, transformer);
     }
 
     private

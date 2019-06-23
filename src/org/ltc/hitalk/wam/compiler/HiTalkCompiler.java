@@ -4,14 +4,19 @@ import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.bktables.BookKeepingTables;
+import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
 import org.ltc.hitalk.compiler.bktables.INameable;
+import org.ltc.hitalk.compiler.bktables.TermFactory;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
 import org.ltc.hitalk.entities.context.CompilationContext;
 import org.ltc.hitalk.term.Atom;
 import org.ltc.hitalk.wam.interpreter.ICompiler;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -122,30 +127,36 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
     private static final String SCRATCH_DIRECTORY = "scratch";
     private static final String DEFAULT_FLAGS = "";
     private static final String BANNER = "\nHiTalk compiler, v0.0.1-b#%d Anton Danilov (c) 2019, All rights reserved\n";
+
     //library entity names
-    private static final FunctorName EXPANDING = new FunctorName("expanding", 0);
-    private static final FunctorName MONITORING = new FunctorName("monitoring", 0);
-    private static final FunctorName FORWARDING = new FunctorName("forwarding", 0);
-    private static final FunctorName USER = new FunctorName("user", 0);
-    private static final FunctorName LOGTALK = new FunctorName("logtalk", 0);
-    private static final FunctorName CORE_MESSAGES = new FunctorName("core_messages", 0);
+    private final HtEntityIdentifier EXPANDING;
+    private final HtEntityIdentifier MONITORING;
+    private final HtEntityIdentifier FORWARDING;
+    private final HtEntityIdentifier USER;
+    private final HtEntityIdentifier LOGTALK;
+    private final HtEntityIdentifier CORE_MESSAGES;
     //
-    private static final FunctorName OBJECT = new FunctorName("object", 0);
-    private static final FunctorName PROTOCOL = new FunctorName("protocol", 0);
-    private static final FunctorName CATEGORY = new FunctorName("category", 0);
+    private final HtEntityIdentifier OBJECT;
+    private final HtEntityIdentifier PROTOCOL;
+    private final HtEntityIdentifier CATEGORY;
+    private final HtEntityIdentifier ENUM;
+
     /**
      * Used for logging to the console.
      */
     private /*static*/ final Logger console = Logger.getLogger("CONSOLE." + getClass().getSimpleName());
+
+    private final ITermFactory tf;
 
     /**
      * Holds the instruction generating compiler.
      */
     private final HiTalkInstructionCompiler instructionCompiler;
     private final String scratchDirectory;
+    //
+    private final BookKeepingTables <Functor, INameable <Functor>> bkt = new BookKeepingTables <>();
     protected LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer;
     protected LogicCompilerObserver <Clause, Clause> observer2;
-    private BookKeepingTables <FunctorName, ? extends org.ltc.hitalk.compiler.bktables.INameable <? extends FunctorName>> bkt = new BookKeepingTables <FunctorName, org.ltc.hitalk.compiler.bktables.INameable <? extends FunctorName>>();
     /**
      * Holds the pre-compiler, for analyzing and transforming terms prior to compilation proper.
      */
@@ -156,6 +167,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
      */
     public
     HiTalkCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner, HiTalkDefaultBuiltIn defaultBuiltIn ) {
+
         super(symbolTable, interner);
 
         preCompiler = new HiTalkCompilerPreprocessor <>(symbolTable, interner, defaultBuiltIn);
@@ -166,13 +178,27 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
         observer = new ChainedCompilerObserver();
         instructionCompiler.setCompilerObserver(observer);
         scratchDirectory = ".\\" + SCRATCH_DIRECTORY;
+
+        tf = new TermFactory(interner);
+
+        EXPANDING = tf.createIdentifier(HtEntityKind.PROTOCOL, "expanding");
+        MONITORING = tf.createIdentifier(HtEntityKind.PROTOCOL, "monitoring");
+        FORWARDING = tf.createIdentifier(HtEntityKind.PROTOCOL, "forwarding");
+        USER = tf.createIdentifier(HtEntityKind.OBJECT, "user");
+        LOGTALK = tf.createIdentifier(HtEntityKind.OBJECT, "logtalk");
+        CORE_MESSAGES = tf.createIdentifier(HtEntityKind.CATEGORY, "core_messages");
+        OBJECT = tf.createIdentifier(HtEntityKind.OBJECT, "object");
+        PROTOCOL = tf.createIdentifier(HtEntityKind.OBJECT, "protocol");
+        CATEGORY = tf.createIdentifier(HtEntityKind.OBJECT, "category");
+
+        ENUM = tf.createIdentifier(HtEntityKind.OBJECT, "enum");
     }
 
     /**
      *
      */
     private
-    void initialize () {
+    void initialize () throws IOException, SourceCodeException {
         initBookKeepingTables();
         initDirectives();
         cacheCompilerFlags();
@@ -197,49 +223,68 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
         return null;
     }
 
+    /**
+     * @param identifier
+     * @param fileName
+     * @param scratchDir
+     * @throws IOException
+     * @throws SourceCodeException
+     */
     private
-    void loadBuiltInEntity ( HtEntityIdentifier identifier, HtEntityKind entityKind, String fileName, String scratchDir ) {
-        Map <FunctorName, INameable <FunctorName>> loadedEntsTable = (Map <FunctorName, INameable <FunctorName>>) bkt.getTables()[LOADED_ENTITIES.ordinal()];
-//        Iterator <? extends INameable <? extends FunctorName>> iter = bkt.getIterator(new identifier, entityKind);
-//
-//        while (iter.hasNext()) {
-//            INameable <? extends FunctorName> next = iter.next();
-//
-//        }
+    void loadBuiltInEntity ( HtEntityIdentifier identifier, String fileName, String scratchDir ) throws IOException, SourceCodeException {
 
-        //   HtEntity entity=current(entityKind);
+        Map <Functor, INameable <Functor>> loadedEntities = bkt.getTables()[LOADED_ENTITIES.ordinal()];
+        if (!loadedEntities.containsKey(identifier)) {
+            compileLoad(fileName,///core()
+                    //we need a fixed code prefix as some of the entity predicates may need
+//                    to be called directly by the compiler/runtime
+                    tf.createFlag("code_prefix", "$"),
+                    //delete the generated intermediate files as they may be non-portable
+                    //between backend Prolog compilers
+                    tf.createFlag("clean", "on"),
+                    //use a scratch directory where we expect to have writing permission
+                    tf.createFlag("scratch_directory", scratchDir),
+                    //optimize entity code, allowing static binding to this entity resource
+                    tf.createFlag("optimize", "on"),
+                    //don't print any messages on the compilation and loading of these entities
+                    tf.createFlag("report", "off"),
+                    //prevent any attempts of logtalk_make(all) to reload this file
+                    tf.createFlag("reload", "skip"));
+        }
+    }
 
-//        bkt
-//            (	Type == protocol,
-//                    Current_protocol_(Entity, _, _, _, _) ->
-//        true
-//        ;	Type == category,
-//                CurrentCategory_(Entity, _, _, _, _, _) ->
-//        true
-//        ;	Type == object,
-//                Current_object_(Entity, _, _, _, _, _, _, _, _, _, _) ->
-//        true
-//        ;	% not an embedded entity; compile and load it
-//        logtalkLoad(
-//                core(File),
-//                [	% we need a fixed code prefix as some of the entity predicates may need
-//        //to be called directly by the compiler/runtime
-//        code_prefix('$'),
-//                //delete the generated intermediate files as they may be non-portable
-//                //between backend Prolog compilers
-//                clean(on),
-//                //use a scratch directory where we expect to have writing permission
-//                scratchDirectory(ScratchDirectory),
-//                //optimize entity code, allowing static binding to this entity resources
-//                optimize(on),
-//                //don't print any messages on the compilation and loading of these entities
-//                report(off),
-//                //prevent any attempts of logtalk_make(all) to reload this file
-//                reload(skip)
-//        ]
-//        )
-//        ).
+    /**
+     * @param fileNames
+     * @param flags
+     * @throws IOException
+     * @throws SourceCodeException
+     */
+    public
+    void compileLoad ( List <String> fileNames, HiTalkFlag... flags ) throws IOException, SourceCodeException {
+        for (String fileName : fileNames) {
+            compileLoad(fileName, flags);
+        }
 
+    }
+
+    /**
+     * @param fileName
+     * @param flags
+     * @throws IOException
+     * @throws SourceCodeException
+     */
+    public
+    void compileLoad ( String fileName, HiTalkFlag... flags ) throws IOException, SourceCodeException {
+        compileFile(fileName, flags);
+        loadFile(fileName, flags);
+    }
+
+    /**
+     * @param fileName
+     * @param flags
+     */
+    public
+    void loadFile ( String fileName, HiTalkFlag[] flags ) {
     }
 
     /**
@@ -267,7 +312,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
      */
     private
     void initBookKeepingTables () {
-        bkt = new BookKeepingTables <>();
+
     }
 
     /**
@@ -277,7 +322,8 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
     private
     void compileHooks () {
         Map <?, ?> table; //= bkt.getTable(TERM_EXPANSION_DEFAULT_HOOKS);
-//        LogtalkFlag.Hook
+    }
+    //        LogtalkFlag.Hook
 //        table=bkt.getTable(RUNTIME_FLAGS);
 //        table.forEach(new BiConsumer<String, HtEntity>(){
 //
@@ -296,7 +342,6 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
 //        CurrentFlag_(events, Events),
 //                Compile_message_to_object(term_expansion(Term, Terms), HookEntity, TermExpansionGoal, Events, Ctx),
 //                Compile_message_to_object(goal_expansion(Goal, ExpandedGoal), HookEntity, GoalExpansionGoal, Events, Ctx)
-    }
 
 
     private
@@ -1040,14 +1085,14 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
 
     private
     void cacheCompilerFlags () {
+    }
+    //compiling and loading built-in predicates
 
-        //compiling and loading built-in predicates
 
+    //CompilerFlag(+atom, ?nonvar)
 
-        //CompilerFlag(+atom, ?nonvar)
-
-        //gets/checks the current value of a compiler flag; the default flag
-        //values and the backend Prolog feature flags are cached at startup
+    //gets/checks the current value of a compiler flag; the default flag
+    //values and the backend Prolog feature flags are cached at startup
 
 //        getCompilerFlag(Name, Value) :-
 //                (	pp_entityCompilerFlag_(Name, CurrentValue) ->
@@ -1064,14 +1109,14 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
 //
 
 
-        //logtalkCompile(@sourceFile_name)
-        //logtalkCompile(@list(sourceFile_name))
+    //logtalkCompile(@sourceFile_name)
+    //logtalkCompile(@list(sourceFile_name))
 
-        //compiles to disk a source file or list of source files using default flags
+    //compiles to disk a source file or list of source files using default flags
 
-        //top-level calls use the current working directory for resolving any relative
-        //source file paths while compiled calls in a source file use the source file
-        //directory by default
+    //top-level calls use the current working directory for resolving any relative
+    //source file paths while compiled calls in a source file use the source file
+    //directory by default
 
 //        logtalkCompile(Files) :-
 //                executionContext(ExCtx, user, user, user, user, [], []),
@@ -1102,17 +1147,17 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
 //        throw(error(Error, logtalk(logtalkCompile(Files), ExCtx))).
 
 
-        //logtalkCompile(@sourceFile_name, @list(compilerFlag))
-        //logtalkCompile(@list(sourceFile_name), @list(compilerFlag))
+    //logtalkCompile(@sourceFile_name, @list(compilerFlag))
+    //logtalkCompile(@list(sourceFile_name), @list(compilerFlag))
 
-        //compiles to disk a source file or a list of source files using a list of flags
+    //compiles to disk a source file or a list of source files using a list of flags
 
-        //top-level calls use the current working directory for resolving any relative
-        //source file paths while compiled calls in a source file use the source file
-        //directory by default
+    //top-level calls use the current working directory for resolving any relative
+    //source file paths while compiled calls in a source file use the source file
+    //directory by default
 
-        //note that we can only clean the compiler flags after reporting warning numbers as the
-        //report/1 flag might be included in the list of flags but we cannot test for it as its
+    //note that we can only clean the compiler flags after reporting warning numbers as the
+    //report/1 flag might be included in the list of flags but we cannot test for it as its
 //        //value should only be used in the default code for printing messages
 //        private void logtalkCompile (List < String > files, List < Flag > flags){
 //
@@ -1328,8 +1373,6 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
 //        retractall(ppFileCompilerFlag_(Name, _)), assertz(ppFileCompilerFlag_(Name, Value)), AssertCompilerFlags(Flags).
 
 
-    }
-
     private
     void startRuntimeThreading () {
 
@@ -1344,38 +1387,17 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
     /**
      * loads all built-in entities if not already loaded (when embedding
      * Logtalk, the pre-compiled entities are loaded prior to this file)
-     * <p>
-     * loadBuiltInEntities(ScratchDirectory) :-
-     * //            (
-     * //            loadBuiltInEntity(expanding, protocol, "expanding", ScratchDirectory),
-     * //            loadBuiltInEntity(monitoring, protocol, "monitoring", ScratchDirectory),
-     * //            loadBuiltInEntity(forwarding, protocol, "forwarding", ScratchDirectory),
-     * //            loadBuiltInEntity(user, object, "user", ScratchDirectory),
-     * //            loadBuiltInEntity(logtalk, object, "logtalk", ScratchDirectory),
-     * //            loadBuiltInEntity(core_messages, category, "core_messages", ScratchDirectory),
-     * //
-     * //
-     * //            loadBuiltInEntity(Entity, Type, File, ScratchDirectory) :-
-     * //            (	Type == protocol,
-     * //            Current_protocol_(Entity, _, _, _, _) ->
-     * //            true
-     * //    ;	Type == category,
-     * //            CurrentCategory_(Entity, _, _, _, _, _) ->
-     * //            true
-     * //    ;	Type == object,
-     * //            Current_object_(Entity, _, _, _, _, _, _, _, _, _, _) ->
-     * //            true
-     * //    ;	% not an embedded entity; compile and load it
-     * //    logtalkLoad(
-     * //            core(File),
-     * //        [	% we need a fixed code prefix as some of the entity predicates may need
-     * //to be called directly by the compiler/runtime
-     * //        code_prefix("$"),
      */
     private
-    String loadBuiltInEntities () {
+    String loadBuiltInEntities () throws IOException, SourceCodeException {
         String scratchDir = getScratchDirectory();
-        loadBuiltInEntity(EXPANDING, PROTOCOL, "expanding", scratchDir), loadBuiltInEntity(MONITORING, PROTOCOL, "monitoring", scratchDir), loadBuiltInEntity(FORWARDING, PROTOCOL, "forwarding", scratchDir), loadBuiltInEntity(USER, OBJECT, "user", scratchDir), loadBuiltInEntity(LOGTALK, OBJECT, "logtalk", scratchDir), loadBuiltInEntity(CORE_MESSAGES, CATEGORY, "core_messages", scratchDir);
+        loadBuiltInEntity(EXPANDING, "expanding", scratchDir);
+        loadBuiltInEntity(MONITORING, "monitoring", scratchDir);
+        loadBuiltInEntity(FORWARDING, "forwarding", scratchDir);
+        loadBuiltInEntity(USER, "user", scratchDir);
+        loadBuiltInEntity(LOGTALK, "logtalk", scratchDir);
+        loadBuiltInEntity(CORE_MESSAGES, "core_messages", scratchDir);
+        loadBuiltInEntity(ENUM, "enum", scratchDir);
 
         return scratchDir;
     }
@@ -1395,49 +1417,16 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
      * writeq(Component), write(' '), write(Kind), write(': '), writeq(Message), nl
      * ).
      */
-    private
-    void printMessage ( Functor kind, Atom component, Atom message ) {
-//        if (getCompilerFlag(FlagKey.REPORTS) != FlagValue.OFF) {
-//
-//
-//        }
-    }
-
 //    private
-//    FlagValue getCompilerFlag ( FlagKey reports ) {
-//        return null;
-//    }
-
-    private
-    void setCompilerFlag ( String scratch ) {
-
-    }
-//
-//    public
-//    void setApplication ( HiTalkApp app ) {
-//
-//    }
-
+//    void printMessage ( Functor kind, Atom component, Atom message ){
+////        if (getCompilerFlag(FlagKey.REPORTS) != FlagValue.OFF) {
+////
+////
+////        }
+//        }
     public
     String getScratchDirectory () {
         return scratchDirectory;
-    }
-
-    public
-    void setScratchDirectory ( String scratchDirectory ) {
-        this.scratchDirectory = scratchDirectory;
-    }
-
-    /**
-     * Compiles a sentence into a (presumably binary) form, that provides a Java interface into the compiled structure.
-     *
-     * @param sentence The sentence to compile.
-     * @throws SourceCodeException If there is an error in the source to be compiled that prevents its compilation.
-     */
-    @Override
-    public
-    void compile ( Sentence <Clause> sentence ) throws SourceCodeException {
-        ICompiler.super.compile(sentence);
     }
 
     /**
@@ -1460,18 +1449,6 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
     public
     void endScope () throws SourceCodeException {
 
-    }
-
-    @Override
-    public
-    HiTalkCompilerPreprocessor getPreCompiler () {
-        return preCompiler;
-    }
-
-    @Override
-    public
-    Parser <Clause, Token> getParser () {
-        return null;
     }
 
     private
@@ -1549,8 +1526,31 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
             getResolver().setQuery(sentence.getT());
         }
     }
-}
 
+    /**
+     * Compiles a sentence into a (presumably binary) form, that provides a Java interface into the compiled structure.
+     *
+     * @param sentence The sentence to compile.
+     * @throws SourceCodeException If there is an error in the source to be compiled that prevents its compilation.
+     */
+    @Override
+    public
+    void compile ( Sentence <Clause> sentence ) throws SourceCodeException {
+
+    }
+
+    @Override
+    public
+    LogicCompiler <Clause, Clause, Clause> getPreCompiler () {
+        return null;
+    }
+
+    @Override
+    public
+    Parser <Clause, Token> getParser () {
+        return null;
+    }
+}
 
 /*
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -5290,7 +5290,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
         (	(PredFlags /\ 2 =:= 2; ObjFlags /\ 2 =:= 2, Sender = SCtn) ->
    //either a dynamic predicate or a dynamic object that is both the sender and the predicate scope container
         (	(Scope = TestScope; Sender = SCtn) ->
-        (	(call(DDef, Head, _, THead0); call(Def, Head, _, THead0)) ->
+        (	(call(DDef, Head, _, THead0, HtEntityKind.P); call(Def, Head, _, THead0)) ->
         unwrapCompiled_head(THead0, THead),
         clause(THead, TBody),
         (	TBody = (nop(Body), _) ->
@@ -5312,7 +5312,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
         throw(error(permission_error(access, static_predicate, Functor/Arity), logtalk(clause(Head, Body), ExCtx)))
         )
         ;	Obj = Sender,
-        (call(DDef, Head, _, THead0); call(Def, Head, _, THead0)) ->
+        (call(DDef, Head, _, THead0, HtEntityKind.P); call(Def, Head, _, THead0)) ->
    //local dynamic predicate with no scope declaration
         unwrapCompiled_head(THead0, THead),
         clause(THead, TBody),
@@ -8135,7 +8135,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
         propertyLocation(MainFile, File, Line, Location),
         assertz(ppRuntimeClause_(predicate_property_(Entity, Functor/Arity, declarationLocation(Location)))),
         \+ ppDefines_predicate_(_, Functor/Arity, _, _, _, _),
-        assertz(ppRuntimeClause_(predicate_property_(Entity, Functor/Arity, flagsClausesRulesLocation(0, 0, 0, 0)))),
+        assertz(ppRuntimeClause_(predicate_property_(Entity, Functor/Arity, flagsClausesRulesLocation(0, 0, 0)))),
         fail.
 
         Add_entity_predicate_properties(Entity, MainFile) :-
@@ -24605,18 +24605,6 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
         ReportSettingsFile(Result),
         print_message(comment(help), core, help),
         Check_prolog_version',
-        assertz(RuntimeInitializationCompleted_').
+        assertz(RuntimeInitializationC
 
-
-        :- initialization(RuntimeInitialization').
-
-
-
-
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %
-   // end!
-        %
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-*/
+ */

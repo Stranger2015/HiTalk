@@ -1,30 +1,18 @@
 package org.ltc.hitalk.entities;
 
-import com.thesett.aima.logic.fol.FunctorName;
-
 /**
  *
  */
 public
-class HtPredicateDefinition implements IPropertyOwner <FunctorName> {
+class HtPredicateDefinition extends PropertyOwner {
 
-    private final static int PROPS_LENGTH = 7;
-    private final HtProperty[] props;
+//    private final static int PROPS_LENGTH = 7;
 
     /**
      * @param props
      */
     public
-    HtPredicateDefinition ( HtProperty[] props ) {
-        this.props = props;
-    }
-
-    /**
-     * @return
-     */
-    @Override
-    public
-    int getPropLength () {
-        return PROPS_LENGTH;
+    HtPredicateDefinition ( HtProperty... props ) {
+        super(props);
     }
 }

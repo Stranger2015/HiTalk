@@ -2,7 +2,8 @@ package org.ltc.hitalk.wam.transformers;
 
 
 import com.thesett.aima.logic.fol.Term;
-import org.ltc.hitalk.wam.context.ExecutionContext;
+import org.ltc.hitalk.entities.context.ExecutionContext;
+import org.ltc.hitalk.entities.context.IMetrics;
 import org.ltc.hitalk.wam.context.ExecutionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

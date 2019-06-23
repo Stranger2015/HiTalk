@@ -11,28 +11,14 @@ package org.ltc.hitalk.entities;
  * number_of_rules_integer,
  */
 public
-class HtPredicateAlias implements IPropertyOwner <HtPredicateIndicator> {
-    private final static int PROPS_LENGTH = 5;
-    private final HtProperty[] props;
-
-    @Override
-    public
-    int getPropLength () {
-        return PROPS_LENGTH;
-    }
+class HtPredicateAlias extends PropertyOwner {
+    //  private final static int PROPS_LENGTH = 5;
 
     /**
-     * @return
+     * @param props
      */
-    @Override
     public
-    HtPredicateIndicator[] getNames () {
-        return new HtPredicateIndicator[0];
-    }
-
-    public
-    HtPredicateAlias ( HtProperty[] props ) {
-
-        this.props = props;
+    HtPredicateAlias ( HtProperty... props ) {
+        super(props);
     }
 }
