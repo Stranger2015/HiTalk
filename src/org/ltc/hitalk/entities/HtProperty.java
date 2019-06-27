@@ -14,14 +14,20 @@ class HtProperty implements INameable <Functor> {
     protected Functor name;
     protected Term value;
 
+    /**
+     * @param name
+     * @param args
+     */
     public
-    HtProperty ( Functor name, ListTerm args ) {
-
+    HtProperty ( int name, ListTerm args ) {
         this.name = name;
         this.value = args;
     }
 
+//  YYTUUYYY
+
     /**
+     *
      * @return
      */
     public

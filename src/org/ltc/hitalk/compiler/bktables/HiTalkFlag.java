@@ -8,12 +8,13 @@ import com.thesett.aima.logic.fol.Term;
  */
 public
 class HiTalkFlag extends Functor {
+
     /**
-     * @param ffn
-     * @param ffv
+     * @param name
+     * @param value
      */
     public
-    HiTalkFlag ( int ffn, int ffv ) {
-        super(ffn, new Term[]{new Functor(ffv, new Term[0])});
+    HiTalkFlag ( int name, Term value ) {
+        super(name, new Term[]{value});
     }
 }

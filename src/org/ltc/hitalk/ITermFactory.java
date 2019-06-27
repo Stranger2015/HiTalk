@@ -46,6 +46,7 @@ interface ITermFactory {
      */
     HiTalkFlag createFlag ( String name, Term... args );
 
+    HtProperty createProperty ( String name, String value );
     HtProperty createProperty ( String name, Term... args );
 
 }

@@ -27,7 +27,7 @@ class HtRelation {
     /**
      * @return
      */
-    public
+    public final
     HtEntityKind getEntityKind () {
         return entityKind;
     }
@@ -35,7 +35,7 @@ class HtRelation {
     /**
      * @return
      */
-    public
+    public final
     HtEntityHierarchyKind getHierarchyKind () {
         return hierarchyKind;
     }
@@ -43,7 +43,7 @@ class HtRelation {
     /**
      * @return
      */
-    public
+    public final
     HtRelationKind getRelationKind () {
         return relationKind;
     }

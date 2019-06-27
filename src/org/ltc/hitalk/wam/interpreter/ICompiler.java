@@ -8,6 +8,7 @@ import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.aima.logic.fol.isoprologparser.TokenSource;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
+import org.ltc.hitalk.entities.context.Context;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,6 +16,8 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import static com.thesett.aima.logic.fol.isoprologparser.TokenSource.*;
 
@@ -51,14 +54,14 @@ interface ICompiler<S extends Clause> {
     }
 
     /**
-     * @param s
+     * @param fn
      * @param flags
      * @throws IOException
      * @throws SourceCodeException
      */
     default
-    void compileString ( String s, HiTalkFlag... flags ) throws IOException, SourceCodeException {
-        compile(getTokenSourceForString(s), flags);
+    void compileString ( String fn, HiTalkFlag... flags ) throws IOException, SourceCodeException {
+        compile(getTokenSourceForString(fn), flags);
     }
 
     /**
@@ -73,12 +76,25 @@ interface ICompiler<S extends Clause> {
     }
 
     /**
+     * @param fn
+     * @param flags
+     * @throws IOException
+     * @throws SourceCodeException
+     */
+    default
+    void compileArchive ( String fn, ZipFile zipFile, HiTalkFlag... flags ) throws IOException, SourceCodeException {
+        ZipEntry zipEntry = zipFile.getEntry(fn);
+        InputStream input = zipFile.getInputStream(zipEntry);
+        compileInputStream(input, flags);
+    }
+
+    /**
      * @param tokenSource
      * @param flags
      * @throws SourceCodeException
      */
     default
-    void compile ( TokenSource tokenSource, HiTalkFlag... flags ) throws SourceCodeException {
+    void compile ( TokenSource tokenSource, Context context, HiTalkFlag... flags ) throws SourceCodeException {
         getParser().setTokenSource(tokenSource);
         try {
             while (true) {
@@ -86,7 +102,7 @@ interface ICompiler<S extends Clause> {
                 Sentence <Clause> sentence = (Sentence <Clause>) getParser().parse().getT();
 
                 getConsole().info(sentence.toString());
-                getPreCompiler().compile(sentence);
+                compile((Sentence <S>) sentence);
             }
         } catch (Exception e) {
             getConsole().log(Level.SEVERE, e.getMessage(), e);
@@ -94,11 +110,24 @@ interface ICompiler<S extends Clause> {
         }
     }
 
+    /**
+     * @return
+     */
     Logger getConsole ();
 
+    /**
+     * @return
+     */
     LogicCompiler <Clause, Clause, Clause> getPreCompiler ();
 
+    /**
+     * @return
+     */
     Parser <S, Token> getParser ();
 
+    /**
+     * @param sentence
+     * @throws SourceCodeException
+     */
     void compile ( Sentence <S> sentence ) throws SourceCodeException;
 }

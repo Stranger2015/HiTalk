@@ -1,12 +1,13 @@
 package org.ltc.hitalk.entities;
 
+import com.thesett.aima.logic.fol.Functor;
 import org.ltc.hitalk.compiler.bktables.INameable;
 
 /**
  *
  */
 public
-class HtEntity extends PropertyOwner implements INameable <HtEntityIdentifier> {
+class HtEntity extends PropertyOwner implements INameable <Functor> {
 
     /**
      *
@@ -15,11 +16,20 @@ class HtEntity extends PropertyOwner implements INameable <HtEntityIdentifier> {
 
     /**
      *
-     * @param identifier
+     * @param kind
      */
     protected
-    HtEntity ( HtEntityIdentifier identifier ) {
-        this.identifier = identifier;
+    HtEntity ( Functor functor, HtEntityKind kind, HtProperty... props ) {
+        this.identifier = new HtEntityIdentifier(functor, kind);
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    Functor getName () {
+        return identifier;
     }
 
 
@@ -37,16 +47,6 @@ class HtEntity extends PropertyOwner implements INameable <HtEntityIdentifier> {
 //
 //        return 0;
 //    }
-
-    /**
-     * @return
-     */
-    @Override
-    public
-    HtEntityIdentifier getName () {
-        return identifier;
-    }
-
 //    /**
 //     *
 //     */

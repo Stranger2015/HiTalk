@@ -6,12 +6,13 @@ import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.bktables.BookKeepingTables;
+import org.ltc.hitalk.compiler.bktables.BookKeepingTables.BkTableKind;
 import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
 import org.ltc.hitalk.compiler.bktables.INameable;
 import org.ltc.hitalk.compiler.bktables.TermFactory;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
-import org.ltc.hitalk.entities.context.CompilationContext;
+import org.ltc.hitalk.entities.context.Context;
 import org.ltc.hitalk.term.Atom;
 import org.ltc.hitalk.wam.interpreter.ICompiler;
 
@@ -124,10 +125,19 @@ import static org.ltc.hitalk.compiler.bktables.BookKeepingTables.BkTableKind.LOA
 public
 class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> implements ICompiler <Clause> {
 
-    private static final String SCRATCH_DIRECTORY = "scratch";
-    private static final String DEFAULT_FLAGS = "";
+    private static final String DEFAULT_SCRATCH_DIRECTORY = "scratch";
+    //
     private static final String BANNER = "\nHiTalk compiler, v0.0.1-b#%d Anton Danilov (c) 2019, All rights reserved\n";
-
+    /**
+     * <code>access(Access)</code>,  where <code>Access</code> can be either <code>read_write (the default) or <code>read_only;
+     * keep(Keep),      where <code>Keep can be either <code>false (the default) or <code>true, for deciding
+     * if an existing definition of the flag should be kept or replaced by the new one;
+     * type(Type)       for specifying the type of the flag, which can be <code>boolean, <code>atom, <code>integer, <code>float, <code>term.
+     * (which only restricts the flag value to ground terms).
+     * When the <code>type/1 option is not specified, the type of the flag is inferred
+     * from its initial value.
+     */
+    public final HiTalkFlag[] DEFAULT_FLAGS;
     //library entity names
     private final HtEntityIdentifier EXPANDING;
     private final HtEntityIdentifier MONITORING;
@@ -141,13 +151,18 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
     private final HtEntityIdentifier CATEGORY;
     private final HtEntityIdentifier ENUM;
 
+//
+//    Availability:built-in
+//           boolean compiling/0
+//    True if the system is compiling source files with the -c option or qcompile/1 into an intermediate code file. Can be used to perform conditional code optimisations in term_expansion/2 (see also the -O option) or to omit execution of directives during compilation.
+
+
     /**
      * Used for logging to the console.
      */
     private /*static*/ final Logger console = Logger.getLogger("CONSOLE." + getClass().getSimpleName());
 
     private final ITermFactory tf;
-
     /**
      * Holds the instruction generating compiler.
      */
@@ -177,7 +192,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
         instructionCompiler = new HiTalkInstructionCompiler(symbolTable, interner);
         observer = new ChainedCompilerObserver();
         instructionCompiler.setCompilerObserver(observer);
-        scratchDirectory = ".\\" + SCRATCH_DIRECTORY;
+        scratchDirectory = ".\\" + DEFAULT_SCRATCH_DIRECTORY;
 
         tf = new TermFactory(interner);
 
@@ -192,6 +207,12 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
         CATEGORY = tf.createIdentifier(HtEntityKind.OBJECT, "category");
 
         ENUM = tf.createIdentifier(HtEntityKind.OBJECT, "enum");
+
+        DEFAULT_FLAGS = new HiTalkFlag[]{
+                tf.createFlag("access", "read_write"),//read_only
+                tf.createFlag("keep", "false"), tf.createFlag("type", "false"),
+
+                };
     }
 
     /**
@@ -223,6 +244,11 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
         return null;
     }
 
+    protected
+    Map <Functor, INameable <Functor>> get ( BkTableKind tableKind ) {
+        return bkt.getTables()[tableKind.ordinal()];
+    }
+
     /**
      * @param identifier
      * @param fileName
@@ -233,7 +259,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
     private
     void loadBuiltInEntity ( HtEntityIdentifier identifier, String fileName, String scratchDir ) throws IOException, SourceCodeException {
 
-        Map <Functor, INameable <Functor>> loadedEntities = bkt.getTables()[LOADED_ENTITIES.ordinal()];
+        Map <Functor, INameable <Functor>> loadedEntities = get(LOADED_ENTITIES);
         if (!loadedEntities.containsKey(identifier)) {
             compileLoad(fileName,///core()
                     //we need a fixed code prefix as some of the entity predicates may need
@@ -264,7 +290,6 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
         for (String fileName : fileNames) {
             compileLoad(fileName, flags);
         }
-
     }
 
     /**
@@ -285,6 +310,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
      */
     public
     void loadFile ( String fileName, HiTalkFlag[] flags ) {
+
     }
 
     /**
@@ -320,9 +346,30 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
      * (replacing any existing defined hooks)
      */
     private
-    void compileHooks () {
+    void compileHooks ( HtEntityIdentifier hookEntity ) {
+
         Map <?, ?> table; //= bkt.getTable(TERM_EXPANSION_DEFAULT_HOOKS);
+
+//        Compile_hooks(HookEntity) :-
+//                CompCtx(Ctx, _, _, user, user, user, HookEntity, _, [], [], ExCtx, runtime, [], _),
+//        executionContext(ExCtx, user, user, user, HookEntity, [], []),
+//        CurrentFlag_(events, Events),
+//                Compile_message_to_object(term_expansion(Term, ExpandedTerm), HookEntity, TermExpansionGoal, Events, Ctx),
+//                Compile_message_to_object(goal_expansion(Term, ExpandedTerm), HookEntity, GoalExpansionGoal, Events, Ctx),
+//                retractall(hook_term_expansion_(_, _)),
+//                assertz((
+//                        hook_term_expansion_(Term, ExpandedTerm) :-
+//        catch(TermExpansionGoal, Error, term_expansion_error(HookEntity, Term, Error))
+//        )),
+//        retractall(hook_goal_expansion_(_, _)),
+//                assertz((
+//                        hook_goal_expansion_(Term, ExpandedTerm) :-
+//        catch(GoalExpansionGoal, Error, goal_expansion_error(HookEntity, Term, Error))
+//        )).
+
     }
+
+
     //        LogtalkFlag.Hook
 //        table=bkt.getTable(RUNTIME_FLAGS);
 //        table.forEach(new BiConsumer<String, HtEntity>(){
@@ -367,7 +414,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
     //messages to the pseudo-object "user"
 
     private
-    void compileMmessageToObject ( Term pred, HtEntityIdentifier obj, ICallable call, Atom atom, CompilationContext ctx ) {
+    void compileMmessageToObject ( Term pred, HtEntityIdentifier obj, ICallable call, Atom atom, Context ctx ) {
         if (obj.equals(USER) && pred.isVar() || pred.isFunctor()) {
 
         }
@@ -1457,6 +1504,30 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
     }
 
     /**
+     * Compiles a sentence into a (presumably binary) form, that provides a Java interface into the compiled structure.
+     *
+     * @param sentence The sentence to compile.
+     * @throws SourceCodeException If there is an error in the source to be compiled that prevents its compilation.
+     */
+    @Override
+    public
+    void compile ( Sentence <Clause> sentence ) throws SourceCodeException {
+
+    }
+
+    @Override
+    public
+    LogicCompiler <Clause, Clause, Clause> getPreCompiler () {
+        return preCompiler;
+    }
+
+    @Override
+    public
+    Parser <Clause, Token> getParser () {
+        return null;//fixme
+    }
+
+    /**
      *
      */
     class ClauseChainObserver implements LogicCompilerObserver <Clause, Clause> {
@@ -1525,30 +1596,6 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
 
             getResolver().setQuery(sentence.getT());
         }
-    }
-
-    /**
-     * Compiles a sentence into a (presumably binary) form, that provides a Java interface into the compiled structure.
-     *
-     * @param sentence The sentence to compile.
-     * @throws SourceCodeException If there is an error in the source to be compiled that prevents its compilation.
-     */
-    @Override
-    public
-    void compile ( Sentence <Clause> sentence ) throws SourceCodeException {
-
-    }
-
-    @Override
-    public
-    LogicCompiler <Clause, Clause, Clause> getPreCompiler () {
-        return null;
-    }
-
-    @Override
-    public
-    Parser <Clause, Token> getParser () {
-        return null;
     }
 }
 

@@ -26,8 +26,18 @@ class HtEntityIdentifier extends Functor {
     }
 
     /**
+     * @param functor
+     * @param kind
+     */
+    public
+    HtEntityIdentifier ( Functor functor, HtEntityKind kind ) {
+        this(functor.getName(), functor.getArguments(), kind);
+    }
+
+    /**
      * @return
      */
+    public final
     HtEntityKind getKind () {
         return kind;
     }

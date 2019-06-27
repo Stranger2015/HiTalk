@@ -20,6 +20,7 @@
       <w>inliner</w>
       <w>interner</w>
       <w>logtalk</w>
+      <w>metacall</w>
       <w>multifile</w>
       <w>nonvar</w>
       <w>optimizeable</w>

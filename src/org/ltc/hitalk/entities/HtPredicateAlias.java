@@ -6,7 +6,7 @@ package org.ltc.hitalk.entities;
  * non_terminal_non_terminal_indicator,
  * include_atom,
  * line_count_integer,
- * // ----------------------------------------------------
+ * //
  * number_of_clauses_integer,  !!!!!!!!!!!!!!
  * number_of_rules_integer,
  */

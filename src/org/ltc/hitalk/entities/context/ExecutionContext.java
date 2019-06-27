@@ -1,10 +1,7 @@
 package org.ltc.hitalk.entities.context;
 
 
-import org.ltc.hitalk.entities.HtEntityIdentifier;
-import org.ltc.hitalk.wam.compiler.ICallable;
-
-import java.util.List;
+import org.ltc.hitalk.entities.HtProperty;
 
 /**
  * execution_context(
@@ -28,15 +25,22 @@ import java.util.List;
  * @list(callable) )
  * - zero_or_one
  */
+@Deprecated
 public
-class ExecutionContext {
-    HtEntityIdentifier sender;
-    HtEntityIdentifier this_;
-    HtEntityIdentifier self;
-    HtEntityIdentifier entity;
-    List <ICallable>
+class ExecutionContext extends Context {
+//    HtEntityIdentifier sender;
+//    HtEntityIdentifier this_;
+//    HtEntityIdentifier self;
+//    HtEntityIdentifier entity;
+//    List <ICallable>
+//
+//            metaCallContext, coinductionStack;
 
-            metaCallContext, coinductionStack;
+
+    public
+    ExecutionContext ( HtProperty... props ) {
+        super(props);
+    }
 
     public
     IMetrics getCurrentMetrics () {

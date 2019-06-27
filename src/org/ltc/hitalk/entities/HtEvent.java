@@ -12,7 +12,7 @@ class HtEvent<NT> implements INameable <NT> {
     private final Term obj;
     private final Term sender;
     private final Term message;
-    private final HtEntity monitor;
+    private final HtEntityIdentifier monitor;
     private final Term call;
 
     /**
@@ -24,7 +24,7 @@ class HtEvent<NT> implements INameable <NT> {
      * @param call
      */
     public
-    HtEvent ( NT name, Term obj, Term sender, Term message, HtEntity monitor, Term call ) {
+    HtEvent ( NT name, Term obj, Term sender, Term message, HtEntityIdentifier monitor, Term call ) {
         this.name = name;
         this.obj = obj;
         this.sender = sender;
