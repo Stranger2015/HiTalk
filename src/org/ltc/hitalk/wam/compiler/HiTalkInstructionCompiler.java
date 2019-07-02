@@ -20,10 +20,12 @@ import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.logic.fol.compiler.PositionalTermTraverser;
 import com.thesett.aima.logic.fol.compiler.PositionalTermTraverserImpl;
 import com.thesett.aima.logic.fol.compiler.TermWalker;
-import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.aima.logic.fol.wam.TermWalkers;
 import com.thesett.aima.logic.fol.wam.builtins.Cut;
-import com.thesett.aima.logic.fol.wam.compiler.*;
+import com.thesett.aima.logic.fol.wam.compiler.PositionAndOccurrenceVisitor;
+import com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys;
+import com.thesett.aima.logic.fol.wam.compiler.WAMInstruction;
+import com.thesett.aima.logic.fol.wam.compiler.WAMLabel;
 import com.thesett.aima.logic.fol.wam.printer.WAMCompiledPredicatePrintingVisitor;
 import com.thesett.aima.logic.fol.wam.printer.WAMCompiledQueryPrintingVisitor;
 import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
@@ -33,6 +35,7 @@ import com.thesett.common.util.SizeableLinkedList;
 import com.thesett.common.util.SizeableList;
 import com.thesett.common.util.doublemaps.SymbolKey;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
 import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn.VarIntroduction;
 import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
 
@@ -143,17 +146,17 @@ import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.STACK_ADDR;
  * <pre><p/><table id="crc"><caption>CRC Card</caption>
  * <tr><th> Responsibilities <th> Collaborations
  * <tr><td> Transform WAM sentences into compiled byte code.
- *     <td> {@link HiTalkWAMMachine}, {@link WAMCompiledPredicate}
+ *     <td> {@link HiTalkWAMMachine}, {@link HiTalkWAMCompiledPredicate}
  * </table></pre>
  *
  * @author Rupert Smith
  */
 public
-class HiTalkInstructionCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> implements HiTalkBuiltIn {
+class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> implements HiTalkBuiltIn {
 
     private final HiTalkDefaultBuiltIn defaultBuiltIn;
 
-    /* Used for debugging. */
+    // Used for debugging.
     /* private static final Logger log = Logger.getLogger(HiTalkInstructionCompiler.class.getName()); */
 
     /**
@@ -179,10 +182,10 @@ class HiTalkInstructionCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledP
      * Keeps count of the current compiler scope, to keep symbols in each scope fresh.
      */
     protected int scope;
-    /**
-     * Holds the compiler output observer.
-     */
-    private LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer;
+//    /**
+//     * Holds the compiler output observer.
+//     */
+//    private LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer;
     /**
      * Holds the current nested compilation scope symbol table.
      */
@@ -202,13 +205,26 @@ class HiTalkInstructionCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledP
         optimizer = new HiTalkWAMOptimizer(symbolTable, interner);
         defaultBuiltIn = new HiTalkDefaultBuiltIn(symbolTable, interner);
     }
+//
+//    /**
+//     * {@inheritDoc}
+//     * @param observer
+//     */
+//    public
+//    void setCompilerObserver ( LogicCompilerObserver observer ) {
+//        this.observer = observer;
+//    }
+
 
     /**
-     * {@inheritDoc}
+     * Establishes an observer on the compiled forms that the compiler outputs.
+     *
+     * @param observer The compiler output observer.
      */
+    @Override
     public
-    void setCompilerObserver ( LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer ) {
-        this.observer = observer;
+    void setCompilerObserver ( LogicCompilerObserver observer ) {
+
     }
 
     /**
@@ -946,16 +962,37 @@ class HiTalkInstructionCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledP
         return defaultBuiltIn.compileBodyCall(expression, isFirstBody, isLastBody, chainRule, permVarsRemaining);
     }
 
-    @Override
-    public
-    LogicCompiler <Clause, Clause, Clause> getPreCompiler () {
-        throw new UnsupportedOperationException();
-    }
+//    @Override
+//    public
+//    LogicCompiler <Clause, Clause, Clause> getPreCompiler () {
+//        throw new UnsupportedOperationException();
+//    }
 
-    @Override
+//    /**
+//     * @return
+//     */
+//    @Override
+//    public
+//    Logger getConsole () {
+//        return null;
+//    }
+//
+//    @Override
+//    public
+//    HtPrologParser getParser () {
+//        return null;
+//    }
+//
+
+    /**
+     * @param sentence
+     * @param flags
+     * @throws SourceCodeException
+     */
+//    @Override
     public
-    Parser <Clause, Token> getParser () {
-        return null;
+    void compile ( Sentence <Clause> sentence, HiTalkFlag... flags ) throws SourceCodeException {
+
     }
 
 //    @Override

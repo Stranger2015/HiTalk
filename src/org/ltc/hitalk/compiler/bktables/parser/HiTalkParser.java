@@ -18,6 +18,7 @@ package org.ltc.hitalk.compiler.bktables.parser;
 
 
 import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.OpSymbol.Fixity;
 import com.thesett.aima.logic.fol.isoprologparser.*;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.parsing.SourceCodePosition;
@@ -308,7 +309,7 @@ class HiTalkParser extends HiLogParser <Clause> {
         Term result;
 
         // Used to build the possible set of operators that this symbol could be parsed as.
-        EnumMap <OpSymbol.Fixity, OpSymbol> possibleOperators = operatorTable.getOperatorsMatchingNameByFixity(name.image);
+        EnumMap <Fixity, OpSymbol> possibleOperators = operatorTable.getOperatorsMatchingNameByFixity(name.image);
 
         // Check if the symbol mapped onto any candidate operators and if not create a constant for it.
         if ((possibleOperators == null) || possibleOperators.isEmpty()) {

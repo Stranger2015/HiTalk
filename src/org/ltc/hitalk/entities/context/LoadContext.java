@@ -1,7 +1,14 @@
 package org.ltc.hitalk.entities.context;
 
-import org.ltc.hitalk.entities.HtProperty;
-import org.ltc.hitalk.entities.PropertyOwner;
+import com.thesett.aima.logic.fol.Term;
+import com.thesett.aima.logic.fol.Variable;
+import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
+import org.ltc.hitalk.entities.HtEntityIdentifier;
+
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * logtalk_load_context/2
@@ -22,15 +29,46 @@ import org.ltc.hitalk.entities.PropertyOwner;
  * target               - the full path of the intermediate Prolog file
  * flags                - the list of the explicit flags used for the compilation of the source file
  * term                 - the source file term being compiled
- * term_position        - the position of the term being compiled (StartLine-EndLine)
+ * term_position        - the position of the term being compiled (StartLine - EndLine)
  * variable_names       - the variable names of the term being compiled ([Name1=Variable1, ...])
  */
 @Deprecated
 public
-class LoadContext extends PropertyOwner {
+class LoadContext extends Context {
+    String basename;
+    Path directory;
+    HtEntityIdentifier entityIdentifier;
+    //    entity_prefix,
+//    entity_type,IN eI
+    String file;
+    // HiTalkFlag[] flags;
+    Path source;
+    InputStream stream;
+    Path target;
+    Term term;
+    int[] termPosition = new int[]{0, 0};
+    Map <String, Variable> variableNames = new HashMap <>();
 
+    /**
+     * @param flags
+     */
     public
-    LoadContext ( HtProperty... props ) {
-        super(props);
+    LoadContext ( HiTalkFlag[] flags ) {
+        super(flags);
+    }
+
+    @Override
+    public
+    String get ( Kind.Loading basename ) {
+        return null;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    HiTalkFlag[] getFlags () {
+        return new HiTalkFlag[0];
     }
 }

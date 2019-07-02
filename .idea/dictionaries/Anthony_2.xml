@@ -21,6 +21,7 @@
       <w>interner</w>
       <w>logtalk</w>
       <w>metacall</w>
+      <w>metavars</w>
       <w>multifile</w>
       <w>nonvar</w>
       <w>optimizeable</w>
@@ -28,7 +29,9 @@
       <w>prolog</w>
       <w>rewriter</w>
       <w>specializer</w>
+      <w>sshtools</w>
       <w>supercall</w>
+      <w>traverser</w>
     </words>
   </dictionary>
 </component>

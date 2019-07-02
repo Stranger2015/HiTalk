@@ -1,5 +1,6 @@
 package org.ltc.hitalk.compiler.bktables.parser;
 
+
 import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.logic.fol.isoprologparser.PrologParser;
 import com.thesett.aima.logic.fol.isoprologparser.Token;

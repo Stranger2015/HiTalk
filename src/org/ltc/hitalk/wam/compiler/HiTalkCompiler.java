@@ -1,20 +1,25 @@
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.isoprologparser.ClauseParser;
 import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import com.thesett.common.util.doublemaps.SymbolTableImpl;
+import org.ltc.hitalk.HiTalkApp;
+import org.ltc.hitalk.HiTalkEngine;
 import org.ltc.hitalk.ITermFactory;
-import org.ltc.hitalk.compiler.bktables.BookKeepingTables;
+import org.ltc.hitalk.compiler.bktables.*;
 import org.ltc.hitalk.compiler.bktables.BookKeepingTables.BkTableKind;
-import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
-import org.ltc.hitalk.compiler.bktables.INameable;
-import org.ltc.hitalk.compiler.bktables.TermFactory;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
+import org.ltc.hitalk.entities.context.CompilationContext;
 import org.ltc.hitalk.entities.context.Context;
+import org.ltc.hitalk.entities.context.ExecutionContext;
+import org.ltc.hitalk.entities.context.LoadContext;
+import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.term.Atom;
-import org.ltc.hitalk.wam.interpreter.ICompiler;
+import org.ltc.hitalk.wam.machine.HiTalkWAMEngine;
 
 import java.io.IOException;
 import java.util.List;
@@ -123,11 +128,12 @@ import static org.ltc.hitalk.compiler.bktables.BookKeepingTables.BkTableKind.LOA
  * This problem can be avoided if a mutually dependent collection of files is always loaded from the same start file.
  */
 public
-class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> implements ICompiler <Clause> {
+class HiTalkCompiler extends HiTalkWAMEngine implements IApplication {
 
     private static final String DEFAULT_SCRATCH_DIRECTORY = "scratch";
     //
     private static final String BANNER = "\nHiTalk compiler, v0.0.1-b#%d Anton Danilov (c) 2019, All rights reserved\n";
+
     /**
      * <code>access(Access)</code>,  where <code>Access</code> can be either <code>read_write (the default) or <code>read_only;
      * keep(Keep),      where <code>Keep can be either <code>false (the default) or <code>true, for deciding
@@ -175,17 +181,28 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
     /**
      * Holds the pre-compiler, for analyzing and transforming terms prior to compilation proper.
      */
-    private HiTalkCompilerPreprocessor <? extends Term> preCompiler;
+    private HiTalkPreprocessor preCompiler;
+
+    private final CompilationContext compilationContext;
+    private final LoadContext loadContext;
+    private final ExecutionContext executionContext;
+
+    private String fileName;
+    private IConfig config;
 
     /**
-     * Creates a new WAMCompiler.
+     * Builds an logical resolution engine from a parser, interner, compiler and resolver.
+     *
+     * @param parser   The parser.
+     * @param interner The interner.
+     * @param compiler The compiler.
      */
     public
-    HiTalkCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner, HiTalkDefaultBuiltIn defaultBuiltIn ) {
+    HiTalkCompiler ( HtPrologParser parser, SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner, Parser <Clause, Token> parser, LogicCompiler <Clause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> compiler, HiTalkDefaultBuiltIn defaultBuiltIn ) {
 
-        super(symbolTable, interner);
+        super(parser, interner, compiler);
 
-        preCompiler = new HiTalkCompilerPreprocessor <>(symbolTable, interner, defaultBuiltIn);
+        preCompiler = new HiTalkPreprocessor(symbolTable, interner, defaultBuiltIn);
         observer2 = new ClauseChainObserver();
         preCompiler.setCompilerObserver(observer2);
 
@@ -213,6 +230,27 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
                 tf.createFlag("keep", "false"), tf.createFlag("type", "false"),
 
                 };
+
+        compilationContext = new CompilationContext();
+        loadContext = new LoadContext(DEFAULT_FLAGS);
+        executionContext = new ExecutionContext();
+    }
+
+    public static
+    void main ( String[] args ) {
+        try {
+            SymbolTable <Integer, String, Object> symbolTable = new SymbolTableImpl <>();
+            VariableAndFunctorInterner interner = new VariableAndFunctorInternerImpl("HiTalk_Variable_Namespace", "HiTalk_Functor_Namespace");
+            LogicCompiler <Clause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> compiler = new HiTalkCompiler(symbolTable, interner, new HiTalkDefaultBuiltIn(symbolTable, interner));
+
+            HiTalkApp app = new HiTalkApp(new ClauseParser(interner), interner, compiler);
+            app.setFileName(args[0]);
+            app.banner();
+            app.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new Error(e);
+        }
     }
 
     /**
@@ -231,7 +269,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
 //        ;
 //        compileHooks();
         startRuntimeThreading();
-        reportSettingsFile(result);
+        e reportSettingsFile(result);
     }
 
     private
@@ -260,56 +298,149 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
     void loadBuiltInEntity ( HtEntityIdentifier identifier, String fileName, String scratchDir ) throws IOException, SourceCodeException {
 
         Map <Functor, INameable <Functor>> loadedEntities = get(LOADED_ENTITIES);
+//        context = new Context(createFlags(scratchDir));
         if (!loadedEntities.containsKey(identifier)) {
-            compileLoad(fileName,///core()
-                    //we need a fixed code prefix as some of the entity predicates may need
-//                    to be called directly by the compiler/runtime
-                    tf.createFlag("code_prefix", "$"),
-                    //delete the generated intermediate files as they may be non-portable
-                    //between backend Prolog compilers
-                    tf.createFlag("clean", "on"),
-                    //use a scratch directory where we expect to have writing permission
-                    tf.createFlag("scratch_directory", scratchDir),
-                    //optimize entity code, allowing static binding to this entity resource
-                    tf.createFlag("optimize", "on"),
-                    //don't print any messages on the compilation and loading of these entities
-                    tf.createFlag("report", "off"),
-                    //prevent any attempts of logtalk_make(all) to reload this file
-                    tf.createFlag("reload", "skip"));
+            compileLoad(fileName, loadContext);///core()
         }
+    }
+
+    private
+    HiTalkFlag[] createFlags ( String scratchDir ) {
+        return new HiTalkFlag[]{
+                //we need a fixed code prefix as some of the entity predicates may need
+//                    to be called directly by the compiler/runtime
+                tf.createFlag("code_prefix", "$"),
+                //delete the generated intermediate files as they may be non-portable
+                //between backend Prolog compilers
+                tf.createFlag("clean", "on"),
+                //use a scratch directory where we expect to have writing permission
+                tf.createFlag("scratch_directory", scratchDir),
+                //optimize entity code, allowing static binding to this entity resource
+                tf.createFlag("optimize", "on"),
+                //don't print any messages on the compilation and loading of these entities
+                tf.createFlag("report", "off"),
+                //prevent any attempts of logtalk_make(all) to reload this file
+                tf.createFlag("reload", "skip")
+        };
     }
 
     /**
      * @param fileNames
-     * @param flags
+     * @param context
      * @throws IOException
      * @throws SourceCodeException
      */
     public
-    void compileLoad ( List <String> fileNames, HiTalkFlag... flags ) throws IOException, SourceCodeException {
+    void compileLoad ( List <String> fileNames, LoadContext context ) throws IOException, SourceCodeException {
         for (String fileName : fileNames) {
-            compileLoad(fileName, flags);
+            context.reset();
+            compileLoad(fileName, context);
         }
     }
 
     /**
      * @param fileName
-     * @param flags
+     * @param context
      * @throws IOException
      * @throws SourceCodeException
      */
     public
-    void compileLoad ( String fileName, HiTalkFlag... flags ) throws IOException, SourceCodeException {
-        compileFile(fileName, flags);
-        loadFile(fileName, flags);
+    void compileLoad ( String fileName, LoadContext context ) throws IOException, SourceCodeException {
+        compileFile(fileName, context);
+        loadFile(fileName, context);//bytecode
+    }
+
+    public //todo read_files
+    void loadFiles ( List <String> fileNames, LoadContext context ) {
+        for (String s : fileNames) {
+            context.reset();
+            loadFile(s, context);
+        }
     }
 
     /**
+     * load_files(:Files, +Options)
+     * The predicate load_files/2 is the parent of all the other loading predicates except for include/1. It currently supports a subset of the options of Quintus load_files/2. Files is either a single source file or a list of source files. The specification for a source file is handed to absolute_file_name/2. See this predicate for the supported expansions. Options is a list of options using the format OptionName(OptionValue).
+     * <p>
+     * The following options are currently supported:
+     * <p>
+     * autoload(Bool)
+     * If true (default false), indicate that this load is a demand load. This implies that, depending on the setting of the Prolog flag verbose_autoload, the load action is printed at level informational or silent. See also print_message/2 and current_prolog_flag/2.
+     * check_script(Bool)
+     * If false (default true), do not check the first character to be # and skip the first line when found.
+     * derived_from(File)
+     * Indicate that the loaded file is derived from File. Used by make/0 to time-check and load the original file rather than the derived file.
+     * dialect(+Dialect)
+     * Load Files with enhanced compatibility with the target Prolog system identified by Dialect. See expects_dialect/1 and section C for details.
+     * encoding(Encoding)
+     * Specify the way characters are encoded in the file. Default is taken from the Prolog flag encoding. See section 2.19.1 for details.
+     * expand(Bool)
+     * If true, run the filenames through expand_file_name/2 and load the returned files. Default is false, except for consult/1 which is intended for interactive use. Flexible location of files is defined by file_search_path/2.
+     * format(+Format)
+     * Used to specify the file format if data is loaded from a stream using the stream(Stream) option. Default is source, loading Prolog source text. If qlf, load QLF data (see qcompile/1).
+     * if(Condition)
+     * Load the file only if the specified condition is satisfied. The value true loads the file unconditionally, changed loads the file if it was not loaded before or has been modified since it was loaded the last time, and not_loaded loads the file if it was not loaded before.
+     * imports(Import)
+     * Specify what to import from the loaded module. The default for use_module/1 is all. Import is passed from the second argument of use_module/2. Traditionally it is a list of predicate indicators to import. As part of the SWI-Prolog/YAP integration, we also support Pred as Name to import a predicate under another name. Finally, Import can be the term except(Exceptions), where Exceptions is a list of predicate indicators that specify predicates that are not imported or Pred as Name terms to denote renamed predicates. See also reexport/2 and use_module/2.bug
+     * <p>
+     * If Import equals all, all operators are imported as well. Otherwise, operators are not imported. Operators can be imported selectively by adding terms op(Pri,Assoc,Name) to the Import list. If such a term is encountered, all exported operators that unify with this term are imported. Typically, this construct will be used with all arguments unbound to import all operators or with only Name bound to import a particular operator.
+     * modified(TimeStamp)
+     * Claim that the source was loaded at TimeStamp without checking the source. This option is intended to be used together with the stream(Input) option, for example after extracting the time from an HTTP server or database.
+     * module(+Module)
+     * Load the indicated file into the given module, overruling the module name specified in the :- module(Name, ...) directive. This currently serves two purposes: (1) allow loading two module files that specify the same module into the same process and force and (2): force loading source code in a specific module, even if the code provides its own module name. Experimental.
+     * must_be_module(Bool)
+     * If true, raise an error if the file is not a module file. Used by use_module/[1,2].
+     * qcompile(Atom)
+     * How to deal with quick-load-file compilation by qcompile/1. Values are:
+     * <p>
+     * never
+     * Default. Do not use qcompile unless called explicitly.
+     * auto
+     * Use qcompile for all writeable files. See comment below.
+     * large
+     * Use qcompile if the file is `large'. Currently, files larger than 100 Kbytes are considered large.
+     * part
+     * If load_files/2 appears in a directive of a file that is compiled into Quick Load Format using qcompile/1, the contents of the argument files are included in the .qlf file instead of the loading directive.
+     * <p>
+     * If this option is not present, it uses the value of the Prolog flag qcompile as default.
+     * optimise(+Boolean)
+     * Explicitly set the optimization for compiling this module. See optimise.
+     * redefine_module(+Action)
+     * Defines what to do if a file is loaded that provides a module that is already loaded from another file. Action is one of false (default), which prints an error and refuses to load the file, or true, which uses unload_file/1 on the old file and then proceeds loading the new file. Finally, there is ask, which starts interaction with the user. ask is only provided if the stream user_input is associated with a terminal.
+     * reexport(Bool)
+     * If true re-export the imported predicate. Used by reexport/1 and reexport/2.
+     * register(Bool)
+     * If false, do not register the load location and options. This option is used by make/0 and load_hotfixes/1 to avoid polluting the load-context database. See source_file_property/2.
+     * sandboxed(Bool)
+     * Load the file in sandboxed mode. This option controls the flag sandboxed_load. The only meaningful value for Bool is true. Using false while the Prolog flag is set to true raises a permission error.
+     * scope_settings(Bool)
+     * Scope style_check/1 and expects_dialect/1 to the file and files loaded from the file after the directive. Default is true. The system and user initialization files (see -f and -F) are loading with scope_settings(false).
+     * silent(Bool)
+     * If true, load the file without printing a message. The specified value is the default for all files loaded as a result of loading the specified files. This option writes the Prolog flag verbose_load with the negation of Bool.
+     * stream(Input)
+     * This SWI-Prolog extension compiles the data from the stream Input. If this option is used, Files must be a single atom which is used to identify the source location of the loaded clauses as well as to remove all clauses if the data is reconsulted.
+     * e
+     * This option is added to allow compiling from non-file locations such as databases, the web, the user (see consult/1) or other servers. It can be combined with format(qlf) to load QLF data from a stream.
+     * <p>
+     * The load_files/2 predicate can be hooked to load other data or data from objects other than files. See prolog_load_file/2 for a description and library(htt
+     *
      * @param fileName
-     * @param flags
+     * @param context
      */
-    public
-    void loadFile ( String fileName, HiTalkFlag[] flags ) {
+    public//todo readFIles??
+    void loadFile ( String fileName, LoadContext context ) {
+        compileFile(fileName, context);
+        String baseName = context.get(LoadContext.Kind.Loading.BASENAME);
+        loadTargetFile(fileName, context);
+    }
+
+    private
+    void loadTargetFile ( String targetFile, LoadContext context ) {
+
+    }
+
+    private
+    void compileFile ( String fileName, LoadContext context ) {
 
     }
 
@@ -329,7 +460,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
      * assertz((
      * hook_term_expansion_(Term, ExpandedTerm) :-
      * catch(TermExpansionGoal, Error, term_expansion_error(HookEntity, Term, Error))
-     * )),
+     * ),
      * retractall(hook_goal_expansion_(_, _)),
      * assertz((
      * hook_goal_expansion_(Term, ExpandedTerm) :-
@@ -1438,6 +1569,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
     private
     String loadBuiltInEntities () throws IOException, SourceCodeException {
         String scratchDir = getScratchDirectory();
+        loadContext.reset();
         loadBuiltInEntity(EXPANDING, "expanding", scratchDir);
         loadBuiltInEntity(MONITORING, "monitoring", scratchDir);
         loadBuiltInEntity(FORWARDING, "forwarding", scratchDir);
@@ -1481,7 +1613,7 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
      *
      * @param observer The compiler output observer.
      */
-    @Override
+//    @Override
     public
     void setCompilerObserver ( LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer ) {
         this.observer = observer;
@@ -1492,110 +1624,172 @@ class HiTalkCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, H
      *
      * @throws SourceCodeException If there is an error in the source to be compiled that prevents its compilation.
      */
-    @Override
+//    @Override
     public
     void endScope () throws SourceCodeException {
 
     }
+//
+//    private
+//    <Q> Resolver <HiTalkWAMCompiledPredicate, Q> getResolver () {
+//        return null;
+//    }
 
-    private
-    <Q> Resolver <HiTalkWAMCompiledPredicate, Q> getResolver () {
-        return null;
-    }
-
-    /**
-     * Compiles a sentence into a (presumably binary) form, that provides a Java interface into the compiled structure.
-     *
-     * @param sentence The sentence to compile.
-     * @throws SourceCodeException If there is an error in the source to be compiled that prevents its compilation.
-     */
-    @Override
-    public
-    void compile ( Sentence <Clause> sentence ) throws SourceCodeException {
-
-    }
-
-    @Override
+    //    @Override
     public
     LogicCompiler <Clause, Clause, Clause> getPreCompiler () {
         return preCompiler;
     }
 
+    /**
+     * @return
+     */
+    public
+    String getFileName () {
+        return fileName;
+    }
+
+    /**
+     * @param fileName
+     */
+    public
+    void setFileName ( String fileName ) {
+        this.fileName = fileName;
+    }
+
+    /**
+     * @return
+     */
     @Override
     public
-    Parser <Clause, Token> getParser () {
-        return null;//fixme
+    IConfig getConfig () {
+        return config;
     }
 
     /**
      *
      */
-    class ClauseChainObserver implements LogicCompilerObserver <Clause, Clause> {
-        /**
-         * {@inheritDoc}
-         */
-        public
-        void onCompilation ( Sentence <Clause> sentence ) throws SourceCodeException {
-            instructionCompiler.compile(sentence);
-        }
+    @Override
+    public
+    void start () throws IOException {
+        resolver = new HiTalkEngine(new ClauseParser(getInterner()), getInterner(), getCompiler());
+        compiler.compileFile(fileName, loadContext);
+    }
 
-        /**
-         * {@inheritDoc}
-         */
-        public
-        void onQueryCompilation ( Sentence <Clause> sentence ) throws SourceCodeException {
-            instructionCompiler.compile(sentence);
-        }
+    private
+    void setApplication ( HiTalkCompiler compiler ) {
+
     }
 
     /**
-     * ChainedCompilerObserver implements the compiler observer for this resolution engine. Compiled programs are added
-     * to the resolvers domain. Compiled queries are executed.
-     * <p>
-     * <p/>If a chained observer is set up, all compiler outputs are forwarded onto it.
+     * @return
      */
-    private
-    class ChainedCompilerObserver implements LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> {
-        /**
-         * Holds the chained observer for compiler outputs.
-         */
-        private LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer;
+    @Override
+    public
+    int end () {
+        return 0;
+    }
 
-        /**
-         * Sets the chained observer for compiler outputs.
-         *
-         * @param observer The chained observer.
-         */
-        public
-        void setCompilerObserver ( LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer ) {
-            this.observer = observer;
+    /**
+     * @return
+     */
+    @Override
+    public
+    boolean isStarted () {
+        return false;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    boolean isStopped () {
+        return false;
+    }
+
+    /**
+     *
+     */
+    @Override
+    public
+    void banner () {
+        System.out.printf("\n%s", "HiTalk system, v0.1-alpha.1, (c) Anton Danilov, 2019, All rights reserved.");
+    }
+
+}
+
+
+/**
+ *
+ */
+class ClauseChainObserver implements LogicCompilerObserver <Clause, Clause> {
+    private HiTalkInstructionCompiler instructionCompiler;
+
+    /**
+     * {@inheritDoc}
+     */
+    public
+    void onCompilation ( Sentence <Clause> sentence ) throws SourceCodeException {
+        instructionCompiler.compile(sentence);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public
+    void onQueryCompilation ( Sentence <Clause> sentence ) throws SourceCodeException {
+        instructionCompiler.compile(sentence);
+    }
+}
+
+/**
+ * ChainedCompilerObserver implements the compiler observer for this resolution engine. Compiled programs are added
+ * to the resolvers domain. Compiled queries are executed.
+ * <p>
+ * <p/>If a chained observer is set up, all compiler outputs are forwarded onto it.
+ */
+//private
+class ChainedCompilerObserver implements LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> {
+    /**
+     * Holds the chained observer for compiler outputs.
+     */
+    private LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer;
+
+    /**
+     * Sets the chained observer for compiler outputs.
+     *
+     * @param observer The chained observer.
+     */
+    public
+    void setCompilerObserver ( LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer ) {
+        this.observer = observer;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public
+    void onCompilation ( Sentence <HiTalkWAMCompiledPredicate> sentence ) throws SourceCodeException {
+        if (observer != null) {
+            observer.onCompilation(sentence);
         }
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public
-        void onCompilation ( Sentence <HiTalkWAMCompiledPredicate> sentence ) throws SourceCodeException {
-            if (observer != null) {
-                observer.onCompilation(sentence);
-            }
+        getResolver().addToDomain(sentence.getT());
+    }
 
-            getResolver().addToDomain(sentence.getT());
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public
+    void onQueryCompilation ( Sentence <HiTalkWAMCompiledQuery> sentence ) throws SourceCodeException {
+        if (observer != null) {
+            observer.onQueryCompilation(sentence);
         }
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public
-        void onQueryCompilation ( Sentence <HiTalkWAMCompiledQuery> sentence ) throws SourceCodeException {
-            if (observer != null) {
-                observer.onQueryCompilation(sentence);
-            }
-
-            getResolver().setQuery(sentence.getT());
-        }
+        getResolver().setQuery(sentence.getT());
     }
 }
 

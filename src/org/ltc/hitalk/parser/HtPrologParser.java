@@ -1,4 +1,4 @@
-package org.ltc.wam.hitalk.parser;
+package org.ltc.hitalk.parser;
 
 /*
  * Copyright The Sett Ltd, 2005 to 2014.
@@ -15,6 +15,7 @@ package org.ltc.wam.hitalk.parser;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 
 import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.logic.fol.isoprologparser.*;
@@ -71,8 +72,8 @@ class HtPrologParser implements PrologParserConstants {
      * Used for debugging purposes.
      */
     //private static final Logger log = Logger.getLogger(HtPrologParser.class.getName());
-    protected static final String BEGIN_OF_FILE = "begin_of_file";
-    protected static final String END_OF_FILE = "end_of_file";
+    public static final String BEGIN_OF_FILE = "begin_of_file";
+    public static final String END_OF_FILE = "end_of_file";
     protected static final Functor[] EMPTY_FUNCTOR_ARRAY = new Functor[0];
     protected static final Term[] EMPTY_TERM_ARRAY = new Term[0];
 

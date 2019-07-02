@@ -1,15 +1,19 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.*;
-import com.thesett.aima.logic.fol.isoprologparser.Token;
+import com.thesett.aima.logic.fol.Clause;
+import com.thesett.aima.logic.fol.Sentence;
+import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
+import org.ltc.hitalk.parser.HtPrologParser;
 
 /**
  *
  */
+@Deprecated
 public
-class HiLogCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> {
+class HiLogInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> {
 
     /**
      * Creates a base machine over the specified symbol table.
@@ -18,20 +22,26 @@ class HiLogCompiler extends BaseCompiler <Clause, HiTalkWAMCompiledPredicate, Hi
      * @param interner    The interner for the machine.
      */
     public
-    HiLogCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner ) {
+    HiLogInstructionCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner ) {
         super(symbolTable, interner);
     }
 
-    @Override
-    public
-    LogicCompiler <Clause, Clause, Clause> getPreCompiler () {
-        return null;
-    }
 
     @Override
     public
-    Parser <Clause, Token> getParser () {
-        return (Parser <Clause, Token>) parser;
+    HtPrologParser getParser () {
+        return parser;
+    }
+
+    /**
+     * @param sentence
+     * @param flags
+     * @throws SourceCodeException
+     */
+    @Override
+    public
+    void compile ( Sentence <Clause> sentence, HiTalkFlag... flags ) throws SourceCodeException {
+
     }
 
     /**

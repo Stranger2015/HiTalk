@@ -7,6 +7,7 @@ import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
  */
 public
 interface IApplication {
+
     /**
      * @return
      */

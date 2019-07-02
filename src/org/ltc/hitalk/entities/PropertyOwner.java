@@ -1,11 +1,15 @@
 package org.ltc.hitalk.entities;
 
+import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
+
+import static org.ltc.hitalk.entities.context.Context.Kind.Loading;
+
 /**
  *
  */
 public abstract
 class PropertyOwner implements IPropertyOwner {
-    HtProperty[] props;
+    HiTalkFlag[] props;
 
     /**
      * @return
@@ -20,7 +24,10 @@ class PropertyOwner implements IPropertyOwner {
      * @param props
      */
     public
-    PropertyOwner ( HtProperty... props ) {
+    PropertyOwner ( HiTalkFlag... props ) {
         this.props = props;
     }
+
+    public abstract
+    String get ( Loading basename );
 }

@@ -46,7 +46,7 @@ class HiTalkApp extends HiTalkEngine implements IApplication {
             VariableAndFunctorInterner interner = new VariableAndFunctorInternerImpl("HiTalk_Variable_Namespace", "HiTalk_Functor_Namespace");
             LogicCompiler <Clause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> compiler = new HiTalkCompiler(symbolTable, interner, new HiTalkDefaultBuiltIn(symbolTable, interner));
 
-            HiTalkApp app = new HiTalkApp(new ClauseParser(interner), interner, compiler);
+            HiTalkCompiler app = new HiTalkCompiler(symbolTable, interner, new ClauseParser(interner), interner, compiler);
             app.setFileName(args[0]);
             app.banner();
             app.start();
@@ -87,9 +87,9 @@ class HiTalkApp extends HiTalkEngine implements IApplication {
     @Override
     public
     void start () throws IOException {
-        ((HiTalkCompiler) compiler).setApplication(this);
+//        ((HiTalkCompiler) compiler).setApplication(this);
         resolver = new HiTalkEngine(new ClauseParser(getInterner()), getInterner(), getCompiler());
-        ((HiTalkCompiler) compiler).compileFile(fileName);
+        compileFile(fileName, flags);
     }
 
     /**
@@ -125,7 +125,7 @@ class HiTalkApp extends HiTalkEngine implements IApplication {
     @Override
     public
     void banner () {
-        System.out.printf("\n%s", "HiTalk system, v0.1-alpha.1, (c) Anton Danilov, 2019, All rights reserved.");
+        System.out.printf("\n%s", "HiTalk system, v0.0.1, build#%d (c) Anton Danilov, 2018-2019, All rights reserved.");
     }
 
 }

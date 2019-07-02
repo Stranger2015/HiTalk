@@ -1,13 +1,57 @@
 package org.ltc.hitalk.entities.context;
 
-import org.ltc.hitalk.entities.HtProperty;
+import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
 import org.ltc.hitalk.entities.PropertyOwner;
 
 /**
  *
  */
-public
+public abstract
 class Context extends PropertyOwner {
+
+//    protected Enum<?> kind;
+//
+//    /**
+//     * @param props
+//     */
+//    public
+//    Context ( HtProperty... props ) {
+//        super(props);
+//    }
+
+    public
+    Context ( HiTalkFlag... flags ) {
+        super(flags);
+    }
+
+//    @Override
+//    public
+//    String get ( Kind basename ) {
+//        return null;
+//    }
+
+    /**
+     *
+     */
+    public
+    void reset () {
+
+    }
+
+//    /**
+//     * @return
+//     */
+//    public
+//    Enum<?> getKind () {
+//        return kind;
+//    }
+
+    /**
+     * @return
+     */
+    @Override
+    public abstract
+    HiTalkFlag[] getFlags ();
 
     /**
      *
@@ -16,61 +60,62 @@ class Context extends PropertyOwner {
     enum Kind {
         /**
          * CompCtx(Ctx, Head, _, Entity, Sender, This, Self, Prefix, MetaVars, MetaCallCtx, ExCtx, _, Stack, Lines),
-         * =========================
-         * <p>
-         * basename,
-         * directory,
-         * entity_identifier,
-         * entity_prefix,
-         * entity_type,
-         * file,
-         * flags,
-         * source,
-         * stream,
-         * target,
-         * term,
-         * term_position,
-         * variable_names
          */
         COMPILATION,
         /**
          * executionContext(ExCtx, user, user, user, HookEntity, [], []),
-         * ==========================================================
-         * 1.coinduction_stack,
-         * 2.context_id,        /user
-         * 3.entity,            /user
-         * 4.metacall_context,  /user
-         * 5.self,              /hook_entity
-         * 6.sender,
-         * 7.this_;
          */
         EXECUTION,
         /**
-         * entity_identifier
-         * entity_prefix
-         * entity_type
-         * source
-         * file
-         * basename
-         * directory
-         * stream
-         * target
-         * flags
-         * term
-         * term_position
-         * variable_names
+         *
          */
         LOADING,
         ;
+
+        public
+        enum CompilationContext {
+            COINDUCTION_STACK,
+            CTX, //this context
+            CTX1,
+            CTX2,
+            ENTITY_IDENTIFIER,
+            ENTITY_PREFIX,
+            FOO,
+            LINES,
+            METACALL_CONTEXT,
+            METAVARS,
+            RUNTIME,
+            SELF,
+            SENDER,
+            THIS,
+        }
+
+        public
+        enum Loading {
+            BASENAME,
+            DIRECTORY,
+            ENTITY_IDENTIFIER,
+            ENTITY_PREFIX,
+            ENTITY_TYPE,
+            FILE,
+            FLAGS,
+            SOURCE,
+            STREAM,
+            TARGET,
+            TERM,
+            TERM_POSITION,
+            VARIABLE_NAMES,
+        }
+
+        public
+        enum ExecutionCtx {
+            COINDUCTION_STACK,
+            //  CONTEXT_ID,
+            ENTITY,
+            METACALL_CONTEXT,
+            SELF,
+            SENDER,
+            THIS,
+        }
     }
-
-    /**
-     * @param props
-     */
-    public
-    Context ( HtProperty... props ) {
-        super(props);
-    }
-
-
 }

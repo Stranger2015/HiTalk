@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/HiTalk_XWAM/HiTalk_XWAM.iml" filepath="$PROJECT_DIR$/.idea/HiTalk_XWAM/HiTalk_XWAM.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hitalk_wam.main.iml" filepath="$PROJECT_DIR$/.idea/modules/hitalk_wam.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hitalk_wam.test.iml" filepath="$PROJECT_DIR$/.idea/modules/hitalk_wam.test.iml" />
     </modules>
   </component>
 </project>

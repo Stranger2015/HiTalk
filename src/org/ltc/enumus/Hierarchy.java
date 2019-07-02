@@ -14,7 +14,6 @@ class Hierarchy<T extends Enum <T>> {
     private final Function <T, T> parentAccessor;
     private final Map <T, T[]> children = new HashMap <>();
 
-
     /**
      * @param type
      * @param parentAccessor

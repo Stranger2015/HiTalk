@@ -6,6 +6,7 @@ import com.thesett.aima.logic.fol.isoprologparser.SentenceParser;
 import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.Source;
+import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledPredicate;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledQuery;
 
@@ -28,7 +29,7 @@ class HiTalkWAMEngine extends ResolutionEngine <Clause, HiTalkWAMCompiledPredica
 
 //Holds the name of the resource on the classpath that contains the built-in library.
     private static final String BUILT_IN_LIB = "wam_builtins.hlgt";
-    protected final Parser <Clause, Token> parser;
+    protected final HtPrologParser parser;
     protected final VariableAndFunctorInterner interner;
 
     public
@@ -46,7 +47,7 @@ class HiTalkWAMEngine extends ResolutionEngine <Clause, HiTalkWAMCompiledPredica
      * @param compiler The compiler.
      */
     public
-    HiTalkWAMEngine ( Parser <Clause, Token> parser, VariableAndFunctorInterner interner, LogicCompiler <Clause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> compiler ) {
+    HiTalkWAMEngine ( HtPrologParser parser, VariableAndFunctorInterner interner, LogicCompiler <Clause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> compiler ) {
         this.parser = parser;
         this.interner = interner;
         this.compiler = compiler;

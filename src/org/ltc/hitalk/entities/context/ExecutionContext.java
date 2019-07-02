@@ -1,7 +1,7 @@
 package org.ltc.hitalk.entities.context;
 
 
-import org.ltc.hitalk.entities.HtProperty;
+import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
 
 /**
  * execution_context(
@@ -25,20 +25,11 @@ import org.ltc.hitalk.entities.HtProperty;
  * @list(callable) )
  * - zero_or_one
  */
-@Deprecated
 public
 class ExecutionContext extends Context {
-//    HtEntityIdentifier sender;
-//    HtEntityIdentifier this_;
-//    HtEntityIdentifier self;
-//    HtEntityIdentifier entity;
-//    List <ICallable>
-//
-//            metaCallContext, coinductionStack;
-
 
     public
-    ExecutionContext ( HtProperty... props ) {
+    ExecutionContext ( HiTalkFlag... props ) {
         super(props);
     }
 
@@ -52,5 +43,20 @@ class ExecutionContext extends Context {
 
         IMetrics maxMetrics = null;
         return maxMetrics;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    HiTalkFlag[] getFlags () {
+        return new HiTalkFlag[0];
+    }
+
+    @Override
+    public
+    String get ( Kind.Loading basename ) {
+        return null;
     }
 }
