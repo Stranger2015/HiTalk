@@ -989,6 +989,7 @@ class HiLogPreprocessor<T extends Term> extends StandardPreprocessor <T> impleme
 //        ( Representable =:= 0 -> write('Non-') ; true ),
 //        write('Representable') tab(10), put(0')), nl, pp(T).
 //
+
 //        pp_calls([]).
 //        pp_calls([body_call(Args)|Calls]) :-
 //        tab(4), write(Args), nl, pp_calls(Calls).

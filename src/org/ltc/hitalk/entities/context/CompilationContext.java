@@ -1,5 +1,6 @@
 package org.ltc.hitalk.entities.context;
 
+import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 
 import java.util.ArrayDeque;
@@ -13,12 +14,33 @@ class CompilationContext extends Context {
     ExecutionContext executionContext;
     HtEntityIdentifier entityIdentifier;
     String entityPrefix;
-    FOO;
-    LINES;
-    Context metacallContext;
-    METAVARS;
-    RUNTIME;
+    //    FOO;
+//    LINES;
+    Deque <?> metacallContext = new ArrayDeque <>();
+//    METAVARS;
+//    RUNTIME;
+
+    HtEntityIdentifier sender;
+    HtEntityIdentifier this_;
     HtEntityIdentifier entity;
-    SENDER;
-    THIS;
+
+    public
+    CompilationContext ( HiTalkFlag... flags ) {
+        super(flags);
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    HiTalkFlag[] getFlags () {
+        return new HiTalkFlag[0];
+    }
+
+    @Override
+    public
+    String get ( Kind.Loading basename ) {
+        return null;
+    }
 }

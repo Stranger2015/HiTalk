@@ -1,7 +1,7 @@
 package org.ltc.hitalk.wam.task;
 
 
-import com.thesett.aima.logic.fol.Term;
+import com.thesett.aima.logic.fol.Clause;
 import org.jetbrains.annotations.Contract;
 import org.ltc.hitalk.compiler.bktables.IComposite;
 import org.ltc.hitalk.compiler.bktables.error.StopRequestException;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 abstract public
-class CompositeTask<T extends Term> extends CompilerTask implements IComposite <T, TransformTask <T>> {
+class CompositeTask<T extends Clause> extends CompilerTask implements IComposite <T, TransformTask <T>> {
 
     protected List <TransformTask <T>> tasks = new ArrayList <>();
     private T target;
@@ -37,8 +37,8 @@ class CompositeTask<T extends Term> extends CompilerTask implements IComposite <
      */
     @Override
     public
-    void invoke () throws StopRequestException {
-        super.invoke();
+    void invoke ( T t ) throws StopRequestException {
+        super.invoke(t);
         int bound = tasks.size();
         IntStream.range(0, bound).forEach(this::accept);
     }

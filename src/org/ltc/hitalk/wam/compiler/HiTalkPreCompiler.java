@@ -4,10 +4,16 @@ import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.logic.fol.bytecode.BaseMachine;
 import com.thesett.aima.logic.fol.compiler.SymbolKeyTraverser;
 import com.thesett.aima.logic.fol.compiler.TermWalker;
+import com.thesett.aima.logic.fol.isoprologparser.TokenSource;
 import com.thesett.aima.logic.fol.wam.TermWalkers;
 import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.entities.context.LoadContext;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /*
  * Copyright The Sett Ltd, 2005 to 2014.
@@ -37,7 +43,8 @@ import com.thesett.common.util.doublemaps.SymbolTable;
  * @author Rupert Smith
  */
 abstract public
-class HiTalkPreCompiler extends BaseMachine implements LogicCompiler <Clause, Clause, Clause> {
+class HiTalkPreCompiler<T extends Clause> extends BaseMachine implements LogicCompiler <T, Clause, Clause> {
+
     //Used for debugging.
     /* private static final Logger log = Logger.getLogger(PreCompiler.class.getName()); */
 
@@ -62,7 +69,9 @@ class HiTalkPreCompiler extends BaseMachine implements LogicCompiler <Clause, Cl
      * @param defaultBuiltIn The default built in, for standard compilation and interners and symbol tables.
      */
     public
-    HiTalkPreCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner, HiTalkDefaultBuiltIn defaultBuiltIn ) {
+    HiTalkPreCompiler ( SymbolTable <Integer, String, Object> symbolTable,
+                        VariableAndFunctorInterner interner,
+                        HiTalkDefaultBuiltIn defaultBuiltIn ) {
         super(symbolTable, interner);
 
         this.defaultBuiltIn = defaultBuiltIn;
@@ -73,22 +82,46 @@ class HiTalkPreCompiler extends BaseMachine implements LogicCompiler <Clause, Cl
      * {@inheritDoc}
      */
     public
-    void compile ( Sentence <Clause> sentence ) throws SourceCodeException {
-        Clause clause = sentence.getT();
+    void compile ( Sentence <T> sentence ) throws SourceCodeException {
+        List <Term> terms = preprocess(sentence.getT());
+        List <Clause> clauses = new ArrayList <>(terms.size());
+        Clause clause = null;
+
+        for (Term term : terms) {
+            clause = TermUtils.convertToClause(term, interner);
+            clauses.add(clause);
+        }
 
         substituteBuiltIns(clause);
         initializeSymbolTable(clause);
         topLevelCheck(clause);
 
+        saveResult(clauses);
+
         if (observer != null) {
-            if (clause.isQuery()) {
-                observer.onQueryCompilation(sentence);
+            final Clause finalClause = clause;
+            if (Objects.requireNonNull(clause).isQuery()) {
+
+                observer.onQueryCompilation(() -> finalClause);
             }
             else {
-                observer.onCompilation(sentence);
+                observer.onCompilation(() -> finalClause);
             }
         }
     }
+
+    /**
+     * @param clauses
+     */
+    protected abstract
+    void saveResult ( List <Clause> clauses );
+
+    /**
+     * @param term
+     * @return
+     */
+    protected abstract
+    List <Term> preprocess ( Term term );
 
     /**
      * {@inheritDoc}
@@ -103,6 +136,7 @@ class HiTalkPreCompiler extends BaseMachine implements LogicCompiler <Clause, Cl
      */
     public
     void endScope () throws SourceCodeException {
+
     }
 
     /**
@@ -142,6 +176,18 @@ class HiTalkPreCompiler extends BaseMachine implements LogicCompiler <Clause, Cl
     void topLevelCheck ( Term clause ) {
         TermWalker walk = TermWalkers.positionalWalker(new HiTalkTopLevelCheckVisitor(interner, symbolTable, null));
         walk.walk(clause);
+    }
+
+    /**
+     * @param tokenSource
+     * @param loadContext
+     * @return
+     */
+    public
+    Term[] compile ( TokenSource tokenSource, LoadContext loadContext ) {
+
+
+        return new Term[0];
     }
 }
 

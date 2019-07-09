@@ -26,6 +26,7 @@
       <w>nonvar</w>
       <w>optimizeable</w>
       <w>preds</w>
+      <w>preprocess</w>
       <w>prolog</w>
       <w>rewriter</w>
       <w>specializer</w>

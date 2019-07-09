@@ -7,13 +7,13 @@ import com.thesett.aima.logic.fol.ClauseTransformer;
  *
  */
 public
-interface IInliner extends ClauseTransformer {
+interface IInliner<T extends Clause> extends ClauseTransformer {
 
     /**
      * @param clause
      * @return
      */
-    Clause inline ( Clause clause );
+    T inline ( T clause );
 
     /**
      * Applies a transformation to the clause.
@@ -23,7 +23,7 @@ interface IInliner extends ClauseTransformer {
      */
     @Override
     default
-    Clause transform ( Clause clause ) {
+    T transform ( T clause ) {
         return inline(clause);
     }
 }

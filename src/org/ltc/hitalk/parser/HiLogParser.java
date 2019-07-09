@@ -1,8 +1,10 @@
-package org.ltc.hitalk.compiler.bktables.parser;
+package org.ltc.hitalk.parser;
 
 
-import com.thesett.aima.logic.fol.*;
-import com.thesett.aima.logic.fol.isoprologparser.PrologParser;
+import com.thesett.aima.logic.fol.Cons;
+import com.thesett.aima.logic.fol.Nil;
+import com.thesett.aima.logic.fol.Term;
+import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.aima.logic.fol.isoprologparser.TokenSource;
 import com.thesett.common.parsing.SourceCodeException;
@@ -15,14 +17,20 @@ import java.util.Arrays;
 import static com.thesett.aima.logic.fol.OpSymbol.Associativity.FX;
 
 /**
- * @param <T>
+ *
  */
-public
-class HiLogParser<T extends Clause> extends PrologParser {
+class HiLogParser extends HtPrologParser {
 
     final protected static int HILOG_COMPOUND = 38;
     private static final String BEGIN_TERM_TOKENS = Arrays.toString(new String[]{
-            tokenImage[FUNCTOR], tokenImage[LSQPAREN], tokenImage[VAR], tokenImage[INTEGER_LITERAL], tokenImage[FLOATING_POINT_LITERAL], tokenImage[STRING_LITERAL], tokenImage[ATOM], tokenImage[LPAREN]
+            tokenImage[FUNCTOR],
+            tokenImage[LSQPAREN],
+            tokenImage[VAR],
+            tokenImage[INTEGER_LITERAL],
+            tokenImage[FLOATING_POINT_LITERAL],
+            tokenImage[STRING_LITERAL],
+            tokenImage[ATOM],
+            tokenImage[LPAREN]
     });
     protected final TokenSource tokenSource;
     protected final VariableAndFunctorInterner interner;
@@ -41,7 +49,6 @@ class HiLogParser<T extends Clause> extends PrologParser {
         //
         this.interner = interner;
         tokenSource = source;
-//        parser = new PrologParser(source, interner);
     }
 
     /**
@@ -246,5 +253,9 @@ class HiLogParser<T extends Clause> extends PrologParser {
         super.initializeBuiltIns();
 
         internOperator("hilog", 1150, FX);
+        internOperator("public", 1150, FX);
+        internOperator("protected", 1150, FX);
+        internOperator("private", 1150, FX);
+        internOperator("enumeration", 1150, FX);
     }
 }

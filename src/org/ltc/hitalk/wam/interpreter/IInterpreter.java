@@ -11,6 +11,7 @@ import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.parsing.SourceCodePosition;
 import com.thesett.common.util.Source;
 import jline.ConsoleReader;
+import org.ltc.hitalk.compiler.bktables.IApplication;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ import java.util.ArrayList;
  *
  */
 public
-interface IInterpreter {
+interface IInterpreter extends IApplication {
     /**
      *
      */

@@ -1,5 +1,8 @@
 package org.ltc.hitalk.entities;
 
+import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
+import org.ltc.hitalk.entities.context.Context;
+
 /**
  * inline,
  * auxiliary,
@@ -18,7 +21,13 @@ class HtPredicateAlias extends PropertyOwner {
      * @param props
      */
     public
-    HtPredicateAlias ( HtProperty... props ) {
+    HtPredicateAlias ( HiTalkFlag... props ) {
         super(props);
+    }
+
+    @Override
+    public
+    String get ( Context.Kind.Loading basename ) {
+        return null;
     }
 }

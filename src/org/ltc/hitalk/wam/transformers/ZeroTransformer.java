@@ -1,16 +1,17 @@
 package org.ltc.hitalk.wam.transformers;
 
 
-import com.thesett.aima.logic.fol.Term;
+import com.thesett.aima.logic.fol.Clause;
+import org.ltc.hitalk.entities.context.IMetrics;
 
 /**
- * Doing-no-transforming transformer.
+ * Doing-nothing transformer.
  * it is needed to support transformation subsystem when no optimizing transformers are set.
  * <p>
  * Created by Anthony on 28.06.2015.
  */
 public
-class ZeroTransformer<T extends Term> extends DefaultTransformer <T> {
+class ZeroTransformer<T extends Clause> extends DefaultTransformer <T> {
 //       private static final Logger logger = LoggerFactory.getLogger( ZeroTransformer.class.getName() );
 
     /**
@@ -18,7 +19,7 @@ class ZeroTransformer<T extends Term> extends DefaultTransformer <T> {
      */
     public
     ZeroTransformer () {
-        super(null);
+        super();
     }
 
     /**

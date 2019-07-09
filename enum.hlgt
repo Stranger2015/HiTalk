@@ -1,7 +1,8 @@
 % if element type is enum `hierarchy` mode
 % else `linear` mode
-:- object(enum(type, _Elements_ ),
-        implements(setp)).
+:- op(1150, fy, enumeration).
+
+:- enum( type, _Elements_ ).
 
         :- public
 
@@ -10,11 +11,10 @@
                 user_type   % :- true by default
             .
 
-:- end_object.
+:- end_enum.
 
 % generates by fact that enum has enum elements
-:- object(enum(hitalk_type, _),
-        implements(setp)).
+:- enum(hitalk_type, _).
 
         :- public
                 object,    % :- true by default

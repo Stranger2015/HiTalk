@@ -130,7 +130,7 @@ class HtPrologParser implements PrologParserConstants {
      * @param interner    The interner for variable and functor names.
      */
     public
-    HtPrologParser ( Source <Token> tokenSource, VariableAndFunctorInterner interner ) {
+    HtPrologParser ( TokenSource tokenSource, VariableAndFunctorInterner interner ) {
         //Set this parser up to use the supplied interner.
         this.interner = interner;
 
@@ -140,10 +140,7 @@ class HtPrologParser implements PrologParserConstants {
         //Intern all of the built in symbols and functors in the language.
         initializeBuiltIns();
 
-        /**
-         *
-         */
-        setTokenSource((TokenSource) tokenSource);
+        setTokenSource(tokenSource);
     }
 
     /**
@@ -201,7 +198,7 @@ class HtPrologParser implements PrologParserConstants {
      */
     public
     List <Clause> sentences () throws SourceCodeException {
-        List <Clause> results = new LinkedList <>();
+        List <Clause> results = new ArrayList <>();
 
         // Loop consuming clauses until end of file is encountered.
         while (true) {
@@ -886,6 +883,11 @@ class HtPrologParser implements PrologParserConstants {
     public
     boolean isBofGenerated () {
         return bofGenerated;
+    }
+
+    public
+    Clause sentence1 () {
+        return null;
     }
 }
 

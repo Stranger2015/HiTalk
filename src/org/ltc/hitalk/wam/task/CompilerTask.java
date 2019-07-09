@@ -1,61 +1,54 @@
 package org.ltc.hitalk.wam.task;
 
-import org.ltc.hitalk.compiler.bktables.error.StopRequestException;
+
+import com.thesett.aima.logic.fol.Clause;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static java.lang.String.format;
+import java.util.List;
+import java.util.function.Function;
 
 /**
  *
  */
 abstract public
-class CompilerTask implements Runnable {
-
-    //    protected final IApplication app;
+class CompilerTask<T extends Clause> implements IInvokable <T> {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
+    protected final Function <T, List <T>> action;
 
-    protected
-    CompilerTask () {
-
-    }
 
     /**
-     * When an object implementing interfacebject's
-     * <code>run</code> method to be called in that separately executing
-     * thread. <code>Runnable</code> is used
-     * to create a thread, starting the thread causes the o
-     * <p>
-     * The general contract of the method <code>run</code> is that it may
-     * take any action whatsoever.
      *
-     * @see Thread#run()
      */
-    public final
-    void run () {
-//       if ( app.isStarted() && !app.isStopped())
-//        {
-        try {
-            invoke();
-        } catch (StopRequestException ignored) {
+    protected
+    CompilerTask ( Function <T, List <T>> action ) {
+
+        this.action = action;
+    }
+
+
+    /**
+     * @param t
+     * @return
+     */
+    @Override
+    public
+    List <T> invoke ( T t ) {
+        List <T> list = IInvokable.super.invoke(t);
+        for (int i = 0; i < list.size(); i++) {
+            T t1 = list.get(i);
+            list.addAll(action.apply(t1));
         }
+        return list;
     }
 
     /**
-     * Should be overridden to make something useful than simply print banner.
+     *
      */
     public
-    void invoke () throws StopRequestException {
-        banner(logger);
-    }
-
-    /**
-     * @param logger
-     */
-    private
-    void banner ( Logger logger ) {
-        logger.info(format("\nPerforming %s task ...", getClass().getSimpleName()));
+    void banner () {
+        logger.info(String.format("\nPerforming %s task ...", getClass().getSimpleName()));
     }
 
 }

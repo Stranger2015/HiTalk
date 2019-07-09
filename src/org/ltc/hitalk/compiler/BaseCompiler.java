@@ -1,6 +1,5 @@
 package org.ltc.hitalk.compiler;
 
-
 import com.thesett.aima.logic.fol.Clause;
 import com.thesett.aima.logic.fol.LogicCompiler;
 import com.thesett.aima.logic.fol.LogicCompilerObserver;

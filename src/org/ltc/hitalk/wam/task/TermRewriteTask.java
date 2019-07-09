@@ -1,6 +1,6 @@
 package org.ltc.hitalk.wam.task;
 
-import com.thesett.aima.logic.fol.Term;
+import com.thesett.aima.logic.fol.Clause;
 import org.ltc.hitalk.compiler.bktables.IComposite;
 import org.ltc.hitalk.wam.transformers.ITransformer;
 
@@ -35,16 +35,18 @@ import java.util.List;
  * variable_names	A list of `Name = Var' of the last term read. See read_term/2 for details.
  */
 public
-class TermRewriteTask<T extends Term, TT extends TermRewriteTask <T, TT>> extends StandardPreprocessor <T> implements IComposite <T, TT>, ITransformer <T> {
+class TermRewriteTask<T extends Clause, TT extends TermRewriteTask <T, TT>>
+        extends StandardPreprocessor <T>
+        implements IComposite <T, TT>, ITransformer <T> {
 
-    protected List <TT> rewriterTasks = new ArrayList <>();
+    protected List <TT> rewriteTasks = new ArrayList <>();
 
     /**
      * @param target
      * @param transformer
      */
     public
-    TermRewriteTask ( T target, ITransformer <T> transformer ) {
+    TermRewriteTask ( List <T> target, ITransformer <T> transformer ) {
         super(target, transformer);
     }
 
@@ -54,7 +56,7 @@ class TermRewriteTask<T extends Term, TT extends TermRewriteTask <T, TT>> extend
     @Override
     public
     void add ( TT t ) {
-        rewriterTasks.add(t);
+        rewriteTasks.add(t);
     }
 
     /**
@@ -63,6 +65,6 @@ class TermRewriteTask<T extends Term, TT extends TermRewriteTask <T, TT>> extend
     @Override
     public
     List <TT> getComponents () {
-        return rewriterTasks;
+        return rewriteTasks;
     }
 }

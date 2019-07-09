@@ -56,6 +56,11 @@ class ImmutableList<T> extends AbstractList <T> {
         return to - from;
     }
 
+    /**
+     * @param fromIndex
+     * @param toIndex
+     * @return
+     */
     @Override
     public
     ImmutableList <T> subList ( int fromIndex, int toIndex ) {

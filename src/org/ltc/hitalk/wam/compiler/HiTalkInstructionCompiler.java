@@ -205,26 +205,14 @@ class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompil
         optimizer = new HiTalkWAMOptimizer(symbolTable, interner);
         defaultBuiltIn = new HiTalkDefaultBuiltIn(symbolTable, interner);
     }
-//
-//    /**
-//     * {@inheritDoc}
-//     * @param observer
-//     */
-//    public
-//    void setCompilerObserver ( LogicCompilerObserver observer ) {
-//        this.observer = observer;
-//    }
-
 
     /**
-     * Establishes an observer on the compiled forms that the compiler outputs.
-     *
-     * @param observer The compiler output observer.
+     * {@inheritDoc}
+     * @param observer
      */
-    @Override
     public
     void setCompilerObserver ( LogicCompilerObserver observer ) {
-
+        this.observer = observer;
     }
 
     /**

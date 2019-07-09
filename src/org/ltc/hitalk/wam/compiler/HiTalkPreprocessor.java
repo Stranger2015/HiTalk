@@ -4,8 +4,6 @@ import com.thesett.aima.logic.fol.*;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.wam.compiler.expander.DefaultTermExpander;
-import org.ltc.hitalk.wam.interpreter.HiTalkInterpreter;
-import org.ltc.hitalk.wam.interpreter.Mode;
 import org.ltc.hitalk.wam.task.HiLogPreprocessor;
 import org.ltc.hitalk.wam.task.StandardPreprocessor;
 import org.ltc.hitalk.wam.task.SuperCompiler;
@@ -15,22 +13,20 @@ import org.ltc.hitalk.wam.transformers.DefaultTransformer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ltc.hitalk.parser.HtPrologParser.BEGIN_OF_FILE;
+import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
 
 /**
  *
  */
 public
-class HiTalkPreprocessor extends HiTalkPreCompiler {
+class HiTalkPreprocessor<T extends Clause> extends HiTalkPreCompiler <T> {
 
-    protected final DefaultTransformer defaultTransformer;
-
-    //    protected final IApplication app;
+    protected final DefaultTransformer <T> defaultTransformer;
     protected final HiTalkDefaultBuiltIn defaultBuiltIn;
     protected final HiTalkBuiltInTransform builtInTransform;
-    protected final List <TransformTask <Term>> components = new ArrayList <>();
+    protected final List <TransformTask <T>> components = new ArrayList <>();
     protected LogicCompilerObserver <Clause, Clause> observer;
-
+    protected List <T> preCompiledTarget;
 
     /**
      * Creates a base machine over the specified symbol table.
@@ -46,53 +42,39 @@ class HiTalkPreprocessor extends HiTalkPreCompiler {
         this.defaultBuiltIn = defaultBuiltIn;
         this.builtInTransform = new HiTalkBuiltInTransform(defaultBuiltIn);
 
-        defaultTransformer = new DefaultTransformer <>(null);
+        defaultTransformer = new DefaultTransformer <>((T) null);
 
-        int i = interner.internFunctorName(BEGIN_OF_FILE, 0);
-        Term target = new Functor(i, new Term[0]);
-        components.add(new DefaultTermExpander(target, defaultTransformer));
+//        int i = interner.internFunctorName(BEGIN_OF_FILE, 0);
+//        Term target = new Functor(i, Atom.EMPTY_TERM_ARRAY);
+//
+        Term expand_term = new Functor(interner.internFunctorName("expand_term", 0), EMPTY_TERM_ARRAY);
+        Term expand_goal = new Functor(interner.internFunctorName("expand_goal", 0), EMPTY_TERM_ARRAY);
+        Term term_expansion = new Functor(interner.internFunctorName("term_expansion", 0), EMPTY_TERM_ARRAY);
+        Term goal_expansion = new Functor(interner.internFunctorName("goal_expansion", 0), EMPTY_TERM_ARRAY);
+
+        components.add(new DefaultTermExpander(preCompiledTarget, defaultTransformer));
         components.add(new HiLogPreprocessor(defaultTransformer, interner));
-        components.add(new StandardPreprocessor <Term>(null, defaultTransformer));
-        components.add(new SuperCompiler(null, defaultTransformer));
+        components.add(new StandardPreprocessor(preCompiledTarget, defaultTransformer));
+        components.add(new SuperCompiler(preCompiledTarget, defaultTransformer));
     }
 
     /**
-     * Compiles a sentence into a (presumably binary) form, that provides a Java interface into the compiled structure.
-     *
-     * @param sentence The sentence to compile.
-     * @throws SourceCodeException If there is an error in the source to be compiled that prevents its compilation.
+     * @param term
+     * @return
      */
-    @Override
-    public
-    void compile ( Sentence <Clause> sentence ) throws SourceCodeException {
-        process(sentence.getT());
-    }
+    protected
+    List <T> preprocess ( T term ) {
+        List <T> list = new ArrayList <>();
+        for (TransformTask <T> task : components) {
+            list.addAll(task.invoke(term));
+        }
 
-    /**
-     * @param clause
-     * @throws SourceCodeException
-     */
-    public
-    void process ( Clause clause ) throws SourceCodeException {
-        if (clause.isQuery()) {
-            endScope();
-            executeQuery(clause);//directivei compileQuery
-            //preprocess
-        }
-        else {
-            doProcess(clause);
-        }
+        return list;
     }
 
     private
-    void doProcess ( Clause clause ) {
+    void initialize () {
 
-    }
-
-    protected
-    void executeQuery ( Clause clause ) {
-        HiTalkInterpreter interpreter = new HiTalkInterpreter(Mode.ProgramMultiLine);
-        interpreter.getMode();
     }
 
     /**
@@ -114,33 +96,20 @@ class HiTalkPreprocessor extends HiTalkPreCompiler {
     @Override
     public
     void endScope () throws SourceCodeException {
-
     }
-
-//    @Override
-//    public
-//    LogicCompiler <Clause, Clause, Clause> getPreCompiler () {
-//        return this;
-//    }
-//
-//    @Override
-//    public
-//   HtPrologParser getParser () {
-//        return null;
-//    }
 
     /**
      * @param t
      */
 //    @Override
     public
-    void add ( TransformTask <Term> t ) {
-
+    void add ( TransformTask <T> t ) {
+        components.add(t);
     }
 
     //    @Override
     public
-    List <TransformTask <Term>> getComponents () {
-        return null;
+    List <TransformTask <T>> getComponents () {
+        return components;
     }
 }

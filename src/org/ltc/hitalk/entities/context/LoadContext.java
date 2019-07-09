@@ -1,66 +1,34 @@
 package org.ltc.hitalk.entities.context;
 
-import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.logic.fol.Variable;
 import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
-import org.ltc.hitalk.entities.HtEntityIdentifier;
-
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
- * logtalk_load_context/2
- * Description
- * <p>
- * logtalk_load_context(Key, Value)
- * <p>
- * Provides access to the Logtalk compilation/loading context. The following keys are currently supported:
- * <p>
- * entity_identifier    - identifier of the entity being compiled if any<p>
- * entity_prefix        - internal prefix for the entity compiled code
- * entity_type          - returns the value module when compiling a module as an objec
- * source               - full path of the source file being compile
- * file                 - the actual file being compiled, different from source only when processing an include/1 directiv
- * basename             - source file basename
- * directory            - source file directory
- * stream               - input stream being used to read source file terms
- * target               - the full path of the intermediate Prolog file
- * flags                - the list of the explicit flags used for the compilation of the source file
- * term                 - the source file term being compiled
- * term_position        - the position of the term being compiled (StartLine - EndLine)
- * variable_names       - the variable names of the term being compiled ([Name1=Variable1, ...])
+ *
+ * Key	Description
+ * ================
+ *
+ * directory 	    Directory in which source lives
+ * dialect 	        Compatibility mode. See expects_dialect/1.
+ * file 	        Similar to source, but returns the file being included when called while an include file is being processed
+ * module 	        Module into which file is loaded
+ * reload 	        true if the file is being reloaded. Not present on first load
+ * script 	        Boolean that indicates whether the file is loaded as a script file (see -s)
+ * source 	        File being loaded. If the system is processing an included file, the value is the main file. Returns the original Prolog file when loading a .qlf file.
+ * stream 	        Stream identifier (see current_input/1)
+ * term_position 	Start position of last term read. See also stream_property/2 (position property and stream_position_data/3.50
+ * term 	        Term being expanded by expand_term/2.
+ * variable_names	A list of `Name = Var' of the last term read. See read_term/2 for details.
+ *
  */
-@Deprecated
 public
 class LoadContext extends Context {
-    String basename;
-    Path directory;
-    HtEntityIdentifier entityIdentifier;
-    //    entity_prefix,
-//    entity_type,IN eI
-    String file;
-    // HiTalkFlag[] flags;
-    Path source;
-    InputStream stream;
-    Path target;
-    Term term;
-    int[] termPosition = new int[]{0, 0};
-    Map <String, Variable> variableNames = new HashMap <>();
-
     /**
      * @param flags
      */
     public
-    LoadContext ( HiTalkFlag[] flags ) {
+    LoadContext ( HiTalkFlag... flags ) {
         super(flags);
-    }
 
-    @Override
-    public
-    String get ( Kind.Loading basename ) {
-        return null;
     }
 
     /**
@@ -70,5 +38,11 @@ class LoadContext extends Context {
     public
     HiTalkFlag[] getFlags () {
         return new HiTalkFlag[0];
+    }
+
+    @Override
+    public
+    String get ( Kind.Loading basename ) {
+        return null;
     }
 }

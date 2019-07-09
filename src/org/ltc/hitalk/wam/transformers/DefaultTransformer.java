@@ -1,10 +1,9 @@
 package org.ltc.hitalk.wam.transformers;
 
-
+import com.thesett.aima.logic.fol.Clause;
 import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
-import org.ltc.hitalk.wam.context.ExecutionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,25 +14,36 @@ import java.util.List;
  * Created by Anthony on 19.07.2016.
  */
 public
-class DefaultTransformer<T extends Term> implements ITransformer <T> {
+class DefaultTransformer<T extends Clause> implements ITransformer <T> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
+    private final List <? extends Clause> target;
 
     protected ExecutionContext context;
     protected ExecutionContext contextBefore;
     //
     protected ExecutionInfo executionInfo;
     protected ExecutionInfo executionInfoBefore;
-    //    protected final IApplication app;
-    protected T term;
     protected final ITransformer <T> transformer;
-    protected Object result;
+    private TransformInfo result;
 
+    /**
+     * @param term
+     */
     public
     DefaultTransformer ( T term ) {
-//        this.app = app;
-        this.term = term;
-        this.transformer = new <T>ZeroTransformer <T>();
+        target = Collections.singletonList(term);
+        this.transformer = new <T>ZeroTransformer <T>();//todo wtf??
+    }
+
+    /**
+     * @param target
+     */
+    public
+    DefaultTransformer ( List <T> target ) {
+
+        this.target = target;
+        transformer = this;
     }
 
     @Override
@@ -44,7 +54,7 @@ class DefaultTransformer<T extends Term> implements ITransformer <T> {
 
     public
     ITransformer <T> getTransformer () {
-        return null;
+        return transformer;
     }
 
     /**
@@ -53,7 +63,7 @@ class DefaultTransformer<T extends Term> implements ITransformer <T> {
     @Override
     public
     void message () {
-        logger.info("Zero transformer is launched...");
+        logger.info("Default transformer is launched ...");
     }
 
     /**
@@ -61,7 +71,7 @@ class DefaultTransformer<T extends Term> implements ITransformer <T> {
      * @return
      */
     public
-    T transform ( Term target ) {
+    T transform ( Clause target ) {
         message();
         List <T> termList = Collections.emptyList();// execute();
         IMetrics after = context.getCurrentMetrics();
@@ -70,11 +80,11 @@ class DefaultTransformer<T extends Term> implements ITransformer <T> {
             executionInfo = null;// todo????
         }
         if (!isAcceptable(context.getMaxMetrics())) {
-            result = new TransformInfo(contextBefore, executionInfoBefore, null, term); //todo
+            result = new TransformInfo(contextBefore, executionInfoBefore, null, target); //todo
             cancel();
         }
         else {
-            result = new TransformInfo(context, executionInfo, delta, term); //todo
+            result = new TransformInfo(context, executionInfo, delta, target);
         }
         //
         return (T) target;
@@ -110,12 +120,19 @@ class DefaultTransformer<T extends Term> implements ITransformer <T> {
         return null;
     }
 
+    /**
+     * @param t
+     * @return
+     */
+    @Override
+    public
+    T transform ( Term t ) {
+        throw new UnsupportedOperationException();
+    }
 
     @Override
     public
     void run () {
         result = transform(null);
     }
-
-
 }

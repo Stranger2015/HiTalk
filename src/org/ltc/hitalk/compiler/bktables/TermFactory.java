@@ -130,14 +130,39 @@ class TermFactory implements ITermFactory {
         switch (kind) {
             case LOADING:
                 props = new HtProperty[]{
-                        createProperty("entity_identifier", ""), createProperty("entity_prefix", ""), createProperty("entity_type", ""), createProperty("source", ""), createProperty("file", ""), createProperty("basename", ""), createProperty("directory", ""), createProperty("stream", ""), createProperty("target", ""), createProperty("flags", ""), createProperty("term", ""), createProperty("term_position", ""), createProperty("variable_names")
+                        createProperty("entity_identifier", ""),
+                        createProperty("entity_prefix", ""),
+                        createProperty("entity_type", ""),
+                        createProperty("source", ""),
+                        createProperty("file", ""),
+                        createProperty("basename", ""),
+                        createProperty("directory", ""),
+                        createProperty("stream", ""),
+                        createProperty("target", ""), createProperty("flags", ""), createProperty("term", ""),
+                        createProperty("term_position", ""), createProperty("variable_names")
+                };
+                break;
+            case COMPILATION:
+                props = new HtProperty[]{
+                        createProperty("entity_identifier", ""),
+                        createProperty("entity_prefix", ""),
+                        createProperty("entity_type", ""),
+                        createProperty("source", ""),
+                        createProperty("file", ""),
+                        createProperty("basename", ""),
+                        createProperty("directory", ""),
+                        createProperty("stream", ""),
+                        createProperty("target", ""), createProperty("flags", ""), createProperty("term", ""),
+                        createProperty("term_position", ""), createProperty("variable_names")
                 };
                 break;
             case EXECUTION:
                 props = new HtProperty[]{
-                        createProperty("context", ""), createProperty("entity", ""), createProperty("sender", ""), createProperty("this", ""), createProperty("self", ""), createProperty("file", ""), createProperty("metacall_context"), createProperty("coinduction_stack")
+                        createProperty("context", ""),
+                        createProperty("entity", ""), createProperty("sender", ""), createProperty("this", ""), createProperty("self", ""), createProperty("file", ""), createProperty("metacall_context"), createProperty("coinduction_stack")
                 };
                 break;
+
             default:
                 throw new IllegalStateException("Unexpected value: " + kind);
         }

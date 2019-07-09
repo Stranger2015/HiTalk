@@ -1,18 +1,19 @@
 package org.ltc.hitalk.wam.task;
 
 import com.thesett.aima.logic.fol.Clause;
-import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.core.ptree.ProcessTree;
 import org.ltc.hitalk.wam.transformers.IGeneralizer;
 import org.ltc.hitalk.wam.transformers.IInliner;
 import org.ltc.hitalk.wam.transformers.ISpecializer;
 import org.ltc.hitalk.wam.transformers.ITransformer;
 
+import java.util.List;
+
 /**
  *
  */
 public
-class SuperCompiler<T extends Term> extends StandardPreprocessor <T> implements IInliner, ISpecializer, IGeneralizer, ITransformer <T> {
+class SuperCompiler<T extends Clause> extends StandardPreprocessor <T> implements IInliner <T>, ISpecializer <T>, IGeneralizer <T>, ITransformer <T> {
 
     private ProcessTree pTree;
 
@@ -21,7 +22,7 @@ class SuperCompiler<T extends Term> extends StandardPreprocessor <T> implements 
      * @param transformer
      */
     public
-    SuperCompiler ( T target, ITransformer <T> transformer ) {
+    SuperCompiler ( List <T> target, ITransformer transformer ) {
         super(target, transformer);
     }
 
@@ -72,6 +73,80 @@ class SuperCompiler<T extends Term> extends StandardPreprocessor <T> implements 
     }
 
     /**
+     * @param clause
+     * @return
+     */
+    @Override
+    public
+    T generalize ( T clause ) {
+        return null;
+    }
+
+    /**
+     * @param clause
+     * @return
+     */
+    @Override
+    public
+    T inline ( T clause ) {
+        return null;
+    }
+
+    /**
+     * @param clause
+     * @return
+     */
+    @Override
+    public
+    T specialize ( T clause ) {
+        return null;
+    }
+
+    /**
+     * Applies a transformation to the clause.
+     *
+     * @param clause The clause to transform.
+     * @return A clause which is a transformation of the argument.
+     */
+    @Override
+    public
+    T transform ( T clause ) {
+        return null;
+    }
+
+    /**
+     * @param clause
+     * @return
+     */
+    @Override
+    public
+    Clause generalize ( Clause clause ) {
+        return null;
+    }
+
+    /**
+     * @param clause
+     * @return
+     */
+    @Override
+    public
+    Clause specialize ( Clause clause ) {
+        return null;
+    }
+
+    /**
+     * Applies a transformation to the clause.
+     *
+     * @param clause The clause to transform.
+     * @return A clause which is a transformation of the argument.
+     */
+    @Override
+    public
+    Clause transform ( Clause clause ) {
+        return null;
+    }
+
+    /**
      *
      */
     enum TransformMode {
@@ -89,7 +164,7 @@ class SuperCompiler<T extends Term> extends StandardPreprocessor <T> implements 
      */
     @Override
     public
-    Clause generalize ( Clause clause ) {
+    T generalize ( T clause ) {
         return clause;
     }
 
@@ -99,7 +174,7 @@ class SuperCompiler<T extends Term> extends StandardPreprocessor <T> implements 
      */
     @Override
     public
-    Clause inline ( Clause clause ) {
+    T inline ( T clause ) {
         return clause;
     }
 
@@ -111,8 +186,8 @@ class SuperCompiler<T extends Term> extends StandardPreprocessor <T> implements 
      */
     @Override
     public
-    Clause transform ( Clause clause ) {
-        Clause newClause = clause;
+    T transform ( T clause ) {
+        T newClause = clause;
         switch (mode) {
             case INLINE_MODE:
                 newClause = inline(clause);
@@ -137,7 +212,7 @@ class SuperCompiler<T extends Term> extends StandardPreprocessor <T> implements 
      */
     @Override
     public
-    Clause specialize ( Clause clause ) {
+    T specialize ( T clause ) {
         return clause;
     }
 

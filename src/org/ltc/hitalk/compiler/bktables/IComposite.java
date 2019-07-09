@@ -1,22 +1,22 @@
 package org.ltc.hitalk.compiler.bktables;
 
-import com.thesett.aima.logic.fol.Term;
+import com.thesett.aima.logic.fol.Clause;
 import org.ltc.hitalk.wam.task.TransformTask;
 
 import java.util.List;
 
 /**
- * @param <TT>
+ *
  */
 public
-interface IComposite<T extends Term, TT extends TransformTask <T>> {
+interface IComposite<T extends Clause> {
     /**
      * @param t
      */
     default
-    void add ( TT t ) {
+    void add ( TransformTask <T> t ) {
         getComponents().add(t);
     }
 
-    List <TT> getComponents ();
+    List <TransformTask <T>> getComponents ();
 }

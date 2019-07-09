@@ -4,11 +4,13 @@ import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.logic.fol.interpreter.ResolutionEngine;
 import com.thesett.aima.logic.fol.isoprologparser.SentenceParser;
 import com.thesett.aima.logic.fol.isoprologparser.Token;
+import com.thesett.aima.logic.fol.isoprologparser.TokenSource;
 import com.thesett.common.parsing.SourceCodeException;
-import com.thesett.common.util.Source;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledPredicate;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledQuery;
+
+import java.io.InputStream;
 
 import static com.thesett.aima.logic.fol.isoprologparser.TokenSource.getTokenSourceForInputStream;
 
@@ -44,17 +46,20 @@ class HiTalkWAMEngine extends ResolutionEngine <Clause, HiTalkWAMCompiledPredica
      *
      * @param parser   The parser.
      * @param interner The interner.
-     * @param compiler The compiler.
      */
     public
-    HiTalkWAMEngine ( HtPrologParser parser, VariableAndFunctorInterner interner, LogicCompiler <Clause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> compiler ) {
+    HiTalkWAMEngine ( HtPrologParser parser,
+                      //
+                      VariableAndFunctorInterner interner,
+                      //
+                      LogicCompiler <Clause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> compiler ) {
         this.parser = parser;
         this.interner = interner;
         this.compiler = compiler;
     }
 
-    /**
-     * {@inheritDoc}
+    /**,
+     nheritDoc}
      * <p>
      * <p/>Loads the built-in library resource specified by {@link #BUILT_IN_LIB}.
      */
@@ -64,7 +69,8 @@ class HiTalkWAMEngine extends ResolutionEngine <Clause, HiTalkWAMCompiledPredica
         resolver.reset();
 
         // Create a token source to load the model rules from.
-        Source <Token> tokenSource = getTokenSourceForInputStream(getClass().getClassLoader().getResourceAsStream(BUILT_IN_LIB));
+        InputStream input = getClass().getClassLoader().getResourceAsStream(BUILT_IN_LIB);
+        TokenSource tokenSource = (TokenSource) getTokenSourceForInputStream(input);
 
         // Set up a parser on the token source.
         Parser <Clause, Token> libParser = new SentenceParser(interner);

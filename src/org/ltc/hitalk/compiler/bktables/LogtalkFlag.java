@@ -43,7 +43,7 @@ class LogtalkFlag extends Flag {
 
     protected
     LogtalkFlag () {
-        super("");
+        this("?");
     }
 
     //Lint flags

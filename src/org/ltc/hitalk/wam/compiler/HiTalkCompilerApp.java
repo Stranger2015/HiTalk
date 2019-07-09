@@ -1,13 +1,10 @@
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.*;
-import com.thesett.aima.logic.fol.isoprologparser.ClauseParser;
-import com.thesett.aima.logic.fol.isoprologparser.Token;
+import com.thesett.aima.logic.fol.isoprologparser.TokenSource;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.common.util.doublemaps.SymbolTableImpl;
-import org.ltc.hitalk.HiTalkApp;
-import org.ltc.hitalk.HiTalkEngine;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.bktables.*;
 import org.ltc.hitalk.compiler.bktables.BookKeepingTables.BkTableKind;
@@ -21,7 +18,9 @@ import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.term.Atom;
 import org.ltc.hitalk.wam.machine.HiTalkWAMEngine;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -128,17 +127,18 @@ import static org.ltc.hitalk.compiler.bktables.BookKeepingTables.BkTableKind.LOA
  * This problem can be avoided if a mutually dependent collection of files is always loaded from the same start file.
  */
 public
-class HiTalkCompiler extends HiTalkWAMEngine implements IApplication {
+class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
 
     private static final String DEFAULT_SCRATCH_DIRECTORY = "scratch";
     //
-    private static final String BANNER = "\nHiTalk compiler, v0.0.1-b#%d Anton Danilov (c) 2019, All rights reserved\n";
-
+//    private static final String BANNER = "\nHiTalk compiler, v0.0.1-b#%d Anton Danilov (c) 2018-2019, All rights reserved\n";
     /**
-     * <code>access(Access)</code>,  where <code>Access</code> can be either <code>read_write (the default) or <code>read_only;
+     * <code>access(Access)</code>,  where <code>Access</code> can be either <code>read_write (the default) or
+     * <code>read_only;
      * keep(Keep),      where <code>Keep can be either <code>false (the default) or <code>true, for deciding
      * if an existing definition of the flag should be kept or replaced by the new one;
-     * type(Type)       for specifying the type of the flag, which can be <code>boolean, <code>atom, <code>integer, <code>float, <code>term.
+     * type(Type)       for specifying the type of the flag, which can be
+     * <code>boolean, <code>atom, <code>integer, <code>float, <code>term.
      * (which only restricts the flag value to ground terms).
      * When the <code>type/1 option is not specified, the type of the flag is inferred
      * from its initial value.
@@ -157,17 +157,17 @@ class HiTalkCompiler extends HiTalkWAMEngine implements IApplication {
     private final HtEntityIdentifier CATEGORY;
     private final HtEntityIdentifier ENUM;
 
-//
-//    Availability:built-in
-//           boolean compiling/0
-//    True if the system is compiling source files with the -c option or qcompile/1 into an intermediate code file. Can be used to perform conditional code optimisations in term_expansion/2 (see also the -O option) or to omit execution of directives during compilation.
-
-
     /**
      * Used for logging to the console.
      */
     private /*static*/ final Logger console = Logger.getLogger("CONSOLE." + getClass().getSimpleName());
-
+    boolean compiling;
+    /**
+     * True if the system is compiling source files with the -c option or qcompile/1
+     * into an intermediate code file.
+     * Can be used to perform conditional code optimizations in term_expansion/2 (see also the -O option)
+     * or to omit execution of directives during compilation.
+     */
     private final ITermFactory tf;
     /**
      * Holds the instruction generating compiler.
@@ -176,37 +176,41 @@ class HiTalkCompiler extends HiTalkWAMEngine implements IApplication {
     private final String scratchDirectory;
     //
     private final BookKeepingTables <Functor, INameable <Functor>> bkt = new BookKeepingTables <>();
-    protected LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer;
-    protected LogicCompilerObserver <Clause, Clause> observer2;
-    /**
-     * Holds the pre-compiler, for analyzing and transforming terms prior to compilation proper.
-     */
-    private HiTalkPreprocessor preCompiler;
-
     private final CompilationContext compilationContext;
     private final LoadContext loadContext;
     private final ExecutionContext executionContext;
-
+    protected LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer;
+    protected LogicCompilerObserver <Clause, Clause> observer2;
+    private TokenSource tokenSource;
+    /**
+     * Holds the pre-compiler, for analyzing and transforming terms prior to compilation proper.
+     */
+    private HiTalkPreCompiler preCompiler;
     private String fileName;
     private IConfig config;
+    //    private HiTalkCompilerApp app;
+    private boolean started;
+    private HtPrologParser parser;
 
     /**
      * Builds an logical resolution engine from a parser, interner, compiler and resolver.
      *
      * @param parser   The parser.
      * @param interner The interner.
-     * @param compiler The compiler.
      */
     public
-    HiTalkCompiler ( HtPrologParser parser, SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner, Parser <Clause, Token> parser, LogicCompiler <Clause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> compiler, HiTalkDefaultBuiltIn defaultBuiltIn ) {
-
+    HiTalkCompilerApp ( SymbolTable <Integer, String, Object> symbolTable,
+                        VariableAndFunctorInterner interner,
+                        HtPrologParser parser,
+                        HiTalkInstructionCompiler compiler,
+                        HiTalkDefaultBuiltIn defaultBuiltIn ) {
         super(parser, interner, compiler);
 
         preCompiler = new HiTalkPreprocessor(symbolTable, interner, defaultBuiltIn);
         observer2 = new ClauseChainObserver();
         preCompiler.setCompilerObserver(observer2);
 
-        instructionCompiler = new HiTalkInstructionCompiler(symbolTable, interner);
+        instructionCompiler = compiler;
         observer = new ChainedCompilerObserver();
         instructionCompiler.setCompilerObserver(observer);
         scratchDirectory = ".\\" + DEFAULT_SCRATCH_DIRECTORY;
@@ -227,7 +231,9 @@ class HiTalkCompiler extends HiTalkWAMEngine implements IApplication {
 
         DEFAULT_FLAGS = new HiTalkFlag[]{
                 tf.createFlag("access", "read_write"),//read_only
-                tf.createFlag("keep", "false"), tf.createFlag("type", "false"),
+                tf.createFlag("keep", "false"),
+                //
+                tf.createFlag("type", "false"),
 
                 };
 
@@ -241,22 +247,61 @@ class HiTalkCompiler extends HiTalkWAMEngine implements IApplication {
         try {
             SymbolTable <Integer, String, Object> symbolTable = new SymbolTableImpl <>();
             VariableAndFunctorInterner interner = new VariableAndFunctorInternerImpl("HiTalk_Variable_Namespace", "HiTalk_Functor_Namespace");
-            LogicCompiler <Clause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> compiler = new HiTalkCompiler(symbolTable, interner, new HiTalkDefaultBuiltIn(symbolTable, interner));
-
-            HiTalkApp app = new HiTalkApp(new ClauseParser(interner), interner, compiler);
+            TokenSource tokenSource = TokenSource.getTokenSourceForFile(new File(args[0]));
+            HtPrologParser parser = new HtPrologParser(tokenSource, interner);
+            HiTalkInstructionCompiler compiler = new HiTalkInstructionCompiler(symbolTable, interner);
+            HiTalkDefaultBuiltIn defaultBuiltIn = new HiTalkDefaultBuiltIn(symbolTable, interner);//
+//
+            HiTalkCompilerApp app = new HiTalkCompilerApp(symbolTable, interner, parser, compiler, defaultBuiltIn);
             app.setFileName(args[0]);
+            app.createFlags(app.loadContext, DEFAULT_SCRATCH_DIRECTORY);
+            app.setTokenSource(tokenSource);
+            app.setParser(parser);
+            //
             app.banner();
             app.start();
-        } catch (IOException e) {
+
+        } catch (IOException | SourceCodeException e) {
             e.printStackTrace();
             throw new Error(e);
         }
     }
 
     /**
+     * String basename;
+     * Path directory;
+     * HtEntityIdentifier entityIdentifier;
+     * //    entity_prefix,
+     * //    entity_type,IN eI
+     * String file;
+     * // HiTalkFlag[] flags;
+     * Path source;
+     * InputStream stream;
+     * Path target;
+     * Term term;
+     * int[] termPosition = new int[]{0, 0};
+     * Map <String, Variable> variableNames = new HashMap <>();
      *
+     * @param loadContext
+     * @param scratchDirectory
+     * @return
      */
     private
+    HiTalkFlag[] createFlags ( LoadContext loadContext, String scratchDirectory ) {
+        HiTalkFlag[] flags = new HiTalkFlag[]{///todo flags
+                                              tf.createFlag("basename", fileName),//FIXME PARSE
+                                              tf.createFlag("directory", fileName),//FIXME PARSE
+                                              tf.createFlag("entity_identifier", new Functor(-1, Atom.EMPTY_TERM_ARRAY)),//FIXME PARSE
+                                              tf.createFlag("file", fileName),//FIXME PARSE
+                                              tf.createFlag("basename", fileName),//FIXME PARSE
+        };
+
+        return flags;
+    }
+
+    /**
+     *
+     */
     void initialize () throws IOException, SourceCodeException {
         initBookKeepingTables();
         initDirectives();
@@ -269,7 +314,7 @@ class HiTalkCompiler extends HiTalkWAMEngine implements IApplication {
 //        ;
 //        compileHooks();
         startRuntimeThreading();
-        e reportSettingsFile(result);
+        reportSettingsFile(result);
     }
 
     private
@@ -295,7 +340,8 @@ class HiTalkCompiler extends HiTalkWAMEngine implements IApplication {
      * @throws SourceCodeException
      */
     private
-    void loadBuiltInEntity ( HtEntityIdentifier identifier, String fileName, String scratchDir ) throws IOException, SourceCodeException {
+    void loadBuiltInEntity ( HtEntityIdentifier identifier, String fileName, String scratchDir ) throws IOException,
+                                                                                                        SourceCodeException {
 
         Map <Functor, INameable <Functor>> loadedEntities = get(LOADED_ENTITIES);
 //        context = new Context(createFlags(scratchDir));
@@ -351,7 +397,7 @@ class HiTalkCompiler extends HiTalkWAMEngine implements IApplication {
     }
 
     public //todo read_files
-    void loadFiles ( List <String> fileNames, LoadContext context ) {
+    void loadFiles ( List <String> fileNames, LoadContext context ) throws IOException, SourceCodeException {
         for (String s : fileNames) {
             context.reset();
             loadFile(s, context);
@@ -364,8 +410,8 @@ class HiTalkCompiler extends HiTalkWAMEngine implements IApplication {
      * <p>
      * The following options are currently supported:
      * <p>
-     * autoload(Bool)
-     * If true (default false), indicate that this load is a demand load. This implies that, depending on the setting of the Prolog flag verbose_autoload, the load action is printed at level informational or silent. See also print_message/2 and current_prolog_flag/2.
+     * <p>
+     * autoload(Bool)If true (default false), indicate that this load is a demand load. This implies that, depending on the setting of the Prolog flag verbose_autoload, the load action is printed at level informational or silent. See also print_message/2 and current_prolog_flag/2.
      * check_script(Bool)
      * If false (default true), do not check the first character to be # and skip the first line when found.
      * derived_from(File)
@@ -428,7 +474,7 @@ class HiTalkCompiler extends HiTalkWAMEngine implements IApplication {
      * @param context
      */
     public//todo readFIles??
-    void loadFile ( String fileName, LoadContext context ) {
+    void loadFile ( String fileName, LoadContext context ) throws IOException, SourceCodeException {
         compileFile(fileName, context);
         String baseName = context.get(LoadContext.Kind.Loading.BASENAME);
         loadTargetFile(fileName, context);
@@ -440,9 +486,13 @@ class HiTalkCompiler extends HiTalkWAMEngine implements IApplication {
     }
 
     private
-    void compileFile ( String fileName, LoadContext context ) {
+    void compileFile ( String fileName, LoadContext context ) throws IOException, SourceCodeException {
+        // Set up a parser on the token source.
+        HtPrologParser parser = new HtPrologParser(tokenSource, interner);
 
+        compiler.endScope();
     }
+
 
     /**
      * //Compile_hooks(+callable)
@@ -1629,11 +1679,6 @@ class HiTalkCompiler extends HiTalkWAMEngine implements IApplication {
     void endScope () throws SourceCodeException {
 
     }
-//
-//    private
-//    <Q> Resolver <HiTalkWAMCompiledPredicate, Q> getResolver () {
-//        return null;
-//    }
 
     //    @Override
     public
@@ -1667,18 +1712,31 @@ class HiTalkCompiler extends HiTalkWAMEngine implements IApplication {
     }
 
     /**
+     * @param tokenSource
+     * @param loadContext
+     */
+    Term[] compileTokenSource ( TokenSource tokenSource, LoadContext loadContext ) throws SourceCodeException {
+        Term term = parser.term();
+        List <HtEntityIdentifier> pipeLine = hooksPipeline();
+        return preCompiler.compile(tokenSource, loadContext);
+    }
+
+    private
+    List <HtEntityIdentifier> hooksPipeline () {
+        Map <Functor, INameable <Functor>>[] tables = bkt.getTables();
+        List <HtEntityIdentifier> l = new ArrayList <>();
+
+        return l;
+    }
+
+    /**
      *
      */
     @Override
     public
-    void start () throws IOException {
-        resolver = new HiTalkEngine(new ClauseParser(getInterner()), getInterner(), getCompiler());
-        compiler.compileFile(fileName, loadContext);
-    }
-
-    private
-    void setApplication ( HiTalkCompiler compiler ) {
-
+    void start () throws IOException, SourceCodeException {
+        initialize();
+        compileTokenSource(tokenSource, loadContext);
     }
 
     /**
@@ -1687,6 +1745,7 @@ class HiTalkCompiler extends HiTalkWAMEngine implements IApplication {
     @Override
     public
     int end () {
+        System.exit(0);
         return 0;
     }
 
@@ -1696,7 +1755,7 @@ class HiTalkCompiler extends HiTalkWAMEngine implements IApplication {
     @Override
     public
     boolean isStarted () {
-        return false;
+        return started;
     }
 
     /**
@@ -1705,7 +1764,7 @@ class HiTalkCompiler extends HiTalkWAMEngine implements IApplication {
     @Override
     public
     boolean isStopped () {
-        return false;
+        return !started;
     }
 
     /**
@@ -1714,11 +1773,28 @@ class HiTalkCompiler extends HiTalkWAMEngine implements IApplication {
     @Override
     public
     void banner () {
-        System.out.printf("\n%s", "HiTalk system, v0.1-alpha.1, (c) Anton Danilov, 2019, All rights reserved.");
+        String product = "HiTalk system";
+        String version = "v0.0.1b#";
+        int build = 0;
+        String copyright = "(c) Anton Danilov, 2018-2019, All rights reserved";
+        System.out.printf("\n%s, %s%d, %s.\n", product, version, build, copyright);
     }
 
-}
+    public
+    TokenSource getTokenSource () {
+        return tokenSource;
+    }
 
+    public
+    void setTokenSource ( TokenSource tokenSource ) {
+        this.tokenSource = tokenSource;
+    }
+
+    public
+    void setParser ( HtPrologParser parser ) {
+        this.parser = parser;
+    }
+}
 
 /**
  *
@@ -1755,6 +1831,7 @@ class ChainedCompilerObserver implements LogicCompilerObserver <HiTalkWAMCompile
      * Holds the chained observer for compiler outputs.
      */
     private LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer;
+    private Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> resolver;
 
     /**
      * Sets the chained observer for compiler outputs.
@@ -1790,6 +1867,16 @@ class ChainedCompilerObserver implements LogicCompilerObserver <HiTalkWAMCompile
         }
 
         getResolver().setQuery(sentence.getT());
+    }
+
+    public
+    Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> getResolver () {
+        return resolver;
+    }
+
+    public
+    void setResolver ( Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> resolver ) {
+        this.resolver = resolver;
     }
 }
 
