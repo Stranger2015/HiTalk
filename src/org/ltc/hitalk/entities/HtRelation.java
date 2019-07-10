@@ -17,6 +17,7 @@ class HtRelation {
                  HtRelationKind relationKind,
                  HtEntityKind entityKind1,
                  HtEntityKind entityKind2 ) {
+
         this.hierarchyKind = hierarchyKind;
         this.relationKind = relationKind;
         this.entityKind1 = entityKind1;

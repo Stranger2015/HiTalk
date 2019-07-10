@@ -26,8 +26,8 @@ class BookKeepingTables<T extends INameable <Functor>> implements IRegistry {
         BEFORE_EVENTS,//<HtEvent>
         AFTER_EVENTS,
 
-        LOADED_ENTITIES(DbSchema.class),
-        ENTITY_RELATIONS(BkRelations.class),
+        //        LOADED_ENTITIES(DbSchema.class),
+//        ENTITY_RELATIONS(BkRelations.class),
         ENTITY_PROPERTIES,
         PREDICATE_PROPERTIES,
 
@@ -37,11 +37,11 @@ class BookKeepingTables<T extends INameable <Functor>> implements IRegistry {
         STATIC_BINDING_CACHES,
         DYNAMIC_BINDING_LOOKUP_CACHES_1,
         //dynamic binding lookup caches for messages and super calls
-        SEND_TO_OBJ(DYNAMIC_BINDING_LOOKUP_CACHES_1),
-        SEND_TO_OBJ_NE(DYNAMIC_BINDING_LOOKUP_CACHES_1),
-        SEND_TO_SELF(DYNAMIC_BINDING_LOOKUP_CACHES_1),
-        OBJ_SUPERCALL(DYNAMIC_BINDING_LOOKUP_CACHES_1),
-        CTG_SUPERCALL(DYNAMIC_BINDING_LOOKUP_CACHES_1),
+//        SEND_TO_OBJ(DYNAMIC_BINDING_LOOKUP_CACHES_1),
+//        SEND_TO_OBJ_NE(DYNAMIC_BINDING_LOOKUP_CACHES_1),
+//        SEND_TO_SELF(DYNAMIC_BINDING_LOOKUP_CACHES_1),
+//        OBJ_SUPERCALL(DYNAMIC_BINDING_LOOKUP_CACHES_1),
+//        CTG_SUPERCALL(DYNAMIC_BINDING_LOOKUP_CACHES_1),
         //
 //        //Send_to_obj_(Obj, Pred, ExCtx)
 //        :- dynamic(Send_to_obj_'/3).
@@ -59,8 +59,8 @@ class BookKeepingTables<T extends INameable <Functor>> implements IRegistry {
         LIBRARY_PATHS,
         EXTENSION_POINTS_FOR_LOGTALK_MAKE,
         GOAL_TERM_EXPANSION_DEFAULT_HOOKS,
-        TERM_EXPANSION_DEFAULT_HOOKS(GOAL_TERM_EXPANSION_DEFAULT_HOOKS),
-        GOAL_EXPANSION_DEFAULT_HOOKS(GOAL_TERM_EXPANSION_DEFAULT_HOOKS),
+//        TERM_EXPANSION_DEFAULT_HOOKS(GOAL_TERM_EXPANSION_DEFAULT_HOOKS),
+//        GOAL_EXPANSION_DEFAULT_HOOKS(GOAL_TERM_EXPANSION_DEFAULT_HOOKS),
 
         ENGINES,
         COUNTERS,
@@ -208,7 +208,7 @@ class BookKeepingTables<T extends INameable <Functor>> implements IRegistry {
         int n2 = entity2.getName();
         idx.getBkClass();
 
-        return
+        return null;
 
     }
 }

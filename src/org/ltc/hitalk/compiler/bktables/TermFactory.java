@@ -10,6 +10,7 @@ import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.context.Context;
+import org.ltc.hitalk.entities.context.LoadContext;
 import org.ltc.hitalk.term.Atom;
 import org.ltc.hitalk.term.HiLogCompound;
 import org.ltc.hitalk.term.ListTerm;
@@ -152,14 +153,23 @@ class TermFactory implements ITermFactory {
                         createProperty("basename", ""),
                         createProperty("directory", ""),
                         createProperty("stream", ""),
-                        createProperty("target", ""), createProperty("flags", ""), createProperty("term", ""),
-                        createProperty("term_position", ""), createProperty("variable_names")
+                        createProperty("target", ""),
+                        createProperty("flags", ""),
+                        createProperty("term", ""),
+                        createProperty("term_position", ""),
+                        createProperty("variable_names")
                 };
                 break;
             case EXECUTION:
                 props = new HtProperty[]{
                         createProperty("context", ""),
-                        createProperty("entity", ""), createProperty("sender", ""), createProperty("this", ""), createProperty("self", ""), createProperty("file", ""), createProperty("metacall_context"), createProperty("coinduction_stack")
+                        createProperty("entity", ""),
+                        createProperty("sender", ""),
+                        createProperty("this", ""),
+                        createProperty("self", ""),
+                        createProperty("file", ""),
+                        createProperty("metacall_context"),
+                        createProperty("coinduction_stack")
                 };
                 break;
 
@@ -167,7 +177,7 @@ class TermFactory implements ITermFactory {
                 throw new IllegalStateException("Unexpected value: " + kind);
         }
 
-        return new Context(props);
+        return new LoadContext(props);
 
     }
 

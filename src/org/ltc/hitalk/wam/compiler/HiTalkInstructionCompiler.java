@@ -1,3 +1,4 @@
+
 package org.ltc.hitalk.wam.compiler;
 
 /*
@@ -154,6 +155,13 @@ import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.STACK_ADDR;
 public
 class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> implements HiTalkBuiltIn {
 
+//public final static FunctorName OBJECT = new FunctorName("object", 2);
+//public final static FunctorName END_OBJECT = new FunctorName("end_object", 0);
+//public final static FunctorName CATEGORY = new FunctorName("category",2);
+//public final static FunctorName END_CATEGORY = new FunctorName("end_category",0);
+//public final static FunctorName PROTOCOL = new FunctorName("protocol", 2);
+//public final static FunctorName END_PROTOCOL =new FunctorName( "end_protocol",0);
+
     private final HiTalkDefaultBuiltIn defaultBuiltIn;
 
     // Used for debugging.
@@ -182,10 +190,7 @@ class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompil
      * Keeps count of the current compiler scope, to keep symbols in each scope fresh.
      */
     protected int scope;
-//    /**
-//     * Holds the compiler output observer.
-//     */
-//    private LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer;
+
     /**
      * Holds the current nested compilation scope symbol table.
      */
@@ -456,6 +461,7 @@ class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompil
      */
     private
     void compileQuery ( Clause clause ) throws SourceCodeException {
+        checkDirective(clause);
         // Used to build up the compiled result in.
         HiTalkWAMCompiledQuery result;
 
@@ -557,6 +563,18 @@ class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompil
         displayCompiledQuery(result);
 
         observer.onQueryCompilation(result);
+    }
+
+    private
+    void checkDirective ( Clause clause ) {
+        Functor[] body = clause.getBody();
+        if (body.length == 1) {
+            int name = body[0].getName();
+
+            switch () {
+
+            }
+        }
     }
 
     /**
@@ -950,28 +968,6 @@ class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompil
         return defaultBuiltIn.compileBodyCall(expression, isFirstBody, isLastBody, chainRule, permVarsRemaining);
     }
 
-//    @Override
-//    public
-//    LogicCompiler <Clause, Clause, Clause> getPreCompiler () {
-//        throw new UnsupportedOperationException();
-//    }
-
-//    /**
-//     * @return
-//     */
-//    @Override
-//    public
-//    Logger getConsole () {
-//        return null;
-//    }
-//
-//    @Override
-//    public
-//    HtPrologParser getParser () {
-//        return null;
-//    }
-//
-
     /**
      * @param sentence
      * @param flags
@@ -982,19 +978,6 @@ class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompil
     void compile ( Sentence <Clause> sentence, HiTalkFlag... flags ) throws SourceCodeException {
 
     }
-
-//    @Override
-//    public
-//    Logger getConsole () {
-//        return null;
-//    }
-//
-//    @Override
-//    public
-//    HiTalkCompilerPreprocessor getPreCompiler () {
-//        return null;
-//    }
-
 
     /**
      * QueryRegisterAllocatingVisitor visits named variables in a query, and if they are not already allocated to a

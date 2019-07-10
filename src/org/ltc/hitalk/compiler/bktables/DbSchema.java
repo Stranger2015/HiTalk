@@ -1,26 +1,23 @@
 package org.ltc.hitalk.compiler.bktables;
 
-import org.ltc.hitalk.entities.HtRelationKind;
-
 public
 class DbSchema {
 
     private int recordNum;
-    private short[] entityIdexes;
+    ///  private short[] entityIdexes;
 
-    DbREcoed
+    DbRecord[] records;
 
     public
-    DbRecord getData () {
-        DbRecord record;
+    DbRecord[] getData () {
 
-        return record;
+        return records;
     }
 
     class DbRecord {
         int entity1;
-        int entity2;
-        Enum <HtRelationKind> kind;//pub pri pro
+        //  int entity2;
+        //  Enum <HtRelationKind> kind;//pub pri pro
 
     }
 }

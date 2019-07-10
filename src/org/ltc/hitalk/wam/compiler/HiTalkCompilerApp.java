@@ -20,6 +20,7 @@ import org.ltc.hitalk.wam.machine.HiTalkWAMEngine;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -131,7 +132,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
 
     private static final String DEFAULT_SCRATCH_DIRECTORY = "scratch";
     //
-//    private static final String BANNER = "\nHiTalk compiler, v0.0.1-b#%d Anton Danilov (c) 2018-2019, All rights reserved\n";
+//    private final String BANNER = "\nHiTalk compiler, v0.0.1-b#%d Anton Danilov (c) 2018-2019, All rights reserved\n";
     /**
      * <code>access(Access)</code>,  where <code>Access</code> can be either <code>read_write (the default) or
      * <code>read_only;
@@ -145,17 +146,22 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
      */
     public final HiTalkFlag[] DEFAULT_FLAGS;
     //library entity names
-    private final HtEntityIdentifier EXPANDING;
-    private final HtEntityIdentifier MONITORING;
-    private final HtEntityIdentifier FORWARDING;
-    private final HtEntityIdentifier USER;
-    private final HtEntityIdentifier LOGTALK;
-    private final HtEntityIdentifier CORE_MESSAGES;
+    public final HtEntityIdentifier EXPANDING;
+    public final HtEntityIdentifier MONITORING;
+    public final HtEntityIdentifier FORWARDING;
+    public final HtEntityIdentifier USER;
+    public final HtEntityIdentifier LOGTALK;
+    public final HtEntityIdentifier CORE_MESSAGES;
     //
-    private final HtEntityIdentifier OBJECT;
-    private final HtEntityIdentifier PROTOCOL;
-    private final HtEntityIdentifier CATEGORY;
-    private final HtEntityIdentifier ENUM;
+    public final Atom OBJECT;
+    public final Atom PROTOCOL;
+    public final Atom CATEGORY;
+
+    public final Atom END_OBJECT;
+    public final Atom END_CATEGORY;
+    public final Atom END_PROTOCOL;
+// public final Atom END_ENUM;
+
 
     /**
      * Used for logging to the console.
@@ -168,14 +174,14 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
      * Can be used to perform conditional code optimizations in term_expansion/2 (see also the -O option)
      * or to omit execution of directives during compilation.
      */
-    private final ITermFactory tf;
+    private ITermFactory tf;
     /**
      * Holds the instruction generating compiler.
      */
     private final HiTalkInstructionCompiler instructionCompiler;
     private final String scratchDirectory;
     //
-    private final BookKeepingTables <Functor, INameable <Functor>> bkt = new BookKeepingTables <>();
+    private final BookKeepingTables bkt = new BookKeepingTables();
     private final CompilationContext compilationContext;
     private final LoadContext loadContext;
     private final ExecutionContext executionContext;
@@ -223,11 +229,15 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
         USER = tf.createIdentifier(HtEntityKind.OBJECT, "user");
         LOGTALK = tf.createIdentifier(HtEntityKind.OBJECT, "logtalk");
         CORE_MESSAGES = tf.createIdentifier(HtEntityKind.CATEGORY, "core_messages");
-        OBJECT = tf.createIdentifier(HtEntityKind.OBJECT, "object");
-        PROTOCOL = tf.createIdentifier(HtEntityKind.OBJECT, "protocol");
-        CATEGORY = tf.createIdentifier(HtEntityKind.OBJECT, "category");
+        OBJECT = tf.createAtom("object");
+        PROTOCOL = tf.createAtom("protocol");
+        CATEGORY = tf.createAtom("category");
+        END_OBJECT = tf.createAtom("end_object");
+//        END_ENUM = tf.createAtom("end_enum");
+        END_PROTOCOL = tf.createAtom("end_protocol");
+        END_CATEGORY = tf.createAtom("end_category");
 
-        ENUM = tf.createIdentifier(HtEntityKind.OBJECT, "enum");
+//        ENUM = tf.createIdentifier(HtEntityKind.OBJECT, "enum");
 
         DEFAULT_FLAGS = new HiTalkFlag[]{
                 tf.createFlag("access", "read_write"),//read_only
@@ -1483,43 +1493,6 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
 //        ).
 //
 //
-//        //expandLibraryAlias(+atom, -atom)
-//        %
-//        //converts a library alias into its corresponding path; uses a depth
-//        //bound to prevent loops (inspired by similar code in SWI-Prolog)
-//
-//        expandLibraryAlias(Library, Path) :-expandLibraryAlias(Library, Path0, 16),
-//                //expand the library path into an absolute path as it may
-//                //contain environment variables that need to be expanded
-//                expand_path(Path0, Path1),
-//                //make sure that the library path ends with a slash
-//                (subAtom(Path1, _, 1, 0, '/') ->
-//        Path = Path1;
-//        atomConcat(Path1, '/', Path)
-//        ).
-//
-//
-//        expandLibraryAlias(Library, Path, Depth) :
-//        -logtalkLibrary_path(Library, Location), !, (compound(Location), Location =.. [Prefix, Directory],
-//        atom(Directory) ->
-//        //assume library notation (a compound term)
-//        Depth > 0, NewDepth is Depth -1, expandLibraryAlias(Prefix, PrefixPath0, NewDepth),
-//                //make sure that the prefix path ends with a slash
-//                (subAtom(PrefixPath0, _, 1, 0, '/') ->
-//        atomConcat(PrefixPath0, Directory, Path);
-//        atomConcat(PrefixPath0, '/', PrefixPath1), atomConcat(PrefixPath1, Directory, Path)
-//        )
-//        ;
-//        atom(Location) ->
-//        //assume the final component of the library path
-//        Path = Location;
-//        ground(Location) ->
-//        throw (error(type_error(library_path, Location), _))
-//                ;
-//        throw (error(instantiation_error, _))
-//        ).
-//
-//
 //        //CheckCompilerFlags(@list)
 //        %
 //        //checks if the compiler flags are valid
@@ -1620,17 +1593,46 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
     String loadBuiltInEntities () throws IOException, SourceCodeException {
         String scratchDir = getScratchDirectory();
         loadContext.reset();
+        expandLibraryAlias();
         loadBuiltInEntity(EXPANDING, "expanding", scratchDir);
         loadBuiltInEntity(MONITORING, "monitoring", scratchDir);
         loadBuiltInEntity(FORWARDING, "forwarding", scratchDir);
         loadBuiltInEntity(USER, "user", scratchDir);
         loadBuiltInEntity(LOGTALK, "logtalk", scratchDir);
         loadBuiltInEntity(CORE_MESSAGES, "core_messages", scratchDir);
-        loadBuiltInEntity(ENUM, "enum", scratchDir);
+//        loadBuiltInEntity(ENUM, "enum", scratchDir);
 
         return scratchDir;
     }
 
+    /**
+     * expandLibraryAlias(Library, Path, Depth ):-
+     * logtalkLibrary_path(Library, Location), !, (compound(Location), Location =.. [Prefix, Directory],
+     * atom(Directory) ->
+     * //assume library notation (a compound term)
+     * Depth > 0, NewDepth is Depth -1, expandLibraryAlias(Prefix, PrefixPath0, NewDepth),
+     * //make sure that the prefix path ends with a slash
+     * (subAtom(PrefixPath0, _, 1, 0, '/') ->
+     * atomConcat(PrefixPath0, Directory, Path);
+     * atomConcat(PrefixPath0, '/', PrefixPath1), atomConcat(PrefixPath1, Directory, Path)
+     * )
+     * ;
+     * atom(Location) ->
+     * //assume the final component of the library path
+     * Path = Location;
+     * ground(Location) ->
+     * throw (error(type_error(library_path, Location), _))
+     * ;
+     * throw (error(instantiation_error, _))
+     * ).
+     * //
+     *
+     * @return
+     */
+    private
+    Path expandLibraryAlias ( String library ) {
+        return Path.;
+    }
 
     /**
      * print_message(Kind, Component, Message) :-
@@ -1648,7 +1650,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
      */
 //    private
 //    void printMessage ( Functor kind, Atom component, Atom message ){
-////        if (getCompilerFlag(FlagKey.REPORTS) != FlagValue.OFF) {
+//if (getCompilerFlag(FlagKey.REPORTS) != FlagValue.OFF) {
 ////
 ////
 ////        }
@@ -1723,7 +1725,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
 
     private
     List <HtEntityIdentifier> hooksPipeline () {
-        Map <Functor, INameable <Functor>>[] tables = bkt.getTables();
+//        Map <Functor, INameable <Functor>>[] tables = bkt.getTables();
         List <HtEntityIdentifier> l = new ArrayList <>();
 
         return l;

@@ -11,6 +11,7 @@ import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledPredicate;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledQuery;
 
 import java.io.InputStream;
+import java.util.Objects;
 
 import static com.thesett.aima.logic.fol.isoprologparser.TokenSource.getTokenSourceForInputStream;
 
@@ -30,7 +31,10 @@ class HiTalkWAMEngine extends ResolutionEngine <Clause, HiTalkWAMCompiledPredica
      */
 
 //Holds the name of the resource on the classpath that contains the built-in library.
-    private static final String BUILT_IN_LIB = "wam_builtins.hlgt";
+    private static final String BUILT_IN_LIB = "wam_builtins.lgt";
+    private static final String BUILT_IN_LIB_CORE = "core.lgt";
+    //    private static final String BUILT_IN_LIB = "wam_builtins.hlgt";
+//    private static final String BUILT_IN_LIB = "wam_builtins.hlgt";
     protected final HtPrologParser parser;
     protected final VariableAndFunctorInterner interner;
 
@@ -70,7 +74,7 @@ class HiTalkWAMEngine extends ResolutionEngine <Clause, HiTalkWAMCompiledPredica
 
         // Create a token source to load the model rules from.
         InputStream input = getClass().getClassLoader().getResourceAsStream(BUILT_IN_LIB);
-        TokenSource tokenSource = (TokenSource) getTokenSourceForInputStream(input);
+        TokenSource tokenSource = (TokenSource) getTokenSourceForInputStream(Objects.requireNonNull(input));
 
         // Set up a parser on the token source.
         Parser <Clause, Token> libParser = new SentenceParser(interner);

@@ -1,6 +1,7 @@
 package org.ltc.hitalk.entities.context;
 
 import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
+import org.ltc.hitalk.entities.HtProperty;
 
 /**
  *
@@ -26,7 +27,7 @@ class LoadContext extends Context {
      * @param flags
      */
     public
-    LoadContext ( HiTalkFlag... flags ) {
+    LoadContext ( HtProperty[] flags ) {
         super(flags);
 
     }

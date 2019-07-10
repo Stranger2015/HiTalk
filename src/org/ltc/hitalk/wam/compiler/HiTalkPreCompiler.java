@@ -11,7 +11,6 @@ import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.entities.context.LoadContext;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -52,10 +51,12 @@ class HiTalkPreCompiler<T extends Clause> extends BaseMachine implements LogicCo
      * Holds the default built in, for standard compilation and interners and symbol tables.
      */
     private final HiTalkDefaultBuiltIn defaultBuiltIn;
+
     /**
      * Holds the built in transformation.
      */
     private final HiTalkBuiltInTransform builtInTransform;
+
     /**
      * Holds the compiler output observer.
      */
@@ -83,45 +84,46 @@ class HiTalkPreCompiler<T extends Clause> extends BaseMachine implements LogicCo
      */
     public
     void compile ( Sentence <T> sentence ) throws SourceCodeException {
-        List <Term> terms = preprocess(sentence.getT());
-        List <Clause> clauses = new ArrayList <>(terms.size());
-        Clause clause = null;
+        List <T> clauses = preprocess(sentence.getT());
+//        Clause clause = null;
 
-        for (Term term : terms) {
-            clause = TermUtils.convertToClause(term, interner);
-            clauses.add(clause);
+//        for (Term term : terms) {
+//            clause = TermUtils.convertToClause(term, interner);
+//            clauses.add(clause);
+//        }
+
+        for (
+                Clause clause : clauses) {
+            substituteBuiltIns(clause);
+            initializeSymbolTable(clause);
+            topLevelCheck(clause);
+
+            if (observer != null) {
+                final Clause finalClause = clause;
+                if (Objects.requireNonNull(clause).isQuery()) {
+
+                    observer.onQueryCompilation(() -> finalClause);
+                }
+                else {
+                    observer.onCompilation(() -> finalClause);
+                }
+            }
         }
-
-        substituteBuiltIns(clause);
-        initializeSymbolTable(clause);
-        topLevelCheck(clause);
-
         saveResult(clauses);
-
-        if (observer != null) {
-            final Clause finalClause = clause;
-            if (Objects.requireNonNull(clause).isQuery()) {
-
-                observer.onQueryCompilation(() -> finalClause);
-            }
-            else {
-                observer.onCompilation(() -> finalClause);
-            }
-        }
     }
 
     /**
      * @param clauses
      */
     protected abstract
-    void saveResult ( List <Clause> clauses );
+    void saveResult ( List <T> clauses );
 
     /**
      * @param term
      * @return
      */
     protected abstract
-    List <Term> preprocess ( Term term );
+    List <T> preprocess ( T term );
 
     /**
      * {@inheritDoc}

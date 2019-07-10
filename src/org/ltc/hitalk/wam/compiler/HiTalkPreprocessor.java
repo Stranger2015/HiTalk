@@ -59,6 +59,25 @@ class HiTalkPreprocessor<T extends Clause> extends HiTalkPreCompiler <T> {
     }
 
     /**
+     * @param clauses
+     */
+    @Override
+    protected
+    void saveResult ( List <Clause> clauses ) {
+
+    }
+
+    /**
+     * @param term
+     * @return
+     */
+    @Override
+    protected
+    List <Term> preprocess ( Term term ) {
+        return null;
+    }
+
+    /**
      * @param term
      * @return
      */

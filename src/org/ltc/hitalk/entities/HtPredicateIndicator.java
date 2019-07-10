@@ -13,8 +13,6 @@ import java.util.function.Function;
  */
 public
 class HtPredicateIndicator extends BaseTerm implements INameable <Functor> {
-
-
     private Functor delegate;
 
     /**

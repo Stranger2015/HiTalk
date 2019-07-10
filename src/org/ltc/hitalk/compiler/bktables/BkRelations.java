@@ -7,5 +7,6 @@ import java.util.EnumSet;
 public
 class BkRelations extends DbSchema {
     private short[] entity2Indexes;
+
     private EnumSet <HtRelationKind>[] relations;
 }

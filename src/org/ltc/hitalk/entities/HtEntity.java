@@ -22,6 +22,7 @@ class HtEntity extends PropertyOwner implements INameable <Functor> {
      */
     protected
     HtEntity ( Functor functor, HtEntityKind kind, HiTalkFlag... props ) {
+        super(props);
         this.identifier = new HtEntityIdentifier(functor, kind);
     }
 
