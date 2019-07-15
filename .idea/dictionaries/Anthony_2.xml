@@ -1,9 +1,11 @@
 <component name="ProjectDictionaryState">
   <dictionary name="Anthony_2">
     <words>
+      <w>abrupted</w>
       <w>addr</w>
       <w>arglist</w>
       <w>associativities</w>
+      <w>backquoted</w>
       <w>builtins</w>
       <w>coinduction</w>
       <w>coinductive</w>
@@ -21,6 +23,7 @@
       <w>interner</w>
       <w>logtalk</w>
       <w>metacall</w>
+      <w>metaclasses</w>
       <w>metavars</w>
       <w>multifile</w>
       <w>nonvar</w>
@@ -31,6 +34,7 @@
       <w>rewriter</w>
       <w>specializer</w>
       <w>sshtools</w>
+      <w>subterm</w>
       <w>supercall</w>
       <w>traverser</w>
     </words>

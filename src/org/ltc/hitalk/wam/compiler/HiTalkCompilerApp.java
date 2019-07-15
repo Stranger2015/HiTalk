@@ -7,7 +7,6 @@ import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.common.util.doublemaps.SymbolTableImpl;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.bktables.*;
-import org.ltc.hitalk.compiler.bktables.BookKeepingTables.BkTableKind;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
 import org.ltc.hitalk.entities.context.CompilationContext;
@@ -25,8 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-
-import static org.ltc.hitalk.compiler.bktables.BookKeepingTables.BkTableKind.LOADED_ENTITIES;
 
 /**
  * Reloading files, active code and threads
@@ -131,8 +128,7 @@ public
 class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
 
     private static final String DEFAULT_SCRATCH_DIRECTORY = "scratch";
-    //
-//    private final String BANNER = "\nHiTalk compiler, v0.0.1-b#%d Anton Danilov (c) 2018-2019, All rights reserved\n";
+
     /**
      * <code>access(Access)</code>,  where <code>Access</code> can be either <code>read_write (the default) or
      * <code>read_only;
@@ -1713,8 +1709,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
         return config;
     }
 
-    /**
-     * @param tokenSource
+    /** --------------------------------------------->FIXME
      * @param loadContext
      */
     Term[] compileTokenSource ( TokenSource tokenSource, LoadContext loadContext ) throws SourceCodeException {

@@ -63,6 +63,15 @@ class HiTalkPreprocessor<T extends Clause> extends HiTalkPreCompiler <T> {
      */
     @Override
     protected
+    void saveResult ( List <T> clauses ) {
+
+    }
+
+    /**
+     * @param clauses
+     */
+    @Override
+    protected
     void saveResult ( List <Clause> clauses ) {
 
     }

@@ -24,6 +24,9 @@ class HtScope extends PropertyOwner {
         PUBLIC("public");
 
         /**
+         *
+         *
+         *
          * @param s
          */
         private

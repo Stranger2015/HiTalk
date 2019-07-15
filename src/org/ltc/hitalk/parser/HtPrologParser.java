@@ -86,7 +86,14 @@ class HtPrologParser implements PrologParserConstants {
      * Lists the tokens expected to begin a term expression as a string.
      */
     private static final String BEGIN_TERM_TOKENS = Arrays.toString(new String[]{
-            tokenImage[FUNCTOR], tokenImage[LSQPAREN], tokenImage[VAR], tokenImage[INTEGER_LITERAL], tokenImage[FLOATING_POINT_LITERAL], tokenImage[STRING_LITERAL], tokenImage[ATOM], tokenImage[LPAREN]
+            tokenImage[FUNCTOR],
+            tokenImage[LSQPAREN],
+            tokenImage[VAR],
+            tokenImage[INTEGER_LITERAL],
+            tokenImage[FLOATING_POINT_LITERAL],
+            tokenImage[STRING_LITERAL],
+            tokenImage[ATOM],
+            tokenImage[LPAREN]
     });
 
     static {

@@ -5,7 +5,6 @@ import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
-import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.term.Atom;
 import org.ltc.hitalk.term.HiLogCompound;
 import org.ltc.hitalk.term.ListTerm;
@@ -46,8 +45,8 @@ interface ITermFactory {
      */
     HiTalkFlag createFlag ( String name, Term... args );
 
-    HtProperty createProperty ( String name, String value );
-    HtProperty createProperty ( String name, Term... args );
+//    HtProperty createProperty ( String name, String value );
+//    HtProperty createProperty ( String name, Term... args );
 
 }
 /*

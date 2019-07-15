@@ -5,7 +5,7 @@ import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.compiler.bktables.INameable;
 
 /**
- * @param <NT>
+ * @param
  */
 public
 class HtEvent implements INameable <Functor> {
@@ -25,7 +25,7 @@ class HtEvent implements INameable <Functor> {
      * @param call
      */
     public
-    HtEvent ( NT name, Term obj, Term sender, Term message, HtEntityIdentifier monitor, Term call ) {
+    HtEvent ( Functor name, Term obj, Term sender, Term message, HtEntityIdentifier monitor, Term call ) {
         this.name = name;
         this.obj = obj;
         this.sender = sender;
@@ -39,7 +39,7 @@ class HtEvent implements INameable <Functor> {
      */
     @Override
     public
-    NT getName () {
+    Functor getName () {
         return name;
     }
 
@@ -71,7 +71,7 @@ class HtEvent implements INameable <Functor> {
      * @return
      */
     public
-    HtEntity getMonitor () {
+    HtEntityIdentifier getMonitor () {
         return monitor;
     }
 

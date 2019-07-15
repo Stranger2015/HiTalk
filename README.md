@@ -1,3 +1,7 @@
-#HiTalk
+# HiTalk
 
-##Objectives, Ideas, Examples
+## Objectives.
+  
+## Ideas.
+ 
+## Examples.

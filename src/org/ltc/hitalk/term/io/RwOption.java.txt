@@ -240,7 +240,7 @@ class RwOption extends LogtalkFlag {
         }
 
         public
-        List <RwOption> readOption ( TermReader reader, String s ) throws IOException, ParseException {
+        List <RwOption> readOption ( TermIO reader, String s ) throws IOException, ParseException {
             Term t = reader.readTermFromString(s, Collections.emptyList());
             Term name = t.getName();
             Term args = t.getArgs();
@@ -276,7 +276,3 @@ class RwOption extends LogtalkFlag {
 
     private final Term flag;
     private final Term flagValue;
-}
-
-
-}

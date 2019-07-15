@@ -1,5 +1,8 @@
 package org.ltc.hitalk.core.ptree;
 
+import org.ltc.hitalk.entities.context.ExecutionContext;
+import org.ltc.hitalk.wam.compiler.ICallable;
+
 /**
  *
  */
@@ -69,12 +72,12 @@ class ProcessTree implements IRewriter <IRewrittable> {
 
 
     public
-    void setNodeState ( Node node, Node.NodeState processed ) {
-        node.setState(processed);
+    void setNodeState ( Node node, Node.State processed ) {
+        node.setState(Node.State.PROCESSED);
     }
 
     public
-    Node addThreadNode ( CallableTerm term, DriveContext dc ) {
+    Node addThreadNode ( ICallable term, ExecutionContext dc ) {
         return null;
     }
 
@@ -125,7 +128,7 @@ class ProcessTree implements IRewriter <IRewrittable> {
 //    }
 //
 //    public
-//    void setProperty ( Node currentNode, Node.NodeState state, Node.NodeState state1 ) {
+//    void setProperty ( Node currentNode, Node.StTE state, Node.NodeState state1 ) {
 //
 //    }
 //
@@ -258,18 +261,6 @@ class ProcessTree implements IRewriter <IRewrittable> {
 //        int getNumSuccessors () {
 //            return getConfiguration().getOuts().size();
 //        }
-
-    public
-    enum NodeState {
-        INACTIVE,
-        ACTIVE,
-        COMPLETE,
-        PROCESSED,
-        ABRUPTED,
-        REMOVED,
-        STATE,
-    }
-
 }
 
 

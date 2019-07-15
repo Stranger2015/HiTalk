@@ -781,6 +781,7 @@ class HiTalkWAMInstruction implements Sizeable {
     /**
      * Defines the L0 virtual machine instruction set as constants.
      */
+    public
     enum HiTalkWAMInstructionSet {
         /**
          * Instruction to write out a struc onto the heap.

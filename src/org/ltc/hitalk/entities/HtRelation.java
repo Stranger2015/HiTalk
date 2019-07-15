@@ -1,55 +1,56 @@
 package org.ltc.hitalk.entities;
 
+import com.thesett.aima.logic.fol.Functor;
+import org.ltc.hitalk.compiler.bktables.IIdentifiable;
+
 /**
  *
  */
 public
-class HtRelation {
+class HtRelation implements IIdentifiable {
 
-    /**
-     * @param hierarchyKind
-     * @param relationKind
-     * @param entityKind1
-     * @param entityKind2
-     */
+    protected static int idCounter = 0;
+    private int id;
+
     public
     HtRelation ( HtEntityHierarchyKind hierarchyKind,
                  HtRelationKind relationKind,
-                 HtEntityKind entityKind1,
-                 HtEntityKind entityKind2 ) {
+                 HtScope scope,
+                 HtEntityIdentifier entityIdentifier1,
+                 HtEntityIdentifier entityIdentifier2 ) {
 
         this.hierarchyKind = hierarchyKind;
         this.relationKind = relationKind;
-        this.entityKind1 = entityKind1;
-        this.entityKind2 = entityKind2;
+        this.scope = scope;
+        this.entityIdentifier1 = entityIdentifier1;
+        this.entityIdentifier2 = entityIdentifier2;
+        id = ++idCounter;
     }
 
     private final HtEntityHierarchyKind hierarchyKind;
 
-    private final HtEntityKind entityKind1;
-    private final HtEntityKind entityKind2;
+    private final HtScope scope;
+
+    public
+    HtScope getScope () {
+        return scope;
+    }
+
+    public
+    HtEntityIdentifier getEntityIdentifier1 () {
+        return entityIdentifier1;
+    }
+
+    public
+    HtEntityIdentifier getEntityIdentifier2 () {
+        return entityIdentifier2;
+    }
+
+    private final HtEntityIdentifier entityIdentifier1;
+    private final HtEntityIdentifier entityIdentifier2;
 
     private final HtRelationKind relationKind;
 
-    /**
-     * @return
-     */
-    public final
-    HtEntityKind getEntityKind1 () {
-        return entityKind1;
-    }
-
-    /**
-     * @return
-     */
-    public final
-    HtEntityKind getEntityKind2 () {
-        return entityKind2;
-    }
-
-    /**
-     * @return
-     */
     public final
     HtEntityHierarchyKind getHierarchyKind () {
         return hierarchyKind;
@@ -61,5 +62,32 @@ class HtRelation {
     public final
     HtRelationKind getRelationKind () {
         return relationKind;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    int getId () {
+        return id;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    IIdentifiable newInstance () {
+        return null;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    Functor getName () {
+        return null;
     }
 }
