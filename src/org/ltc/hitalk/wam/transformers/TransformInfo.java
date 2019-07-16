@@ -1,13 +1,15 @@
 package org.ltc.hitalk.wam.transformers;
 
 
-import com.thesett.aima.logic.fol.Term;
+import com.thesett.aima.logic.fol.Clause;
 import org.apache.commons.lang3.tuple.Triple;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
 
+import java.util.List;
+
 public
-class TransformInfo<T extends Term> extends Triple <ExecutionContext, ExecutionInfo, IMetrics> {
+class TransformInfo<T extends Clause> extends Triple <ExecutionContext, ExecutionInfo, IMetrics> {
 
 
     /**
@@ -16,7 +18,7 @@ class TransformInfo<T extends Term> extends Triple <ExecutionContext, ExecutionI
      * @param delta
      */
     public
-    TransformInfo ( ExecutionContext context, ExecutionInfo executionInfo, IMetrics delta, T target ) {
+    TransformInfo ( ExecutionContext context, ExecutionInfo executionInfo, IMetrics delta, List <T> target ) {
 
         this.context = context;
         info = executionInfo;
@@ -42,7 +44,7 @@ class TransformInfo<T extends Term> extends Triple <ExecutionContext, ExecutionI
     private ExecutionContext context;
     private ExecutionInfo info;
     private IMetrics metrics;
-    private final T target;
+    private final List <T> target;
 
     /**
      * <p>Gets the left element from this triple.</p>
@@ -78,7 +80,7 @@ class TransformInfo<T extends Term> extends Triple <ExecutionContext, ExecutionI
     }
 
     public
-    T getTarget () {
+    List <T> getTarget () {
         return target;
     }
 }

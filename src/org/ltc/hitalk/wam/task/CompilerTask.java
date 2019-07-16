@@ -13,17 +13,16 @@ import java.util.function.Function;
  */
 abstract public
 class CompilerTask<T extends Clause> implements IInvokable <T> {
+
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     protected final Function <T, List <T>> action;
-
 
     /**
      *
      */
     protected
     CompilerTask ( Function <T, List <T>> action ) {
-
         this.action = action;
     }
 

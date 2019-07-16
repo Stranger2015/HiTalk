@@ -6,7 +6,6 @@ import com.thesett.aima.logic.fol.bytecode.BaseMachine;
 import com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys;
 import com.thesett.aima.search.QueueBasedSearchMethod;
 import com.thesett.aima.search.SearchMethod;
-import com.thesett.aima.search.util.Searches;
 import com.thesett.aima.search.util.uninformed.BreadthFirstSearch;
 import com.thesett.aima.search.util.uninformed.PostFixSearch;
 import com.thesett.common.util.SizeableLinkedList;
@@ -16,6 +15,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.TreeSet;
 
+import static com.thesett.aima.search.util.Searches.allSolutions;
 import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.HiTalkWAMInstructionSet.*;
 import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.REG_ADDR;
 import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.STACK_ADDR;
@@ -90,7 +90,11 @@ class HiTalkDefaultBuiltIn extends BaseMachine implements HiTalkBuiltIn {
      * {@inheritDoc}
      */
     public
-    SizeableLinkedList <HiTalkWAMInstruction> compileBodyCall ( Functor expression, boolean isFirstBody, boolean isLastBody, boolean chainRule, int permVarsRemaining ) {
+    SizeableLinkedList <HiTalkWAMInstruction> compileBodyCall ( Functor expression,
+                                                                boolean isFirstBody,
+                                                                boolean isLastBody,
+                                                                boolean chainRule,
+                                                                int permVarsRemaining ) {
         // Used to build up the results in.
         SizeableLinkedList <HiTalkWAMInstruction> instructions = new SizeableLinkedList <>();
 
@@ -107,7 +111,8 @@ class HiTalkDefaultBuiltIn extends BaseMachine implements HiTalkBuiltIn {
             instructions.add(new HiTalkWAMInstruction(Execute, interner.getFunctorFunctorName(expression)));
         }
         else {
-            instructions.add(new HiTalkWAMInstruction(Call, (byte) (permVarsRemaining & 0xff), interner.getFunctorFunctorName(expression)));
+            instructions.add(new HiTalkWAMInstruction(Call, (byte) (permVarsRemaining & 0xff),
+                    interner.getFunctorFunctorName(expression)));
         }
 
         return instructions;
@@ -117,9 +122,13 @@ class HiTalkDefaultBuiltIn extends BaseMachine implements HiTalkBuiltIn {
      * {@inheritDoc}
      */
     public
-    SizeableLinkedList <HiTalkWAMInstruction> compileBodyArguments ( Functor expression, boolean isFirstBody, FunctorName clauseName, int bodyNumber ) {
+    SizeableLinkedList <HiTalkWAMInstruction> compileBodyArguments (
+            Functor expression,
+            boolean isFirstBody,
+            FunctorName clauseName,
+            int bodyNumber ) {
         // Used to build up the results in.
-        SizeableLinkedList <HiTalkWAMInstruction> instructions = new SizeableLinkedList <HiTalkWAMInstruction>();
+        SizeableLinkedList <HiTalkWAMInstruction> instructions = new SizeableLinkedList <>();
 
         // Allocate argument registers on the body, to all functors as outermost arguments.
         // Allocate temporary registers on the body, to all terms not already allocated.
@@ -192,7 +201,7 @@ class HiTalkDefaultBuiltIn extends BaseMachine implements HiTalkBuiltIn {
                 postfixSearch.addStartState(nextFunctorArg);
                 postfixSearch.setGoalPredicate(new FunctorTermPredicate());
 
-                Iterator <Term> treeWalker = Searches.allSolutions(postfixSearch);
+                Iterator <Term> treeWalker = allSolutions(postfixSearch);
 
                 // For each functor encountered: put_struc.
                 while (treeWalker.hasNext()) {
@@ -205,7 +214,9 @@ class HiTalkDefaultBuiltIn extends BaseMachine implements HiTalkBuiltIn {
                     /*log.fine("PUT_STRUC " + interner.getFunctorName(nextFunctor) + "/" + nextFunctor.getArity() +
                         ((addrMode == REG_ADDR) ? ", X" : ", Y") + address);*/
 
-                    HiTalkWAMInstruction instruction = new HiTalkWAMInstruction(PutStruc, addrMode, address, interner.getDeinternedFunctorName(nextFunctor.getName()), nextFunctor);
+                    HiTalkWAMInstruction instruction = new HiTalkWAMInstruction(PutStruc,
+                            addrMode, address,
+                            interner.getDeinternedFunctorName(nextFunctor.getName()), nextFunctor);
                     instructions.add(instruction);
 
                     // For each argument of the functor.
@@ -302,11 +313,11 @@ class HiTalkDefaultBuiltIn extends BaseMachine implements HiTalkBuiltIn {
         // Need to assign registers to the whole syntax tree, working in from the outermost functor. The outermost
         // functor itself is not assigned to a register in l3 (only in l0). Functors already directly assigned to
         // argument registers will not be re-assigned by this, variables as arguments will be assigned.
-        SearchMethod outInSearch = new BreadthFirstSearch <Term, Term>();
+        SearchMethod <Term> outInSearch = new BreadthFirstSearch <>();
         outInSearch.reset();
         outInSearch.addStartState(expression);
 
-        Iterator <Term> treeWalker = Searches.allSolutions(outInSearch);
+        Iterator <Term> treeWalker = allSolutions(outInSearch);
 
         // Discard the outermost functor from the variable allocation.
         treeWalker.next();

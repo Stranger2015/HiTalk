@@ -64,9 +64,7 @@ enum Directive {
  */
 
 public
-class HtPrologParser implements PrologParserConstants {
-
-    public static final int BOF = 255;
+class HtPrologParser implements HtPrologParserConstants {
 
     /**
      * Used for debugging purposes.
@@ -93,8 +91,10 @@ class HtPrologParser implements PrologParserConstants {
             tokenImage[FLOATING_POINT_LITERAL],
             tokenImage[STRING_LITERAL],
             tokenImage[ATOM],
-            tokenImage[LPAREN]
-    });
+            tokenImage[BOF],
+            tokenImage[LBRACE],
+            tokenImage[RBRACE],
+            });
 
     static {
         new VariableAndFunctorInternerImpl("Prolog_Variable_Namespace", "Prolog_Functor_Namespace");
@@ -273,9 +273,7 @@ class HtPrologParser implements PrologParserConstants {
 
         Clause clause = TermUtils.convertToClause(term, interner);
 
-        if (clause == null) {
-            throw new SourceCodeException("Only queries and clauses are valid sentences in Prolog, not " + term + ".", null, null, null, term.getSourceCodePosition());
-        }
+        Objects.requireNonNull(clause);
 
         return clause;
     }
@@ -837,6 +835,7 @@ class HtPrologParser implements PrologParserConstants {
         interner.internFunctorName("true", 0);
         interner.internFunctorName("fail", 0);
         interner.internFunctorName("!", 0);
+        interner.internFunctorName("{}", 1);
     }
 
     /**

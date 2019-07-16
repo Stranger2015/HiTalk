@@ -92,8 +92,7 @@ class HiTalkPreCompiler<T extends Clause> extends BaseMachine implements LogicCo
 //            clauses.add(clause);
 //        }
 
-        for (
-                Clause clause : clauses) {
+        for (Clause clause : clauses) {
             substituteBuiltIns(clause);
             initializeSymbolTable(clause);
             topLevelCheck(clause);

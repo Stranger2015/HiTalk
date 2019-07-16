@@ -1,7 +1,6 @@
 package org.ltc.hitalk.wam.transformers;
 
 import com.thesett.aima.logic.fol.Clause;
-import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
 import org.slf4j.Logger;
@@ -17,7 +16,7 @@ public
 class DefaultTransformer<T extends Clause> implements ITransformer <T> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
-    private final List <? extends Clause> target;
+    private List <T> target;
 
     protected ExecutionContext context;
     protected ExecutionContext contextBefore;
@@ -25,7 +24,7 @@ class DefaultTransformer<T extends Clause> implements ITransformer <T> {
     protected ExecutionInfo executionInfo;
     protected ExecutionInfo executionInfoBefore;
     protected final ITransformer <T> transformer;
-    private TransformInfo result;
+    private TransformInfo <T> result;
 
     /**
      * @param term
@@ -71,7 +70,7 @@ class DefaultTransformer<T extends Clause> implements ITransformer <T> {
      * @return
      */
     public
-    T transform ( Clause target ) {
+    List <T> transform ( List <T> target ) {
         message();
         List <T> termList = Collections.emptyList();// execute();
         IMetrics after = context.getCurrentMetrics();
@@ -80,14 +79,14 @@ class DefaultTransformer<T extends Clause> implements ITransformer <T> {
             executionInfo = null;// todo????
         }
         if (!isAcceptable(context.getMaxMetrics())) {
-            result = new TransformInfo(contextBefore, executionInfoBefore, null, target); //todo
+            result = new TransformInfo <>(contextBefore, executionInfoBefore, null, target); //todo
             cancel();
         }
         else {
-            result = new TransformInfo(context, executionInfo, delta, target);
+            result = new TransformInfo <>(context, executionInfo, delta, target);
         }
         //
-        return (T) target;
+        return target;
     }
 
     @Override
@@ -126,13 +125,19 @@ class DefaultTransformer<T extends Clause> implements ITransformer <T> {
      */
     @Override
     public
-    T transform ( Term t ) {
-        throw new UnsupportedOperationException();
+    T transform ( T t ) {
+//        if( t instanceof Bypass)
+        return t;
     }
 
     @Override
     public
     void run () {
-        result = transform(null);
+        target = transform(getTarget());
+    }
+
+    private
+    List <T> getTarget () {
+        return target;
     }
 }

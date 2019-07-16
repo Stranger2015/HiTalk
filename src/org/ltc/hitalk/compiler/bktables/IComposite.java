@@ -9,14 +9,14 @@ import java.util.List;
  *
  */
 public
-interface IComposite<T extends Clause> {
+interface IComposite<T extends Clause, TT extends TransformTask <T>> {
     /**
      * @param t
      */
     default
-    void add ( TransformTask <T> t ) {
+    void add ( TT t ) {
         getComponents().add(t);
     }
 
-    List <TransformTask <T>> getComponents ();
+    List <TT> getComponents ();
 }

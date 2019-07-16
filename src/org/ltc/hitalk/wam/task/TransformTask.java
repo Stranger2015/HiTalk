@@ -2,11 +2,9 @@ package org.ltc.hitalk.wam.task;
 
 
 import com.thesett.aima.logic.fol.Clause;
-import com.thesett.aima.logic.fol.Term;
 import org.jetbrains.annotations.Contract;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
-import org.ltc.hitalk.wam.transformers.DefaultTransformer;
 import org.ltc.hitalk.wam.transformers.ITransformer;
 import org.ltc.hitalk.wam.transformers.TransformInfo;
 import org.slf4j.Logger;
@@ -25,32 +23,29 @@ class TransformTask<T extends Clause> extends CompilerTask <T> implements ITrans
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     protected ITransformer <T> transformer;
-    protected T target;
+    protected List <T> target;
     private IMetrics bestSoFar = initialMetrics();
     private TransformInfo <T> bestSoFarResult;
 
     public
     TransformTask ( List <T> target, ITransformer <T> transformer ) {
-        this();
-//        super(app);
-//        bestSoFarResult = new TransformInfo <T>(target,transformer,new ExecutionContext(), getContext(), null, initialMetrics(), target);
+        this(null, target);
         this.transformer = transformer;
-    }
-
-    public
-    TransformTask ( List <T> target ) {
-
-        this(new DefaultTransformer(target));
-        //        bestSoFarResult = new TransformInfo <T>(getContext(), getInfo(), initialMetrics(), null);
     }
 
     /**
      * @param action
      */
     protected
-    TransformTask ( Function <T, List <T>> action, T target ) {
+    TransformTask ( Function <T, List <T>> action, List <T> target ) {
         super(action);
+        this.target = target;
     }
+
+//    public
+//    TransformTask () {
+//        super();
+//    }
 
 
     //    private
@@ -176,16 +171,6 @@ class TransformTask<T extends Clause> extends CompilerTask <T> implements ITrans
     }
 
     /**
-     * @param t
-     * @return
-     */
-    @Override
-    public
-    T transform ( Term t ) {
-        return null;
-    }
-
-    /**
      * Applies a transformation to the term.
      *
      * @param term The term to transform.
@@ -197,7 +182,7 @@ class TransformTask<T extends Clause> extends CompilerTask <T> implements ITrans
     }
 
     public final
-    T getTarget () {
+    List <T> getTarget () {
         return target;
     }
 }

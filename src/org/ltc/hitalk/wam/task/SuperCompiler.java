@@ -110,7 +110,7 @@ class SuperCompiler<T extends Clause> extends StandardPreprocessor <T> implement
      */
     @Override
     public
-    T transform ( T clause ) {
+    T transform ( Clause clause ) {
         return null;
     }
 

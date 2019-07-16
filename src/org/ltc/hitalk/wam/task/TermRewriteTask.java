@@ -35,7 +35,7 @@ import java.util.List;
  * variable_names	A list of `Name = Var' of the last term read. See read_term/2 for details.
  */
 public
-class TermRewriteTask<T extends Clause, TT extends TermRewriteTask <T, TT>>
+class TermRewriteTask<T extends Clause, TT extends TransformTask <T>>
         extends StandardPreprocessor <T>
         implements IComposite <T, TT>, ITransformer <T> {
 
@@ -53,10 +53,9 @@ class TermRewriteTask<T extends Clause, TT extends TermRewriteTask <T, TT>>
     /**
      * @param t
      */
-    @Override
     public
     void add ( TT t ) {
-        rewriteTasks.add(t);
+        getComponents().add(t);
     }
 
     /**

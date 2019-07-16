@@ -19,6 +19,7 @@ import static com.thesett.aima.logic.fol.OpSymbol.Associativity.FX;
 /**
  *
  */
+public
 class HiLogParser extends HtPrologParser {
 
     final protected static int HILOG_COMPOUND = 38;

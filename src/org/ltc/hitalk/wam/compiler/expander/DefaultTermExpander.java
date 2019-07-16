@@ -19,29 +19,29 @@ class DefaultTermExpander<T extends Clause, TT extends TermRewriteTask <T, TT>>
      * @param transformer
      */
     public
-    DefaultTermExpander ( List <T> target, ITransformer transformer ) {
+    DefaultTermExpander ( List <T> target, ITransformer <T> transformer ) {
         super(target, transformer);
     }
 
     public
-    List <T> invoke0 ( T term ) {
-        List <T> list = super.invoke0(term);
+    List <T> invoke0 ( T c ) {
+        List <T> list = super.invoke0(c);
         for (int i = 0; i < list.size(); i++) {
             T t = list.get(i);
             list.addAll(invoke(t));
 
         }
+
         return list;
     }
 
     /**
      * @param t
-     * @return
      */
     @Override
     public
-    T transform ( Clause t ) {
-        return null;
+    void add ( TT t ) {
+        getComponents().add(t);
     }
 }
 
