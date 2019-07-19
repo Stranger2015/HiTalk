@@ -1,10 +1,8 @@
 package org.ltc.hitalk.compiler.bktables;
 
+
 import com.thesett.aima.logic.fol.Functor;
-import org.ltc.hitalk.entities.HtEntityIdentifier;
-import org.ltc.hitalk.entities.HtEntityKind;
-import org.ltc.hitalk.entities.HtRelation;
-import org.ltc.hitalk.entities.HtRelationKind;
+import org.ltc.hitalk.compiler.bktables.db.DbSchema;
 
 import java.util.function.BiConsumer;
 
@@ -12,13 +10,15 @@ import java.util.function.BiConsumer;
  * @param <T>
  */
 public
-class BookKeepingTables<T extends INameable <Functor>> implements IRegistry {
+class BookKeepingTables<T extends INameable <Functor>>
+        extends BkTable
+        implements IRegistry {
 
     private final static int TAB_LENGTH = BkTableKind.USER_DEFINED_FLAGS.ordinal() + 1;
-    private final byte[][] tables = new byte[TAB_LENGTH][];
+    private final DbSchema[][] tables = new DbSchema[TAB_LENGTH][];
     private final BiConsumer <Functor, T>[] actions = new BiConsumer[TAB_LENGTH];
 
-    private IRegistry registry;
+    private IRegistry registry = this;
 
     /**
      *
@@ -28,13 +28,13 @@ class BookKeepingTables<T extends INameable <Functor>> implements IRegistry {
 
     }
 
-    /**
-     * @return
-     */
-    public
-    byte[][] getTables () {
-        return tables;
-    }
+//    /**
+//     * @return
+//     */
+//    public
+//    DbSchema[][] getTables () {
+//        return tables;
+//    }
 
     /**
      * @param identifier
@@ -74,23 +74,6 @@ class BookKeepingTables<T extends INameable <Functor>> implements IRegistry {
     public
     IIdentifiable getById ( int id ) {
         return registry.getById(id);
-    }
-
-    /**
-     *
-     */
-    HtRelation[] selectRelations ( BkTableKind idx,
-                                   HtEntityIdentifier entity1,
-                                   HtEntityIdentifier entity2,
-                                   HtEntityKind entityKind,
-                                   HtRelationKind relationKind ) {
-        byte[] table = tables[idx.ordinal()];
-        int n1 = entity1.getName();
-        int n2 = entity2.getName();
-        idx.getBkClass();
-
-        return null;
-
     }
 }
 

@@ -1,16 +1,20 @@
 package org.ltc.hitalk.wam.transformers;
 
 import com.thesett.aima.logic.fol.Clause;
-import com.thesett.aima.logic.fol.ClauseTransformer;
+import com.thesett.aima.logic.fol.Term;
 
+/**
+ * @param <T>
+ * @param <TC>
+ */
 public
-interface ISpecializer extends ClauseTransformer {
+interface ISpecializer<T extends Clause, TC extends Term> extends ITransformer <T, TC> {
 
     /**
      * @param clause
      * @return
      */
-    Clause specialize ( Clause clause );
+    T specialize ( T clause );
 
     /**
      * Applies a transformation to the clause.
@@ -20,7 +24,7 @@ interface ISpecializer extends ClauseTransformer {
      */
     @Override
     default
-    Clause transform ( Clause clause ) {
+    T transform ( T clause ) {
         return specialize(clause);
     }
 }

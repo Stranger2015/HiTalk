@@ -85,13 +85,6 @@ class HiTalkPreCompiler<T extends Clause> extends BaseMachine implements LogicCo
     public
     void compile ( Sentence <T> sentence ) throws SourceCodeException {
         List <T> clauses = preprocess(sentence.getT());
-//        Clause clause = null;
-
-//        for (Term term : terms) {
-//            clause = TermUtils.convertToClause(term, interner);
-//            clauses.add(clause);
-//        }
-
         for (Clause clause : clauses) {
             substituteBuiltIns(clause);
             initializeSymbolTable(clause);
@@ -118,11 +111,11 @@ class HiTalkPreCompiler<T extends Clause> extends BaseMachine implements LogicCo
     void saveResult ( List <T> clauses );
 
     /**
-     * @param term
+     * @param t
      * @return
      */
     protected abstract
-    List <T> preprocess ( T term );
+    List <T> preprocess ( T t );
 
     /**
      * {@inheritDoc}
@@ -189,6 +182,11 @@ class HiTalkPreCompiler<T extends Clause> extends BaseMachine implements LogicCo
 
 
         return new Term[0];
+    }
+
+    public
+    HiTalkDefaultBuiltIn getDefaultBuiltIn () {
+        return defaultBuiltIn;
     }
 }
 

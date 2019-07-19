@@ -1,6 +1,7 @@
 package org.ltc.hitalk.wam.transformers;
 
 import com.thesett.aima.logic.fol.Clause;
+import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
 import org.slf4j.Logger;
@@ -13,17 +14,17 @@ import java.util.List;
  * Created by Anthony on 19.07.2016.
  */
 public
-class DefaultTransformer<T extends Clause> implements ITransformer <T> {
+class DefaultTransformer<T extends Clause, TC extends Term> implements ITransformer <T, TC> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
-    private List <T> target;
+    protected List <T> target;
 
     protected ExecutionContext context;
     protected ExecutionContext contextBefore;
     //
     protected ExecutionInfo executionInfo;
     protected ExecutionInfo executionInfoBefore;
-    protected final ITransformer <T> transformer;
+    protected final ITransformer <T, TC> transformer;
     private TransformInfo <T> result;
 
     /**
@@ -45,6 +46,11 @@ class DefaultTransformer<T extends Clause> implements ITransformer <T> {
         transformer = this;
     }
 
+    public
+    DefaultTransformer () {
+        this((T) null);
+    }
+
     @Override
     public
     void cancel () {
@@ -52,7 +58,7 @@ class DefaultTransformer<T extends Clause> implements ITransformer <T> {
     }
 
     public
-    ITransformer <T> getTransformer () {
+    ITransformer <T, TC> getTransformer () {
         return transformer;
     }
 
@@ -126,7 +132,16 @@ class DefaultTransformer<T extends Clause> implements ITransformer <T> {
     @Override
     public
     T transform ( T t ) {
-//        if( t instanceof Bypass)
+        return t;
+    }
+
+    /**
+     * @param t
+     * @return
+     */
+    @Override
+    public
+    TC transform ( TC t ) {
         return t;
     }
 

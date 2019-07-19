@@ -27,6 +27,11 @@ class TransformInfo<T extends Clause> extends Triple <ExecutionContext, Executio
     }
 
     public
+    TransformInfo () {
+
+    }
+
+    public
     ExecutionContext getContext () {
         return context;
     }
@@ -44,7 +49,7 @@ class TransformInfo<T extends Clause> extends Triple <ExecutionContext, Executio
     private ExecutionContext context;
     private ExecutionInfo info;
     private IMetrics metrics;
-    private final List <T> target;
+    private List <T> target;
 
     /**
      * <p>Gets the left element from this triple.</p>

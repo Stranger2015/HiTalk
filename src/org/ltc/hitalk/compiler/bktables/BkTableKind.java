@@ -1,14 +1,15 @@
 package org.ltc.hitalk.compiler.bktables;
 
 import org.ltc.hitalk.compiler.bktables.db.DbSchema;
+import org.ltc.hitalk.compiler.bktables.db.objvals.BkRelation;
 
 public
 enum BkTableKind {
     BEFORE_EVENTS,//<HtEvent>
     AFTER_EVENTS,
 
-    LOADED_ENTITIES,
-    ENTITY_RELATIONS(DbSchema.class),
+    LOADED_ENTITIES(BkLoadedeEntities.class),
+    ENTITY_RELATIONS(BkRelation.class),
     ENTITY_PROPERTIES,
     PREDICATE_PROPERTIES,
 
@@ -61,17 +62,31 @@ enum BkTableKind {
         this(null, DbSchema.class);
     }
 
+    /**
+     * @param parent
+     */
     BkTableKind ( BkTableKind parent ) {
         this(parent, DbSchema.class);
     }
 
+    /**
+     * @param parent
+     * @param clazz
+     */
     BkTableKind ( BkTableKind parent, Class <? extends DbSchema> clazz ) {
         this.parent = parent;
         this.bkClass = clazz;
     }
 
-    BkTableKind ( Class <DbSchema> clazz ) {
+    /**
+     * @param clazz
+     */
+    BkTableKind ( Class <? extends BkLoadedeEntities> clazz ) {
         this(null, clazz);
+    }
+
+    BkTableKind ( Class <? extends BkLoadedeEntities> clazz ) {
+
     }
 
     /**
@@ -82,6 +97,9 @@ enum BkTableKind {
         return parent;
     }
 
+    /**
+     * @return
+     */
     public
     Class <? extends DbSchema> getBkClass () {
         return bkClass;

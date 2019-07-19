@@ -211,11 +211,14 @@ class TermIO {
                 {
 
                 });
-        map.put("read_term_3", new HiTalkFlag[]
-
-                {
-
-                });
+        map.put("read_term_3", new HiTalkFlag[]{
+//                Read options: Options is a list of read options.
+//                If this list contains contradictory options, the rightmost option is the one which applies.
+//                Possible options are:
+tf.createFlag("variables(VL)"),
+//                VL is unified with the list of all variables of the input term, in left-to-right traversal order.
+//                Anonymous variables are included in the list VL.
+        });
         map.put("read_term_4", new HiTalkFlag[]
 
                 {

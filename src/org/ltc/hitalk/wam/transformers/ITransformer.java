@@ -1,6 +1,7 @@
 package org.ltc.hitalk.wam.transformers;
 
 import com.thesett.aima.logic.fol.Clause;
+import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
 
@@ -8,7 +9,7 @@ import org.ltc.hitalk.entities.context.IMetrics;
  * Created by Anthony on 28.06.2015.
  */
 public
-interface ITransformer<T extends Clause> extends IOperation {//, ClauseTransformer {
+interface ITransformer<T extends Clause, TC extends Term> extends IOperation {
 
     /**
      *
@@ -49,4 +50,11 @@ interface ITransformer<T extends Clause> extends IOperation {//, ClauseTransform
      * @return
      */
     T transform ( T t );
+
+
+    /**
+     * @param t
+     * @return
+     */
+    TC transform ( TC t );
 }

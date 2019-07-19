@@ -1,20 +1,44 @@
 package org.ltc.hitalk.compiler.bktables.db;
 
-import org.ltc.hitalk.entities.HtRelation;
+import org.ltc.hitalk.compiler.bktables.IIdentifiable;
+import org.ltc.hitalk.entities.HtEntityIdentifier;
 
+/**
+ *
+ */
 public abstract
-class DbSchema<T extends HtRelation> {
+class DbSchema implements IIdentifiable {
 
-    protected int recordNum;
-    protected T[] records;
+    protected static int idCounter = 0;
+    protected int id;
 
-    protected
-    DbSchema ( int recordNum ) {
-        this.recordNum = recordNum;
+    /**
+     *
+     */
+    protected HtEntityIdentifier entity1;
+
+    /**
+     * @param entitiy1
+     */
+    public
+    DbSchema ( HtEntityIdentifier entitiy1 ) {
+        this.entity1 = entitiy1;
+        id = ++idCounter;
     }
 
+    /**
+     * @return
+     */
     public
-    int getRecordNum () {
-        return recordNum;
+    HtEntityIdentifier getEntity1 () {
+        return entity1;
+    }
+
+    /**
+     * @return
+     */
+    public
+    int getId () {
+        return id;
     }
 }

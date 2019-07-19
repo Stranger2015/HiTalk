@@ -1,18 +1,17 @@
 package org.ltc.hitalk.wam.transformers;
 
 import com.thesett.aima.logic.fol.Clause;
-import com.thesett.aima.logic.fol.ClauseTransformer;
 
 /**
  *
  */
 public
-interface IGeneralizer extends ClauseTransformer {
+interface IGeneralizer<T extends Clause> extends ITransformer <T> {
     /**
      * @param clause
      * @return
      */
-    Clause generalize ( Clause clause );
+    T generalize ( T clause );
 
     /**
      * Applies a transformation to the clause.
@@ -22,7 +21,7 @@ interface IGeneralizer extends ClauseTransformer {
      */
     @Override
     default
-    Clause transform ( Clause clause ) {
+    T transform ( T clause ) {
         return generalize(clause);
     }
 }

@@ -1,13 +1,12 @@
 package org.ltc.hitalk.wam.transformers;
 
 import com.thesett.aima.logic.fol.Clause;
-import com.thesett.aima.logic.fol.ClauseTransformer;
 
 /**
  *
  */
 public
-interface IInliner<T extends Clause> extends ClauseTransformer {
+interface IInliner<T extends Clause> extends ITransformer <T> {
 
     /**
      * @param clause

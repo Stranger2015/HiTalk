@@ -1,8 +1,8 @@
 package org.ltc.hitalk.compiler.bktables.db;
 
+
 import org.ltc.hitalk.compiler.bktables.IRegistry;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
-import org.ltc.hitalk.entities.HtRelation;
 import org.ltc.hitalk.entities.HtRelationKind;
 
 import java.util.EnumSet;
@@ -11,7 +11,7 @@ import java.util.EnumSet;
  *
  */
 public
-class BkRelations<T extends HtRelation> extends DbEntity2RecOfArrays <T> {
+class BkRelations extends DbEntity2RecOfArrays <T> {
     /**
      * @param recordNum
      * @param rels1
@@ -20,8 +20,8 @@ class BkRelations<T extends HtRelation> extends DbEntity2RecOfArrays <T> {
      */
     public
     BkRelations ( int recordNum,
-                  T[] rels1,
-                  T[] rels2,
+                  Object[] rels1,
+                  Object[] rels2,
                   EnumSet <HtRelationKind> relationKinds
     ) {
         super(recordNum, rels1, rels2, relationKinds);
@@ -33,7 +33,7 @@ class BkRelations<T extends HtRelation> extends DbEntity2RecOfArrays <T> {
      * @return
      */
     public
-    HtRelation addRecord ( HtRelation rel, IRegistry registry ) {
+    HtRelation add ( HtRelation rel, IRegistry registry ) {
         HtEntityIdentifier e1 = rel.getEntityIdentifier1();
         HtEntityIdentifier e2 = rel.getEntityIdentifier2();
         HtRelationKind kind = rel.getRelationKind();
@@ -49,5 +49,10 @@ class BkRelations<T extends HtRelation> extends DbEntity2RecOfArrays <T> {
         }
 
         return null;
+    }
+
+    public
+    void remove ( HtRelation rel, IRegistry registry ) {
+
     }
 }

@@ -2,6 +2,7 @@ package org.ltc.hitalk.wam.task;
 
 
 import com.thesett.aima.logic.fol.Clause;
+import com.thesett.aima.logic.fol.Term;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,10 +13,9 @@ import java.util.function.Function;
  *
  */
 abstract public
-class CompilerTask<T extends Clause> implements IInvokable <T> {
+class CompilerTask<T extends Clause, TT extends Term> implements IInvokable <T> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
-
     protected final Function <T, List <T>> action;
 
     /**
@@ -49,5 +49,4 @@ class CompilerTask<T extends Clause> implements IInvokable <T> {
     void banner () {
         logger.info(String.format("\nPerforming %s task ...", getClass().getSimpleName()));
     }
-
 }

@@ -9,8 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+/**
+ * @param <T>
+ */
 abstract public
-class CompositeTask<T extends Clause> extends CompilerTask <T> implements IComposite <T> {
+class CompositeTask<T extends Clause> extends CompilerTask <T> implements IComposite <T, TransformTask <T>> {
 
     protected List <TransformTask <T>> tasks = new ArrayList <>();
     protected T target;

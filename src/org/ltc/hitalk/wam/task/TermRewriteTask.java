@@ -1,11 +1,13 @@
 package org.ltc.hitalk.wam.task;
 
 import com.thesett.aima.logic.fol.Clause;
+import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.compiler.bktables.IComposite;
 import org.ltc.hitalk.wam.transformers.ITransformer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Availability:built-in
@@ -35,9 +37,9 @@ import java.util.List;
  * variable_names	A list of `Name = Var' of the last term read. See read_term/2 for details.
  */
 public
-class TermRewriteTask<T extends Clause, TT extends TransformTask <T>>
-        extends StandardPreprocessor <T>
-        implements IComposite <T, TT>, ITransformer <T> {
+class TermRewriteTask<T extends Clause, TC extends Term, TT extends TransformTask <T, TC>>
+        extends StandardPreprocessor <T, TC>
+        implements IComposite <T, TT>, ITransformer <T, TC> {
 
     protected List <TT> rewriteTasks = new ArrayList <>();
 
@@ -46,8 +48,8 @@ class TermRewriteTask<T extends Clause, TT extends TransformTask <T>>
      * @param transformer
      */
     public
-    TermRewriteTask ( List <T> target, ITransformer <T> transformer ) {
-        super(target, transformer);
+    TermRewriteTask ( Function <T, List <T>> action, List <TC> target, ITransformer <T, TC> transformer ) {
+        super(action, target, transformer);
     }
 
     /**
@@ -65,5 +67,25 @@ class TermRewriteTask<T extends Clause, TT extends TransformTask <T>>
     public
     List <TT> getComponents () {
         return rewriteTasks;
+    }
+
+    /**
+     * @param t
+     * @return
+     */
+    @Override
+    public
+    T transform ( T t ) {
+        return null;
+    }
+
+    /**
+     * @param tc
+     * @return
+     */
+    @Override
+    public
+    TC transform ( TC tc ) {
+        return null;
     }
 }

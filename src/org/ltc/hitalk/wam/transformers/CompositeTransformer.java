@@ -1,7 +1,7 @@
 package org.ltc.hitalk.wam.transformers;
 
 
-import com.thesett.aima.logic.fol.Term;
+import com.thesett.aima.logic.fol.Clause;
 import org.ltc.hitalk.compiler.bktables.IComposite;
 import org.ltc.hitalk.wam.task.TransformTask;
 
@@ -12,12 +12,12 @@ import java.util.List;
  * @param <T>
  */
 public
-class CompositeTransformer<T extends Term, TT extends TransformTask <T>> extends TransformTask <T> implements ITransformer <T>, IComposite <T, TT> {
+class CompositeTransformer<T extends Clause, TT extends TransformTask <T>> extends TransformTask <T> implements ITransformer <T>, IComposite <T, TT> {
 
     protected final List <TT> transformers = new ArrayList <>();
 
     public
-    CompositeTransformer ( T target, ITransformer <T> transformer ) {
+    CompositeTransformer ( List <T> target, ITransformer <T> transformer ) {
         super(target, transformer);
     }
 
@@ -28,7 +28,7 @@ class CompositeTransformer<T extends Term, TT extends TransformTask <T>> extends
 
     private
     TransformInfo initial () {
-        return null;
+        return new TransformInfo();
     }
 
     @Override

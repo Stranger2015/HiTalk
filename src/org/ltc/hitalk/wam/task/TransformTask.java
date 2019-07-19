@@ -2,6 +2,7 @@ package org.ltc.hitalk.wam.task;
 
 
 import com.thesett.aima.logic.fol.Clause;
+import com.thesett.aima.logic.fol.Term;
 import org.jetbrains.annotations.Contract;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
@@ -10,8 +11,6 @@ import org.ltc.hitalk.wam.transformers.TransformInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
@@ -19,61 +18,63 @@ import java.util.function.Function;
  * created by Anthony on 31.01.2016.
  */
 public
-class TransformTask<T extends Clause> extends CompilerTask <T> implements ITransformer <T> {
+class TransformTask<T extends Clause, TC extends Term>
+        extends CompilerTask <T, TC>
+        implements ITransformer <T, TC> {
+
+    /**
+     * @param action
+     */
+    protected
+    TransformTask ( Function <T, List <T>> action ) {
+        super(action);
+    }
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
-    protected ITransformer <T> transformer;
-    protected List <T> target;
+    protected ITransformer <T, TC> transformer;
+    protected List <TC> target;
     private IMetrics bestSoFar = initialMetrics();
     private TransformInfo <T> bestSoFarResult;
 
+    /**
+     * @param target
+     * @param transformer
+     */
     public
-    TransformTask ( List <T> target, ITransformer <T> transformer ) {
+    TransformTask ( List <TC> target, ITransformer <T, TC> transformer ) {
         this(null, target);
         this.transformer = transformer;
     }
 
     /**
      * @param action
+     * @param target
      */
     protected
-    TransformTask ( Function <T, List <T>> action, List <T> target ) {
+    TransformTask ( Function <T, List <T>> action, List <TC> target ) {
         super(action);
         this.target = target;
+        transformer = this;//todo
     }
 
-//    public
-//    TransformTask () {
-//        super();
-//    }
+    /**
+     * @param action
+     * @param target
+     * @param transformer
+     */
+    public
+    TransformTask ( Function <T, List <T>> action, List <TC> target, ITransformer <T, TC> transformer ) {
+        super(action);
+        this.target = target;
+        this.transformer = transformer;
+    }
 
-
-    //    private
-//    ExecutionInfo getInfo () {
-//        return null;
-//    }
-//
+    /**
+     * @return
+     */
     private
     IMetrics initialMetrics () {
         return null;
-    }
-
-    public final
-    List <T> invoke ( T term ) {
-        List <T> tmp = super.invoke(term);
-//        reset(); //cleanup
-        List <T> tmp2 = new ArrayList <>();
-        for (T t : tmp) {
-
-            tmp2 = invoke0(t);
-        }
-
-        return tmp2;
-    }
-
-    public
-    List <T> invoke0 ( T t ) {
-        return Collections.singletonList(t);
     }
 
     @Contract(pure = true)
@@ -173,16 +174,26 @@ class TransformTask<T extends Clause> extends CompilerTask <T> implements ITrans
     /**
      * Applies a transformation to the term.
      *
-     * @param term The term to transform.
+     * @param t The term to transform.
      * @return A term which is a transformation of the argument.
      */
-    public final
-    T transform ( T term ) {
-        return (T) transformer.transform(term);
+    public
+    T transform ( T t ) {
+        return (T) transformer.transform(t);
+    }
+
+    /**
+     * @param t
+     * @return
+     */
+    @Override
+    public
+    TC transform ( TC t ) {
+        return transformer.transform(t);
     }
 
     public final
-    List <T> getTarget () {
+    List <TC> getTarget () {
         return target;
     }
 }

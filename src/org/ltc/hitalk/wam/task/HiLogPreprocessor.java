@@ -1,55 +1,49 @@
 package org.ltc.hitalk.wam.task;
 
-
 import com.thesett.aima.logic.fol.*;
 import org.ltc.hitalk.wam.transformers.ISpecializer;
 import org.ltc.hitalk.wam.transformers.ITransformer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 /**
- *
+ * public
  */
 public
-class HiLogPreprocessor<T extends Term> extends StandardPreprocessor <T> implements ISpecializer {
+class HiLogPreprocessor<T extends Clause, TC extends Term>
+        extends StandardPreprocessor <T, TC>
+        implements ISpecializer <T, TC> {
 
     private final HiLogToPrologBiDiConverter converter;
 
     public
-    HiLogPreprocessor ( ITransformer <T> transformer, VariableAndFunctorInterner interner ) {
-        super(null, transformer);
+    HiLogPreprocessor ( Function <T, List <T>> action,
+                        ITransformer <T, TC> transformer,
+                        VariableAndFunctorInterner interner ) {
+        super(action, null, transformer);
         converter = new HiLogToPrologBiDiConverter(interner);
     }
 
 
+    /**
+     * @return
+     */
     public
     HiLogToPrologBiDiConverter getConverter () {
         return converter;
     }
 
 
+    /**
+     * @param clause
+     * @return
+     */
     @Override
     public
-    Clause specialize ( Clause clause ) {
+    T specialize ( T clause ) {
         return clause;
-    }
-
-
-    class Specializer implements ISpecializer {
-
-        @Override
-        public
-        Clause specialize ( Clause clause ) {
-
-            return clause;
-        }
-
-        @Override
-        public
-        T transform ( Term term ) {
-            return (T) term;
-        }
     }
 
     /**

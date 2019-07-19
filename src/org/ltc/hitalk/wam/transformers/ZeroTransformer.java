@@ -2,6 +2,7 @@ package org.ltc.hitalk.wam.transformers;
 
 
 import com.thesett.aima.logic.fol.Clause;
+import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.entities.context.IMetrics;
 
 /**
@@ -11,7 +12,7 @@ import org.ltc.hitalk.entities.context.IMetrics;
  * Created by Anthony on 28.06.2015.
  */
 public
-class ZeroTransformer<T extends Clause> extends DefaultTransformer <T> {
+class ZeroTransformer<T extends Clause, TC extends Term> extends DefaultTransformer <T, TC> {
 //       private static final Logger logger = LoggerFactory.getLogger( ZeroTransformer.class.getName() );
 
     /**
@@ -32,7 +33,7 @@ class ZeroTransformer<T extends Clause> extends DefaultTransformer <T> {
 
     @Override
     public
-    ITransformer <T> getTransformer () {
+    ITransformer <T, TC> getTransformer () {
         return this;
     }
 
@@ -44,12 +45,6 @@ class ZeroTransformer<T extends Clause> extends DefaultTransformer <T> {
     void message () {
 //        logger.info("Default transformation");
     }
-
-//    @Override
-//    protected
-//    List <Term> execute0 () {
-//        return null;
-//    }
 
     /**
      * Always returns true for this transformer.
@@ -68,5 +63,4 @@ class ZeroTransformer<T extends Clause> extends DefaultTransformer <T> {
     TransformInfo getBestSoFarResult () {
         return null;
     }
-
 }

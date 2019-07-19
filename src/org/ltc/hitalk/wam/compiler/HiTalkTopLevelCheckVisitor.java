@@ -105,15 +105,4 @@ class HiTalkTopLevelCheckVisitor extends BasePositionalVisitor implements Positi
 
         return false;
     }
-//
-//    /**
-//     * Visits a term.
-//     *
-//     * @param term The term to visit.
-//     */
-//    @Override
-//    public
-//    void visit ( Term term ) {
-//
-//    }
 }

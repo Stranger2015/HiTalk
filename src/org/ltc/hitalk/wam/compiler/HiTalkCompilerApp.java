@@ -7,6 +7,7 @@ import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.common.util.doublemaps.SymbolTableImpl;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.bktables.*;
+import org.ltc.hitalk.compiler.bktables.db.DbSchema;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
 import org.ltc.hitalk.entities.context.CompilationContext;
@@ -24,6 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+
+import static org.ltc.hitalk.compiler.bktables.BkTableKind.LOADED_ENTITIES;
 
 /**
  * Reloading files, active code and threads
@@ -334,7 +337,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
     }
 
     protected
-    Map <Functor, INameable <Functor>> get ( BkTableKind tableKind ) {
+    DbSchema[] get ( BkTableKind tableKind ) {
         return bkt.getTables()[tableKind.ordinal()];
     }
 
@@ -346,12 +349,14 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
      * @throws SourceCodeException
      */
     private
-    void loadBuiltInEntity ( HtEntityIdentifier identifier, String fileName, String scratchDir ) throws IOException,
-                                                                                                        SourceCodeException {
+    void loadBuiltInEntity ( HtEntityIdentifier identifier, String fileName, String scratchDir ) {//throws IOException
 
-        Map <Functor, INameable <Functor>> loadedEntities = get(LOADED_ENTITIES);
+//        context = new Context(createFlags(scratchDir));                                                                                                        SourceCodeException {
+
+        DbSchema[] loadedEntities = get(LOADED_ENTITIES);
 //        context = new Context(createFlags(scratchDir));
-        if (!loadedEntities.containsKey(identifier)) {
+        if (!registry.isRegistered()) {
+
             compileLoad(fileName, loadContext);///core()
         }
     }
@@ -1588,8 +1593,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
     private
     String loadBuiltInEntities () throws IOException, SourceCodeException {
         String scratchDir = getScratchDirectory();
-        loadContext.reset();
-        expandLibraryAlias();
+        loadContext.reset();//TODO
         loadBuiltInEntity(EXPANDING, "expanding", scratchDir);
         loadBuiltInEntity(MONITORING, "monitoring", scratchDir);
         loadBuiltInEntity(FORWARDING, "forwarding", scratchDir);
