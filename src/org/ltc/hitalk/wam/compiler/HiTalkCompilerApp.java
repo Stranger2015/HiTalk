@@ -7,7 +7,7 @@ import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.common.util.doublemaps.SymbolTableImpl;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.bktables.*;
-import org.ltc.hitalk.compiler.bktables.db.DbSchema;
+import org.ltc.hitalk.compiler.bktables.db.Record;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
 import org.ltc.hitalk.entities.context.CompilationContext;
@@ -337,7 +337,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
     }
 
     protected
-    DbSchema[] get ( BkTableKind tableKind ) {
+    Record[] get ( BkTableKind tableKind ) {
         return bkt.getTables()[tableKind.ordinal()];
     }
 
@@ -353,7 +353,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
 
 //        context = new Context(createFlags(scratchDir));                                                                                                        SourceCodeException {
 
-        DbSchema[] loadedEntities = get(LOADED_ENTITIES);
+        Record[] loadedEntities = get(LOADED_ENTITIES);
 //        context = new Context(createFlags(scratchDir));
         if (!registry.isRegistered()) {
 

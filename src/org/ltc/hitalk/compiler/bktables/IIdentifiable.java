@@ -13,6 +13,8 @@ interface IIdentifiable extends INameable <Functor> {
      */
     int getId ();
 
+    <I extends IIdentifiable> I newInstance ();
+
 //    /**
 //     * @return
 //     */

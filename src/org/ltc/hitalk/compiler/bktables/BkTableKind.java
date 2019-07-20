@@ -1,6 +1,6 @@
 package org.ltc.hitalk.compiler.bktables;
 
-import org.ltc.hitalk.compiler.bktables.db.DbSchema;
+import org.ltc.hitalk.compiler.bktables.db.Record;
 import org.ltc.hitalk.compiler.bktables.db.objvals.BkRelation;
 
 public
@@ -52,28 +52,28 @@ enum BkTableKind {
     ;
 
     private final BkTableKind parent;
-    private Class <? extends DbSchema> bkClass;
+    private Class <? extends Record> bkClass;
 
     /**
      *
      */
     private
     BkTableKind () {
-        this(null, DbSchema.class);
+        this(null, Record.class);
     }
 
     /**
      * @param parent
      */
     BkTableKind ( BkTableKind parent ) {
-        this(parent, DbSchema.class);
+        this(parent, Record.class);
     }
 
     /**
      * @param parent
      * @param clazz
      */
-    BkTableKind ( BkTableKind parent, Class <? extends DbSchema> clazz ) {
+    BkTableKind ( BkTableKind parent, Class <? extends Record> clazz ) {
         this.parent = parent;
         this.bkClass = clazz;
     }
@@ -101,7 +101,7 @@ enum BkTableKind {
      * @return
      */
     public
-    Class <? extends DbSchema> getBkClass () {
+    Class <? extends Record> getBkClass () {
         return bkClass;
     }
 }

@@ -1,29 +1,35 @@
 package org.ltc.hitalk.compiler.bktables;
 
+
 import com.thesett.aima.logic.fol.Functor;
-import org.ltc.hitalk.compiler.bktables.db.DbSchema;
+import org.ltc.hitalk.compiler.bktables.db.Record;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 
 /**
  *
  */
 public
-class BkLoadedeEntities extends DbSchema {
+class BkLoadedEntities extends Record {
 
     /**
-     * @param entitiy1
+     * @param entity1
      */
     public
-    BkLoadedeEntities ( HtEntityIdentifier entitiy1 ) {
-        super(entitiy1);
+    BkLoadedEntities ( HtEntityIdentifier entity1 ) {
+        super(entity1);
     }
 
     /**
      * @return
      */
-    @Override
     public
     Functor getName () {
+        return eid;
+    }
+
+    @Override
+    public
+    BkLoadedEntities newInstance () {
         return null;
     }
 }

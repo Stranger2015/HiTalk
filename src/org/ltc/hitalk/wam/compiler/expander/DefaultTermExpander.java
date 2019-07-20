@@ -27,15 +27,14 @@ class DefaultTermExpander<T extends Clause, TC extends Term, TT extends TermRewr
             if (tc instanceof Bypass) {
                 return Collections.singletonList(tc);
             }
-            else if (tc {
-
-            }
+//            else if (tc )
+//
+//            }
             return null;
         }
-    }
-    tc ->
+//    tc ->
 
-    apply ( tc );
+//    apply ( tc );
 
     /**
      * @param target

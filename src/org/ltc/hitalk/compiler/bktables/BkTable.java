@@ -1,5 +1,6 @@
 package org.ltc.hitalk.compiler.bktables;
 
+import org.ltc.hitalk.compiler.bktables.db.Record;
 import org.ltc.hitalk.compiler.bktables.db.Recordset;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 
@@ -7,14 +8,13 @@ import org.ltc.hitalk.entities.HtEntityIdentifier;
  *
  */
 public
-class BkTable implements IRegistry {
+class BkTable<R extends Record> implements IRegistry <R> {
     /**
-     * @param clazz
+     * @param id
      * @return
      */
-    @Override
     public
-    boolean isRegistered ( Class <? extends IIdentifiable> clazz ) {
+    boolean isRegistered ( int id ) {
         return false;
     }
 
@@ -24,7 +24,7 @@ class BkTable implements IRegistry {
      */
     @Override
     public
-    IIdentifiable register ( IIdentifiable iIdentifiable ) {
+    R register ( R iIdentifiable ) {
         return null;
     }
 
@@ -34,19 +34,21 @@ class BkTable implements IRegistry {
      */
     @Override
     public
-    IIdentifiable getById ( int id ) {
+    R getById ( int id ) {
         return null;
     }
 
     public
-    Recordset select ( BkTableKind kind, HtEntityIdentifier eid1, Object... ue3cxt ) {
-//        DbSchema schema =
-        int idx = kind.  // selectRelations ( BkTableKind idx,
+    Recordset <R> select ( BkTableKind kind, HtEntityIdentifier eid1, Object... obj ) {
+//        Record schema =
+        int idx = kind.ordinal(); // selectRelations ( BkTableKind idx,
+        BookKeepingTables bkt = new BookKeepingTables();
+        bkt.get();
 //                        HtEntityIdentifier entity1,
 //                        HtEntityIdentifier entity2,
 //                        HtEntityKind entityKind,
 //                        HtRelationKind relationKind ) {
-//            DbSchema[] table = tables[idx.ordinal()];
+//            Record[] table = tables[idx.ordinal()];
 //            int n1 = entity1.getName();
 //            int n2 = entity2.getName();
 //            idx.getBkClass();

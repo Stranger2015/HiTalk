@@ -4,7 +4,7 @@ package org.ltc.hitalk.compiler.bktables.db;
  * @param <R>
  */
 public
-class Recordset<R extends DbSchema> {
+class Recordset<R extends Record> {
     protected R[] records;
 
     /**

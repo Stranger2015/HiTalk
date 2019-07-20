@@ -2,23 +2,27 @@ package org.ltc.hitalk.compiler.bktables;
 
 
 import com.thesett.aima.logic.fol.Functor;
-import org.ltc.hitalk.compiler.bktables.db.DbSchema;
+import org.ltc.hitalk.compiler.bktables.db.Record;
+import org.ltc.hitalk.compiler.bktables.db.Recordset;
+import org.ltc.hitalk.entities.HtEntityIdentifier;
 
 import java.util.function.BiConsumer;
 
 /**
- * @param <T>
+ * @param <R>
  */
 public
-class BookKeepingTables<T extends INameable <Functor>>
-        extends BkTable
-        implements IRegistry {
+class BookKeepingTables<R extends Record>
+        implements IRegistry <R> {
 
     private final static int TAB_LENGTH = BkTableKind.USER_DEFINED_FLAGS.ordinal() + 1;
-    private final DbSchema[][] tables = new DbSchema[TAB_LENGTH][];
-    private final BiConsumer <Functor, T>[] actions = new BiConsumer[TAB_LENGTH];
+    /**
+     *
+     */
+    private final Record[][] tables = new Record[TAB_LENGTH][];
+    private final BiConsumer <Functor, R>[] actions = new BiConsumer[TAB_LENGTH];
 
-    private IRegistry registry = this;
+    private IRegistry <R> registry = new BkTable <>();
 
     /**
      *
@@ -28,42 +32,13 @@ class BookKeepingTables<T extends INameable <Functor>>
 
     }
 
-//    /**
-//     * @return
-//     */
-//    public
-//    DbSchema[][] getTables () {
-//        return tables;
-//    }
-
     /**
-     * @param identifier
+     * @param kind
      * @return
      */
     public
-    BiConsumer <Functor, T> getAction ( BkTableKind identifier ) {
-        return actions[identifier.ordinal()];
-    }
-
-
-    /**
-     * @param clazz
-     * @return
-     */
-    @Override
-    public
-    boolean isRegistered ( Class <? extends IIdentifiable> clazz ) {
-        return false;
-    }
-
-    /**
-     * @param iIdentifiable
-     * @return
-     */
-    @Override
-    public
-    IIdentifiable register ( IIdentifiable iIdentifiable ) {
-        return null;
+    BiConsumer <Functor, R> getAction ( BkTableKind kind ) {
+        return actions[kind.ordinal()];
     }
 
     /**
@@ -72,8 +47,40 @@ class BookKeepingTables<T extends INameable <Functor>>
      */
     @Override
     public
-    IIdentifiable getById ( int id ) {
+    boolean isRegistered ( int id ) {
+        return registry.isRegistered(id);
+    }
+
+    /**
+     * @param identifiable
+     * @return
+     */
+    @Override
+    public
+    R register ( R identifiable ) {
+        return registry.register(identifiable);
+    }
+
+    /**
+     * @param id
+     * @return
+     */
+    @Override
+    public
+    R getById ( int id ) {
         return registry.getById(id);
+    }
+
+    /**
+     * @param kind
+     * @param eid
+     * @param obj
+     * @return
+     */
+    @Override
+    public
+    Recordset <R> select ( BkTableKind kind, HtEntityIdentifier eid, Object... obj ) {
+        return registry.select(kind, eid, obj);
     }
 }
 

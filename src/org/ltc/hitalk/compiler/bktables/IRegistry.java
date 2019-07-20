@@ -1,37 +1,49 @@
 package org.ltc.hitalk.compiler.bktables;
 
+import org.ltc.hitalk.compiler.bktables.db.Record;
+import org.ltc.hitalk.compiler.bktables.db.Recordset;
+import org.ltc.hitalk.entities.HtEntityIdentifier;
+
 /**
  *
  */
 public
-interface IRegistry {
+interface IRegistry<R extends Record> {
     /**
-     * @param clazz
+     * @param id
      * @return
      */
-    boolean isRegistered ( Class <? extends IIdentifiable> clazz );
+    boolean isRegistered ( int id );
 
     /**
-     * @param iIdentifiable
+     * @param identifiable
      * @return
      */
-    IIdentifiable register ( IIdentifiable iIdentifiable );
+    R register ( R identifiable );
 
     /**
-     * @param iIdentifiable
+     * @param identifiable
      * @return
      */
     default
-    IIdentifiable lookup ( IIdentifiable iIdentifiable ) {
-        if (!isRegistered(iIdentifiable.getClass())) {
-            return register(iIdentifiable);
+    R lookup ( R identifiable ) {
+        if (!isRegistered(identifiable.getId())) {
+            return register(identifiable);
         }
-        return iIdentifiable.newInstance();
+        return identifiable.newInstance();
     }
 
     /**
      * @param id
      * @return
      */
-    IIdentifiable getById ( int id );
+    R getById ( int id );
+
+    /**
+     * @param kind
+     * @param eid
+     * @param obj
+     * @return
+     */
+    Recordset <R> select ( BkTableKind kind, HtEntityIdentifier eid, Object... obj );
 }

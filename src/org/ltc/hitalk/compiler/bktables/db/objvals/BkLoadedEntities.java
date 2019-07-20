@@ -1,14 +1,14 @@
 package org.ltc.hitalk.compiler.bktables.db.objvals;
 
 import com.thesett.aima.logic.fol.Functor;
-import org.ltc.hitalk.compiler.bktables.db.DbSchema;
+import org.ltc.hitalk.compiler.bktables.db.Record;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 
 /**
  *
  */
 public
-class BkLoadedEntities extends DbSchema {
+class BkLoadedEntities extends Record {
     /**
      * @param entitiy1
      */
@@ -23,6 +23,12 @@ class BkLoadedEntities extends DbSchema {
     @Override
     public
     Functor getName () {
+        return null;
+    }
+
+    @Override
+    public
+    BkLoadedEntities newInstance () {
         return null;
     }
 }
