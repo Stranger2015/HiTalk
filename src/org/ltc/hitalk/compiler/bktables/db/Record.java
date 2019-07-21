@@ -21,7 +21,7 @@ class Record implements IIdentifiable {
     /**
      * @param entitiy1
      */
-    public
+    protected
     Record ( HtEntityIdentifier entitiy1 ) {
         this.entity1 = entitiy1;
         id = ++idCounter;

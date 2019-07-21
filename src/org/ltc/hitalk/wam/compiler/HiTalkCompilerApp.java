@@ -7,7 +7,7 @@ import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.common.util.doublemaps.SymbolTableImpl;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.bktables.*;
-import org.ltc.hitalk.compiler.bktables.db.Record;
+import org.ltc.hitalk.compiler.bktables.db.Recordset;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
 import org.ltc.hitalk.entities.context.CompilationContext;
@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import static org.ltc.hitalk.compiler.bktables.BkTableKind.LOADED_ENTITIES;
@@ -180,7 +179,8 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
     private final HiTalkInstructionCompiler instructionCompiler;
     private final String scratchDirectory;
     //
-    private final BookKeepingTables bkt = new BookKeepingTables();
+//    private final BookKeepingTables bkt = new BookKeepingTables();
+    private final IRegistry <BkLoadedEntities> registry = new BookKeepingTables <BkLoadedEntities>();
     private final CompilationContext compilationContext;
     private final LoadContext loadContext;
     private final ExecutionContext executionContext;
@@ -316,14 +316,13 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
         initDirectives();
         cacheCompilerFlags();
         String scratchDirectory = loadBuiltInEntities();
+        startRuntimeThreading();
         Object result = loadSettingsFile(scratchDirectory);
 //        printMessage(BANNER, CORE, BANNER);
 //        printMessage(comment(settings), CORE, DEFAULT_FLAGS);
 //        expandGoals()
 //        ;
-//        compileHooks();
-        startRuntimeThreading();
-        reportSettingsFile(result);
+//        compileHooks();        reportSettingsFile(result);
     }
 
     private
@@ -336,11 +335,6 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
         return null;
     }
 
-    protected
-    Record[] get ( BkTableKind tableKind ) {
-        return bkt.getTables()[tableKind.ordinal()];
-    }
-
     /**
      * @param identifier
      * @param fileName
@@ -349,15 +343,13 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
      * @throws SourceCodeException
      */
     private
-    void loadBuiltInEntity ( HtEntityIdentifier identifier, String fileName, String scratchDir ) {//throws IOException
-
-//        context = new Context(createFlags(scratchDir));                                                                                                        SourceCodeException {
-
-        Record[] loadedEntities = get(LOADED_ENTITIES);
-//        context = new Context(createFlags(scratchDir));
-        if (!registry.isRegistered()) {
-
-            compileLoad(fileName, loadContext);///core()
+    void loadBuiltInEntity ( HtEntityIdentifier identifier, String fileName, String scratchDir )
+            throws IOException, SourceCodeException {
+        Recordset <BkLoadedEntities> rs = registry.select(LOADED_ENTITIES, new BkLoadedEntities(identifier));
+        if (rs.isEmpty()) {
+            loadContext.setFlags(createFlags(scratchDir));
+            compileLoad(fileName, loadContext);
+            registry.add(new BkLoadedEntities(identifier));
         }
     }
 
@@ -539,8 +531,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
      */
     private
     void compileHooks ( HtEntityIdentifier hookEntity ) {
-
-        Map <?, ?> table; //= bkt.getTable(TERM_EXPANSION_DEFAULT_HOOKS);
+//= bkt.getTable(TERM_EXPANSION_DEFAULT_HOOKS);
 
 //        Compile_hooks(HookEntity) :-
 //                CompCtx(Ctx, _, _, user, user, user, HookEntity, _, [], [], ExCtx, runtime, [], _),
@@ -1593,6 +1584,9 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
     private
     String loadBuiltInEntities () throws IOException, SourceCodeException {
         String scratchDir = getScratchDirectory();
+//        BkLoadedEntities pattern = new BkLoadedEntities(identifier);/
+       
+
         loadContext.reset();//TODO
         loadBuiltInEntity(EXPANDING, "expanding", scratchDir);
         loadBuiltInEntity(MONITORING, "monitoring", scratchDir);
@@ -1631,7 +1625,13 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
      */
     private
     Path expandLibraryAlias ( String library ) {
-        return Path.;
+        Path location = logtalkLibraryPath(library);
+        return location;
+    }
+
+    private
+    Path logtalkLibraryPath ( String library ) {
+        return Path.resolve(library);
     }
 
     /**
@@ -1713,7 +1713,9 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
         return config;
     }
 
-    /** --------------------------------------------->FIXME
+    /**
+     * --------------------------------------------->FIXME
+     *
      * @param loadContext
      */
     Term[] compileTokenSource ( TokenSource tokenSource, LoadContext loadContext ) throws SourceCodeException {

@@ -45,4 +45,9 @@ class LoadContext extends Context {
     String get ( Kind.Loading basename ) {
         return null;
     }
+
+    public
+    void setFlags ( HiTalkFlag[] flags ) {
+
+    }
 }

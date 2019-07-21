@@ -2,7 +2,6 @@ package org.ltc.hitalk.compiler.bktables;
 
 import org.ltc.hitalk.compiler.bktables.db.Record;
 import org.ltc.hitalk.compiler.bktables.db.Recordset;
-import org.ltc.hitalk.entities.HtEntityIdentifier;
 
 /**
  *
@@ -19,7 +18,7 @@ interface IRegistry<R extends Record> {
      * @param identifiable
      * @return
      */
-    R register ( R identifiable );
+    int register ( R identifiable );
 
     /**
      * @param identifiable
@@ -41,9 +40,12 @@ interface IRegistry<R extends Record> {
 
     /**
      * @param kind
-     * @param eid
-     * @param obj
+     * @param pattern
      * @return
      */
-    Recordset <R> select ( BkTableKind kind, HtEntityIdentifier eid, Object... obj );
+    Recordset <R> select ( BkTableKind kind, R pattern );
+
+    Recordset <R> select ( BkTableKind kind );
+
+    void add ( R r );
 }

@@ -1,12 +1,11 @@
 package org.ltc.hitalk.compiler.bktables;
 
 
-import com.thesett.aima.logic.fol.Functor;
 import org.ltc.hitalk.compiler.bktables.db.Record;
 import org.ltc.hitalk.compiler.bktables.db.Recordset;
-import org.ltc.hitalk.entities.HtEntityIdentifier;
 
-import java.util.function.BiConsumer;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @param <R>
@@ -16,11 +15,21 @@ class BookKeepingTables<R extends Record>
         implements IRegistry <R> {
 
     private final static int TAB_LENGTH = BkTableKind.USER_DEFINED_FLAGS.ordinal() + 1;
+
+    /**
+     * @param kind
+     * @return
+     */
+    public
+    List <Record> getTable ( BkTableKind kind ) {
+        return tables.get(kind.ordinal());
+    }
+
     /**
      *
      */
-    private final Record[][] tables = new Record[TAB_LENGTH][];
-    private final BiConsumer <Functor, R>[] actions = new BiConsumer[TAB_LENGTH];
+    private final List <List <Record>> tables = new ArrayList <>();
+//    private final BiConsumer <Functor, R>[] actions = new BiConsumer[TAB_LENGTH];
 
     private IRegistry <R> registry = new BkTable <>();
 
@@ -31,15 +40,15 @@ class BookKeepingTables<R extends Record>
     BookKeepingTables () {
 
     }
-
-    /**
-     * @param kind
-     * @return
-     */
-    public
-    BiConsumer <Functor, R> getAction ( BkTableKind kind ) {
-        return actions[kind.ordinal()];
-    }
+//
+//    /**
+//     * @param kind
+//     * @return
+//     */
+//    public
+//    BiConsumer <Functor, R> getAction ( BkTableKind kind ) {
+//        return actions[kind.ordinal()];
+//    }
 
     /**
      * @param id
@@ -57,7 +66,7 @@ class BookKeepingTables<R extends Record>
      */
     @Override
     public
-    R register ( R identifiable ) {
+    int register ( R identifiable ) {
         return registry.register(identifiable);
     }
 
@@ -73,14 +82,25 @@ class BookKeepingTables<R extends Record>
 
     /**
      * @param kind
-     * @param eid
-     * @param obj
+     * @param pattern
      * @return
      */
     @Override
     public
-    Recordset <R> select ( BkTableKind kind, HtEntityIdentifier eid, Object... obj ) {
-        return registry.select(kind, eid, obj);
+    Recordset <R> select ( BkTableKind kind, R pattern ) {
+        return registry.select(kind, pattern);
+    }
+
+    @Override
+    public
+    Recordset <R> select ( BkTableKind kind ) {
+        return registry.select(kind);
+    }
+
+    @Override
+    public
+    void add ( R r ) {
+        registry.add(r);
     }
 }
 

@@ -26,15 +26,16 @@ import java.nio.file.spi.FileSystemProvider;
 import java.util.*;
 
 public abstract
-class BasePath<T extends BasePath <T, FS, P>, FS extends BaseFileSystem <T, P>, P extends FileSystemProvider> implements Path {
+class BasePath<T extends BasePath <T, FS, P>, FS extends BaseFileSystem <T, P>, P extends FileSystemProvider>
+        implements Path {
 
-    protected final org.ltc.hitalk.org.apache.nio.ImmutableList <String> names;
+    protected final ImmutableList <String> names;
     protected final String root;
     private final FS fileSystem;
 
 
     public
-    BasePath ( FS fileSystem, String root, org.ltc.hitalk.org.apache.nio.ImmutableList <String> names ) {
+    BasePath ( FS fileSystem, String root, ImmutableList <String> names ) {
         this.fileSystem = fileSystem;
         this.root = root;
         this.names = names;

@@ -9,7 +9,6 @@ import java.util.Deque;
 public
 class CompilationContext extends Context {
     Deque <?> coinductionStack = new ArrayDeque <>();
-    //    CTX, //this context
     LoadContext loadContext;
     ExecutionContext executionContext;
     HtEntityIdentifier entityIdentifier;

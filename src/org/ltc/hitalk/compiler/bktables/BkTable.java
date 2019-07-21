@@ -2,7 +2,9 @@ package org.ltc.hitalk.compiler.bktables;
 
 import org.ltc.hitalk.compiler.bktables.db.Record;
 import org.ltc.hitalk.compiler.bktables.db.Recordset;
-import org.ltc.hitalk.entities.HtEntityIdentifier;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -15,17 +17,18 @@ class BkTable<R extends Record> implements IRegistry <R> {
      */
     public
     boolean isRegistered ( int id ) {
-        return false;
+        return getById(id) != null;
     }
 
     /**
-     * @param iIdentifiable
+     * @param identifiable
      * @return
      */
     @Override
     public
-    R register ( R iIdentifiable ) {
-        return null;
+    int register ( R identifiable ) {
+        add(identifiable);
+        return identifiable.getId();
     }
 
     /**
@@ -38,13 +41,39 @@ class BkTable<R extends Record> implements IRegistry <R> {
         return null;
     }
 
+    @Override
     public
-    Recordset <R> select ( BkTableKind kind, HtEntityIdentifier eid1, Object... obj ) {
-//        Record schema =
-        int idx = kind.ordinal(); // selectRelations ( BkTableKind idx,
+    Recordset <R> select ( BkTableKind kind ) {
+        return select(kind, );
+    }
+
+    @Override
+    public
+    void add ( R r ) {
+        if (isRegistered(r)) {
+
+        }
+    }
+
+    /**
+     * @param kind
+     * @param r
+     * @return
+     */
+    @Override
+    public
+    Recordset <R> select ( BkTableKind kind, R r ) {
         BookKeepingTables bkt = new BookKeepingTables();
-        bkt.get();
-//                        HtEntityIdentifier entity1,
+        List <Record> rs = bkt.getTable(kind);
+        List <Record> result = new ArrayList <>();
+
+        for (int i = 0; i < rs.size(); i++) {
+            Record record = rs.get(i);
+            if (r.equals(record)) {
+                result.add(r);
+            }
+
+        }//                        HtEntityIdentifier entity1,
 //                        HtEntityIdentifier entity2,
 //                        HtEntityKind entityKind,
 //                        HtRelationKind relationKind ) {
