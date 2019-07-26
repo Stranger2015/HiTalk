@@ -1,8 +1,7 @@
 package org.ltc.hitalk.entities;
 
 /**
- *category/1-3
- * Description
+ *  category/1-4
  *
  * category(Category)
  *
@@ -82,9 +81,9 @@ package org.ltc.hitalk.entities;
  */
 public
 enum HtEntityKind {
-    ENTITY(true),//*alias(predicate_indicator,predicate_alias_property_list)", "built_in", "debugging", "declares(predicate_indicator,predicate_declaration_property_list)", "dynamic", "events", "file(atom)", "file(atom,atom)", "lines(integer,integer)", "private(predicate_indicator_list)", "protected(predicate_indicator_list)", "public(predicate_indicator_list)", "source_data", "static"+*/),
-    OBJECT_OR_CATEGORY(ENTITY, true),//9, "calls(predicate,predicate_call_update_property_list)", "defines(predicate_indicator,predicate_definition_property_list)", "includes(predicate_indicator,object_identifier_category_identifier, predicate_definition_property_list)", "number_of_clauses(integer)", "number_of_rules(integer)", "number_of_user_clauses(integer)", "number_of_user_rules(integer)"*/, "provides(predicate_indicator,object_identifier_category_identifier, predicate_definition_property_list)", "updates(predicate,predicate_call_update_pro)"),
-    OBJECT(OBJECT_OR_CATEGORY, false),// 6, "complements", "complements(allow/restrict)", "context_switching_calls", "dynamic_declarations", "module", "threaded"),
+    ENTITY(true),//
+    OBJECT_OR_CATEGORY(true),
+    OBJECT(OBJECT_OR_CATEGORY, false),
     CATEGORY(OBJECT_OR_CATEGORY, false),
     PROTOCOL(ENTITY, false),
     MODULE(ENTITY, false),
@@ -97,6 +96,8 @@ enum HtEntityKind {
     private final boolean isAbstract;
 
 //    private final int propsLength;
+
+//    Hierarchy hierarchy = new Hierarchy( Class<HtEntityProperty> ENTITYROPS
 
     /**
      * @param isAbstract

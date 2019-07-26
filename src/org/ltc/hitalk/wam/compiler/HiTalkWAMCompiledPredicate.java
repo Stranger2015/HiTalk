@@ -1,6 +1,5 @@
 package org.ltc.hitalk.wam.compiler;
 
-
 /*
  * Copyright The Sett Ltd, 2005 to 2014.
  *
@@ -49,7 +48,9 @@ import java.util.*;
  * registers is maintained in the clause, and the functors need to be able to access this mapping.
  */
 public
-class HiTalkWAMCompiledPredicate extends Predicate <Clause> implements Sentence <HiTalkWAMCompiledPredicate>, Sizeable, HiTalkWAMOptimizeableListing {
+class HiTalkWAMCompiledPredicate
+        extends Predicate <Clause>
+        implements Sentence <HiTalkWAMCompiledPredicate>, Sizeable, HiTalkWAMOptimizeableListing {
     //Used for debugging.
     //private static final Logger log = Logger.getLogger(WAMCompiledClause.class.getName());
 

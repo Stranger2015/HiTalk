@@ -1,5 +1,3 @@
-package org.ltc.hitalk.wam.compiler.builtins;
-
 /*
  * Copyright The Sett Ltd, 2005 to 2014.
  *
@@ -16,6 +14,7 @@ package org.ltc.hitalk.wam.compiler.builtins;
  * limitations under the License.
  */
 
+package org.ltc.hitalk.wam.compiler.builtins;
 
 import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.logic.fol.FunctorName;
@@ -66,7 +65,8 @@ class HiTalkBaseBuiltIn extends HiTalkBuiltInFunctor {
      */
     public
     SizeableLinkedList <HiTalkWAMInstruction> compileBodyCall ( Functor expression, boolean isFirstBody,
-                                                                boolean isLastBody, boolean chainRule, int permVarsRemaining ) {
+                                                                boolean isLastBody, boolean chainRule,
+                                                                int permVarsRemaining ) {
         return null;
     }
 }

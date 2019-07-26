@@ -28,7 +28,7 @@ class HiTalkPreprocessor<T extends Clause, TC extends Term, TT extends Transform
     protected final HiTalkDefaultBuiltIn defaultBuiltIn;
     protected final HiTalkBuiltInTransform builtInTransform;
     protected final List <TT> components = new ArrayList <>();
-    protected final Function <TC, List <TC>> defaultAction
+    protected final Function <TC, List <TC>> defaultAction;
     protected LogicCompilerObserver <Clause, Clause> observer;
     protected List <T> preCompiledTarget;
 
@@ -52,11 +52,12 @@ class HiTalkPreprocessor<T extends Clause, TC extends Term, TT extends Transform
 
 //        int i = interner.internFunctorName(BEGIN_OF_FILE, 0);
 //        Term target = new Functor(i, Atom.EMPTY_TERM_ARRAY);
-
+        defaultAction = null;
         components.add((TT) new DefaultTermExpander(preCompiledTarget, defaultTransformer));
         components.add((TT) new HiLogPreprocessor(defaultAction, defaultTransformer, interner));
         components.add((TT) new StandardPreprocessor(defaultAction, preCompiledTarget, defaultTransformer));
 //        components.add(new SuperCompiler(preCompiledTarget, defaultTransformer));
+
     }
 
     /**

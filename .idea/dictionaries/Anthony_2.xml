@@ -10,6 +10,7 @@
       <w>coinduction</w>
       <w>coinductive</w>
       <w>danilov</w>
+      <w>decompilation</w>
       <w>delim</w>
       <w>deref</w>
       <w>functors</w>
@@ -21,6 +22,7 @@
       <w>indenter</w>
       <w>inliner</w>
       <w>interner</w>
+      <w>interners</w>
       <w>logtalk</w>
       <w>metacall</w>
       <w>metaclasses</w>

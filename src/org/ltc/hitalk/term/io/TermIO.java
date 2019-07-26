@@ -16,9 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/* ===========================================================
- *
- */
 public
 class TermIO {
 
@@ -26,7 +23,7 @@ class TermIO {
     TermIO ( ITermFactory tf, HtPrologParser pp ) {
         this.tf = tf;
         this.pp = pp;
-        initOptsMap();
+        initOptionsMap();
         expansionHooks = null;
     }
 
@@ -46,7 +43,7 @@ class TermIO {
      * @code "comments(-Comments)"
      */
     private
-    void initOptsMap () {
+    void initOptionsMap () {
 
         map.put("read_term", new HiTalkFlag[]{
                 tf.createFlag(tf.createFlag("backquoted_string(Bool)"),
@@ -90,35 +87,41 @@ class TermIO {
 //    All positions are character positions. If the input is related to a normal stream, these positions are relative
 //    to the start of the input; when reading from the terminal, they are relative to the start of the term.
 
-                        tf.createFlag("From-To",
+                        tf.createFlag("From-To", new HiTalkFlag[]{
 //        Used for primitive types (atoms, numbers, variables).
-                                tf.createFlag("string_position(From, To)"),
+tf.createFlag("string_position(From, To)"),
 //        Used to indicate the position of a string enclosed in double quotes (").
-                                tf.createFlag("brace_term_position(From, To, Arg)"),
+tf.createFlag("brace_term_position(From, To, Arg)"),
 //        Term of the form {...}, as used in DCG rules. Arg describes the argument.
-                                tf.createFlag("list_position(From, To, Elms, Tail)"),
-//        A list. Elms describes the positions of the elements. If the list specifies the tail as |<TailTerm>, Tail is unified with the term position of the tail, otherwise with the atom none.
-                                tf.createFlag("term_position(From, To, FFrom, FTo, SubPos)"),
-//        Used for a compound term not matching one of the above. FFrom and FTo describe the position of the functor. SubPos is a list, each element of which describes the term position of the corresponding subterm.
-                                tf.createFlag("dict_position(From, To, TagFrom, TagTo, KeyValuePosList)"),
-//        Used for a dict (see section 5.4),. The position of the key-value pairs is described by KeyValuePosList, which is a list of key_value_position/7 terms. The key_value_position/7 terms appear in the order of the input. Because maps to not preserve ordering, the key is provided in the position description.
-                                tf.createFlag("key_value_position(From, To, SepFrom, SepTo, Key, KeyPos, ValuePos)"),
-//        Used for key-value pairs in a map (see section 5.4),. It is similar to the term_position/5 that would be created, except that the key and value positions do not need an intermediate list and the key is provided in Key to enable synchronisation of the file position data with the data structure.
-                                tf.createFlag("parentheses_term_position(From, To, ContentPos)"),
-//        Used for terms between parentheses. This is an extension compared to the original Quintus specification that was considered necessary for secure refactoring of terms.
-                                tf.createFlag("quasi_quotation_position(From, To, SyntaxFrom, SyntaxTo, ContentPos)"),
+tf.createFlag("list_position(From, To, Elms, Tail)"),
+//        A list. Elms describes the positions of the elements. If the list specifies the tail as |<TailTerm>, Tail is
+//        unified with the term position of the tail, otherwise with the atom none.
+tf.createFlag("term_position(From, To, FFrom, FTo, SubPos)"),
+//        Used for a compound term not matching one of the above. FFrom and FTo describe the position of the functor.
+//        SubPos is a list, each element of which describes the term position of the corresponding subterm.
+tf.createFlag("dict_position(From, To, TagFrom, TagTo, KeyValuePosList)"),
+//        Used for a dict (see section 5.4),. The position of the key-value pairs is described by KeyValuePosList,
+//        which is a list of key_value_position/7 terms. The key_value_position/7 terms appear in the order of the input.
+//        Because maps to not preserve ordering, the key is provided in the position description.
+tf.createFlag("key_value_position(From, To, SepFrom, SepTo, Key, KeyPos, ValuePos)"),
+//        Used for key-value pairs in a map (see section 5.4). It is similar to the term_position/5 that would be created,
+//        except that the key and value positions do not need an intermediate list and the key is provided in Key to
+//        enable synchronisation of the file position data with the data structure.
+tf.createFlag("parentheses_term_position(From, To, ContentPos)"),
+//        Used for terms between parentheses. This is an extension compared to the original Quintus specification that
+//        was considered necessary for secure refactoring of terms.
+tf.createFlag("quasi_quotation_position(From, To, SyntaxFrom, SyntaxTo, ContentPos)"),
 //        Used for quasi quotations.
-
-                                tf.createFlag("term_position(Pos)"),
+tf.createFlag("term_position(Pos)"),
 //    Unifies Pos with the starting position of the term read. Pos is of the same format as used by stream_property/2.
-                                tf.createFlag("var_prefix(Bool)"),
+tf.createFlag("var_prefix(Bool)"),
 //    If true, demand variables to start with an underscore. See section 2.16.1.7.
-                                tf.createFlag("variables(Vars)"),
+tf.createFlag("variables(Vars)"),
 //    Unify Vars with a list of variables in the term. The variables appear in the order they have been read. See also term_variables/2. (ISO)"),.
-                                tf.createFlag("variable_names(Vars)"
+tf.createFlag("variable_names(Vars)")
 //    Unify Vars with a list of `Name = Var', where Name is an atom describing the variable name and Var is a variable that shares with the corresponding variable in Term. (ISO)"),. The variables appear in the order they have been read.
 
-        }),
+                        }),
                 map.put("logtalk_compile", new HiTalkFlag[]{
 
                 }),
@@ -126,7 +129,7 @@ class TermIO {
 
                         {
 
-                        });
+                        }),
         map.put("load_files", new HiTalkFlag[]{
                 "autoload(Bool)",        //  If true (default false), indicate that this load is a demand load. This implies that, depending on the setting of the Prolog flag verbose_autoload, the load action is printed at level informational or silent. See also print_message/2 and current_prolog_flag/2.
                 "check_script(Bool)",     //If false (default true), do not check the first character to be # and skip the first line when found.

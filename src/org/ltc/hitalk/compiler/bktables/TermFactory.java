@@ -169,7 +169,8 @@ class TermFactory implements ITermFactory {
                         createProperty("self", ""),
                         createProperty("file", ""),
                         createProperty("metacall_context"),
-                        createProperty("coinduction_stack")
+                        createProperty("coinduction_stack"),
+                        createProperty("context_stack")
                 };
                 break;
 

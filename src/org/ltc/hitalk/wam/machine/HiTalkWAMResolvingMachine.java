@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static java.util.stream.IntStream.range;
 import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.REF;
 import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.STR;
 
@@ -53,7 +54,8 @@ import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.STR;
  * @author Rupert Smith
  */
 public abstract
-class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine implements Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>, HiTalkWAMResolvingMachineDPI {
+class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
+        implements Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>, HiTalkWAMResolvingMachineDPI {
     //Used for debugging.
     //private static final Logger log = Logger.getLogger(HiTalkWAMResolvingMachine.class.getName());
 
@@ -250,7 +252,7 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine implements Resolver
 
     /**
      * Executes compiled code at the specified call point returning an indication of whether or not the execution was
-     * succesfull.
+     * successful.
      *
      * @param callPoint The call point of the compiled byte code to execute.
      * @return <tt>true</tt> iff execution succeeded.
@@ -311,7 +313,7 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine implements Resolver
         // Used to collect the results in.
         Set <Variable> results = null;
 
-        // Collect the results only if the resolution was successfull.
+        // Collect the results only if the resolution was successful.
         if (success) {
             results = new HashSet <>();
 
@@ -423,19 +425,16 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine implements Resolver
 
                 // Fill in this functors name and arity and allocate storage space for its arguments.
                 int arity = functorName.getArity();
-                Term[] arguments = new Term[arity];
+                Term[] arguments = range(0, arity).mapToObj(i -> decodeHeap(val + i,
+                        variableContext)).toArray(Term[]::new);
 
                 // Loop over all of the functors arguments, recursively decoding them.
-                for (int i = 0; i < arity; i++) {
-                    arguments[i] = decodeHeap(val + i, variableContext);
-                }
 
                 // Create a new functor to hold the decoded data.
                 result = new Functor(f, arguments);
 
                 break;
             }
-
             default:
                 throw new IllegalStateException("Encountered unknown tag entityKind on the heap.");
         }

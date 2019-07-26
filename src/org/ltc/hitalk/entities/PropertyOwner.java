@@ -1,15 +1,24 @@
 package org.ltc.hitalk.entities;
 
-import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
+import org.ltc.enumus.Hierarchy;
 
-import static org.ltc.hitalk.entities.context.Context.Kind.Loading;
+import java.util.function.Function;
 
 /**
  *
  */
 public abstract
-class PropertyOwner implements IPropertyOwner {
-    HiTalkFlag[] props;
+class PropertyOwner<T extends Enum <T>> extends Hierarchy <T> implements IPropertyOwner {
+    T[] props;
+
+    /**
+     * @param type
+     * @param parentAccessor
+     */
+    public
+    PropertyOwner ( Class <T> type, Function <T, T> parentAccessor ) {
+        super(type, parentAccessor);
+    }
 
     /**
      * @return
@@ -20,14 +29,14 @@ class PropertyOwner implements IPropertyOwner {
         return props.length;
     }
 
-    /**
-     * @param props
-     */
-    public
-    PropertyOwner ( HiTalkFlag... props ) {
-        this.props = props;
-    }
-
-    public abstract
-    String get ( Loading basename );
+//    /**
+//     * @param props
+//     */
+//    public
+//    PropertyOwner ( HiTalkFlag... props ) {
+//        this.props = props;
+//    }
+//
+//    public abstract
+//    String get ( Loading basename );
 }

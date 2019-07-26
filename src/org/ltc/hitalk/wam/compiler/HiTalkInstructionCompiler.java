@@ -571,8 +571,10 @@ class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompil
         if (body.length == 1) {
             int name = body[0].getName();
 
-            switch () {
+            switch (name) {
 
+                default:
+                    throw new IllegalStateException("Unexpected value: " + name);
             }
         }
     }

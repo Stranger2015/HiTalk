@@ -3,8 +3,6 @@ package org.ltc.hitalk.wam.machine;
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.VariableAndFunctorInternerImpl;
 import com.thesett.aima.logic.fol.wam.compiler.WAMCallPoint;
-import com.thesett.aima.logic.fol.wam.compiler.WAMCompiledPredicate;
-import com.thesett.aima.logic.fol.wam.compiler.WAMCompiledQuery;
 import com.thesett.aima.logic.fol.wam.compiler.WAMReservedLabel;
 import com.thesett.aima.logic.fol.wam.machine.WAMCodeView;
 import com.thesett.common.util.doublemaps.SymbolTable;
@@ -46,18 +44,6 @@ class HiTalkWAMBaseMachine extends VariableAndFunctorInternerImpl implements HiT
         super("WAM_Variable_Namespace", "WAM_Functor_Namespace");
         this.symbolTable = symbolTable;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    public abstract
-    void emitCode ( WAMCompiledPredicate predicate ) throws LinkageException;
-
-    /**
-     * {@inheritDoc}
-     */
-    public abstract
-    void emitCode ( WAMCompiledQuery query ) throws LinkageException;
 
     /**
      * {@inheritDoc}
@@ -171,7 +157,7 @@ class HiTalkWAMBaseMachine extends VariableAndFunctorInternerImpl implements HiT
     public
     void emitCode ( HiTalkWAMCompiledPredicate predicate ) throws LinkageException {
 //JMXConnectorServerFactory.logger.info();
-        throw new Error("emoitcode");
+        throw new Error("emitcode");
     }
 
     /**
@@ -186,7 +172,7 @@ class HiTalkWAMBaseMachine extends VariableAndFunctorInternerImpl implements HiT
     @Override
     public
     void emitCode ( HiTalkWAMCompiledQuery query ) throws LinkageException {
-
+        throw new Error("emit");
     }
 
 //    /**

@@ -232,46 +232,4 @@ class HtEntity extends PropertyOwner implements INameable <Functor> {
         return null;
     }
 
-
-//    /**
-//     * @return
-//     */
-//    @Override
-//    public
-//    int getPropLength () {
-//        HtEntityKind kind = entityKind;
-//
-//        for (int length = kind.getPropsLength(); kind != null; kind = kind.getParent()) {
-//
-//        }
-//
-//        return 0;
-//    }
-//    /**
-//     *
-//     */
-//    private
-//    void initProperties () {
-//        switch (entityKind) {
-//            case ENTITY:
-//
-//                break;
-//            case OBJECT:
-//                //                getProperty();
-//                break;
-//            case CATEGORY:
-//
-//                break;
-//            case OBJECT_OR_CATEGORY:
-//                break;
-//            case PROTOCOL:
-//
-//                break;
-//            case MODULE:
-//
-//                break;
-//
-//            default:
-//                throw new IllegalStateException("Unexpected value: " + entityKind);
-//        }
 }

@@ -1,6 +1,7 @@
 package org.ltc.hitalk.compiler.bktables;
 
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
+import org.ltc.hitalk.parser.HtPrologParser;
 
 /**
  *
@@ -42,4 +43,6 @@ interface IApplication {
      *
      */
     void banner ();
+
+    void setParser ( HtPrologParser parser );
 }

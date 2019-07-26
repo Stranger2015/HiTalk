@@ -3,10 +3,10 @@ package org.ltc.hitalk.entities;
 import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
 
 /**
- * @param <NT>
+ * @param <Functor>
  */
 public
-interface IPropertyOwner<NT> {
+interface IPropertyOwner<Functor> {
 
     /**
      * @return
@@ -20,28 +20,4 @@ interface IPropertyOwner<NT> {
      * @return
      */
     int getPropLength ();
-//
-//    /**
-//     * @return
-//     */
-//    default
-//    NT[] getNames () {
-//        return (NT[]) new Object[getPropLength()];
-//    }
-//
-//    /**
-//     * @return
-//     */
-//    default
-//    Term[] getValues () {
-//        return new Term[getPropLength()];
-//    }
-//
-//    /**
-//     * @return
-//     */
-//    default
-//    HtType[] getTypes () {
-//        return new HtType[getPropLength()];
-//    }
 }

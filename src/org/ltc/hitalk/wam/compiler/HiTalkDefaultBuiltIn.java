@@ -190,15 +190,13 @@ class HiTalkDefaultBuiltIn extends BaseMachine implements HiTalkBuiltIn {
 
             // When a functor is encountered, output a put_struc.
             else if (nextOutermostArg.isFunctor()) {
-                Term nextFunctorArg = nextOutermostArg;
-
                 // Heap cells are to be created in an order such that no heap cell can appear before other cells that it
                 // refers to. A postfix traversal of the functors in the term to compile is used to achieve this, as
                 // child functors in a head will be visited first.
                 // Walk over the query term in post-fix order, picking out just the functors.
                 QueueBasedSearchMethod <Term, Term> postfixSearch = new PostFixSearch <>();
                 postfixSearch.reset();
-                postfixSearch.addStartState(nextFunctorArg);
+                postfixSearch.addStartState(nextOutermostArg);
                 postfixSearch.setGoalPredicate(new FunctorTermPredicate());
 
                 Iterator <Term> treeWalker = allSolutions(postfixSearch);

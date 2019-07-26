@@ -1729,7 +1729,8 @@ class HiTalkWAMInstruction implements Sizeable {
         CallInternal(CALL_INTERNAL, "call_internal", 7, 0xa) {
             /** {@inheritDoc} */
             protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf,
+                                        VariableAndFunctorInterner interner ) {
                 int entryPoint = codeBuf.getInt(ip + 1);
                 int arity = codeBuf.get(ip + 5);
                 instruction.reg1 = codeBuf.get(ip + 6);
@@ -1768,7 +1769,8 @@ class HiTalkWAMInstruction implements Sizeable {
         Suspend(SUSPEND, "suspend", 1, 0x0) {
             /** {@inheritDoc} */
             protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf,
+                                        VariableAndFunctorInterner interner ) {
                 // Do nothing as this instruction takes no arguments.
             }
 
@@ -1799,6 +1801,12 @@ class HiTalkWAMInstruction implements Sizeable {
         Imports(IMPORTS, "$imports", 5, -2) {
 
         },
+        //        extends
+//        implements
+//        imports
+//        complements
+//        specializes
+//        instantiates
         CallEager(CALL_EAGER, "call_eager", 2, -555) {
 
         },
