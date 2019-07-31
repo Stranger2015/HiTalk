@@ -25,18 +25,18 @@ interface IRegistry<R extends Record> {
      * @return
      */
     default
-    R lookup ( R identifiable ) {
+    int lookup ( R identifiable ) {
         if (!isRegistered(identifiable.getId())) {
             return register(identifiable);
         }
-        return identifiable.newInstance();
+        return getById(identifiable.getId());
     }
 
     /**
      * @param id
      * @return
      */
-    R getById ( int id );
+    int getById ( int id );
 
     /**
      * @param kind
@@ -45,7 +45,16 @@ interface IRegistry<R extends Record> {
      */
     Recordset <R> select ( BkTableKind kind, R pattern );
 
+    /**
+     * @param kind
+     * @return
+     */
     Recordset <R> select ( BkTableKind kind );
 
+    /**
+     * @param r
+     */
     void add ( R r );
+
+    R selectOne ( BkTableKind loadedEntities, R bkLoadedEntities );
 }

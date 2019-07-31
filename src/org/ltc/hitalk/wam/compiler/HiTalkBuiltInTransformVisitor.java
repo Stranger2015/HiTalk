@@ -8,7 +8,8 @@ import com.thesett.aima.logic.fol.compiler.PositionalTermTraverser;
 import com.thesett.common.util.doublemaps.SymbolTable;
 
 public
-class HiTalkBuiltInTransformVisitor extends BasePositionalVisitor implements PositionalTermVisitor {
+class HiTalkBuiltInTransformVisitor extends BasePositionalVisitor
+        implements PositionalTermVisitor {
 
     private final HiTalkBuiltInTransform builtInTransform;
 
@@ -40,6 +41,14 @@ class HiTalkBuiltInTransformVisitor extends BasePositionalVisitor implements Pos
     public
     void visit ( Term term ) {
 
+    }
+
+    /**
+     * @return
+     */
+    public
+    HiTalkBuiltInTransform getBuiltInTransform () {
+        return builtInTransform;
     }
 }
 

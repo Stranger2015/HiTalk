@@ -290,7 +290,7 @@ class HtPrologParser implements HtPrologParserConstants {
     public
     Term term () throws SourceCodeException {
         List <Term> terms;
-        terms = terms(new LinkedList <>());
+        terms = terms(new ArrayList <>());
 
         Term[] flatTerms = terms.toArray(new Term[terms.size()]);
 
@@ -361,13 +361,11 @@ class HtPrologParser implements HtPrologParserConstants {
 
             case LPAREN:
                 consumeToken(LPAREN);
-
                 term = term();
 
                 // Mark the term as bracketed to ensure that this is its final parsed form. In particular the
                 // #arglist method will not break it up if it contains commas.
                 term.setBracketed(true);
-
                 consumeToken(RPAREN);
                 break;
 
@@ -738,17 +736,17 @@ class HtPrologParser implements HtPrologParserConstants {
      * @throws SourceCodeException If the source being parsed does not match the grammar.
      */
     public
-    com.thesett.aima.logic.fol.isoprologparser.PrologParser.Directive peekAndConsumeDirective () throws SourceCodeException {
+    Directive peekAndConsumeDirective () throws SourceCodeException {
         if (peekAndConsumeTrace()) {
-            return com.thesett.aima.logic.fol.isoprologparser.PrologParser.Directive.Trace;
+            return Directive.Trace;
         }
 
         if (peekAndConsumeInfo()) {
-            return com.thesett.aima.logic.fol.isoprologparser.PrologParser.Directive.Info;
+            return Directive.Info;
         }
 
         if (peekAndConsumeUser()) {
-            return com.thesett.aima.logic.fol.isoprologparser.PrologParser.Directive.User;
+            return Directive.User;
         }
 
         return null;

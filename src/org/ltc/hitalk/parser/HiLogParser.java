@@ -1,6 +1,5 @@
 package org.ltc.hitalk.parser;
 
-
 import com.thesett.aima.logic.fol.Cons;
 import com.thesett.aima.logic.fol.Nil;
 import com.thesett.aima.logic.fol.Term;
@@ -13,8 +12,6 @@ import com.thesett.common.parsing.SourceCodePositionImpl;
 import org.ltc.hitalk.term.HiLogCompound;
 
 import java.util.Arrays;
-
-import static com.thesett.aima.logic.fol.OpSymbol.Associativity.FX;
 
 /**
  *
@@ -229,7 +226,6 @@ class HiLogParser extends HtPrologParser {
     @Override
     public
     Term term () throws SourceCodeException {
-
         return super.term();
     }
 
@@ -242,7 +238,6 @@ class HiLogParser extends HtPrologParser {
     @Override
     public
     Term functor () throws SourceCodeException {
-
         return super.functor();
     }
 
@@ -252,11 +247,5 @@ class HiLogParser extends HtPrologParser {
     protected
     void initializeBuiltIns () {
         super.initializeBuiltIns();
-
-        internOperator("hilog", 1150, FX);
-        internOperator("public", 1150, FX);
-        internOperator("protected", 1150, FX);
-        internOperator("private", 1150, FX);
-        internOperator("enumeration", 1150, FX);
     }
 }

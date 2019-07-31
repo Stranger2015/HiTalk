@@ -1,20 +1,59 @@
-**HiTalk**
+_HiTalk_
 ========
-the project is still under development
+The project is still under development
 
-## Objectives.
-Standalone compiler
+## _Objectives._
+Standalone compiler + IDE.
   
 ## Ideas.
-enum
+1. Enum;
 
-hilog extensions
+2. HiLog extensions;
  
-## Examples.
+## _Examples._
 ```
-:- object(enum, Components, 
-        implements(setp)).
+:- object( type,
+            extends( enum )).
 
-    :- constants a, b, c.
+    :- enumeration([
+        hitalk_type, % :- true (by default)
+        prolog_type, % :- true (by default)
+        user_type    % :- true (by default)
+    ]).
+
+:- end_object.
+src
+%=======================================================
+gen_src
+% Generated because has the enum type
+:- object( hitalk_type )).
+    
+    :- builtin.
+
+    :- enumeration([
+        enhkiry , % :- true (by default)
+        prolog_type, % :- true (by default)
+        user_type    % :- true (by default)
+    ]).
+    
+
+:- end_object.
+    
+ object( prolog_type )).
+    :- builtin.
+
+    :- enumeration([
+        term, % :- true (by default)
+    ]).
+   
+:- end_object.
+
+object( term )).
+    :- builtin.
+
+    :- enumeration([
+        var, % :- true (by default)
+        nonvar :- \+ var    
+    ]).
 
 :- end_object.

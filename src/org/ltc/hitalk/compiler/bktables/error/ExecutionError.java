@@ -3,6 +3,11 @@ package org.ltc.hitalk.compiler.bktables.error;
 public
 class ExecutionError extends RuntimeException {
     public
+    Kind getKind () {
+        return kind;
+    }
+
+    public
     enum Kind {
         TYPE_ERROR,
         PERMISSION_ERROR,
@@ -13,7 +18,7 @@ class ExecutionError extends RuntimeException {
         REPRESENTATION_ERROR
     }
 
-    Kind kind;
+    private Kind kind;
 
     /**
      * Constructs a new runtime exception with {@code null} as its

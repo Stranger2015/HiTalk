@@ -1,6 +1,5 @@
 package org.ltc.hitalk.wam.compiler.expander;
 
-
 import com.thesett.aima.logic.fol.Clause;
 import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.wam.compiler.builtins.Bypass;
@@ -19,39 +18,30 @@ class DefaultTermExpander<T extends Clause, TC extends Term, TT extends TermRewr
         extends TermRewriteTask <T, TC, TT> {
 
 
-    protected Function <TC, List <TC>> defaultAction = new Function <TC, List <TC>>() {
-        @Override
-        public
-        List <TC> apply ( TC tc ) {
+    protected Function <TC, List <TC>> defaultAction = tc -> {
 
-            if (tc instanceof Bypass) {
-                return Collections.singletonList(tc);
-            }
-//            else if (tc )
-//
-//            }
-            return null;
+        if (tc instanceof Bypass) {
+            return Collections.singletonList(tc);
         }
-//    tc ->
-
-//    apply ( tc );
-
-    /**
-     * @param target
-     * @param transformer
-     */
-    public
-    DefaultTermExpander ( List <T> target, ITransformer <T, TC> transformer ) {
-        super(target, transformer);
-    }
+        return null;
+    };
 
     /**
      * @param t
      */
-    @Override
     public
     void add ( TT t ) {
         getComponents().add(t);
+    }
+
+    /**
+     * @param action
+     * @param target
+     * @param transformer
+     */
+    public
+    DefaultTermExpander ( Function <T, List <T>> action, List <TC> target, ITransformer <T, TC> transformer ) {
+        super(action, target, transformer);
     }
 }
 

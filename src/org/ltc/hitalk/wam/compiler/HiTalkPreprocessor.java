@@ -1,10 +1,6 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.Clause;
-import com.thesett.aima.logic.fol.LogicCompilerObserver;
-import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
-import com.thesett.common.parsing.SourceCodeException;
+import com.thesett.aima.logic.fol.*;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.wam.compiler.expander.DefaultTermExpander;
 import org.ltc.hitalk.wam.task.HiLogPreprocessor;
@@ -29,31 +25,39 @@ class HiTalkPreprocessor<T extends Clause, TC extends Term, TT extends Transform
     protected final HiTalkBuiltInTransform builtInTransform;
     protected final List <TT> components = new ArrayList <>();
     protected final Function <TC, List <TC>> defaultAction;
+    protected final Resolver <T, T> resolver;
     protected LogicCompilerObserver <Clause, Clause> observer;
     protected List <T> preCompiledTarget;
 
     /**
      * Creates a base machine over the specified symbol table.
-     *
      * @param symbolTable The symbol table for the machine.
      * @param interner    The interner for the machine.
+     * @param resolver
      */
     public
     HiTalkPreprocessor ( SymbolTable <Integer, String, Object> symbolTable,
                          VariableAndFunctorInterner interner,
-                         HiTalkDefaultBuiltIn defaultBuiltIn ) {
+                         HiTalkDefaultBuiltIn defaultBuiltIn, Resolver <T, T> resolver ) throws LinkageException {
 
         super(symbolTable, interner, defaultBuiltIn);
 
         this.defaultBuiltIn = defaultBuiltIn;
         this.builtInTransform = new HiTalkBuiltInTransform(defaultBuiltIn);
+        this.resolver = resolver;
 
         defaultTransformer = new DefaultTransformer <>((T) null);
 
 //        int i = interner.internFunctorName(BEGIN_OF_FILE, 0);
 //        Term target = new Functor(i, Atom.EMPTY_TERM_ARRAY);
         defaultAction = null;
-        components.add((TT) new DefaultTermExpander(preCompiledTarget, defaultTransformer));
+        for (T t : preCompiledTarget) {
+            resolver.setQuery(t);
+            resolver.resolve();
+        }
+
+
+        components.add((TT) new DefaultTermExpander(defaultAction, preCompiledTarget, defaultTransformer));
         components.add((TT) new HiLogPreprocessor(defaultAction, defaultTransformer, interner));
         components.add((TT) new StandardPreprocessor(defaultAction, preCompiledTarget, defaultTransformer));
 //        components.add(new SuperCompiler(preCompiledTarget, defaultTransformer));
@@ -104,11 +108,10 @@ class HiTalkPreprocessor<T extends Clause, TC extends Term, TT extends Transform
     /**
      * Signal the end of a compilation scope, to trigger completion of the compilation of its contents.
      *
-     * @throws SourceCodeException If there is an error in the source to be compiled that prevents its compilation.
      */
     @Override
     public
-    void endScope () throws SourceCodeException {
+    void endScope () {
     }
 
     /**

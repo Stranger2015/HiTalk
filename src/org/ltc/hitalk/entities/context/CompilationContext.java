@@ -37,7 +37,6 @@ class CompilationContext extends Context {
         return new HiTalkFlag[0];
     }
 
-    @Override
     public
     String get ( Kind.Loading basename ) {
         return null;

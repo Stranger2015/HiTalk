@@ -37,7 +37,7 @@ class BkTable<R extends Record> implements IRegistry <R> {
      */
     @Override
     public
-    R getById ( int id ) {
+    int getById ( int id ) {
         return null;
     }
 

@@ -14,6 +14,7 @@ import org.ltc.hitalk.entities.context.CompilationContext;
 import org.ltc.hitalk.entities.context.Context;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.LoadContext;
+import org.ltc.hitalk.parser.HiTalkParser;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.term.Atom;
 import org.ltc.hitalk.wam.machine.HiTalkWAMEngine;
@@ -183,22 +184,22 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
     private final String scratchDirectory;
     //
 //    private final BookKeepingTables bkt = new BookKeepingTables();
-    private final IRegistry <BkLoadedEntities> registry = new BookKeepingTables <BkLoadedEntities>();
-    private final CompilationContext compilationContext;
-    private final LoadContext loadContext;
-    private final ExecutionContext executionContext;
+    protected final IRegistry <BkLoadedEntities> registry = new BookKeepingTables <>();
+    protected final CompilationContext compilationContext;
+    protected final LoadContext loadContext;
+    protected final ExecutionContext executionContext;
     protected LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer;
     protected LogicCompilerObserver <Clause, Clause> observer2;
-    private TokenSource tokenSource;
+    protected TokenSource tokenSource;
     /**
      * Holds the pre-compiler, for analyzing and transforming terms prior to compilation proper.
      */
-    private HiTalkPreCompiler preCompiler;
-    private String fileName;
-    private IConfig config;
-    //    private HiTalkCompilerApp app;
-    private boolean started;
-    private HtPrologParser parser;
+    protected HiTalkPreCompiler preCompiler;
+    protected String fileName;
+    protected IConfig config;
+    //    protected HiTalkCompilerApp app;
+    protected boolean started;
+    protected HtPrologParser parser;
 
 
     /**
@@ -212,10 +213,10 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
                         VariableAndFunctorInterner interner,
                         HtPrologParser parser,
                         HiTalkInstructionCompiler compiler,
-                        HiTalkDefaultBuiltIn defaultBuiltIn ) {
+                        HiTalkDefaultBuiltIn defaultBuiltIn ) throws LinkageException {
         super(parser, interner, compiler);
 
-        preCompiler = new HiTalkPreprocessor(symbolTable, interner, defaultBuiltIn);
+        preCompiler = new HiTalkPreprocessor(symbolTable, interner, defaultBuiltIn, resolver);
         instructionCompiler = compiler;
         observer2 = new ClauseChainObserver(instructionCompiler);
         preCompiler.setCompilerObserver(observer2);
@@ -260,9 +261,9 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
             SymbolTable <Integer, String, Object> symbolTable = new SymbolTableImpl <>();
             VariableAndFunctorInterner interner = new VariableAndFunctorInternerImpl("HiTalk_Variable_Namespace", "HiTalk_Functor_Namespace");
             TokenSource tokenSource = TokenSource.getTokenSourceForFile(new File(args[0]));
-            HtPrologParser parser = new HtPrologParser(tokenSource, interner);
+            HtPrologParser parser = new HiTalkParser(tokenSource, interner);
             HiTalkInstructionCompiler compiler = new HiTalkInstructionCompiler(symbolTable, interner);
-            HiTalkDefaultBuiltIn defaultBuiltIn = new HiTalkDefaultBuiltIn(symbolTable, interner);//
+            HiTalkDefaultBuiltIn defaultBuiltIn = new HiTalkDefaultBuiltIn(symbolTable, interner);
 //
             HiTalkCompilerApp app = new HiTalkCompilerApp(symbolTable, interner, parser, compiler, defaultBuiltIn);
             app.setFileName(args[0]);
@@ -299,7 +300,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
      * @param scratchDirectory
      * @return
      */
-    private
+    protected
     HiTalkFlag[] createFlags ( LoadContext loadContext, String scratchDirectory ) {
         HiTalkFlag[] flags = new HiTalkFlag[]{///todo flags
                                               tf.createFlag("basename", fileName),//FIXME PARSE
@@ -329,13 +330,14 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
 //        compileHooks();        reportSettingsFile(result);
     }
 
-    private
+    protected
     void reportSettingsFile ( Object result ) {
 
     }
 
-    private
+    protected
     Object loadSettingsFile ( String scratchDir ) {
+        logtalkCompile("startup.pl");
         return null;
     }
 
@@ -346,7 +348,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
      * @throws IOException
      * @throws SourceCodeException
      */
-    private
+    protected
     void loadBuiltInEntity ( HtEntityIdentifier identifier, String fileName, String scratchDir )
             throws Exception {
         Recordset <BkLoadedEntities> rs = registry.select(LOADED_ENTITIES, new BkLoadedEntities(identifier));
@@ -357,7 +359,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
         }
     }
 
-    private
+    protected
     HiTalkFlag[] createFlags ( String scratchDir ) {
         return new HiTalkFlag[]{
                 //we need a fixed code prefix as some of the entity predicates may need
@@ -487,12 +489,12 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
         loadTargetFile(fileName, context);
     }
 
-    private
+    protected
     void loadTargetFile ( String targetFile, LoadContext context ) {
 
     }
 
-    private
+    protected
     void compileFile ( String fileName, LoadContext context ) throws Exception {
         // Set up a parser on the token source.
         HtPrologParser parser = new HtPrologParser(tokenSource, interner);
@@ -524,7 +526,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
      * catch(GoalExpansionGoal, Error, goal_expansion_error(HookEntity, Term, Error))
      * )).
      */
-    private
+    protected
     void initBookKeepingTables () {
 
     }
@@ -533,7 +535,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
      * compiles the user-defined default compiler hooks
      * (replacing any existing defined hooks)
      */
-    private
+    protected
     void compileHooks ( HtEntityIdentifier hookEntity ) {
 //= bkt.getTable(TERM_EXPANSION_DEFAULT_HOOKS);
 
@@ -578,18 +580,18 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
 //                Compile_message_to_object(goal_expansion(Goal, ExpandedGoal), HookEntity, GoalExpansionGoal, Events, Ctx)
 
 
-    private
+    protected
     void initDirectives () {
         initRuntimeDirectives();
         initCompilerDirectives();
     }
 
-    private
+    protected
     void initCompilerDirectives () {
 
     }
 
-    private
+    protected
     void initRuntimeDirectives () {
 
     }
@@ -600,8 +602,8 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
 
     //messages to the pseudo-object "user"
 
-    private
-    void compileMmessageToObject ( Term pred, HtEntityIdentifier obj, ICallable call, Atom atom, Context ctx ) {
+    protected
+    void compileMessageToObject ( Term pred, HtEntityIdentifier obj, ICallable call, Atom atom, Context ctx ) {
         if (obj.equals(USER) && pred.isVar() || pred.isFunctor()) {
 
         }
@@ -975,7 +977,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
 //        :- dynamic(ppAux_predicateCounter_'/1).
 
 
-    private
+    protected
     void cacheCompilerFlags () {
     }
     //compiling and loading built-in predicates
@@ -1066,7 +1068,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
     //note that we can only clean the compiler flags after reporting warning numbers as the
     //report/1 flag might be included in the list of flags but we cannot test for it as its
 //        //value should only be used in the default code for printing messages
-//        private void logtalkCompile (List < String > files, List < Flag > flags){
+//        protected void logtalkCompile (List < String > files, List < Flag > flags){
 //
 //        }
 
@@ -1095,7 +1097,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
 //
 //        //predicates for compilation warning counting and reporting
 //
-private
+protected
 void resetWarningsCounters () {
 //            retractall(pp_warnings_top_goal_(_)),
 //            retractall(ppCompiling_warningsCounter_(_)),
@@ -1104,7 +1106,7 @@ void resetWarningsCounters () {
 //
 //
 //
-private
+protected
 void initWarningsCounter ( Term goal ) {
 //        (pp_warnings_top_goal_(_) ->
 
@@ -1168,13 +1170,13 @@ void initWarningsCounter ( Term goal ) {
 //        retractall(ppFileCompilerFlag_(Name, _)), assertz(ppFileCompilerFlag_(Name, Value)), AssertCompilerFlags(Flags).
 
 
-    private
+    protected
     void startRuntimeThreading () {
 
 
     }
 
-    private
+    protected
     void compileDefaultHooks () {
 
     }
@@ -1186,7 +1188,7 @@ void initWarningsCounter ( Term goal ) {
      * loads all built-in entities if not already loaded (when embedding
      * Logtalk, the pre-compiled entities are loaded prior to this file)
      */
-    private
+    protected
     String loadBuiltInEntities () throws Exception {
         String scratchDir = getScratchDirectory();
         loadContext.reset();//TODO
@@ -1225,13 +1227,13 @@ void initWarningsCounter ( Term goal ) {
      *
      * @return
      */
-    private
+    protected
     Path expandLibraryAlias ( String library ) {
         Path location = logtalkLibraryPath(library);
         return location;
     }
 
-    private
+    protected
     Path logtalkLibraryPath ( String library ) {
 
 //        Path path = new Vfs2NioPath();
@@ -1252,7 +1254,7 @@ void initWarningsCounter ( Term goal ) {
      * writeq(Component), write(' '), write(Kind), write(': '), writeq(Message), nl
      * ).
      */
-//    private
+//    protected
 //    void printMessage ( Functor kind, Atom component, Atom message ){
 //if (getCompilerFlag(FlagKey.REPORTS) != FlagValue.OFF) {
 ////
@@ -1328,7 +1330,7 @@ void initWarningsCounter ( Term goal ) {
         return preCompiler.compile(tokenSource, loadContext);
     }
 
-    private
+    protected
     List <HtEntityIdentifier> hooksPipeline () {
 //        Map <Functor, INameable <Functor>>[] tables = bkt.getTables();
         List <HtEntityIdentifier> l = new ArrayList <>();
@@ -1339,7 +1341,7 @@ void initWarningsCounter ( Term goal ) {
 //======================================================================
 // remaining directives
 
-//private void compileDirective(Clause directive, CompilationContext ctx) {
+//protected void compileDirective(Clause directive, CompilationContext ctx) {
 //        if(!compilingEntity){
 //            if(!isEntityOpeningDirective(directive)){
 //                if(isEntityClosingDirective(directive)) {
@@ -1350,12 +1352,12 @@ void initWarningsCounter ( Term goal ) {
 
 //    }
 
-//    private
+//    protected
 //    boolean isEntityClosingDirective ( Clause directive ) {
 //        return false;
 //    }
 //
-//    private
+//    protected
 //    boolean isEntityOpeningDirective ( Clause directive ) {
 //        return false;
 //    }
@@ -1436,7 +1438,7 @@ void initWarningsCounter ( Term goal ) {
  *
  */
 class ClauseChainObserver implements LogicCompilerObserver <Clause, Clause> {
-    private HiTalkInstructionCompiler instructionCompiler;
+    protected HiTalkInstructionCompiler instructionCompiler;
 
     ClauseChainObserver ( HiTalkInstructionCompiler instructionCompiler ) {
         this.instructionCompiler = instructionCompiler;
@@ -1465,13 +1467,13 @@ class ClauseChainObserver implements LogicCompilerObserver <Clause, Clause> {
  * <p>
  * <p/>If a chained observer is set up, all compiler outputs are forwarded onto it.
  */
-//private
+//protected
 class ChainedCompilerObserver implements LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> {
     /**
      * Holds the chained observer for compiler outputs.
      */
-    private LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer;
-    private Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> resolver;
+    protected LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer;
+    protected Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> resolver;
 
     /**
      * Sets the chained observer for compiler outputs.

@@ -129,7 +129,7 @@ class HiTalkPreCompiler<T extends Clause> extends BaseMachine implements LogicCo
      * {@inheritDoc}
      */
     public
-    void endScope () throws SourceCodeException {
+    void endScope () {
 
     }
 
@@ -179,9 +179,9 @@ class HiTalkPreCompiler<T extends Clause> extends BaseMachine implements LogicCo
      */
     public
     Term[] compile ( TokenSource tokenSource, LoadContext loadContext ) {
+        Term[] terms = new Term[0];
 
-
-        return new Term[0];
+        return terms;
     }
 
     public

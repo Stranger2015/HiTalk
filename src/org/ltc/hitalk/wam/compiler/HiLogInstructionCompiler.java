@@ -3,7 +3,6 @@ package org.ltc.hitalk.wam.compiler;
 import com.thesett.aima.logic.fol.Clause;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
-import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
 import org.ltc.hitalk.parser.HtPrologParser;
@@ -26,8 +25,6 @@ class HiLogInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompile
         super(symbolTable, interner);
     }
 
-
-    @Override
     public
     HtPrologParser getParser () {
         return parser;
@@ -36,11 +33,9 @@ class HiLogInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompile
     /**
      * @param sentence
      * @param flags
-     * @throws SourceCodeException
      */
-    @Override
     public
-    void compile ( Sentence <Clause> sentence, HiTalkFlag... flags ) throws SourceCodeException {
+    void compile ( Sentence <Clause> sentence, HiTalkFlag... flags ) {
 
     }
 
@@ -48,11 +43,10 @@ class HiLogInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompile
      * Compiles a sentence into a (presumably binary) form, that provides a Java interface into the compiled structure.
      *
      * @param sentence The sentence to compile.
-     * @throws SourceCodeException If there is an error in the source to be compiled that prevents its compilation.
      */
     @Override
     public
-    void compile ( Sentence <Clause> sentence ) throws SourceCodeException {
+    void compile ( Sentence <Clause> sentence ) {
 
     }
 }

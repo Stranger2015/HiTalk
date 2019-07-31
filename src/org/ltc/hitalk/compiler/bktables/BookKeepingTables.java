@@ -76,7 +76,7 @@ class BookKeepingTables<R extends Record>
      */
     @Override
     public
-    R getById ( int id ) {
+    int getById ( int id ) {
         return registry.getById(id);
     }
 

@@ -24,7 +24,7 @@ class BkLoadedEntities extends Record {
      */
     public
     Functor getName () {
-        return eid;
+        return null;
     }
 
     @Override

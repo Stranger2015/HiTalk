@@ -16,17 +16,20 @@
  package org.ltc.hitalk.wam.compiler;
 
  import com.thesett.aima.logic.fol.Functor;
-import com.thesett.aima.logic.fol.FunctorName;
+ import com.thesett.aima.logic.fol.FunctorName;
  import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
+ import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
  import com.thesett.aima.logic.fol.wam.builtins.BuiltInFunctor;
-import com.thesett.common.util.Function;
+ import com.thesett.common.util.Function;
+ import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
+ import org.ltc.hitalk.entities.HtEntityIdentifier;
 
-import java.util.HashMap;
-import java.util.Map;
+ import java.util.HashMap;
+ import java.util.Map;
  import java.util.function.Predicate;
 
- import static org.ltc.hitalk.wam.compiler.HiTalkBuiltInTransform.BuiltInKind.*;
+ import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
+ import static org.ltc.hitalk.entities.HtEntityKind.*;
 
 
  /**
@@ -46,12 +49,14 @@ import java.util.Map;
      /**
       * Holds a mapping from functor names to built-in implementations.
       */
-     private final Map <FunctorName, BuiltInKind> builtIns = new HashMap <>();
+     private final Map <FunctorName, Predicate <Term>> builtIns = new HashMap <>();
 
      /**
       * Holds the default built in, for standard compilation and interners and symbol tables.
       */
      private final HiTalkDefaultBuiltIn defaultBuiltIn;
+     private final VariableAndFunctorInterner interner;
+     private HtEntityIdentifier entityCompiling;
 
      /**
       * Returns the result of type Y from applying this function to an argument of type X.
@@ -66,114 +71,144 @@ import java.util.Map;
      }
 
      public
-     enum BuiltInKind {
-         TRUE(BuiltInKind::True),
-         FAIL(BuiltInKind::Fail),
-         CUT(BuiltInKind::Cut),
-         UNIFIES(BuiltInKind::Unifies),
-         NON_UNIFIES(BuiltInKind::NonUnifies),
-         ASSIGN(BuiltInKind::Assign),
-         CONJUNCTION(BuiltInKind::Conjunction),
-         DISJUNCTION(BuiltInKind::Disjunction),
-         CALL(BuiltInKind::Call),
-         APPLY(BuiltInKind::Apply),
-         OBJECT(BuiltInKind::Object),
-         PROTOCOL(BuiltInKind::Protocol),
-         CATEGORY(BuiltInKind::Category),
-         END_OBJECT(BuiltInKind::EndObject),
-         END_PROTOCOL(BuiltInKind::EndProtocol),
-         END_CATEGORY(BuiltInKind::EndCategory),
-         ;
-
-         private static
-         boolean True ( Term term ) {
-             return false;
-         }
-
-
-         private static
-         boolean Fail ( Term term ) {
-             return false;
-         }
-
-
-         private static
-         boolean Cut ( Term term ) {
-             return false;
-         }
-
-         private static
-         boolean Unifies ( Term term ) {
-             return false;
-         }
-
-         private static
-         boolean NonUnifies ( Term term ) {
-             return false;
-         }
-
-         private static
-         boolean Assign ( Term term ) {
-             return false;
-         }
-
-         private static
-         boolean Conjunction ( Term term ) {
-             return false;
-         }
-
-         private static
-         boolean Disjunction ( Term term ) {
-             return false;
-         }
-
-         private static
-         boolean Call ( Term term ) {
-             return false;
-         }
-
-         private static
-         boolean Apply ( Term term ) {
-             return false;
-         }
-
-         private static
-         boolean Object ( Term term ) {
-             return false;
-         }
-
-         private static
-         boolean Protocol ( Term term ) {
-             return true;
-         }
-
-
-         private static
-         boolean Category ( Term term ) {
-             return true;
-         }
-
-         private static
-         boolean EndObject ( Term term ) {
-             return false;
-         }
-
-         private static
-         boolean EndProtocol ( Term term ) {
-             return true;
-         }
-
-         private static
-         boolean EndCategory ( Term term ) {
-             return false;
-         }
-
-         private final Predicate <Term> impl;
-
-         BuiltInKind ( Predicate <Term> impl ) {
-             this.impl = impl;
-         }
+     HiTalkDefaultBuiltIn getDefaultBuiltIn () {
+         return defaultBuiltIn;
      }
+
+//     public
+//     enum BuiltInKind {
+//         TRUE(BuiltInKind::True),
+//         FAIL(BuiltInKind::Fail),
+//         CUT(BuiltInKind::Cut),
+//         UNIFIES(BuiltInKind::Unifies),
+//         NON_UNIFIES(BuiltInKind::NonUnifies),
+//         ASSIGN(BuiltInKind::Assign),
+//         CONJUNCTION(BuiltInKind::Conjunction),
+//         DISJUNCTION(BuiltInKind::Disjunction),
+//         CALL(BuiltInKind::Call),
+//         APPLY(BuiltInKind::Apply),
+//         OBJECT(BuiltInKind::Object),
+//         PROTOCOL(BuiltInKind::Protocol),
+//         CATEGORY(BuiltInKind::Category),
+//         END_OBJECT(BuiltInKind::EndObject),
+//         END_PROTOCOL(BuiltInKind::EndProtocol),
+//         END_CATEGORY(BuiltInKind::EndCategory),
+//         ;
+
+//         private boolean objectCompiling;
+//         private boolean protocolCompiling;
+//         private boolean categoryCompiling;
+
+     private
+     boolean true_p ( Term term ) {
+         return true;
+     }
+
+     private
+     boolean fail_p ( Term term ) {
+             return false;
+         }
+
+     private
+     boolean cut_p ( Term term ) {
+         return true;
+         }
+
+     private
+     boolean unifies_p ( Term term ) {
+             return false;
+         }
+
+     private
+     boolean nonUnifies_p ( Term term ) {
+             return false;
+         }
+
+     private
+     boolean assign_p ( Term term ) {
+             return false;
+         }
+
+     private
+     boolean conjunction_p ( Term term ) {
+             return false;
+         }
+
+     private
+     boolean disjunction_p ( Term term ) {
+             return false;
+         }
+
+     private
+     boolean call_p ( Term term ) {
+             return false;
+         }
+
+     private
+     boolean apply_p ( Term term ) {
+             return false;
+         }
+
+     private
+     boolean object_p ( Term term ) {
+         if (isEntityCompiling()) {
+             throw new ExecutionError(PERMISSION_ERROR);
+         }
+         ;
+         Functor functor = (Functor) term;
+         entityCompiling = new HtEntityIdentifier(functor, OBJECT);
+
+
+         return true;
+     }
+
+     private
+     boolean isEntityCompiling () {
+         return entityCompiling != null;
+     }
+
+     private
+     boolean protocol_p ( Term term ) {
+             return true;
+         }
+
+     private
+     boolean category_p ( Term term ) {
+             return true;
+         }
+
+     private
+     boolean endObject_p ( Term term ) {
+         if (entityCompiling != null || entityCompiling.getKind() != OBJECT) {
+             throw new ExecutionError(PERMISSION_ERROR);
+         }
+         //ending object
+
+         entityCompiling = null;
+         return true;
+     }
+
+     private
+     boolean endProtocol_p ( Term term ) {
+         if (isEntityCompiling()) {
+             throw new ExecutionError(PERMISSION_ERROR);
+         }
+         ;
+         Functor functor = (Functor) term;
+         entityCompiling = new HtEntityIdentifier(functor, PROTOCOL);
+         return true;
+         }
+
+     private
+     boolean endCategory_p ( Term term ) {
+         if (isEntityCompiling()) {
+             throw new ExecutionError(PERMISSION_ERROR);
+         }
+         ;
+         Functor functor = (Functor) term;
+         entityCompiling = new HtEntityIdentifier(functor, CATEGORY);
+             return true;
+         }
 
      /**
       * Initializes the built-in transformation by population the the table of mappings of functors onto their built-in
@@ -184,32 +219,24 @@ import java.util.Map;
      public
      HiTalkBuiltInTransform ( HiTalkDefaultBuiltIn defaultBuiltIn ) {
          this.defaultBuiltIn = defaultBuiltIn;
+         interner = defaultBuiltIn.getInterner();
 
-         builtIns.put(new FunctorName("true", 0), TRUE);
-         builtIns.put(new FunctorName("fail", 0), FAIL);
-         builtIns.put(new FunctorName("!", 0), CUT);
+         builtIns.put(new FunctorName("true", 0), this::true_p);
+         builtIns.put(new FunctorName("fail", 0), this::fail_p);
+         builtIns.put(new FunctorName("!", 0), this::cut_p);
 
-         builtIns.put(new FunctorName("=", 2), UNIFIES);
-         builtIns.put(new FunctorName(":=", 2), ASSIGN);
-         builtIns.put(new FunctorName("\\=", 2), NON_UNIFIES);
-         builtIns.put(new FunctorName(";", 2), DISJUNCTION);
-         builtIns.put(new FunctorName(",", 2), CONJUNCTION);
-         builtIns.put(new FunctorName("call", 1), CALL);
-//         builtIns.put(new FunctorName("{}", 1), Bypass.class);
-         builtIns.put(new FunctorName("object", 1), OBJECT);
-         builtIns.put(new FunctorName("protocol", 1), PROTOCOL);
-         builtIns.put(new FunctorName("category", 1), CATEGORY);
-         builtIns.put(new FunctorName("end_object", 0), END_OBJECT);
-         builtIns.put(new FunctorName("end_protocol", 0), END_PROTOCOL);
-         builtIns.put(new FunctorName("end_category", 0), END_CATEGORY);
-
-        /*builtIns.put(new FunctorName("is", 2), Is.class);
-        builtIns.put(new FunctorName(">", 2), GreaterThan.class);
-        builtIns.put(new FunctorName(">=", 2), GreaterThanOrEqual.class);
-        builtIns.put(new FunctorName("<", 2), LessThan.class);
-        builtIns.put(new FunctorName("=<", 2), LessThanOrEqual.class);
-        builtIns.put(new FunctorName("integer", 1), IntegerCheck.class);
-        builtIns.put(new FunctorName("float", 1), FloatCheck.class);*/
+         builtIns.put(new FunctorName("=", 2), this::unifies_p);
+         builtIns.put(new FunctorName(":=", 2), this::assign_p);
+         builtIns.put(new FunctorName("\\=", 2), this::nonUnifies_p);
+         builtIns.put(new FunctorName(";", 2), this::disjunction_p);
+         builtIns.put(new FunctorName(",", 2), this::conjunction_p);
+         builtIns.put(new FunctorName("call", 1), this::call_p);
+         builtIns.put(new FunctorName("object", 1), this::object_p);
+         builtIns.put(new FunctorName("protocol", 1), this::protocol_p);
+         builtIns.put(new FunctorName("category", 1), this::category_p);
+         builtIns.put(new FunctorName("end_object", 0), this::endObject_p);
+         builtIns.put(new FunctorName("end_protocol", 0), this::endProtocol_p);
+         builtIns.put(new FunctorName("end_category", 0), this::endCategory_p);
      }
 
      /**
