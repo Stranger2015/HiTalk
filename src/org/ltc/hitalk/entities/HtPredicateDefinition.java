@@ -4,7 +4,7 @@ package org.ltc.hitalk.entities;
  *
  */
 public
-class HtPredicateDefinition extends PropertyOwner {
+class HtPredicateDefinition extends PropertyOwner <HtProperty> {
 
 //    private final static int PROPS_LENGTH = 7;
 

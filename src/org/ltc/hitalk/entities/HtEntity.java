@@ -201,6 +201,7 @@ import org.ltc.hitalk.entities.context.Context;
  */
 public
 class HtEntity extends PropertyOwner implements INameable <Functor> {
+    private IRelation[] relations;
 
     /**
      *
@@ -214,6 +215,7 @@ class HtEntity extends PropertyOwner implements INameable <Functor> {
     protected
     HtEntity ( Functor functor, HtEntityKind kind, HiTalkFlag... props ) {
         super(props);
+
         this.identifier = new HtEntityIdentifier(functor, kind);
     }
 

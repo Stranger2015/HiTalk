@@ -18,7 +18,6 @@ import java.util.Arrays;
  */
 public
 class HiLogParser extends HtPrologParser {
-
     final protected static int HILOG_COMPOUND = 38;
     private static final String BEGIN_TERM_TOKENS = Arrays.toString(new String[]{
             tokenImage[FUNCTOR],
@@ -44,7 +43,7 @@ class HiLogParser extends HtPrologParser {
     public
     HiLogParser ( TokenSource source, VariableAndFunctorInterner interner ) {
         super(source, interner);
-        //
+
         this.interner = interner;
         tokenSource = source;
     }
@@ -134,16 +133,16 @@ class HiLogParser extends HtPrologParser {
     }
 
     /**
-     * * Parses a sequence of terms as a comma seperated argument list. The ',' operator in prolog can be used as an
-     * * operator, when it behaves as a functor of arity 2, or it can be used to separate a sequence of terms that are
-     * * arguments to a functor or list. The sequence of functors must first be parsed as a term, using the operator
-     * * precedence of "," to form the term. This method takes such a term and flattens it back into a list of terms,
-     * * breaking it only on a sequence of commas. Terms that have been parsed as a bracketed expression will not be
-     * * broken up.
-     * *
-     * * <p/>For example, 'a, b, c' is broken into the list { a, b, c}. The example, 'a, (b, c), d' is broken into the
-     * * list { a, (b, c), d} and so on.
-     * *
+     * Parses a sequence of terms as a comma seperated argument list. The ',' operator in prolog can be used as an
+     * operator, when it behaves as a functor of arity 2, or it can be used to separate a sequence of terms that are
+     * arguments to a functor or list. The sequence of functors must first be parsed as a term, using the operator
+     * precedence of "," to form the term. This method takes such a term and flattens it back into a list of terms,
+     * breaking it only on a sequence of commas. Terms that have been parsed as a bracketed expression will not be
+     * broken up.
+     *
+     * <p/>For example, 'a, b, c' is broken into the list { a, b, c}. The example, 'a, (b, c), d' is broken into the
+     * list { a, (b, c), d} and so on.
+     *
      * ===============================================================================================================
      * Parses a sequence of terms as a comma seperated argument list. The ',' operator in prolog can be used as an
      * operator, when it behaves as a functor of arity 2, or it can be used to separate a sequence of terms that are
@@ -161,10 +160,8 @@ class HiLogParser extends HtPrologParser {
     @Override
     public
     Term[] arglist () throws SourceCodeException {
-
         return super.arglist();
     }
-
 
     /**
      * Parses a list expressed as a sequence of functors in first order logic. The empty list consists of the atom 'nil'

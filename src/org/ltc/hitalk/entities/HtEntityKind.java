@@ -89,15 +89,8 @@ enum HtEntityKind {
     MODULE(ENTITY, false),
     ;
 
-    //    private final Object[] names;
-//
     private final HtEntityKind parent;
-
     private final boolean isAbstract;
-
-//    private final int propsLength;
-
-//    Hierarchy hierarchy = new Hierarchy( Class<HtEntityProperty> ENTITYROPS
 
     /**
      * @param isAbstract

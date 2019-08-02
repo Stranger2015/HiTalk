@@ -17,7 +17,6 @@
 
  import com.thesett.aima.logic.fol.Functor;
  import com.thesett.aima.logic.fol.FunctorName;
- import com.thesett.aima.logic.fol.Term;
  import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
  import com.thesett.aima.logic.fol.wam.builtins.BuiltInFunctor;
  import com.thesett.common.util.Function;
@@ -49,166 +48,13 @@
      /**
       * Holds a mapping from functor names to built-in implementations.
       */
-     private final Map <FunctorName, Predicate <Term>> builtIns = new HashMap <>();
-
+     private final Map <FunctorName, Predicate <Functor>> builtIns = new HashMap <>();
      /**
       * Holds the default built in, for standard compilation and interners and symbol tables.
       */
      private final HiTalkDefaultBuiltIn defaultBuiltIn;
      private final VariableAndFunctorInterner interner;
      private HtEntityIdentifier entityCompiling;
-
-     /**
-      * Returns the result of type Y from applying this function to an argument of type X.
-      *
-      * @param functor The argument to the function.
-      * @return The result of applying the function to its argument.
-      */
-     @Override
-     public
-     Functor apply ( Functor functor ) {
-         return null;
-     }
-
-     public
-     HiTalkDefaultBuiltIn getDefaultBuiltIn () {
-         return defaultBuiltIn;
-     }
-
-//     public
-//     enum BuiltInKind {
-//         TRUE(BuiltInKind::True),
-//         FAIL(BuiltInKind::Fail),
-//         CUT(BuiltInKind::Cut),
-//         UNIFIES(BuiltInKind::Unifies),
-//         NON_UNIFIES(BuiltInKind::NonUnifies),
-//         ASSIGN(BuiltInKind::Assign),
-//         CONJUNCTION(BuiltInKind::Conjunction),
-//         DISJUNCTION(BuiltInKind::Disjunction),
-//         CALL(BuiltInKind::Call),
-//         APPLY(BuiltInKind::Apply),
-//         OBJECT(BuiltInKind::Object),
-//         PROTOCOL(BuiltInKind::Protocol),
-//         CATEGORY(BuiltInKind::Category),
-//         END_OBJECT(BuiltInKind::EndObject),
-//         END_PROTOCOL(BuiltInKind::EndProtocol),
-//         END_CATEGORY(BuiltInKind::EndCategory),
-//         ;
-
-//         private boolean objectCompiling;
-//         private boolean protocolCompiling;
-//         private boolean categoryCompiling;
-
-     private
-     boolean true_p ( Term term ) {
-         return true;
-     }
-
-     private
-     boolean fail_p ( Term term ) {
-             return false;
-         }
-
-     private
-     boolean cut_p ( Term term ) {
-         return true;
-         }
-
-     private
-     boolean unifies_p ( Term term ) {
-             return false;
-         }
-
-     private
-     boolean nonUnifies_p ( Term term ) {
-             return false;
-         }
-
-     private
-     boolean assign_p ( Term term ) {
-             return false;
-         }
-
-     private
-     boolean conjunction_p ( Term term ) {
-             return false;
-         }
-
-     private
-     boolean disjunction_p ( Term term ) {
-             return false;
-         }
-
-     private
-     boolean call_p ( Term term ) {
-             return false;
-         }
-
-     private
-     boolean apply_p ( Term term ) {
-             return false;
-         }
-
-     private
-     boolean object_p ( Term term ) {
-         if (isEntityCompiling()) {
-             throw new ExecutionError(PERMISSION_ERROR);
-         }
-         ;
-         Functor functor = (Functor) term;
-         entityCompiling = new HtEntityIdentifier(functor, OBJECT);
-
-
-         return true;
-     }
-
-     private
-     boolean isEntityCompiling () {
-         return entityCompiling != null;
-     }
-
-     private
-     boolean protocol_p ( Term term ) {
-             return true;
-         }
-
-     private
-     boolean category_p ( Term term ) {
-             return true;
-         }
-
-     private
-     boolean endObject_p ( Term term ) {
-         if (entityCompiling != null || entityCompiling.getKind() != OBJECT) {
-             throw new ExecutionError(PERMISSION_ERROR);
-         }
-         //ending object
-
-         entityCompiling = null;
-         return true;
-     }
-
-     private
-     boolean endProtocol_p ( Term term ) {
-         if (isEntityCompiling()) {
-             throw new ExecutionError(PERMISSION_ERROR);
-         }
-         ;
-         Functor functor = (Functor) term;
-         entityCompiling = new HtEntityIdentifier(functor, PROTOCOL);
-         return true;
-         }
-
-     private
-     boolean endCategory_p ( Term term ) {
-         if (isEntityCompiling()) {
-             throw new ExecutionError(PERMISSION_ERROR);
-         }
-         ;
-         Functor functor = (Functor) term;
-         entityCompiling = new HtEntityIdentifier(functor, CATEGORY);
-             return true;
-         }
 
      /**
       * Initializes the built-in transformation by population the the table of mappings of functors onto their built-in
@@ -237,32 +83,163 @@
          builtIns.put(new FunctorName("end_object", 0), this::endObject_p);
          builtIns.put(new FunctorName("end_protocol", 0), this::endProtocol_p);
          builtIns.put(new FunctorName("end_category", 0), this::endCategory_p);
+
+         builtIns.put(new FunctorName("op", 3), this::op_p);
+         builtIns.put(new FunctorName("current_op", 3), this::current_op_p);
+
+         builtIns.put(new FunctorName("initialization", 1), this::initialization_p);
+         builtIns.put(new FunctorName("initialization", 1), this::initialization_p);
      }
 
      /**
-      * Applies a built-in replacement transformation to functors. If the functor matches built-in, a
-      * {@link BuiltInFunctor} is created with a mapping to the functors built-in implementation, and the functors
-      * arguments are copied into this new functor. If the functor does not match a built-in, it is returned unmodified.
+      * Returns the result of type Y from applying this function to an argument of type X.
       *
-      * @param functor The functor to attempt to map onto a built-in.
-      * @return The functor unmodified, or a {@link BuiltInFunctor} replacement for it.
+      * @param functor The argument to the function.
+      * @return The result of applying the function to its argument.
       */
-//     public
-//     Functor apply ( Functor functor ) {
-//         FunctorName functorName = defaultBuiltIn.getInterner().getFunctorFunctorName(functor);
-//
-//         Class <? extends HiTalkBuiltInFunctor> builtInClass;
-//
-//         builtInClass = builtIns.get(functorName);
-//
-//         if (builtInClass != null) {
-//             return newInstance(getConstructor(
-//                     builtInClass,
-//                     new Class[]{Functor.class, HiTalkDefaultBuiltIn.class}),
-//                     new Object[]{functor, defaultBuiltIn});
-//         }
-//         else {
-//             return functor;
-//         }
-//     }
+     @Override
+     public
+     Functor apply ( Functor functor ) {
+         return null;
+     }
+
+     public
+     HiTalkDefaultBuiltIn getDefaultBuiltIn () {
+         return defaultBuiltIn;
+     }
+
+     private
+     boolean true_p ( Functor term ) {
+         return true;
+     }
+
+     private
+     boolean fail_p ( Functor term ) {
+         return false;
+     }
+
+     private
+     boolean cut_p ( Functor term ) {
+         return true;
+     }
+
+     private
+     boolean unifies_p ( Functor term ) {
+         return false;
+     }
+
+     private
+     boolean nonUnifies_p ( Functor term ) {
+         return false;
+     }
+
+     private
+     boolean assign_p ( Functor term ) {
+         return false;
+     }
+
+     private
+     boolean conjunction_p ( Functor term ) {
+         return false;
+     }
+
+     private
+     boolean disjunction_p ( Functor term ) {
+         return false;
+     }
+
+     private
+     boolean call_p ( Functor term ) {
+         return false;
+     }
+
+     private
+     boolean apply_p ( Functor term ) {
+         return false;
+     }
+
+     private
+     boolean object_p ( Functor term ) {
+         if (isEntityCompiling()) {
+             throw new ExecutionError(PERMISSION_ERROR);
+         }
+
+         entityCompiling = new HtEntityIdentifier(term, OBJECT);
+
+         handleObjectRelations();
+
+         return true;
+     }
+
+     private
+     void handleObjectRelations () {
+
+     }
+
+     private
+     boolean isEntityCompiling () {
+         return entityCompiling != null;
+     }
+
+     private
+     boolean protocol_p ( Functor term ) {
+         return true;
+     }
+
+     private
+     boolean category_p ( Functor term ) {
+         return true;
+     }
+
+     private
+     boolean endObject_p ( Functor term ) {
+         if (entityCompiling != null || entityCompiling.getKind() != OBJECT) {
+             throw new ExecutionError(PERMISSION_ERROR);
+         }
+         //ending object
+
+         entityCompiling = null;
+         return true;
+     }
+
+     private
+     boolean endProtocol_p ( Functor term ) {
+         if (isEntityCompiling()) {
+             throw new ExecutionError(PERMISSION_ERROR);
+         }
+         ;
+         Functor functor = (Functor) term;
+         entityCompiling = new HtEntityIdentifier(functor, PROTOCOL);
+         return true;
+     }
+
+     private
+     boolean endCategory_p ( Functor term ) {
+         if (isEntityCompiling()) {
+             throw new ExecutionError(PERMISSION_ERROR);
+         }
+         Functor functor = (Functor) term;
+         entityCompiling = new HtEntityIdentifier(functor, CATEGORY);
+         return true;
+     }
+
+     private
+     boolean op_p ( Functor functor ) {
+         return true;
+     }
+
+     private
+     boolean current_op_p ( Functor functor ) {
+         return false;
+     }
+
+     private
+     boolean initialization_p ( Functor functor ) {
+         return false;
+     }
+
+     public
+     VariableAndFunctorInterner getInterner () {
+         return interner;
+     }
  }

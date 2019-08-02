@@ -2,11 +2,8 @@ package org.ltc.hitalk.entities;
 
 import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
 
-/**
- * @param <Functor>
- */
 public
-interface IPropertyOwner<Functor> {
+interface IPropertyOwner {
 
     /**
      * @return

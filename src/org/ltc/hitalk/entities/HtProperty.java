@@ -9,7 +9,7 @@ import org.ltc.hitalk.term.ListTerm;
  *
  */
 public
-class HtProperty implements INameable <Functor> {
+class HtProperty implements IProperty, INameable <Functor> {
     protected HtType type;
     protected Functor name;
     protected Term value;

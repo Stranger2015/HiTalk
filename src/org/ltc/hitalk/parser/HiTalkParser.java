@@ -14,6 +14,9 @@ import java.util.List;
 import static com.thesett.aima.logic.fol.OpSymbol.Associativity.*;
 import static com.thesett.aima.logic.fol.TermUtils.flattenTerm;
 
+/**
+ *
+ */
 public
 class HiTalkParser extends HiLogParser {
 
@@ -57,12 +60,6 @@ class HiTalkParser extends HiLogParser {
         if (term.isFunctor()) {
             Functor functor = (Functor) term;
             FunctorName functorName = interner.getDeinternedFunctorName(functor.getName());
-//            if (functorName.getName().equals("::") && functorName.getArity() == 2) {
-//                Term identifier = functor.getArgument(0);
-//                Term HEAS = functor.getArgument(1);
-//            }
-//            //:
-            // else
         }
 
         return (HtClause) term;
@@ -141,8 +138,7 @@ class HiTalkParser extends HiLogParser {
         internOperator("as", 700, XFX);// predicate alias operator (alternative to the ::/2 or :/2 operators depending on the context)
 // first introduced in SWI-Prolog and YAP also for defining aliases to module predicates
 
-// HiTalk operators
-        internOperator("hilog", 1150, FX);
+// HiTalk operator
         internOperator("public", 1150, FX);
         internOperator("protected", 1150, FX);
         internOperator("private", 1150, FX);
