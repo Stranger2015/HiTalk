@@ -17,19 +17,20 @@
 
  import com.thesett.aima.logic.fol.Functor;
  import com.thesett.aima.logic.fol.FunctorName;
+ import com.thesett.aima.logic.fol.Term;
  import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
  import com.thesett.aima.logic.fol.wam.builtins.BuiltInFunctor;
  import com.thesett.common.util.Function;
  import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
  import org.ltc.hitalk.entities.HtEntityIdentifier;
+ import org.ltc.hitalk.entities.HtRelation;
+ import org.ltc.hitalk.entities.HtRelationKind;
 
- import java.util.HashMap;
- import java.util.Map;
+ import java.util.*;
  import java.util.function.Predicate;
 
  import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
  import static org.ltc.hitalk.entities.HtEntityKind.*;
-
 
  /**
   * BuiltInTransform implements a compilation transformation over term syntax trees, that substitutes for functors that
@@ -89,6 +90,27 @@
 
          builtIns.put(new FunctorName("initialization", 1), this::initialization_p);
          builtIns.put(new FunctorName("initialization", 1), this::initialization_p);
+         builtIns.put(new FunctorName("public", 1), this::public_p);
+         builtIns.put(new FunctorName("protected", 1), this::protected_p);
+         builtIns.put(new FunctorName("private", 1), this::private_p);
+     }
+
+     private
+     boolean public_p ( Functor functor ) {
+
+         return true;
+     }
+
+     private
+     boolean protected_p ( Functor functor ) {
+
+         return true;
+     }
+
+     private
+     boolean private_p ( Functor functor ) {
+
+         return true;
      }
 
      /**
@@ -159,21 +181,55 @@
      }
 
      private
-     boolean object_p ( Functor term ) {
+     boolean object_p ( Functor functor ) {
          if (isEntityCompiling()) {
              throw new ExecutionError(PERMISSION_ERROR);
          }
 
-         entityCompiling = new HtEntityIdentifier(term, OBJECT);
+         entityCompiling = new HtEntityIdentifier(functor, OBJECT);
 
-         handleObjectRelations();
+         handleObjectRelations(functor);
 
          return true;
      }
 
      private
-     void handleObjectRelations () {
+     void handleObjectRelations ( Functor functor ) {
+         int arity = functor.getArity();
+         EnumSet <HtRelationKind> kinds = EnumSet.noneOf(HtRelationKind.class);
+//         HtEntityIdentifier
+         List <HtRelation> relations = new ArrayList <>();
+         for (int i = 1; i < arity; i++) {
+             Term term = functor.getArgument(i);
+             if (term.isFunctor()) {
+                 Functor f = (Functor) term;
+                 FunctorName name = interner.getFunctorFunctorName(f);
+                 switch (name.getName()) {
+                     case "extends":
+                         break;
+                     case "implements":
+                         break;
+                     case "imports":
+                         break;
+                     case "instantiates":
+                         break;
+                     case "specializes":
+                         break;
+                     default:
+                         throw new IllegalStateException("Unexpected value: " + name.getName());
+                 }
+                 switch (i) {
+                     case 1:
+                     case 2:
+                     case 3:
+                     case 4:
+                     case 5:
+                         break;
+                     default:
+                         throw new IllegalStateException("Unexpected value: " + i);
+                 }
 
+             }
      }
 
      private

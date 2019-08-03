@@ -1,13 +1,14 @@
 package org.ltc.hitalk.compiler.bktables;
 
-import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.logic.fol.Term;
+import org.ltc.hitalk.entities.HtProperty;
+import org.ltc.hitalk.term.ListTerm;
 
 /**
  *
  */
 public
-class HiTalkFlag extends Functor {
+class HiTalkFlag extends HtProperty {
 
     /**
      * @param name
@@ -15,6 +16,6 @@ class HiTalkFlag extends Functor {
      */
     public
     HiTalkFlag ( int name, Term value ) {
-        super(name, new Term[]{value});
+        super(name, (ListTerm) value);//fixme
     }
 }

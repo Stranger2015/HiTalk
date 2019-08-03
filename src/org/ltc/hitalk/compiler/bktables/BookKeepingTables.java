@@ -1,8 +1,6 @@
 package org.ltc.hitalk.compiler.bktables;
 
-
 import org.ltc.hitalk.compiler.bktables.db.Record;
-import org.ltc.hitalk.compiler.bktables.db.Recordset;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,8 +9,7 @@ import java.util.List;
  * @param <R>
  */
 public
-class BookKeepingTables<R extends Record>
-        implements IRegistry <R> {
+class BookKeepingTables<R extends Record> implements IRegistry <R> {
 
     private final static int TAB_LENGTH = BkTableKind.USER_DEFINED_FLAGS.ordinal() + 1;
 
@@ -21,17 +18,17 @@ class BookKeepingTables<R extends Record>
      * @return
      */
     public
-    List <Record> getTable ( BkTableKind kind ) {
+    BkTable <R> getTable ( BkTableKind kind ) {
         return tables.get(kind.ordinal());
     }
 
     /**
      *
      */
-    private final List <List <Record>> tables = new ArrayList <>();
+    private final List <BkTable <R>> tables;
 //    private final BiConsumer <Functor, R>[] actions = new BiConsumer[TAB_LENGTH];
 
-    private IRegistry <R> registry = new BkTable <>();
+    private IRegistry <R> registry = new BkTable <R>();
 
     /**
      *
@@ -39,6 +36,7 @@ class BookKeepingTables<R extends Record>
     public
     BookKeepingTables () {
 
+        tables = new ArrayList <>();
     }
 //
 //    /**
@@ -87,20 +85,20 @@ class BookKeepingTables<R extends Record>
      */
     @Override
     public
-    Recordset <R> select ( BkTableKind kind, R pattern ) {
-        return registry.select(kind, pattern);
+    List <R> select ( BkTableKind kind, R pattern ) {
+        return getTable(kind).select(kind, pattern);
     }
 
     @Override
     public
-    Recordset <R> select ( BkTableKind kind ) {
-        return registry.select(kind);
+    List <R> select ( BkTableKind kind ) {
+        return getTable(kind).select(kind);
     }
 
     @Override
     public
-    void add ( R r ) {
-        registry.add(r);
+    void add ( BkTableKind kind, R r ) {
+        getTable(kind).add(kind, r);
     }
 }
 

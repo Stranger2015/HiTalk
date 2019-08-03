@@ -1,20 +1,12 @@
 package org.ltc.hitalk.entities;
 
 import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
-import org.ltc.hitalk.entities.context.Context;
 
 /**
  *
  */
 public
 class HtScope extends PropertyOwner {
-
-    @Override
-    public
-    String get ( Context.Kind.Loading basename ) {
-        return null;
-    }
-
     /**
      *
      */
@@ -22,16 +14,15 @@ class HtScope extends PropertyOwner {
         PRIVATE("private"),
         PROTECTED("protected"),
         PUBLIC("public");
+        private final String s;
 
         /**
-         *
-         *
          *
          * @param s
          */
         private
         Kind ( String s ) {
-
+            this.s = s;
         }
     }
 
@@ -45,4 +36,12 @@ class HtScope extends PropertyOwner {
     }
 
     private final Kind kind;
+
+    /**
+     * @return
+     */
+    public
+    Kind getKind () {
+        return kind;
+    }
 }

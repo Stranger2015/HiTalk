@@ -1,6 +1,5 @@
 package org.ltc.hitalk.compiler.bktables;
 
-
 import com.thesett.aima.logic.fol.Functor;
 import org.ltc.hitalk.compiler.bktables.db.Record;
 import org.ltc.hitalk.entities.HtEntityIdentifier;

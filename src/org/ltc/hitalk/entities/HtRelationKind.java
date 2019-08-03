@@ -12,5 +12,8 @@ enum HtRelationKind {
     IMPORTS,
     COMPLEMENTS,
     INSTANTIATES,
-    SPECIALIZES
+    SPECIALIZES,
+    ;
+
+    public static final int LENGTH = 6;
 }

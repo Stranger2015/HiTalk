@@ -1,7 +1,8 @@
 package org.ltc.hitalk.compiler.bktables;
 
 import org.ltc.hitalk.compiler.bktables.db.Record;
-import org.ltc.hitalk.compiler.bktables.db.Recordset;
+
+import java.util.List;
 
 /**
  *
@@ -43,18 +44,26 @@ interface IRegistry<R extends Record> {
      * @param pattern
      * @return
      */
-    Recordset <R> select ( BkTableKind kind, R pattern );
+    List <R> select ( BkTableKind kind, R pattern );
 
     /**
      * @param kind
      * @return
      */
-    Recordset <R> select ( BkTableKind kind );
+    List <R> select ( BkTableKind kind );
 
     /**
      * @param r
      */
-    void add ( R r );
+    void add ( BkTableKind kind, R r );
 
-    R selectOne ( BkTableKind loadedEntities, R bkLoadedEntities );
+    /**
+     * @param tableKind
+     * @param r
+     * @return
+     */
+    default
+    R selectOne ( BkTableKind tableKind, R r ) {
+        return select(tableKind, r).get(0);
+    }
 }

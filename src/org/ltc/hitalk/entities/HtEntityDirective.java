@@ -33,6 +33,11 @@ class HtEntityDirective extends Clause <Functor>/* implements Hierarchy */ {
         return dirKind;
     }
 
+    public
+    HtEntityKind getEntityKind () {
+        return entityKind;
+    }
+
     enum Kind {
         BUILT_IN,
         DYNAMIC,

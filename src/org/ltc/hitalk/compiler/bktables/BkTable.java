@@ -1,7 +1,6 @@
 package org.ltc.hitalk.compiler.bktables;
 
 import org.ltc.hitalk.compiler.bktables.db.Record;
-import org.ltc.hitalk.compiler.bktables.db.Recordset;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,14 +9,14 @@ import java.util.List;
  *
  */
 public
-class BkTable<R extends Record> implements IRegistry <R> {
+class BkTable<R extends Record> implements IRegistry <R>, List <R> {
     /**
      * @param id
      * @return
      */
     public
     boolean isRegistered ( int id ) {
-        return getById(id) != null;
+        return getById(id) != -1;
     }
 
     /**
@@ -38,20 +37,20 @@ class BkTable<R extends Record> implements IRegistry <R> {
     @Override
     public
     int getById ( int id ) {
-        return null;
+        return -1;
     }
 
     @Override
     public
-    Recordset <R> select ( BkTableKind kind ) {
-        return select(kind, );
+    List <R> select ( BkTableKind kind ) {
+        return select(kind, null);
     }
 
     @Override
     public
-    void add ( R r ) {
-        if (isRegistered(r)) {
-
+    void add ( BkTableKind kind, R r ) {
+        if (!isRegistered(r.getId())) {
+            register(r);
         }
     }
 
@@ -62,26 +61,17 @@ class BkTable<R extends Record> implements IRegistry <R> {
      */
     @Override
     public
-    Recordset <R> select ( BkTableKind kind, R r ) {
+    List <R> select ( BkTableKind kind, R r ) {
         BookKeepingTables bkt = new BookKeepingTables();
-        List <Record> rs = bkt.getTable(kind);
-        List <Record> result = new ArrayList <>();
+        List <R> rs = this;
+        List <R> list = new ArrayList <>();
 
-        for (int i = 0; i < rs.size(); i++) {
-            Record record = rs.get(i);
-            if (r.equals(record)) {
-                result.add(r);
+        for (R record : rs) {
+            if (r == null || r.equals(record)) {
+                list.add(record);
             }
+        }
 
-        }//                        HtEntityIdentifier entity1,
-//                        HtEntityIdentifier entity2,
-//                        HtEntityKind entityKind,
-//                        HtRelationKind relationKind ) {
-//            Record[] table = tables[idx.ordinal()];
-//            int n1 = entity1.getName();
-//            int n2 = entity2.getName();
-//            idx.getBkClass();
-
-        return null;
+        return list;
     }
 }

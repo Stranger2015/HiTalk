@@ -57,3 +57,14 @@ Standalone compiler + IDE.
     ]).
 
 :- end_object.
+
+:- object( nonvar )).
+    :- built_in.
+
+    :- enumeration([
+        atomic, % /*scalar*/ :- true (by default)
+        list,
+        compound    
+    ]).
+
+:- end_object.

@@ -1,15 +1,14 @@
 package org.ltc.hitalk.compiler.bktables;
 
 import org.ltc.hitalk.compiler.bktables.db.Record;
-import org.ltc.hitalk.compiler.bktables.db.objvals.BkRelation;
 
 public
 enum BkTableKind {
     BEFORE_EVENTS,//<HtEvent>
     AFTER_EVENTS,
 
-    LOADED_ENTITIES(BkLoadedeEntities.class),
-    ENTITY_RELATIONS(BkRelation.class),
+    LOADED_ENTITIES,
+    ENTITY_RELATIONS,
     ENTITY_PROPERTIES,
     PREDICATE_PROPERTIES,
 
@@ -37,7 +36,6 @@ enum BkTableKind {
 //        :- dynamic(CtgSuperCall_'/3).
 //
     DYNAMIC_BINDING_LOOKUP_CACHES_2,
-
     LIBRARY_PATHS,
     EXTENSION_POINTS_FOR_LOGTALK_MAKE,
     GOAL_TERM_EXPANSION_DEFAULT_HOOKS,
@@ -76,17 +74,6 @@ enum BkTableKind {
     BkTableKind ( BkTableKind parent, Class <? extends Record> clazz ) {
         this.parent = parent;
         this.bkClass = clazz;
-    }
-
-    /**
-     * @param clazz
-     */
-    BkTableKind ( Class <? extends BkLoadedeEntities> clazz ) {
-        this(null, clazz);
-    }
-
-    BkTableKind ( Class <? extends BkLoadedeEntities> clazz ) {
-
     }
 
     /**
