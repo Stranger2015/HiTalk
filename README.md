@@ -5,8 +5,8 @@ The project is still under development
 ## _Objectives._
 Standalone compiler + IDE.
   
-## Ideas.
-1. Enum;
+## _Ideas._
+1. Enum pseudo entity;
 
 2. HiLog extensions;
  
@@ -22,25 +22,25 @@ Standalone compiler + IDE.
     ]).
 
 :- end_object.
-src
+%srcuu
 %=======================================================
-gen_src
+%gen_src
 % Generated because has the enum type
 :- object( hitalk_type )).
     
-    :- builtin.
+    :- built_in.
 
     :- enumeration([
-        enhkiry , % :- true (by default)
-        prolog_type, % :- true (by default)
-        user_type    % :- true (by default)
+        object , % :- true (by default)
+        category, % :- true (by default)
+        protocol    % :- true (by default)
     ]).
     
 
 :- end_object.
     
- object( prolog_type )).
-    :- builtin.
+:- object( prolog_type )).
+    :- built_in.
 
     :- enumeration([
         term, % :- true (by default)
@@ -48,8 +48,8 @@ gen_src
    
 :- end_object.
 
-object( term )).
-    :- builtin.
+:- object( term )).
+    :- built_in.
 
     :- enumeration([
         var, % :- true (by default)
