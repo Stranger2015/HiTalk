@@ -5,18 +5,31 @@ package org.ltc.hitalk.entities;
  */
 public
 interface IRelation {
-    /**
-     * @return
-     */
-    HtEntity getSuperEntity ();
+
+    String EXTENDS = "extends";
+    String IMPLEMENTS = "implements";
+    String IMPORTS = "imports";
+    String COMPLEMENTS = "complements";
+    String INSTANTIATES = "instantiates";
+    String SPECIALIZES = "specializes";
 
     /**
      * @return
      */
-    HtEntity getSubEntity ();
+    HtEntityIdentifier getSuperEntity ();
+
+    /**
+     * @return
+     */
+    HtEntityIdentifier getSubEntity ();
 
     /**
      * @return
      */
     HtRelationKind getRelationKind ();
+
+    /**
+     * @return
+     */
+    HtScope getScope ();
 }

@@ -47,4 +47,17 @@ class ListTerm extends RecursiveList {
     boolean isNil () {
         return false;
     }
+
+    /**
+     * @return list or var
+     */
+    public
+    Term getTail () {
+        return null;
+    }
+
+    public
+    Term getHead () {
+        return null;
+    }
 }

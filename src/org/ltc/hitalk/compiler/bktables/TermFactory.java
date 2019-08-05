@@ -95,7 +95,7 @@ class TermFactory implements ITermFactory {
         return createFlag(name, new ListTerm(args));
     }
 
-    @Override
+    //    @Override
     public
     HtProperty createProperty ( String name, String value ) {
         return null;
@@ -113,7 +113,7 @@ class TermFactory implements ITermFactory {
         return new HiTalkFlag(n, args);
     }
 
-    @Override
+    //    @Override
     public
     HtProperty createProperty ( String name, Term... args ) {
         int n = interner.internFunctorName(name, 0);

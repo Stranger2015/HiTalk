@@ -1,7 +1,10 @@
 % if element type is enum `hierarchy` mode
 % else `linear` mode
 :- object(enum(type, _Elements_ ),
-        implements(setp)).
+        implements([setp, setp, listp]),
+        implements(setp),
+        extends(sey)
+        ).
 
         :- public
                 hitalk_type,% :- true by default

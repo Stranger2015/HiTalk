@@ -1,6 +1,7 @@
 package org.ltc.hitalk.entities.context;
 
 import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
+import org.ltc.hitalk.entities.HtProperty;
 
 /**
  *
@@ -31,6 +32,11 @@ class LoadContext extends Context {
 
     }
 
+    public
+    LoadContext ( HtProperty... props ) {
+        super(props);
+    }
+
     /**
      * @return
      */
@@ -38,12 +44,6 @@ class LoadContext extends Context {
     public
     HiTalkFlag[] getFlags () {
         return new HiTalkFlag[0];
-    }
-
-    @Override
-    public
-    String get ( Kind.Loading basename ) {
-        return null;
     }
 
     public

@@ -5,13 +5,16 @@ package org.ltc.hitalk.entities;
  */
 public
 class HtRelation implements IRelation {
-    private HtEntity superEntity;
+    private HtEntityIdentifier superEntity;
     private HtScope scope;
-    private HtEntity subEntity;
+    private HtEntityIdentifier subEntity;
     private HtRelationKind relationKind;
 
     public
-    HtRelation ( HtEntity superEntity, HtScope scope, HtEntity subEntity, HtRelationKind relationKind ) {
+    HtRelation ( HtEntityIdentifier superEntity,
+                 HtScope scope,
+                 HtEntityIdentifier subEntity,
+                 HtRelationKind relationKind ) {
         this.superEntity = superEntity;
         this.scope = scope;
         this.subEntity = subEntity;
@@ -23,7 +26,7 @@ class HtRelation implements IRelation {
      */
     @Override
     public
-    HtEntity getSuperEntity () {
+    HtEntityIdentifier getSuperEntity () {
         return superEntity;
     }
 
@@ -32,7 +35,7 @@ class HtRelation implements IRelation {
      */
     @Override
     public
-    HtEntity getSubEntity () {
+    HtEntityIdentifier getSubEntity () {
         return subEntity;
     }
 
@@ -48,5 +51,16 @@ class HtRelation implements IRelation {
     public
     HtScope getScope () {
         return scope;
+    }
+
+    @Override
+    public
+    String toString () {
+        return "HtRelation{" +
+                "superEntity=" + superEntity +
+                ", scope=" + scope +
+                ", subEntity=" + subEntity +
+                ", relationKind=" + relationKind +
+                '}';
     }
 }

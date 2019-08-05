@@ -1,6 +1,7 @@
 package org.ltc.hitalk.entities.context;
 
 import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
+import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.PropertyOwner;
 
 /**
@@ -10,25 +11,16 @@ public abstract
 class Context extends PropertyOwner {
 
 //    protected Enum<?> kind;
-//
-//    /**
-//     * @param props
-//     */
-//    public
-//    Context ( HtProperty... props ) {
-//        super(props);
-//    }
 
     public
     Context ( HiTalkFlag... flags ) {
         super(flags);
     }
 
-//    @Override
-//    public
-//    String get ( Kind basename ) {
-//        return null;
-//    }
+    public
+    Context ( HtProperty... props ) {
+        super(props);
+    }
 
     /**
      *
