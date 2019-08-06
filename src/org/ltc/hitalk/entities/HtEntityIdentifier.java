@@ -2,6 +2,9 @@ package org.ltc.hitalk.entities;
 
 import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.logic.fol.Term;
+import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
+
+import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 
 /**
  *
@@ -20,7 +23,7 @@ class HtEntityIdentifier extends Functor {
     HtEntityIdentifier ( int name, Term[] arguments, HtEntityKind kind ) {
         super(name, arguments);
         if ((kind == HtEntityKind.PROTOCOL) && (arguments.length != 0)) {
-            throw new IllegalStateException("Protocol name must be an atom.");
+            throw new ExecutionError(PERMISSION_ERROR, "Protocol name must be an atom.");
         }
         this.kind = kind;
     }

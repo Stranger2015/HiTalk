@@ -15,8 +15,8 @@
   */
  package org.ltc.hitalk.wam.compiler;
 
+ import com.thesett.aima.logic.fol.Clause;
  import com.thesett.aima.logic.fol.Functor;
- import com.thesett.aima.logic.fol.FunctorName;
  import com.thesett.aima.logic.fol.Term;
  import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
  import com.thesett.aima.logic.fol.wam.builtins.BuiltInFunctor;
@@ -30,7 +30,7 @@
 
  import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
  import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.TYPE_ERROR;
- import static org.ltc.hitalk.core.HtConstants.INCLUDE;
+ import static org.ltc.hitalk.core.HtConstants.*;
  import static org.ltc.hitalk.entities.HtScope.Kind;
  import static org.ltc.hitalk.entities.IRelation.*;
 
@@ -66,16 +66,17 @@
      /**
       * Holds a mapping from functor names to built-in implementations.
       */
-     private final Map <FunctorName, Predicate <Functor>> builtIns = new HashMap <>();
+     private final Map <HtFunctorName, Predicate <Functor>> builtIns = new HashMap <>();
      /**
       * Holds the default built in, for standard compilation and interners and symbol tables.
       */
      private final HiTalkDefaultBuiltIn defaultBuiltIn;
      private final VariableAndFunctorInterner interner;
-     private HtEntityIdentifier entityCompiling;
-
      ///////////////////////////
+     private HtEntityIdentifier entityCompiling;
      private IRelation lastRelation;
+     private boolean noLists;
+     private Clause <?> lastDirective;
 
      /**
       * Initializes the built-in transformation by population the the table of mappings of functors onto their built-in
@@ -88,88 +89,129 @@
          this.defaultBuiltIn = defaultBuiltIn;
          interner = defaultBuiltIn.getInterner();
 
-         builtIns.put(new FunctorName("true", 0), this::true_p);
-         builtIns.put(new FunctorName("fail", 0), this::fail_p);
-         builtIns.put(new FunctorName("!", 0), this::cut_p);
+         builtIns.put(new HtFunctorName("true", 0), this::true_p);
+         builtIns.put(new HtFunctorName("fail", 0), this::fail_p);
+         builtIns.put(new HtFunctorName("!", 0), this::cut_p);
 
-         builtIns.put(new FunctorName("=", 2), this::unifies_p);
-         builtIns.put(new FunctorName(":=", 2), this::assign_p);
-         builtIns.put(new FunctorName("\\=", 2), this::nonUnifies_p);
-         builtIns.put(new FunctorName(";", 2), this::disjunction_p);
-         builtIns.put(new FunctorName(",", 2), this::conjunction_p);
-         builtIns.put(new FunctorName("call", 1), this::call_p);
-         builtIns.put(new FunctorName("object", 1), this::object_p);//todo 1-5
-         builtIns.put(new FunctorName("protocol", 1), this::protocol_p);//todo 1-2
-         builtIns.put(new FunctorName("category", 1), this::category_p);//todo 1-4
-         builtIns.put(new FunctorName("end_object", 0), this::endObject_p);
-         builtIns.put(new FunctorName("end_protocol", 0), this::endProtocol_p);
-         builtIns.put(new FunctorName("end_category", 0), this::endCategory_p);
+         builtIns.put(new HtFunctorName("=", 2), this::unifies_p);
+         builtIns.put(new HtFunctorName(":=", 2), this::assign_p);
+         builtIns.put(new HtFunctorName("\\=", 2), this::nonUnifies_p);
+         builtIns.put(new HtFunctorName(";", 2), this::disjunction_p);
+         builtIns.put(new HtFunctorName(",", 2), this::conjunction_p);
+         builtIns.put(new HtFunctorName("call", 1), this::call_p);
+         builtIns.put(new HtFunctorName("object", 1, 5), this::object_p);//todo 1-5
+         builtIns.put(new HtFunctorName("protocol", 1, 2), this::protocol_p);//todo 1-2
+         builtIns.put(new HtFunctorName("category", 1, 4), this::category_p);//todo 1-4
+         builtIns.put(new HtFunctorName("end_object", 0), this::endObject_p);
+         builtIns.put(new HtFunctorName("end_protocol", 0), this::endProtocol_p);
+         builtIns.put(new HtFunctorName("end_category", 0), this::endCategory_p);
 
-         builtIns.put(new FunctorName("op", 3), this::op_p);
-         builtIns.put(new FunctorName("current_op", 3), this::current_op_p);
+         builtIns.put(new HtFunctorName("op", 3), this::op_p);
+         builtIns.put(new HtFunctorName("current_op", 3), this::current_op_p);
 
-         builtIns.put(new FunctorName("initialization", 1), this::initialization_p);
-         builtIns.put(new FunctorName("public", 1), this::public_p);
-         builtIns.put(new FunctorName("protected", 1), this::protected_p);
-         builtIns.put(new FunctorName("private", 1), this::private_p);
+         builtIns.put(new HtFunctorName("initialization", 1), this::initialization_p);
+         builtIns.put(new HtFunctorName("public", 1), this::public_p);
+         builtIns.put(new HtFunctorName("protected", 1), this::protected_p);
+         builtIns.put(new HtFunctorName("private", 1), this::private_p);
 
-         builtIns.put(new FunctorName(EXTENDS, 1), this::extends_p);
-         builtIns.put(new FunctorName(IMPLEMENTS, 1), this::implements_p);
-         builtIns.put(new FunctorName(IMPORTS, 1), this::imports_p);
-         builtIns.put(new FunctorName(COMPLEMENTS, 1), this::complements_p);
-         builtIns.put(new FunctorName(INSTANTIATES, 1), this::instantiates_p);
-         builtIns.put(new FunctorName(SPECIALIZES, 1), this::specializes_p);
+         builtIns.put(new HtFunctorName(EXTENDS, 1), this::extends_p);
+         builtIns.put(new HtFunctorName(IMPLEMENTS, 1), this::implements_p);
+         builtIns.put(new HtFunctorName(IMPORTS, 1), this::imports_p);
+         builtIns.put(new HtFunctorName(COMPLEMENTS, 1), this::complements_p);
+         builtIns.put(new HtFunctorName(INSTANTIATES, 1), this::instantiates_p);
+         builtIns.put(new HtFunctorName(SPECIALIZES, 1), this::specializes_p);
+         builtIns.put(new HtFunctorName(CREATE_OBJECT, 1), this::create_object_p);
 
-         builtIns.put(new FunctorName(INCLUDE, 1), this::include_p);
+         builtIns.put(new HtFunctorName(INCLUDE, 1), this::include_p);
+         builtIns.put(new HtFunctorName(ENCODING, 1), this::encoding_p);
+
+         builtIns.put(new HtFunctorName(MULTIFILE, 1), this::multifile_p);
+         builtIns.put(new HtFunctorName(DYNAMIC, 1), this::dynamic_p);
 
 
+     }
+
+//     private
+//     boolean endCategory_p ( Functor functor ) {
+//         return false;
+//     }
+
+     private
+     boolean create_object_p ( Functor functor ) {
+         return false;
+     }
+
+     private
+     boolean encoding_p ( Functor functor ) {
+         return true;
+     }
+
+     private
+     boolean multifile_p ( Functor functor ) {
+         return true;
+     }
+
+     private
+     boolean dynamic_p ( Functor functor ) {
+         return true;
      }
 
      private
      boolean include_p ( Functor functor ) {
-         return false;
+         return true;
      }
 
      private
      boolean extends_p ( Functor functor ) {
-         Term term = functor.getArgument(0);
-         if (isList(term)) {
-             ListTerm listTerm = (ListTerm) term;
-             for (ListTerm currentHead = listTerm; currentHead.isNil(); currentHead = currentHead.getTail()) {
-                 term = currentHead.getHead();
-                 extends_p();
-             }
-         }
-         else {
-             createRelation(entityCompiling, HtRelationKind.EXTENDS, functor);//fixme functor
-         }
 
-         return false;
+
+         return true;
      }
 
      private
      boolean implements_p ( Functor functor ) {
-         return false;
+         return true;
      }
 
      private
      boolean imports_p ( Functor functor ) {
-         return false;
+         return true;
      }
 
      private
      boolean complements_p ( Functor functor ) {
-         return false;
+         return true;
      }
 
      private
      boolean instantiates_p ( Functor functor ) {
-         return false;
+         return true;
      }
 
      private
      boolean specializes_p ( Functor functor ) {
-         return false;
+         return true;
+     }
+
+     private
+     void relation ( Functor functor, HtRelationKind relationKind, boolean noLists ) {
+         Term term = functor.getArgument(0);
+         if (isList(term)) {
+             if (!noLists) {
+                 ListTerm listTerm = (ListTerm) term;
+                 for (; listTerm.isNil(); listTerm.newTail()) {
+                     Term subEntityTerm = listTerm.getHead();
+//                     relation((Functor) term, relationKind, true);
+                     createRelation(entityCompiling, relationKind, functor, );//fixme functor
+                 }
+             }
+             else {
+
+             }
+         }
+         else {
+
+         }
      }
 
      private
@@ -227,37 +269,47 @@
 
      private
      boolean unifies_p ( Functor term ) {
-         return false;
+         boolean result = false;
+
+         return result;
      }
 
      private
      boolean nonUnifies_p ( Functor term ) {
-         return false;
+         boolean result = false;
+
+         return result;
      }
 
      private
      boolean assign_p ( Functor term ) {
-         return false;
+         return true;
      }
 
      private
      boolean conjunction_p ( Functor term ) {
-         return false;
+         boolean result = false;
+
+         return result;
      }
 
      private
      boolean disjunction_p ( Functor term ) {
-         return false;
+         boolean result = false;
+
+         return result;
      }
 
      private
      boolean call_p ( Functor term ) {
-         return false;
+         boolean result = false;
+
+         return result;
      }
 
      private
      boolean apply_p ( Functor term ) {
-         return false;
+         return true;
      }
 
      private
@@ -274,6 +326,7 @@
      private
      void handleEntityRelations ( Functor functor ) {
          int arity = functor.getArity();
+         HtEntityKind entityKind = entityCompiling.getKind();
          EnumSet <HtRelationKind> kinds = EnumSet.noneOf(HtRelationKind.class);
          List <Set <IRelation>> relations = new ArrayList <>();
          for (int i = 1; i < arity; i++) {
@@ -317,7 +370,7 @@
                          }
                      };
                      relations.add(arr);
-                     arr.add(createRelation(entityCompiling, relationKind, f));
+                     arr.add(createRelation(entityCompiling, relationKind, f, ));
                  }
              }
              else {
@@ -329,20 +382,13 @@
      private
      IRelation createRelation ( HtEntityIdentifier superEntity,
                                 HtRelationKind relationKind,
-                                Functor functor ) {
-
+                                Functor functor,
+                                Functor subEntFunctor ) {
          HtEntityIdentifier subEntity;
          HtScope scope;
-//         if (name.equals(HtConstants.COLON_COLON)) {
-//             scope = new HtScope(decodeScope((Functor) functor.getArgument(0)));
-//         }
-//         else {
-//             scope = new HtScope(PUBLIC);
-//         }
          Term relationTerm = functor.getArgument(0);
          if (isList(relationTerm)) {
-             subEntity = new HtEntityIdentifier((Functor) functor.getArgument(0),
-                     detectSubEntityKind(relationKind, superEntity.getKind()));
+             subEntity = new HtEntityIdentifier(subEntFunctor, detectSubEntityKind(relationKind, superEntity.getKind()));
          }
 
          builtIns.get(entityCompiling.getKind()).test(functor);
@@ -384,7 +430,7 @@
      }
 
      private
-     Kind decodeScope ( Functor functor ) {
+     Kind decodeScope ( HtFunctor functor ) {
          String name = interner.getFunctorName(functor);
          return null;
      }
@@ -400,7 +446,7 @@
              throw new ExecutionError(PERMISSION_ERROR, "");
          }
          entityCompiling = new HtEntityIdentifier(functor, HtEntityKind.PROTOCOL);
-         handleEntityRelations(functor, HtEntityKind.PROTOCOL);
+         handleEntityRelations(functor);
 
          return true;
      }
@@ -411,39 +457,37 @@
              throw new ExecutionError(PERMISSION_ERROR, "");
          }
          entityCompiling = new HtEntityIdentifier(functor, HtEntityKind.CATEGORY);
-         handleEntityRelations(functor, HtEntityKind.CATEGORY);
+         handleEntityRelations(functor);
 
          return true;
      }
 
      private
-     boolean endObject_p ( Functor term ) {
-         if (entityCompiling != null || entityCompiling.getKind() != HtEntityKind.OBJECT) {
-             throw new ExecutionError(PERMISSION_ERROR, "");
-         }
-         //ending object
-
-         entityCompiling = null;
-         return true;
+     boolean endObject_p ( Functor functor ) {
+         return endEntity(HtEntityKind.OBJECT);
      }
 
      private
-     boolean endProtocol_p ( Functor term ) {
-         if (isEntityCompiling()) {
-             throw new ExecutionError(PERMISSION_ERROR, "");
-         }
-         Functor functor = term;
-         entityCompiling = new HtEntityIdentifier(functor, HtEntityKind.PROTOCOL);
-         return true;
+     boolean endProtocol_p ( Functor functor ) {
+         return endEntity(HtEntityKind.PROTOCOL);
      }
 
      private
-     boolean endCategory_p ( Functor term ) {
-         if (isEntityCompiling()) {
-             throw new ExecutionError(PERMISSION_ERROR, "");
+     boolean endCategory_p () {
+         return endEntity(HtEntityKind.CATEGORY);
+     }
+
+     boolean endEntity ( HtEntityKind entityKind ) {
+         try {
+             if (entityCompiling == null || entityCompiling.getKind() != entityKind) {
+                 throw new ExecutionError(PERMISSION_ERROR, "");
+             }
+         } finally {
+             //ending object
+             entityCompiling = null;
+             lastDirective = null;
+             lastRelation = null;
          }
-         Functor functor = term;
-         entityCompiling = new HtEntityIdentifier(functor, HtEntityKind.CATEGORY);
          return true;
      }
 
@@ -454,16 +498,26 @@
 
      private
      boolean current_op_p ( Functor functor ) {
-         return false;
+         return true;
      }
 
      private
      boolean initialization_p ( Functor functor ) {
-         return false;
+         return true;
      }
 
      public
      VariableAndFunctorInterner getInterner () {
          return interner;
+     }
+
+     public
+     Clause <?> getLastDirective () {
+         return lastDirective;
+     }
+
+     public
+     boolean isNoLists () {
+         return noLists;
      }
  }

@@ -8,6 +8,7 @@ import java.util.Iterator;
 public
 class ListTerm extends RecursiveList {
     private static final int DOT = -1;
+    private Term tail;
 
 //    private static final int DOT = ITermFactory.createAtom("." );
 
@@ -23,7 +24,7 @@ class ListTerm extends RecursiveList {
 
     public
     int length () {
-        return 0;
+        return 0;//fixme
     }
 
     /**
@@ -39,13 +40,12 @@ class ListTerm extends RecursiveList {
 
     /**
      * Reports whether this list is the empty list 'nil'.
-     *
      * @return <tt>true</tt> if this is the empty list 'nil'.
      */
     @Override
     public
     boolean isNil () {
-        return false;
+        return false;//fixme
     }
 
     /**
@@ -56,8 +56,20 @@ class ListTerm extends RecursiveList {
         return null;
     }
 
+    /**
+     * @return
+     */
     public
     Term getHead () {
         return null;
+    }
+
+    /**
+     * @return
+     */
+    public
+    boolean newTail () {
+        tail = getTail();
+        return !tail.isVar();
     }
 }
