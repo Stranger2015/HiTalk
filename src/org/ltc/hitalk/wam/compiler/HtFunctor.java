@@ -3,19 +3,11 @@ package org.ltc.hitalk.wam.compiler;
 import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.logic.fol.Term;
 
+/**
+ *
+ */
 public
 class HtFunctor extends Functor implements IRangedArity {
-
-//    /**
-//     * @param name
-//     * @param arguments
-//     */
-//    public
-//    HtFunctor ( int name, Term[] arguments ) {
-//        super(name, arguments);
-//    }
-
-
     /**
      * @param name
      * @param arityMin
@@ -44,7 +36,7 @@ class HtFunctor extends Functor implements IRangedArity {
     @Override
     public
     int getArityInt () {
-        return 0;
+        return super.getArity();
     }
 
     /**

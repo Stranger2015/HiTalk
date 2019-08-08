@@ -1,10 +1,12 @@
 package org.ltc.hitalk.entities;
 
+import org.ltc.hitalk.core.HtConstants;
+
 /**
  *
  */
 public
-interface IRelation {
+interface IRelation extends HtConstants {
 
     String EXTENDS = "extends";
     String IMPLEMENTS = "implements";

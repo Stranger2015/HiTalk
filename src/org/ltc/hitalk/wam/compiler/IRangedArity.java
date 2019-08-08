@@ -19,7 +19,6 @@ interface IRangedArity {
      * @return
      */
     default
-    public
     int getArityMin () {
         return getArityInt() & 0xffff0000;
     }
@@ -28,7 +27,6 @@ interface IRangedArity {
      * @return
      */
     default
-    public
     int getArityMax () {
         return (getArityInt() << 16) & 0xffff;
     }

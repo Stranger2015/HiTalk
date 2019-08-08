@@ -5,9 +5,7 @@ package org.ltc.hitalk.entities;
  */
 public
 enum HtRelationKind {
-    EXTENDS,    //(HtEntityKind.OBJECT,
-    // HtEntityKind.OBJECT,
-    // HtEntityHierarchyKind.PROTOTYPE),
+    EXTENDS,
     IMPLEMENTS,
     IMPORTS,
     COMPLEMENTS,

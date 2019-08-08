@@ -66,4 +66,14 @@ interface IRegistry<R extends Record> {
     R selectOne ( BkTableKind tableKind, R r ) {
         return select(tableKind, r).get(0);
     }
+
+    void save ( R r );
+
+    default
+    void save ( List <R> list ) {
+        for (R r : list) {
+            save(r);
+        }
+    }
+
 }

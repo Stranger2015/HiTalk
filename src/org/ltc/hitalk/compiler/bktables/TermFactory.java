@@ -1,6 +1,5 @@
 package org.ltc.hitalk.compiler.bktables;
 
-
 import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.Variable;
@@ -69,6 +68,7 @@ class TermFactory implements ITermFactory {
         int ffv = interner.internFunctorName(flagValue, 0);
         return new HiTalkFlag(ffn, new Functor(ffv, EMPTY_TERM_ARRAY));
     }
+
 
     /**
      * @param kind

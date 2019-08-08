@@ -263,13 +263,12 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
             HtPrologParser parser = new HiTalkParser(tokenSource, interner);
             HiTalkInstructionCompiler compiler = new HiTalkInstructionCompiler(symbolTable, interner);
             HiTalkDefaultBuiltIn defaultBuiltIn = new HiTalkDefaultBuiltIn(symbolTable, interner);
-//
+
             HiTalkCompilerApp app = new HiTalkCompilerApp(symbolTable, interner, parser, compiler, defaultBuiltIn);
             app.setFileName(args[0]);
             app.createFlags(app.loadContext, DEFAULT_SCRATCH_DIRECTORY);
             app.setTokenSource(tokenSource);
             app.setParser(parser);
-//            app.setExecutionContext(new ExecutionContext());
             //
             app.banner();
             app.start();
@@ -350,11 +349,11 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
     protected
     void loadBuiltInEntity ( HtEntityIdentifier identifier, String fileName, String scratchDir )
             throws Exception {
-        Recordset <BkLoadedEntities> rs = registry.select(LOADED_ENTITIES, new BkLoadedEntities(identifier));
+        List <BkLoadedEntities> rs = registry.select(LOADED_ENTITIES, new BkLoadedEntities(identifier));
         if (rs.isEmpty()) {
             loadContext.setFlags(createFlags(scratchDir));
             compileLoad(fileName, loadContext);
-            registry.add(new BkLoadedEntities(identifier));
+            registry.add(LOADED_ENTITIES, new BkLoadedEntities(identifier));
         }
     }
 
@@ -484,7 +483,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
     public//todo readFIles??
     void loadFile ( String fileName, LoadContext context ) throws Exception {
         compileFile(fileName, context);
-        String baseName = context.get(LoadContext.Kind.Loading.BASENAME);
+//        String baseName = context.get(LoadContext.Kind.Loading.BASENAME);
         loadTargetFile(fileName, context);
     }
 
@@ -495,10 +494,10 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
 
     protected
     void compileFile ( String fileName, LoadContext context ) throws Exception {
-        // Set up a parser on the token source.
-        HtPrologParser parser = new HtPrologParser(tokenSource, interner);
-
-        compiler.endScope();
+//        // Set up a parser on the token source.
+//        parser = new HiTalkParser(tokenSource, interner);
+//
+//        compiler.endScope();
     }
 
 

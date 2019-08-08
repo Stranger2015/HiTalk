@@ -15,13 +15,11 @@
   */
  package org.ltc.hitalk.wam.compiler;
 
- import com.thesett.aima.logic.fol.Clause;
- import com.thesett.aima.logic.fol.Functor;
- import com.thesett.aima.logic.fol.Term;
- import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
+ import com.thesett.aima.logic.fol.*;
  import com.thesett.aima.logic.fol.wam.builtins.BuiltInFunctor;
  import com.thesett.common.util.Function;
  import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
+ import org.ltc.hitalk.core.HtConstants;
  import org.ltc.hitalk.entities.*;
  import org.ltc.hitalk.term.ListTerm;
 
@@ -29,9 +27,7 @@
  import java.util.function.Predicate;
 
  import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
- import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.TYPE_ERROR;
  import static org.ltc.hitalk.core.HtConstants.*;
- import static org.ltc.hitalk.entities.HtScope.Kind;
  import static org.ltc.hitalk.entities.IRelation.*;
 
  /**
@@ -75,7 +71,7 @@
      ///////////////////////////
      private HtEntityIdentifier entityCompiling;
      private IRelation lastRelation;
-     private boolean noLists;
+     //     private boolean noLists;
      private Clause <?> lastDirective;
 
      /**
@@ -92,6 +88,7 @@
          builtIns.put(new HtFunctorName("true", 0), this::true_p);
          builtIns.put(new HtFunctorName("fail", 0), this::fail_p);
          builtIns.put(new HtFunctorName("!", 0), this::cut_p);
+         builtIns.put(new HtFunctorName("\\+", 0), this::not_p);
 
          builtIns.put(new HtFunctorName("=", 2), this::unifies_p);
          builtIns.put(new HtFunctorName(":=", 2), this::assign_p);
@@ -110,9 +107,9 @@
          builtIns.put(new HtFunctorName("current_op", 3), this::current_op_p);
 
          builtIns.put(new HtFunctorName("initialization", 1), this::initialization_p);
-         builtIns.put(new HtFunctorName("public", 1), this::public_p);
-         builtIns.put(new HtFunctorName("protected", 1), this::protected_p);
-         builtIns.put(new HtFunctorName("private", 1), this::private_p);
+         builtIns.put(new HtFunctorName(HtConstants.PUBLIC, 1), this::public_p);
+         builtIns.put(new HtFunctorName(PROTECTED, 1), this::protected_p);
+         builtIns.put(new HtFunctorName(PRIVATE, 1), this::private_p);
 
          builtIns.put(new HtFunctorName(EXTENDS, 1), this::extends_p);
          builtIns.put(new HtFunctorName(IMPLEMENTS, 1), this::implements_p);
@@ -126,110 +123,16 @@
          builtIns.put(new HtFunctorName(ENCODING, 1), this::encoding_p);
 
          builtIns.put(new HtFunctorName(MULTIFILE, 1), this::multifile_p);
+         builtIns.put(new HtFunctorName(DISCONTIGUOUS, 1), this::discontiguous_p);
          builtIns.put(new HtFunctorName(DYNAMIC, 1), this::dynamic_p);
+         builtIns.put(new HtFunctorName(STATIC, 1), this::static_p);
+
+         builtIns.put(new HtFunctorName(HILOG, 1), this::hilog_p);
+
+         builtIns.put(new HtFunctorName(EXPAND_GOAL, 1), this::expand_goal_p);
+         builtIns.put(new HtFunctorName(EXPAND_TERM, 1), this::expand_term_p);
 
 
-     }
-
-//     private
-//     boolean endCategory_p ( Functor functor ) {
-//         return false;
-//     }
-
-     private
-     boolean create_object_p ( Functor functor ) {
-         return false;
-     }
-
-     private
-     boolean encoding_p ( Functor functor ) {
-         return true;
-     }
-
-     private
-     boolean multifile_p ( Functor functor ) {
-         return true;
-     }
-
-     private
-     boolean dynamic_p ( Functor functor ) {
-         return true;
-     }
-
-     private
-     boolean include_p ( Functor functor ) {
-         return true;
-     }
-
-     private
-     boolean extends_p ( Functor functor ) {
-
-
-         return true;
-     }
-
-     private
-     boolean implements_p ( Functor functor ) {
-         return true;
-     }
-
-     private
-     boolean imports_p ( Functor functor ) {
-         return true;
-     }
-
-     private
-     boolean complements_p ( Functor functor ) {
-         return true;
-     }
-
-     private
-     boolean instantiates_p ( Functor functor ) {
-         return true;
-     }
-
-     private
-     boolean specializes_p ( Functor functor ) {
-         return true;
-     }
-
-     private
-     void relation ( Functor functor, HtRelationKind relationKind, boolean noLists ) {
-         Term term = functor.getArgument(0);
-         if (isList(term)) {
-             if (!noLists) {
-                 ListTerm listTerm = (ListTerm) term;
-                 for (; listTerm.isNil(); listTerm.newTail()) {
-                     Term subEntityTerm = listTerm.getHead();
-//                     relation((Functor) term, relationKind, true);
-                     createRelation(entityCompiling, relationKind, functor, );//fixme functor
-                 }
-             }
-             else {
-
-             }
-         }
-         else {
-
-         }
-     }
-
-     private
-     boolean public_p ( Functor functor ) {
-
-         return true;
-     }
-
-     private
-     boolean protected_p ( Functor functor ) {
-
-         return true;
-     }
-
-     private
-     boolean private_p ( Functor functor ) {
-
-         return true;
      }
 
      /**
@@ -250,6 +153,127 @@
      public
      HiTalkDefaultBuiltIn getDefaultBuiltIn () {
          return defaultBuiltIn;
+     }
+
+//     ==================================================================
+
+     private
+     boolean discontiguous_p ( Functor functor ) {
+         return true;
+     }
+
+     private
+     boolean not_p ( Functor functor ) {
+         return false;
+     }
+
+     private
+     boolean expand_term_p ( Functor functor ) {
+         return true;
+     }
+
+
+     private
+     boolean expand_goal_p ( Functor functor ) {
+         return true;
+     }
+
+     private
+     boolean hilog_p ( Functor functor ) {
+
+         return true;
+     }
+
+     private
+     boolean create_object_p ( Functor functor ) {
+
+
+         handleEntityRelations((HtFunctor) functor, true);
+         return false;
+     }
+
+     private
+     boolean encoding_p ( Functor functor ) {
+
+         return true;
+     }
+
+     private
+     boolean multifile_p ( Functor functor ) {
+         functor.setProperty(MULTIFILE, functor.getArgument(0));
+         return true;
+     }
+
+     private
+     boolean dynamic_p ( Functor functor ) {
+         functor.setProperty(DYNAMIC, functor.getArgument(0));
+         return true;
+     }
+
+     private
+     boolean static_p ( Functor functor ) {
+         functor.setProperty(STATIC, functor.getArgument(0));
+         return true;
+     }
+
+     private
+     boolean include_p ( Functor functor ) {
+         functor.setProperty(INCLUDE, functor.getArgument(0));
+         return true;
+     }
+
+     private
+     boolean extends_p ( Functor functor ) {
+         createRelation(functor, HtRelationKind.EXTENDS, false);
+         return true;
+     }
+
+     private
+     boolean implements_p ( Functor functor ) {
+         createRelation(functor, HtRelationKind.IMPLEMENTS, false);
+         return true;
+     }
+
+     private
+     boolean imports_p ( Functor functor ) {
+         createRelation(functor, HtRelationKind.IMPORTS, false);
+         return true;
+     }
+
+     private
+     boolean complements_p ( Functor functor ) {
+         createRelation(functor, HtRelationKind.COMPLEMENTS, false);
+         return true;
+     }
+
+     private
+     boolean instantiates_p ( Functor functor ) {
+         createRelation(functor, HtRelationKind.INSTANTIATES, false);
+         return true;
+     }
+
+     private
+     boolean specializes_p ( Functor functor ) {
+         createRelation(functor, HtRelationKind.SPECIALIZES, false);
+         return true;
+     }
+
+     private
+     boolean public_p ( Functor functor ) {
+
+         return true;
+     }
+
+     private
+     boolean protected_p ( Functor functor ) {
+
+         return true;
+     }
+
+     private
+     boolean private_p ( Functor functor ) {
+
+         return true;
      }
 
      private
@@ -308,7 +332,7 @@
      }
 
      private
-     boolean apply_p ( Functor term ) {
+     boolean apply_p ( Functor functor ) {
          return true;
      }
 
@@ -318,82 +342,74 @@
              throw new ExecutionError(PERMISSION_ERROR, "");
          }
          entityCompiling = new HtEntityIdentifier(functor, HtEntityKind.OBJECT);
-         handleEntityRelations(functor);
+         handleEntityRelations((HtFunctor) functor, false);
 
          return true;
      }
 
+     @SuppressWarnings("SuspiciousMethodCalls")
      private
-     void handleEntityRelations ( Functor functor ) {
-         int arity = functor.getArity();
+     void handleEntityRelations ( HtFunctor entityFunctor, boolean dynamic ) {
+         int arityMax = entityFunctor.getArityMax();
          HtEntityKind entityKind = entityCompiling.getKind();
          EnumSet <HtRelationKind> kinds = EnumSet.noneOf(HtRelationKind.class);
          List <Set <IRelation>> relations = new ArrayList <>();
-         for (int i = 1; i < arity; i++) {
-             Term term = functor.getArgument(i);
-             if (term.isFunctor()) {
-                 Functor f = (Functor) term;
-                 String name = interner.getFunctorName(f);
-                 HtRelationKind relationKind = relationKindMap.get(name);
-                 if (kinds.add(relationKind)) {
-                     Set <IRelation> arr = new AbstractSet <IRelation>() {
-                         HashSet <IRelation> baked = new HashSet <>();
-
-                         @Override
-                         public
-                         Iterator <IRelation> iterator () {
-                             return baked.iterator();
-                         }
-
-                         /**
-                          * @return
-                          */
-                         @Override
-                         public
-                         int size () {
-                             return baked.size();
-                         }
-
-                         /**
-                          *
-                          */
-                         @Override
-                         public
-                         boolean add ( IRelation relation ) {
-                             if (!baked.add(relation)) {
-//!       Permission error: repeat entity_relation implements/1
-//!       in directive object/3
-//!       in file /Users/pmoura/Desktop/ad.lgt between lines 1-4
-                                 throw new ExecutionError(PERMISSION_ERROR, "");
-                             }
-                             return true;
-                         }
-                     };
-                     relations.add(arr);
-                     arr.add(createRelation(entityCompiling, relationKind, f, ));
+         for (int i = entityFunctor.getArityMin(); i < arityMax; i++) {
+             Functor relationFunctor = (Functor) entityFunctor.getArgument(i);
+             Functor subEntityFunctor = (Functor) relationFunctor.getArgument(0);
+             if (isList(subEntityFunctor)) {
+                 ListTerm listTerm = (ListTerm) subEntityFunctor;
+                 for (; listTerm.isNil(); listTerm.newTail()) {
+                     handleNormalizedRelations((Functor) listTerm.getHead(), kinds, relations, dynamic);
                  }
              }
              else {
-                 throw new ExecutionError(TYPE_ERROR, "");
+                 if (entityFunctor.getArityMin() != entityFunctor.getArityMax()) {
+                     FunctorName name = interner.getDeinternedFunctorName(entityFunctor.getName());
+                     relationFunctor = (Functor) entityFunctor.getArgument(1);
+                     createRelation(relationFunctor, relationKindMap.get(name), dynamic);
+                 }
              }
          }
      }
 
      private
-     IRelation createRelation ( HtEntityIdentifier superEntity,
-                                HtRelationKind relationKind,
-                                Functor functor,
-                                Functor subEntFunctor ) {
-         HtEntityIdentifier subEntity;
-         HtScope scope;
-         Term relationTerm = functor.getArgument(0);
-         if (isList(relationTerm)) {
-             subEntity = new HtEntityIdentifier(subEntFunctor, detectSubEntityKind(relationKind, superEntity.getKind()));
+     void handleNormalizedRelations ( Functor functor,
+                                      EnumSet <HtRelationKind> kinds,
+                                      List <Set <IRelation>> relations,
+                                      boolean dynamic ) {
+         Set <IRelation> arr = new HashSet <>();
+         String name = interner.getFunctorName(functor);
+         HtRelationKind relationKind = relationKindMap.get(name);
+         if (kinds.add(relationKind)) {
+             relations.add(arr);
+             arr.add(createRelation(functor, relationKind, dynamic));
          }
+     }
 
-         builtIns.get(entityCompiling.getKind()).test(functor);
-
-         return lastRelation;
+     /**
+      * todo SAVE RELATIONS
+      *
+      * @param relationFunctor
+      * @param relationKind
+      * @param dynamic
+      * @return
+      */
+     private
+     IRelation createRelation ( Functor relationFunctor, HtRelationKind relationKind, boolean dynamic ) {
+         HtScope scope = new HtScope(HtConstants.PUBLIC);//default scope
+         Functor subEntityFunctor = (Functor) relationFunctor.getArgument(0);
+         String name = interner.getFunctorName(subEntityFunctor);
+         Functor subEntName;
+         if (COLON_COLON.equals(name)) {
+             scope = new HtScope(interner.getFunctorName((Functor) subEntityFunctor.getArgument(0)));
+             subEntName = (Functor) subEntityFunctor.getArgument(1);//todo must it be already loaded??
+         }
+         else {
+             subEntName = (Functor) subEntityFunctor.getArgument(0);
+         }
+         HtEntityKind subEntityKind = detectSubEntityKind(relationKind, entityCompiling.getKind());
+         return new HtRelation(entityCompiling, scope, new HtEntityIdentifier(subEntName, subEntityKind), relationKind);
      }
 
      private
@@ -403,36 +419,35 @@
 
      private
      HtEntityKind detectSubEntityKind ( HtRelationKind relationKind, HtEntityKind superKind ) {
+         HtEntityKind result = HtEntityKind.OBJECT;
          switch (relationKind) {
              case EXTENDS:
-                 return superKind;
+                 result = superKind;
+                 break;
              case IMPLEMENTS:
                  if (superKind == HtEntityKind.OBJECT || superKind == HtEntityKind.CATEGORY) {
-                     return HtEntityKind.PROTOCOL;
+                     result = HtEntityKind.PROTOCOL;
+                     break;
                  }
                  else {
                      throw new ExecutionError(PERMISSION_ERROR, "");//protocol implememnts protocp;!!!!!!!!!
                  }
              case IMPORTS:
                  if (superKind == HtEntityKind.OBJECT) {
-                     return HtEntityKind.CATEGORY;
+                     result = HtEntityKind.CATEGORY;
+                     break;
                  }
              case COMPLEMENTS:
                  if (superKind == HtEntityKind.CATEGORY) {
-                     return HtEntityKind.OBJECT;
+                     break;
                  }
              case SPECIALIZES:
              case INSTANTIATES:
-                 return HtEntityKind.OBJECT;
+                 break;
              default:
                  throw new ExecutionError(PERMISSION_ERROR, "" + superKind + "/" + relationKind);
          }
-     }
-
-     private
-     Kind decodeScope ( HtFunctor functor ) {
-         String name = interner.getFunctorName(functor);
-         return null;
+         return result;
      }
 
      private
@@ -446,7 +461,7 @@
              throw new ExecutionError(PERMISSION_ERROR, "");
          }
          entityCompiling = new HtEntityIdentifier(functor, HtEntityKind.PROTOCOL);
-         handleEntityRelations(functor);
+         handleEntityRelations((HtFunctor) functor, false);
 
          return true;
      }
@@ -457,7 +472,7 @@
              throw new ExecutionError(PERMISSION_ERROR, "");
          }
          entityCompiling = new HtEntityIdentifier(functor, HtEntityKind.CATEGORY);
-         handleEntityRelations(functor);
+         handleEntityRelations((HtFunctor) functor, false);
 
          return true;
      }
@@ -473,7 +488,7 @@
      }
 
      private
-     boolean endCategory_p () {
+     boolean endCategory_p ( Functor functor ) {
          return endEntity(HtEntityKind.CATEGORY);
      }
 
@@ -483,9 +498,10 @@
                  throw new ExecutionError(PERMISSION_ERROR, "");
              }
          } finally {
+//             entityCompiling;
              //ending object
              entityCompiling = null;
-             lastDirective = null;
+             lastDirective = null;//fixme
              lastRelation = null;
          }
          return true;
@@ -514,10 +530,5 @@
      public
      Clause <?> getLastDirective () {
          return lastDirective;
-     }
-
-     public
-     boolean isNoLists () {
-         return noLists;
      }
  }
