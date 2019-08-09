@@ -1,5 +1,8 @@
 package org.ltc.hitalk.core;
 
+/**
+ *
+ */
 public
 interface HtConstants {
     String PUBLIC = "public";
@@ -23,12 +26,51 @@ interface HtConstants {
     String COMMA = ",";
     String COLON = ":";
     String SEMICOLON = ";";
-//    String EXTENDS = "extends";
+    String CUT = "!";
+    String IMPLIES = ":-";
+    String DCG_IMPLIES = "-->";
+    String IF = "->";
+    String PLUS = "+";
+    String MINUS = "-";
+    String MULT = "*";
+    String DIV = "/";
+    String AT = "@";
+    String PLUS_PLUS = "++";
+    String MINUS_MINUS = "--";
+    String QUESTION = "?";
+    String QUERY = "?-";
+    String LSHIFT = "<<";
+    String RSHIFT = ">>";
+    String AS = "as";
+
+
+    String BYPASS = "{}";
 
     String INITIALIZATION = "initialization";
 
     String CURRENT_PROTOCOL = "current_protocol";
     String CURRENT_OBJECT = "current_object";
     String CURRENT_CATEGORY = "current_category";
+    String OP = "op";
+    String CURRENT_OP = "current_op";
+
+    String TRUE = "true";
+    String FAIL = "fail";
+    String FALSE = "false";
+    String NOT = "\\+";
+    String UNIFIES = "=";
+    String NON_UNIFIES = "\\=";
+    String ASSIGN = ":=";
+    String CALL = "call";
+    String OBJECT = "object";
+    String NIL = "nil";
+    String CONS = "cons";
+    String PROTOCOL = "protocol";
+    String CATEGORY = "category";
+    String ENUMERATION = "enumeration";
+
+    String END_OBJECT = "end_object";
+    String END_PROTOCOL = "end_protocol";
+    String END_CATEGORY = "end_category";
 }
 

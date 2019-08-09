@@ -16,6 +16,7 @@
  package org.ltc.hitalk.wam.compiler;
 
  import com.thesett.aima.logic.fol.*;
+ import com.thesett.aima.logic.fol.isoprologparser.TokenSource;
  import com.thesett.aima.logic.fol.wam.builtins.BuiltInFunctor;
  import com.thesett.common.util.Function;
  import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
@@ -23,6 +24,8 @@
  import org.ltc.hitalk.entities.*;
  import org.ltc.hitalk.term.ListTerm;
 
+ import java.io.File;
+ import java.io.FileNotFoundException;
  import java.util.*;
  import java.util.function.Predicate;
 
@@ -44,6 +47,10 @@
   */
  public
  class HiTalkBuiltInTransform implements Function <Functor, Functor> {
+
+     /**
+      *
+      */
      public static final Map <String, HtRelationKind> relationKindMap;
 
      static {
@@ -68,6 +75,7 @@
       */
      private final HiTalkDefaultBuiltIn defaultBuiltIn;
      private final VariableAndFunctorInterner interner;
+     private final HiTalkCompilerApp app;
      ///////////////////////////
      private HtEntityIdentifier entityCompiling;
      private IRelation lastRelation;
@@ -81,33 +89,35 @@
       * @param defaultBuiltIn The default built in, for standard compilation and interners and symbol tables.
       */
      public
-     HiTalkBuiltInTransform ( HiTalkDefaultBuiltIn defaultBuiltIn ) {
+     HiTalkBuiltInTransform ( HiTalkDefaultBuiltIn defaultBuiltIn, HiTalkCompilerApp app ) {
          this.defaultBuiltIn = defaultBuiltIn;
          interner = defaultBuiltIn.getInterner();
+         this.app = app;
 
-         builtIns.put(new HtFunctorName("true", 0), this::true_p);
-         builtIns.put(new HtFunctorName("fail", 0), this::fail_p);
-         builtIns.put(new HtFunctorName("!", 0), this::cut_p);
-         builtIns.put(new HtFunctorName("\\+", 0), this::not_p);
+         builtIns.put(new HtFunctorName(TRUE, 0), this::true_p);
+         builtIns.put(new HtFunctorName(FAIL, 0), this::fail_p);
+         builtIns.put(new HtFunctorName(FALSE, 0), this::fail_p);
+         builtIns.put(new HtFunctorName(CUT, 0), this::cut_p);
+         builtIns.put(new HtFunctorName(NOT, 0), this::not_p);
 
-         builtIns.put(new HtFunctorName("=", 2), this::unifies_p);
-         builtIns.put(new HtFunctorName(":=", 2), this::assign_p);
-         builtIns.put(new HtFunctorName("\\=", 2), this::nonUnifies_p);
-         builtIns.put(new HtFunctorName(";", 2), this::disjunction_p);
-         builtIns.put(new HtFunctorName(",", 2), this::conjunction_p);
-         builtIns.put(new HtFunctorName("call", 1), this::call_p);
-         builtIns.put(new HtFunctorName("object", 1, 5), this::object_p);//todo 1-5
-         builtIns.put(new HtFunctorName("protocol", 1, 2), this::protocol_p);//todo 1-2
-         builtIns.put(new HtFunctorName("category", 1, 4), this::category_p);//todo 1-4
-         builtIns.put(new HtFunctorName("end_object", 0), this::endObject_p);
-         builtIns.put(new HtFunctorName("end_protocol", 0), this::endProtocol_p);
-         builtIns.put(new HtFunctorName("end_category", 0), this::endCategory_p);
+         builtIns.put(new HtFunctorName(UNIFIES, 2), this::unifies_p);
+         builtIns.put(new HtFunctorName(ASSIGN, 2), this::assign_p);
+         builtIns.put(new HtFunctorName(NON_UNIFIES, 2), this::nonUnifies_p);
+         builtIns.put(new HtFunctorName(SEMICOLON, 2), this::disjunction_p);
+         builtIns.put(new HtFunctorName(COMMA, 2), this::conjunction_p);
+         builtIns.put(new HtFunctorName(CALL, 1), this::call_p);
+         builtIns.put(new HtFunctorName(OBJECT, 1, 5), this::object_p);//todo 1-5
+         builtIns.put(new HtFunctorName(PROTOCOL, 1, 2), this::protocol_p);//todo 1-2
+         builtIns.put(new HtFunctorName(CATEGORY, 1, 4), this::category_p);//todo 1-4
+         builtIns.put(new HtFunctorName(END_OBJECT, 0), this::end_object_p);
+         builtIns.put(new HtFunctorName(END_PROTOCOL, 0), this::end_protocol_p);
+         builtIns.put(new HtFunctorName(END_CATEGORY, 0), this::end_category_p);
 
-         builtIns.put(new HtFunctorName("op", 3), this::op_p);
-         builtIns.put(new HtFunctorName("current_op", 3), this::current_op_p);
+         builtIns.put(new HtFunctorName(OP, 3), this::op_p);
+         builtIns.put(new HtFunctorName(CURRENT_OP, 3), this::current_op_p);
 
-         builtIns.put(new HtFunctorName("initialization", 1), this::initialization_p);
-         builtIns.put(new HtFunctorName(HtConstants.PUBLIC, 1), this::public_p);
+         builtIns.put(new HtFunctorName(INITIALIZATION, 1), this::initialization_p);
+         builtIns.put(new HtFunctorName(PUBLIC, 1), this::public_p);
          builtIns.put(new HtFunctorName(PROTECTED, 1), this::protected_p);
          builtIns.put(new HtFunctorName(PRIVATE, 1), this::private_p);
 
@@ -172,7 +182,6 @@
          return true;
      }
 
-
      private
      boolean expand_goal_p ( Functor functor ) {
          return true;
@@ -217,10 +226,49 @@
      }
 
      private
-     boolean include_p ( Functor functor ) {
-         functor.setProperty(INCLUDE, functor.getArgument(0));
+     boolean include_p ( Functor functor ) throws FileNotFoundException {
+//         functor.setProperty(INCLUDE, functor.getArgument(0));
+         String fn = expandSourceFileName((Functor) functor.getArgument(0));
+
+         TokenSource tokenSource = TokenSource.getTokenSourceForFile(new File(fn));//bof/eof
+         app.setTokenSource(tokenSource);
+
          return true;
      }
+
+     public
+     String expandSourceFileName ( Functor functor ) {
+         if (functor.isAtom()) {
+
+         }
+/*
+'$lgt_check_and_expand_source_file'(File, Path) :-
+	(	atom(File) ->
+		'$lgt_prolog_os_file_name'(NormalizedFile, File),
+		(	sub_atom(NormalizedFile, 0, 1, _, '$') ->
+			'$lgt_expand_path'(NormalizedFile, Path)
+		;	Path = NormalizedFile
+		)
+	;	compound(File),
+		File =.. [Library, Basename],
+		atom(Basename) ->
+		% library notation
+		'$lgt_prolog_os_file_name'(NormalizedBasename, Basename),
+		(	'$lgt_expand_library_alias'(Library, Directory) ->
+			atom_concat(Directory, NormalizedBasename, Path)
+		;	throw(error(existence_error(library, Library), _))
+		)
+	;	% invalid source file specification
+		ground(File) ->
+		throw(error(type_error(source_file_name, File), _))
+	;	throw(error(instantiation_error, _))
+	).
+
+ */
+
+     }
+         return null;
+ }
 
      private
      boolean extends_p ( Functor functor ) {
@@ -351,7 +399,7 @@
      private
      void handleEntityRelations ( HtFunctor entityFunctor, boolean dynamic ) {
          int arityMax = entityFunctor.getArityMax();
-         HtEntityKind entityKind = entityCompiling.getKind();
+//         HtEntityKind entityKind = entityCompiling.getKind();
          EnumSet <HtRelationKind> kinds = EnumSet.noneOf(HtRelationKind.class);
          List <Set <IRelation>> relations = new ArrayList <>();
          for (int i = entityFunctor.getArityMin(); i < arityMax; i++) {
@@ -378,11 +426,16 @@
                                       EnumSet <HtRelationKind> kinds,
                                       List <Set <IRelation>> relations,
                                       boolean dynamic ) {
-         Set <IRelation> arr = new HashSet <>();
+
          String name = interner.getFunctorName(functor);
          HtRelationKind relationKind = relationKindMap.get(name);
+
          if (kinds.add(relationKind)) {
+             Set <IRelation> arr = new HashSet <>();
+//             List<List<IRelation>> newRelData = new ArrayList <>();
              relations.add(arr);
+
+//             newRelData.add(arr);
              arr.add(createRelation(functor, relationKind, dynamic));
          }
      }
@@ -409,6 +462,7 @@
              subEntName = (Functor) subEntityFunctor.getArgument(0);
          }
          HtEntityKind subEntityKind = detectSubEntityKind(relationKind, entityCompiling.getKind());
+
          return new HtRelation(entityCompiling, scope, new HtEntityIdentifier(subEntName, subEntityKind), relationKind);
      }
 
@@ -447,6 +501,7 @@
              default:
                  throw new ExecutionError(PERMISSION_ERROR, "" + superKind + "/" + relationKind);
          }
+
          return result;
      }
 
@@ -478,17 +533,17 @@
      }
 
      private
-     boolean endObject_p ( Functor functor ) {
+     boolean end_object_p ( Functor functor ) {
          return endEntity(HtEntityKind.OBJECT);
      }
 
      private
-     boolean endProtocol_p ( Functor functor ) {
+     boolean end_protocol_p ( Functor functor ) {
          return endEntity(HtEntityKind.PROTOCOL);
      }
 
      private
-     boolean endCategory_p ( Functor functor ) {
+     boolean end_category_p ( Functor functor ) {
          return endEntity(HtEntityKind.CATEGORY);
      }
 

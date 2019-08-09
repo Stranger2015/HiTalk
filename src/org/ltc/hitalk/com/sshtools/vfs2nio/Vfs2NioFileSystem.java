@@ -15,6 +15,7 @@
  */
 package org.ltc.hitalk.com.sshtools.vfs2nio;
 
+
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.ltc.hitalk.org.apache.nio.BaseFileSystem;
@@ -22,7 +23,7 @@ import org.ltc.hitalk.org.apache.nio.ImmutableList;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.DirectoryStream.Filter;
+import java.nio.file.DirectoryStream;
 import java.nio.file.FileStore;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
@@ -30,7 +31,8 @@ import java.util.*;
 
 public
 class Vfs2NioFileSystem extends BaseFileSystem <Vfs2NioPath, Vfs2NioFileSystemProvider> {
-    private static final Set <String> supportedFileAttributeViews = Collections.unmodifiableSet(new HashSet <>(Arrays.asList("basic", "vfs")));
+    private static final Set <String> supportedFileAttributeViews =
+            Collections.unmodifiableSet(new HashSet <>(Arrays.asList("basic", "vfs")));
     private boolean open = true;
     private FileObject root;
 
@@ -94,7 +96,6 @@ class Vfs2NioFileSystem extends BaseFileSystem <Vfs2NioPath, Vfs2NioFileSystemPr
             return true;
         }
     }
-
 //    @Override
 //    protected
 //    Vfs2NioPath create ( String root, ImmutableList <String> names ) {
@@ -102,7 +103,7 @@ class Vfs2NioFileSystem extends BaseFileSystem <Vfs2NioPath, Vfs2NioFileSystemPr
 //    }
 
     public
-    Iterator <Path> iterator ( Path path, Filter <? super Path> filter ) throws IOException {
+    Iterator <Path> iterator ( Path path, DirectoryStream.Filter <? super Path> filter ) throws IOException {
         FileObject obj = pathToFileObject(Vfs2NioFileSystemProvider.toVFSPath(path));
         FileObject[] children = obj.getChildren();
         return new Iterator <Path>() {

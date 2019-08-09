@@ -55,7 +55,7 @@ class HiTalkPreCompiler<T extends Clause> extends BaseMachine implements LogicCo
     /**
      * Holds the built in transformation.
      */
-    private final HiTalkBuiltInTransform builtInTransform;
+    protected final HiTalkBuiltInTransform builtInTransform;
 
     /**
      * Holds the compiler output observer.
@@ -72,11 +72,13 @@ class HiTalkPreCompiler<T extends Clause> extends BaseMachine implements LogicCo
     public
     HiTalkPreCompiler ( SymbolTable <Integer, String, Object> symbolTable,
                         VariableAndFunctorInterner interner,
-                        HiTalkDefaultBuiltIn defaultBuiltIn ) {
+                        HiTalkDefaultBuiltIn defaultBuiltIn,
+                        HiTalkCompilerApp app
+    ) {
         super(symbolTable, interner);
 
         this.defaultBuiltIn = defaultBuiltIn;
-        builtInTransform = new HiTalkBuiltInTransform(defaultBuiltIn);
+        builtInTransform = new HiTalkBuiltInTransform(defaultBuiltIn, app);//TODO GLOBAL CTX NEEDED!!
     }
 
     /**
@@ -101,6 +103,7 @@ class HiTalkPreCompiler<T extends Clause> extends BaseMachine implements LogicCo
                 }
             }
         }
+
         saveResult(clauses);
     }
 

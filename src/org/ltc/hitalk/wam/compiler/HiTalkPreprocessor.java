@@ -22,7 +22,7 @@ class HiTalkPreprocessor<T extends Clause, TC extends Term, TT extends Transform
 
     protected final DefaultTransformer <T, TC> defaultTransformer;
     protected final HiTalkDefaultBuiltIn defaultBuiltIn;
-    protected final HiTalkBuiltInTransform builtInTransform;
+    //    protected final HiTalkBuiltInTransform builtInTransform;
     protected final List <TT> components = new ArrayList <>();
     protected final Function <TC, List <TC>> defaultAction;
     protected final Resolver <T, T> resolver;
@@ -38,12 +38,15 @@ class HiTalkPreprocessor<T extends Clause, TC extends Term, TT extends Transform
     public
     HiTalkPreprocessor ( SymbolTable <Integer, String, Object> symbolTable,
                          VariableAndFunctorInterner interner,
-                         HiTalkDefaultBuiltIn defaultBuiltIn, Resolver <T, T> resolver ) throws LinkageException {
+                         HiTalkDefaultBuiltIn defaultBuiltIn,
+                         Resolver <T, T> resolver,
+                         HiTalkCompilerApp app )
+            throws LinkageException {
 
-        super(symbolTable, interner, defaultBuiltIn);
+        super(symbolTable, interner, defaultBuiltIn, app);
 
         this.defaultBuiltIn = defaultBuiltIn;
-        this.builtInTransform = new HiTalkBuiltInTransform(defaultBuiltIn);
+//        this.builtInTransform = new HiTalkBuiltInTransform(defaultBuiltIn);
         this.resolver = resolver;
 
         defaultTransformer = new DefaultTransformer <>((T) null);
@@ -55,7 +58,6 @@ class HiTalkPreprocessor<T extends Clause, TC extends Term, TT extends Transform
             resolver.setQuery(t);
             resolver.resolve();
         }
-
 
         components.add((TT) new DefaultTermExpander(defaultAction, preCompiledTarget, defaultTransformer));
         components.add((TT) new HiLogPreprocessor(defaultAction, defaultTransformer, interner));

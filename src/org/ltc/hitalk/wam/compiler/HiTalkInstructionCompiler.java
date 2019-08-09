@@ -977,7 +977,7 @@ class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompil
      */
 //    @Override
     public
-    void compile ( Sentence <Clause> sentence, HiTalkFlag... flags ) throws SourceCodeException {
+    void compile ( Sentence <Clause <? extends Functor>> sentence, HiTalkFlag... flags ) throws SourceCodeException {
 
     }
 

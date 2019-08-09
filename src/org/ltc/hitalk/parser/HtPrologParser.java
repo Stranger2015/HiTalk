@@ -24,10 +24,12 @@ import com.thesett.common.parsing.SourceCodePosition;
 import com.thesett.common.parsing.SourceCodePositionImpl;
 import com.thesett.common.util.Source;
 import com.thesett.common.util.TraceIndenter;
+import org.ltc.hitalk.wam.compiler.HtFunctorName;
 
 import java.util.*;
 
 import static com.thesett.aima.logic.fol.OpSymbol.Associativity.*;
+import static org.ltc.hitalk.core.HtConstants.*;
 
 /**
  * Describes the possible system directives in interactive mode.
@@ -781,26 +783,28 @@ class HtPrologParser implements HtPrologParserConstants {
     protected
     void initializeBuiltIns () {
         // Initializes the operator table with the standard ISO prolog built-in operators.
-        internOperator(":-", 1200, XFX);
-        internOperator(":-", 1200, FX);
-        internOperator("-->", 1200, XFX);
-        internOperator("?-", 1200, FX);
+        internOperator(IMPLIES, 1200, XFX);
+        internOperator(IMPLIES, 1200, FX);
+        internOperator(DCG_IMPLIES, 1200, XFX);
+        internOperator(QUERY, 1200, FX);
 
-        internOperator(";", 1100, XFY);
-        internOperator("->", 1050, XFY);
-        internOperator(",", 1000, XFY);
-        internOperator("\\+", 900, FY);
+        internOperator(SEMICOLON, 1100, XFY);
+        internOperator(IF, 1050, XFY);
+        internOperator(IF_STAR, 1050, XFY);
 
-        internOperator("=", 700, XFX);
-        internOperator("\\=", 700, XFX);
-        internOperator("==", 700, XFX);
-        internOperator("\\==", 700, XFX);
+        internOperator(COMMA, 1000, XFY);
+        internOperator(NOT, 900, FY);
+
+        internOperator(UNIFIES, 700, XFX);
+        internOperator(NON_UNIFIES, 700, XFX);
+        internOperator(IDENTICAL, 700, XFX);
+        internOperator(NON_IDENTICAL, 700, XFX);
         internOperator("@<", 700, XFX);
         internOperator("@=<", 700, XFX);
         internOperator("@>", 700, XFX);
         internOperator("@>=", 700, XFX);
-        internOperator("=..", 700, XFX);
-        internOperator("is", 700, XFX);
+        internOperator(UNIV, 700, XFX);
+        internOperator(IS, 700, XFX);
         internOperator("=:=", 700, XFX);
         internOperator("=\\=", 700, XFX);
         internOperator("<", 700, XFX);
@@ -828,12 +832,13 @@ class HtPrologParser implements HtPrologParserConstants {
         internOperator("\\", 200, FY);
 
         // Intern all built in functors.
-        interner.internFunctorName("nil", 0);
-        interner.internFunctorName("cons", 2);
-        interner.internFunctorName("true", 0);
-        interner.internFunctorName("fail", 0);
-        interner.internFunctorName("!", 0);
-        interner.internFunctorName("{}", 1);
+        interner.internFunctorName(NIL, 0);
+        interner.internFunctorName(CONS, 2);
+        interner.internFunctorName(TRUE, 0);
+        interner.internFunctorName(FAIL, 0);
+        interner.internFunctorName(FALSE, 0);
+        interner.internFunctorName(CUT, 0);
+        interner.internFunctorName(new HtFunctorName(BYPASS, 0, 1);
     }
 
     /**

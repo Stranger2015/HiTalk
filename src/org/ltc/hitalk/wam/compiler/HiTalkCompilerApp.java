@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -189,7 +190,8 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
     protected final ExecutionContext executionContext;
     protected LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer;
     protected LogicCompilerObserver <Clause, Clause> observer2;
-    protected TokenSource tokenSource;
+    //    protected TokenSource tokenSource;
+    protected Deque <TokenSource> tokenSourceStack;
     /**
      * Holds the pre-compiler, for analyzing and transforming terms prior to compilation proper.
      */
@@ -1367,6 +1369,7 @@ void initWarningsCounter ( Term goal ) {
     public
     void start () throws Exception {
         initialize();
+        TokenSource tokenSource = getTokenSource();
         compileTokenSource(tokenSource, loadContext);
     }
 
@@ -1411,14 +1414,20 @@ void initWarningsCounter ( Term goal ) {
         System.out.printf("\n%s, %s%d, %s.\n", product, version, build, copyright);
     }
 
+    /**
+     * @return
+     */
     public
     TokenSource getTokenSource () {
-        return tokenSource;
+        return tokenSourceStack.pop();
     }
 
+    /**
+     * @param tokenSource
+     */
     public
     void setTokenSource ( TokenSource tokenSource ) {
-        this.tokenSource = tokenSource;
+        tokenSourceStack.push(tokenSource);
     }
 
     public

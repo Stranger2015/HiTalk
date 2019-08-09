@@ -13,6 +13,7 @@ import java.util.List;
 
 import static com.thesett.aima.logic.fol.OpSymbol.Associativity.*;
 import static com.thesett.aima.logic.fol.TermUtils.flattenTerm;
+import static org.ltc.hitalk.core.HtConstants.*;
 
 /**
  *
@@ -83,7 +84,7 @@ class HiTalkParser extends HiLogParser {
         if (term instanceof OpSymbol) {
             OpSymbol symbol = (OpSymbol) term;
             IRegistry <BkLoadedEntities> registry = new BookKeepingTables <>();
-            if (":-".equals(symbol.getTextName())) {
+            if (IMPLIES.equals(symbol.getTextName())) {
                 List <Functor> flattenedArgs = flattenTerm(symbol.getArgument(1), Functor.class,
                         ",", interner);
                 Functor head = (Functor) symbol.getArgument(0);
@@ -91,7 +92,7 @@ class HiTalkParser extends HiLogParser {
                 Functor identifier = null;
                 HtEntityIdentifier entity = null;
                 Functor[] args = flattenedArgs.toArray(new Functor[flattenedArgs.size()]);
-                if ("::".equals(fname.getName()) && fname.getArity() == 2) {
+                if (COLON_COLON.equals(fname.getName()) && fname.getArity() == 2) {
                     identifier = (Functor) head.getArgument(0);
                     head = (Functor) head.getArgument(1);
                     BkLoadedEntities record = registry.selectOne(BkTableKind.LOADED_ENTITIES,
@@ -99,7 +100,7 @@ class HiTalkParser extends HiLogParser {
                     entity = record.getEntity1();
                     return new HtClause(entity, head, args);
                 }
-                else if (":".equals(fname.getName()) && fname.getArity() == 2) {
+                else if (COLON.equals(fname.getName()) && fname.getArity() == 2) {
                     return null;//todo
                 }
                 else {
@@ -121,27 +122,27 @@ class HiTalkParser extends HiLogParser {
     void initializeBuiltIns () {
         super.initializeBuiltIns();
 //Logtalk operators
-        internOperator("::", 600, XFY);
-        internOperator("::", 600, FY);// message sending to "self"
-        internOperator("^^", 600, FY);// "super" call (calls an inherited or imported method definition)
+        internOperator(COLON_COLON, 600, XFY);
+        internOperator(COLON_COLON, 600, FY);// message sending to "self"
+        internOperator(UP_UP, 600, FY);// "super" call (calls an inherited or imported method definition)
         // mode operator
-        internOperator("+", 200, FY);// input argument (instantiated); ISO Prolog standard operator
-        internOperator("@", 200, FY);// input argument (not modified by the call)
-        internOperator("?", 200, FY);// input/output argument
-        internOperator("-", 200, FY);// output argument (not instantiated); ISO Prolog standard operator
-        internOperator("++", 200, FY);// ground argument
-        internOperator("--", 200, FY);// unbound argument (typically when returning an opaque term)
-        internOperator("<<", 400, YFX);// bitwise left-shift operator (used for context-switching calls)
+        internOperator(PLUS, 200, FY);// input argument (instantiated); ISO Prolog standard operator
+        internOperator(AT, 200, FY);// input argument (not modified by the call)
+        internOperator(QUESTION, 200, FY);// input/output argument
+        internOperator(MINUS, 200, FY);// output argument (not instantiated); ISO Prolog standard operator
+        internOperator(PLUS_PLUS, 200, FY);// ground argument
+        internOperator(MINUS_MINUS, 200, FY);// unbound argument (typically when returning an opaque term)
+        internOperator(LSHIFT, 400, YFX);// bitwise left-shift operator (used for context-switching calls)
         // some backend Prolog compilers don't declare this ISO Prolog standard operator!
-        internOperator(">>", 400, YFX);// bitwise right-shift operator (used for lambda expressions)
+        internOperator(RSHIFT, 400, YFX);// bitwise right-shift operator (used for lambda expressions)
         // some backend Prolog compilers don't declare this ISO Prolog standard operator!
-        internOperator("as", 700, XFX);// predicate alias operator (alternative to the ::/2 or :/2 operators depending on the context)
+        internOperator(AS, 700, XFX);// predicate alias operator (alternative to the ::/2 or :/2 operators depending on the context)
 // first introduced in SWI-Prolog and YAP also for defining aliases to module predicates
 
 // HiTalk operator
-        internOperator("public", 1150, FX);
-        internOperator("protected", 1150, FX);
-        internOperator("private", 1150, FX);
-        internOperator("enumeration", 1150, FX);
+        internOperator(PUBLIC, 1150, FX);
+        internOperator(PROTECTED, 1150, FX);
+        internOperator(PRIVATE, 1150, FX);
+        internOperator(ENUMERATION, 1150, FX);
     }
 }
