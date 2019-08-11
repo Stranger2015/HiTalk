@@ -202,6 +202,10 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
     protected boolean started;
     protected HtPrologParser parser;
 
+    int object_counter;
+    int categoty_counter;
+    int protocol_counter;
+
 
     /**
      * Builds an logical resolution engine from a parser, interner, compiler and resolver.

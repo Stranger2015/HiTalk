@@ -1,5 +1,7 @@
 package org.ltc.hitalk.compiler.bktables.error;
 
+import com.thesett.aima.logic.fol.Functor;
+
 /**
  *
  */
@@ -11,7 +13,7 @@ class ExecutionError extends RuntimeException {
     }
 
     public
-    enum Kind {
+    enum Kind {//todo resources??
         TYPE_ERROR("Type error"),
         PERMISSION_ERROR("Permission error"),
         EXISTENCE_ERROR("Existence error"),
@@ -42,31 +44,18 @@ class ExecutionError extends RuntimeException {
 
     private final String message;
     private final Kind kind;
-    private final String kindString;
 
     /**
      * Constructs a new runtime exception with the specified detail message.
      * The cause is not initialized, and may subsequently be initialized by a
      * call to {@link #initCause}.
      *
-     * @param message the detail message. The detail message is saved for
+     //     * @param message the detail message. The detail message is saved for
      *                later retrieval by the {@link #getMessage()} method.
      */
     public
-    ExecutionError ( String message, Kind kind, String kindString ) {
-        this.kindString = kindString;
-        this.message = String.format(message, kindString);
-
+    ExecutionError ( Kind kind, Functor functor ) {
         this.kind = kind;
-    }
-
-    /**
-     * Constructs a new runtime exception with {@code null} as its
-     * detail message.  The cause is not initialized, and may subsequently be
-     * initialized by a call to {@link #initCause}.
-     */
-    public
-    ExecutionError ( Kind kind, String kindString ) {
-        this("", kind, kindString);
+        this.message = String.format("%s: %s", kind.getKindString(), functor);
     }
 }

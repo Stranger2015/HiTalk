@@ -17,9 +17,13 @@ interface HtConstants {
     String STATIC = "static";
     String HILOG = "hilog";
     String ENCODING = "encoding";
-    String CREATE_OBJECT = "create_object";
     String EXPAND_TERM = "expand_term";
     String EXPAND_GOAL = "expand_goal";
+    String LOGTALK_LIBRARY_PATH = "logtalk_library_path";
+
+    String OBJECT_PROPERTY = "object_property";
+    String CATEGORY_PROPERTY = "category_property";
+    String PROTOCOL_PROPERTY = "protocol_property";
 
     String COLON_COLON = "::";
     String UP_UP = "^^";
@@ -48,9 +52,6 @@ interface HtConstants {
 
     String INITIALIZATION = "initialization";
 
-    String CURRENT_PROTOCOL = "current_protocol";
-    String CURRENT_OBJECT = "current_object";
-    String CURRENT_CATEGORY = "current_category";
     String OP = "op";
     String CURRENT_OP = "current_op";
 
@@ -68,9 +69,43 @@ interface HtConstants {
     String PROTOCOL = "protocol";
     String CATEGORY = "category";
     String ENUMERATION = "enumeration";
+    String IDENTICAL = "==";
+    String NOT_IDENTICAL = "\\==";
+
 
     String END_OBJECT = "end_object";
     String END_PROTOCOL = "end_protocol";
     String END_CATEGORY = "end_category";
+
+    String CURRENT_OBJECT = "create_object";
+    String CURRENT_CATEGORY = "create_category";
+    String CURRENT_PROTOCOL = "create_protocol";
+
+    String CREATE_OBJECT = "create_object";
+    String CREATE_CATEGORY = "create_category";
+    String CREATE_PROTOCOL = "create_protocol";
+
+    String ABOLISH_OBJECT = "abolish_object";
+    String ABOLISH_CATEGORY = "abolish_category";
+    String ABOLISH_PROTOCOL = "abolish_protocol";
+
+    String IMPLEMENTS_PROTOCOL = "implements_protocol";
+    String IMPORTS_CATEGORY = "imports_category";
+    String INSTANTIATES_CLASS = "instantiates_class";
+    String SPECIALIZES_CLASS = "specializes_class";
+    String EXTENDS_PROTOCOL = "extends_protocol";
+    String EXTENDS_OBJECT = "extends_object";
+    String EXTENDS_CATEGORY = "extends_category";
+    String COMPLEMENTS_OBJECT = "complements_object";
+
+    String CONFORMS_TO_PROTOCOL = "conforms_to_protocol";
+
+    String ABOLISH_EVENTS = "abolish_events";
+    String DEFINE_EVENTS = "define_events";
+    String CURRENT_EVENT = "current_event";
+
+    String CURRENT_LOGTALK_FLAG = "current_logtalk_flag";
+    String SET_LOGTALK_FLAG = "set_logtalk_flag";
+    String CREATE_LOGTALK_FLAG = "create_logtalk_flag";
 }
 
