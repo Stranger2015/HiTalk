@@ -6,7 +6,9 @@ import com.thesett.aima.logic.fol.interpreter.ResolutionEngine;
 import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.common.parsing.SourceCodeException;
 import jline.ConsoleReader;
+import org.ltc.hitalk.compiler.bktables.IConfig;
 import org.ltc.hitalk.entities.HtEntity;
+import org.ltc.hitalk.parser.HtPrologParser;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -335,5 +337,65 @@ class HiTalkInterpreter<T, Q> implements IInterpreter {
     public
     ConsoleReader getReader () {
         return reader;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    IConfig getConfig () {
+        return null;
+    }
+
+    /**
+     *
+     */
+    @Override
+    public
+    void start () throws Exception {
+
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    int end () {
+        return 0;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    boolean isStarted () {
+        return false;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    boolean isStopped () {
+        return false;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    VariableAndFunctorInterner getInterner () {
+        return null;
+    }
+
+    @Override
+    public
+    void setParser ( HtPrologParser parser ) {
+
     }
 }

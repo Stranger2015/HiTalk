@@ -16,8 +16,10 @@
  package org.ltc.hitalk.wam.compiler;
 
  import com.thesett.aima.logic.fol.*;
+ import com.thesett.aima.logic.fol.isoprologparser.Token;
  import com.thesett.aima.logic.fol.isoprologparser.TokenSource;
  import com.thesett.aima.logic.fol.wam.builtins.BuiltInFunctor;
+ import com.thesett.common.parsing.SourceCodeException;
  import com.thesett.common.util.Function;
  import org.apache.commons.lang3.tuple.Pair;
  import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
@@ -34,6 +36,8 @@
  import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.*;
  import static org.ltc.hitalk.core.HtConstants.*;
  import static org.ltc.hitalk.entities.IRelation.*;
+ import static org.ltc.hitalk.parser.HtPrologParser.BEGIN_OF_FILE;
+ import static org.ltc.hitalk.parser.HtPrologParser.END_OF_FILE;
 
  /**
   * BuiltInTransform implements a compilation transformation over term syntax trees, that substitutes for functors that
@@ -55,13 +59,13 @@
       */
 //     public static final Map <String, HtRelationKind> relationKindMap;
 
-     static final Pair EXTENDS_OBJECT = Pair.of(EXTENDS, OBJECT);
-     static final Pair EXTENDS_CATEGORY = Pair.of(EXTENDS, CATEGORY);
-     static final Pair EXTENDS_PROTOCOL = Pair.of(EXTENDS, PROTOCOL);
-     static final Pair IMPLEMENTS_PROTOCOL = Pair.of(IMPLEMENTS, PROTOCOL);
-     static final Pair IMPORTS_CATEGORY = Pair.of(IMPORTS, CATEGORY);
-     static final Pair SPECIALIZES_CLASS = Pair.of(IMPORTS, CATEGORY);
-     static final Pair INSTANTIATES_CLASS = Pair.of(IMPORTS, CATEGORY);
+     public static final Pair EXTENDS_OBJECT = Pair.of(EXTENDS, OBJECT);
+     public static final Pair EXTENDS_CATEGORY = Pair.of(EXTENDS, CATEGORY);
+     public static final Pair EXTENDS_PROTOCOL = Pair.of(EXTENDS, PROTOCOL);
+     public static final Pair IMPLEMENTS_PROTOCOL = Pair.of(IMPLEMENTS, PROTOCOL);
+     public static final Pair IMPORTS_CATEGORY = Pair.of(IMPORTS, CATEGORY);
+     public static final Pair SPECIALIZES_CLASS = Pair.of(SPECIALIZES, OBJECT);
+     public static final Pair INSTANTIATES_CLASS = Pair.of(INSTANTIATES, OBJECT);
 
 //     static {
 //         Map <String, HtRelationKind> tmp = new HashMap <>();
@@ -89,8 +93,8 @@
      ///////////////////////////
      private HtEntityIdentifier entityCompiling;
      private IRelation lastRelation;
-     //     private boolean noLists;
-     private Clause <?> lastDirective;
+     private DirectiveClause lastDirective;
+     private Term lastTerm;
 
      /**
       * Initializes the built-in transformation by population the the table of mappings of functors onto their built-in
@@ -137,9 +141,12 @@
 //         builtIns.put(new HtFunctorName(COMPLEMENTS, 1), this::complements_p);
 //         builtIns.put(new HtFunctorName(INSTANTIATES, 1), this::instantiates_p);
 //         builtIns.put(new HtFunctorName(SPECIALIZES, 1), this::specializes_p);
-
+//source_file DIREWCTRIVES
          builtIns.put(new HtFunctorName(INCLUDE, 1), this::include_p);
          builtIns.put(new HtFunctorName(ENCODING, 1), this::encoding_p);
+         builtIns.put(new HtFunctorName(CURRENT_LOGTALK_FLAG, 2), this::current_logtalk_flag_p);
+         builtIns.put(new HtFunctorName(SET_LOGTALK_FLAG, 2), this::set_logtalk_flag_p);
+         builtIns.put(new HtFunctorName(CREATE_LOGTALK_FLAG, 3), this::create_logtalk_flag_p);
 
          builtIns.put(new HtFunctorName(MULTIFILE, 1), this::multifile_p);
          builtIns.put(new HtFunctorName(DISCONTIGUOUS, 1), this::discontiguous_p);
@@ -177,23 +184,63 @@
          builtIns.put(new HtFunctorName(HtConstants.EXTENDS_PROTOCOL, 2, 3), this::extends_protocol_p);
          builtIns.put(new HtFunctorName(HtConstants.EXTENDS_OBJECT, 2, 3), this::extends_object_p);
          builtIns.put(new HtFunctorName(HtConstants.EXTENDS_CATEGORY, 2, 3), this::extends_category_p);
-         builtIns.put(new HtFunctorName(HtConstants.COMPLEMENTS_OBJECT, 2), this::complements_object_p);
+         builtIns.put(new HtFunctorName(COMPLEMENTS_OBJECT, 2), this::complements_object_p);
 //          protocol conformance
          builtIns.put(new HtFunctorName(CONFORMS_TO_PROTOCOL, 2, 3), this::conforms_to_protocol_p);
 //          events
          builtIns.put(new HtFunctorName(ABOLISH_EVENTS, 1), this::abolish_events_p);
          builtIns.put(new HtFunctorName(DEFINE_EVENTS, 1), this::define_events_p);
          builtIns.put(new HtFunctorName(CURRENT_EVENT, 1), this::current_event_p);
-//         flags
-         builtIns.put(new HtFunctorName(CURRENT_LOGTALK_FLAG, 2), this::current_logtalk_flag_p);
-         builtIns.put(new HtFunctorName(SET_LOGTALK_FLAG, 2), this::set_logtalk_flag_p);
-         builtIns.put(new HtFunctorName(CREATE_LOGTALK_FLAG, 3), this::create_logtalk_flag);
-
-
+//      termio   read
+         builtIns.put(new HtFunctorName(READ, 1, 2), this::read_p);
      }
 
      private
-     boolean create_logtalk_flag ( Functor functor ) {
+     boolean read_p ( Functor functor ) {
+//         parser = (HtPrologParser) getParser();
+         try {
+             Term term = app.parser.termSentence();
+             String name = interner.getFunctorName((Functor) term);
+             while (!name.equals(END_OF_FILE)) {
+                 if (BEGIN_OF_FILE.equals(name)) {
+                     term = app.parser.term();
+                     if (app.isEncodingDirective((Functor) term)) {//run directive
+                         Token token = app.parser.lastToken();
+                         app.parser.getTokenSource().setOffset(token.endLine, token.endColumn);
+                         lastTerm = term;
+                     }
+                 }
+             }
+             lastTerm = term;
+         } catch (SourceCodeException e) {
+             e.printStackTrace();
+         }
+         return false;
+     }
+//    List <T> clauses = preprocess(sentence.getT());
+//    for (Clause clause : clauses) {
+//        substituteBuiltIns(clause);
+//        initializeSymbolTable(clause);
+//        topLevelCheck(clause);
+//
+//        if (observer != null) {
+//            final Clause finalClause = clause;
+//            if (Objects.requireNonNull(clause).isQuery()) {
+//                observer.onQueryCompilation(() -> finalClause);
+//            }
+//            else {
+//                observer.onCompilation(() -> finalClause);
+//            }
+//        }
+//    }
+//} catch (SourceCodeException e) {
+//    throw new ExecutionError();
+//}
+//         return false;
+//     }
+
+     private
+     boolean create_logtalk_flag_p ( Functor functor ) {
          return false;
      }
 
@@ -378,15 +425,27 @@
 
      private
      boolean create_object_p ( Functor functor ) {
+         return createObject(functor);
+     }
 
+     private
+     boolean createObject ( Functor functor ) {
+         Functor identifier = (Functor) functor.getArgument(0);
+         ListTerm relations = (ListTerm) functor.getArgument(1);
+         ListTerm directives = (ListTerm) functor.getArgument(2);
+         ListTerm clauses = (ListTerm) functor.getArgument(3);
 
-         handleEntityRelations((HtFunctor) functor, true);
          return false;
      }
 
      private
      boolean encoding_p ( Functor functor ) {
+         List <String> l = Arrays.asList(UTF8);
+         if (functor.isAtom() && l.contains(interner.getFunctorName(functor))) {
 
+         }
+
+//         tokenssrc
          return true;
      }
 
@@ -409,12 +468,14 @@
      }
 
      private
-     boolean include_p ( Functor functor ) throws FileNotFoundException {
-//         functor.setProperty(INCLUDE, functor.getArgument(0));
-         Path path = expandSourceFileName((Functor) functor.getArgument(0));
-
-         TokenSource tokenSource = TokenSource.getTokenSourceForFile(path.toFile());//bof/eof
-         app.setTokenSource(tokenSource);
+     boolean include_p ( Functor functor ) {
+         try {
+             Path path = expandSourceFileName((Functor) functor.getArgument(0));
+             TokenSource tokenSource = HtTokenSource.getTokenSourceForFile(path.toFile());//bof/eof
+             app.setTokenSource(tokenSource);
+         } catch (FileNotFoundException fnfe) {
+             throw new ExecutionError(EXISTENCE_ERROR, null);
+         }
 
          return true;
      }
@@ -424,7 +485,7 @@
          String filename = interner.getFunctorName(functor);
 
          if (functor.isAtom()) {
-             return
+             return null;//fixme aliases + \-->/
          }
          else {
              if (functor.getArity() == 1) {
@@ -464,11 +525,13 @@
      String[] getSourceFilenameExtensions () {
          return new String[]{
                  ".hlgt",
+                 ".hl",
                  ".lgt",
                  ".pl",
                  ".hitalk",
                  ".logtalk",
                  ".prolog",
+                 ".hilog",
                  "."
          };
      }
@@ -476,7 +539,7 @@
      private
      Path expandLibraryAlias ( Functor library ) {
          Functor location = logtalkLibraryPath(library);
-         return Paths.
+         return Paths.get("");
      }
 
      private
@@ -531,41 +594,41 @@
 	).
 
  */
-     private
-     boolean extends_p ( Functor functor ) {
-         createRelation(functor, HtRelationKind.EXTENDS, false);
-         return true;
-     }
-
-     private
-     boolean implements_p ( Functor functor ) {
-         createRelation(functor, HtRelationKind.IMPLEMENTS, false);
-         return true;
-     }
-
-     private
-     boolean imports_p ( Functor functor ) {
-         createRelation(functor, HtRelationKind.IMPORTS, false);
-         return true;
-     }
-
-     private
-     boolean complements_p ( Functor functor ) {
-         createRelation(functor, HtRelationKind.COMPLEMENTS, false);
-         return true;
-     }
-
-     private
-     boolean instantiates_p ( Functor functor ) {
-         createRelation(functor, HtRelationKind.INSTANTIATES, false);
-         return true;
-     }
-
-     private
-     boolean specializes_p ( Functor functor ) {
-         createRelation(functor, HtRelationKind.SPECIALIZES, false);
-         return true;
-     }
+//     private
+//     boolean extends_p ( Functor functor ) {
+//         createRelation(functor, HtRelationKind.EXTENDS, false);
+//         return true;
+//     }
+//
+//     private
+//     boolean implements_p ( Functor functor ) {
+//         createRelation(functor, HtRelationKind.IMPLEMENTS, false);
+//         return true;
+//     }
+//
+//     private
+//     boolean imports_p ( Functor functor ) {
+//         createRelation(functor, HtRelationKind.IMPORTS, false);
+//         return true;
+//     }
+//
+//     private
+//     boolean complements_p ( Functor functor ) {
+//         createRelation(functor, HtRelationKind.COMPLEMENTS, false);
+//         return true;
+//     }
+//
+//     private
+//     boolean instantiates_p ( Functor functor ) {
+//         createRelation(functor, HtRelationKind.INSTANTIATES, false);
+//         return true;
+//     }
+//
+//     private
+//     boolean specializes_p ( Functor functor ) {
+//         createRelation(functor, HtRelationKind.SPECIALIZES, false);
+//         return true;
+//     }
 
      private
      boolean public_p ( Functor functor ) {
@@ -676,7 +739,7 @@
                  if (entityFunctor.getArityMin() != entityFunctor.getArityMax()) {
                      FunctorName name = interner.getDeinternedFunctorName(entityFunctor.getName());
                      relationFunctor = (Functor) entityFunctor.getArgument(1);
-                     createRelation(relationFunctor, relationKindMap.get(name), dynamic);
+                     createRelation(relationFunctor, null, dynamic);
                  }
              }
          }
@@ -689,7 +752,7 @@
                                       boolean dynamic ) {
 
          String name = interner.getFunctorName(functor);
-         HtRelationKind relationKind = relationKindMap.get(name);
+//         HtRelationKind relationKind = relationKindMap.get(name);
 
          if (kinds.add(relationKind)) {
              Set <IRelation> arr = new HashSet <>();
@@ -732,39 +795,39 @@
          return relationTerm instanceof ListTerm;
      }
 
-     private
-     HtEntityKind detectSubEntityKind ( HtRelationKind relationKind, HtEntityKind superKind ) {
-         HtEntityKind result = HtEntityKind.OBJECT;
-         switch (relationKind) {
-             case EXTENDS:
-                 result = superKind;
-                 break;
-             case IMPLEMENTS:
-                 if (superKind == HtEntityKind.OBJECT || superKind == HtEntityKind.CATEGORY) {
-                     result = HtEntityKind.PROTOCOL;
-                     break;
-                 }
-                 else {
-                     throw new ExecutionError(PERMISSION_ERROR, null);//protocol implememnts protocp;!!!!!!!!!
-                 }
-             case IMPORTS:
-                 if (superKind == HtEntityKind.OBJECT) {
-                     result = HtEntityKind.CATEGORY;
-                     break;
-                 }
-             case COMPLEMENTS:
-                 if (superKind == HtEntityKind.CATEGORY) {
-                     break;
-                 }
-             case SPECIALIZES:
-             case INSTANTIATES:
-                 break;
-             default:
-                 throw new ExecutionError(PERMISSION_ERROR, null + superKind + "/" + relationKind);
-         }
-
-         return result;
-     }
+//     private
+//     HtEntityKind detectSubEntityKind ( HtRelationKind relationKind, HtEntityKind superKind ) {
+//         HtEntityKind result = HtEntityKind.OBJECT;
+//         switch (relationKind) {
+//             case EXTENDS:
+//                 result = superKind;
+//                 break;
+//             case IMPLEMENTS:
+//                 if (superKind == HtEntityKind.OBJECT || superKind == HtEntityKind.CATEGORY) {
+//                     result = HtEntityKind.PROTOCOL;
+//                     break;
+//                 }
+//                 else {
+//                     throw new ExecutionError(PERMISSION_ERROR, null);//protocol implememnts protocp;!!!!!!!!!
+//                 }
+//             case IMPORTS:
+//                 if (superKind == HtEntityKind.OBJECT) {
+//                     result = HtEntityKind.CATEGORY;
+//                     break;
+//                 }
+//             case COMPLEMENTS:
+//                 if (superKind == HtEntityKind.CATEGORY) {
+//                     break;
+//                 }
+//             case SPECIALIZES:
+//             case INSTANTIATES:
+//                 break;
+//             default:
+//                 throw new ExecutionError(PERMISSION_ERROR, null/* + superKind + "/" + relationKind*/);
+//         }
+//
+//         return result;
+//     }
 
      private
      boolean isEntityCompiling () {
@@ -807,7 +870,7 @@
 
      private
      boolean end_category_p ( Functor functor ) {
-         app.categoty_counter++;
+         app.category_counter++;
          return endEntity(HtEntityKind.CATEGORY);
      }
 
@@ -820,7 +883,7 @@
 //             entityCompiling;
              //ending object
              entityCompiling = null;
-             lastDirective = null;//fixme
+             lastDirective = null;
              lastRelation = null;
          }
          return true;

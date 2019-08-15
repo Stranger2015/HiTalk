@@ -20,6 +20,20 @@ import static org.ltc.hitalk.core.HtConstants.*;
  */
 public
 class HiTalkParser extends HiLogParser {
+    /**
+     * Parses multiple sequential terms, and if more than one is encountered then the flat list of terms encountered
+     * must contain operators in order to be valid Prolog syntax. In that case the flat list of terms is passed to the
+     * {@link (Term[])} method for 'deferred decision parsing' of dynamic operators.
+     *
+     * @return A single first order logic term.
+     * @throws SourceCodeException If the sequence of tokens does not form a valid syntactical construction as a first
+     *                             order logic term.
+     */
+
+    public
+    HiTalkParser ( VariableAndFunctorInterner interner ) {
+        super(null, interner);
+    }
 
     /**
      * Builds a
@@ -34,37 +48,25 @@ class HiTalkParser extends HiLogParser {
         super(source, interner);
     }
 
-    /**
-     * Parses a single horn clause as a sentence in first order logic. A sentence consists of a clause followed by a
-     * full stop.
-     *
-     * @return A horn clause sentence in first order logic.
-     * @throws SourceCodeException If the token sequence does not parse into a valid sentence.
-     */
-    @Override
-    public
-    Clause sentence () throws SourceCodeException {
-        return super.sentence();
-    }
-
-    /**
-     * Parses a single sentence in first order logic. A sentence consists of a term followed by a full stop.
-     *
-     * @return A sentence in first order logic.
-     * @throws SourceCodeException If the token sequence does not parse into a valid sentence.
-     */
-    @Override
-    public
-    HtClause clause () throws SourceCodeException {
-        variableContext.clear();
-        Term term = term();
-        if (term.isFunctor()) {
-            Functor functor = (Functor) term;
-            FunctorName functorName = interner.getDeinternedFunctorName(functor.getName());
-        }
-
-        return (HtClause) term;
-    }
+    //
+//    /**
+//     * Parses a single sentence in first order logic. A sentence consists of a term followed by a full stop.
+//     *
+//     * @return A sentence in first order logic.
+//     * @throws SourceCodeException If the token sequence does not parse into a valid sentence.
+//     */
+//    @Override
+//    public
+//    HtClause clause () throws SourceCodeException {
+//        variableContext.clear();
+//        Term term = term();
+//        if (term.isFunctor()) {
+//            Functor functor = (Functor) term;
+//            String name = interner.getFunctorName(functor);
+//        }
+//
+//        return (HtClause) term;
+//    }
 
     /**
      * Converts a term into a clause. The term must be a functor. If it is a functor corresponding to the ':-' symbol it
@@ -73,20 +75,18 @@ class HiTalkParser extends HiLogParser {
      * no body, that is, a fact.
      *
      * @param term     The term to convert to a top-level clause.
-     * @param interner The functor and variable name interner for the namespace the term to convert is in.
      * @return A clause for the term, or <tt>null</tt> if it cannot be converted.
      * @throws SourceCodeException If the term to convert to a clause does not form a valid clause.
      */
-    public static
-    HtClause convertToClause ( Term term, VariableAndFunctorInterner interner ) throws SourceCodeException {
+    public//fixme
+    HtClause convert ( Term term ) throws SourceCodeException {
         // Check if the top level term is a query, an implication or neither and reduce the term into a clause
         // accordingly.
         if (term instanceof OpSymbol) {
             OpSymbol symbol = (OpSymbol) term;
             IRegistry <BkLoadedEntities> registry = new BookKeepingTables <>();
             if (IMPLIES.equals(symbol.getTextName())) {
-                List <Functor> flattenedArgs = flattenTerm(symbol.getArgument(1), Functor.class,
-                        ",", interner);
+                List <Functor> flattenedArgs = flattenTerm(symbol.getArgument(1), Functor.class, COMMA, interner);
                 Functor head = (Functor) symbol.getArgument(0);
                 FunctorName fname = interner.getDeinternedFunctorName(head.getName());
                 Functor identifier = null;
@@ -132,9 +132,9 @@ class HiTalkParser extends HiLogParser {
         internOperator(MINUS, 200, FY);// output argument (not instantiated); ISO Prolog standard operator
         internOperator(PLUS_PLUS, 200, FY);// ground argument
         internOperator(MINUS_MINUS, 200, FY);// unbound argument (typically when returning an opaque term)
-        internOperator(LSHIFT, 400, YFX);// bitwise left-shift operator (used for context-switching calls)
+        internOperator(L_SHIFT, 400, YFX);// bitwise left-shift operator (used for context-switching calls)
         // some backend Prolog compilers don't declare this ISO Prolog standard operator!
-        internOperator(RSHIFT, 400, YFX);// bitwise right-shift operator (used for lambda expressions)
+        internOperator(R_SHIFT, 400, YFX);// bitwise right-shift operator (used for lambda expressions)
         // some backend Prolog compilers don't declare this ISO Prolog standard operator!
         internOperator(AS, 700, XFX);// predicate alias operator (alternative to the ::/2 or :/2 operators depending on the context)
 // first introduced in SWI-Prolog and YAP also for defining aliases to module predicates

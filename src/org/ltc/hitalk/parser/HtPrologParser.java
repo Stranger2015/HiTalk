@@ -18,13 +18,18 @@ package org.ltc.hitalk.parser;
 
 
 import com.thesett.aima.logic.fol.*;
-import com.thesett.aima.logic.fol.isoprologparser.*;
+import com.thesett.aima.logic.fol.isoprologparser.CandidateOpSymbol;
+import com.thesett.aima.logic.fol.isoprologparser.DynamicOperatorParser;
+import com.thesett.aima.logic.fol.isoprologparser.OperatorTable;
+import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.parsing.SourceCodePosition;
 import com.thesett.common.parsing.SourceCodePositionImpl;
 import com.thesett.common.util.Source;
 import com.thesett.common.util.TraceIndenter;
+import org.ltc.hitalk.core.HtConstants;
 import org.ltc.hitalk.wam.compiler.HtFunctorName;
+import org.ltc.hitalk.wam.compiler.HtTokenSource;
 
 import java.util.*;
 
@@ -121,7 +126,7 @@ class HtPrologParser implements HtPrologParserConstants {
     /**
      * Holds the tokenizer that supplies the next token on demand.
      */
-    protected TokenSource tokenSource;
+//    protected TokenSource tokenSource;
     /**
      * Holds the indenter to provide neatly indendet execution traces.
      */
@@ -129,8 +134,9 @@ class HtPrologParser implements HtPrologParserConstants {
     /**
      *
      */
-    protected Clause <Functor> special;
-    private boolean bofGenerated;
+//    protected Clause <Functor> special;
+//    protected boolean bofGenerated;
+    protected Deque <HtTokenSource> tokenSourceStack = new ArrayDeque <>();
 
     /**
      * Builds a prolog parser on a token source to be parsed.
@@ -139,7 +145,7 @@ class HtPrologParser implements HtPrologParserConstants {
      * @param interner    The interner for variable and functor names.
      */
     public
-    HtPrologParser ( TokenSource tokenSource, VariableAndFunctorInterner interner ) {
+    HtPrologParser ( HtTokenSource tokenSource, VariableAndFunctorInterner interner ) {
         //Set this parser up to use the supplied interner.
         this.interner = interner;
 
@@ -153,13 +159,27 @@ class HtPrologParser implements HtPrologParserConstants {
     }
 
     /**
-     * Changes the token source the parser is consuming from.
-     *
-     * @param tokenSource The new token source the parser is to consume from.
+     * @return
      */
     public
-    void setTokenSource ( TokenSource tokenSource ) {
-        this.tokenSource = tokenSource;
+    HtTokenSource getTokenSource () {
+        return tokenSourceStack.peek();
+    }
+
+    /**
+     * @return
+     */
+    public
+    HtTokenSource popTokenSource () {
+        return tokenSourceStack.pop();
+    }
+
+    /**
+     * @param tokenSource
+     */
+    public
+    void setTokenSource ( HtTokenSource tokenSource ) {
+        tokenSourceStack.push(tokenSource);
     }
 
     /**
@@ -198,66 +218,66 @@ class HtPrologParser implements HtPrologParserConstants {
         return sentence;
     }
 
-    /**
-     * Parses many consecutive sentences, until an <EOF> is reached. This method is intended to aid with consulting
-     * files.
-     *
-     * @return A list of parsed clauses.
-     * @throws SourceCodeException If the token sequence does not parse into a sequence of clauses terminted by <EOF>.
-     */
-    public
-    List <Clause> sentences () throws SourceCodeException {
-        List <Clause> results = new ArrayList <>();
-
-        // Loop consuming clauses until end of file is encountered.
-        while (true) {
-            if (special != null) {
-                results.add(special);
-                special = null;
-                //break todo
-            }
-            if (peekAndConsumeEof()) {
-                special = generateBofEofClause(false, interner);
-                break;
-            }
-            if (peekAndConsumeBof()) {
-                Clause s = sentence();
-                results.add(s);
-                if (isEncodingDirective(s)) {
-                    special = generateBofEofClause(true, interner);
-                }
-                bofGenerated = true;
-                //break todo
-            }
-            else {
-                results.add(sentence());
-            }
-        }
-
-        return results;
-    }
-
-    private
-    Clause <Functor> generateBofEofClause ( boolean bof, VariableAndFunctorInterner interner ) {
-        int name = interner.internFunctorName(bof ? BEGIN_OF_FILE : END_OF_FILE, 0);
-        return new Clause <>(new Functor(name, EMPTY_TERM_ARRAY), EMPTY_FUNCTOR_ARRAY);
-
-    }
-
-    private
-    boolean isEncodingDirective ( Clause clause ) {
-        if (clause.isQuery()) {
-            Functor[] body = clause.getBody();
-            return ((body.length == 1) && (isFunctorArityIndicator(body[0], "encoding", 1)));
-        }
-
-        return false;
-    }
-
-    private
-    boolean isFunctorArityIndicator ( Functor functor, String encoding, int i ) {
-        return false;
-    }
+//    /**
+//     * Parses many consecutive sentences, until an <EOF> is reached. This method is intended to aid with consulting
+//     * files.
+//     *
+//     * @return A list of parsed clauses.
+//     * @throws SourceCodeException If the token sequence does not parse into a sequence of clauses terminted by <EOF>.
+//     */
+//    public
+//    List <Clause> sentences () throws SourceCodeException {
+//        List <Clause> results = new ArrayList <>();
+//
+//        // Loop consuming clauses until end of file is encountered.
+//        while (true) {
+//            if (special != null) {
+//                results.add(special);
+//                special = null;
+//                //break todo
+//            }
+//            if (peekAndConsumeEof()) {
+////                special = generateBofEofClause(false, interner);
+//                break;
+//            }
+//            if (peekAndConsumeBof()) {
+//                Clause s = sentence();
+//                results.add(s);
+////                if (isEncodingDirective(s)) {
+////                    special = generateBofEofClause(true, interner);
+////                }
+//                bofGenerated = true;
+//                //break todo
+//            }
+//            else {
+//                results.add(sentence());
+//            }
+//        }
+//
+//        return results;
+//    }
+//
+////    private
+////    Clause <Functor> generateBofEofClause ( boolean bof, VariableAndFunctorInterner interner ) {
+////        int name = interner.internFunctorName(bof ? BEGIN_OF_FILE : END_OF_FILE, 0);
+////        return new Clause <>(new Functor(name, EMPTY_TERM_ARRAY), EMPTY_FUNCTOR_ARRAY);
+////
+////    }
+//
+////    private
+////    boolean isEncodingDirective ( Clause clause ) {
+////        if (clause.isQuery()) {
+////            Functor[] body = clause.getBody();
+////            return ((body.length == 1) && (isFunctorArityIndicator(body[0], "encoding", 1)));
+////        }
+////
+////        return false;
+////    }
+//
+//    private
+//    boolean isFunctorArityIndicator ( Functor functor, String encoding, int i ) {
+//        return false;
+//    }
 
 
     /**
@@ -273,11 +293,16 @@ class HtPrologParser implements HtPrologParserConstants {
 
         Term term = term();
 
-        Clause clause = TermUtils.convertToClause(term, interner);
+        Clause clause = convert(term);
 
         Objects.requireNonNull(clause);
 
         return clause;
+    }
+
+    protected
+    Clause convert ( Term term ) throws SourceCodeException {
+        return TermUtils.convertToClause(term, interner);
     }
 
     /**
@@ -291,8 +316,7 @@ class HtPrologParser implements HtPrologParserConstants {
      */
     public
     Term term () throws SourceCodeException {
-        List <Term> terms;
-        terms = terms(new ArrayList <>());
+        List <Term> terms = terms(new ArrayList <>());
 
         Term[] flatTerms = terms.toArray(new Term[terms.size()]);
 
@@ -326,8 +350,7 @@ class HtPrologParser implements HtPrologParserConstants {
     public
     List <Term> terms ( List <Term> terms ) throws SourceCodeException {
         Term term;
-
-        Token nextToken = tokenSource.peek();
+        Token nextToken = getTokenSource().peek();
 
         switch (nextToken.kind) {
             case BOF:
@@ -377,7 +400,7 @@ class HtPrologParser implements HtPrologParserConstants {
 
         terms.add(term);
 
-        switch (tokenSource.peek().kind) {
+        switch (getTokenSource().peek().kind) {
             case LPAREN:
             case LSQPAREN:
             case INTEGER_LITERAL:
@@ -477,7 +500,7 @@ class HtPrologParser implements HtPrologParserConstants {
         // Check if the list contains any arguments and parse them if so.
         Term[] args = null;
 
-        Token nextToken = tokenSource.peek();
+        Token nextToken = getTokenSource().peek();
 
         switch (nextToken.kind) {
             case LPAREN:
@@ -499,7 +522,7 @@ class HtPrologParser implements HtPrologParserConstants {
         // list prior to the cons must not be empty.
         Term accumulator;
 
-        if (tokenSource.peek().kind == CONS) {
+        if (getTokenSource().peek().kind == CONS) {
             if (args == null) {
                 throw new SourceCodeException("Was expecting one of " + BEGIN_TERM_TOKENS + " but got " + tokenImage[nextToken.kind] + ".", null, null, null, new SourceCodePositionImpl(nextToken.beginLine, nextToken.beginColumn, nextToken.endLine, nextToken.endColumn));
             }
@@ -713,9 +736,9 @@ class HtPrologParser implements HtPrologParserConstants {
      */
     public
     boolean peekAndConsumeMore () {
-        Token nextToken = tokenSource.peek();
+        Token nextToken = getTokenSource().peek();
 
-        if ((nextToken.kind == ATOM) && ";".equals(nextToken.image)) {
+        if ((nextToken.kind == ATOM) && SEMICOLON.equals(nextToken.image)) {
             try {
                 consumeToken(ATOM);
             } catch (SourceCodeException e) {
@@ -833,12 +856,12 @@ class HtPrologParser implements HtPrologParserConstants {
 
         // Intern all built in functors.
         interner.internFunctorName(NIL, 0);
-        interner.internFunctorName(CONS, 2);
+        interner.internFunctorName(HtConstants.CONS, 2);
         interner.internFunctorName(TRUE, 0);
         interner.internFunctorName(FAIL, 0);
         interner.internFunctorName(FALSE, 0);
         interner.internFunctorName(CUT, 0);
-        interner.internFunctorName(new HtFunctorName(BYPASS, 0, 1);
+        interner.internFunctorName(new HtFunctorName(BYPASS, 0, 1));
     }
 
     /**
@@ -851,13 +874,13 @@ class HtPrologParser implements HtPrologParserConstants {
      */
     protected
     Token consumeToken ( int kind ) throws SourceCodeException {
-        Token nextToken = tokenSource.peek();
+        Token nextToken = getTokenSource().peek();
 
         if (nextToken.kind != kind) {
             throw new SourceCodeException("Was expecting " + tokenImage[kind] + " but got " + tokenImage[nextToken.kind] + ".", null, null, null, new SourceCodePositionImpl(nextToken.beginLine, nextToken.beginColumn, nextToken.endLine, nextToken.endColumn));
         }
         else {
-            nextToken = tokenSource.poll();
+            nextToken = getTokenSource().poll();
 
             return nextToken;
         }
@@ -871,7 +894,7 @@ class HtPrologParser implements HtPrologParserConstants {
      */
     private
     boolean peekAndConsume ( int kind ) {
-        Token nextToken = tokenSource.peek();
+        Token nextToken = getTokenSource().peek();
 
         if (nextToken.kind == kind) {
             try {
@@ -889,14 +912,19 @@ class HtPrologParser implements HtPrologParserConstants {
         }
     }
 
-    public
-    boolean isBofGenerated () {
-        return bofGenerated;
-    }
+//    public
+//    boolean isBofGenerated () {
+//        return bofGenerated;
+//    }
+
+//    public
+//    Clause sentence1 () {
+//        return null;
+//    }
 
     public
-    Clause sentence1 () {
-        return null;
+    Token lastToken () {
+        return getTokenSource().token;
     }
 }
 

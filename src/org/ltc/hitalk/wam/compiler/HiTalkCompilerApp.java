@@ -22,11 +22,12 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.List;
 import java.util.logging.Logger;
 
 import static org.ltc.hitalk.compiler.bktables.BkTableKind.LOADED_ENTITIES;
+import static org.ltc.hitalk.core.HtConstants.ENCODING;
+import static org.ltc.hitalk.core.HtConstants.IMPLIES;
 
 /**
  * Reloading files, active code and threads
@@ -191,7 +192,10 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
     protected LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer;
     protected LogicCompilerObserver <Clause, Clause> observer2;
     //    protected TokenSource tokenSource;
-    protected Deque <TokenSource> tokenSourceStack;
+//    protected Deque <TokenSource> tokenSourceStack;
+
+    Clause <? extends Functor> lastDirective;
+
     /**
      * Holds the pre-compiler, for analyzing and transforming terms prior to compilation proper.
      */
@@ -203,7 +207,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
     protected HtPrologParser parser;
 
     int object_counter;
-    int categoty_counter;
+    int category_counter;
     int protocol_counter;
 
 
@@ -221,7 +225,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
                         HiTalkDefaultBuiltIn defaultBuiltIn ) throws LinkageException {
         super(parser, interner, compiler);
 
-        preCompiler = new HiTalkPreprocessor(symbolTable, interner, defaultBuiltIn, resolver);
+        preCompiler = new HiTalkPreprocessor(symbolTable, interner, defaultBuiltIn, resolver, this);
         instructionCompiler = compiler;
         observer2 = new ClauseChainObserver(instructionCompiler);
         preCompiler.setCompilerObserver(observer2);
@@ -265,7 +269,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
         try {
             SymbolTable <Integer, String, Object> symbolTable = new SymbolTableImpl <>();
             VariableAndFunctorInterner interner = new VariableAndFunctorInternerImpl("HiTalk_Variable_Namespace", "HiTalk_Functor_Namespace");
-            TokenSource tokenSource = TokenSource.getTokenSourceForFile(new File(args[0]));
+            TokenSource tokenSource = HtTokenSource.getTokenSourceForFile(new File(args[0]));
             HtPrologParser parser = new HiTalkParser(tokenSource, interner);
             HiTalkInstructionCompiler compiler = new HiTalkInstructionCompiler(symbolTable, interner);
             HiTalkDefaultBuiltIn defaultBuiltIn = new HiTalkDefaultBuiltIn(symbolTable, interner);
@@ -273,7 +277,6 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
             HiTalkCompilerApp app = new HiTalkCompilerApp(symbolTable, interner, parser, compiler, defaultBuiltIn);
             app.setFileName(args[0]);
             app.createFlags(app.loadContext, DEFAULT_SCRATCH_DIRECTORY);
-            app.setTokenSource(tokenSource);
             app.setParser(parser);
             //
             app.banner();
@@ -1076,13 +1079,13 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
 //
 //        }
 
-//        }
+    //        }
 //        CurrentDirectory(Directory), LogtalkCompile(Files, Flags, Directory, ExCtx).
 //
 //
 //                LogtalkCompile(Files, Flags, Directory, ExCtx) :-
 //        catch
-//        (LogtalkCompileFiles(Files, Flags, Directory), error(Error, _), LogtalkCompile_error_handler(Error, Files, Flags, ExCtx)
+//        (Logtalks(Files, Flags, Directory), error(Error, _), LogtalkCompile_error_handler(Error, Files, Flags, ExCtx)
 //        ).
 //
 //
@@ -1101,17 +1104,18 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
 //
 //        //predicates for compilation warning counting and reporting
 //
-protected
-void resetWarningsCounters () {
+    protected
+    void resetWarningsCounters () {
 //            retractall(pp_warnings_top_goal_(_)),
 //            retractall(ppCompiling_warningsCounter_(_)),
 //            retractall(ppLoading_warningsCounter_(_)).
-}
+    }
+
+    //
 //
 //
-//
-protected
-void initWarningsCounter ( Term goal ) {
+    protected
+    void initWarningsCounter ( Term goal ) {
 //        (pp_warnings_top_goal_(_) ->
 
 //        //not top compilation/loading goal; do nothing
@@ -1122,7 +1126,7 @@ void initWarningsCounter ( Term goal ) {
 //                retractall(ppLoading_warningsCounter_(_)), assertz(ppLoading_warningsCounter_(0))
 //        ).
 //
-}
+    }
 
     //
     void incrementCompilingWarningsCounter () {
@@ -1323,15 +1327,18 @@ void initWarningsCounter ( Term goal ) {
         return config;
     }
 
-    /**
-     * --------------------------------------------->FIXME
-     *
-     * @param loadContext
-     */
-    Term[] compileTokenSource ( TokenSource tokenSource, LoadContext loadContext ) throws SourceCodeException {
-        Term term = parser.term();
-        List <HtEntityIdentifier> pipeLine = hooksPipeline();
-        return preCompiler.compile(tokenSource, loadContext);
+    boolean isEncodingDirective ( Functor functor ) {
+        if (isDirective(functor)) {
+            functor = (Functor) functor.getArgument(0);
+            String name = interner.getFunctorName(functor);
+            return ENCODING.equals(name) && functor.getArity() == 1;
+        }
+        return false;
+    }
+
+    boolean isDirective ( Functor functor ) {
+
+        return interner.getFunctorName(functor).equals(IMPLIES) && functor.getArity() == 1;
     }
 
     protected
@@ -1366,6 +1373,7 @@ void initWarningsCounter ( Term goal ) {
 //        return false;
 //    }
 //
+
     /**
      *
      */
@@ -1373,8 +1381,7 @@ void initWarningsCounter ( Term goal ) {
     public
     void start () throws Exception {
         initialize();
-        TokenSource tokenSource = getTokenSource();
-        compileTokenSource(tokenSource, loadContext);
+
     }
 
     /**
@@ -1418,20 +1425,20 @@ void initWarningsCounter ( Term goal ) {
         System.out.printf("\n%s, %s%d, %s.\n", product, version, build, copyright);
     }
 
-    /**
-     * @return
-     */
-    public
-    TokenSource getTokenSource () {
-        return tokenSourceStack.pop();
-    }
+//    /**
+//     * @return
+//     */
+//    public
+//    TokenSource getTokenSource () {
+//        return tokenSourceStack.pop();
+//    }
 
     /**
      * @param tokenSource
      */
     public
     void setTokenSource ( TokenSource tokenSource ) {
-        tokenSourceStack.push(tokenSource);
+        parser.setTokenSource((HtTokenSource) tokenSource);
     }
 
     public

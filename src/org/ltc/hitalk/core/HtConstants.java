@@ -17,6 +17,9 @@ interface HtConstants {
     String STATIC = "static";
     String HILOG = "hilog";
     String ENCODING = "encoding";
+    String TEXT = "text";
+    String ISO_LATIN_1 = "iso_latin_1";
+    String UTF8 = "utf8";
     String EXPAND_TERM = "expand_term";
     String EXPAND_GOAL = "expand_goal";
     String LOGTALK_LIBRARY_PATH = "logtalk_library_path";
@@ -34,6 +37,7 @@ interface HtConstants {
     String IMPLIES = ":-";
     String DCG_IMPLIES = "-->";
     String IF = "->";
+    String IF_STAR = "*->";
     String PLUS = "+";
     String MINUS = "-";
     String MULT = "*";
@@ -43,8 +47,8 @@ interface HtConstants {
     String MINUS_MINUS = "--";
     String QUESTION = "?";
     String QUERY = "?-";
-    String LSHIFT = "<<";
-    String RSHIFT = ">>";
+    String L_SHIFT = "<<";
+    String R_SHIFT = ">>";
     String AS = "as";
 
 
@@ -60,6 +64,8 @@ interface HtConstants {
     String FALSE = "false";
     String NOT = "\\+";
     String UNIFIES = "=";
+    String UNIV = "=..";
+    String IS = "is";
     String NON_UNIFIES = "\\=";
     String ASSIGN = ":=";
     String CALL = "call";
@@ -70,7 +76,8 @@ interface HtConstants {
     String CATEGORY = "category";
     String ENUMERATION = "enumeration";
     String IDENTICAL = "==";
-    String NOT_IDENTICAL = "\\==";
+    String NON_IDENTICAL = "\\==";
+    String CLASS = "class";
 
 
     String END_OBJECT = "end_object";
@@ -96,6 +103,7 @@ interface HtConstants {
     String EXTENDS_PROTOCOL = "extends_protocol";
     String EXTENDS_OBJECT = "extends_object";
     String EXTENDS_CATEGORY = "extends_category";
+
     String COMPLEMENTS_OBJECT = "complements_object";
 
     String CONFORMS_TO_PROTOCOL = "conforms_to_protocol";
@@ -107,5 +115,8 @@ interface HtConstants {
     String CURRENT_LOGTALK_FLAG = "current_logtalk_flag";
     String SET_LOGTALK_FLAG = "set_logtalk_flag";
     String CREATE_LOGTALK_FLAG = "create_logtalk_flag";
+
+    String READ = "read";
+
 }
 

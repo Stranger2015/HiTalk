@@ -4,15 +4,12 @@ import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.logic.fol.bytecode.BaseMachine;
 import com.thesett.aima.logic.fol.compiler.SymbolKeyTraverser;
 import com.thesett.aima.logic.fol.compiler.TermWalker;
-import com.thesett.aima.logic.fol.isoprologparser.TokenSource;
 import com.thesett.aima.logic.fol.wam.TermWalkers;
 import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
-import org.ltc.hitalk.entities.context.LoadContext;
 
 import java.util.List;
-import java.util.Objects;
 
 /*
  * Copyright The Sett Ltd, 2005 to 2014.
@@ -51,6 +48,7 @@ class HiTalkPreCompiler<T extends Clause> extends BaseMachine implements LogicCo
      * Holds the default built in, for standard compilation and interners and symbol tables.
      */
     private final HiTalkDefaultBuiltIn defaultBuiltIn;
+    private final HiTalkCompilerApp app;
 
     /**
      * Holds the built in transformation.
@@ -78,6 +76,7 @@ class HiTalkPreCompiler<T extends Clause> extends BaseMachine implements LogicCo
         super(symbolTable, interner);
 
         this.defaultBuiltIn = defaultBuiltIn;
+        this.app = app;
         builtInTransform = new HiTalkBuiltInTransform(defaultBuiltIn, app);//TODO GLOBAL CTX NEEDED!!
     }
 
@@ -86,26 +85,12 @@ class HiTalkPreCompiler<T extends Clause> extends BaseMachine implements LogicCo
      */
     public
     void compile ( Sentence <T> sentence ) throws SourceCodeException {
-        List <T> clauses = preprocess(sentence.getT());
-        for (Clause clause : clauses) {
-            substituteBuiltIns(clause);
-            initializeSymbolTable(clause);
-            topLevelCheck(clause);
 
-            if (observer != null) {
-                final Clause finalClause = clause;
-                if (Objects.requireNonNull(clause).isQuery()) {
 
-                    observer.onQueryCompilation(() -> finalClause);
-                }
-                else {
-                    observer.onCompilation(() -> finalClause);
-                }
-            }
-        }
-
-        saveResult(clauses);
+//                saveResult(clauses);
     }
+
+
 
     /**
      * @param clauses
@@ -174,18 +159,19 @@ class HiTalkPreCompiler<T extends Clause> extends BaseMachine implements LogicCo
         TermWalker walk = TermWalkers.positionalWalker(new HiTalkTopLevelCheckVisitor(interner, symbolTable, null));
         walk.walk(clause);
     }
-
-    /**
-     * @param tokenSource
-     * @param loadContext
-     * @return
-     */
-    public
-    Term[] compile ( TokenSource tokenSource, LoadContext loadContext ) {
-        Term[] terms = new Term[0];
-
-        return terms;
-    }
+///*
+//    *//**
+//     * @param tokenSource
+//     * @param loadContext
+//     * @return
+//     *//*
+//    public
+//    Term[] compile ( TokenSource tokenSource, LoadContext loadContext ) {
+////        Term[] terms = new Term[0];
+//        app.getParser().setTokenSource(tokenSource);
+//preprocess(parser.term())
+//        return terms;
+//    }*/
 
     public
     HiTalkDefaultBuiltIn getDefaultBuiltIn () {

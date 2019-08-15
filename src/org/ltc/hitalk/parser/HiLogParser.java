@@ -10,6 +10,7 @@ import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.parsing.SourceCodePosition;
 import com.thesett.common.parsing.SourceCodePositionImpl;
 import org.ltc.hitalk.term.HiLogCompound;
+import org.ltc.hitalk.wam.compiler.HtTokenSource;
 
 import java.util.Arrays;
 
@@ -41,7 +42,7 @@ class HiLogParser extends HtPrologParser {
      * @param interner The interner for variable and functor names.
      */
     public
-    HiLogParser ( TokenSource source, VariableAndFunctorInterner interner ) {
+    HiLogParser ( HtTokenSource source, VariableAndFunctorInterner interner ) {
         super(source, interner);
 
         this.interner = interner;
@@ -223,7 +224,7 @@ class HiLogParser extends HtPrologParser {
     @Override
     public
     Term term () throws SourceCodeException {
-        return super.term();
+        return super.term();//TODO
     }
 
     /**
