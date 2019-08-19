@@ -28,11 +28,14 @@
  import org.ltc.hitalk.term.ListTerm;
 
  import java.io.FileNotFoundException;
+ import java.io.IOException;
+ import java.io.InputStream;
  import java.nio.file.Path;
  import java.nio.file.Paths;
  import java.util.*;
  import java.util.function.Predicate;
 
+ import static java.lang.System.in;
  import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.*;
  import static org.ltc.hitalk.core.HtConstants.*;
  import static org.ltc.hitalk.entities.IRelation.*;
@@ -134,14 +137,7 @@
          builtIns.put(new HtFunctorName(PUBLIC, 1), this::public_p);
          builtIns.put(new HtFunctorName(PROTECTED, 1), this::protected_p);
          builtIns.put(new HtFunctorName(PRIVATE, 1), this::private_p);
-
-//         builtIns.put(new HtFunctorName(EXTENDS, 1), this::extends_p);
-//         builtIns.put(new HtFunctorName(IMPLEMENTS, 1), this::implements_p);
-//         builtIns.put(new HtFunctorName(IMPORTS, 1), this::imports_p);
-//         builtIns.put(new HtFunctorName(COMPLEMENTS, 1), this::complements_p);
-//         builtIns.put(new HtFunctorName(INSTANTIATES, 1), this::instantiates_p);
-//         builtIns.put(new HtFunctorName(SPECIALIZES, 1), this::specializes_p);
-//source_file DIREWCTRIVES
+//source_file DIRECTIVES
          builtIns.put(new HtFunctorName(INCLUDE, 1), this::include_p);
          builtIns.put(new HtFunctorName(ENCODING, 1), this::encoding_p);
          builtIns.put(new HtFunctorName(CURRENT_LOGTALK_FLAG, 2), this::current_logtalk_flag_p);
@@ -193,6 +189,24 @@
          builtIns.put(new HtFunctorName(CURRENT_EVENT, 1), this::current_event_p);
 //      termio   read
          builtIns.put(new HtFunctorName(READ, 1, 2), this::read_p);
+         builtIns.put(new HtFunctorName(READ, 1, 2), this::current_input_p);
+         builtIns.put(new HtFunctorName(READ, 1, 2), this::current_output_p);
+     }
+
+     private
+     boolean current_input_p ( Functor functor ) {
+         try (InputStream input = in) {
+         } catch (IOException e) {
+             throw new ExecutionError(RESOURCE_ERROR, null);
+         }
+
+         return false;
+     }
+
+     private
+     boolean current_output_p ( Functor functor ) {
+
+         return false;
      }
 
      private
@@ -440,12 +454,14 @@
 
      private
      boolean encoding_p ( Functor functor ) {
-         List <String> l = Arrays.asList(UTF8);
-         if (functor.isAtom() && l.contains(interner.getFunctorName(functor))) {
+//         List <String> l = Arrays.asList(UTF8);
 
-         }
-
-//         tokenssrc
+         Token token = app.parser.lastToken();
+         app.parser.getTokenSource().setOffset(token.endLine, token.endColumn);
+         lastTerm = new Functor(interner.internFunctorName(BEGIN_OF_FILE, 0), null);
+         String encoding = String.valueOf(functor.getArgument(0));
+         currentinput
+//         Charset cs = Charset.forName(encoding);
          return true;
      }
 
