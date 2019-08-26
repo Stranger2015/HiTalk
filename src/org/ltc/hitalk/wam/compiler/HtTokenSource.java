@@ -18,17 +18,18 @@ class HtTokenSource extends TokenSource {
 
     private int lineOfs;
     private int colOfs;
+    private int fileOfs;
 
     /**
      * Builds a token source around the specified token manager.
      *
      * @param tokenManager The token manager to use to feed this source.
      */
-    protected
+    public
     HtTokenSource ( PrologParserTokenManager tokenManager ) {
         super(tokenManager);
 
-        setOffset(0, 0);
+        setOffset(0, 0, 0);
     }
 
     /**
@@ -38,7 +39,7 @@ class HtTokenSource extends TokenSource {
      * @return A token source.
      */
     public static
-    HtTokenSource getTokenSourceForString ( String stringToTokenize ) {
+    HtTokenSource getTokenSourceForString ( String stringToTokenize, int lineOfs ) {
         SimpleCharStream inputStream = new SimpleCharStream(new StringReader(stringToTokenize), 1, 1);
         PrologParserTokenManager tokenManager = new PrologParserTokenManager(inputStream);
 
@@ -53,7 +54,7 @@ class HtTokenSource extends TokenSource {
      * @throws FileNotFoundException If the file cannot be found.
      */
     public static
-    TokenSource getTokenSourceForFile ( File file ) throws FileNotFoundException {
+    HtTokenSource getTokenSourceForFile ( File file ) throws FileNotFoundException {
         Reader ins = new FileReader(file);
         SimpleCharStream inputStream = new SimpleCharStream(ins, 1, 1);
         PrologParserTokenManager tokenManager = new PrologParserTokenManager(inputStream);
@@ -86,16 +87,12 @@ class HtTokenSource extends TokenSource {
         if (token.next == null) {
             token.next = new Token();
             token.next.kind = BOF;
-//            token = token.next;
-//            return addOffset(token);
         }
         else {
             Token t = super.poll();
             if (t == null) {
                 token.next = new Token();
                 token.next.kind = EOF;
-//                token = token.next;
-//                return token;
             }
         }
         token = token.next;
@@ -112,9 +109,10 @@ class HtTokenSource extends TokenSource {
 
 
     public
-    void setOffset ( int lineOfs, int colOfs ) {
+    void setOffset ( int lineOfs, int colOfs, int fileOfs ) {
         this.lineOfs = lineOfs;
         this.colOfs = colOfs;
+        this.fileOfs = fileOfs;
     }
 
 
@@ -127,7 +125,13 @@ class HtTokenSource extends TokenSource {
         token.endLine += lineOfs;
         token.beginColumn += colOfs;
         token.endColumn += colOfs;
+//        token.fileOfs = fileOfs;
 
         return token;
+    }
+
+    public
+    int getFileOfs () {
+        return fileOfs;
     }
 }

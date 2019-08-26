@@ -1,11 +1,11 @@
 package org.ltc.hitalk.wam.interpreter;
 
-import com.thesett.aima.logic.fol.Clause;
 import com.thesett.aima.logic.fol.LogicCompiler;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.isoprologparser.TokenSource;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 
 import java.io.File;
@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 import static com.thesett.aima.logic.fol.isoprologparser.TokenSource.*;
 
 public
-interface ICompiler<T extends Clause, T1, T2> extends LogicCompiler <T, T1, T2> {
+interface ICompiler<T extends HtClause, T1, T2> extends LogicCompiler <T, T1, T2> {
 
     HiTalkFlag[] EMPTY_FLAG_ARRAY = new HiTalkFlag[0];
 

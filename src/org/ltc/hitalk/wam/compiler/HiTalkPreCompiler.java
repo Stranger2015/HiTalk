@@ -8,6 +8,7 @@ import com.thesett.aima.logic.fol.wam.TermWalkers;
 import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.parser.HtClause;
 
 import java.util.List;
 
@@ -39,7 +40,8 @@ import java.util.List;
  * @author Rupert Smith
  */
 abstract public
-class HiTalkPreCompiler<T extends Clause> extends BaseMachine implements LogicCompiler <T, Clause, Clause> {
+class HiTalkPreCompiler<T extends HtClause> extends BaseMachine
+        implements LogicCompiler <T, HtClause, HtClause> {
 
     //Used for debugging.
     /* private static final Logger log = Logger.getLogger(PreCompiler.class.getName()); */
@@ -58,7 +60,7 @@ class HiTalkPreCompiler<T extends Clause> extends BaseMachine implements LogicCo
     /**
      * Holds the compiler output observer.
      */
-    private LogicCompilerObserver <Clause, Clause> observer;
+    private LogicCompilerObserver <HtClause, HtClause> observer;
 
     /**
      * Creates a new PreCompiler.
@@ -109,7 +111,7 @@ class HiTalkPreCompiler<T extends Clause> extends BaseMachine implements LogicCo
      * {@inheritDoc}
      */
     public
-    void setCompilerObserver ( LogicCompilerObserver <Clause, Clause> observer ) {
+    void setCompilerObserver ( LogicCompilerObserver <HtClause, HtClause> observer ) {
         this.observer = observer;
     }
 

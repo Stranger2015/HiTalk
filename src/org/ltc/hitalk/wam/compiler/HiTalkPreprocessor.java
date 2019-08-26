@@ -2,6 +2,7 @@ package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.*;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.wam.compiler.expander.DefaultTermExpander;
 import org.ltc.hitalk.wam.task.HiLogPreprocessor;
 import org.ltc.hitalk.wam.task.StandardPreprocessor;
@@ -17,7 +18,7 @@ import java.util.function.Function;
  *
  */
 public
-class HiTalkPreprocessor<T extends Clause, TC extends Term, TT extends TransformTask <T, TC>>
+class HiTalkPreprocessor<T extends HtClause, TC extends Term, TT extends TransformTask <T, TC>>
         extends HiTalkPreCompiler <T> {
 
     protected final DefaultTransformer <T, TC> defaultTransformer;
@@ -26,7 +27,7 @@ class HiTalkPreprocessor<T extends Clause, TC extends Term, TT extends Transform
     protected final List <TT> components = new ArrayList <>();
     protected final Function <TC, List <TC>> defaultAction;
     protected final Resolver <T, T> resolver;
-    protected LogicCompilerObserver <Clause, Clause> observer;
+    protected LogicCompilerObserver <HtClause, HtClause> observer;
     protected List <T> preCompiledTarget;
 
     /**
@@ -103,7 +104,7 @@ class HiTalkPreprocessor<T extends Clause, TC extends Term, TT extends Transform
      */
     @Override
     public
-    void setCompilerObserver ( LogicCompilerObserver <Clause, Clause> observer ) {
+    void setCompilerObserver ( LogicCompilerObserver <HtClause, HtClause> observer ) {
         this.observer = observer;
     }
 

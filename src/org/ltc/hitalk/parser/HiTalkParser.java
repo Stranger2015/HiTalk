@@ -1,18 +1,11 @@
 package org.ltc.hitalk.parser;
 
-import com.thesett.aima.logic.fol.*;
-import com.thesett.aima.logic.fol.isoprologparser.TokenSource;
+import com.thesett.aima.logic.fol.Term;
+import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
-import org.ltc.hitalk.compiler.bktables.BkLoadedEntities;
-import org.ltc.hitalk.compiler.bktables.BkTableKind;
-import org.ltc.hitalk.compiler.bktables.BookKeepingTables;
-import org.ltc.hitalk.compiler.bktables.IRegistry;
-import org.ltc.hitalk.entities.HtEntityIdentifier;
-
-import java.util.List;
+import org.ltc.hitalk.wam.compiler.HtTokenSource;
 
 import static com.thesett.aima.logic.fol.OpSymbol.Associativity.*;
-import static com.thesett.aima.logic.fol.TermUtils.flattenTerm;
 import static org.ltc.hitalk.core.HtConstants.*;
 
 /**
@@ -44,7 +37,7 @@ class HiTalkParser extends HiLogParser {
      * @param interner The interner for variable and functor names.
      */
     public
-    HiTalkParser ( TokenSource source, VariableAndFunctorInterner interner ) {
+    HiTalkParser ( HtTokenSource source, VariableAndFunctorInterner interner ) {
         super(source, interner);
     }
 
@@ -80,41 +73,9 @@ class HiTalkParser extends HiLogParser {
      */
     public//fixme
     HtClause convert ( Term term ) throws SourceCodeException {
-        // Check if the top level term is a query, an implication or neither and reduce the term into a clause
-        // accordingly.
-        if (term instanceof OpSymbol) {
-            OpSymbol symbol = (OpSymbol) term;
-            IRegistry <BkLoadedEntities> registry = new BookKeepingTables <>();
-            if (IMPLIES.equals(symbol.getTextName())) {
-                List <Functor> flattenedArgs = flattenTerm(symbol.getArgument(1), Functor.class, COMMA, interner);
-                Functor head = (Functor) symbol.getArgument(0);
-                FunctorName fname = interner.getDeinternedFunctorName(head.getName());
-                Functor identifier = null;
-                HtEntityIdentifier entity = null;
-                Functor[] args = flattenedArgs.toArray(new Functor[flattenedArgs.size()]);
-                if (COLON_COLON.equals(fname.getName()) && fname.getArity() == 2) {
-                    identifier = (Functor) head.getArgument(0);
-                    head = (Functor) head.getArgument(1);
-                    BkLoadedEntities record = registry.selectOne(BkTableKind.LOADED_ENTITIES,
-                            new BkLoadedEntities(new HtEntityIdentifier(identifier, null)));
-                    entity = record.getEntity1();
-                    return new HtClause(entity, head, args);
-                }
-                else if (COLON.equals(fname.getName()) && fname.getArity() == 2) {
-                    return null;//todo
-                }
-                else {
-                    return null;
-                }
-            }
-            else {
-                return null;
-            }
-        }
-        return null;
-    }
 
-    /**
+
+        /**
      * Interns and inserts into the operator table all of the built in operators and functors in Prolog.
      */
     @Override

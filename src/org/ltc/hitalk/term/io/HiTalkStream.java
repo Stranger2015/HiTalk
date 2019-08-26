@@ -1,5 +1,7 @@
 package org.ltc.hitalk.term.io;
 
+import org.ltc.hitalk.entities.IProperty;
+import org.ltc.hitalk.entities.PropertyOwner;
 import sun.nio.cs.HistoricallyNamedCharset;
 
 import java.io.*;
@@ -19,58 +21,12 @@ import java.nio.charset.*;
  * ByteBuffer newbb = charset.encode(cb);
  */
 public
-class HiTalkStream extends RandomAccessFile {
+class HiTalkStream extends PropertyOwner <IProperty> {
 
-    protected FileInputStream in;
-
+    private final IProperty[] props;
+    private RandomAccessFile raf;
     protected StreamDecoder sd;
-
-
-    /**
-     * Creates a random access file stream to read from, and optionally
-     * to write to, a file with the specified name. A new
-     * {@link FileDescriptor} object is created to represent the
-     * connection to the file.
-     *
-     * <p> The <tt>mode</tt> argument specifies the access mode with which the
-     * file is to be opened.  The permitted values and their meanings are as
-     * specified for the <a
-     * href="#mode"><tt>RandomAccessFile(File,String)</tt></a> constructor.
-     *
-     * <p>
-     * If there is a security manager, its {@code checkRead} method
-     * is called with the {@code name} argument
-     * as its argument to see if read access to the file is allowed.
-     * If the mode allows writing, the security manager's
-     * {@code checkWrite} method
-     * is also called with the {@code name} argument
-     * as its argument to see if write access to the file is allowed.
-     *
-     * @param name the system-dependent filename
-     * @param mode the access <a href="#mode">mode</a>
-     * @throws IllegalArgumentException if the mode argument is not equal
-     *                                  to one of <tt>"r"</tt>, <tt>"rw"</tt>, <tt>"rws"</tt>, or
-     *                                  <tt>"rwd"</tt>
-     * @throws FileNotFoundException    if the mode is <tt>"r"</tt> but the given string does not
-     *                                  denote an existing regular file, or if the mode begins with
-     *                                  <tt>"rw"</tt> but the given string does not denote an
-     *                                  existing, writable regular file and a new regular file of
-     *                                  that name cannot be created, or if some other error occurs
-     *                                  while opening or creating the file
-     * @throws SecurityException        if a security manager exists and its
-     *                                  {@code checkRead} method denies read access to the file
-     *                                  or the mode is "rw" and the security manager's
-     *                                  {@code checkWrite} method denies write access to the file
-     * @revised 1.4
-     * @spec JSR-51
-     * @see SecurityException
-     * @see SecurityManager#checkRead(String)
-     * @see SecurityManager#checkWrite(String)
-     */
-    public
-    HiTalkStream ( String name, String mode ) throws FileNotFoundException {
-        super(name, mode);
-    }
+//    protected StreamEncoder se;
 
     /**
      * Creates a random access file stream to read from, and optionally to
@@ -103,7 +59,7 @@ class HiTalkStream extends RandomAccessFile {
      * The <tt>"rws"</tt> and <tt>"rwd"</tt> modes work much like the {@link
      * FileChannel#force(boolean) force(boolean)} method of
      * the {@link FileChannel} class, passing arguments of
-     * <tt>true</tt> and <tt>false</tt>, respectively, except that they always
+     * <tt>true</tt> and <tt>false</tt>, respetively, except that they always
      * apply to every I/O operation and are therefore often more efficient.  If
      * the file resides on a local storage device then when an invocation of a
      * method of this class returns it is guaranteed that all changes made to
@@ -142,14 +98,15 @@ class HiTalkStream extends RandomAccessFile {
      *                                  or the mode is "rw" and the security manager's
      *                                  {@code checkWrite} method denies write access to the file
      * @revised 1.4
-     * @spec JSR-51
+     * @spec JSR-51.
      * @see SecurityManager#checkRead(String)
      * @see SecurityManager#checkWrite(String)
      * @see FileChannel#force(boolean)
      */
     public
-    HiTalkStream ( File file, String mode ) throws FileNotFoundException {
-        super(file, mode);
+    HiTalkStream ( File file, String mode, IProperty... props ) throws FileNotFoundException {
+        this.props = props;
+        raf = new RandomAccessFile(file, mode);
     }
 
     public
@@ -160,6 +117,25 @@ class HiTalkStream extends RandomAccessFile {
     public
     StreamDecoder getStreamDecoder () {
         return sd;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    int getPropLength () {
+        return props.length;
+    }
+
+    public
+    IProperty[] getProps () {
+        return props;
+    }
+
+    public
+    RandomAccessFile getRaf () {
+        return raf;
     }
 
 
@@ -187,6 +163,22 @@ class HiTalkStream extends RandomAccessFile {
         private InputStream in;
         private ReadableByteChannel ch;
 
+        public
+        StreamDecoder ( InputStream in, Object lock, String encoding ) {
+            super(lock);
+            this.isOpen = true;
+            this.haveLeftoverChar = false;
+            this.cs = Charset.forName(encoding);
+            this.decoder = new CharsetDecoder.(cs, 2f, 2f);
+            if (this.ch == null) {
+                this.in = in;
+                this.ch = null;
+                this.bb = ByteBuffer.allocate(8192);
+            }
+
+            this.bb.flip();
+        }
+
         private
         void ensureOpen () throws IOException {
             if (!this.isOpen) {
@@ -195,7 +187,7 @@ class HiTalkStream extends RandomAccessFile {
         }
 
         public static
-        StreamDecoder forInputStreamReader ( HiTalkStream in, InputStreamReader var1, final String encoding )
+        StreamDecoder forInputStreamReader ( HiTalkStream in, Object lock, final String encoding )
                 throws UnsupportedEncodingException {
             String charsetName = encoding;
             if (encoding == null) {
@@ -204,7 +196,7 @@ class HiTalkStream extends RandomAccessFile {
 
             try {
                 if (Charset.isSupported(charsetName)) {
-                    return new StreamDecoder(in, var1, Charset.forName(charsetName));
+                    return new StreamDecoder(in, lock, Charset.forName(charsetName));
                 }
             } catch (IllegalCharsetNameException ignored) {
             }
@@ -213,18 +205,18 @@ class HiTalkStream extends RandomAccessFile {
         }
 
         public static
-        StreamDecoder forInputStreamReader ( InputStream in, Object var1, Charset charset ) {
-            return new StreamDecoder(in, var1, charset);
+        StreamDecoder forInputStreamReader ( InputStream in, Object lock, Charset charset ) {
+            return new StreamDecoder(in, lock, charset);
         }
 
         public static
-        StreamDecoder forInputStreamReader ( InputStream in, Object var1, CharsetDecoder decoder ) {
-            return new StreamDecoder(in, var1, decoder);
+        StreamDecoder forInputStreamReader ( InputStream in, Object lock, CharsetDecoder decoder ) {
+            return new StreamDecoder(in, lock, decoder);
         }
 
         public static
-        StreamDecoder forDecoder ( ReadableByteChannel in, CharsetDecoder var1, int encoding ) {
-            return new StreamDecoder(in, var1, encoding);
+        StreamDecoder forDecoder ( ReadableByteChannel in, CharsetDecoder lock, int encoding ) {
+            return new StreamDecoder(in, lock, encoding);
         }
 
         public
@@ -266,19 +258,19 @@ class HiTalkStream extends RandomAccessFile {
         }
 
         public
-        int read ( char[] var1, int encoding, int var3 ) throws IOException {
+        int read ( char[] array, int encoding, int var3 ) throws IOException {
             int var4 = encoding;
             int var5 = var3;
             synchronized (this.lock) {
                 this.ensureOpen();
-                if (var4 >= 0 && var4 <= var1.length && var5 >= 0 && var4 + var5 <= var1.length && var4 + var5 >= 0) {
+                if (var4 >= 0 && var4 <= array.length && var5 >= 0 && var4 + var5 <= array.length && var4 + var5 >= 0) {
                     if (var5 == 0) {
                         return 0;
                     }
                     else {
                         byte var7 = 0;
                         if (this.haveLeftoverChar) {
-                            var1[var4] = this.leftoverChar;
+                            array[var4] = this.leftoverChar;
                             ++var4;
                             --var5;
                             this.haveLeftoverChar = false;
@@ -294,12 +286,12 @@ class HiTalkStream extends RandomAccessFile {
                                 return var7 == 0 ? -1 : var7;
                             }
                             else {
-                                var1[var4] = (char) var8;
+                                array[var4] = (char) var8;
                                 return var7 + 1;
                             }
                         }
                         else {
-                            return var7 + this.implRead(var1, var4, var4 + var5);
+                            return var7 + this.implRead(array, var4, var4 + var5);
                         }
                     }
                 }
@@ -347,18 +339,18 @@ class HiTalkStream extends RandomAccessFile {
             }
         }
 
-        StreamDecoder ( InputStream var1, Object encoding, Charset var3 ) {
-            this(var1, encoding, var3.newDecoder().onMalformedInput(CodingErrorAction.REPLACE).onUnmappableCharacter(CodingErrorAction.REPLACE));
+        StreamDecoder ( InputStream in, Object encoding, Charset var3 ) {
+            this(in, encoding, var3.newDecoder().onMalformedInput(CodingErrorAction.REPLACE).onUnmappableCharacter(CodingErrorAction.REPLACE));
         }
 
-        StreamDecoder ( InputStream var1, Object encoding, CharsetDecoder var3 ) {
+        StreamDecoder ( InputStream in, Object encoding, CharsetDecoder var3 ) {
             super(encoding);
             this.isOpen = true;
             this.haveLeftoverChar = false;
             this.cs = var3.charset();
             this.decoder = var3;
             if (this.ch == null) {
-                this.in = var1;
+                this.in = in;
                 this.ch = null;
                 this.bb = ByteBuffer.allocate(8192);
             }
@@ -366,11 +358,11 @@ class HiTalkStream extends RandomAccessFile {
             this.bb.flip();
         }
 
-        StreamDecoder ( ReadableByteChannel var1, CharsetDecoder encoding, int var3 ) {
+        StreamDecoder ( ReadableByteChannel channel, CharsetDecoder encoding, int var3 ) {
             this.isOpen = true;
             this.haveLeftoverChar = false;
             this.in = null;
-            this.ch = var1;
+            this.ch = channel;
             this.decoder = encoding;
             this.cs = encoding.charset();
             this.bb = ByteBuffer.allocate(var3 < 0 ? 8192 : (var3 < 32 ? 32 : var3));
@@ -503,5 +495,94 @@ class HiTalkStream extends RandomAccessFile {
                 this.in.close();
             }
         }
+    }
+
+    /**
+     *
+     */
+    public
+    enum Property {
+        alias, //        alias(Atom)
+        buffer,//    buffer(Buffering)full, line or false
+        buffer_size,//buffer_size(Integer)
+        bom,//bom( Bool )
+        close_on_abort,//close_on_abort(Bool)
+        close_on_exec,
+        encoding,//encoding(Encoding)
+        end_of_stream,//end_of_stream(E)
+        eof_action,
+        file_name,
+        file_no,
+        input,
+        locale,//     locale( Locale )
+        mode,//mode(IOMode)
+        newline,//newline(NewlineMode)
+        nlink,//nlink(-Count
+        output,
+        //        True if Stream has mode write, append or update.
+        position, //( Pos )
+        //        Unify Pos with the current stream position. A stream position is an opaque term whose fields can be extracted using stream_position_data/3. See also set_stream_position/2.
+        reposition,//(Bool)
+        //        Unify Bool with true if the position of the stream can be set (see seek/4). It is assumed the position can be set if the stream has a seek-function and is not based on a POSIX file descriptor that is not associated to a regular file.
+        representation_errors,//(Mode)
+        //        Determines behaviour of character output if the stream cannot represent a character.
+//        For example, an ISO Latin-1 stream cannot represent Cyrillic characters.
+//        The behaviour is one of error (throw an I/O error exception), prolog (write \...\ escape code) or xml (write &#...; XML character entity).
+//        The initial mode is prolog for the user streams and error for all other streams. See also section 2.20.1 and set_stream/2.
+        timeout, //(-Time)
+        //        Time is the timeout currently associated with the stream. See set_stream/2 with the same option. If no timeout is specified, Time is unified to the atom infinite.
+        type,//(Type)
+        //        Unify Type with text or binary.
+        tty,//        This property is reported with Bool equal to true if the stream is associated with a terminal. See also set_stream/2.
+        write_errors, //( Atom )
+//        SWI-Prolog extension to query the buffering mode of this stream. Buffering is one of . See also open/4.
+//
+////        SWI-Prolog extension to query the size of the I/O buffer associated to a stream in bytes.
+//                //Fails if the stream is not buffered.
+//
+//  or a BOM was written while opening the stream. See section 2.20.1.1 for details.
+//    close_on_abort(Bool)
+//        Determine whether or not abort/0 closes the stream. By default streams are closed.
+////    close_on_exec(Bool)
+//        Determine whether or not the stream is closed when executing a new process (exec() in Unix, CreateProcess() in Windows). Default is to close streams. This maps to fcntl() F_SETFD using the flag FD_CLOEXEC on Unix and (negated) HANDLE_FLAG_INHERIT on Windows.
+//    encoding(Encoding)
+//        Query the encoding used for text. See section 2.20.1 for an overview of wide character and encoding issues in SWI-Prolog.
+//    end_of_stream(E)
+//        If Stream is an input stream, unify E with one of the atoms not, at or past. See also at_end_of_stream/[0,1].
+        //    eof_action(A)
+//        Unify A with one of eof_code, reset or error. See open/4 for details.
+//    file_name(Atom)
+//        If Stream is associated to a file, unify Atom to the name of this file.
+//    file_no(Integer)
+//        If the stream is associated with a POSIX file descriptor, unify Integer with the descriptor number.
+//        SWI-Prolog extension used primarily for integration with foreign code. See also Sfileno() from SWI-Stream.h.
+//    input
+//        True if Stream has mode read.
+        //    locale( Locale )
+//        True when Locale is the current locale associated with the stream. See section 4.23.
+        //    mode(IOMode)
+//        Unify IOMode to the mode given to open/4 for opening the stream. Values are: read, write, append and the SWI-Prolog extension update.
+//    newline(NewlineMode)
+//        One of posix or dos. If dos, text streams will emit \r\n for \n and discard \r from input streams.
+        //Default depends on the operating system.
+        //    nlink(-Count)
+//        Number of hard links to the file. This expresses the number of `names' the file has.
+//Not supported on all operating systems and the value might be bogus.
+//See the documentation of fstat() for your OS and the value st_nlink.
+//    output
+//        True if Stream has mode write, append or update.
+//    position(Pos)
+//        Unify Pos with the current stream position. A stream position is an opaque term whose fields can be extracted using stream_position_data/3. See also set_stream_position/2.
+//    reposition(Bool)
+//        Unify Bool with true if the position of the stream can be set (see seek/4). It is assumed the position can be set if the stream has a seek-function and is not based on a POSIX file descriptor that is not associated to a regular file.
+//    representation_errors(Mode)
+//        Determines behaviour of character output if the stream cannot represent a character. For example, an ISO Latin-1 stream cannot represent Cyrillic characters. The behaviour is one of error (throw an I/O error exception), prolog (write \...\ escape code) or xml (write &#...; XML character entity). The initial mode is prolog for the user streams and error for all other streams. See also section 2.20.1 and set_stream/2.
+//    timeout(-Time)
+//        Time is the timeout currently associated with the stream. See set_stream/2 with the same option. If no timeout is specified, Time is unified to the atom infinite.
+//    type(Type)
+//        Unify Type with text or binary.
+//    tty(Bool)
+//        This property is reported with Bool equal to true if the stream is associated with a terminal. See also set_stream/2.
+//    write_errors(Atom)
     }
 }

@@ -1,5 +1,7 @@
 package org.ltc.hitalk.wam.compiler;
 
+import org.ltc.hitalk.parser.HtPrologParser;
+
 /**
  * /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  * read_term(?term, ReadData rd)
@@ -75,5 +77,37 @@ package org.ltc.hitalk.wam.compiler;
 //      }
 
 public
-class HitalkReader {
+class HiTalkRW {
+    protected HtPrologParser parser;
+//    protected List <HiTalkStream> streams = new ArrayList <>();
+//
+//    public
+//    HiTalkStream currentInput () {
+//        return streams.get(0);
+//    }
+//
+//    /**
+//     * @return
+//     */
+//    public
+//    HiTalkStream currentOutput () {
+//        return streams.get(1);
+//    }
+
+    /**
+     * @return
+     */
+    public
+    HtPrologParser getParser () {
+        return parser;
+    }
+
+    /**
+     * @param parser
+     */
+    public
+    HiTalkRW ( HtPrologParser parser ) {
+        this.parser = parser;
+//        this.streams = streams;
+    }
 }

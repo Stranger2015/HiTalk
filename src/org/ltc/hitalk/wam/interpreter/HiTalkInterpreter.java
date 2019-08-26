@@ -1,14 +1,17 @@
 package org.ltc.hitalk.wam.interpreter;
 
-import com.thesett.aima.logic.fol.*;
-import com.thesett.aima.logic.fol.interpreter.InteractiveParser;
+import com.thesett.aima.logic.fol.Clause;
+import com.thesett.aima.logic.fol.Predicate;
+import com.thesett.aima.logic.fol.Variable;
+import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.aima.logic.fol.interpreter.ResolutionEngine;
-import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.common.parsing.SourceCodeException;
 import jline.ConsoleReader;
 import org.ltc.hitalk.compiler.bktables.IConfig;
-import org.ltc.hitalk.entities.HtEntity;
+import org.ltc.hitalk.entities.HtEntityIdentifier;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.term.io.TermIO;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -35,16 +38,44 @@ import java.util.Set;
  * @author Rupert Smith
  */
 public
-class HiTalkInterpreter<T, Q> implements IInterpreter {
-    private ConsoleReader reader;
-
-    public
-    HiTalkInterpreter ( Mode program ) {
-
-    }
-
+class HiTalkInterpreter<T, Q> extends HiLogInterpreter <HtClause, T, Q> {
     /* Used for debugging purposes. */
     /* private static final Logger log = Logger.getLogger(HiTalkInterpreter.class.getName()); */
+
+    /**
+     * The prompt to use in query mode.
+     */
+    public final String queryPrompt = "[|= ]";
+    /**
+     * The line continuation prompt for query mode.
+     */
+    public final String multiLineQueryPrompt = "   ";
+    /**
+     * The prompt to use in program mode.
+     */
+    public final String programPrompt = "";
+    /**
+     * The line continuation prompt for program mode.
+     */
+    public final String multiLineProgramPrompt = "   ";
+    protected final String interpreter = "HiTalk interpreter";
+    /**
+     * Holds the JLine console reader.
+     */
+    protected ConsoleReader consoleReader;
+    /**
+     * Holds the name of the predicate currently being parsed, clause by clause.
+     */
+    protected Integer currentPredicateName;
+    /**
+     * Holds the current interaction mode.
+     */
+    private Mode mode = Mode.Query;
+
+    public
+    HiTalkInterpreter ( InteractiveParser parser, HtResolutionEngine <T, Q> engine ) {
+        super(parser, engine);
+    }
 
     @Override
     public
@@ -52,44 +83,27 @@ class HiTalkInterpreter<T, Q> implements IInterpreter {
         return queryPrompt;
     }
 
-    @Override
-    public
-    void setConsoleReader ( ConsoleReader reader ) {
-        this.reader = reader;
-    }
-
     /**
      *
      */
     public
-    void sendMessage ( HtEntity sender, Predicate <Clause> pred ) {
+    void sendMessage ( HtEntityIdentifier sender, Predicate <Clause> pred ) {
 
     }
 
     /**
-     * The prompt to use in query mode.
+     * Holds the interactive parser that the interpreter loop runs on.
      */
-    public final String queryPrompt = "[|= ]";
-
+//    protected HiTalkParser parser;
     public
     String getMultiLineQueryPrompt () {
         return multiLineQueryPrompt;
     }
 
-    /**
-     * The line continuation prompt for query mode.
-     */
-    public final String multiLineQueryPrompt = "   ";
-
     public
     String getProgramPrompt () {
         return programPrompt;
     }
-
-    /**
-     * The prompt to use in program mode.
-     */
-    public final String programPrompt = "";
 
     public
     String getMultiLineProgramPrompt () {
@@ -97,91 +111,42 @@ class HiTalkInterpreter<T, Q> implements IInterpreter {
     }
 
     /**
-     * The line continuation prompt for program mode.
-     */
-    public final String multiLineProgramPrompt = "   ";
-
-    /**
-     * ASCII for a semicolon.
-     */
-    public static final int SEMICOLON = 59;
-
-    /**
-     * @return
-     */
-    public
-    String getInterpreter () {
-        return interpreter;
-    }
-
-    protected final String interpreter = "HiTalk interpreter";
-
-    /**
-     * Holds the interactive parser that the interpreter loop runs on.
-     */
-    protected InteractiveParser parser;
-
-    /**
      * Holds the resolution engine that the interpreter loop runs on.
      */
-    protected ResolutionEngine <Clause, T, Q> engine;
-
+//    protected HtResolutionEngine < T, Q> engine;
     @Override
     public
     ConsoleReader getConsoleReader () {
         return consoleReader;
     }
 
-    /**
-     * Holds the JLine console reader.
-     */
-    private ConsoleReader consoleReader;
-
-    /**
-     * Holds the name of the predicate currently being parsed, clause by clause.
-     */
-    private Integer currentPredicateName;
-
-    /**
-     * Holds the current interaction mode.
-     */
-    private Mode mode = Mode.Query;
-
-    /**
+    /*
      * Builds an interactive logical resolution interpreter from a parser, interner, compiler and resolver, encapsulated
      * as a resolution engine.
      *
      * @param engine The resolution engine. This must be using an {@link InteractiveParser}.
      */
-    public
-    HiTalkInterpreter ( ResolutionEngine <Clause, T, Q> engine ) {
-        this.engine = engine;
-        Parser <Clause, Token> parser = engine.getParser();
-
-        if (!(parser instanceof InteractiveParser)) {
-            throw new IllegalArgumentException("'engine' must be built on an InteractiveParser.");
-        }
-
-        this.parser = (InteractiveParser) parser;
-    }
-
-    /**
-     * @return
-     */
-    @Override
-    public
-    Mode getMode () {
-        return mode;
-    }
+//    public
+//    HiTalkInterpreter ( HtResolutionEngine <HtClause, T, Q> engine ) {
+//        super(engine);
+//
+//        HtPrologParser parser = (HtPrologParser) engine.getParser();
+//
+////        if (!(parser instanceof InteractiveParser)) {
+////            throw new IllegalArgumentException("'engine' must be built on an InteractiveParser.");
+////        }
+////
+////        this.parser = (InteractiveParser) parser;
+//    }
 
     /**
      * @return
      */
-    @Override
-    public
-    Parser getParser () {
-        return parser;
-    }
+@Override
+public
+Mode getMode () {
+    return mode;
+}
 
     /**
      * Implements the top-level interpreter loop. This will parse and evaluate sentences until it encounters an CTRL-D
@@ -190,9 +155,15 @@ class HiTalkInterpreter<T, Q> implements IInterpreter {
      * @throws SourceCodeException If malformed code is encountered.
      * @throws IOException         If an IO error is encountered whilst reading the source code.
      */
-    public final
+    public
     void interpreterLoop () throws IOException {
-        IInterpreter.super.interpreterLoop();
+        super.interpreterLoop();
+    }
+
+    @Override
+    public
+    void evaluate ( HtClause sentence ) throws SourceCodeException {
+        super.evaluate(sentence);
     }
 
     /**
@@ -201,12 +172,19 @@ class HiTalkInterpreter<T, Q> implements IInterpreter {
      * @return A JLine console reader.
      * @throws IOException If an IO error is encountered while reading the input.
      */
+    @Override
     public
     ConsoleReader initializeCommandLineReader () throws IOException {
         ConsoleReader reader = new ConsoleReader();
         reader.setBellEnabled(false);
 
         return reader;
+    }
+
+    @Override
+    public
+    TermIO getTermIO () {
+        return termIO;
     }
 
     @Override
@@ -227,95 +205,95 @@ class HiTalkInterpreter<T, Q> implements IInterpreter {
         return "";
     }
 
-    /**
-     * Evaluates a query against the resolver or adds a clause to the resolvers domain.
-     *
-     * @param sentence The clausal sentence to run as a query or as a clause to add to the domain.
-     * @throws SourceCodeException If the query or domain clause fails to compile or link into the resolver.
-     */
-    protected
-    void evaluate ( Sentence <Clause> sentence ) throws SourceCodeException {
-        Clause clause = sentence.getT();
-
-        if (clause.isQuery()) {
-            engine.endScope();
-            engine.compile(sentence);
-            evaluateQuery();
-        }
-        else {
-            // Check if the program clause is new, or a continuation of the current predicate.
-            int name = clause.getHead().getName();
-
-            if ((currentPredicateName == null) || (currentPredicateName != name)) {
-                engine.endScope();
-                currentPredicateName = name;
-            }
-
-            addProgramClause(sentence);
-        }
-    }
+//    /**
+//     * Evaluates a query against the resolver or adds a clause to the resolvers domain.
+//     *
+//     * @param sentence The clausal sentence to run as a query or as a clause to add to the domain.
+//     * @throws SourceCodeException If the query or domain clause fails to compile or link into the resolver.
+//     */
+//    @Override
+//    public
+//    void evaluate ( Sentence <Clause> sentence ) throws SourceCodeException {
+//        Clause clause = sentence.getT();
+//
+//        if (clause.isQuery()) {
+//            engine.endScope();
+//            engine.compile(sentence);
+//            evaluateQuery();
+//        }
+//        else {
+//            // Check if the program clause is new, or a continuation of the current predicate.
+//            int name = clause.getHead().getName();
+//
+//            if ((currentPredicateName == null) || (currentPredicateName != name)) {
+//                engine.endScope();
+//                currentPredicateName = name;
+//            }
+//
+//            addProgramClause(sentence);
+//        }
+//    }
 
     /**
      * Evaluates a query. In the case of queries, the interner is used to recover textual names for the resulting
      * variable bindings. The user is queried through the parser to if more than one solution is required.
      */
-    private
-    void evaluateQuery () {
+    protected
+    void evaluateQuery ( HtClause query ) {
         /*log.fine("Read query from input.");*/
 
         // Create an iterator to generate all solutions on demand with. Iteration will stop if the request to
-        // the parser for the more ';' token fails.
+        // the parser for the more ';' token failas.
         Iterator <Set <Variable>> i = engine.iterator();
 
         if (!i.hasNext()) {
             System.out.println("false. ");
 
-            return;
         }
+        else {
+            for (; i.hasNext(); ) {
+                Set <Variable> solution = i.next();
 
-        for (; i.hasNext(); ) {
-            Set <Variable> solution = i.next();
-
-            if (solution.isEmpty()) {
-                System.out.print("true");
-            }
-            else {
-                for (Iterator <Variable> j = solution.iterator(); j.hasNext(); ) {
-                    Variable nextVar = j.next();
-
-                    String varName = engine.getVariableName(nextVar.getName());
-
-                    System.out.print(varName + " = " + nextVar.getValue().toString(engine, true, false));
-
-                    if (j.hasNext()) {
-                        System.out.println();
-                    }
-                }
-            }
-
-            // Finish automatically if there are no more solutions.
-            if (!i.hasNext()) {
-                System.out.println(".");
-
-                break;
-            }
-
-            // Check if the user wants more solutions.
-            try {
-                int key = consoleReader.readVirtualKey();
-
-                if (key == SEMICOLON) {
-                    System.out.println(" ;");
+                if (solution.isEmpty()) {
+                    System.out.print("true");
                 }
                 else {
-                    System.out.println();
+                    for (Iterator <Variable> j = solution.iterator(); j.hasNext(); ) {
+                        Variable nextVar = j.next();
 
+                        String varName = engine.getVariableName(nextVar.getName());
+
+                        System.out.print(varName + " = " + nextVar.getValue().toString(engine, true, false));
+
+                        if (j.hasNext()) {
+                            System.out.println();
+                        }
+                    }
+                }
+
+                // Finish automatically if there are no more solutions.
+                if (!i.hasNext()) {
+                    System.out.println(".");
                     break;
                 }
-            } catch (IOException e) {
-                throw new IllegalStateException(e);
+
+                // Check if the user wants more solutions.
+                try {
+                    int key = consoleReader.readVirtualKey();
+
+                    if (key == SEMICOLON) {
+                        System.out.println(" ;");
+                    }
+                    else {
+                        System.out.println();
+                        break;
+                    }
+                } catch (IOException e) {
+                    throw new IllegalStateException(e);
+                }
             }
         }
+
     }
 
     /**
@@ -328,7 +306,7 @@ class HiTalkInterpreter<T, Q> implements IInterpreter {
      * @param sentence The clause to add to the domain.
      */
     private
-    void addProgramClause ( Sentence <Clause> sentence ) throws SourceCodeException {
+    void addProgramClause ( HtClause sentence ) throws SourceCodeException {
         /*log.fine("Read program clause from input.");*/
 
         engine.compile(sentence);
@@ -336,7 +314,7 @@ class HiTalkInterpreter<T, Q> implements IInterpreter {
 
     public
     ConsoleReader getReader () {
-        return reader;
+        return consoleReader;
     }
 
     /**
@@ -396,6 +374,6 @@ class HiTalkInterpreter<T, Q> implements IInterpreter {
     @Override
     public
     void setParser ( HtPrologParser parser ) {
-
+        this.parser.setParser(parser);
     }
 }

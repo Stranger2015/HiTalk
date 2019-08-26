@@ -1,14 +1,14 @@
 package org.ltc.hitalk.wam.interpreter;
 
-import com.thesett.aima.logic.fol.Clause;
-import com.thesett.aima.logic.fol.Parser;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.Variable;
-import com.thesett.aima.logic.fol.interpreter.InteractiveParser;
-import com.thesett.aima.logic.fol.interpreter.ResolutionEngine;
-import com.thesett.aima.logic.fol.isoprologparser.Token;
+import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import jline.ConsoleReader;
+import org.ltc.hitalk.compiler.bktables.IConfig;
+import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.term.io.TermIO;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -16,7 +16,7 @@ import java.util.Set;
 
 
 /**
- * HiLogInterpreter implements an interactive Prolog like interpreter, built on top of a {@link ResolutionEngine}.
+ * HiLogInterpreter implements an interactive Prolog like interpreter, built on top of a {@link HtResolutionEngine}.
  * It implements a top-level interpreter loop where queries or domain clauses may be entered. Queries are resolved
  * against the current domain using the resolver, after they have been compiled.
  *
@@ -35,7 +35,9 @@ import java.util.Set;
  * @author Rupert Smith
  */
 public
-class HiLogInterpreter<T, Q> implements IInterpreter {
+class HiLogInterpreter<S extends HtClause, T, Q> implements IInterpreter <S> {
+
+    protected TermIO termIO;
     /* Used for debugging purposes. */
     /* private static final Logger log = Logger.getLogger(HiLogInterpreter.class.getName()); */
 
@@ -78,11 +80,11 @@ class HiLogInterpreter<T, Q> implements IInterpreter {
     /**
      * Holds the resolution engine that the interpreter loop runs on.
      */
-    ResolutionEngine <Clause, T, Q> engine;
+    protected HtResolutionEngine <T, Q> engine;
     /**
      * Holds the current interaction mode.
      */
-    private Mode mode = Mode.Query;
+    protected Mode mode = Mode.Query;
 
     /**
      * Builds an interactive logical resolution interpreter from a parser, interner, compiler and resolver, encapsulated
@@ -91,16 +93,14 @@ class HiLogInterpreter<T, Q> implements IInterpreter {
      * @param engine The resolution engine. This must be using an {@link InteractiveParser}.
      */
     public
-    HiLogInterpreter ( ResolutionEngine <Clause, T, Q> engine ) {
+    HiLogInterpreter ( InteractiveParser parser, HtResolutionEngine <T, Q> engine ) {
         this.engine = engine;
 
-        Parser <Clause, Token> parser = engine.getParser();
+//        if (!(parser instanceof InteractiveParser)) {
+//            throw new IllegalArgumentException("'engine' must be built on an InteractiveParser.");
+//        }
 
-        if (!(parser instanceof InteractiveParser)) {
-            throw new IllegalArgumentException("'engine' must be built on an InteractiveParser.");
-        }
-
-        this.parser = (InteractiveParser) parser;
+        this.parser = parser;
     }
 
     @Override
@@ -109,20 +109,29 @@ class HiLogInterpreter<T, Q> implements IInterpreter {
         return mode;
     }
 
+    /**
+     * @return
+     */
     @Override
     public
-    Parser getParser () {
-        return parser;
+    HtPrologParser getParser () {
+        return null;
     }
+//
+//    @Override
+//    public
+//    HiLogParser getParser () {
+//        return parser;
+//    }
 
     /**
-     * Implements the top-level interpreter loop. This will parse and evaluate sentences until it encounters an CTRL-D
+     * Implements the top-level interpreter loop. This will parse and evaluate clauses until it encounters an CTRL-D
      * in query mode, at which point the interpreter will terminate.
      *
      * @throws SourceCodeException If malformed code is encountered.
      * @throws IOException         If an IO error is encountered whilst reading the source code.
      */
-    public final
+    public
     void interpreterLoop () throws IOException {
         IInterpreter.super.interpreterLoop();
     }
@@ -163,6 +172,7 @@ class HiLogInterpreter<T, Q> implements IInterpreter {
      * @return A JLine console reader.
      * @throws IOException If an IO error is encountered while reading the input.
      */
+    @Override
     public
     ConsoleReader initializeCommandLineReader () throws IOException {
         ConsoleReader reader = new ConsoleReader();
@@ -171,20 +181,25 @@ class HiLogInterpreter<T, Q> implements IInterpreter {
         return reader;
     }
 
+    @Override
+    public
+    TermIO getTermIO () {
+        return termIO;
+    }
+
     /**
      * Evaluates a query against the resolver or adds a clause to the resolvers domain.
      *
-     * @param sentence The clausal sentence to run as a query or as a clause to add to the domain.
-     * @throws SourceCodeException If the query or domain clause fails to compile or link into the resolver.
+     * @param clause The clause to run as a query or as a regular clause to add to the domain.
      */
-    protected
-    void evaluate ( Sentence <Clause> sentence ) throws SourceCodeException {
-        Clause clause = sentence.getT();
-
+    @Override
+    public
+    void evaluate ( HtClause clause ) throws SourceCodeException {
+//        HtClause clause = sentence.getT();
         if (clause.isQuery()) {
             engine.endScope();
-            engine.compile(sentence);
-            evaluateQuery();
+            engine.compile(clause);
+            evaluateQuery(clause);
         }
         else {
             // Check if the program clause is new, or a continuation of the current predicate.
@@ -195,16 +210,17 @@ class HiLogInterpreter<T, Q> implements IInterpreter {
                 currentPredicateName = name;
             }
 
-            addProgramClause(sentence);
+            addProgramClause((Sentence <S>) clause);
         }
     }
 
     /**
      * Evaluates a query. In the case of queries, the interner is used to recover textual names for the resulting
      * variable bindings. The user is queried through the parser to if more than one solution is required.
+     * @param clause
      */
     private
-    void evaluateQuery () {
+    void evaluateQuery ( HtClause clause ) {
         /*log.fine("Read query from input.");*/
 
         // Create an iterator to generate all solutions on demand with. Iteration will stop if the request to
@@ -269,12 +285,72 @@ class HiLogInterpreter<T, Q> implements IInterpreter {
      * and this compiler scope is closed at the EOF of the current input stream, or when another clause with a different
      * name and arity is seen.
      *
-     * @param sentence The clause to add to the domain.
+     * @param clause The clause to add to the domain.
      */
-    private
-    void addProgramClause ( Sentence <Clause> sentence ) throws SourceCodeException {
+    protected
+    void addProgramClause ( Sentence <S> clause ) throws SourceCodeException {
         /*log.fine("Read program clause from input.");*/
 
-        engine.compile(sentence);
+        engine.compile((Sentence <HtClause>) clause);
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    IConfig getConfig () {
+        return null;
+    }
+
+    /**
+     *
+     */
+    @Override
+    public
+    void start () throws Exception {
+
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    int end () {
+        return 0;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    boolean isStarted () {
+        return false;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    boolean isStopped () {
+        return false;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    VariableAndFunctorInterner getInterner () {
+        return null;
+    }
+
+    @Override
+    public
+    void setParser ( HtPrologParser parser ) {
+
     }
 }

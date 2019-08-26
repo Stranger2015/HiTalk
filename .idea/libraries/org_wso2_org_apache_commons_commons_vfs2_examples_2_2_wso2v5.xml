@@ -6,11 +6,7 @@
       <root url="jar://$PROJECT_DIR$/lib/commons-vfs2-2.2-wso2v5.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/commons-logging-1.2.jar!/" />
     </CLASSES>
-    <JAVADOC>
-      <root url="jar://$PROJECT_DIR$/lib/commons-vfs2-examples-2.2-wso2v5-javadoc.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/commons-vfs2-2.2-wso2v5-javadoc.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/commons-logging-1.2-javadoc.jar!/" />
-    </JAVADOC>
+    <JAVADOC />
     <SOURCES>
       <root url="jar://$PROJECT_DIR$/lib/commons-vfs2-examples-2.2-wso2v5-sources.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/commons-vfs2-2.2-wso2v5-sources.jar!/" />

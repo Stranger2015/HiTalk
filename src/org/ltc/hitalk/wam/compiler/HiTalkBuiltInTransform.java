@@ -15,7 +15,10 @@
   */
  package org.ltc.hitalk.wam.compiler;
 
- import com.thesett.aima.logic.fol.*;
+ import com.thesett.aima.logic.fol.Functor;
+ import com.thesett.aima.logic.fol.FunctorName;
+ import com.thesett.aima.logic.fol.Term;
+ import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
  import com.thesett.aima.logic.fol.isoprologparser.Token;
  import com.thesett.aima.logic.fol.isoprologparser.TokenSource;
  import com.thesett.aima.logic.fol.wam.builtins.BuiltInFunctor;
@@ -25,6 +28,7 @@
  import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
  import org.ltc.hitalk.core.HtConstants;
  import org.ltc.hitalk.entities.*;
+ import org.ltc.hitalk.parser.HtClause;
  import org.ltc.hitalk.term.ListTerm;
 
  import java.io.FileNotFoundException;
@@ -926,7 +930,19 @@
      }
 
      public
-     Clause <?> getLastDirective () {
+     HtClause getLastDirective () {
          return lastDirective;
      }
+
+     public
+     IRelation getLastRelation () {
+         return lastRelation;
+     }
+
+     public
+     Term getLastTerm () {
+         return lastTerm;
+     }
+
+
  }

@@ -1,26 +1,25 @@
 package org.ltc.hitalk.wam.interpreter;
 
-import com.thesett.aima.logic.fol.Clause;
-import com.thesett.aima.logic.fol.Parser;
-import com.thesett.aima.logic.fol.Sentence;
-import com.thesett.aima.logic.fol.isoprologparser.PrologParser;
 import com.thesett.aima.logic.fol.isoprologparser.PrologParserConstants;
 import com.thesett.aima.logic.fol.isoprologparser.Token;
-import com.thesett.aima.logic.fol.isoprologparser.TokenSource;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.parsing.SourceCodePosition;
-import com.thesett.common.util.Source;
 import jline.ConsoleReader;
 import org.ltc.hitalk.compiler.bktables.IApplication;
+import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.term.io.TermIO;
+import org.ltc.hitalk.wam.compiler.HtTokenSource;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  */
 public
-interface IInterpreter extends IApplication {
+interface IInterpreter<S extends HtClause> extends IApplication {
     /**
      *
      */
@@ -34,7 +33,7 @@ interface IInterpreter extends IApplication {
     /**
      * @return
      */
-    Parser getParser ();
+    HtPrologParser getParser ();
 
     /**
      * @throws IOException
@@ -48,14 +47,15 @@ interface IInterpreter extends IApplication {
         setConsoleReader(initializeCommandLineReader());
 
         // Used to buffer input, and only feed it to the parser when a PERIOD is encountered.
-        TokenBuffer tokenBuffer = new TokenBuffer();
+        TokenBuffer tokenBuffer = new TokenBuffer(getTermIO());
 
         // Used to hold the currently buffered lines of input, for the purpose of presenting this back to the user
         // in the event of a syntax or other error in the input.
-        ArrayList <String> inputLines = new ArrayList <>();
+        List <String> inputLines = new ArrayList <>();
 
         // Used to count the number of lines entered.
         int lineNo = 0;
+        Mode mode = Mode.Query;
 
         while (true) {
             String line = null;
@@ -63,67 +63,57 @@ interface IInterpreter extends IApplication {
             try {
                 line = getConsoleReader().readLine(getQueryPrompt());
                 inputLines.add(line);
-
                 // JLine returns null if CTRL-D is pressed. Exit program getMode() back to query getMode(), or exit the
                 // interpreter completely from query getMode().
-                if ((line == null) && ((getMode() == Mode.Query) || (getMode() == getMode().QueryMultiLine))) {
+                if ((line == null) && ((getMode() == Mode.Query) || (getMode() == Mode.QueryMultiLine))) {
                     /*log.fine("CTRL-D in query getMode(), exiting.");*/
 
                     System.out.println();
-
                     break;
                 }
-                else if ((line == null) && (getMode() == getMode().Program || (getMode() == getMode().ProgramMultiLine))) {
+                else if ((line == null) && (getMode() == Mode.Program || (getMode() == Mode.ProgramMultiLine))) {
                     /*log.fine("CTRL-D in program getMode(), returning to query getMode().");*/
 
                     System.out.println();
-                    getMode() = getMode().Query;
-
+                    mode = Mode.Query; /////fixme
                     continue;
                 }
 
                 // Check the input to see if a system directive was input. This is only allowed in query getMode(), and is
                 // handled differently to normal queries.
-                if (getMode() == getMode().Query) {
-                    Source <Token> tokenSource = new OffsettingTokenSource(TokenSource.getTokenSourceForString(line), lineNo);
-                    parser.setTokenSource(tokenSource);
+                if (getMode() == Mode.Query) {
+                    HtTokenSource tokenSource = HtTokenSource.getTokenSourceForString(line, lineNo);
+                    getParser().setTokenSource(tokenSource);
 
-                    PrologParser.Directive directive = parser.peekAndConsumeDirective();
+                    HtPrologParser.Directive directive = getParser().peekAndConsumeDirective();
 
                     if (directive != null) {
                         switch (directive) {
                             case Trace:
-
                                 /*log.fine("Got trace directive.");*/
                                 break;
-
                             case Info:
-
                                 /*log.fine("Got info directive.");*/
                                 break;
-
                             case User:
-
                                 /*log.fine("Got user directive, entering program getMode().");*/
-                                getMode() = getMode().Program;
+                                mode = Mode.Program;
                                 break;
                         }
-
                         inputLines.clear();
-
                         continue;
                     }
                 }
 
                 // For normal queries, the query functor '?-' begins every statement, this is not passed back from
                 // JLine even though it is used as the command prompt.
-                if (getgetMode() () == getMode().Query){
+                if (getMode() == Mode.Query) {
                     line = getQueryPrompt() + line;
                     inputLines.set(inputLines.size() - 1, line);
                 }
 
                 // Buffer input tokens until EOL is reached, of the input is terminated with a PERIOD.
-                Source <Token> tokenSource = new OffsettingTokenSource(TokenSource.getTokenSourceForString(line), lineNo);
+                HtTokenSource tokenSource = HtTokenSource.getTokenSourceForString(line, lineNo);//todo
                 Token nextToken;
 
                 while (true) {
@@ -135,20 +125,18 @@ interface IInterpreter extends IApplication {
 
                     if (nextToken.kind == PrologParserConstants.PERIOD) {
                         /*log.fine("Token was PERIOD.");*/
-                        getMode() = (getMode() == getMode().QueryMultiLine) ? getMode().Query : getMode();
-                        getMode() = (getMode() == getMode().ProgramMultiLine) ? getMode().Program : getMode();
+                        mode = (getMode() == Mode.QueryMultiLine) ? Mode.Query : getMode();
+                        mode = (getMode() == Mode.ProgramMultiLine) ? Mode.Program : getMode();
 
                         tokenBuffer.offer(nextToken);
-
                         break;
                     }
                     else if (nextToken.kind == PrologParserConstants.EOF) {
                         /*log.fine("Token was EOF.");*/
-                        getMode() = (getMode() == getMode().Query) ? getMode().QueryMultiLine : getMode();
-                        getMode() = (getMode() == getMode().Program) ? getMode().ProgramMultiLine : getMode();
+                        mode = (getMode() == Mode.Query) ? Mode.QueryMultiLine : getMode();
+                        mode = (getMode() == Mode.Program) ? Mode.ProgramMultiLine : getMode();
 
                         lineNo++;
-
                         break;
                     }
 
@@ -160,10 +148,10 @@ interface IInterpreter extends IApplication {
                     getParser().setTokenSource(tokenBuffer);
 
                     // Parse the next clause.
-                    Sentence <Clause <? extends com.thesett.aima.logic.fol.Functor>> nextParsing = parser.parse();
+                    S nextClause = (S) getParser().sentence();
 
                     /*log.fine(nextParsing.toString());*/
-                    evaluate(nextParsing);
+                    evaluate(nextClause);
 
                     inputLines.clear();
                 }
@@ -216,13 +204,37 @@ interface IInterpreter extends IApplication {
         }
     }
 
+    /**
+     * @param clause
+     * @throws SourceCodeException
+     */
+    void evaluate ( HtClause clause ) throws SourceCodeException;
+
+    /**
+     * @return
+     */
     ConsoleReader getConsoleReader ();
 
+    /**
+     * @return
+     */
     String getQueryPrompt ();
 
+    /**
+     * @param reader
+     */
     void setConsoleReader ( ConsoleReader reader );
 
+    /**
+     * @return
+     * @throws IOException
+     */
     ConsoleReader initializeCommandLineReader () throws IOException;
+
+    /**
+     * @return
+     */
+    TermIO getTermIO ();
 
     /**
      *

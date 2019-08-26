@@ -37,6 +37,7 @@ import com.thesett.common.util.SizeableList;
 import com.thesett.common.util.doublemaps.SymbolKey;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn.VarIntroduction;
 import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
 
@@ -227,7 +228,7 @@ class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompil
     void endScope () throws SourceCodeException {
         // Loop over all predicates in the current scope, found in the symbol table, and consume and compile them.
         for (SymbolKey predicateKey = predicatesInScope.poll(); predicateKey != null; predicateKey = predicatesInScope.poll()) {
-            List <Clause> clauseList = (List <Clause>) scopeTable.get(predicateKey, SYMKEY_PREDICATES);
+            List <HtClause> clauseList = (List <HtClause>) scopeTable.get(predicateKey, SYMKEY_PREDICATES);
 
             // Used to keep track of where within the predicate the current clause is.
             int size = clauseList.size();
@@ -237,8 +238,8 @@ class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompil
             // Used to build up the compiled predicate in.
             HiTalkWAMCompiledPredicate result = null;
 
-            for (Iterator <Clause> iterator = clauseList.iterator(); iterator.hasNext(); iterator.remove()) {
-                Clause clause = iterator.next();
+            for (Iterator <HtClause> iterator = clauseList.iterator(); iterator.hasNext(); iterator.remove()) {
+                HtClause clause = iterator.next();
 
                 if (result == null) {
                     result = new HiTalkWAMCompiledPredicate(clause.getHead().getName());
@@ -275,11 +276,11 @@ class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompil
      * {@link #endScope()} method is invoked.
      */
     public
-    void compile ( Sentence <Clause> sentence ) throws SourceCodeException {
+    void compile ( Sentence <HtClause> sentence ) throws SourceCodeException {
         /*log.fine("public WAMCompiledClause compile(Sentence<Term> sentence = " + sentence + "): called");*/
 
         // Extract the clause to compile from the parsed sentence.
-        Clause clause = sentence.getT();
+        HtClause clause = sentence.getT();
 
         // Classify the sentence to compile by the different sentence types in the language.
         if (clause.isQuery()) {
@@ -294,7 +295,7 @@ class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompil
             // Check in the symbol table, if a compiled predicate with name matching the program clause exists, and if
             // not create it.
             SymbolKey predicateKey = scopeTable.getSymbolKey(clause.getHead().getName());
-            Collection <Clause> clauseList = (List <Clause>) scopeTable.get(predicateKey, SYMKEY_PREDICATES);
+            Collection <HtClause> clauseList = (List <HtClause>) scopeTable.get(predicateKey, SYMKEY_PREDICATES);
 
             if (clauseList == null) {
                 clauseList = new LinkedList <>();
@@ -318,7 +319,7 @@ class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompil
      * @param clauseNumber      The position of the clause within the predicate.
      */
     private
-    void compileClause ( Clause clause, HiTalkWAMCompiledPredicate compiledPredicate, boolean isFirst, boolean isLast, boolean multipleClauses, int clauseNumber ) {
+    void compileClause ( HtClause clause, HiTalkWAMCompiledPredicate compiledPredicate, boolean isFirst, boolean isLast, boolean multipleClauses, int clauseNumber ) {
         // Used to build up the compiled clause in.
         HiTalkWAMCompiledClause result = new HiTalkWAMCompiledClause(compiledPredicate);
 
@@ -460,7 +461,7 @@ class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompil
      * @throws SourceCodeException If there is an error in the source code preventing its compilation.
      */
     private
-    void compileQuery ( Clause clause ) throws SourceCodeException {
+    void compileQuery ( HtClause clause ) throws SourceCodeException {
         checkDirective(clause);
         // Used to build up the compiled result in.
         HiTalkWAMCompiledQuery result;
@@ -566,7 +567,7 @@ class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompil
     }
 
     private
-    void checkDirective ( Clause clause ) {
+    void checkDirective ( HtClause clause ) {
         Functor[] body = clause.getBody();
         if (body.length == 1) {
             int name = body[0].getName();
@@ -587,7 +588,7 @@ class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompil
      * @return The highest number of arguments within any top-level functor in the clause.
      */
     private
-    int findMaxArgumentsInClause ( Clause clause ) {
+    int findMaxArgumentsInClause ( HtClause clause ) {
         int result = 0;
 
         Functor head = clause.getHead();
@@ -763,7 +764,7 @@ class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompil
      * @param clause The clause to allocate registers for.
      */
     private
-    void allocatePermanentProgramRegisters ( Clause clause ) {
+    void allocatePermanentProgramRegisters ( HtClause clause ) {
         // A bag to hold variable occurrence counts in.
         Map <Variable, Integer> variableCountBag = new HashMap <>();
 
@@ -977,7 +978,7 @@ class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompil
      */
 //    @Override
     public
-    void compile ( Sentence <Clause <? extends Functor>> sentence, HiTalkFlag... flags ) throws SourceCodeException {
+    void compile ( Sentence <HtClause> sentence, HiTalkFlag... flags ) throws SourceCodeException {
 
     }
 

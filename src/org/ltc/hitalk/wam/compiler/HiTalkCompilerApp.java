@@ -269,7 +269,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
         try {
             SymbolTable <Integer, String, Object> symbolTable = new SymbolTableImpl <>();
             VariableAndFunctorInterner interner = new VariableAndFunctorInternerImpl("HiTalk_Variable_Namespace", "HiTalk_Functor_Namespace");
-            TokenSource tokenSource = HtTokenSource.getTokenSourceForFile(new File(args[0]));
+            HtTokenSource tokenSource = HtTokenSource.getTokenSourceForFile(new File(args[0]));
             HtPrologParser parser = new HiTalkParser(tokenSource, interner);
             HiTalkInstructionCompiler compiler = new HiTalkInstructionCompiler(symbolTable, interner);
             HiTalkDefaultBuiltIn defaultBuiltIn = new HiTalkDefaultBuiltIn(symbolTable, interner);

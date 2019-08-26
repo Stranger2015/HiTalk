@@ -15,6 +15,8 @@
  */
 package org.ltc.hitalk.com.sshtools.vfs2nio;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.Iterator;
@@ -45,6 +47,7 @@ class Vfs2NioDirectoryStream implements DirectoryStream <Path> {
     /**
      * @return
      */
+    @NotNull
     @Override
     public synchronized
     Iterator <Path> iterator () {

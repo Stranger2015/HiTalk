@@ -1,13 +1,13 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.Clause;
 import com.thesett.aima.logic.fol.Functor;
+import org.ltc.hitalk.parser.HtClause;
 
 /**
  *
  */
 public
-class DirectiveClause extends Clause <Functor> {
+class DirectiveClause extends HtClause {
     /**
      * Creates a program sentence in L2.
      *
