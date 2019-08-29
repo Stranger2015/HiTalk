@@ -2,21 +2,26 @@ package org.ltc.hitalk.wam.machine;
 
 import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.logic.fol.interpreter.ResolutionEngine;
-import com.thesett.aima.logic.fol.isoprologparser.SentenceParser;
 import com.thesett.aima.logic.fol.isoprologparser.Token;
-import com.thesett.aima.logic.fol.isoprologparser.TokenSource;
 import com.thesett.common.parsing.SourceCodeException;
+import org.ltc.hitalk.interpreter.HtResolutionEngine;
+import org.ltc.hitalk.parser.HiTalkParser;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledPredicate;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledQuery;
+import org.ltc.hitalk.wam.compiler.HtTokenSource;
 
 import java.io.InputStream;
 import java.util.Objects;
 
 import static com.thesett.aima.logic.fol.isoprologparser.TokenSource.getTokenSourceForInputStream;
 
+/**
+ *
+ */
 public
-class HiTalkWAMEngine extends ResolutionEngine <Clause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> {
+class HiTalkWAMEngine extends HtResolutionEngine <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> {
 
     /**
      * HiTalkWAMEngine implements a {@link ResolutionEngine} for an WAM-based Prolog with built-ins. This engine loads its
@@ -35,37 +40,34 @@ class HiTalkWAMEngine extends ResolutionEngine <Clause, HiTalkWAMCompiledPredica
     private static final String BUILT_IN_LIB_CORE = "core.lgt";
     //    private static final String BUILT_IN_LIB = "wam_builtins.hlgt";
 //    private static final String BUILT_IN_LIB = "wam_builtins.hlgt";
-    protected final HtPrologParser parser;
-    protected final VariableAndFunctorInterner interner;
-
-    public
-    void setCompiler ( LogicCompiler <Clause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> compiler ) {
-        this.compiler = compiler;
-    }
-
-    protected LogicCompiler <Clause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> compiler;
 
     /**
-     * Builds an logical resolution engine from a parser, interner, compiler and resolver.
+     * Creates a prolog parser using the specified interner.
      *
-     * @param parser   The parser.
-     * @param interner The interner.
+     * @param parser
+     * @param interner The functor and variable name interner.
+     * @param compiler
+     * @param resolver
      */
     public
     HiTalkWAMEngine ( HtPrologParser parser,
-                      //
                       VariableAndFunctorInterner interner,
-                      //
-                      LogicCompiler <Clause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> compiler ) {
-        this.parser = parser;
-        this.interner = interner;
+                      LogicCompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> compiler,
+                      Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> resolver ) {
+        super(parser, interner, compiler, resolver);
+    }
+
+    public
+    void setCompiler ( LogicCompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> compiler ) {
         this.compiler = compiler;
     }
 
-    /**,
-     nheritDoc}
-     * <p>
-     * <p/>Loads the built-in library resource specified by {@link #BUILT_IN_LIB}.
+    protected LogicCompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> compiler;
+
+    /**
+     * {InheritDoc}
+     *
+     * Loads the built-in library resource specified by {@link #BUILT_IN_LIB}.
      */
     public
     void reset () {
@@ -74,16 +76,16 @@ class HiTalkWAMEngine extends ResolutionEngine <Clause, HiTalkWAMCompiledPredica
 
         // Create a token source to load the model rules from.
         InputStream input = getClass().getClassLoader().getResourceAsStream(BUILT_IN_LIB);
-        TokenSource tokenSource = (TokenSource) getTokenSourceForInputStream(Objects.requireNonNull(input));
+        HtTokenSource tokenSource = (HtTokenSource) getTokenSourceForInputStream(Objects.requireNonNull(input));
 
         // Set up a parser on the token source.
-        Parser <Clause, Token> libParser = new SentenceParser(interner);
+        Parser <HtClause, Token> libParser = new HiTalkParser(tokenSource, interner);
         libParser.setTokenSource(tokenSource);
 
         // Load the built-ins into the domain.
         try {
             while (true) {
-                Sentence <Clause> sentence = libParser.parse();
+                Sentence <HtClause> sentence = libParser.parse();
 
                 if (sentence == null) {
                     break;

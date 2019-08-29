@@ -35,18 +35,8 @@ class BookKeepingTables<R extends Record> implements IRegistry <R> {
      */
     public
     BookKeepingTables () {
-
         tables = new ArrayList <>();
     }
-//
-//    /**
-//     * @param kind
-//     * @return
-//     */
-//    public
-//    BiConsumer <Functor, R> getAction ( BkTableKind kind ) {
-//        return actions[kind.ordinal()];
-//    }
 
     /**
      * @param id
@@ -99,6 +89,12 @@ class BookKeepingTables<R extends Record> implements IRegistry <R> {
     public
     void add ( BkTableKind kind, R r ) {
         getTable(kind).add(kind, r);
+    }
+
+    @Override
+    public
+    void save ( R r ) {
+
     }
 }
 

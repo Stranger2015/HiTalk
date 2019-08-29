@@ -1,16 +1,16 @@
 package org.ltc.hitalk.compiler;
 
-import com.thesett.aima.logic.fol.Clause;
 import com.thesett.aima.logic.fol.LogicCompiler;
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.aima.logic.fol.bytecode.BaseMachine;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 
 public abstract
-class BaseCompiler<T extends Clause, T1, T2> extends BaseMachine
+class BaseCompiler<T extends HtClause, T1, T2> extends BaseMachine
         implements LogicCompiler <T, T1, T2> {
     protected LogicCompilerObserver <T1, T2> observer;
     protected HtPrologParser parser;

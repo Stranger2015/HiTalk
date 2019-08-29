@@ -462,9 +462,10 @@
 
          Token token = app.parser.lastToken();
          app.parser.getTokenSource().setOffset(token.endLine, token.endColumn);
+//         app.parser.getTokenSource().setFileBeginPos(app.parser.);
          lastTerm = new Functor(interner.internFunctorName(BEGIN_OF_FILE, 0), null);
          String encoding = String.valueOf(functor.getArgument(0));
-         currentinput
+         currentinput()
 //         Charset cs = Charset.forName(encoding);
          return true;
      }

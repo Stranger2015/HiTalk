@@ -1,18 +1,16 @@
 package org.ltc.hitalk;
 
-import com.thesett.aima.logic.fol.Clause;
 import com.thesett.aima.logic.fol.LogicCompiler;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
+import org.ltc.hitalk.interpreter.HtResolutionEngine;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
-import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledPredicate;
-import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledQuery;
-import org.ltc.hitalk.wam.machine.HiTalkWAMEngine;
 
 /**
  *
  */
 public
-class HiTalkEngine extends HiTalkWAMEngine {
+class HiTalkEngine extends HtResolutionEngine <HtClause, HtClause> {
 
     /**
      * Builds an logical resolution engine from a parser, interner, compiler and resolver.
@@ -23,7 +21,17 @@ class HiTalkEngine extends HiTalkWAMEngine {
     public
     HiTalkEngine ( HtPrologParser parser,
                    VariableAndFunctorInterner interner,
-                   LogicCompiler <Clause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> compiler ) {
+                   LogicCompiler <HtClause, HtClause, HtClause> compiler ) {
         super(parser, interner, compiler);
+    }
+
+    /**
+     * Resets the engine to its default state. This will typically load any bootstrapping libraries of built-ins that
+     * the engine requires, but otherwise set its domain to empty.
+     */
+    @Override
+    public
+    void reset () {
+
     }
 }

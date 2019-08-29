@@ -295,10 +295,10 @@ class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompil
             // Check in the symbol table, if a compiled predicate with name matching the program clause exists, and if
             // not create it.
             SymbolKey predicateKey = scopeTable.getSymbolKey(clause.getHead().getName());
-            Collection <HtClause> clauseList = (List <HtClause>) scopeTable.get(predicateKey, SYMKEY_PREDICATES);
+            List <HtClause> clauseList = (List <HtClause>) scopeTable.get(predicateKey, SYMKEY_PREDICATES);
 
             if (clauseList == null) {
-                clauseList = new LinkedList <>();
+                clauseList = new ArrayList <>();
                 scopeTable.put(predicateKey, SYMKEY_PREDICATES, clauseList);
                 predicatesInScope.offer(predicateKey);
             }

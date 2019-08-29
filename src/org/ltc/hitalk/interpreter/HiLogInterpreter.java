@@ -1,4 +1,4 @@
-package org.ltc.hitalk.wam.interpreter;
+package org.ltc.hitalk.interpreter;
 
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.Variable;
@@ -85,6 +85,7 @@ class HiLogInterpreter<S extends HtClause, T, Q> implements IInterpreter <S> {
      * Holds the current interaction mode.
      */
     protected Mode mode = Mode.Query;
+    protected IConfig config;
 
     /**
      * Builds an interactive logical resolution interpreter from a parser, interner, compiler and resolver, encapsulated
@@ -300,7 +301,7 @@ class HiLogInterpreter<S extends HtClause, T, Q> implements IInterpreter <S> {
     @Override
     public
     IConfig getConfig () {
-        return null;
+        return config;
     }
 
     /**

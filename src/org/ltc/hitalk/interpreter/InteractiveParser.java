@@ -1,4 +1,4 @@
-package org.ltc.hitalk.wam.interpreter;
+package org.ltc.hitalk.interpreter;
 
 import com.thesett.aima.logic.fol.OpSymbol;
 import com.thesett.aima.logic.fol.Parser;

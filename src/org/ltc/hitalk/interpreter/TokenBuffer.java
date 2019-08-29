@@ -1,11 +1,10 @@
-package org.ltc.hitalk.wam.interpreter;
+package org.ltc.hitalk.interpreter;
 
 
 import com.thesett.aima.logic.fol.isoprologparser.PrologParserTokenManager;
 import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.common.util.Sink;
 import com.thesett.common.util.Source;
-import org.ltc.hitalk.term.io.TermIO;
 import org.ltc.hitalk.wam.compiler.HtTokenSource;
 
 import java.util.ArrayList;
@@ -24,12 +23,7 @@ class TokenBuffer extends HtTokenSource implements Source <Token>, Sink <Token> 
      */
     public
     TokenBuffer ( PrologParserTokenManager tokenManager ) {
-        super(tokenManager);
-    }
-
-    public
-    TokenBuffer ( TermIO termIO ) {
-
+        super(tokenManager, inputStream);
     }
 
     /**

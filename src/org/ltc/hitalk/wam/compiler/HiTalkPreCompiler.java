@@ -85,13 +85,8 @@ class HiTalkPreCompiler<T extends HtClause> extends BaseMachine
     /**
      * {@inheritDoc}
      */
-    public
-    void compile ( Sentence <T> sentence ) throws SourceCodeException {
-
-
-//                saveResult(clauses);
-    }
-
+    public abstract
+    void compile ( Sentence <T> sentence ) throws SourceCodeException;
 
 
     /**

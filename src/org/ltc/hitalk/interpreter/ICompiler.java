@@ -1,12 +1,12 @@
-package org.ltc.hitalk.wam.interpreter;
+package org.ltc.hitalk.interpreter;
 
 import com.thesett.aima.logic.fol.LogicCompiler;
 import com.thesett.aima.logic.fol.Sentence;
-import com.thesett.aima.logic.fol.isoprologparser.TokenSource;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.wam.compiler.HtTokenSource;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,16 +17,21 @@ import java.util.logging.Logger;
 
 import static com.thesett.aima.logic.fol.isoprologparser.TokenSource.*;
 
+/**
+ * @param <T>
+ * @param <T1>
+ * @param <T2>
+ */
 public
 interface ICompiler<T extends HtClause, T1, T2> extends LogicCompiler <T, T1, T2> {
 
     HiTalkFlag[] EMPTY_FLAG_ARRAY = new HiTalkFlag[0];
 
-    default
-    void compileFileToDisk ( String fn ) throws IOException, SourceCodeException {
-        compileFile(fn, EMPTY_FLAG_ARRAY);
-    }
-
+    /**
+     * @param fnl
+     * @throws IOException
+     * @throws SourceCodeException
+     */
     default
     void compileFiles ( List <String> fnl ) throws IOException, SourceCodeException {
         compileFiles(fnl, EMPTY_FLAG_ARRAY);
@@ -45,7 +50,7 @@ interface ICompiler<T extends HtClause, T1, T2> extends LogicCompiler <T, T1, T2
      */
     default
     void compileFile ( String fn, HiTalkFlag... flags ) throws IOException, SourceCodeException {
-        compile(getTokenSourceForFile(new File(fn)), flags);
+        compile((HtTokenSource) getTokenSourceForFile(new File(fn)), flags);
     }
 
     /**
@@ -56,7 +61,7 @@ interface ICompiler<T extends HtClause, T1, T2> extends LogicCompiler <T, T1, T2
      */
     default
     void compileString ( String fn, HiTalkFlag... flags ) throws IOException, SourceCodeException {
-        compile(getTokenSourceForString(fn), flags);
+        compile((HtTokenSource) getTokenSourceForString(fn), flags);
     }
 
     /**
@@ -67,7 +72,7 @@ interface ICompiler<T extends HtClause, T1, T2> extends LogicCompiler <T, T1, T2
      */
     default
     void compileInputStream ( InputStream input, HiTalkFlag... flags ) throws IOException, SourceCodeException {
-        compile((TokenSource) getTokenSourceForInputStream(input), flags);
+        compile((HtTokenSource) getTokenSourceForInputStream(input), flags);
     }
 
 //    /**
@@ -88,7 +93,7 @@ interface ICompiler<T extends HtClause, T1, T2> extends LogicCompiler <T, T1, T2
      * @param flags
      */
     default
-    void compile ( TokenSource tokenSource, HiTalkFlag... flags ) {
+    void compile ( HtTokenSource tokenSource, HiTalkFlag... flags ) {
         getParser().setTokenSource(tokenSource);
         try {
             while (true) {
@@ -115,10 +120,24 @@ interface ICompiler<T extends HtClause, T1, T2> extends LogicCompiler <T, T1, T2
     HtPrologParser getParser ();
 
     /**
-     *
-     *
      * @param sentence
      * @throws SourceCodeException
      */
+
     void compile ( Sentence <T> sentence, HiTalkFlag... flags ) throws SourceCodeException;
+
+    /**
+     * @param rule
+     */
+    void compileDcgRule ( DcgRule rule ) throws SourceCodeException;
+
+    /**
+     * @param query
+     */
+    void compileQuery ( HtClause query );
+
+    /**
+     * @param clause
+     */
+    void compileClause ( HtClause clause );
 }

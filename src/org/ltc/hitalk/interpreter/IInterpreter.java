@@ -1,4 +1,4 @@
-package org.ltc.hitalk.wam.interpreter;
+package org.ltc.hitalk.interpreter;
 
 import com.thesett.aima.logic.fol.isoprologparser.PrologParserConstants;
 import com.thesett.aima.logic.fol.isoprologparser.Token;

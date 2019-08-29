@@ -1,4 +1,4 @@
-package org.ltc.hitalk.wam.interpreter;
+package org.ltc.hitalk.interpreter;
 
 import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.interpreter.ResolutionEngine;

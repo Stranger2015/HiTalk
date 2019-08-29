@@ -1,5 +1,6 @@
 package org.ltc.hitalk.term.io;
 
+import com.thesett.aima.logic.fol.isoprologparser.SimpleCharStream;
 import org.ltc.hitalk.entities.IProperty;
 import org.ltc.hitalk.entities.PropertyOwner;
 import sun.nio.cs.HistoricallyNamedCharset;
@@ -23,8 +24,8 @@ import java.nio.charset.*;
 public
 class HiTalkStream extends PropertyOwner <IProperty> {
 
-    private final IProperty[] props;
-    private RandomAccessFile raf;
+    //    private final IProperty[] props;
+    protected final RandomAccessFile raf;
     protected StreamDecoder sd;
 //    protected StreamEncoder se;
 
@@ -59,7 +60,7 @@ class HiTalkStream extends PropertyOwner <IProperty> {
      * The <tt>"rws"</tt> and <tt>"rwd"</tt> modes work much like the {@link
      * FileChannel#force(boolean) force(boolean)} method of
      * the {@link FileChannel} class, passing arguments of
-     * <tt>true</tt> and <tt>false</tt>, respetively, except that they always
+     * <tt>true</tt> and <tt>false</tt>, respectively, except that they always
      * apply to every I/O operation and are therefore often more efficient.  If
      * the file resides on a local storage device then when an invocation of a
      * method of this class returns it is guaranteed that all changes made to
@@ -105,7 +106,14 @@ class HiTalkStream extends PropertyOwner <IProperty> {
      */
     public
     HiTalkStream ( File file, String mode, IProperty... props ) throws FileNotFoundException {
-        this.props = props;
+//        this.props = props;
+        raf = new RandomAccessFile(file, mode);
+    }
+
+    public// fixme repLace SCS with RAF or connect using inputstream
+        // fileBeginOffset should mask the file pos!!!
+    HiTalkStream ( SimpleCharStream inputStream ) {
+//        super(inputStream);
         raf = new RandomAccessFile(file, mode);
     }
 

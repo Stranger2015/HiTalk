@@ -10,7 +10,7 @@ import org.ltc.hitalk.entities.HtEntityIdentifier;
  */
 public
 class HtClause extends Clause <Functor> implements Sentence <HtClause> {
-    private final HtEntityIdentifier identifier;
+    protected final HtEntityIdentifier identifier;
 
     /**
      * @param head
@@ -43,5 +43,10 @@ class HtClause extends Clause <Functor> implements Sentence <HtClause> {
     public
     HtClause getT () {
         return this;
+    }
+
+    public
+    boolean isDcgRule () {
+        return false;
     }
 }

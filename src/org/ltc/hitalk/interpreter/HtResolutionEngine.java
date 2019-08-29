@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ltc.hitalk.wam.interpreter;
+package org.ltc.hitalk.interpreter;
 
 import com.thesett.aima.attribute.impl.IdAttribute;
 import com.thesett.aima.logic.fol.*;
@@ -62,16 +62,18 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
      */
     protected LogicCompiler <HtClause, T, Q> compiler;
 
-    /**
-     * Holds the resolver.
-     */
-    protected Resolver <T, Q> resolver;
+//    /**
+//     * Holds the resolver.
+//     */
+//    protected Resolver <T, Q> resolver;
 
     /**
      * Holds the observer for compiler outputs.
      */
     protected HtResolutionEngine <T, Q>.ChainedCompilerObserver chainedObserver =
             new ChainedCompilerObserver();
+
+    protected Q currentQuery;
 
 
     /**
@@ -81,12 +83,12 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
      * @param interner The functor and variable name interner.
      */
     public
-    HtResolutionEngine ( HtPrologParser parser, VariableAndFunctorInterner interner,
-                         LogicCompiler <HtClause, T, Q> compiler,
-                         Resolver <T, Q> resolver ) {
+    HtResolutionEngine ( HtPrologParser parser,
+                         VariableAndFunctorInterner interner,
+                         LogicCompiler <HtClause, T, Q> compiler ) {
         super(parser, interner);
         this.compiler = compiler;
-        this.resolver = resolver;
+//        this.resolver = resolver;
         compiler.setCompilerObserver(chainedObserver);
     }
 
@@ -96,16 +98,6 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
      */
     public abstract
     void reset ();
-
-//    /**
-//     * Provides the resolution engines parser.
-//     *
-//     * @return The resolution engines parser.
-//     */
-//    public Parser<HtClause, Token> getParser()
-//    {
-//        return parser;
-//    }
 
     /**
      * Provides the resolution engines interner.
@@ -126,16 +118,16 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
     LogicCompiler <HtClause, T, Q> getCompiler () {
         return compiler;
     }
-
-    /**
-     * Provides the resolution engines resolver.
-     *
-     * @return The resolution engines resolver.
-     */
-    public
-    Resolver <T, Q> getResolver () {
-        return resolver;
-    }
+//
+//    /**
+//     * Provides the resolution engines resolver.
+//     *
+//     * @return The resolution engines resolver.
+//     */
+//    public
+//    Resolver <T, Q> getResolver () {
+//        return resolver;
+//    }
 
     /**
      * Consults an input stream, reading first order logic clauses from it, and inserting them into the resolvers
@@ -360,15 +352,17 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
      */
     public
     void addToDomain ( T term ) throws LinkageException {
-        resolver.addToDomain(term);
+//        resolver.addToDomain(term);
+
     }
+
 
     /**
      * {@inheritDoc}
      */
     public
     void setQuery ( Q query ) throws LinkageException {
-        resolver.setQuery(query);
+        currentQuery = query;
     }
 
     /**
@@ -376,8 +370,15 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
      */
     public
     Set <Variable> resolve () {
-        return resolver.resolve();
+        // Check that a query has been set to resolve.
+        if (currentQuery == null) {
+            throw new IllegalStateException("No query set to resolve.");
+        }
+
+        // Execute the byte code, starting from the first functor of the query.
+        return executeAndExtractBindings(currentQuery);
     }
+
 
     /**
      * {@inheritDoc}

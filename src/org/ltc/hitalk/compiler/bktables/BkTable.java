@@ -9,7 +9,7 @@ import java.util.List;
  *
  */
 public
-class BkTable<R extends Record> implements IRegistry <R>, List <R> {
+class BkTable<R extends Record> implements IRegistry <R> {
     /**
      * @param id
      * @return

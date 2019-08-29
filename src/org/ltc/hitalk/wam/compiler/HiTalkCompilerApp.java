@@ -14,6 +14,7 @@ import org.ltc.hitalk.entities.context.Context;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.LoadContext;
 import org.ltc.hitalk.parser.HiTalkParser;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.term.Atom;
 import org.ltc.hitalk.wam.machine.HiTalkWAMEngine;
@@ -190,11 +191,11 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
     protected final LoadContext loadContext;
     protected final ExecutionContext executionContext;
     protected LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer;
-    protected LogicCompilerObserver <Clause, Clause> observer2;
+    protected LogicCompilerObserver <HtClause, HtClause> observer2;
     //    protected TokenSource tokenSource;
 //    protected Deque <TokenSource> tokenSourceStack;
 
-    Clause <? extends Functor> lastDirective;
+    HtClause <? extends Functor> lastDirective;
 
     /**
      * Holds the pre-compiler, for analyzing and transforming terms prior to compilation proper.
@@ -268,7 +269,9 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
     void main ( String[] args ) {
         try {
             SymbolTable <Integer, String, Object> symbolTable = new SymbolTableImpl <>();
-            VariableAndFunctorInterner interner = new VariableAndFunctorInternerImpl("HiTalk_Variable_Namespace", "HiTalk_Functor_Namespace");
+            VariableAndFunctorInterner interner = new VariableAndFunctorInternerImpl(
+                    "HiTalk_Variable_Namespace",
+                    "HiTalk_Functor_Namespace");
             HtTokenSource tokenSource = HtTokenSource.getTokenSourceForFile(new File(args[0]));
             HtPrologParser parser = new HiTalkParser(tokenSource, interner);
             HiTalkInstructionCompiler compiler = new HiTalkInstructionCompiler(symbolTable, interner);
@@ -764,13 +767,13 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
 //        //pp_entityCompilerFlag_(Name, Value)
 //        :- dynamic(pp_entityCompilerFlag_'/2).
 //
-//        //ppDcl_(Clause)
+//        //ppDcl_(HtClause)
 //        :- dynamic(ppDcl_'/1).
-//        //ppDef_(Clause)
+//        //ppDef_(HtClause)
 //        :- dynamic(ppDef_'/1).
-//        //ppDdef_(Clause)
+//        //ppDdef_(HtClause)
 //        :- dynamic(ppDdef_'/1).
-//        //ppSuper_(Clause)
+//        //ppSuper_(HtClause)
 //        :- dynamic(ppSuper_'/1).
 //
 //        //ppSynchronized_(Head, Mutex)
@@ -868,9 +871,9 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
 //        :- dynamic(pp_entity_term_'/3).
 //        //ppFinal_entity_term_(Term, Lines)
 //        :- dynamic(ppFinal_entity_term_'/2).
-//        //pp_entityAuxClause_(Clause)
+//        //pp_entityAuxClause_(HtClause)
 //        :- dynamic(pp_entityAuxClause_'/1).
-//        //ppFinal_entityAuxClause_(Clause)
+//        //ppFinal_entityAuxClause_(HtClause)
 //        :- dynamic(ppFinal_entityAuxClause_'/1).
 //
 //        //pp_number_ofClausesRules_(Functor, Arity, NumberOfClauses, NumberOfRules)
@@ -967,7 +970,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
 //        //ppFile_pathsFlags_(Basename, Directory, SourceFile, ObjectFile, Flags)
 //        :- dynamic(ppFile_pathsFlags_'/5).
 //
-//        //ppRuntimeClause_(Clause)
+//        //ppRuntimeClause_(HtClause)
 //        :- dynamic(ppRuntimeClause_'/1).
 //
 //        //ppCcIfFound_(Goal)
@@ -1298,7 +1301,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
 
     //    @Override
     public
-    LogicCompiler <Clause, Clause, Clause> getPreCompiler () {
+    LogicCompiler <HtClause, HtClause, HtClause> getPreCompiler () {
         return preCompiler;
     }
 
@@ -1352,7 +1355,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
 //======================================================================
 // remaining directives
 
-//protected void compileDirective(Clause directive, CompilationContext ctx) {
+//protected void compileDirective(HtClause directive, CompilationContext ctx) {
 //        if(!compilingEntity){
 //            if(!isEntityOpeningDirective(directive)){
 //                if(isEntityClosingDirective(directive)) {
@@ -1364,12 +1367,12 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
 //    }
 
 //    protected
-//    boolean isEntityClosingDirective ( Clause directive ) {
+//    boolean isEntityClosingDirective ( HtClause directive ) {
 //        return false;
 //    }
 //
 //    protected
-//    boolean isEntityOpeningDirective ( Clause directive ) {
+//    boolean isEntityOpeningDirective ( HtClause directive ) {
 //        return false;
 //    }
 //
@@ -1455,7 +1458,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
 /**
  *
  */
-class ClauseChainObserver implements LogicCompilerObserver <Clause, Clause> {
+class ClauseChainObserver implements LogicCompilerObserver <HtClause, HtClause> {
     protected HiTalkInstructionCompiler instructionCompiler;
 
     ClauseChainObserver ( HiTalkInstructionCompiler instructionCompiler ) {
@@ -1466,7 +1469,7 @@ class ClauseChainObserver implements LogicCompilerObserver <Clause, Clause> {
      * {@inheritDoc}
      */
     public
-    void onCompilation ( Sentence <Clause> sentence ) throws SourceCodeException {
+    void onCompilation ( Sentence <HtClause> sentence ) throws SourceCodeException {
         instructionCompiler.compile(sentence);
     }
 
@@ -1474,7 +1477,7 @@ class ClauseChainObserver implements LogicCompilerObserver <Clause, Clause> {
      * {@inheritDoc}
      */
     public
-    void onQueryCompilation ( Sentence <Clause> sentence ) throws SourceCodeException {
+    void onQueryCompilation ( Sentence <HtClause> sentence ) throws SourceCodeException {
         instructionCompiler.compile(sentence);
     }
 }

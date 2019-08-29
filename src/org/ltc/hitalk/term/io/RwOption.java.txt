@@ -267,7 +267,7 @@ class RwOption extends LogtalkFlag {
     public
     Term getFlag () {
         return flag;
-    }
+    3333333333333333
 
     public
     Term getFlagValue () {
@@ -276,3 +276,11 @@ class RwOption extends LogtalkFlag {
 
     private final Term flag;
     private final Term flagValue;
+
+
+
+
+    Я Вам заказал всего лишь черный кофе
+    Вы принесли мне кофе с коньяком
+    А если б пригласил Вас на свиданье,
+    Вы что, пришли бы с мужиком?

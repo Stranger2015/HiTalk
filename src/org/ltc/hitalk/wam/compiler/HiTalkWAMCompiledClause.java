@@ -1,8 +1,8 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.Clause;
 import com.thesett.aima.logic.fol.Functor;
 import com.thesett.common.util.SizeableList;
+import org.ltc.hitalk.parser.HtClause;
 
 import java.util.Arrays;
 
@@ -36,7 +36,7 @@ import java.util.Arrays;
  * @author Rupert Smith
  */
 public
-class HiTalkWAMCompiledClause extends Clause <Functor> {
+class HiTalkWAMCompiledClause extends HtClause {
     /**
      * The parent predicate to which this compiled clause belongs.
      */

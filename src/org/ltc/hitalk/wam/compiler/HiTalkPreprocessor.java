@@ -1,6 +1,7 @@
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.*;
+import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.wam.compiler.expander.DefaultTermExpander;
@@ -29,6 +30,17 @@ class HiTalkPreprocessor<T extends HtClause, TC extends Term, TT extends Transfo
     protected final Resolver <T, T> resolver;
     protected LogicCompilerObserver <HtClause, HtClause> observer;
     protected List <T> preCompiledTarget;
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param sentence
+     */
+    @Override
+    public
+    void compile ( Sentence <T> sentence ) throws SourceCodeException {
+        super.compile(sentence);
+    }
 
     /**
      * Creates a base machine over the specified symbol table.

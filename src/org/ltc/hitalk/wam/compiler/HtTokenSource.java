@@ -4,6 +4,7 @@ import com.thesett.aima.logic.fol.isoprologparser.PrologParserTokenManager;
 import com.thesett.aima.logic.fol.isoprologparser.SimpleCharStream;
 import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.aima.logic.fol.isoprologparser.TokenSource;
+import org.ltc.hitalk.term.io.HiTalkStream;
 
 import java.io.*;
 
@@ -18,18 +19,22 @@ class HtTokenSource extends TokenSource {
 
     private int lineOfs;
     private int colOfs;
-    private int fileOfs;
+    private long fileBeginOffset;
+    private HiTalkStream stream;
 
     /**
      * Builds a token source around the specified token manager.
      *
      * @param tokenManager The token manager to use to feed this source.
+     * @param inputStream
      */
     public
-    HtTokenSource ( PrologParserTokenManager tokenManager ) {
+    HtTokenSource ( PrologParserTokenManager tokenManager, SimpleCharStream inputStream ) {
         super(tokenManager);
 
-        setOffset(0, 0, 0);
+        setOffset(0, 0);
+        setFileBeginOffset(0);
+        stream = new HiTalkStream(inputStream);
     }
 
     /**
@@ -43,7 +48,7 @@ class HtTokenSource extends TokenSource {
         SimpleCharStream inputStream = new SimpleCharStream(new StringReader(stringToTokenize), 1, 1);
         PrologParserTokenManager tokenManager = new PrologParserTokenManager(inputStream);
 
-        return new HtTokenSource(tokenManager);
+        return new HtTokenSource(tokenManager, inputStream);
     }
 
     /**
@@ -59,7 +64,7 @@ class HtTokenSource extends TokenSource {
         SimpleCharStream inputStream = new SimpleCharStream(ins, 1, 1);
         PrologParserTokenManager tokenManager = new PrologParserTokenManager(inputStream);
 
-        return new HtTokenSource(tokenManager);
+        return new HtTokenSource(tokenManager, inputStream);
     }
 
     /**
@@ -73,7 +78,7 @@ class HtTokenSource extends TokenSource {
         SimpleCharStream inputStream = new SimpleCharStream(in, 1, 1);
         PrologParserTokenManager tokenManager = new PrologParserTokenManager(inputStream);
 
-        return new HtTokenSource(tokenManager);
+        return new HtTokenSource(tokenManager, inputStream);
     }
 
     /**
@@ -109,10 +114,9 @@ class HtTokenSource extends TokenSource {
 
 
     public
-    void setOffset ( int lineOfs, int colOfs, int fileOfs ) {
+    void setOffset ( int lineOfs, int colOfs ) {
         this.lineOfs = lineOfs;
         this.colOfs = colOfs;
-        this.fileOfs = fileOfs;
     }
 
 
@@ -125,13 +129,17 @@ class HtTokenSource extends TokenSource {
         token.endLine += lineOfs;
         token.beginColumn += colOfs;
         token.endColumn += colOfs;
-//        token.fileOfs = fileOfs;
 
         return token;
     }
 
     public
-    int getFileOfs () {
-        return fileOfs;
+    long getFileBeginOffset () {
+        return fileBeginOffset;
+    }
+
+    public
+    void setFileBeginOffset ( long fileBeginOffset ) {
+        this.fileBeginOffset = fileBeginOffset;
     }
 }

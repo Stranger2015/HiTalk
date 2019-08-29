@@ -17,11 +17,15 @@ package org.ltc.hitalk.wam.compiler;
  */
 
 import com.thesett.aima.attribute.impl.IdAttribute.IdAttributeFactory;
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.FunctorName;
+import com.thesett.aima.logic.fol.LinkageException;
+import com.thesett.aima.logic.fol.Predicate;
+import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.wam.compiler.WAMCallPoint;
 import com.thesett.common.util.Sizeable;
 import com.thesett.common.util.SizeableLinkedList;
 import com.thesett.common.util.SizeableList;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
 import org.ltc.hitalk.wam.machine.HiTalkWAMResolvingMachine;
 
@@ -49,7 +53,7 @@ import java.util.*;
  */
 public
 class HiTalkWAMCompiledPredicate
-        extends Predicate <Clause>
+        extends Predicate <HtClause>
         implements Sentence <HiTalkWAMCompiledPredicate>, Sizeable, HiTalkWAMOptimizeableListing {
     //Used for debugging.
     //private static final Logger log = Logger.getLogger(WAMCompiledClause.class.getName());
@@ -140,12 +144,12 @@ class HiTalkWAMCompiledPredicate
      * @param instructions A list of instructions to add to the body.
      */
     public
-    void addInstructions ( Clause body, SizeableList <HiTalkWAMInstruction> instructions ) {
+    void addInstructions ( HtClause body, SizeableList <HiTalkWAMInstruction> instructions ) {
         int oldLength;
 
         if (this.body == null) {
             oldLength = 0;
-            this.body = new Clause[1];
+            this.body = new HtClause[1];
         }
         else {
             oldLength = this.body.length;

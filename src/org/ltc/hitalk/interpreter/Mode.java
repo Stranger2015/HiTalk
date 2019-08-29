@@ -1,4 +1,4 @@
-package org.ltc.hitalk.wam.interpreter;
+package org.ltc.hitalk.interpreter;
 
 /**
  * Describes the possible parsing modes.

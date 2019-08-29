@@ -101,6 +101,11 @@ class HtPrologParser implements Parser <HtClause, Token>, PrologParserConstants 
         new VariableAndFunctorInternerImpl("Prolog_Variable_Namespace", "Prolog_Functor_Namespace");
     }
 
+    public
+    long getFileBeginPos () {
+        return getTokenSource().getFileBeginOffset();
+    }
+
     /**
      * Establishes the token source to parse from.
      *
