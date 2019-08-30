@@ -67,15 +67,16 @@ class HiTalkParser extends HiLogParser {
      * no head but must have a body. If it is neither but is a functor it is interpreted as a program clause ':-' with
      * no body, that is, a fact.
      *
-     * @param term     The term to convert to a top-level clause.
+     * @param term The term to convert to a top-level clause.
      * @return A clause for the term, or <tt>null</tt> if it cannot be converted.
      * @throws SourceCodeException If the term to convert to a clause does not form a valid clause.
      */
     public//fixme
     HtClause convert ( Term term ) throws SourceCodeException {
+        return (HtClause) term;
+    }
 
-
-        /**
+    /**
      * Interns and inserts into the operator table all of the built in operators and functors in Prolog.
      */
     @Override

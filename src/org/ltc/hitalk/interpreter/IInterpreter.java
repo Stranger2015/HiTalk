@@ -1,6 +1,7 @@
 package org.ltc.hitalk.interpreter;
 
 import com.thesett.aima.logic.fol.isoprologparser.PrologParserConstants;
+import com.thesett.aima.logic.fol.isoprologparser.PrologParserTokenManager;
 import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.parsing.SourceCodePosition;
@@ -47,7 +48,7 @@ interface IInterpreter<S extends HtClause> extends IApplication {
         setConsoleReader(initializeCommandLineReader());
 
         // Used to buffer input, and only feed it to the parser when a PERIOD is encountered.
-        TokenBuffer tokenBuffer = new TokenBuffer(getTermIO());
+        TokenBuffer tokenBuffer = new TokenBuffer(new PrologParserTokenManager(),;
 
         // Used to hold the currently buffered lines of input, for the purpose of presenting this back to the user
         // in the event of a syntax or other error in the input.

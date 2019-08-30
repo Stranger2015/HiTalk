@@ -18,6 +18,7 @@ package org.ltc.hitalk.parser;
 
 
 import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.OpSymbol.Associativity;
 import com.thesett.aima.logic.fol.isoprologparser.*;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.parsing.SourceCodePosition;
@@ -74,12 +75,12 @@ class HtPrologParser implements Parser <HtClause, Token>, PrologParserConstants 
     public static final String BEGIN_OF_FILE = "begin_of_file";
     public static final String END_OF_FILE = "end_of_file";
     //    protected static final Functor[] EMPTY_FUNCTOR_ARRAY = new Functor[0];
-    protected static final Term[] EMPTY_TERM_ARRAY = new Term[0];
+//    protected static final Term[] EMPTY_TERM_ARRAY = new Term[0];
 
     /**
      * Used for logging to the console.
      */
-    private static final java.util.logging.Logger console = java.util.logging.Logger.getLogger("CONSOLE." + com.thesett.aima.logic.fol.isoprologparser.PrologParser.class.getName());
+    private static final java.util.logging.Logger console = java.util.logging.Logger.getLogger("CONSOLE." + HtPrologParser.class.getName());
 
     /**
      * Lists the tokens expected to begin a term expression as a string.
@@ -98,7 +99,9 @@ class HtPrologParser implements Parser <HtClause, Token>, PrologParserConstants 
             });
 
     static {
-        new VariableAndFunctorInternerImpl("Prolog_Variable_Namespace", "Prolog_Functor_Namespace");
+        new VariableAndFunctorInternerImpl(
+                "Prolog_Variable_Namespace",
+                "Prolog_Functor_Namespace");
     }
 
     public
@@ -137,8 +140,10 @@ class HtPrologParser implements Parser <HtClause, Token>, PrologParserConstants 
      */
     @Override
     public
-    void setOperator ( String operatorName, int priority, OpSymbol.Associativity associativity ) {
-
+    void setOperator ( String operatorName, int priority, Associativity associativity ) {
+        if (priority == 0) {
+            operatorParser.
+        }
     }
 
     /**
@@ -157,6 +162,8 @@ class HtPrologParser implements Parser <HtClause, Token>, PrologParserConstants 
      * Holds the variable scoping context for the current sentence.
      */
     protected Map <Integer, Variable> variableContext = new HashMap <>();
+    // fixme map isn't needed
+    // list<variable> will do
     /**
      * Holds the byte code machine to compile into, if using compiled mode.
      */
@@ -867,7 +874,7 @@ class HtPrologParser implements Parser <HtClause, Token>, PrologParserConstants 
      * @param associativity The operators associativity.
      */
     public
-    void internOperator ( String operatorName, int priority, OpSymbol.Associativity associativity ) {
+    void internOperator ( String operatorName, int priority, Associativity associativity ) {
         int arity;
 
         if ((associativity == XFY) | (associativity == YFX) | (associativity == XFX)) {

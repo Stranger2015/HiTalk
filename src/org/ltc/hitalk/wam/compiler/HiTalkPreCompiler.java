@@ -8,6 +8,7 @@ import com.thesett.aima.logic.fol.wam.TermWalkers;
 import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.parser.HtClause;
 
 import java.util.List;
@@ -49,8 +50,8 @@ class HiTalkPreCompiler<T extends HtClause> extends BaseMachine
     /**
      * Holds the default built in, for standard compilation and interners and symbol tables.
      */
-    private final HiTalkDefaultBuiltIn defaultBuiltIn;
-    private final HiTalkCompilerApp app;
+    protected final HiTalkDefaultBuiltIn defaultBuiltIn;
+    protected final IApplication app;
 
     /**
      * Holds the built in transformation.
@@ -60,7 +61,7 @@ class HiTalkPreCompiler<T extends HtClause> extends BaseMachine
     /**
      * Holds the compiler output observer.
      */
-    private LogicCompilerObserver <HtClause, HtClause> observer;
+    protected LogicCompilerObserver <HtClause, HtClause> observer;
 
     /**
      * Creates a new PreCompiler.
@@ -73,7 +74,7 @@ class HiTalkPreCompiler<T extends HtClause> extends BaseMachine
     HiTalkPreCompiler ( SymbolTable <Integer, String, Object> symbolTable,
                         VariableAndFunctorInterner interner,
                         HiTalkDefaultBuiltIn defaultBuiltIn,
-                        HiTalkCompilerApp app
+                        IApplication app
     ) {
         super(symbolTable, interner);
 
@@ -173,6 +174,11 @@ class HiTalkPreCompiler<T extends HtClause> extends BaseMachine
     public
     HiTalkDefaultBuiltIn getDefaultBuiltIn () {
         return defaultBuiltIn;
+    }
+
+    public
+    LogicCompilerObserver <HtClause, HtClause> getObserver () {
+        return observer;
     }
 }
 

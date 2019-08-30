@@ -3,7 +3,7 @@
 :- object(enum(type, _Elements_ ),
         implements([setp, setp, listp]),
         implements(setp),
-        extends(sey)
+        extends(set)
         ).
 
         :- public

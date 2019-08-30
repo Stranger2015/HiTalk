@@ -19,12 +19,10 @@ class HtProperty implements IProperty, INameable <Functor> {
      * @param args
      */
     public
-    HtProperty ( int name, ListTerm args ) {
+    HtProperty ( Functor name, ListTerm args ) {
         this.name = name;
         this.value = args;
     }
-
-//  YYTUUYYY
 
     /**
      *

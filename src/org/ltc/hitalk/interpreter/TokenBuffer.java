@@ -1,7 +1,7 @@
 package org.ltc.hitalk.interpreter;
 
-
 import com.thesett.aima.logic.fol.isoprologparser.PrologParserTokenManager;
+import com.thesett.aima.logic.fol.isoprologparser.SimpleCharStream;
 import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.common.util.Sink;
 import com.thesett.common.util.Source;
@@ -22,8 +22,8 @@ class TokenBuffer extends HtTokenSource implements Source <Token>, Sink <Token> 
      * @param tokenManager The token manager to use to feed this source.
      */
     public
-    TokenBuffer ( PrologParserTokenManager tokenManager ) {
-        super(tokenManager, inputStream);
+    TokenBuffer ( PrologParserTokenManager tokenManager, SimpleCharStream simpleCharStream ) {
+        super(tokenManager, simpleCharStream);
     }
 
     /**

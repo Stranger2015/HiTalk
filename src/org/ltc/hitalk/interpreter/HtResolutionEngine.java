@@ -26,10 +26,7 @@ import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.HtTokenSource;
 
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * ResolutionEngine combines together a logic {@link Parser}, a {@link VariableAndFunctorInterner} that acts as a symbol
@@ -62,11 +59,6 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
      */
     protected LogicCompiler <HtClause, T, Q> compiler;
 
-//    /**
-//     * Holds the resolver.
-//     */
-//    protected Resolver <T, Q> resolver;
-
     /**
      * Holds the observer for compiler outputs.
      */
@@ -74,7 +66,7 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
             new ChainedCompilerObserver();
 
     protected Q currentQuery;
-
+    protected final List <Set <Variable>> vars = new ArrayList <>();
 
     /**
      * Creates a prolog parser using the specified interner.
@@ -118,16 +110,6 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
     LogicCompiler <HtClause, T, Q> getCompiler () {
         return compiler;
     }
-//
-//    /**
-//     * Provides the resolution engines resolver.
-//     *
-//     * @return The resolution engines resolver.
-//     */
-//    public
-//    Resolver <T, Q> getResolver () {
-//        return resolver;
-//    }
 
     /**
      * Consults an input stream, reading first order logic clauses from it, and inserting them into the resolvers
@@ -162,13 +144,13 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
      */
     public
     String printSolution ( Iterable <Variable> solution ) {
-        String result = "";
+        StringBuilder result = new StringBuilder();
 
         for (Variable var : solution) {
-            result += printVariableBinding(var) + "\n";
+            result.append(printVariableBinding(var)).append("\n");
         }
 
-        return result;
+        return result.toString();
     }
 
     /**
@@ -179,13 +161,13 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
      */
     public
     String printSolution ( Map <String, Variable> variables ) {
-        String result = "";
+        StringBuilder result = new StringBuilder();
 
         for (Map.Entry <String, Variable> entry : variables.entrySet()) {
-            result += printVariableBinding(entry.getValue()) + "\n";
+            result.append(printVariableBinding(entry.getValue())).append("\n");
         }
 
-        return result;
+        return result.toString();
     }
 
     /**
@@ -379,13 +361,18 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
         return executeAndExtractBindings(currentQuery);
     }
 
+    private
+    Set <Variable> executeAndExtractBindings ( Q currentQuery ) {
+        return null;
+    }
+
 
     /**
      * {@inheritDoc}
      */
     public
     Iterator <Set <Variable>> iterator () {
-        return resolver.iterator();
+        return vars.iterator();
     }
 
     /**
@@ -448,7 +435,7 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
                 observer.onCompilation(sentence);
             }
 
-            getResolver().addToDomain(sentence.getT());
+            HtResolutionEngine.this.addToDomain(sentence.getT());
         }
 
         /**
@@ -460,7 +447,7 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
                 observer.onQueryCompilation(sentence);
             }
 
-            getResolver().setQuery(sentence.getT());
+            HtResolutionEngine.this.setQuery(sentence.getT());
         }
     }
 }

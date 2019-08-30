@@ -1,8 +1,16 @@
 package org.ltc.hitalk.entities;
 
-import com.thesett.aima.logic.fol.Clause;
-import com.thesett.aima.logic.fol.Functor;
-import com.thesett.aima.logic.fol.Predicate;
+import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.search.Operator;
+import com.thesett.common.util.StackQueue;
+import org.ltc.hitalk.interpreter.IPredicateTraverser;
+import org.ltc.hitalk.interpreter.IPredicateVisitor;
+import org.ltc.hitalk.parser.HtClause;
+
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * properties
@@ -46,7 +54,121 @@ import com.thesett.aima.logic.fol.Predicate;
  * specified line (if applicable)
  */
 public
-class HtPredicate extends Predicate <Clause> implements IPropertyOwner <Functor> {
+class HtPredicate extends BaseTerm implements Term, IPropertyOwner {
+    /**
+     * The clauses that make up this predicate.
+     */
+    protected HtClause[] body;
+
+    /**
+     * Creates a predicate formed from a set of clauses.
+     *
+     * @param body The clauses that make up the body of the predicate.
+     */
+    public
+    HtPredicate ( HtClause[] body ) {
+        this.body = body;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public
+    Term getValue () {
+        return this;
+    }
+
+    /**
+     * Gets all of the clauses that make up the body of the predicate.
+     *
+     * @return All of the clauses that make up the body of the predicate.
+     */
+    public
+    HtClause[] getBody () {
+        return body;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public
+    void free () {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public
+    Iterator <Operator <Term>> getChildren ( boolean reverse ) {
+        if ((traverser instanceof IPredicateTraverser)) {
+            return ((IPredicateTraverser) traverser).traverse(this, reverse);
+        }
+        else {
+            List <Operator <Term>> resultList = null;
+
+            if (!reverse) {
+                resultList = new LinkedList <>();//replace linked
+            }
+            else {
+                resultList = new StackQueue <>();
+            }
+
+            if (body != null) {
+                resultList.addAll(Arrays.asList(body));
+            }
+
+            return resultList.iterator();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public
+    void accept ( TermVisitor visitor ) {
+        if (visitor instanceof PredicateVisitor) {
+            ((IPredicateVisitor) visitor).visit(this);
+        }
+        else {
+            super.accept(visitor);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public
+    String toString ( VariableAndFunctorInterner interner, boolean printVarName, boolean printBindings ) {
+        String result = "";
+
+        if (body != null) {
+            for (int i = 0; i < body.length; i++) {
+                result +=
+                        body[i].toString(interner, printVarName, printBindings) + ((i < (body.length - 1)) ? "\n" : "");
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public
+    String toString () {
+        String bodyString = "[";
+
+        if (body != null) {
+            for (int i = 0; i < body.length; i++) {
+                bodyString += body[i].toString() + ((i < (body.length - 1)) ? ", " : "");
+            }
+        }
+
+        bodyString += "]";
+
+        return "Clause: [ body = " + bodyString + " ]";
+    }
+
     //    private final static int PROPS_LENGTH = 29;
     private final HtProperty[] props;
 
@@ -56,7 +178,7 @@ class HtPredicate extends Predicate <Clause> implements IPropertyOwner <Functor>
      * @param body The clauses that make up the body of the predicate.
      */
     public
-    HtPredicate ( Clause[] body, HtProperty... props ) {
+    HtPredicate ( HtClause[] body, HtProperty... props ) {
         super(body);
         this.props = props;
     }
@@ -69,4 +191,5 @@ class HtPredicate extends Predicate <Clause> implements IPropertyOwner <Functor>
     int getPropLength () {
         return props.length;
     }
+}
 }

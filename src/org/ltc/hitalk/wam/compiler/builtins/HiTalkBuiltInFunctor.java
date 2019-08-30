@@ -4,6 +4,9 @@ import com.thesett.aima.logic.fol.Functor;
 import com.thesett.common.util.doublemaps.SymbolKey;
 import org.ltc.hitalk.wam.compiler.HiTalkBuiltIn;
 
+/**
+ *
+ */
 public abstract
 class HiTalkBuiltInFunctor extends Functor implements HiTalkBuiltIn {
     /**

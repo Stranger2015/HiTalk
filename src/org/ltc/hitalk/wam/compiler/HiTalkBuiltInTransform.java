@@ -25,6 +25,7 @@
  import com.thesett.common.parsing.SourceCodeException;
  import com.thesett.common.util.Function;
  import org.apache.commons.lang3.tuple.Pair;
+ import org.ltc.hitalk.compiler.bktables.IApplication;
  import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
  import org.ltc.hitalk.core.HtConstants;
  import org.ltc.hitalk.entities.*;
@@ -108,9 +109,10 @@
       * implementations.
       *
       * @param defaultBuiltIn The default built in, for standard compilation and interners and symbol tables.
+      * @param app
       */
      public
-     HiTalkBuiltInTransform ( HiTalkDefaultBuiltIn defaultBuiltIn, HiTalkCompilerApp app ) {
+     HiTalkBuiltInTransform ( HiTalkDefaultBuiltIn defaultBuiltIn, IApplication app ) {
          this.defaultBuiltIn = defaultBuiltIn;
          interner = defaultBuiltIn.getInterner();
          this.app = app;

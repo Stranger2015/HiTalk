@@ -1,5 +1,6 @@
 package org.ltc.hitalk.interpreter;
 
+import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.aima.logic.fol.VariableAndFunctorInternerImpl;
 import com.thesett.common.util.doublemaps.SymbolTable;
@@ -11,7 +12,6 @@ import org.ltc.hitalk.parser.HiTalkParser;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.HiTalkAstCompiler;
-import org.ltc.hitalk.wam.compiler.HiTalkCompilerApp;
 import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.HtTokenSource;
 
@@ -96,10 +96,10 @@ class HiTalkAstInterpreterApp implements IApplication {
             HtTokenSource tokenSource = HtTokenSource.getTokenSourceForFile(new File(args[0]));
             HtPrologParser parser = new HiTalkParser(tokenSource, interner);
             HiTalkAstCompiler compiler = new HiTalkAstCompiler(symbolTable, interner, parser);
-            HtResolutionEngine <HtClause, HtClause> engine = new HtResolutionEngine(parser, interner, compiler)
+            Resolver <HtClause, HtClause> resolver = new HtResolutionEngine(parser, interner, compiler);
             HiTalkDefaultBuiltIn defaultBuiltIn = new HiTalkDefaultBuiltIn(symbolTable, interner);
 
-            HiTalkCompilerApp app = new HiTalkCompilerApp(symbolTable, interner, parser, compiler, defaultBuiltIn);
+            IApplication app = new HiTalkAstInterpreterApp(symbolTable, interner, parser, compiler, defaultBuiltIn);
             app.setFileName(args[0]);
 //            app.createFlags(app.loadContext, DEFAULT_SCRATCH_DIRECTORY);
             app.setParser(parser);

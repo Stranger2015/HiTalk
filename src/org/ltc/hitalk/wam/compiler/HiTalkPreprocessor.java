@@ -39,7 +39,7 @@ class HiTalkPreprocessor<T extends HtClause, TC extends Term, TT extends Transfo
     @Override
     public
     void compile ( Sentence <T> sentence ) throws SourceCodeException {
-        super.compile(sentence);
+//        super.compile(sentence);
     }
 
     /**
