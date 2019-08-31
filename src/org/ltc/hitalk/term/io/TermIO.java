@@ -14,9 +14,9 @@ class TermIO {
     private final ITermFactory tf;
     private final HtPrologParser pp;
 
-    protected List <HiTalkStream> streams = new ArrayList <>();
+    protected static final List <HiTalkStream> streams = new ArrayList <>();
 
-    public
+    public static
     HiTalkStream currentInput () {
         return streams.get(0);
     }
@@ -24,10 +24,15 @@ class TermIO {
     /**
      * @return
      */
-    public
+    public static
     HiTalkStream currentOutput () {
         return streams.get(1);
     }
+
+    /**
+     * @param tf
+     * @param pp
+     */
     public
     TermIO ( ITermFactory tf, HtPrologParser pp ) {
         this.tf = tf;
@@ -40,6 +45,6 @@ class TermIO {
 
     private
     void initOptions ( String fn ) {
-
+        c
     }
 }

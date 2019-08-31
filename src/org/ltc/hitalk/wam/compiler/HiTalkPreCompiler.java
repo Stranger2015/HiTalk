@@ -1,6 +1,9 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.LogicCompilerObserver;
+import com.thesett.aima.logic.fol.Sentence;
+import com.thesett.aima.logic.fol.Term;
+import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.aima.logic.fol.bytecode.BaseMachine;
 import com.thesett.aima.logic.fol.compiler.SymbolKeyTraverser;
 import com.thesett.aima.logic.fol.compiler.TermWalker;
@@ -8,7 +11,9 @@ import com.thesett.aima.logic.fol.wam.TermWalkers;
 import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.HiTalkBuiltInTransform;
 import org.ltc.hitalk.compiler.bktables.IApplication;
+import org.ltc.hitalk.interpreter.ICompiler;
 import org.ltc.hitalk.parser.HtClause;
 
 import java.util.List;
@@ -42,7 +47,7 @@ import java.util.List;
  */
 abstract public
 class HiTalkPreCompiler<T extends HtClause> extends BaseMachine
-        implements LogicCompiler <T, HtClause, HtClause> {
+        implements ICompiler <T, HtClause, HtClause> {
 
     //Used for debugging.
     /* private static final Logger log = Logger.getLogger(PreCompiler.class.getName()); */

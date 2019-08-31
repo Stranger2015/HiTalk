@@ -1,7 +1,6 @@
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
-import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
@@ -9,6 +8,7 @@ import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.interpreter.DcgRuleTranslator;
+import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.interpreter.ICompiler;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
@@ -26,9 +26,8 @@ class HiTalkAstCompiler implements ICompiler <HtClause, HtClause, HtClause> {
     protected final SymbolTable <Integer, String, Object> symbolTable;
     protected final HtPrologParser parser;
     protected final VariableAndFunctorInterner interner;
-    protected final Resolver <HtClause, HtClause> resolver;
+    protected final HtResolutionEngine <HtClause, HtClause> resolver;
     protected final DcgRuleTranslator translator;
-    //    protected final Resolver <HtClause, HtClause> resolver;
     protected Logger logger;
 
     public
@@ -36,12 +35,12 @@ class HiTalkAstCompiler implements ICompiler <HtClause, HtClause, HtClause> {
             SymbolTable <Integer, String, Object> symbolTable,
             VariableAndFunctorInterner interner,
             HtPrologParser parser,
-            Resolver <HtClause, HtClause> resolver ) {
+            HtResolutionEngine <HtClause, HtClause> resolver ) {
         this.symbolTable = symbolTable;
         this.parser = parser;
         this.interner = interner;
         this.resolver = resolver;
-        translator = new DcgRuleTranslator(symbolTable, interner);
+        translator = new DcgRuleTranslator(symbolTable, interner, parser, );
     }
 
     @Override

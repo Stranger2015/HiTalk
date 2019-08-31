@@ -9,13 +9,15 @@ import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.HiTalkPreCompiler;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  *
  */
 public
-class DcgRuleTranslator extends HiTalkPreCompiler <HtClause> {
+class DcgRuleExpander extends HiTalkPreCompiler <HtClause> {
+
     /**
      * Creates a new PreCompiler.
      *
@@ -61,7 +63,8 @@ class DcgRuleTranslator extends HiTalkPreCompiler <HtClause> {
     @Override
     protected
     List <HtClause> preprocess ( HtClause clause ) {
-        return null;
+        List <HtClause> l = new ArrayList <>();
+        return l;
     }
 }
 

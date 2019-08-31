@@ -44,5 +44,13 @@ interface IApplication {
      */
     void banner ();
 
+    /**
+     * @param parser
+     */
     void setParser ( HtPrologParser parser );
+
+    /**
+     * @param arg
+     */
+    void setFileName ( String arg );
 }

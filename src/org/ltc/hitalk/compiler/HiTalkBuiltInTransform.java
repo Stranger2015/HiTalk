@@ -13,7 +13,7 @@
   * See the License for the specific language governing permissions and
   * limitations under the License.
   */
- package org.ltc.hitalk.wam.compiler;
+ package org.ltc.hitalk.compiler;
 
  import com.thesett.aima.logic.fol.Functor;
  import com.thesett.aima.logic.fol.FunctorName;
@@ -31,16 +31,16 @@
  import org.ltc.hitalk.entities.*;
  import org.ltc.hitalk.parser.HtClause;
  import org.ltc.hitalk.term.ListTerm;
+ import org.ltc.hitalk.term.io.HiTalkStream;
+ import org.ltc.hitalk.wam.compiler.*;
 
  import java.io.FileNotFoundException;
  import java.io.IOException;
- import java.io.InputStream;
  import java.nio.file.Path;
  import java.nio.file.Paths;
  import java.util.*;
  import java.util.function.Predicate;
 
- import static java.lang.System.in;
  import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.*;
  import static org.ltc.hitalk.core.HtConstants.*;
  import static org.ltc.hitalk.entities.IRelation.*;
@@ -95,9 +95,10 @@
      /**
       * Holds the default built in, for standard compilation and interners and symbol tables.
       */
-     private final HiTalkDefaultBuiltIn defaultBuiltIn;
-     private final VariableAndFunctorInterner interner;
-     private final HiTalkCompilerApp app;
+     protected final HiTalkDefaultBuiltIn defaultBuiltIn;
+     protected final VariableAndFunctorInterner interner;
+     protected final IApplication app;
+
      ///////////////////////////
      private HtEntityIdentifier entityCompiling;
      private IRelation lastRelation;
@@ -201,7 +202,8 @@
 
      private
      boolean current_input_p ( Functor functor ) {
-         try (InputStream input = in) {
+         try (functor/*InputStream input = in*/) {
+             HiTalkStream input;
          } catch (IOException e) {
              throw new ExecutionError(RESOURCE_ERROR, null);
          }
@@ -946,6 +948,4 @@
      Term getLastTerm () {
          return lastTerm;
      }
-
-
  }
