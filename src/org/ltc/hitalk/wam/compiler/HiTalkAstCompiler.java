@@ -1,14 +1,15 @@
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
+import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
+import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.interpreter.DcgRule;
-import org.ltc.hitalk.interpreter.DcgRuleTranslator;
-import org.ltc.hitalk.interpreter.HtResolutionEngine;
+import org.ltc.hitalk.interpreter.DcgRuleExpander;
 import org.ltc.hitalk.interpreter.ICompiler;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
@@ -21,28 +22,41 @@ import java.util.logging.Logger;
  *
  */
 public
-class HiTalkAstCompiler implements ICompiler <HtClause, HtClause, HtClause> {
+class HiTalkAstCompiler<T extends HtClause> implements ICompiler <T, T, T> {
 
     protected final SymbolTable <Integer, String, Object> symbolTable;
     protected final HtPrologParser parser;
     protected final VariableAndFunctorInterner interner;
-    protected final HtResolutionEngine <HtClause, HtClause> resolver;
-    protected final DcgRuleTranslator translator;
-    protected Logger logger;
+    protected Resolver <T, T> resolver;
+    protected final DcgRuleExpander ruleExpander;
+    protected final Logger logger = null;//  todo
+    private LogicCompilerObserver <T, T> observer;
 
+    /**
+     * @param symbolTable
+     * @param interner
+     * @param parser      //     * @param resolver
+     * @param app
+     */
     public
     HiTalkAstCompiler (
             SymbolTable <Integer, String, Object> symbolTable,
             VariableAndFunctorInterner interner,
             HtPrologParser parser,
-            HtResolutionEngine <HtClause, HtClause> resolver ) {
+//            Resolver <T, T> resolver,
+            IApplication app
+    ) {
         this.symbolTable = symbolTable;
         this.parser = parser;
         this.interner = interner;
-        this.resolver = resolver;
-        translator = new DcgRuleTranslator(symbolTable, interner, parser, );
+        this.setResolver(resolver);
+        HiTalkDefaultBuiltIn defaultBuiltIn = new HiTalkDefaultBuiltIn(symbolTable, interner);
+        ruleExpander = new DcgRuleExpander(symbolTable, interner, defaultBuiltIn, app);
     }
 
+    /**
+     * @return
+     */
     @Override
     public
     Logger getConsole () {
@@ -65,27 +79,38 @@ class HiTalkAstCompiler implements ICompiler <HtClause, HtClause, HtClause> {
      */
     @Override
     public
-    void compile ( Sentence <HtClause> sentence, HiTalkFlag... flags ) throws SourceCodeException {
-
+    void compile ( HtClause sentence, HiTalkFlag... flags ) throws SourceCodeException {
+// TODO
     }
 
     @Override
     public
     void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
-        List <HtClause> clauses = translate(rule);
-        for (HtClause clause : clauses) {
+        List <Sentence <T>> clauses = translate(rule);
+        for (Sentence <T> clause : clauses) {
             compile(clause);
         }
     }
 
-    private
-    List <HtClause> translate ( DcgRule rule ) {
+    /**
+     * @param resolver
+     */
+    @Override
+    public
+    void setResolver ( Resolver <T, T> resolver ) {
+        this.resolver = resolver;
+    }
 
-        List <HtClause> l = new ArrayList <>();
+    private
+    List <Sentence <T>> translate ( DcgRule rule ) {
+        List <Sentence <T>> l = new ArrayList <>();
 
         return l;
     }
 
+    /**
+     * @param query
+     */
     @Override
     public
     void compileQuery ( HtClause query ) {
@@ -106,13 +131,16 @@ class HiTalkAstCompiler implements ICompiler <HtClause, HtClause, HtClause> {
      */
     @Override
     public
-    void compile ( Sentence <HtClause> sentence ) throws SourceCodeException {
-        HtClause clause = sentence.getT();
+    void compile ( Sentence <T> sentence ) throws SourceCodeException {
+        T clause = sentence.getT();
         if (clause.isQuery()) {
             compileQuery(clause);
         }
         else if (clause.isDcgRule()) {
             compileDcgRule((DcgRule) clause);//fixme
+        }
+        else {
+            compileClause(clause);
         }
     }
 
@@ -123,8 +151,8 @@ class HiTalkAstCompiler implements ICompiler <HtClause, HtClause, HtClause> {
      */
     @Override
     public
-    void setCompilerObserver ( LogicCompilerObserver <HtClause, HtClause> observer ) {
-
+    void setCompilerObserver ( LogicCompilerObserver <T, T> observer ) {
+        this.observer = observer;
     }
 
     /**
@@ -135,9 +163,13 @@ class HiTalkAstCompiler implements ICompiler <HtClause, HtClause, HtClause> {
     @Override
     public
     void endScope () throws SourceCodeException {
-
+//todo
     }
 
+    /**
+     * @return
+     *
+     */
     public
     SymbolTable <Integer, String, Object> getSymbolTable () {
         return symbolTable;

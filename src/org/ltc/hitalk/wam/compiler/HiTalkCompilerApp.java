@@ -13,6 +13,9 @@ import org.ltc.hitalk.entities.context.CompilationContext;
 import org.ltc.hitalk.entities.context.Context;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.LoadContext;
+import org.ltc.hitalk.interpreter.DcgRule;
+import org.ltc.hitalk.interpreter.HtResolutionEngine;
+import org.ltc.hitalk.interpreter.ICompiler;
 import org.ltc.hitalk.parser.HiTalkParser;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
@@ -132,7 +135,7 @@ import static org.ltc.hitalk.core.HtConstants.IMPLIES;
 public
 class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
 
-    private static final String DEFAULT_SCRATCH_DIRECTORY = "scratch";
+    public static final String DEFAULT_SCRATCH_DIRECTORY = "scratch";
 
     /**
      * <code>access(Access)</code>,  where <code>Access</code> can be either <code>read_write (the default) or
@@ -178,12 +181,12 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
      * Can be used to perform conditional code optimizations in term_expansion/2 (see also the -O option)
      * or to omit execution of directives during compilation.
      */
-    private ITermFactory tf;
+    protected ITermFactory tf;
     /**
      * Holds the instruction generating compiler.
      */
-    private final HiTalkInstructionCompiler instructionCompiler;
-    private final String scratchDirectory;
+    protected final ICompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> instructionCompiler;
+    protected final String scratchDirectory;
     //
 //    private final BookKeepingTables bkt = new BookKeepingTables();
     protected final IRegistry <BkLoadedEntities> registry = new BookKeepingTables <>();
@@ -192,24 +195,21 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
     protected final ExecutionContext executionContext;
     protected LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer;
     protected LogicCompilerObserver <HtClause, HtClause> observer2;
-    //    protected TokenSource tokenSource;
-//    protected Deque <TokenSource> tokenSourceStack;
-
-    HtClause <? extends Functor> lastDirective;
 
     /**
      * Holds the pre-compiler, for analyzing and transforming terms prior to compilation proper.
      */
-    protected HiTalkPreCompiler preCompiler;
+    protected ICompiler <HtClause, HtClause, HtClause> preCompiler;
     protected String fileName;
     protected IConfig config;
     //    protected HiTalkCompilerApp app;
     protected boolean started;
     protected HtPrologParser parser;
 
-    int object_counter;
-    int category_counter;
-    int protocol_counter;
+    protected int object_counter;
+    protected int category_counter;
+    protected int protocol_counter;
+    private Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> resolver;
 
 
     /**
@@ -225,6 +225,9 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
                         HiTalkInstructionCompiler compiler,
                         HiTalkDefaultBuiltIn defaultBuiltIn ) throws LinkageException {
         super(parser, interner, compiler);
+
+        Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> resolver =
+                new HtResolutionEngine <>(parser, interner, compiler);
 
         preCompiler = new HiTalkPreprocessor(symbolTable, interner, defaultBuiltIn, resolver, this);
         instructionCompiler = compiler;
@@ -989,6 +992,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
 
     protected
     void cacheCompilerFlags () {
+
     }
     //compiling and loading built-in predicates
 
@@ -1299,9 +1303,12 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
 
     }
 
+    /**
+     * @return
+     */
     //    @Override
     public
-    LogicCompiler <HtClause, HtClause, HtClause> getPreCompiler () {
+    ICompiler <HtClause, HtClause, HtClause> getPreCompiler () {
         return preCompiler;
     }
 
@@ -1339,11 +1346,17 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
         return false;
     }
 
+    /**
+     * @param functor
+     * @return
+     */
     boolean isDirective ( Functor functor ) {
-
         return interner.getFunctorName(functor).equals(IMPLIES) && functor.getArity() == 1;
     }
 
+    /**
+     * @return
+     */
     protected
     List <HtEntityIdentifier> hooksPipeline () {
 //        Map <Functor, INameable <Functor>>[] tables = bkt.getTables();
@@ -1354,29 +1367,6 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
 
 //======================================================================
 // remaining directives
-
-//protected void compileDirective(HtClause directive, CompilationContext ctx) {
-//        if(!compilingEntity){
-//            if(!isEntityOpeningDirective(directive)){
-//                if(isEntityClosingDirective(directive)) {
-//
-//                }
-//            }
-//        }
-
-//    }
-
-//    protected
-//    boolean isEntityClosingDirective ( HtClause directive ) {
-//        return false;
-//    }
-//
-//    protected
-//    boolean isEntityOpeningDirective ( HtClause directive ) {
-//        return false;
-//    }
-//
-
     /**
      *
      */
@@ -1428,14 +1418,6 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
         System.out.printf("\n%s, %s%d, %s.\n", product, version, build, copyright);
     }
 
-//    /**
-//     * @return
-//     */
-//    public
-//    TokenSource getTokenSource () {
-//        return tokenSourceStack.pop();
-//    }
-
     /**
      * @param tokenSource
      */
@@ -1453,15 +1435,74 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
     ExecutionContext getExecutionContext () {
         return executionContext;
     }
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    Logger getConsole () {
+        return null;
+    }
+
+    /**
+     * @param sentence
+     * @param flags
+     * @throws SourceCodeException
+     */
+    @Override
+    public
+    void compile ( HtClause sentence, HiTalkFlag... flags ) throws SourceCodeException {
+
+    }
+
+    /**
+     * @param rule
+     */
+    @Override
+    public
+    void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
+
+    }
+
+    /**
+     * @param query
+     */
+    @Override
+    public
+    void compileQuery ( HtClause query ) {
+
+    }
+
+    /**
+     * @param clause
+     */
+    @Override
+    public
+    void compileClause ( HtClause clause ) {
+
+    }
+
+    /**
+     * @param resolver
+     */
+    @Override
+    public
+    void setResolver ( Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> resolver ) {
+        this.resolver = resolver;
+    }
 }
 
 /**
  *
  */
 class ClauseChainObserver implements LogicCompilerObserver <HtClause, HtClause> {
-    protected HiTalkInstructionCompiler instructionCompiler;
+    protected ICompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> instructionCompiler;
 
-    ClauseChainObserver ( HiTalkInstructionCompiler instructionCompiler ) {
+    /**
+     * @param instructionCompiler
+     */
+    ClauseChainObserver ( ICompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> instructionCompiler ) {
         this.instructionCompiler = instructionCompiler;
     }
 
@@ -1488,7 +1529,6 @@ class ClauseChainObserver implements LogicCompilerObserver <HtClause, HtClause> 
  * <p>
  * <p/>If a chained observer is set up, all compiler outputs are forwarded onto it.
  */
-//protected
 class ChainedCompilerObserver implements LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> {
     /**
      * Holds the chained observer for compiler outputs.
@@ -1532,11 +1572,17 @@ class ChainedCompilerObserver implements LogicCompilerObserver <HiTalkWAMCompile
         getResolver().setQuery(sentence.getT());
     }
 
+    /**
+     * @return
+     */
     public
     Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> getResolver () {
         return resolver;
     }
 
+    /**
+     * @param resolver
+     */
     public
     void setResolver ( Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> resolver ) {
         this.resolver = resolver;

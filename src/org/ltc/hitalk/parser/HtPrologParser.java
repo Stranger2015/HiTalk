@@ -128,7 +128,13 @@ class HtPrologParser implements Parser <HtClause, Token>, PrologParserConstants 
     @Override
     public
     Sentence <HtClause> parse () throws SourceCodeException {
-        return sentence();
+        HtClause clause = sentence();
+        if (clause == null) {
+            return null;
+        }
+        else {
+            return new SentenceImpl <>(clause);
+        }
     }
 
     /**
@@ -142,7 +148,7 @@ class HtPrologParser implements Parser <HtClause, Token>, PrologParserConstants 
     public
     void setOperator ( String operatorName, int priority, Associativity associativity ) {
         if (priority == 0) {
-            operatorParser.
+            operatorParser.r
         }
     }
 
@@ -265,7 +271,7 @@ class HtPrologParser implements Parser <HtClause, Token>, PrologParserConstants 
      */
     public
     HtClause sentence () throws SourceCodeException {
-        Sentence <HtClause> sentence = clause();
+        Sentence <HtClause> sentence = parse();
 
         consumeToken(PERIOD);
 

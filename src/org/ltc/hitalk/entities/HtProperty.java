@@ -24,6 +24,11 @@ class HtProperty implements IProperty, INameable <Functor> {
         this.value = args;
     }
 
+    public
+    HtProperty ( ListTerm terms ) {
+
+    }
+
     /**
      *
      * @return

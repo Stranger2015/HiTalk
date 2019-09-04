@@ -1,10 +1,14 @@
 package org.ltc.hitalk.wam.machine;
 
-import com.thesett.aima.logic.fol.*;
-import com.thesett.aima.logic.fol.interpreter.ResolutionEngine;
+import com.thesett.aima.logic.fol.Parser;
+import com.thesett.aima.logic.fol.Sentence;
+import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.common.parsing.SourceCodeException;
+import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
+import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.interpreter.HtResolutionEngine;
+import org.ltc.hitalk.interpreter.ICompiler;
 import org.ltc.hitalk.parser.HiTalkParser;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
@@ -14,6 +18,7 @@ import org.ltc.hitalk.wam.compiler.HtTokenSource;
 
 import java.io.InputStream;
 import java.util.Objects;
+import java.util.logging.Logger;
 
 import static com.thesett.aima.logic.fol.isoprologparser.TokenSource.getTokenSourceForInputStream;
 
@@ -24,7 +29,7 @@ public
 class HiTalkWAMEngine extends HtResolutionEngine <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> {
 
     /**
-     * HiTalkWAMEngine implements a {@link ResolutionEngine} for an WAM-based Prolog with built-ins. This engine loads its
+     * HiTalkWAMEngine implements a {@link HtResolutionEngine} for an WAM-based Prolog with built-ins. This engine loads its
      * standard library of built-ins from a resource on the classpath.
      *
      * <pre><p/><table id="crc"><caption>CRC Card</caption>
@@ -47,22 +52,20 @@ class HiTalkWAMEngine extends HtResolutionEngine <HiTalkWAMCompiledPredicate, Hi
      * @param parser
      * @param interner The functor and variable name interner.
      * @param compiler
-     * @param resolver
      */
     public
     HiTalkWAMEngine ( HtPrologParser parser,
                       VariableAndFunctorInterner interner,
-                      LogicCompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> compiler,
-                      Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> resolver ) {
-        super(parser, interner, compiler, resolver);
+                      ICompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> compiler ) {
+        super(parser, interner, compiler);
     }
 
     public
-    void setCompiler ( LogicCompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> compiler ) {
+    void setCompiler ( ICompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> compiler ) {
         this.compiler = compiler;
     }
 
-    protected LogicCompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> compiler;
+    protected ICompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> compiler;
 
     /**
      * {InheritDoc}
@@ -72,7 +75,7 @@ class HiTalkWAMEngine extends HtResolutionEngine <HiTalkWAMCompiledPredicate, Hi
     public
     void reset () {
         // Reset the resolver to completely clear out its domain.
-        resolver.reset();
+        cleanupDomain();
 
         // Create a token source to load the model rules from.
         InputStream input = getClass().getClassLoader().getResourceAsStream(BUILT_IN_LIB);
@@ -100,6 +103,58 @@ class HiTalkWAMEngine extends HtResolutionEngine <HiTalkWAMCompiledPredicate, Hi
             // isn't going to work, so report this as a bug.
             throw new IllegalStateException("Got an exception whilst loading the built-in library.", e);
         }
+    }
+
+    protected
+    void cleanupDomain () {
+
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    Logger getConsole () {
+        return null;
+    }
+
+    /**
+     * @param sentence
+     * @param flags
+     * @throws SourceCodeException
+     */
+    @Override
+    public
+    void compile ( HtClause sentence, HiTalkFlag... flags ) throws SourceCodeException {
+
+    }
+
+    /**
+     * @param rule
+     */
+    @Override
+    public
+    void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
+
+    }
+
+    /**
+     * @param query
+     */
+    @Override
+    public
+    void compileQuery ( HtClause query ) {
+
+    }
+
+    /**
+     * @param clause
+     */
+    @Override
+    public
+    void compileClause ( HtClause clause ) {
+
     }
 }
 

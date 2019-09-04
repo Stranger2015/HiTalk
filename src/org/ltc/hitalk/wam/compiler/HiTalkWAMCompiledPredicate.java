@@ -19,12 +19,12 @@ package org.ltc.hitalk.wam.compiler;
 import com.thesett.aima.attribute.impl.IdAttribute.IdAttributeFactory;
 import com.thesett.aima.logic.fol.FunctorName;
 import com.thesett.aima.logic.fol.LinkageException;
-import com.thesett.aima.logic.fol.Predicate;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.wam.compiler.WAMCallPoint;
 import com.thesett.common.util.Sizeable;
 import com.thesett.common.util.SizeableLinkedList;
 import com.thesett.common.util.SizeableList;
+import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
 import org.ltc.hitalk.wam.machine.HiTalkWAMResolvingMachine;
@@ -53,7 +53,7 @@ import java.util.*;
  */
 public
 class HiTalkWAMCompiledPredicate
-        extends Predicate <HtClause>
+        extends HtPredicate
         implements Sentence <HiTalkWAMCompiledPredicate>, Sizeable, HiTalkWAMOptimizeableListing {
     //Used for debugging.
     //private static final Logger log = Logger.getLogger(WAMCompiledClause.class.getName());

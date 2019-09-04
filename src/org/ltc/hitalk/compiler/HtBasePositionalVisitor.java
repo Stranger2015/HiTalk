@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package org.ltc.hitalk.wam.compiler;
+package org.ltc.hitalk.compiler;
 
 import com.thesett.aima.logic.fol.*;
-import com.thesett.aima.logic.fol.compiler.PositionalTermTraverser;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 
 /**
- * BasePositionalVisitor is an {@link AllTermsVisitor} that is being driven by a {@link PositionalTermTraverser}. It is
- * used as a base class for implementing visitors that need to understand the positional context during visitation.
+ * HtBasePositionalVisitor is an {@link HtAllTermsVisitor} that is being driven by a {@link HtPositionalTermTraverser}.
+ * It is used as a base class for implementing visitors that need to understand the positional context during visitation.
  * <p>
- * <p/>It uses positional context information from a {@link PositionalTermTraverser}, to determine whether terms are
+ * <p/>It uses positional context information from a {@link HtPositionalTermTraverser}, to determine whether terms are
  * being entered or left, and splits these down into calls on appropriate enter/leave methods. Default no-op
  * implementations of these methods are supplied by this base class and may be extended by specific implementations as
  * needed to figure out the positional context during visitation.
@@ -40,6 +39,7 @@ import org.ltc.hitalk.parser.HtClause;
  */
 public
 class HtBasePositionalVisitor implements HtAllTermsVisitor {
+
     /**
      * The name interner.
      */
@@ -53,7 +53,7 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
     /**
      * The positional context.
      */
-    protected HtPositionalTermTraverser traverser;
+    private HtPositionalTermTraverser traverser;
 
     /**
      * Creates a positional visitor.

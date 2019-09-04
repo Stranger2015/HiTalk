@@ -3,7 +3,10 @@ package org.ltc.hitalk.wam.compiler;
 import com.thesett.aima.logic.fol.*;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
+import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.expander.DefaultTermExpander;
 import org.ltc.hitalk.wam.task.HiLogPreprocessor;
 import org.ltc.hitalk.wam.task.StandardPreprocessor;
@@ -13,7 +16,7 @@ import org.ltc.hitalk.wam.transformers.DefaultTransformer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
+import java.util.logging.Logger;
 
 /**
  *
@@ -26,9 +29,9 @@ class HiTalkPreprocessor<T extends HtClause, TC extends Term, TT extends Transfo
     protected final HiTalkDefaultBuiltIn defaultBuiltIn;
     //    protected final HiTalkBuiltInTransform builtInTransform;
     protected final List <TT> components = new ArrayList <>();
-    protected final Function <TC, List <TC>> defaultAction;
-    protected final Resolver <T, T> resolver;
-    protected LogicCompilerObserver <HtClause, HtClause> observer;
+    //    protected final Function <TC, List <TC>> defaultAction;
+    protected Resolver <T, T> resolver;
+    protected LogicCompilerObserver <T, T> observer;
     protected List <T> preCompiledTarget;
 
     /**
@@ -66,15 +69,22 @@ class HiTalkPreprocessor<T extends HtClause, TC extends Term, TT extends Transfo
 
 //        int i = interner.internFunctorName(BEGIN_OF_FILE, 0);
 //        Term target = new Functor(i, Atom.EMPTY_TERM_ARRAY);
-        defaultAction = null;
+//        defaultAction = new Function <TC, List <TC>>() {
+//            DcgRuleExpander ruleExpander
+//            @Override
+//            public
+//            List <TC> apply ( TC tc ) {
+//                return null;
+//            }
+//        };
         for (T t : preCompiledTarget) {
             resolver.setQuery(t);
             resolver.resolve();
         }
 
-        components.add((TT) new DefaultTermExpander(defaultAction, preCompiledTarget, defaultTransformer));
-        components.add((TT) new HiLogPreprocessor(defaultAction, defaultTransformer, interner));
-        components.add((TT) new StandardPreprocessor(defaultAction, preCompiledTarget, defaultTransformer));
+        components.add((TT) new DefaultTermExpander(preCompiledTarget, defaultTransformer));
+        components.add((TT) new HiLogPreprocessor(defaultTransformer, interner));
+        components.add((TT) new StandardPreprocessor(preCompiledTarget, defaultTransformer));
 //        components.add(new SuperCompiler(preCompiledTarget, defaultTransformer));
 
     }
@@ -116,7 +126,7 @@ class HiTalkPreprocessor<T extends HtClause, TC extends Term, TT extends Transfo
      */
     @Override
     public
-    void setCompilerObserver ( LogicCompilerObserver <HtClause, HtClause> observer ) {
+    void setCompilerObserver ( LogicCompilerObserver <T, T> observer ) {
         this.observer = observer;
     }
 
@@ -147,5 +157,70 @@ class HiTalkPreprocessor<T extends HtClause, TC extends Term, TT extends Transfo
     private
     List <TC> apply ( TC tc ) {
         return Collections.singletonList(tc);
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    Logger getConsole () {
+        return null;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    HtPrologParser getParser () {
+        return null;
+    }
+
+    /**
+     * @param sentence
+     * @param flags
+     * @throws SourceCodeException
+     */
+    @Override
+    public
+    void compile ( HtClause sentence, HiTalkFlag... flags ) throws SourceCodeException {
+
+    }
+
+    /**
+     * @param rule
+     */
+    @Override
+    public
+    void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
+
+    }
+
+    /**
+     * @param query
+     */
+    @Override
+    public
+    void compileQuery ( HtClause query ) throws SourceCodeException {
+
+    }
+
+    /**
+     * @param clause
+     */
+    @Override
+    public
+    void compileClause ( HtClause clause ) {
+
+    }
+
+    /**
+     * @param resolver
+     */
+    @Override
+    public
+    void setResolver ( Resolver <T, T> resolver ) {
+        this.resolver = resolver;
     }
 }

@@ -37,11 +37,14 @@ import com.thesett.common.util.SizeableList;
 import com.thesett.common.util.doublemaps.SymbolKey;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
+import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn.VarIntroduction;
 import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 import static com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys.*;
 import static com.thesett.aima.search.util.Searches.allSolutions;
@@ -154,7 +157,9 @@ import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.STACK_ADDR;
  * @author Rupert Smith
  */
 public
-class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> implements HiTalkBuiltIn {
+class HiTalkInstructionCompiler
+        extends BaseInstructionCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>
+        implements HiTalkBuiltIn {
 
 //public final static FunctorName OBJECT = new FunctorName("object", 2);
 //public final static FunctorName END_OBJECT = new FunctorName("end_object", 0);
@@ -460,7 +465,7 @@ class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompil
      * @param clause The clause to compile as a query.
      * @throws SourceCodeException If there is an error in the source code preventing its compilation.
      */
-    private
+    public
     void compileQuery ( HtClause clause ) throws SourceCodeException {
         checkDirective(clause);
         // Used to build up the compiled result in.
@@ -564,6 +569,24 @@ class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompil
         displayCompiledQuery(result);
 
         observer.onQueryCompilation(result);
+    }
+
+    /**
+     * @param clause
+     */
+    @Override
+    public
+    void compileClause ( HtClause clause ) {
+
+    }
+
+    /**
+     * @param resolver
+     */
+    @Override
+    public
+    void setResolver ( Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> resolver ) {
+
     }
 
     private
@@ -972,13 +995,40 @@ class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompil
     }
 
     /**
+     * @return
+     */
+    @Override
+    public
+    Logger getConsole () {
+        return null;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    HtPrologParser getParser () {
+        return null;
+    }
+
+    /**
      * @param sentence
      * @param flags
      * @throws SourceCodeException
      */
 //    @Override
     public
-    void compile ( Sentence <HtClause> sentence, HiTalkFlag... flags ) throws SourceCodeException {
+    void compile ( HtClause sentence, HiTalkFlag... flags ) throws SourceCodeException {
+
+    }
+
+    /**
+     * @param rule
+     */
+    @Override
+    public
+    void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
 
     }
 

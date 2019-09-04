@@ -2,14 +2,13 @@ package org.ltc.hitalk.parser;
 
 import com.thesett.aima.logic.fol.Clause;
 import com.thesett.aima.logic.fol.Functor;
-import com.thesett.aima.logic.fol.Sentence;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 
 /**
  *
  */
 public
-class HtClause extends Clause <Functor> implements Sentence <HtClause> {
+class HtClause extends Clause <Functor> /*implements Sentence <HtClause>*/ {
     protected final HtEntityIdentifier identifier;
 
     /**

@@ -1,6 +1,7 @@
 package org.ltc.hitalk.interpreter;
 
 import com.thesett.aima.logic.fol.LogicCompiler;
+import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
@@ -98,10 +99,10 @@ interface ICompiler<T extends HtClause, T1, T2> extends LogicCompiler <T, T1, T2
         try {
             while (true) {
                 // Parse the next sentence or directive.
-                Sentence <T> sentence = (Sentence <T>) getParser();
+                Sentence <HtClause> sentence = getParser().parse();
 
                 getConsole().info(sentence.toString());
-                compile(sentence, flags);
+                compile(sentence.getT(), flags);
             }
         } catch (Exception e) {
             getConsole().log(Level.SEVERE, e.getMessage(), e);
@@ -120,11 +121,10 @@ interface ICompiler<T extends HtClause, T1, T2> extends LogicCompiler <T, T1, T2
     HtPrologParser getParser ();
 
     /**
-     * @param sentence
+     * @param clause
      * @throws SourceCodeException
      */
-
-    void compile ( Sentence <T> sentence, HiTalkFlag... flags ) throws SourceCodeException;
+    void compile ( HtClause clause, HiTalkFlag... flags ) throws SourceCodeException;
 
     /**
      * @param rule
@@ -134,10 +134,15 @@ interface ICompiler<T extends HtClause, T1, T2> extends LogicCompiler <T, T1, T2
     /**
      * @param query
      */
-    void compileQuery ( HtClause query );
+    void compileQuery ( HtClause query ) throws SourceCodeException;
 
     /**
      * @param clause
      */
     void compileClause ( HtClause clause );
+
+    /**
+     * @param resolver
+     */
+    void setResolver ( Resolver <T1, T2> resolver );
 }

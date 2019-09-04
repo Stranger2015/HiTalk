@@ -5,6 +5,7 @@ import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.aima.logic.fol.VariableAndFunctorInternerImpl;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.common.util.doublemaps.SymbolTableImpl;
+import org.ltc.hitalk.compiler.HiTalkEngine;
 import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.compiler.bktables.IConfig;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
@@ -121,13 +122,13 @@ class HiTalkAstInterpreterApp implements IApplication {
     @Override
     public
     void banner () {
-
+//todo
     }
 
     @Override
     public
     void setParser ( HtPrologParser parser ) {
-
+///todo
     }
 
     /**
@@ -136,7 +137,7 @@ class HiTalkAstInterpreterApp implements IApplication {
     @Override
     public
     void setFileName ( String arg ) {
-
+//todo
     }
 
     public static
@@ -144,11 +145,14 @@ class HiTalkAstInterpreterApp implements IApplication {
         try {
             SymbolTable <Integer, String, Object> symbolTable = new SymbolTableImpl <>();
             VariableAndFunctorInterner interner = new VariableAndFunctorInternerImpl(
-                    "HiTalk_Variable_Namespace", "HiTalk_Functor_Namespace");
+                    "HiTalk_Variable_Namespace",
+                    "HiTalk_Functor_Namespace");
             HtTokenSource tokenSource = HtTokenSource.getTokenSourceForFile(new File(args[0]));
             HtPrologParser parser = new HiTalkParser(tokenSource, interner);
             HiTalkAstCompiler compiler = new HiTalkAstCompiler(symbolTable, interner, parser, );
-            Resolver <HtClause, HtClause> resolver = new HtResolutionEngine(parser, interner, compiler);
+            Resolver <HtClause, HtClause> resolver = new HiTalkEngine(parser, interner, c = new HiTalkAstCompiler(symolTable, interner, parser));
+            //
+
             HiTalkDefaultBuiltIn defaultBuiltIn = new HiTalkDefaultBuiltIn(symbolTable, interner);
             IApplication app = new HiTalkAstInterpreterApp(symbolTable, interner, parser, compiler, defaultBuiltIn);
 

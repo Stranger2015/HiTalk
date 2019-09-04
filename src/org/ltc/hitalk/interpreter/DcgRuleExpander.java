@@ -1,16 +1,20 @@
 package org.ltc.hitalk.interpreter;
 
+import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
 import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.HiTalkPreCompiler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  *
@@ -27,13 +31,11 @@ class DcgRuleExpander extends HiTalkPreCompiler <HtClause> {
      * @param app
      */
     public
-    DcgRuleTranslator ( SymbolTable <Integer, String, Object> symbolTable,
-                        VariableAndFunctorInterner interner,
-                        HiTalkDefaultBuiltIn defaultBuiltIn,
-                        IApplication app ) {
+    DcgRuleExpander ( SymbolTable <Integer, String, Object> symbolTable,
+                      VariableAndFunctorInterner interner,
+                      HiTalkDefaultBuiltIn defaultBuiltIn,
+                      IApplication app ) {
         super(symbolTable, interner, defaultBuiltIn, app);
-
-
     }
 
     /**
@@ -44,7 +46,7 @@ class DcgRuleExpander extends HiTalkPreCompiler <HtClause> {
     @Override
     public
     void compile ( Sentence <HtClause> sentence ) throws SourceCodeException {
-
+//todo
     }
 
     /**
@@ -53,7 +55,7 @@ class DcgRuleExpander extends HiTalkPreCompiler <HtClause> {
     @Override
     protected
     void saveResult ( List <HtClause> clauses ) {
-
+//todo
     }
 
     /**
@@ -64,7 +66,75 @@ class DcgRuleExpander extends HiTalkPreCompiler <HtClause> {
     protected
     List <HtClause> preprocess ( HtClause clause ) {
         List <HtClause> l = new ArrayList <>();
+        //todo
         return l;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    Logger getConsole () {
+//        todo
+        return null;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    HtPrologParser getParser () {
+        //        todo
+        return null;
+    }
+
+    /**
+     * @param sentence
+     * @param flags
+     * @throws SourceCodeException
+     */
+    @Override
+    public
+    void compile ( HtClause sentence, HiTalkFlag... flags ) throws SourceCodeException {
+//        todo
+    }
+
+    /**
+     * @param rule
+     */
+    @Override
+    public
+    void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
+//todo
+    }
+
+    /**
+     * @param query
+     */
+    @Override
+    public
+    void compileQuery ( HtClause query ) throws SourceCodeException {
+//todo
+    }
+
+    /**
+     * @param clause
+     */
+    @Override
+    public
+    void compileClause ( HtClause clause ) {
+//todo
+    }
+
+    /**
+     * @param resolver
+     */
+    @Override
+    public
+    void setResolver ( Resolver <HtClause, HtClause> resolver ) {
+
     }
 }
 

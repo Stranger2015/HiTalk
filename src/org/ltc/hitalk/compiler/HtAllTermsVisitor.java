@@ -1,10 +1,6 @@
-package org.ltc.hitalk.wam.compiler;
+package org.ltc.hitalk.compiler;
 
 import com.thesett.aima.logic.fol.*;
-
-public
-interface HtAllTermsVisitor {
-}
 
 /**
  * AllTermsVisitor defines a composite visitor made up of the visitors over all types of terms.
@@ -23,6 +19,11 @@ interface HtAllTermsVisitor {
  * @author Rupert Smith
  */
 public
-interface HtAllTermsVisitor extends TermVisitor, FunctorVisitor, VariableVisitor, ClauseVisitor,
-                                    IntegerTypeVisitor, LiteralTypeVisitor, PredicateVisitor {
+interface HtAllTermsVisitor extends TermVisitor,
+                                    FunctorVisitor,
+                                    VariableVisitor,
+                                    HtClauseVisitor,
+                                    IntegerTypeVisitor,
+                                    LiteralTypeVisitor,
+                                    HtPredicateVisitor {
 }

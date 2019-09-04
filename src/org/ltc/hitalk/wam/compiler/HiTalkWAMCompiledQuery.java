@@ -18,11 +18,15 @@ package org.ltc.hitalk.wam.compiler;
 
 
 import com.thesett.aima.attribute.impl.IdAttribute;
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.Functor;
+import com.thesett.aima.logic.fol.FunctorName;
+import com.thesett.aima.logic.fol.LinkageException;
+import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.wam.compiler.WAMCallPoint;
 import com.thesett.common.util.Sizeable;
 import com.thesett.common.util.SizeableLinkedList;
 import com.thesett.common.util.SizeableList;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
 import org.ltc.hitalk.wam.machine.HiTalkWAMResolvingMachine;
 
@@ -49,7 +53,8 @@ import java.util.*;
  * registers is maintained in the clause, and the functors need to be able to access this mapping.
  */
 public
-class HiTalkWAMCompiledQuery extends Clause <Functor> implements Sentence <HiTalkWAMCompiledQuery>, Sizeable, HiTalkWAMOptimizeableListing {
+class HiTalkWAMCompiledQuery extends HtClause
+        implements Sentence <HiTalkWAMCompiledQuery>, Sizeable, HiTalkWAMOptimizeableListing {
 
     /* Used for debugging. */
     /* private static final Logger log = Logger.getLogger(WAMCompiledQuery.class.getName()); */
@@ -98,7 +103,7 @@ class HiTalkWAMCompiledQuery extends Clause <Functor> implements Sentence <HiTal
     }
 
     /**
-     * Creates an empty (invalid) compiled query sentence in WAM.
+     * Creates a compiled query sentence in WAM.
      *
      * @param varNames     A mapping from registers to variables for the compiled clause.
      * @param freeVarNames The set of variables in the clause that are free.

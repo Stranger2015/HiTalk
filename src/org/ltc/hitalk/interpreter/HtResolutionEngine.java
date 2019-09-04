@@ -17,16 +17,19 @@ package org.ltc.hitalk.interpreter;
 
 import com.thesett.aima.attribute.impl.IdAttribute;
 import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.OpSymbol.Associativity;
 import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.Filterator;
 import com.thesett.common.util.Source;
+import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.HtTokenSource;
 
 import java.io.InputStream;
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * ResolutionEngine combines together a logic {@link Parser}, a {@link VariableAndFunctorInterner} that acts as a symbol
@@ -40,10 +43,11 @@ import java.util.*;
  * @param <Q> The compiled query type that the compiler produces.
  * @author Rupert Smith
  */
-public abstract
+public// abstract
 class HtResolutionEngine<T, Q> extends InteractiveParser
         implements VariableAndFunctorInterner,
-                   LogicCompiler <HtClause, T, Q>, Resolver <T, Q> {
+                   ICompiler <HtClause, T, Q>,
+                   Resolver <T, Q> {
     /**
      * Holds the parser.
      */
@@ -57,7 +61,7 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
     /**
      * Holds the compiler.
      */
-    protected LogicCompiler <HtClause, T, Q> compiler;
+    protected ICompiler <HtClause, T, Q> compiler;
 
     /**
      * Holds the observer for compiler outputs.
@@ -77,10 +81,9 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
     public
     HtResolutionEngine ( HtPrologParser parser,
                          VariableAndFunctorInterner interner,
-                         LogicCompiler <HtClause, T, Q> compiler ) {
+                         ICompiler <HtClause, T, Q> compiler ) {
         super(parser, interner);
         this.compiler = compiler;
-//        this.resolver = resolver;
         compiler.setCompilerObserver(chainedObserver);
     }
 
@@ -88,8 +91,10 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
      * Resets the engine to its default state. This will typically load any bootstrapping libraries of built-ins that
      * the engine requires, but otherwise set its domain to empty.
      */
-    public abstract
-    void reset ();
+    public //abstract
+    void reset () {
+        //todo
+    }
 
     /**
      * Provides the resolution engines interner.
@@ -107,7 +112,7 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
      * @return The resolution engines compiler.
      */
     public
-    LogicCompiler <HtClause, T, Q> getCompiler () {
+    ICompiler <HtClause, T, Q> getCompiler () {
         return compiler;
     }
 
@@ -317,7 +322,7 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
      * {@inheritDoc}
      */
     public
-    void setOperator ( String operatorName, int priority, OpSymbol.Associativity associativity ) {
+    void setOperator ( String operatorName, int priority, Associativity associativity ) {
         parser.setOperator(operatorName, priority, associativity);
     }
 
@@ -362,7 +367,7 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
     }
 
     private
-    Set <Variable> executeAndExtractBindings ( Q currentQuery ) {
+    Set <Variable> executeAndExtractBindings ( Q query ) {
         return null;
     }
 
@@ -401,6 +406,53 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
         }
 
         return results;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    Logger getConsole () {
+        return null;
+    }
+
+    /**
+     * @param sentence
+     * @param flags
+     * @throws SourceCodeException
+     */
+    @Override
+    public
+    void compile ( HtClause sentence, HiTalkFlag... flags ) throws SourceCodeException {
+
+    }
+
+    /**
+     * @param rule
+     */
+    @Override
+    public
+    void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
+
+    }
+
+    /**
+     * @param query
+     */
+    @Override
+    public
+    void compileQuery ( HtClause query ) throws SourceCodeException {
+
+    }
+
+    /**
+     * @param clause
+     */
+    @Override
+    public
+    void compileClause ( HtClause clause ) {
+
     }
 
     /**

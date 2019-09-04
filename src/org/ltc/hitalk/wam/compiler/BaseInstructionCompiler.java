@@ -22,7 +22,7 @@ class BaseInstructionCompiler<T1, T2> extends BaseCompiler <HtClause, T1, T2> {
 
     /**
      * Creates a base machine over the specified symbol table.
-     *
+     *!
      * @param symbolTable The symbol table for the machine.
      * @param interner    The interner for the machine.
      */

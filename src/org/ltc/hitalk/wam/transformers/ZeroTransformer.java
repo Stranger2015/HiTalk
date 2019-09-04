@@ -1,9 +1,9 @@
 package org.ltc.hitalk.wam.transformers;
 
 
-import com.thesett.aima.logic.fol.Clause;
 import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.entities.context.IMetrics;
+import org.ltc.hitalk.parser.HtClause;
 
 /**
  * Doing-nothing transformer.
@@ -12,7 +12,7 @@ import org.ltc.hitalk.entities.context.IMetrics;
  * Created by Anthony on 28.06.2015.
  */
 public
-class ZeroTransformer<T extends Clause, TC extends Term> extends DefaultTransformer <T, TC> {
+class ZeroTransformer<T extends HtClause, TC extends Term> extends DefaultTransformer <T, TC> {
 //       private static final Logger logger = LoggerFactory.getLogger( ZeroTransformer.class.getName() );
 
     /**

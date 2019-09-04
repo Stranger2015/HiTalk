@@ -23,7 +23,7 @@ class HtEntityIdentifier extends Functor {
     HtEntityIdentifier ( int name, Term[] arguments, HtEntityKind kind ) {
         super(name, arguments);
         if ((kind == HtEntityKind.PROTOCOL) && (arguments.length != 0)) {
-            throw new ExecutionError(PERMISSION_ERROR, "Protocol name must be an atom.");
+            throw new ExecutionError(PERMISSION_ERROR, null/*"Protocol name must be an atom."*/);
         }
         this.kind = kind;
     }

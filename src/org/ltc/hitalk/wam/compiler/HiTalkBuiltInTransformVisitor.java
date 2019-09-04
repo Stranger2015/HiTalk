@@ -8,22 +8,30 @@ import com.thesett.aima.logic.fol.compiler.PositionalTermTraverser;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.HiTalkBuiltInTransform;
 
+/**
+ *
+ */
 public
 class HiTalkBuiltInTransformVisitor extends BasePositionalVisitor
         implements PositionalTermVisitor {
 
     private final HiTalkBuiltInTransform builtInTransform;
 
+    /**
+     * @param symbolTable
+     * @param interner
+     * @param termTraverser
+     * @param builtInTransform
+     */
     public
-    HiTalkBuiltInTransformVisitor ( VariableAndFunctorInterner interner, SymbolTable <Integer, String, Object> symbolTable, PositionalTermTraverser termTraverser, HiTalkBuiltInTransform builtInTransform ) {
+    HiTalkBuiltInTransformVisitor ( SymbolTable <Integer, String, Object> symbolTable,
+                                    VariableAndFunctorInterner interner,
+                                    PositionalTermTraverser termTraverser,
+                                    HiTalkBuiltInTransform builtInTransform ) {
         super(interner, symbolTable, termTraverser);
         this.builtInTransform = builtInTransform;
     }
 
-    public
-    HiTalkBuiltInTransformVisitor ( VariableAndFunctorInterner interner, SymbolTable <Integer, String, Object> symbolTable, PositionalTermTraverser termTraverser, HiTalkBuiltInTransform builtInTransform ) {
-        super(interner, symbolTable, termTraverser, builtInTransform);
-    }
 
     /**
      * Sets up the positional term traverser used to traverse the term being visited, providing a positional context as

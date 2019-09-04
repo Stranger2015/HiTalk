@@ -118,7 +118,8 @@ class TermFactory implements ITermFactory {
     HtProperty createProperty ( String name, Term... args ) {
         int n = interner.internFunctorName(name, 0);
 
-        return new HtProperty(n, new ListTerm(args));
+//        return new HtProperty(n, new ListTerm(args));
+        return new HtProperty(new ListTerm(args));
     }
 
     /**

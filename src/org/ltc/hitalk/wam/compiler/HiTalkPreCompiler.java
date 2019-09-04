@@ -47,7 +47,7 @@ import java.util.List;
  */
 abstract public
 class HiTalkPreCompiler<T extends HtClause> extends BaseMachine
-        implements ICompiler <T, HtClause, HtClause> {
+        implements ICompiler <T, T, T> {
 
     //Used for debugging.
     /* private static final Logger log = Logger.getLogger(PreCompiler.class.getName()); */
@@ -66,7 +66,7 @@ class HiTalkPreCompiler<T extends HtClause> extends BaseMachine
     /**
      * Holds the compiler output observer.
      */
-    protected LogicCompilerObserver <HtClause, HtClause> observer;
+    protected LogicCompilerObserver <T, T> observer;
 
     /**
      * Creates a new PreCompiler.
@@ -79,8 +79,7 @@ class HiTalkPreCompiler<T extends HtClause> extends BaseMachine
     HiTalkPreCompiler ( SymbolTable <Integer, String, Object> symbolTable,
                         VariableAndFunctorInterner interner,
                         HiTalkDefaultBuiltIn defaultBuiltIn,
-                        IApplication app
-    ) {
+                        IApplication app ) {
         super(symbolTable, interner);
 
         this.defaultBuiltIn = defaultBuiltIn;
@@ -112,7 +111,7 @@ class HiTalkPreCompiler<T extends HtClause> extends BaseMachine
      * {@inheritDoc}
      */
     public
-    void setCompilerObserver ( LogicCompilerObserver <HtClause, HtClause> observer ) {
+    void setCompilerObserver ( LogicCompilerObserver <T, T> observer ) {
         this.observer = observer;
     }
 
@@ -131,7 +130,7 @@ class HiTalkPreCompiler<T extends HtClause> extends BaseMachine
      */
     private
     void substituteBuiltIns ( Term clause ) {
-        TermWalker walk = TermWalkers.positionalWalker(new HiTalkBuiltInTransformVisitor(interner, symbolTable, null, builtInTransform));
+        TermWalker walk = TermWalkers.positionalWalker(new HiTalkBuiltInTransformVisitor(symbolTable, interner, null, builtInTransform));
         walk.walk(clause);
     }
 
@@ -162,19 +161,6 @@ class HiTalkPreCompiler<T extends HtClause> extends BaseMachine
         TermWalker walk = TermWalkers.positionalWalker(new HiTalkTopLevelCheckVisitor(interner, symbolTable, null));
         walk.walk(clause);
     }
-///*
-//    *//**
-//     * @param tokenSource
-//     * @param loadContext
-//     * @return
-//     *//*
-//    public
-//    Term[] compile ( TokenSource tokenSource, LoadContext loadContext ) {
-////        Term[] terms = new Term[0];
-//        app.getParser().setTokenSource(tokenSource);
-//preprocess(parser.term())
-//        return terms;
-//    }*/
 
     public
     HiTalkDefaultBuiltIn getDefaultBuiltIn () {
@@ -182,7 +168,7 @@ class HiTalkPreCompiler<T extends HtClause> extends BaseMachine
     }
 
     public
-    LogicCompilerObserver <HtClause, HtClause> getObserver () {
+    LogicCompilerObserver <T, T> getObserver () {
         return observer;
     }
 }

@@ -1,9 +1,9 @@
 package org.ltc.hitalk.wam.transformers;
 
-import com.thesett.aima.logic.fol.Clause;
 import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
+import org.ltc.hitalk.parser.HtClause;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +14,7 @@ import java.util.List;
  * Created by Anthony on 19.07.2016.
  */
 public
-class DefaultTransformer<T extends Clause, TC extends Term> implements ITransformer <T, TC> {
+class DefaultTransformer<T extends HtClause, TC extends Term> implements ITransformer <T, TC> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
     protected List <T> target;
@@ -33,7 +33,7 @@ class DefaultTransformer<T extends Clause, TC extends Term> implements ITransfor
     public
     DefaultTransformer ( T term ) {
         target = Collections.singletonList(term);
-        this.transformer = new <T>ZeroTransformer <T>();//todo wtf??
+        this.transformer = new <T>ZeroTransformer <T, TC>();//todo wtf??
     }
 
     /**

@@ -116,7 +116,7 @@
      HiTalkBuiltInTransform ( HiTalkDefaultBuiltIn defaultBuiltIn, IApplication app ) {
          this.defaultBuiltIn = defaultBuiltIn;
          interner = defaultBuiltIn.getInterner();
-         this.app = app;
+//         this.app = app;
 
          builtIns.put(new HtFunctorName(TRUE, 0), this::true_p);
          builtIns.put(new HtFunctorName(FAIL, 0), this::fail_p);
