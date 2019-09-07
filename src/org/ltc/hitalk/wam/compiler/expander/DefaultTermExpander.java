@@ -6,6 +6,7 @@ import org.ltc.hitalk.wam.compiler.builtins.Bypass;
 import org.ltc.hitalk.wam.task.TermRewriteTask;
 import org.ltc.hitalk.wam.transformers.ITransformer;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -18,8 +19,8 @@ class DefaultTermExpander<T extends HtClause, TC extends Term, TT extends TermRe
         extends TermRewriteTask <T, TC, TT> {
 
 
-    //    private final Function <T, List <T>> action;
-    protected final Function <TC, List <TC>> defaultAction = this::apply;
+    protected final Function <TC, List <TC>> dcgExpansionAction = this::dcgExpansion;
+    protected final Function <TC, List <TC>> defaultExpansionAction = this::defaultExpansion;
 
     /**
      * @param t
@@ -34,17 +35,27 @@ class DefaultTermExpander<T extends HtClause, TC extends Term, TT extends TermRe
      * @param transformer
      */
     public
-    DefaultTermExpander ( List <TC> target, ITransformer <T, TC> transformer ) {
+    DefaultTermExpander ( List <TC> target, ITransformer <T, TC> transformer, TermRewriteTask... trt ) {
         super(null, target, transformer);
-//        this.action = action;
+//        add(ruleExpander);
+        target.stream().forEachOrdered(this::defaultExpansion);
     }
 
-    private
-    List <TC> apply ( TC tc ) {
+    protected
+    List <TC> defaultExpansion ( TC tc ) {
+        List <TC> result = null;
         if (tc instanceof Bypass) {
-            return Collections.singletonList(tc);
+            result = Collections.singletonList(tc);
         }
-        return null;
+        return result;
+    }
+
+    protected
+    List <TC> dcgExpansion ( TC tc ) {
+        List <TC> l = new ArrayList <>();
+
+        return l;
     }
 }
+
 

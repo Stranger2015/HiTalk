@@ -27,11 +27,10 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 import static org.ltc.hitalk.compiler.bktables.BkTableKind.LOADED_ENTITIES;
-import static org.ltc.hitalk.core.HtConstants.ENCODING;
-import static org.ltc.hitalk.core.HtConstants.IMPLIES;
 
 /**
  * Reloading files, active code and threads
@@ -49,6 +48,7 @@ import static org.ltc.hitalk.core.HtConstants.IMPLIES;
  * by another thread. Executing threads switch atomically to the new definition of modified predicates,
  * while clauses that belong to the old definition are (eventually) reclaimed by garbageCollectClauses/0
  * Below we describe the steps taken for reloading a file to help understanding the limitations of the process.
+ *
  * <p>
  * If a file is being reloaded, a reload context is associated to the file administration.
  * This context includes a table keeping track of predicates and a table keeping track of the module(s)
@@ -205,12 +205,6 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
     //    protected HiTalkCompilerApp app;
     protected boolean started;
     protected HtPrologParser parser;
-
-    protected int object_counter;
-    protected int category_counter;
-    protected int protocol_counter;
-    private Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> resolver;
-
 
     /**
      * Builds an logical resolution engine from a parser, interner, compiler and resolver.
@@ -1337,23 +1331,6 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
         return config;
     }
 
-    boolean isEncodingDirective ( Functor functor ) {
-        if (isDirective(functor)) {
-            functor = (Functor) functor.getArgument(0);
-            String name = interner.getFunctorName(functor);
-            return ENCODING.equals(name) && functor.getArity() == 1;
-        }
-        return false;
-    }
-
-    /**
-     * @param functor
-     * @return
-     */
-    boolean isDirective ( Functor functor ) {
-        return interner.getFunctorName(functor).equals(IMPLIES) && functor.getArity() == 1;
-    }
-
     /**
      * @return
      */
@@ -1367,6 +1344,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
 
 //======================================================================
 // remaining directives
+
     /**
      *
      */
@@ -1429,6 +1407,21 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
     public
     void setParser ( HtPrologParser parser ) {
         this.parser = parser;
+    }
+
+    public
+    AtomicInteger getObjectCounter () {
+        return objectCounter;
+    }
+
+    public
+    AtomicInteger getCategoryCounter () {
+        return categoryCounter;
+    }
+
+    public
+    AtomicInteger getProtocolCounter () {
+        return protocolCounter;
     }
 
     public

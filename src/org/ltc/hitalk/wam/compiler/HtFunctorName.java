@@ -28,8 +28,8 @@ class HtFunctorName extends FunctorName implements IRangedArity {
      * @param arityMax
      */
     public
-    HtFunctorName ( String name, int arityMin, int arityMax ) {
-        super(name, (arityMin & 0xffff) | ((arityMax >>> 16) & 0xffff));
+    HtFunctorName ( String name, int arityMin, int arityMax ) {//delta arity byte or short
+        super(name, (arityMin & 0xffff) | ((arityMax >>> 16) & 0xffff));//
     }
 
 //    /**
@@ -55,7 +55,7 @@ class HtFunctorName extends FunctorName implements IRangedArity {
     @Override
     public
     int getArity () {
-        throw new ExecutionError(PERMISSION_ERROR, "Arity range expected");
+        throw new ExecutionError(PERMISSION_ERROR, null);//"Arity range expected");
     }
 
     /**

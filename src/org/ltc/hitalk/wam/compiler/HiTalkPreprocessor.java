@@ -83,8 +83,8 @@ class HiTalkPreprocessor<T extends HtClause, TC extends Term, TT extends Transfo
         }
 
         components.add((TT) new DefaultTermExpander(preCompiledTarget, defaultTransformer));
-        components.add((TT) new HiLogPreprocessor(defaultTransformer, interner));
-        components.add((TT) new StandardPreprocessor(preCompiledTarget, defaultTransformer));
+        components.add((TT) new HiLogPreprocessor(null, defaultTransformer, interner));
+        components.add((TT) new StandardPreprocessor(null, preCompiledTarget, defaultTransformer));
 //        components.add(new SuperCompiler(preCompiledTarget, defaultTransformer));
 
     }

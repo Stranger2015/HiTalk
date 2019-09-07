@@ -222,7 +222,7 @@ class HiTalkInstructionCompiler
      * @param observer
      */
     public
-    void setCompilerObserver ( LogicCompilerObserver observer ) {
+    void setCompilerObserver ( LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer ) {
         this.observer = observer;
     }
 

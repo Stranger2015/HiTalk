@@ -19,10 +19,10 @@ class HiLogPreprocessor<T extends Clause, TC extends Term>
     private final HiLogToPrologBiDiConverter converter;
 
     public
-    HiLogPreprocessor ( Function <T, List <T>> action,
+    HiLogPreprocessor ( Function <TC, List <TC>> action,
                         ITransformer <T, TC> transformer,
                         VariableAndFunctorInterner interner ) {
-        super(action, null, transformer);
+        super(null, null, transformer);
         converter = new HiLogToPrologBiDiConverter(interner);
     }
 

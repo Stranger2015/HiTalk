@@ -20,8 +20,9 @@ class ExecutionError extends RuntimeException {
         DOMAIN_ERROR("Domain error"),
         INSTANTIATION_ERROR("Instantiation error"),
         RESOURCE_ERROR("Resource error"),
-        REPRESENTATION_ERROR("Representation error"),
-        ;
+        REPRESENTATION_ERROR("Representation error");
+//        OBJECT_CREATION_ERROR();
+
 
         private final String kindString;
 

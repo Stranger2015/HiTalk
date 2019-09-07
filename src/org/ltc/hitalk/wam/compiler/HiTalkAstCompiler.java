@@ -7,9 +7,7 @@ import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
-import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.interpreter.DcgRule;
-import org.ltc.hitalk.interpreter.DcgRuleExpander;
 import org.ltc.hitalk.interpreter.ICompiler;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
@@ -28,7 +26,7 @@ class HiTalkAstCompiler<T extends HtClause> implements ICompiler <T, T, T> {
     protected final HtPrologParser parser;
     protected final VariableAndFunctorInterner interner;
     protected Resolver <T, T> resolver;
-    protected final DcgRuleExpander ruleExpander;
+    //    protected final DcgRuleExpander ruleExpander;
     protected final Logger logger = null;//  todo
     private LogicCompilerObserver <T, T> observer;
 
@@ -36,22 +34,22 @@ class HiTalkAstCompiler<T extends HtClause> implements ICompiler <T, T, T> {
      * @param symbolTable
      * @param interner
      * @param parser      //     * @param resolver
-     * @param app
+    //     * @param app
      */
     public
     HiTalkAstCompiler (
             SymbolTable <Integer, String, Object> symbolTable,
             VariableAndFunctorInterner interner,
-            HtPrologParser parser,
+            HtPrologParser parser
 //            Resolver <T, T> resolver,
-            IApplication app
+            //    IApplication app
     ) {
         this.symbolTable = symbolTable;
         this.parser = parser;
         this.interner = interner;
         this.setResolver(resolver);
-        HiTalkDefaultBuiltIn defaultBuiltIn = new HiTalkDefaultBuiltIn(symbolTable, interner);
-        ruleExpander = new DcgRuleExpander(symbolTable, interner, defaultBuiltIn, app);
+//        HiTalkDefaultBuiltIn defaultBuiltIn = new HiTalkDefaultBuiltIn(symbolTable, interner);
+//        ruleExpander = new DcgRuleExpander(symbolTable, interner, defaultBuiltIn, app);
     }
 
     /**
@@ -173,5 +171,10 @@ class HiTalkAstCompiler<T extends HtClause> implements ICompiler <T, T, T> {
     public
     SymbolTable <Integer, String, Object> getSymbolTable () {
         return symbolTable;
+    }
+
+    public
+    LogicCompilerObserver <T, T> getObserver () {
+        return observer;
     }
 }

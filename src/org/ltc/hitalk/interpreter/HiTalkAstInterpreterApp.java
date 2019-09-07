@@ -3,6 +3,7 @@ package org.ltc.hitalk.interpreter;
 import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.aima.logic.fol.VariableAndFunctorInternerImpl;
+import com.thesett.aima.logic.fol.isoprologparser.TokenSource;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.common.util.doublemaps.SymbolTableImpl;
 import org.ltc.hitalk.compiler.HiTalkEngine;
@@ -18,6 +19,9 @@ import org.ltc.hitalk.wam.compiler.HtTokenSource;
 
 import java.io.File;
 
+/**
+ *
+ */
 public
 class HiTalkAstInterpreterApp implements IApplication {
     public
@@ -31,7 +35,7 @@ class HiTalkAstInterpreterApp implements IApplication {
     }
 
     public
-    HiTalkAstCompiler getCompiler () {
+    HiTalkAstCompiler <HtClause> getCompiler () {
         return compiler;
     }
 
@@ -43,14 +47,14 @@ class HiTalkAstInterpreterApp implements IApplication {
     private final SymbolTable <Integer, String, Object> symbolTable;
     private final VariableAndFunctorInterner interner;
     private final HtPrologParser parser;
-    private final HiTalkAstCompiler compiler;
+    private final HiTalkAstCompiler <HtClause> compiler;
     private final HiTalkDefaultBuiltIn defaultBuiltIn;
 
     public
     HiTalkAstInterpreterApp ( SymbolTable <Integer, String, Object> symbolTable,
                               VariableAndFunctorInterner interner,
                               HtPrologParser parser,
-                              HiTalkAstCompiler compiler,
+                              HiTalkAstCompiler <HtClause> compiler,
                               HiTalkDefaultBuiltIn defaultBuiltIn ) {
 
         this.symbolTable = symbolTable;
@@ -140,6 +144,12 @@ class HiTalkAstInterpreterApp implements IApplication {
 //todo
     }
 
+    @Override
+    public
+    void setTokenSource ( TokenSource tokenSource ) {
+        //TODO
+    }
+
     public static
     void main ( String[] args ) {
         try {
@@ -149,8 +159,8 @@ class HiTalkAstInterpreterApp implements IApplication {
                     "HiTalk_Functor_Namespace");
             HtTokenSource tokenSource = HtTokenSource.getTokenSourceForFile(new File(args[0]));
             HtPrologParser parser = new HiTalkParser(tokenSource, interner);
-            HiTalkAstCompiler compiler = new HiTalkAstCompiler(symbolTable, interner, parser, );
-            Resolver <HtClause, HtClause> resolver = new HiTalkEngine(parser, interner, c = new HiTalkAstCompiler(symolTable, interner, parser));
+            HiTalkAstCompiler <HtClause> compiler = new HiTalkAstCompiler <>(symbolTable, interner, parser);
+            Resolver <HtClause, HtClause> resolver = new HiTalkEngine(parser, interner, compiler);
             //
 
             HiTalkDefaultBuiltIn defaultBuiltIn = new HiTalkDefaultBuiltIn(symbolTable, interner);

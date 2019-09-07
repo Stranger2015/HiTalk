@@ -15,7 +15,7 @@ public
 class HiTalkBuiltInTransformVisitor extends BasePositionalVisitor
         implements PositionalTermVisitor {
 
-    private final HiTalkBuiltInTransform builtInTransform;
+    protected final HiTalkBuiltInTransform builtInTransform;
 
     /**
      * @param symbolTable
@@ -42,7 +42,6 @@ class HiTalkBuiltInTransformVisitor extends BasePositionalVisitor
     @Override
     public
     void setPositionalTraverser ( PositionalTermTraverser traverser ) {
-
         this.traverser = traverser;
     }
 
@@ -54,7 +53,7 @@ class HiTalkBuiltInTransformVisitor extends BasePositionalVisitor
     @Override
     public
     void visit ( Term term ) {
-
+        lkBui
     }
 
     /**

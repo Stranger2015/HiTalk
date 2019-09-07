@@ -118,5 +118,20 @@ interface HtConstants {
 
     String READ = "read";
 
-}
+    String CURRENT_INPUT = "current_input";
+    String CURRENT_OUTPUT = "current_output";
 
+    String USER_INPUT = "current_input";
+    String USER_OUTPUT = "current_output";
+
+    //vintage edinburg LIB
+    String TELLING = "telling";
+    String TOLD = "told";
+
+    String NL = "nl";
+    String TTYFLUSH = "ttyflush";
+    String FUNCTOR = "functor";
+    String NAME = "name";
+    String TOLD = "told";
+
+}

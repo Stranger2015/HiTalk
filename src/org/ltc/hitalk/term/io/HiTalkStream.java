@@ -1,6 +1,7 @@
 package org.ltc.hitalk.term.io;
 
 import com.thesett.aima.logic.fol.isoprologparser.SimpleCharStream;
+import org.jetbrains.annotations.NotNull;
 import org.ltc.hitalk.entities.IProperty;
 import org.ltc.hitalk.entities.PropertyOwner;
 import sun.nio.cs.HistoricallyNamedCharset;
@@ -24,10 +25,9 @@ import java.nio.charset.*;
 public
 class HiTalkStream extends PropertyOwner <IProperty> {
 
-    //    private final IProperty[] props;
+    protected IProperty[] props;
     protected final RandomAccessFile raf;
     protected StreamDecoder sd;
-//    protected StreamEncoder se;
 
     /**
      * Creates a random access file stream to read from, and optionally to
@@ -106,7 +106,7 @@ class HiTalkStream extends PropertyOwner <IProperty> {
      */
     public
     HiTalkStream ( File file, String mode, IProperty... props ) throws FileNotFoundException {
-//        this.props = props;
+        this.props = props;
         raf = new RandomAccessFile(file, mode);
     }
 
@@ -114,14 +114,20 @@ class HiTalkStream extends PropertyOwner <IProperty> {
         // fileBeginOffset should mask the file pos!!!
     HiTalkStream ( SimpleCharStream inputStream ) {
 //        super(inputStream);
-        raf = new RandomAccessFile(file, mode);
+        raf = null;//new RandomAccessFile(file, mode);
     }
 
+    /**
+     * @param sd
+     */
     public
     void setStreamDecoder ( StreamDecoder sd ) {
         this.sd = sd;
     }
 
+    /**
+     * @return
+     */
     public
     StreamDecoder getStreamDecoder () {
         return sd;
@@ -136,16 +142,21 @@ class HiTalkStream extends PropertyOwner <IProperty> {
         return props.length;
     }
 
+    /**
+     * @return
+     */
     public
     IProperty[] getProps () {
         return props;
     }
 
+    /**
+     * @return
+     */
     public
     RandomAccessFile getRaf () {
         return raf;
     }
-
 
     /**
      * public InputStreamReader(InputStream in, String charsetName)
@@ -157,6 +168,7 @@ class HiTalkStream extends PropertyOwner <IProperty> {
      * sd = StreamDecoder.forInputStreamReader(in, this, charsetName);
      * }
      */
+    @SuppressWarnings("SynchronizeOnNonFinalField")
     public static
     class StreamDecoder extends Reader {
         private static final int MIN_BYTE_BUFFER_SIZE = 32;
@@ -172,12 +184,12 @@ class HiTalkStream extends PropertyOwner <IProperty> {
         private ReadableByteChannel ch;
 
         public
-        StreamDecoder ( InputStream in, Object lock, String encoding ) {
+        StreamDecoder ( InputStream in, final Object lock, String encoding ) {
             super(lock);
             this.isOpen = true;
             this.haveLeftoverChar = false;
             this.cs = Charset.forName(encoding);
-            this.decoder = new CharsetDecoder.(cs, 2f, 2f);
+//            this.decoder = new CharsetDecoder.(cs, 2f, 2f);
             if (this.ch == null) {
                 this.in = in;
                 this.ch = null;
@@ -204,7 +216,7 @@ class HiTalkStream extends PropertyOwner <IProperty> {
 
             try {
                 if (Charset.isSupported(charsetName)) {
-                    return new StreamDecoder(in, lock, Charset.forName(charsetName));
+//                    return new StreamDecoder(in, lock, Charset.forName(charsetName));
                 }
             } catch (IllegalCharsetNameException ignored) {
             }
@@ -266,7 +278,7 @@ class HiTalkStream extends PropertyOwner <IProperty> {
         }
 
         public
-        int read ( char[] array, int encoding, int var3 ) throws IOException {
+        int read ( @NotNull char[] array, int encoding, int var3 ) throws IOException {
             int var4 = encoding;
             int var5 = var3;
             synchronized (this.lock) {
@@ -373,7 +385,7 @@ class HiTalkStream extends PropertyOwner <IProperty> {
             this.ch = channel;
             this.decoder = encoding;
             this.cs = encoding.charset();
-            this.bb = ByteBuffer.allocate(var3 < 0 ? 8192 : (var3 < 32 ? 32 : var3));
+            this.bb = ByteBuffer.allocate(var3 < 0 ? 8192 : (Math.max(var3, 32)));
             this.bb.flip();
         }
 

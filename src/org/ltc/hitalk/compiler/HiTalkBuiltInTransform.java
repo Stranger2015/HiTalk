@@ -15,10 +15,7 @@
   */
  package org.ltc.hitalk.compiler;
 
- import com.thesett.aima.logic.fol.Functor;
- import com.thesett.aima.logic.fol.FunctorName;
- import com.thesett.aima.logic.fol.Term;
- import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
+ import com.thesett.aima.logic.fol.*;
  import com.thesett.aima.logic.fol.isoprologparser.Token;
  import com.thesett.aima.logic.fol.isoprologparser.TokenSource;
  import com.thesett.aima.logic.fol.wam.builtins.BuiltInFunctor;
@@ -39,6 +36,7 @@
  import java.nio.file.Path;
  import java.nio.file.Paths;
  import java.util.*;
+ import java.util.concurrent.atomic.AtomicInteger;
  import java.util.function.Predicate;
 
  import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.*;
@@ -60,13 +58,11 @@
   * @author Rupert Smith
   */
  public
- class HiTalkBuiltInTransform implements Function <Functor, Functor> {
+ class HiTalkBuiltInTransform<A extends IApplication> implements Function <Functor, Functor> {
 
      /**
       *
       */
-//     public static final Map <String, HtRelationKind> relationKindMap;
-
      public static final Pair EXTENDS_OBJECT = Pair.of(EXTENDS, OBJECT);
      public static final Pair EXTENDS_CATEGORY = Pair.of(EXTENDS, CATEGORY);
      public static final Pair EXTENDS_PROTOCOL = Pair.of(EXTENDS, PROTOCOL);
@@ -97,13 +93,17 @@
       */
      protected final HiTalkDefaultBuiltIn defaultBuiltIn;
      protected final VariableAndFunctorInterner interner;
-     protected final IApplication app;
+     protected final A app;
 
      ///////////////////////////
      private HtEntityIdentifier entityCompiling;
      private IRelation lastRelation;
      private DirectiveClause lastDirective;
      private Term lastTerm;
+     protected final AtomicInteger objectCounter = new AtomicInteger(0);
+     protected final AtomicInteger categoryCounter = new AtomicInteger(0);
+     protected final AtomicInteger protocolCounter = new AtomicInteger(0);
+     private Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> resolver;
 
      /**
       * Initializes the built-in transformation by population the the table of mappings of functors onto their built-in
@@ -113,7 +113,7 @@
       * @param app
       */
      public
-     HiTalkBuiltInTransform ( HiTalkDefaultBuiltIn defaultBuiltIn, IApplication app ) {
+     HiTalkBuiltInTransform ( HiTalkDefaultBuiltIn defaultBuiltIn, A app ) {
          this.defaultBuiltIn = defaultBuiltIn;
          interner = defaultBuiltIn.getInterner();
 //         this.app = app;
@@ -196,19 +196,21 @@
          builtIns.put(new HtFunctorName(CURRENT_EVENT, 1), this::current_event_p);
 //      termio   read
          builtIns.put(new HtFunctorName(READ, 1, 2), this::read_p);
-         builtIns.put(new HtFunctorName(READ, 1, 2), this::current_input_p);
-         builtIns.put(new HtFunctorName(READ, 1, 2), this::current_output_p);
+         builtIns.put(new HtFunctorName(CURRENT_INPUT, 1, 2), this::current_input_p);
+         builtIns.put(new HtFunctorName(CURRENT_OUTPUT, 1, 2), this::current_output_p);
+         this.app = app;
      }
 
      private
      boolean current_input_p ( Functor functor ) {
-         try (functor/*InputStream input = in*/) {
+         try {//(/*InputStream input = in*/) {
              HiTalkStream input;
+             throw new IOException();
          } catch (IOException e) {
              throw new ExecutionError(RESOURCE_ERROR, null);
          }
 
-         return false;
+//         return false;
      }
 
      private
@@ -221,21 +223,21 @@
      boolean read_p ( Functor functor ) {
 //         parser = (HtPrologParser) getParser();
          try {
-             Term term = app.parser.termSentence();
+             Term term = app.getParser().termSentence();
              String name = interner.getFunctorName((Functor) term);
              while (!name.equals(END_OF_FILE)) {
                  if (BEGIN_OF_FILE.equals(name)) {
-                     term = app.parser.term();
-                     if (app.isEncodingDirective((Functor) term)) {//run directive
-                         Token token = app.parser.lastToken();
-                         app.parser.getTokenSource().setOffset(token.endLine, token.endColumn);
+                     term = app.getParser().term();
+                     if (isEncodingDirective((Functor) term)) {//run directive
+                         Token token = app.getParser().lastToken();
+                         app.getParser().getTokenSource().setOffset(token.endLine, token.endColumn);
                          lastTerm = term;
                      }
                  }
              }
              lastTerm = term;
          } catch (SourceCodeException e) {
-             e.printStackTrace();
+             throw new ExecutionError(PERMISSION_ERROR, null);
          }
          return false;
      }
@@ -462,16 +464,19 @@
 
      private
      boolean encoding_p ( Functor functor ) {
-//         List <String> l = Arrays.asList(UTF8);
-
-         Token token = app.parser.lastToken();
-         app.parser.getTokenSource().setOffset(token.endLine, token.endColumn);
-//         app.parser.getTokenSource().setFileBeginPos(app.parser.);
+         Token token = app.getParser().lastToken();
+         app.getParser().getTokenSource().setOffset(token.endLine, token.endColumn);
+//         app.getParser().getTokenSource().setFileBeginPos(app.getParser().);
          lastTerm = new Functor(interner.internFunctorName(BEGIN_OF_FILE, 0), null);
          String encoding = String.valueOf(functor.getArgument(0));
-         currentinput()
+         HiTalkStream in = currentinput();
 //         Charset cs = Charset.forName(encoding);
          return true;
+     }
+
+     private
+     HiTalkStream currentinput () {
+         return null;
      }
 
      private
@@ -779,6 +784,7 @@
          String name = interner.getFunctorName(functor);
 //         HtRelationKind relationKind = relationKindMap.get(name);
 
+         HtRelationKind relationKind = HtRelationKind.EXTENDS_OBJECT;///default
          if (kinds.add(relationKind)) {
              Set <IRelation> arr = new HashSet <>();
 //             List<List<IRelation>> newRelData = new ArrayList <>();
@@ -813,6 +819,11 @@
          HtEntityKind subEntityKind = detectSubEntityKind(relationKind, entityCompiling.getKind());
 
          return new HtRelation(entityCompiling, scope, new HtEntityIdentifier(subEntName, subEntityKind), relationKind);
+     }
+
+     private
+     HtEntityKind detectSubEntityKind ( HtRelationKind relationKind, HtEntityKind kind ) {
+         return null;
      }
 
      private
@@ -870,6 +881,29 @@
          return true;
      }
 
+     /**
+      * @param functor
+      * @return
+      */
+     protected
+     boolean isEncodingDirective ( Functor functor ) {
+         boolean result = false;
+         if (isDirective(functor)) {
+             functor = (Functor) functor.getArgument(0);
+             String name = interner.getFunctorName(functor);
+             result = ENCODING.equals(name) && functor.getArity() == 1;
+         }
+         return result;
+     }
+
+     /**
+      * @param functor
+      * @return
+      */
+     boolean isDirective ( Functor functor ) {
+         return interner.getFunctorName(functor).equals(IMPLIES) && functor.getArity() == 1;
+     }
+
      private
      boolean category_p ( Functor functor ) {
          if (isEntityCompiling()) {
@@ -881,21 +915,48 @@
          return true;
      }
 
+     public
+     AtomicInteger getObjectCounter () {
+         return objectCounter;
+     }
+
+     public
+     AtomicInteger getCategoryCounter () {
+         return categoryCounter;
+     }
+
+     public
+     AtomicInteger getProtocolCounter () {
+         return protocolCounter;
+     }
+
+     public
+     Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> getResolver () {
+         return resolver;
+     }
+
      private
      boolean end_object_p ( Functor functor ) {
-         app.object_counter++;
+         if (getObjectCounter().get() == 0) {
+             throw new ExecutionError(PERMISSION_ERROR, null);
+         }
+         ;
          return endEntity(HtEntityKind.OBJECT);
      }
 
      private
      boolean end_protocol_p ( Functor functor ) {
-         app.protocol_counter++;
+         if (getProtocolCounter().get() == 0) {
+             throw new ExecutionError(PERMISSION_ERROR, null);
+         }
          return endEntity(HtEntityKind.PROTOCOL);
      }
 
      private
      boolean end_category_p ( Functor functor ) {
-         app.category_counter++;
+         if (getCategoryCounter().get() == 0) {
+             throw new ExecutionError(PERMISSION_ERROR, null);
+         }
          return endEntity(HtEntityKind.CATEGORY);
      }
 

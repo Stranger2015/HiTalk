@@ -1,6 +1,7 @@
 package org.ltc.hitalk.compiler.bktables;
 
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
+import com.thesett.aima.logic.fol.isoprologparser.TokenSource;
 import org.ltc.hitalk.parser.HtPrologParser;
 
 /**
@@ -50,7 +51,14 @@ interface IApplication {
     void setParser ( HtPrologParser parser );
 
     /**
+     * @return
+     */
+    HtPrologParser getParser ();
+
+    /**
      * @param arg
      */
     void setFileName ( String arg );
+
+    void setTokenSource ( TokenSource tokenSource );
 }
