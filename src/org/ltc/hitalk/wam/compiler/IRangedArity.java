@@ -7,12 +7,12 @@ interface IRangedArity {
 
     /**
      * @param arityMin
-     * @param arityMax
+     * @param arityDelta
      * @return
      */
     default
-    int setArityRange ( int arityMin, int arityMax ) {
-        return (arityMin & 0xffff) | ((arityMax >>> 16) & 0xffff);
+    int setArityRange ( int arityMin, int arityDelta ) {
+        return (arityMin & 0xfff0) | ((arityDelta >>> 8) & 0xff);//fixme >>> 8
     }
 
     /**
@@ -27,8 +27,8 @@ interface IRangedArity {
      * @return
      */
     default
-    int getArityMax () {
-        return (getArityInt() << 16) & 0xffff;
+    int getArityDelta () {
+        return (getArityInt() << 8) & 0xffff;
     }
 
     /**

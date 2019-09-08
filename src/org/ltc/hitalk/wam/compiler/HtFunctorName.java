@@ -25,11 +25,11 @@ class HtFunctorName extends FunctorName implements IRangedArity {
     /**
      * @param name
      * @param arityMin
-     * @param arityMax
+     * @param arityDelta
      */
     public
-    HtFunctorName ( String name, int arityMin, int arityMax ) {//delta arity byte or short
-        super(name, (arityMin & 0xffff) | ((arityMax >>> 16) & 0xffff));//
+    HtFunctorName ( String name, int arityMin, int arityDelta ) {//delta arity byte or short
+        super(name, (arityMin & 0xfff0) | ((arityDelta >>> 8) & 0xffff));//
     }
 
 //    /**
@@ -66,14 +66,21 @@ class HtFunctorName extends FunctorName implements IRangedArity {
         return super.getArity();
     }
 
+    /**
+     * @return
+     */
+    @Override
     public
     Term getArityTerm () {
-
-        new HtFunctorName(getName(), getArityMin(), getArityMax());
+        new HtFunctorName(getName(), getArityMin(), getArityDelta());
         int i = getArityInt();
         return hash(i);
     }
 
+    /**
+     * @param i
+     * @return
+     */
     private
     Term hash ( int i ) {
         return null;
@@ -83,6 +90,6 @@ class HtFunctorName extends FunctorName implements IRangedArity {
     @Override
     public
     String toString () {
-        return String.format("HtFunctorName{%s/%d-%d}", name, getArityMin(), getArityMax());
+        return String.format("HtFunctorName{%s/%d-%d}", name, getArityMin(), getArityDelta());
     }
 }

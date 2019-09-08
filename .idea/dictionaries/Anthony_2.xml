@@ -20,6 +20,7 @@
       <w>hitalk</w>
       <w>hlgt</w>
       <w>htlk</w>
+      <w>icasechk</w>
       <w>indenter</w>
       <w>inliner</w>
       <w>interner</w>
@@ -41,6 +42,7 @@
       <w>subterm</w>
       <w>supercall</w>
       <w>traverser</w>
+      <w>ttyflush</w>
     </words>
   </dictionary>
 </component>

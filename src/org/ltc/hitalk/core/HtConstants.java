@@ -121,17 +121,35 @@ interface HtConstants {
     String CURRENT_INPUT = "current_input";
     String CURRENT_OUTPUT = "current_output";
 
-    String USER_INPUT = "current_input";
-    String USER_OUTPUT = "current_output";
+    String USER_INPUT = "user_input";
+    String USER_OUTPUT = "user_output";
 
-    //vintage edinburg LIB
+    //    Input and output
+
+//    Edinburgh-style I/O
+
+    String TELL = "tell";
     String TELLING = "telling";
     String TOLD = "told";
+
+    String SEE = "see";
+    String SEEING = "seeing";
+    String SEEN = "seen";
+    String APPEND = "append";
 
     String NL = "nl";
     String TTYFLUSH = "ttyflush";
     String FUNCTOR = "functor";
     String NAME = "name";
-    String TOLD = "told";
+    String SUB_ATOM_ICASECHK = "sub_atom_icasechk";
+    String SUB_ATOM = "sub_atom";
 
+    String ATOM_PREFIX = "atom_prefix";
+    String ATOM_LENGTH = "atom_length";
+    String ATOMIC_LIST_CONCAT = "atomic_list_concat";
+    String TERM_TO_ATOM = "term_to_atom";
+    String ATOM_CONCAT = "atom_concat";
+    String ATOMIC_CONCAT = "atomic_concat";
+    String ATOM_TO_TERM = "atom_to_term";
+    String ATOM_NUMBER = "atom_number";
 }

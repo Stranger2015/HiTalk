@@ -11,12 +11,12 @@ class HtFunctor extends Functor implements IRangedArity {
     /**
      * @param name
      * @param arityMin
-     * @param arityMax
+     * @param arityDelta
      */
     public
-    HtFunctor ( int name, int arityMin, int arityMax ) {
+    HtFunctor ( int name, int arityMin, int arityDelta ) {
         super(name, null);
-        setArityRange(arityMin, arityMax);
+        setArityRange(arityMin, arityDelta);
     }
 
     /**

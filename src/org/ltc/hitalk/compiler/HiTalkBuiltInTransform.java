@@ -198,7 +198,217 @@
          builtIns.put(new HtFunctorName(READ, 1, 2), this::read_p);
          builtIns.put(new HtFunctorName(CURRENT_INPUT, 1, 2), this::current_input_p);
          builtIns.put(new HtFunctorName(CURRENT_OUTPUT, 1, 2), this::current_output_p);
-         this.app = app;
+
+         //vintage edinburg LIB
+         builtIns.put(new HtFunctorName(TELL, 1), this::tell_p);
+         builtIns.put(new HtFunctorName(TELLING, 1), this::telling_p);
+         builtIns.put(new HtFunctorName(TOLD, 0), this::told_p);
+         builtIns.put(new HtFunctorName(APPEND, 1), this::append1_p);
+
+         builtIns.put(new HtFunctorName(SEE, 2), this::see_p);
+         builtIns.put(new HtFunctorName(SEEING, 2), this::seeing_p);
+         builtIns.put(new HtFunctorName(SEEN, 2), this::seen_p);
+
+         builtIns.put(new HtFunctorName(TTYFLUSH, 0), this::ttyflush_p);
+         builtIns.put(new HtFunctorName(NL, 0, 1), this::nl_p);
+         builtIns.put(new HtFunctorName(FUNCTOR, 1), this::functor_p);
+
+
+         builtIns.put(new HtFunctorName(CURRENT_OUTPUT, 2), this::atom_chars_p);
+         builtIns.put(new HtFunctorName(CURRENT_OUTPUT, 2), this::char_code_p);
+         builtIns.put(new HtFunctorName(CURRENT_OUTPUT, 2), this::number_chars_p);
+         builtIns.put(new HtFunctorName(ATOM_NUMBER, 2), this::atom_number_p);
+         builtIns.put(new HtFunctorName(NAME, 2), this::name_p);
+         builtIns.put(new HtFunctorName(TERM_TO_ATOM, 2), this::term_to_atom_p);
+         builtIns.put(new HtFunctorName(ATOM_TO_TERM, 3), this::atom_to_term_p);
+         builtIns.put(new HtFunctorName(ATOM_CONCAT, 3), this::atom_concat_p);
+         builtIns.put(new HtFunctorName(ATOMIC_CONCAT, 3), this::atomic_concat_p);
+         builtIns.put(new HtFunctorName(ATOMIC_LIST_CONCAT, 2, 3), this::atomic_list_concat_p);
+         builtIns.put(new HtFunctorName(ATOM_LENGTH, 2), this::atom_length_p);
+         builtIns.put(new HtFunctorName(ATOM_PREFIX, 2), this::atom_prefix_p);
+         builtIns.put(new HtFunctorName(SUB_ATOM, 2), this::sub_atom_p);
+         builtIns.put(new HtFunctorName(SUB_ATOM_ICASECHK, 2), this::sub_atom_icasechk_p);
+//***************************************************************************************************************
+
+//         Primitive character I/O
+//         nl/0
+//         nl/1
+//         put/1
+//         put/2
+//         put_byte/1
+//         put_byte/2
+//         put_char/1
+//         put_char/2
+//         put_code/1
+//         put_code/2
+//         tab/1
+//         tab/2
+//         flush_output/0
+//         flush_output/1
+//         ttyflush/0
+//         get_byte/1
+//         get_byte/2
+//         get_code/1
+//         get_code/2
+//         get_char/1
+//         get_char/2
+//         get0/1
+//         get0/2
+//         get/1
+//         get/2
+//         peek_byte/1
+//         peek_byte/2
+//         peek_code/1
+//         peek_code/2
+//         peek_char/1
+//         peek_char/2
+//         peek_string/3
+//         skip/1
+//         skip/2
+//         get_single_char/1
+//         with_tty_raw/1
+//         at_end_of_stream/0
+//         at_end_of_stream/1
+//         set_end_of_stream/1
+//         copy_stream_data/3
+//         copy_stream_data/2
+//         fill_buffer/1
+//         read_pending_codes/3
+//         read_pending_chars/3
+//
+//
+//***************************************************************************************************************
+//        name/2
+//        term_to_atom/2
+//        atom_to_term/3
+//        C/3
+//        atomic_concat/3
+//        atomic_list_concat/2
+////        atomic_list_concat/3
+////        atom_length/2
+////        atom_prefix/2
+////        sub_atom/5
+////        sub_atom_icasechk/3
+     }
+
+     private
+     boolean nl_p ( Functor functor ) {
+         return false;
+     }
+
+     private
+     boolean ttyflush_p ( Functor functor ) {
+         return false;
+     }
+
+     private
+     boolean seen_p ( Functor functor ) {
+         return false;
+     }
+
+     private
+     boolean functor_p ( Functor functor ) {
+         return false;
+     }
+
+     private
+     boolean char_code_p ( Functor functor ) {
+         return false;
+     }
+
+     private
+     boolean seeing_p ( Functor functor ) {
+         return false;
+     }
+
+     private
+     boolean append1_p ( Functor functor ) {
+         return false;
+     }
+
+     private
+     boolean told_p ( Functor functor ) {
+         return false;
+     }
+
+     private
+     boolean atom_chars_p ( Functor functor ) {
+         return false;
+     }
+
+     private
+     boolean telling_p ( Functor functor ) {
+         return false;
+     }
+
+     private
+     boolean tell_p ( Functor functor ) {
+         return false;
+     }
+
+     private
+     boolean see_p ( Functor functor ) {
+         return false;
+     }
+
+     private
+     boolean number_chars_p ( Functor functor ) {
+         return true;
+     }
+
+     private
+     boolean atom_number_p ( Functor functor ) {
+         return false;
+     }
+
+     private
+     boolean name_p ( Functor functor ) {
+         return false;
+     }
+
+     private
+     boolean term_to_atom_p ( Functor functor ) {
+         return false;
+     }
+
+     private
+     boolean atom_to_term_p ( Functor functor ) {
+         return false;
+     }
+
+     private
+     boolean atom_concat_p ( Functor functor ) {
+         return false;
+     }
+
+     private
+     boolean atomic_concat_p ( Functor functor ) {
+         return false;
+     }
+
+     private
+     boolean atomic_list_concat_p ( Functor functor ) {
+         return false;
+     }
+
+     private
+     boolean atom_length_p ( Functor functor ) {
+         return false;
+     }
+
+     private
+     boolean atom_prefix_p ( Functor functor ) {
+         return false;
+     }
+
+     private
+     boolean sub_atom_p ( Functor functor ) {
+         return false;
+     }
+
+     private
+     boolean sub_atom_icasechk_p ( Functor functor ) {
+         return false;
      }
 
      private
@@ -600,6 +810,8 @@
          }
      }
 
+//=====================================================
+//
      /*
 '$lgt_check_and_expand_source_file'(File, Path) :-
 	(	atom(File) ->
@@ -679,55 +891,55 @@
      }
 
      private
-     boolean true_p ( Functor term ) {
+     boolean true_p ( Functor functor ) {
          return true;
      }
 
      private
-     boolean fail_p ( Functor term ) {
+     boolean fail_p ( Functor functor ) {
          return false;
      }
 
      private
-     boolean cut_p ( Functor term ) {
+     boolean cut_p ( Functor functor ) {
          return true;
      }
 
      private
-     boolean unifies_p ( Functor term ) {
+     boolean unifies_p ( Functor functor ) {
          boolean result = false;
 
          return result;
      }
 
      private
-     boolean nonUnifies_p ( Functor term ) {
+     boolean nonUnifies_p ( Functor functor ) {
          boolean result = false;
 
          return result;
      }
 
      private
-     boolean assign_p ( Functor term ) {
+     boolean assign_p ( Functor functor ) {
          return true;
      }
 
      private
-     boolean conjunction_p ( Functor term ) {
+     boolean conjunction_p ( Functor functor ) {
          boolean result = false;
 
          return result;
      }
 
      private
-     boolean disjunction_p ( Functor term ) {
+     boolean disjunction_p ( Functor functor ) {
          boolean result = false;
 
          return result;
      }
 
      private
-     boolean call_p ( Functor term ) {
+     boolean call_p ( Functor functor ) {
          boolean result = false;
 
          return result;
@@ -752,7 +964,7 @@
      @SuppressWarnings("SuspiciousMethodCalls")
      private
      void handleEntityRelations ( HtFunctor entityFunctor, boolean dynamic ) {
-         int arityMax = entityFunctor.getArityMax();
+         int arityMax = entityFunctor.getArityMin() + entityFunctor.getArityDelta();
 //         HtEntityKind entityKind = entityCompiling.getKind();
          EnumSet <HtRelationKind> kinds = EnumSet.noneOf(HtRelationKind.class);
          List <Set <IRelation>> relations = new ArrayList <>();
@@ -766,7 +978,7 @@
                  }
              }
              else {
-                 if (entityFunctor.getArityMin() != entityFunctor.getArityMax()) {
+                 if (entityFunctor.getArityDelta() != 0) {
                      FunctorName name = interner.getDeinternedFunctorName(entityFunctor.getName());
                      relationFunctor = (Functor) entityFunctor.getArgument(1);
                      createRelation(relationFunctor, null, dynamic);
@@ -900,6 +1112,7 @@
       * @param functor
       * @return
       */
+     private
      boolean isDirective ( Functor functor ) {
          return interner.getFunctorName(functor).equals(IMPLIES) && functor.getArity() == 1;
      }
@@ -989,7 +1202,27 @@
      boolean initialization_p ( Functor functor ) {
          return true;
      }
+//======================================================
+//          atom_codes/2
+////        atom_chars/2
+////        char_code/2
+////        number_chars/2
+////        number_codes/2
+////        atom_number/2
+////        name/2
+////        term_to_atom/2
+////        atom_to_term/3
+////        atom_concat/3
+////        atomic_concat/3
+////        atomic_list_concat/2
+////        atomic_list_concat/3
+////        atom_length/2
+////        atom_prefix/2
+////        sub_atom/5
+////        sub_atom_icasechk/3
+//======================================================
 
+     //
      public
      VariableAndFunctorInterner getInterner () {
          return interner;
