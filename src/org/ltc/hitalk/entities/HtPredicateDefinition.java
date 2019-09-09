@@ -1,5 +1,9 @@
 package org.ltc.hitalk.entities;
 
+import com.thesett.aima.logic.fol.Functor;
+
+import java.util.function.Consumer;
+
 /**
  *
  */
@@ -12,7 +16,7 @@ class HtPredicateDefinition extends PropertyOwner <HtProperty> {
      * @param props
      */
     public
-    HtPredicateDefinition ( HtProperty... props ) {
+    HtPredicateDefinition ( Consumer <Functor> consumer, HtProperty... props ) {
         super(props);
     }
 }

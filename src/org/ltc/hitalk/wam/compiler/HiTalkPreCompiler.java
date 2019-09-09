@@ -84,7 +84,7 @@ class HiTalkPreCompiler<T extends HtClause> extends BaseMachine
 
         this.defaultBuiltIn = defaultBuiltIn;
         this.app = app;
-        builtInTransform = new HiTalkBuiltInTransform(defaultBuiltIn, app);//TODO GLOBAL CTX NEEDED!!
+        builtInTransform = new HiTalkBuiltInTransform(defaultBuiltIn, app, resolver);//TODO GLOBAL CTX NEEDED!!
     }
 
     /**

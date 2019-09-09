@@ -1,0 +1,2 @@
+preprocess(TermIn, ListTermOut):-
+    true.

@@ -37,10 +37,10 @@
  import java.nio.file.Paths;
  import java.util.*;
  import java.util.concurrent.atomic.AtomicInteger;
- import java.util.function.Predicate;
 
  import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.*;
  import static org.ltc.hitalk.core.HtConstants.*;
+ import static org.ltc.hitalk.entities.HtType.*;
  import static org.ltc.hitalk.entities.IRelation.*;
  import static org.ltc.hitalk.parser.HtPrologParser.BEGIN_OF_FILE;
  import static org.ltc.hitalk.parser.HtPrologParser.END_OF_FILE;
@@ -87,7 +87,9 @@
      /**
       * Holds a mapping from functor names to built-in implementations.
       */
-     private final Map <HtFunctorName, Predicate <Functor>> builtIns = new HashMap <>();
+//     private final Map <HtFunctorName, Predicate <Functor>> builtIns = new HashMap <>();
+     private final PredicateTable builtIns = new PredicateTable();
+
      /**
       * Holds the default built in, for standard compilation and interners and symbol tables.
       */
@@ -100,134 +102,29 @@
      private IRelation lastRelation;
      private DirectiveClause lastDirective;
      private Term lastTerm;
+
      protected final AtomicInteger objectCounter = new AtomicInteger(0);
      protected final AtomicInteger categoryCounter = new AtomicInteger(0);
      protected final AtomicInteger protocolCounter = new AtomicInteger(0);
-     private Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> resolver;
+     protected final Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> resolver;
+//IMPLEMENT BUILTINS AS THE CONSUMER
 
      /**
       * Initializes the built-in transformation by population the the table of mappings of functors onto their built-in
       * implementations.
-      *
       * @param defaultBuiltIn The default built in, for standard compilation and interners and symbol tables.
       * @param app
+      * @param resolver
       */
      public
-     HiTalkBuiltInTransform ( HiTalkDefaultBuiltIn defaultBuiltIn, A app ) {
+     HiTalkBuiltInTransform ( HiTalkDefaultBuiltIn defaultBuiltIn, A app, Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> resolver ) {
          this.defaultBuiltIn = defaultBuiltIn;
          interner = defaultBuiltIn.getInterner();
-//         this.app = app;
-
-         builtIns.put(new HtFunctorName(TRUE, 0), this::true_p);
-         builtIns.put(new HtFunctorName(FAIL, 0), this::fail_p);
-         builtIns.put(new HtFunctorName(FALSE, 0), this::fail_p);
-         builtIns.put(new HtFunctorName(CUT, 0), this::cut_p);
-         builtIns.put(new HtFunctorName(NOT, 0), this::not_p);
-
-         builtIns.put(new HtFunctorName(UNIFIES, 2), this::unifies_p);
-         builtIns.put(new HtFunctorName(ASSIGN, 2), this::assign_p);
-         builtIns.put(new HtFunctorName(NON_UNIFIES, 2), this::nonUnifies_p);
-         builtIns.put(new HtFunctorName(SEMICOLON, 2), this::disjunction_p);
-         builtIns.put(new HtFunctorName(COMMA, 2), this::conjunction_p);
-         builtIns.put(new HtFunctorName(CALL, 1), this::call_p);
-         builtIns.put(new HtFunctorName(OBJECT, 1, 5), this::object_p);//todo 1-5
-         builtIns.put(new HtFunctorName(PROTOCOL, 1, 2), this::protocol_p);//todo 1-2
-         builtIns.put(new HtFunctorName(CATEGORY, 1, 4), this::category_p);//todo 1-4
-         builtIns.put(new HtFunctorName(END_OBJECT, 0), this::end_object_p);
-         builtIns.put(new HtFunctorName(END_PROTOCOL, 0), this::end_protocol_p);
-         builtIns.put(new HtFunctorName(END_CATEGORY, 0), this::end_category_p);
-
-         builtIns.put(new HtFunctorName(OP, 3), this::op_p);
-         builtIns.put(new HtFunctorName(CURRENT_OP, 3), this::current_op_p);
-
-         builtIns.put(new HtFunctorName(INITIALIZATION, 1), this::initialization_p);
-         builtIns.put(new HtFunctorName(PUBLIC, 1), this::public_p);
-         builtIns.put(new HtFunctorName(PROTECTED, 1), this::protected_p);
-         builtIns.put(new HtFunctorName(PRIVATE, 1), this::private_p);
-//source_file DIRECTIVES
-         builtIns.put(new HtFunctorName(INCLUDE, 1), this::include_p);
-         builtIns.put(new HtFunctorName(ENCODING, 1), this::encoding_p);
-         builtIns.put(new HtFunctorName(CURRENT_LOGTALK_FLAG, 2), this::current_logtalk_flag_p);
-         builtIns.put(new HtFunctorName(SET_LOGTALK_FLAG, 2), this::set_logtalk_flag_p);
-         builtIns.put(new HtFunctorName(CREATE_LOGTALK_FLAG, 3), this::create_logtalk_flag_p);
-
-         builtIns.put(new HtFunctorName(MULTIFILE, 1), this::multifile_p);
-         builtIns.put(new HtFunctorName(DISCONTIGUOUS, 1), this::discontiguous_p);
-         builtIns.put(new HtFunctorName(DYNAMIC, 1), this::dynamic_p);
-         builtIns.put(new HtFunctorName(STATIC, 1), this::static_p);
-
-         builtIns.put(new HtFunctorName(HILOG, 1), this::hilog_p);
-
-         builtIns.put(new HtFunctorName(EXPAND_GOAL, 1), this::expand_goal_p);
-         builtIns.put(new HtFunctorName(EXPAND_TERM, 1), this::expand_term_p);
-
-         builtIns.put(new HtFunctorName(LOGTALK_LIBRARY_PATH, 1), this::logtalk_library_path_p);
-
-//          entity properties
-         builtIns.put(new HtFunctorName(OBJECT_PROPERTY, 2), this::object_property_p);
-         builtIns.put(new HtFunctorName(PROTOCOL_PROPERTY, 2), this::protocol_property_p);
-         builtIns.put(new HtFunctorName(CATEGORY_PROPERTY, 2), this::category_property_p);
-//          entity enumeration
-         builtIns.put(new HtFunctorName(CURRENT_PROTOCOL, 1), this::current_protocol_p);
-         builtIns.put(new HtFunctorName(CURRENT_CATEGORY, 1), this::current_category_p);
-         builtIns.put(new HtFunctorName(CURRENT_OBJECT, 1), this::current_object_p);
-// entity creation predicates
-         builtIns.put(new HtFunctorName(CREATE_OBJECT, 1), this::create_object_p);
-         builtIns.put(new HtFunctorName(CREATE_CATEGORY, 1), this::create_category_p);
-         builtIns.put(new HtFunctorName(CREATE_PROTOCOL, 1), this::create_protocol_p);
-         // entity abolishing predicates
-         builtIns.put(new HtFunctorName(ABOLISH_OBJECT, 1), this::abolish_object_p);
-         builtIns.put(new HtFunctorName(ABOLISH_CATEGORY, 1), this::abolish_category_p);
-         builtIns.put(new HtFunctorName(ABOLISH_PROTOCOL, 1), this::abolish_protocol_p);
-// entity relations
-         builtIns.put(new HtFunctorName(HtConstants.IMPLEMENTS_PROTOCOL, 2, 3), this::implements_protocol_p);
-         builtIns.put(new HtFunctorName(HtConstants.IMPORTS_CATEGORY, 2, 3), this::imports_category_p);
-         builtIns.put(new HtFunctorName(HtConstants.INSTANTIATES_CLASS, 2, 3), this::instantiates_class_p);
-         builtIns.put(new HtFunctorName(HtConstants.SPECIALIZES_CLASS, 2, 3), this::specializes_class_p);
-         builtIns.put(new HtFunctorName(HtConstants.EXTENDS_PROTOCOL, 2, 3), this::extends_protocol_p);
-         builtIns.put(new HtFunctorName(HtConstants.EXTENDS_OBJECT, 2, 3), this::extends_object_p);
-         builtIns.put(new HtFunctorName(HtConstants.EXTENDS_CATEGORY, 2, 3), this::extends_category_p);
-         builtIns.put(new HtFunctorName(COMPLEMENTS_OBJECT, 2), this::complements_object_p);
-//          protocol conformance
-         builtIns.put(new HtFunctorName(CONFORMS_TO_PROTOCOL, 2, 3), this::conforms_to_protocol_p);
-//          events
-         builtIns.put(new HtFunctorName(ABOLISH_EVENTS, 1), this::abolish_events_p);
-         builtIns.put(new HtFunctorName(DEFINE_EVENTS, 1), this::define_events_p);
-         builtIns.put(new HtFunctorName(CURRENT_EVENT, 1), this::current_event_p);
-//      termio   read
-         builtIns.put(new HtFunctorName(READ, 1, 2), this::read_p);
-         builtIns.put(new HtFunctorName(CURRENT_INPUT, 1, 2), this::current_input_p);
-         builtIns.put(new HtFunctorName(CURRENT_OUTPUT, 1, 2), this::current_output_p);
-
-         //vintage edinburg LIB
-         builtIns.put(new HtFunctorName(TELL, 1), this::tell_p);
-         builtIns.put(new HtFunctorName(TELLING, 1), this::telling_p);
-         builtIns.put(new HtFunctorName(TOLD, 0), this::told_p);
-         builtIns.put(new HtFunctorName(APPEND, 1), this::append1_p);
-
-         builtIns.put(new HtFunctorName(SEE, 2), this::see_p);
-         builtIns.put(new HtFunctorName(SEEING, 2), this::seeing_p);
-         builtIns.put(new HtFunctorName(SEEN, 2), this::seen_p);
-
-         builtIns.put(new HtFunctorName(TTYFLUSH, 0), this::ttyflush_p);
-         builtIns.put(new HtFunctorName(NL, 0, 1), this::nl_p);
-         builtIns.put(new HtFunctorName(FUNCTOR, 1), this::functor_p);
+         this.resolver = resolver;
+         this.app = app;
+         defineBuiltIns();
 
 
-         builtIns.put(new HtFunctorName(CURRENT_OUTPUT, 2), this::atom_chars_p);
-         builtIns.put(new HtFunctorName(CURRENT_OUTPUT, 2), this::char_code_p);
-         builtIns.put(new HtFunctorName(CURRENT_OUTPUT, 2), this::number_chars_p);
-         builtIns.put(new HtFunctorName(ATOM_NUMBER, 2), this::atom_number_p);
-         builtIns.put(new HtFunctorName(NAME, 2), this::name_p);
-         builtIns.put(new HtFunctorName(TERM_TO_ATOM, 2), this::term_to_atom_p);
-         builtIns.put(new HtFunctorName(ATOM_TO_TERM, 3), this::atom_to_term_p);
-         builtIns.put(new HtFunctorName(ATOM_CONCAT, 3), this::atom_concat_p);
-         builtIns.put(new HtFunctorName(ATOMIC_CONCAT, 3), this::atomic_concat_p);
-         builtIns.put(new HtFunctorName(ATOMIC_LIST_CONCAT, 2, 3), this::atomic_list_concat_p);
-         builtIns.put(new HtFunctorName(ATOM_LENGTH, 2), this::atom_length_p);
-         builtIns.put(new HtFunctorName(ATOM_PREFIX, 2), this::atom_prefix_p);
-         builtIns.put(new HtFunctorName(SUB_ATOM, 2), this::sub_atom_p);
-         builtIns.put(new HtFunctorName(SUB_ATOM_ICASECHK, 2), this::sub_atom_icasechk_p);
 //***************************************************************************************************************
 
 //         Primitive character I/O
@@ -289,6 +186,120 @@
 ////        atom_prefix/2
 ////        sub_atom/5
 ////        sub_atom_icasechk/3
+     }
+
+     private
+     void defineBuiltIns () {
+         builtIns.put(new HtFunctorName(TRUE, 0), this::true_p);
+         builtIns.put(new HtFunctorName(FAIL, 0), this::fail_p);
+         builtIns.put(new HtFunctorName(FALSE, 0), this::fail_p);
+         builtIns.put(new HtFunctorName(CUT, 0), this::cut_p);
+         builtIns.put(new HtFunctorName(NOT, 0), this::not_p);
+
+         builtIns.put(new HtFunctorName(UNIFIES, 2), this::unifies_p);
+         builtIns.put(new HtFunctorName(ASSIGN, 2), this::assign_p);
+         builtIns.put(new HtFunctorName(NON_UNIFIES, 2), this::nonUnifies_p);
+         builtIns.put(new HtFunctorName(SEMICOLON, 2), this::disjunction_p);
+         builtIns.put(new HtFunctorName(COMMA, 2), this::conjunction_p);
+         builtIns.put(new HtFunctorName(CALL, 1), this::call_p);
+         builtIns.put(new HtFunctorName(OBJECT, 1, 5), this::object_p);//todo 1-5
+         builtIns.put(new HtFunctorName(PROTOCOL, 1, 2), this::protocol_p);//todo 1-2
+         builtIns.put(new HtFunctorName(CATEGORY, 1, 4), this::category_p);//todo 1-4
+         builtIns.put(new HtFunctorName(END_OBJECT, 0), this::end_object_p);
+         builtIns.put(new HtFunctorName(END_PROTOCOL, 0), this::end_protocol_p);
+         builtIns.put(new HtFunctorName(END_CATEGORY, 0), this::end_category_p);
+
+         builtIns.put(new HtFunctorName(OP, 3), this::op_p);
+         builtIns.put(new HtFunctorName(CURRENT_OP, 3), this::current_op_p);
+
+         builtIns.put(new HtFunctorName(INITIALIZATION, 1), this::initialization_p);
+         builtIns.put(new HtFunctorName(PUBLIC, 1), this::public_p);
+         builtIns.put(new HtFunctorName(PROTECTED, 1), this::protected_p);
+         builtIns.put(new HtFunctorName(PRIVATE, 1), this::private_p);
+//source_file DIRECTIVES
+         builtIns.put(new HtFunctorName(INCLUDE, 1), this::include_p);
+         builtIns.put(new HtFunctorName(ENCODING, 1), this::encoding_p);
+         builtIns.put(new HtFunctorName(CURRENT_LOGTALK_FLAG, 2), this::current_logtalk_flag_p);
+         builtIns.put(new HtFunctorName(SET_LOGTALK_FLAG, 2), this::set_logtalk_flag_p);
+         builtIns.put(new HtFunctorName(CREATE_LOGTALK_FLAG, 3), this::create_logtalk_flag_p);
+
+         builtIns.put(new HtFunctorName(MULTIFILE, 1), this::multifile_p);
+         builtIns.put(new HtFunctorName(DISCONTIGUOUS, 1), this::discontiguous_p);
+         builtIns.put(new HtFunctorName(DYNAMIC, 1), this::dynamic_p);
+         builtIns.put(new HtFunctorName(STATIC, 1), this::static_p);
+
+         builtIns.put(new HtFunctorName(HILOG, 1), this::hilog_p);
+
+         builtIns.put(new HtFunctorName(EXPAND_GOAL, 1), this::expand_goal_p);
+         builtIns.put(new HtFunctorName(EXPAND_TERM, 1), this::expand_term_p);
+
+         builtIns.put(new HtFunctorName(LOGTALK_LIBRARY_PATH, 1), this::logtalk_library_path_p);
+
+//          entity properties
+         builtIns.put(new HtFunctorName(OBJECT_PROPERTY, 2), this::object_property_p);
+         builtIns.put(new HtFunctorName(PROTOCOL_PROPERTY, 2), this::protocol_property_p);
+         builtIns.put(new HtFunctorName(CATEGORY_PROPERTY, 2), this::category_property_p);
+//          entity enumeration
+         builtIns.put(new HtFunctorName(CURRENT_PROTOCOL, 1), this::current_protocol_p);
+         builtIns.put(new HtFunctorName(CURRENT_CATEGORY, 1), this::current_category_p);
+         builtIns.put(new HtFunctorName(CURRENT_OBJECT, 1), this::current_object_p);
+// entity creation predicates
+         builtIns.put(new HtFunctorName(CREATE_OBJECT, 1), this::create_object_p);
+         builtIns.put(new HtFunctorName(CREATE_CATEGORY, 1), this::create_category_p);
+         builtIns.put(new HtFunctorName(CREATE_PROTOCOL, 1), this::create_protocol_p);
+// entity abolishing predicates
+         builtIns.put(new HtFunctorName(ABOLISH_OBJECT, 1), this::abolish_object_p);
+         builtIns.put(new HtFunctorName(ABOLISH_CATEGORY, 1), this::abolish_category_p);
+         builtIns.put(new HtFunctorName(ABOLISH_PROTOCOL, 1), this::abolish_protocol_p);
+// entity relations
+         builtIns.put(new HtFunctorName(HtConstants.IMPLEMENTS_PROTOCOL, 2, 3), this::implements_protocol_p);
+         builtIns.put(new HtFunctorName(HtConstants.IMPORTS_CATEGORY, 2, 3), this::imports_category_p);
+         builtIns.put(new HtFunctorName(HtConstants.INSTANTIATES_CLASS, 2, 3), this::instantiates_class_p);
+         builtIns.put(new HtFunctorName(HtConstants.SPECIALIZES_CLASS, 2, 3), this::specializes_class_p);
+         builtIns.put(new HtFunctorName(HtConstants.EXTENDS_PROTOCOL, 2, 3), this::extends_protocol_p);
+         builtIns.put(new HtFunctorName(HtConstants.EXTENDS_OBJECT, 2, 3), this::extends_object_p);
+         builtIns.put(new HtFunctorName(HtConstants.EXTENDS_CATEGORY, 2, 3), this::extends_category_p);
+         builtIns.put(new HtFunctorName(COMPLEMENTS_OBJECT, 2), this::complements_object_p);
+//          protocol conformance
+         builtIns.put(new HtFunctorName(CONFORMS_TO_PROTOCOL, 2, 3), this::conforms_to_protocol_p);
+//          events
+         builtIns.put(new HtFunctorName(ABOLISH_EVENTS, 1), this::abolish_events_p);
+         builtIns.put(new HtFunctorName(DEFINE_EVENTS, 1), this::define_events_p);
+         builtIns.put(new HtFunctorName(CURRENT_EVENT, 1), this::current_event_p);
+//      termio   read
+         builtIns.put(new HtFunctorName(READ, 1, 2), this::read_p);
+         builtIns.put(new HtFunctorName(CURRENT_INPUT, 1, 2), this::current_input_p);
+         builtIns.put(new HtFunctorName(CURRENT_OUTPUT, 1, 2), this::current_output_p);
+
+//vintage edinburg LIB
+         builtIns.put(new HtFunctorName(TELL, 1), this::tell_p);
+         builtIns.put(new HtFunctorName(TELLING, 1), this::telling_p);
+         builtIns.put(new HtFunctorName(TOLD, 0), this::told_p);
+         builtIns.put(new HtFunctorName(APPEND, 1), this::append1_p);
+
+         builtIns.put(new HtFunctorName(SEE, 2), this::see_p);
+         builtIns.put(new HtFunctorName(SEEING, 2), this::seeing_p);
+         builtIns.put(new HtFunctorName(SEEN, 2), this::seen_p);
+
+         builtIns.put(new HtFunctorName(TTYFLUSH, 0), this::ttyflush_p);
+         builtIns.put(new HtFunctorName(NL, 0, 1), this::nl_p);
+         builtIns.put(new HtFunctorName(FUNCTOR, 1), this::functor_p);
+
+
+         builtIns.put(new HtFunctorName(CURRENT_OUTPUT, 2), this::atom_chars_p);
+         builtIns.put(new HtFunctorName(CURRENT_OUTPUT, 2), this::char_code_p);
+         builtIns.put(new HtFunctorName(CURRENT_OUTPUT, 2), this::number_chars_p);
+         builtIns.put(new HtFunctorName(ATOM_NUMBER, 2), this::atom_number_p);
+         builtIns.put(new HtFunctorName(NAME, 2), this::name_p);
+         builtIns.put(new HtFunctorName(TERM_TO_ATOM, 2), this::term_to_atom_p);
+         builtIns.put(new HtFunctorName(ATOM_TO_TERM, 3), this::atom_to_term_p);
+         builtIns.put(new HtFunctorName(ATOM_CONCAT, 3), this::atom_concat_p);
+         builtIns.put(new HtFunctorName(ATOMIC_CONCAT, 3), this::atomic_concat_p);
+         builtIns.put(new HtFunctorName(ATOMIC_LIST_CONCAT, 2, 3), this::atomic_list_concat_p);
+         builtIns.put(new HtFunctorName(ATOM_LENGTH, 2), this::atom_length_p);
+         builtIns.put(new HtFunctorName(ATOM_PREFIX, 2), this::atom_prefix_p);
+         builtIns.put(new HtFunctorName(SUB_ATOM, 2), this::sub_atom_p);
+         builtIns.put(new HtFunctorName(SUB_ATOM_ICASECHK, 2), this::sub_atom_icasechk_p);
      }
 
      private
@@ -653,7 +664,6 @@
 
      private
      boolean hilog_p ( Functor functor ) {
-
          return true;
      }
 

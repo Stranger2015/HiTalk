@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * properties
@@ -59,6 +60,7 @@ class HtPredicate extends BaseTerm implements Term, IPropertyOwner {
      * The clauses that make up this predicate.
      */
     protected HtClause[] body;
+    Consumer <Functor> predDef;
 
     /**
      * Creates a predicate formed from a set of clauses.
