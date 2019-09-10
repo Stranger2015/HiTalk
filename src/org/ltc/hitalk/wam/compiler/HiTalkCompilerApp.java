@@ -18,7 +18,6 @@ import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.interpreter.ICompiler;
 import org.ltc.hitalk.parser.HiTalkParser;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.term.Atom;
 import org.ltc.hitalk.wam.machine.HiTalkWAMEngine;
 
@@ -27,7 +26,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 import static org.ltc.hitalk.compiler.bktables.BkTableKind.LOADED_ENTITIES;
@@ -205,6 +203,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
     //    protected HiTalkCompilerApp app;
     protected boolean started;
     protected HtPrologParser parser;
+    private Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> resolver;
 
     /**
      * Builds an logical resolution engine from a parser, interner, compiler and resolver.
@@ -337,6 +336,9 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
 //        compileHooks();        reportSettingsFile(result);
     }
 
+    /**
+     * @param result
+     */
     protected
     void reportSettingsFile ( Object result ) {
 
@@ -1404,26 +1406,17 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
         parser.setTokenSource((HtTokenSource) tokenSource);
     }
 
+    /**
+     * @param parser
+     */
     public
     void setParser ( HtPrologParser parser ) {
         this.parser = parser;
     }
 
-    public
-    AtomicInteger getObjectCounter () {
-        return objectCounter;
-    }
-
-    public
-    AtomicInteger getCategoryCounter () {
-        return categoryCounter;
-    }
-
-    public
-    AtomicInteger getProtocolCounter () {
-        return protocolCounter;
-    }
-
+    /**
+     * @return
+     */
     public
     ExecutionContext getExecutionContext () {
         return executionContext;

@@ -33,16 +33,13 @@ class HiTalkAstCompiler<T extends HtClause> implements ICompiler <T, T, T> {
     /**
      * @param symbolTable
      * @param interner
-     * @param parser      //     * @param resolver
-    //     * @param app
+     * @param parser    
      */
     public
     HiTalkAstCompiler (
             SymbolTable <Integer, String, Object> symbolTable,
             VariableAndFunctorInterner interner,
             HtPrologParser parser
-//            Resolver <T, T> resolver,
-            //    IApplication app
     ) {
         this.symbolTable = symbolTable;
         this.parser = parser;
@@ -81,6 +78,10 @@ class HiTalkAstCompiler<T extends HtClause> implements ICompiler <T, T, T> {
 // TODO
     }
 
+    /**
+     * @param rule
+     * @throws SourceCodeException
+     */
     @Override
     public
     void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
@@ -99,11 +100,15 @@ class HiTalkAstCompiler<T extends HtClause> implements ICompiler <T, T, T> {
         this.resolver = resolver;
     }
 
+    /**
+     * @param rule
+     * @return
+     */
     private
     List <Sentence <T>> translate ( DcgRule rule ) {
-        List <Sentence <T>> l = new ArrayList <>();
+        List <Sentence <T>> result = new ArrayList <>();
 
-        return l;
+        return result;
     }
 
     /**

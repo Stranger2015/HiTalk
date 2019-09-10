@@ -29,17 +29,15 @@ import org.ltc.hitalk.compiler.bktables.BkLoadedEntities;
 import org.ltc.hitalk.compiler.bktables.BkTableKind;
 import org.ltc.hitalk.compiler.bktables.BookKeepingTables;
 import org.ltc.hitalk.compiler.bktables.IRegistry;
-import org.ltc.hitalk.core.HtConstants;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
-import org.ltc.hitalk.wam.compiler.HtFunctorName;
 import org.ltc.hitalk.wam.compiler.HtTokenSource;
 
 import java.util.*;
 
 import static com.thesett.aima.logic.fol.OpSymbol.Associativity.*;
 import static com.thesett.aima.logic.fol.TermUtils.flattenTerm;
-import static org.ltc.hitalk.core.HtConstants.*;
-import static org.ltc.hitalk.parser.HtPrologParserConstants.*;
+import static org.ltc.hitalk.core.BuiltIns.COLON;
+import static org.ltc.hitalk.parser.HtPrologParserConstants.BOF;
 
 /**
  * HtPrologParser is a recursive descent parser for the language Prolog, that parses its input into first order logic
@@ -66,12 +64,14 @@ import static org.ltc.hitalk.parser.HtPrologParserConstants.*;
  */
 
 public
-class HtPrologParser implements Parser <HtClause, Token>, PrologParserConstants {
+class HtPrologParser implements Parser <HtClause, Token>, PrologParserConstants, PrologAtoms {
 
     /**
      * Used for debugging purposes.
      */
     //private static final Logger log = Logger.getLogger(HtPrologParser.class.getName());
+
+
     public static final String BEGIN_OF_FILE = "begin_of_file";
     public static final String END_OF_FILE = "end_of_file";
     //    protected static final Functor[] EMPTY_FUNCTOR_ARRAY = new Functor[0];
@@ -94,8 +94,8 @@ class HtPrologParser implements Parser <HtClause, Token>, PrologParserConstants 
             tokenImage[STRING_LITERAL],
             tokenImage[ATOM],
             tokenImage[BOF],
-            tokenImage[LBRACE],
-            tokenImage[RBRACE],
+            LBRACE//,
+//            tokenImage[RBRACE],
             });
 
     static {
@@ -147,9 +147,9 @@ class HtPrologParser implements Parser <HtClause, Token>, PrologParserConstants 
     @Override
     public
     void setOperator ( String operatorName, int priority, Associativity associativity ) {
-        if (priority == 0) {
-            operatorParser.r
-        }
+//        if (priority == 0) {
+//            operatorParser.r
+//        }
     }
 
     /**
@@ -900,62 +900,62 @@ class HtPrologParser implements Parser <HtClause, Token>, PrologParserConstants 
     protected
     void initializeBuiltIns () {
         // Initializes the operator table with the standard ISO prolog built-in operators.
-        internOperator(IMPLIES, 1200, XFX);
-        internOperator(IMPLIES, 1200, FX);
-        internOperator(DCG_IMPLIES, 1200, XFX);
-        internOperator(QUERY, 1200, FX);
+        internOperator(PrologAtoms.IMPLIES, 1200, XFX);
+        internOperator(PrologAtoms.IMPLIES, 1200, FX);
+        internOperator(PrologAtoms.DCG_IMPLIES, 1200, XFX);
+        internOperator(PrologAtoms.QUERY, 1200, FX);
 
-        internOperator(SEMICOLON, 1100, XFY);
-        internOperator(IF, 1050, XFY);
-        internOperator(IF_STAR, 1050, XFY);
+        internOperator(PrologAtoms.SEMICOLON, 1100, XFY);
+        internOperator(PrologAtoms.IF, 1050, XFY);
+        internOperator(PrologAtoms.IF_STAR, 1050, XFY);
 
-        internOperator(COMMA, 1000, XFY);
-        internOperator(NOT, 900, FY);
+        internOperator(PrologAtoms.COMMA, 1000, XFY);
+        internOperator(PrologAtoms.NOT, 900, FY);
 
-        internOperator(UNIFIES, 700, XFX);
-        internOperator(NON_UNIFIES, 700, XFX);
-        internOperator(IDENTICAL, 700, XFX);
-        internOperator(NON_IDENTICAL, 700, XFX);
-        internOperator("@<", 700, XFX);
-        internOperator("@=<", 700, XFX);
-        internOperator("@>", 700, XFX);
-        internOperator("@>=", 700, XFX);
-        internOperator(UNIV, 700, XFX);
-        internOperator(IS, 700, XFX);
-        internOperator("=:=", 700, XFX);
-        internOperator("=\\=", 700, XFX);
-        internOperator("<", 700, XFX);
-        internOperator("=<", 700, XFX);
-        internOperator(">", 700, XFX);
-        internOperator(">=", 700, XFX);
+        internOperator(PrologAtoms.UNIFIES, 700, XFX);
+        internOperator(PrologAtoms.NON_UNIFIES, 700, XFX);
+        internOperator(PrologAtoms.IDENTICAL, 700, XFX);
+        internOperator(PrologAtoms.NON_IDENTICAL, 700, XFX);
+        internOperator(PrologAtoms.AT_LESS, 700, XFX);
+        internOperator(PrologAtoms.AT_LESS_OR_EQUAL, 700, XFX);
+        internOperator(PrologAtoms.AT_GREATER, 700, XFX);
+        internOperator(PrologAtoms.AT_GREATER_OR_EQUAL, 700, XFX);
+        internOperator(PrologAtoms.UNIV, 700, XFX);
+        internOperator(PrologAtoms.IS, 700, XFX);
+//        internOperator(PrologAtoms.C, 700, XFX);
+        internOperator(PrologAtoms.EQ_BSLASH_EQ, 700, XFX);
+        internOperator(PrologAtoms.LESS, 700, XFX);
+        internOperator(PrologAtoms.LESS_OR_EQUAL, 700, XFX);
+        internOperator(PrologAtoms.GREATER, 700, XFX);
+        internOperator(PrologAtoms.GREATER_OR_EQUAL, 700, XFX);
 
-        internOperator("+", 500, YFX);
-        internOperator("-", 500, YFX);
+//        internOperator(PrologAtoms."+", 500, YFX);
+//        internOperator(PrologAtoms."-", 500, YFX);
+        2
+        internOperator(PrologAtoms.BSLASH_SLASH, 500, YFX);
+        internOperator(PrologAtoms.SLASH_BSLASH, 500, YFX);
 
-        internOperator("\\/", 500, YFX);
-        internOperator("/\\", 500, YFX);
+        internOperator(PrologAtoms.SLASH, 400, YFX);
+        internOperator(PrologAtoms.SLASH_SLASH, 400, YFX);
+        internOperator(PrologAtoms.STAR, 400, YFX);
+        internOperator(PrologAtoms.RSHIFT, 400, YFX);
+        internOperator(PrologAtoms.LSHIFT, 400, YFX);
+        internOperator(PrologAtoms.REM, 400, YFX);
+        internOperator(PrologAtoms.MOD, 400, YFX);
 
-        internOperator("/", 400, YFX);
-        internOperator("//", 400, YFX);
-        internOperator("*", 400, YFX);
-        internOperator(">>", 400, YFX);
-        internOperator("<<", 400, YFX);
-        internOperator("rem", 400, YFX);
-        internOperator("mod", 400, YFX);
-
-        internOperator("-", 200, FY);
-        internOperator("^", 200, YFX);
-        internOperator("**", 200, YFX);
-        internOperator("\\", 200, FY);
+        internOperator(PrologAtoms.MINUS, 200, FY);
+        internOperator(PrologAtoms.UP, 200, YFX);
+        internOperator(PrologAtoms.STAR_STAR, 200, YFX);
+        internOperator(PrologAtoms.AS, 200, FY);
 
         // Intern all built in functors.
-        interner.internFunctorName(NIL, 0);
-        interner.internFunctorName(HtConstants.CONS, 2);
-        interner.internFunctorName(TRUE, 0);
-        interner.internFunctorName(FAIL, 0);
-        interner.internFunctorName(FALSE, 0);
-        interner.internFunctorName(CUT, 0);
-        interner.internFunctorName(new HtFunctorName(BYPASS, 0, 1));
+        interner.internFunctorName(PrologAtoms.NIL, 0);
+        interner.internFunctorName(PrologAtoms.CONS, 2);
+        interner.internFunctorName(PrologAtoms.TRUE, 0);
+        interner.internFunctorName(PrologAtoms.FAIL, 0);
+        interner.internFunctorName(PrologAtoms.FALSE, 0);
+        interner.internFunctorName(PrologAtoms.CUT, 0);
+        interner.internFunctorName(PrologAtoms.BYPASS, 0, 1);
     }
 
     /**

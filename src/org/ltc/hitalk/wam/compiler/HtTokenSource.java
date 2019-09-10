@@ -1,9 +1,11 @@
 package org.ltc.hitalk.wam.compiler;
 
+
 import com.thesett.aima.logic.fol.isoprologparser.PrologParserTokenManager;
 import com.thesett.aima.logic.fol.isoprologparser.SimpleCharStream;
 import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.aima.logic.fol.isoprologparser.TokenSource;
+import org.ltc.hitalk.interpreter.TokenBuffer;
 import org.ltc.hitalk.term.io.HiTalkStream;
 
 import java.io.*;
@@ -20,7 +22,7 @@ class HtTokenSource extends TokenSource {
     private int lineOfs;
     private int colOfs;
     private long fileBeginOffset;
-    private HiTalkStream stream;
+    protected HiTalkStream stream;
 
     /**
      * Builds a token source around the specified token manager.
@@ -56,7 +58,6 @@ class HtTokenSource extends TokenSource {
      *
      * @param file The file to tokenize.
      * @return A token source.
-     * @throws FileNotFoundException If the file cannot be found.
      */
     public static
     HtTokenSource getTokenSourceForFile ( File file ) throws FileNotFoundException {
@@ -78,7 +79,7 @@ class HtTokenSource extends TokenSource {
         SimpleCharStream inputStream = new SimpleCharStream(in, 1, 1);
         PrologParserTokenManager tokenManager = new PrologParserTokenManager(inputStream);
 
-        return new HtTokenSource(tokenManager, inputStream);
+        return new TokenBuffer(tokenManager, inputStream);
     }
 
     /**

@@ -194,4 +194,3 @@ class HtPredicate extends BaseTerm implements Term, IPropertyOwner {
         return props.length;
     }
 }
-}

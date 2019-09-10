@@ -13,6 +13,7 @@ import java.util.List;
 /**
  * Used to buffer tokens.
  */
+public
 class TokenBuffer extends HtTokenSource implements Source <Token>, Sink <Token> {
     private List <Token> tokens = new ArrayList <>();
 
@@ -58,4 +59,9 @@ class TokenBuffer extends HtTokenSource implements Source <Token>, Sink <Token> 
     void clear () {
         tokens.clear();
     }
+
+//    public
+//    TokenBuffer getTokenSourceForInputStream ( InputStream in) {
+//        return null;
+//    }
 }

@@ -1,12 +1,12 @@
 package org.ltc.hitalk.parser;
 
+
 import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.wam.compiler.HtTokenSource;
 
 import static com.thesett.aima.logic.fol.OpSymbol.Associativity.*;
-import static org.ltc.hitalk.core.HtConstants.*;
 
 /**
  *
@@ -16,7 +16,7 @@ class HiTalkParser extends HiLogParser {
     /**
      * Parses multiple sequential terms, and if more than one is encountered then the flat list of terms encountered
      * must contain operators in order to be valid Prolog syntax. In that case the flat list of terms is passed to the
-     * {@link (Term[])} method for 'deferred decision parsing' of dynamic operators.
+     * {@link ( Term[])} method for 'deferred decision parsing' of dynamic operators.
      *
      * @return A single first order logic term.
      * @throws SourceCodeException If the sequence of tokens does not form a valid syntactical construction as a first
@@ -94,9 +94,9 @@ class HiTalkParser extends HiLogParser {
         internOperator(MINUS, 200, FY);// output argument (not instantiated); ISO Prolog standard operator
         internOperator(PLUS_PLUS, 200, FY);// ground argument
         internOperator(MINUS_MINUS, 200, FY);// unbound argument (typically when returning an opaque term)
-        internOperator(L_SHIFT, 400, YFX);// bitwise left-shift operator (used for context-switching calls)
+        internOperator(LSHIFT, 400, YFX);// bitwise left-shift operator (used for context-switching calls)
         // some backend Prolog compilers don't declare this ISO Prolog standard operator!
-        internOperator(R_SHIFT, 400, YFX);// bitwise right-shift operator (used for lambda expressions)
+        internOperator(RSHIFT, 400, YFX);// bitwise right-shift operator (used for lambda expressions)
         // some backend Prolog compilers don't declare this ISO Prolog standard operator!
         internOperator(AS, 700, XFX);// predicate alias operator (alternative to the ::/2 or :/2 operators depending on the context)
 // first introduced in SWI-Prolog and YAP also for defining aliases to module predicates

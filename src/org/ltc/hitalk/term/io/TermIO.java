@@ -45,6 +45,6 @@ class TermIO {
 
     private
     void initOptions ( String fn ) {
-        c
+
     }
 }

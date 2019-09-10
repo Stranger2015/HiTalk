@@ -41,20 +41,29 @@ class DefaultTermExpander<T extends HtClause, TC extends Term, TT extends TermRe
         target.stream().forEachOrdered(this::defaultExpansion);
     }
 
+    /**
+     * @param tc
+     * @return
+     */
     protected
     List <TC> defaultExpansion ( TC tc ) {
-        List <TC> result = null;
+        List <TC> result = new ArrayList <>();
         if (tc instanceof Bypass) {
             result = Collections.singletonList(tc);
         }
+
         return result;
     }
 
+    /**
+     * @param tc
+     * @return
+     */
     protected
     List <TC> dcgExpansion ( TC tc ) {
-        List <TC> l = new ArrayList <>();
+        List <TC> result = new ArrayList <>();
 
-        return l;
+        return result;
     }
 }
 

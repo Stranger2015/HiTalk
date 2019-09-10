@@ -5,12 +5,9 @@
 :- enum( type, _Elements_ ).
 
         :- public
-
                 hitalk_type,% :- true by default
                 prolog_type,% :- true by default
-                user_type   % :- true by default
-            .
-
+                user_type.   % :- true by default
 :- end_enum.
 
 % generates by fact that enum has enum elements

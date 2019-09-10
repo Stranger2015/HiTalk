@@ -38,6 +38,7 @@ interface HtPrologParserConstants {
     int BOF = 38;
     int LBRACE = 39;
     int RBRACE = 40;
+
     int DEFAULT = 0;
     int WITHIN_COMMENT = 1;
 
