@@ -1,7 +1,6 @@
 package org.ltc.hitalk.entities.context;
 
-
-import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
+import org.ltc.hitalk.compiler.bktables.Flag;
 
 /**
  * execution_context(
@@ -29,7 +28,7 @@ public
 class ExecutionContext extends Context {
 
     public
-    ExecutionContext ( HiTalkFlag... props ) {
+    ExecutionContext ( Flag... props ) {
         super(props);
     }
 
@@ -50,11 +49,11 @@ class ExecutionContext extends Context {
      */
     @Override
     public
-    HiTalkFlag[] getFlags () {
-        return new HiTalkFlag[0];
+    Flag[] getFlags () {
+        return new Flag[0];
     }
 
-    @Override
+    //    @Override
     public
     String get ( Kind.Loading basename ) {
         return null;

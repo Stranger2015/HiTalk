@@ -1,15 +1,15 @@
 package org.ltc.hitalk.interpreter;
 
-import com.thesett.aima.logic.fol.interpreter.ResolutionEngine;
+import org.ltc.hitalk.parser.HtClause;
 
 /**
  *
  */
 public abstract
-class TopLevel {
-    private final ResolutionEngine engine;
+class TopLevel<T,Q> {
+    private final HtResolutionEngine<T,Q> engine;
     private final IInterpreter interpreter;
-    private final ICompiler compiler;
+    private final ICompiler<HtClause,T,Q> compiler;
 
     /**
      * @param engine
@@ -17,7 +17,7 @@ class TopLevel {
      * @param compiler
      */
     public
-    TopLevel ( ResolutionEngine engine, IInterpreter interpreter, ICompiler compiler ) {
+    TopLevel ( HtResolutionEngine<T,Q> engine, IInterpreter interpreter, ICompiler<HtClause,T,Q> compiler ) {
 
         this.engine = engine;
         this.interpreter = interpreter;

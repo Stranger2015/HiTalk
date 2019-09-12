@@ -15,6 +15,7 @@
  */
 package org.ltc.hitalk.interpreter;
 
+
 import com.thesett.aima.attribute.impl.IdAttribute;
 import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.logic.fol.OpSymbol.Associativity;
@@ -22,14 +23,15 @@ import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.Filterator;
 import com.thesett.common.util.Source;
-import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
+import org.ltc.hitalk.compiler.bktables.Flag;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.HtTokenSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.*;
-import java.util.logging.Logger;
 
 /**
  * ResolutionEngine combines together a logic {@link Parser}, a {@link VariableAndFunctorInterner} that acts as a symbol
@@ -43,10 +45,10 @@ import java.util.logging.Logger;
  * @param <Q> The compiled query type that the compiler produces.
  * @author Rupert Smith
  */
-public// abstract
+public
 class HtResolutionEngine<T, Q> extends InteractiveParser
         implements VariableAndFunctorInterner,
-                   ICompiler <HtClause, T, Q>,
+                   ICompiler <HtClause, T, Q>,//todo ????????????????????
                    Resolver <T, Q> {
     /**
      * Holds the parser.
@@ -71,6 +73,7 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
 
     protected Q currentQuery;
     protected final List <Set <Variable>> vars = new ArrayList <>();
+    protected Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
      * Creates a prolog parser using the specified interner.
@@ -340,9 +343,7 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
     public
     void addToDomain ( T term ) throws LinkageException {
 //        resolver.addToDomain(term);
-
     }
-
 
     /**
      * {@inheritDoc}
@@ -414,17 +415,17 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
     @Override
     public
     Logger getConsole () {
-        return null;
+        return logger;
     }
 
     /**
-     * @param sentence
+     * @param clause
      * @param flags
      * @throws SourceCodeException
      */
     @Override
     public
-    void compile ( HtClause sentence, HiTalkFlag... flags ) throws SourceCodeException {
+    void compile ( HtClause clause, Flag... flags ) throws SourceCodeException {
 
     }
 
@@ -453,6 +454,15 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
     public
     void compileClause ( HtClause clause ) {
 
+    }
+
+    /**
+     * @param resolver
+     */
+    @Override
+    public
+    void setResolver ( Resolver <T, Q> resolver ) {
+        
     }
 
     /**

@@ -3,6 +3,7 @@ package org.ltc.hitalk.interpreter;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.Variable;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
+import com.thesett.aima.logic.fol.isoprologparser.TokenSource;
 import com.thesett.common.parsing.SourceCodeException;
 import jline.ConsoleReader;
 import org.ltc.hitalk.compiler.bktables.IConfig;
@@ -117,6 +118,21 @@ class HiLogInterpreter<S extends HtClause, T, Q> implements IInterpreter <S> {
     public
     HtPrologParser getParser () {
         return null;
+    }
+
+    /**
+     * @param arg
+     */
+    @Override
+    public
+    void setFileName ( String arg ) {
+
+    }
+
+    @Override
+    public
+    void setTokenSource ( TokenSource tokenSource ) {
+
     }
 //
 //    @Override

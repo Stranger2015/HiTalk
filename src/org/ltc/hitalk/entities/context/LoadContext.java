@@ -1,6 +1,6 @@
 package org.ltc.hitalk.entities.context;
 
-import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
+import org.ltc.hitalk.compiler.bktables.Flag;
 import org.ltc.hitalk.entities.HtProperty;
 
 /**
@@ -27,7 +27,7 @@ class LoadContext extends Context {
      * @param flags
      */
     public
-    LoadContext ( HiTalkFlag... flags ) {
+    LoadContext ( Flag... flags ) {
         super(flags);
 
     }
@@ -42,12 +42,12 @@ class LoadContext extends Context {
      */
     @Override
     public
-    HiTalkFlag[] getFlags () {
-        return new HiTalkFlag[0];
+    Flag[] getFlags () {
+        return new Flag[0];
     }
 
     public
-    void setFlags ( HiTalkFlag[] flags ) {
+    void setFlags ( Flag[] flags ) {
 
     }
 }

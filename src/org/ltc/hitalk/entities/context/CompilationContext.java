@@ -1,6 +1,6 @@
 package org.ltc.hitalk.entities.context;
 
-import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
+import org.ltc.hitalk.compiler.bktables.Flag;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 
 import java.util.ArrayDeque;
@@ -24,7 +24,7 @@ class CompilationContext extends Context {
     HtEntityIdentifier entity;
 
     public
-    CompilationContext ( HiTalkFlag... flags ) {
+    CompilationContext ( Flag... flags ) {
         super(flags);
     }
 
@@ -33,8 +33,8 @@ class CompilationContext extends Context {
      */
     @Override
     public
-    HiTalkFlag[] getFlags () {
-        return new HiTalkFlag[0];
+    Flag[] getFlags () {
+        return new Flag[0];
     }
 
     public

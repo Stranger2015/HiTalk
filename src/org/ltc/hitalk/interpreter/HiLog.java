@@ -1,9 +1,7 @@
 package org.ltc.hitalk.interpreter;
 
-import com.thesett.aima.logic.fol.interpreter.ResolutionEngine;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.wam.compiler.HiLogCompiler;
-import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledQuery;
+import org.ltc.hitalk.wam.compiler.HiLogAstCompiler;
 
 /**
  * Algorithm Specialise (Program)
@@ -100,7 +98,7 @@ import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledQuery;
  * hilog_symbol(Symbol)
  */
 public
-class HiLog extends TopLevel {
+class HiLog<T,Q> extends TopLevel<T,Q> {
 
     /**
      * @param engine
@@ -108,7 +106,7 @@ class HiLog extends TopLevel {
      * @param compiler
      */
     public
-    HiLog ( ResolutionEngine engine, HiLogInterpreter <HtClause, HiTalkWAMCompiledQuery> interpreter, HiLogCompiler compiler ) {
+    HiLog ( HtResolutionEngine<T, Q> engine, HiLogInterpreter <HtClause, T,Q> interpreter, HiLogAstCompiler compiler ) {
         super(engine, interpreter, compiler);
     }
 

@@ -1,36 +1,25 @@
 package org.ltc.hitalk.wam.compiler;
 
-
+import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.aima.logic.fol.Sentence;
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
-import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.bktables.Flag;
 import org.ltc.hitalk.interpreter.DcgRule;
+import org.ltc.hitalk.interpreter.ICompiler;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.slf4j.Logger;
 
-/**
- *
- */
-@Deprecated
 public
-class HiLogInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> {
-    Logger console;
-
-
-
+class HiLogAstCompiler <T extends HtClause> implements ICompiler <T, T, T> {
     /**
-     * Creates a base machine over the specified symbol table.
-     *
-     * @param symbolTable The symbol table for the machine.
-     * @param interner    The interner for the machine.
+     * @return
      */
+    @Override
     public
-    HiLogInstructionCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner ) {
-        super(symbolTable, interner);
+    Logger getConsole () {
+        return null;
     }
 
     /**
@@ -38,13 +27,8 @@ class HiLogInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompile
      */
     @Override
     public
-    Logger getConsole () {
-        return  console;
-    }
-
-    public
     HtPrologParser getParser () {
-        return parser;
+        return null;
     }
 
     /**
@@ -90,16 +74,7 @@ class HiLogInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompile
      */
     @Override
     public
-    void setResolver ( Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> resolver ) {
-
-    }
-
-    /**
-     * @param sentence
-     * @param flags
-     */
-    public
-    void compile ( Sentence <HtClause> sentence, Flag... flags ) {
+    void setResolver ( Resolver <T, T> resolver ) {
 
     }
 
@@ -111,7 +86,29 @@ class HiLogInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompile
      */
     @Override
     public
-    void compile ( Sentence <HtClause> sentence ) throws SourceCodeException {
+    void compile ( Sentence <T> sentence ) throws SourceCodeException {
+
+    }
+
+    /**
+     * Establishes an observer on the compiled forms that the compiler outputs.
+     *
+     * @param observer The compiler output observer.
+     */
+    @Override
+    public
+    void setCompilerObserver ( LogicCompilerObserver <T, T> observer ) {
+
+    }
+
+    /**
+     * Signal the end of a compilation scope, to trigger completion of the compilation of its contents.
+     *
+     * @throws SourceCodeException If there is an error in the source to be compiled that prevents its compilation.
+     */
+    @Override
+    public
+    void endScope () throws SourceCodeException {
 
     }
 }

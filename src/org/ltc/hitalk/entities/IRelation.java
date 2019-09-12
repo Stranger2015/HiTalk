@@ -1,19 +1,15 @@
 package org.ltc.hitalk.entities;
 
-import org.ltc.hitalk.core.HtConstants;
+
+import org.ltc.hitalk.parser.PrologAtoms;
 
 /**
  *
  */
 public
-interface IRelation extends HtConstants {
+interface IRelation extends PrologAtoms {
 
-    String EXTENDS = "extends";
-    String IMPLEMENTS = "implements";
-    String IMPORTS = "imports";
-    String COMPLEMENTS = "complements";
-    String INSTANTIATES = "instantiates";
-    String SPECIALIZES = "specializes";
+
 
     /**
      * @return

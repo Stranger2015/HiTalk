@@ -1,7 +1,8 @@
 package org.ltc.hitalk.wam.task;
 
-import com.thesett.aima.logic.fol.Clause;
+import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.core.ptree.ProcessTree;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.wam.transformers.IGeneralizer;
 import org.ltc.hitalk.wam.transformers.IInliner;
 import org.ltc.hitalk.wam.transformers.ISpecializer;
@@ -13,7 +14,8 @@ import java.util.List;
  *
  */
 public
-class SuperCompiler<T extends Clause> extends StandardPreprocessor <T> implements IInliner <T>, ISpecializer <T>, IGeneralizer <T>, ITransformer <T> {
+class SuperCompiler<T extends HtClause, TC extends Term> extends StandardPreprocessor <T, TC> 
+        implements IInliner <T,TC>, ISpecializer <T, TC>, IGeneralizer <T, TC>, ITransformer <T,TC> {
 
     private ProcessTree pTree;
 
@@ -22,8 +24,8 @@ class SuperCompiler<T extends Clause> extends StandardPreprocessor <T> implement
      * @param transformer
      */
     public
-    SuperCompiler ( List <T> target, ITransformer transformer ) {
-        super(target, transformer);
+    SuperCompiler ( List <TC> target, ITransformer transformer ) {
+        super(null,target, transformer);
     }
 
     public
@@ -72,79 +74,79 @@ class SuperCompiler<T extends Clause> extends StandardPreprocessor <T> implement
 
     }
 
-    /**
-     * @param clause
-     * @return
-     */
-    @Override
-    public
-    T generalize ( T clause ) {
-        return null;
-    }
+//    /**
+//     * @param clause
+//     * @return
+//     */
+//    @Override
+//    public
+//    T generalize ( T clause ) {
+//        return null;
+//    }
 
-    /**
-     * @param clause
-     * @return
-     */
-    @Override
-    public
-    T inline ( T clause ) {
-        return null;
-    }
+//    /**
+//     * @param clause
+//     * @return
+//     */
+//    @Override
+//    public
+//    T inline ( T clause ) {
+//        return null;
+//    }
+//
+//    /**
+//     * @param clause
+//     * @return
+//     */
+//    @Override
+//    public
+//    T specialize ( T clause ) {
+//        return null;
+//    }
 
-    /**
-     * @param clause
-     * @return
-     */
-    @Override
-    public
-    T specialize ( T clause ) {
-        return null;
-    }
-
-    /**
-     * Applies a transformation to the clause.
-     *
-     * @param clause The clause to transform.
-     * @return A clause which is a transformation of the argument.
-     */
-    @Override
-    public
-    T transform ( Clause clause ) {
-        return null;
-    }
-
-    /**
-     * @param clause
-     * @return
-     */
-    @Override
-    public
-    Clause generalize ( Clause clause ) {
-        return null;
-    }
-
-    /**
-     * @param clause
-     * @return
-     */
-    @Override
-    public
-    Clause specialize ( Clause clause ) {
-        return null;
-    }
-
-    /**
-     * Applies a transformation to the clause.
-     *
-     * @param clause The clause to transform.
-     * @return A clause which is a transformation of the argument.
-     */
-    @Override
-    public
-    Clause transform ( Clause clause ) {
-        return null;
-    }
+//    /**
+//     * Applies a transformation to the clause.
+//     *
+//     * @param clause The clause to transform.
+//     * @return A clause which is a transformation of the argument.
+//     */
+////    @Override
+//    public
+//    T transform ( HtClause clause ) {
+//        return null;
+////    }
+//
+//    /**
+//     * @param clause
+//     * @return
+//     */
+//    @Override
+//    public
+//    HtClause generalize ( HtClause clause ) {
+//        return null;
+//    }
+//
+//    /**
+//     * @param clause
+//     * @return
+//     */
+//    @Override
+//    public
+//    HtClause specialize ( HtClause clause ) {
+//        return null;
+//    }
+////
+//    /**
+//     * Applies a transformation to the clause.
+//     *
+//     * @param clause The clause to transform.
+//     * @return A clause which is a transformation of the argument.
+//     */
+//    @Override
+//    public
+//    HtClause transform ( HtClause clause ) {
+//        return null;
+//    }
 
     /**
      *

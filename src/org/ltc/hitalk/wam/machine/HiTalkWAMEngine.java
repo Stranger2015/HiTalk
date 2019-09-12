@@ -5,7 +5,7 @@ import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.common.parsing.SourceCodeException;
-import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
+import org.ltc.hitalk.compiler.bktables.Flag;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.interpreter.ICompiler;
@@ -15,10 +15,10 @@ import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledPredicate;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledQuery;
 import org.ltc.hitalk.wam.compiler.HtTokenSource;
+import org.slf4j.Logger;
 
 import java.io.InputStream;
 import java.util.Objects;
-import java.util.logging.Logger;
 
 import static com.thesett.aima.logic.fol.isoprologparser.TokenSource.getTokenSourceForInputStream;
 
@@ -126,7 +126,7 @@ class HiTalkWAMEngine extends HtResolutionEngine <HiTalkWAMCompiledPredicate, Hi
      */
     @Override
     public
-    void compile ( HtClause sentence, HiTalkFlag... flags ) throws SourceCodeException {
+    void compile ( HtClause sentence, Flag... flags ) throws SourceCodeException {
 
     }
 

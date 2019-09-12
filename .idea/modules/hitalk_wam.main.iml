@@ -8,6 +8,5 @@
     <orderEntry type="library" exported="" name="slf4j-api" level="project" />
     <orderEntry type="library" exported="" name="com.thesett:wam_prolog:0.9.117" level="project" />
     <orderEntry type="library" exported="" name="annotations-17.0.0" level="project" />
-    <orderEntry type="library" exported="" name="org.wso2.org.apache.commons:commons-vfs2:2.2-wso2v5" level="project" />
   </component>
 </module>

@@ -30,14 +30,16 @@ import org.ltc.hitalk.compiler.bktables.BkTableKind;
 import org.ltc.hitalk.compiler.bktables.BookKeepingTables;
 import org.ltc.hitalk.compiler.bktables.IRegistry;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
+import org.ltc.hitalk.wam.compiler.HtFunctorName;
 import org.ltc.hitalk.wam.compiler.HtTokenSource;
 
 import java.util.*;
 
 import static com.thesett.aima.logic.fol.OpSymbol.Associativity.*;
 import static com.thesett.aima.logic.fol.TermUtils.flattenTerm;
-import static org.ltc.hitalk.core.BuiltIns.COLON;
+import static org.ltc.hitalk.core.BuiltIns.*;
 import static org.ltc.hitalk.parser.HtPrologParserConstants.BOF;
+import static org.ltc.hitalk.parser.HtPrologParserConstants.LBRACE;
 
 /**
  * HtPrologParser is a recursive descent parser for the language Prolog, that parses its input into first order logic
@@ -64,7 +66,7 @@ import static org.ltc.hitalk.parser.HtPrologParserConstants.BOF;
  */
 
 public
-class HtPrologParser implements Parser <HtClause, Token>, PrologParserConstants, PrologAtoms {
+class HtPrologParser implements Parser <HtClause, Token>, PrologParserConstants {
 
     /**
      * Used for debugging purposes.
@@ -94,9 +96,9 @@ class HtPrologParser implements Parser <HtClause, Token>, PrologParserConstants,
             tokenImage[STRING_LITERAL],
             tokenImage[ATOM],
             tokenImage[BOF],
-            LBRACE//,
+           tokenImage[LBRACE],//,
 //            tokenImage[RBRACE],
-            });
+    });
 
     static {
         new VariableAndFunctorInternerImpl(
@@ -147,9 +149,7 @@ class HtPrologParser implements Parser <HtClause, Token>, PrologParserConstants,
     @Override
     public
     void setOperator ( String operatorName, int priority, Associativity associativity ) {
-//        if (priority == 0) {
-//            operatorParser.r
-//        }
+
     }
 
     /**
@@ -370,7 +370,8 @@ class HtPrologParser implements Parser <HtClause, Token>, PrologParserConstants,
             IRegistry <BkLoadedEntities> registry = new BookKeepingTables <>();
             if (IMPLIES.equals(symbol.getTextName())) {
                 if (symbol.getArity() == 2) {
-                    List <Functor> flattenedArgs = flattenTerm(symbol.getArgument(1), Functor.class, COMMA, interner);
+                    List <Functor> flattenedArgs = flattenTerm(symbol.getArgument(1),
+                            Functor.class,PrologAtoms.COMMA, interner);
                     Functor head = (Functor) symbol.getArgument(0);
                     FunctorName fname = interner.getDeinternedFunctorName(head.getName());
                     Functor identifier = null;
@@ -612,12 +613,12 @@ class HtPrologParser implements Parser <HtClause, Token>, PrologParserConstants,
         // been used to specify a different terminal element. In the case where cons is used explciitly, the
         // list prior to the cons must not be empty.
         Term accumulator;
-        if (getTokenSource().peek().kind == CONS) {
+        if (getTokenSource().peek().kind == PrologParserConstants.CONS) {
             if (args == null) {
                 throw new SourceCodeException("Was expecting one of " + BEGIN_TERM_TOKENS + " but got " + tokenImage[nextToken.kind] + ".", null, null, null, new SourceCodePositionImpl(nextToken.beginLine, nextToken.beginColumn, nextToken.endLine, nextToken.endColumn));
             }
 
-            consumeToken(CONS);
+            consumeToken(HtPrologParserConstants.CONS);
             accumulator = term();
         }
         else {
@@ -931,7 +932,7 @@ class HtPrologParser implements Parser <HtClause, Token>, PrologParserConstants,
 
 //        internOperator(PrologAtoms."+", 500, YFX);
 //        internOperator(PrologAtoms."-", 500, YFX);
-        2
+
         internOperator(PrologAtoms.BSLASH_SLASH, 500, YFX);
         internOperator(PrologAtoms.SLASH_BSLASH, 500, YFX);
 
@@ -949,13 +950,19 @@ class HtPrologParser implements Parser <HtClause, Token>, PrologParserConstants,
         internOperator(PrologAtoms.AS, 200, FY);
 
         // Intern all built in functors.
+        interner.internFunctorName(PrologAtoms.ARGLIST_NIL, 0);
+        interner.internFunctorName(new HtFunctorName(PrologAtoms.ARGLIST_CONS, 0, 2));
+
         interner.internFunctorName(PrologAtoms.NIL, 0);
-        interner.internFunctorName(PrologAtoms.CONS, 2);
+        interner.internFunctorName(new HtFunctorName(PrologAtoms.CONS, 0, 2));
+
         interner.internFunctorName(PrologAtoms.TRUE, 0);
         interner.internFunctorName(PrologAtoms.FAIL, 0);
         interner.internFunctorName(PrologAtoms.FALSE, 0);
         interner.internFunctorName(PrologAtoms.CUT, 0);
-        interner.internFunctorName(PrologAtoms.BYPASS, 0, 1);
+
+        interner.internFunctorName(PrologAtoms.BYPASS_NIL, 0);
+        interner.internFunctorName(new HtFunctorName(PrologAtoms.BYPASS_CONS, 0, 2));
     }
 
     /**

@@ -1,9 +1,11 @@
 package org.ltc.hitalk.wam.task;
 
 
-import com.thesett.aima.logic.fol.Clause;
+import com.thesett.aima.logic.fol.Term;
 import org.jetbrains.annotations.Contract;
 import org.ltc.hitalk.compiler.bktables.IComposite;
+import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.wam.transformers.ITransformer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,15 +15,20 @@ import java.util.function.Function;
  * @param <T>
  */
 abstract public
-class CompositeTask<T extends Clause> extends CompilerTask <T> implements IComposite <T, TransformTask <T>> {
+class CompositeTask<T extends HtClause, TC extends Term>
+        extends StandardPreprocessor<T,TC>
+        implements IComposite <T,TC, TransformTask <T,TC>> {
 
-    protected List <TransformTask <T>> tasks = new ArrayList <>();
-    protected T target;
+    protected List <TransformTask <T, TC>> tasks = new ArrayList <>();
 
+    /**
+     * @param action
+     * @param target
+     * @param transformer
+     */
     public
-    CompositeTask ( Function <T, List <T>> action, T target ) {
-        super(action);
-        this.target = target;
+    CompositeTask ( Function <T, List <T>> action, List<TC> target, ITransformer<T,TC>  transformer) {
+        super(action, target, transformer);
     }
 
     /**
@@ -30,7 +37,7 @@ class CompositeTask<T extends Clause> extends CompilerTask <T> implements ICompo
     @Contract(pure = true)
     @Override
     public
-    List <TransformTask <T>> getComponents () {
+    List <TransformTask <T,TC>> getComponents () {
         return tasks;
     }
 
@@ -49,6 +56,6 @@ class CompositeTask<T extends Clause> extends CompilerTask <T> implements ICompo
     private
     void accept ( int i ) {
 //        T target;
-        tasks.get(i).transform(target);
+//        tasks.get(i).transform(target);
     }//fixme
 }

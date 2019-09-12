@@ -1,15 +1,15 @@
 package org.ltc.hitalk.compiler;
 
+
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
-import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
+import org.ltc.hitalk.compiler.bktables.Flag;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.interpreter.ICompiler;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
-
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 /**
  *
@@ -57,7 +57,7 @@ class HiTalkEngine extends HtResolutionEngine <HtClause, HtClause> {
      */
     @Override
     public
-    void compile ( HtClause sentence, HiTalkFlag... flags ) throws SourceCodeException {
+    void compile ( HtClause sentence, Flag... flags ) throws SourceCodeException {
 //todo
     }
 

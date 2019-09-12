@@ -55,7 +55,7 @@ interface IRegistry<R extends Record> {
     /**
      * @param r
      */
-    void add ( BkTableKind kind, R r );
+    void add ( R r );
 
     /**
      * @param tableKind

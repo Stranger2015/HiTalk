@@ -63,7 +63,7 @@ class HiLogToPrologBiDiConverter {
                         return mapSpecialForm(transformer, hilogTerm);
                     }
                     if (!hilogTerm.isCompound()) {
-                        throw new ExecutionError(TYPE_ERROR);
+                        throw new ExecutionError(TYPE_ERROR,null);
                     }
                     if (hasHiLogApplyFunctorName(hilogTerm, applyF)) {
                         return hilogTerm; //already converted
@@ -106,7 +106,7 @@ class HiLogToPrologBiDiConverter {
                 return mapSpecialForm(transformer, prologTerm);
             }
             if (!prologTerm.isCompound()) {
-                throw new ExecutionError(TYPE_ERROR);
+                throw new ExecutionError(TYPE_ERROR, null);
             }
             if (hasHiLogApplyFunctorName(prologTerm, applyF)) {
                 return prologTerm; //already converted

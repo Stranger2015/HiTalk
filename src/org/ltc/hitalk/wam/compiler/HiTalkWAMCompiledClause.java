@@ -2,6 +2,7 @@ package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.Functor;
 import com.thesett.common.util.SizeableList;
+import org.ltc.hitalk.entities.HtPredicateDefinition.UserDefinition;
 import org.ltc.hitalk.parser.HtClause;
 
 import java.util.Arrays;
@@ -23,9 +24,10 @@ import java.util.Arrays;
  */
 
 /**
- * HiTalkWAMCompiledClause is a clause, that belongs to an {@link HiTalkWAMCompiledPredicate}. Compiled instructions added to the
- * clause fall through onto the parent predicate, and are not held on the compiled clause itself. The compiled clause
- * has a label, which identifies its position within the parent predicate.
+ * HiTalkWAMCompiledClause is a clause, that belongs to an {@link HiTalkWAMCompiledPredicate}.
+ * Compiled instructions added to the clause fall through onto the parent predicate, and are not held
+ * on the compiled clause itself. The compiled clause has a label, which identifies its position within
+ * the parent predicate.
  *
  * <pre><p/><table id="crc"><caption>CRC Card</caption>
  * <tr><th> Responsibilities <th> Collaborations
@@ -106,7 +108,7 @@ class HiTalkWAMCompiledClause extends HtClause {
     private
     void addInstructionsAndThisToParent ( SizeableList <HiTalkWAMInstruction> instructions ) {
         if (!addedToParent) {
-            parent.addInstructions(this, instructions);
+            parent.addInstructions(new UserDefinition <>(this), instructions);
             addedToParent = true;
         }
         else {

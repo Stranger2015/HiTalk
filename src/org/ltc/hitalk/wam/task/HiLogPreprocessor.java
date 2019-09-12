@@ -1,6 +1,7 @@
 package org.ltc.hitalk.wam.task;
 
 import com.thesett.aima.logic.fol.*;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.wam.transformers.ISpecializer;
 import org.ltc.hitalk.wam.transformers.ITransformer;
 
@@ -12,7 +13,7 @@ import java.util.function.Function;
  * public
  */
 public
-class HiLogPreprocessor<T extends Clause, TC extends Term>
+class HiLogPreprocessor<T extends HtClause, TC extends Term>
         extends StandardPreprocessor <T, TC>
         implements ISpecializer <T, TC> {
 

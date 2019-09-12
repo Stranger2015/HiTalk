@@ -1,6 +1,7 @@
 package org.ltc.hitalk.compiler.bktables;
 
 
+import com.thesett.aima.logic.fol.FunctorName;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -37,7 +38,7 @@ class LogtalkFlag extends Flag {
     public static Clean CLEAN = new Clean();
 
     public
-    LogtalkFlag ( String name ) {
+    LogtalkFlag ( FunctorName name ) {
         super(name);
     }
 

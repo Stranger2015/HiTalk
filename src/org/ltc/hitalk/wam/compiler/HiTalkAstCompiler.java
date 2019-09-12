@@ -6,21 +6,21 @@ import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
-import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
+import org.ltc.hitalk.compiler.bktables.Flag;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.interpreter.ICompiler;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  *
  */
 public
-class HiTalkAstCompiler<T extends HtClause> implements ICompiler <T, T, T> {
+class HiTalkAstCompiler<T extends HtClause> extends HiLogAstCompiler<T> implements ICompiler <T, T, T> {
 
     protected final SymbolTable <Integer, String, Object> symbolTable;
     protected final HtPrologParser parser;
@@ -54,7 +54,7 @@ class HiTalkAstCompiler<T extends HtClause> implements ICompiler <T, T, T> {
      */
     @Override
     public
-    Logger getConsole () {
+    org.slf4j.Logger getConsole () {
         return logger;
     }
 
@@ -68,13 +68,14 @@ class HiTalkAstCompiler<T extends HtClause> implements ICompiler <T, T, T> {
     }
 
     /**
-     * @param sentence
+    /**
+     * @param clause
      * @param flags
      * @throws SourceCodeException
      */
     @Override
     public
-    void compile ( HtClause sentence, HiTalkFlag... flags ) throws SourceCodeException {
+    void compile ( HtClause clause, Flag... flags ) throws SourceCodeException {
 // TODO
     }
 

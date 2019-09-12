@@ -1,9 +1,10 @@
 package org.ltc.hitalk.wam.compiler;
 
+
 import com.thesett.aima.logic.fol.*;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
-import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
+import org.ltc.hitalk.compiler.bktables.Flag;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
@@ -12,11 +13,11 @@ import org.ltc.hitalk.wam.task.HiLogPreprocessor;
 import org.ltc.hitalk.wam.task.StandardPreprocessor;
 import org.ltc.hitalk.wam.task.TransformTask;
 import org.ltc.hitalk.wam.transformers.DefaultTransformer;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  *
@@ -59,7 +60,7 @@ class HiTalkPreprocessor<T extends HtClause, TC extends Term, TT extends Transfo
                          HiTalkCompilerApp app )
             throws LinkageException {
 
-        super(symbolTable, interner, defaultBuiltIn, app);
+        super(symbolTable, interner, defaultBuiltIn, resolver, app);
 
         this.defaultBuiltIn = defaultBuiltIn;
 //        this.builtInTransform = new HiTalkBuiltInTransform(defaultBuiltIn);
@@ -178,13 +179,13 @@ class HiTalkPreprocessor<T extends HtClause, TC extends Term, TT extends Transfo
     }
 
     /**
-     * @param sentence
+     * @param clause
      * @param flags
      * @throws SourceCodeException
      */
     @Override
     public
-    void compile ( HtClause sentence, HiTalkFlag... flags ) throws SourceCodeException {
+    void compile ( HtClause clause, Flag... flags ) throws SourceCodeException {
 
     }
 

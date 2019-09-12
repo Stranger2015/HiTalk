@@ -72,4 +72,12 @@ interface PrologAtoms {
 
     String ARGLIST_NIL = "()";//arity 0 => ATOM
     String ARGLIST_CONS = "(|)";//arity 0-2: (), (|ARGLIST OR VAR),(ARG1 | ARGTAIL OR VAR);
+    String CUT = "!";
+
+    String EXTENDS = "extends";
+    String IMPLEMENTS = "implements";
+    String IMPORTS = "imports";
+    String COMPLEMENTS = "complements";
+    String INSTANTIATES = "instantiates";
+    String SPECIALIZES = "specializes";
 }

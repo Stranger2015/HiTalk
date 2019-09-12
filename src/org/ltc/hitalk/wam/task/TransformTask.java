@@ -1,11 +1,11 @@
 package org.ltc.hitalk.wam.task;
 
 
-import com.thesett.aima.logic.fol.Clause;
 import com.thesett.aima.logic.fol.Term;
 import org.jetbrains.annotations.Contract;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.wam.transformers.ITransformer;
 import org.ltc.hitalk.wam.transformers.TransformInfo;
 import org.slf4j.Logger;
@@ -18,7 +18,7 @@ import java.util.function.Function;
  * created by Anthony on 31.01.2016.
  */
 public
-class TransformTask<T extends Clause, TC extends Term>
+class TransformTask<T extends HtClause, TC extends Term>
         extends CompilerTask <T, TC>
         implements ITransformer <T, TC> {
 

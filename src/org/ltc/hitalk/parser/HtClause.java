@@ -3,12 +3,13 @@ package org.ltc.hitalk.parser;
 import com.thesett.aima.logic.fol.Clause;
 import com.thesett.aima.logic.fol.Functor;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
+import org.ltc.hitalk.entities.ISubroutine;
 
 /**
  *
  */
 public
-class HtClause extends Clause <Functor> /*implements Sentence <HtClause>*/ {
+class HtClause extends Clause <Functor> implements ISubroutine {
     protected final HtEntityIdentifier identifier;
 
     /**
@@ -38,7 +39,7 @@ class HtClause extends Clause <Functor> /*implements Sentence <HtClause>*/ {
      *
      * @return The wrapped sentence in the logical language.
      */
-    @Override
+//    @Override
     public
     HtClause getT () {
         return this;

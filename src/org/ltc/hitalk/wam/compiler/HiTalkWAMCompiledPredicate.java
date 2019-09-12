@@ -25,7 +25,7 @@ import com.thesett.common.util.Sizeable;
 import com.thesett.common.util.SizeableLinkedList;
 import com.thesett.common.util.SizeableList;
 import org.ltc.hitalk.entities.HtPredicate;
-import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.entities.HtPredicateDefinition;
 import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
 import org.ltc.hitalk.wam.machine.HiTalkWAMResolvingMachine;
 
@@ -39,7 +39,7 @@ import java.util.*;
  * to decompile a clause back into its abstract syntax tree.
  * <p>
  * <p/>Decompilation of functors requires access to a mapping from registers to variables, but the variable to register
- * assignment is created at compile time accross a whole clause. Each functor that forms part of the clause head or body
+ * assignment is created at compile time accross a whole clause. Each functor that forms part of the clause head or definition
  * must therefore hold a link to its containing functor in order to access this mapping.
  *
  * <pre><p/><table id="crc"><caption>CRC Card</caption>
@@ -48,7 +48,7 @@ import java.util.*;
  * </table></pre>
  *
  * @author Rupert Smith
- * @todo For each functor in the head and body, set this as the containing clause. A mapping from variables to
+ * @todo For each functor in the head and definition, set this as the containing clause. A mapping from variables to
  * registers is maintained in the clause, and the functors need to be able to access this mapping.
  */
 public
@@ -138,25 +138,18 @@ class HiTalkWAMCompiledPredicate
     }
 
     /**
-     * Adds a body clause to this predicate, plus instructions to implement it.
+     * Adds a definition clause to this predicate, plus instructions to implement it.
      *
-     * @param body         A body clause to add to this predicate.
-     * @param instructions A list of instructions to add to the body.
+     * @param definition         A definition clause to add to this predicate.
+     * @param instructions A list of instructions to add to the definition.
      */
     public
-    void addInstructions ( HtClause body, SizeableList <HiTalkWAMInstruction> instructions ) {
-        int oldLength;
+    void addInstructions ( HtPredicateDefinition<HiTalkWAMCompiledClause> definition,
+                           SizeableList <HiTalkWAMInstruction> instructions ) {
+//        int oldLength=0;
 
-        if (this.body == null) {
-            oldLength = 0;
-            this.body = new HtClause[1];
-        }
-        else {
-            oldLength = this.body.length;
-            this.body = Arrays.copyOf(this.body, oldLength + 1);
-        }
+        this.definition.merge(definition);
 
-        this.body[oldLength] = body;
 
         addInstructions(instructions);
     }

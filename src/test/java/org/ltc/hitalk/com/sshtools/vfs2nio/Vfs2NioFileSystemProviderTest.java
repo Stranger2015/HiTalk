@@ -16,7 +16,8 @@
 
 package org.ltc.hitalk.com.sshtools.vfs2nio;
 
-import junit.framework.Assert;
+
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.*;
@@ -27,6 +28,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public
 class Vfs2NioFileSystemProviderTest {
@@ -120,7 +123,7 @@ class Vfs2NioFileSystemProviderTest {
             List <String> directNames = new ArrayList <>(Arrays.asList(rootFile.list()));
             Collections.sort(directNames);
             /* Compare them */
-            Assert.assertEquals(names, directNames);
+            assertEquals(names, directNames);
         }
     }
 
@@ -131,7 +134,7 @@ class Vfs2NioFileSystemProviderTest {
             r1 = expected.read();
             r2 = actual.read();
             if (r1 == -1 && r2 == -1) return;
-            else Assert.assertEquals(r1, r2);
+            else assertEquals(r1, r2);
         }
     }
 

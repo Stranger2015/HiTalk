@@ -1,15 +1,15 @@
 package org.ltc.hitalk.wam.transformers;
 
 
-import com.thesett.aima.logic.fol.Clause;
 import org.apache.commons.lang3.tuple.Triple;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
+import org.ltc.hitalk.parser.HtClause;
 
 import java.util.List;
 
 public
-class TransformInfo<T extends Clause> extends Triple <ExecutionContext, ExecutionInfo, IMetrics> {
+class TransformInfo<T extends HtClause> extends Triple <ExecutionContext, ExecutionInfo, IMetrics> {
 
 
     /**

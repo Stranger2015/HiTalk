@@ -36,15 +36,15 @@ import com.thesett.common.util.SizeableLinkedList;
 import com.thesett.common.util.SizeableList;
 import com.thesett.common.util.doublemaps.SymbolKey;
 import com.thesett.common.util.doublemaps.SymbolTable;
-import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
+import org.ltc.hitalk.compiler.bktables.Flag;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn.VarIntroduction;
 import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
+import org.slf4j.Logger;
 
 import java.util.*;
-import java.util.logging.Logger;
 
 import static com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys.*;
 import static com.thesett.aima.search.util.Searches.allSolutions;
@@ -1019,7 +1019,7 @@ class HiTalkInstructionCompiler
      */
 //    @Override
     public
-    void compile ( HtClause sentence, HiTalkFlag... flags ) throws SourceCodeException {
+    void compile ( HtClause sentence, Flag... flags ) throws SourceCodeException {
 
     }
 

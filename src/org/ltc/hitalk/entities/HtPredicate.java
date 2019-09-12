@@ -3,15 +3,14 @@ package org.ltc.hitalk.entities;
 import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.search.Operator;
 import com.thesett.common.util.StackQueue;
+import org.ltc.hitalk.compiler.HtPredicateVisitor;
 import org.ltc.hitalk.interpreter.IPredicateTraverser;
-import org.ltc.hitalk.interpreter.IPredicateVisitor;
-import org.ltc.hitalk.parser.HtClause;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * properties
@@ -59,17 +58,16 @@ class HtPredicate extends BaseTerm implements Term, IPropertyOwner {
     /**
      * The clauses that make up this predicate.
      */
-    protected HtClause[] body;
-    Consumer <Functor> predDef;
+   protected HtPredicateDefinition definition;
 
     /**
      * Creates a predicate formed from a set of clauses.
      *
-     * @param body The clauses that make up the body of the predicate.
+     * @param definition The clauses that make up the getDefinition()  of the predicate.
      */
     public
-    HtPredicate ( HtClause[] body ) {
-        this.body = body;
+    HtPredicate ( HtPredicateDefinition definition ) {
+        this.definition = definition;
     }
 
     /**
@@ -81,13 +79,13 @@ class HtPredicate extends BaseTerm implements Term, IPropertyOwner {
     }
 
     /**
-     * Gets all of the clauses that make up the body of the predicate.
+     * Gets all of the clauses that make up the getDefinition()  of the predicate.
      *
-     * @return All of the clauses that make up the body of the predicate.
+     * @return All of the clauses that make up the getDefinition()  of the predicate.
      */
     public
-    HtClause[] getBody () {
-        return body;
+    HtPredicateDefinition getDefinition () {
+        return definition;
     }
 
     /**
@@ -114,10 +112,10 @@ class HtPredicate extends BaseTerm implements Term, IPropertyOwner {
             else {
                 resultList = new StackQueue <>();
             }
-
-            if (body != null) {
-                resultList.addAll(Arrays.asList(body));
-            }
+//
+//            if (definition != null) {
+//                resultList.addAll(Arrays.asList(definition));
+//            }
 
             return resultList.iterator();
         }
@@ -129,7 +127,7 @@ class HtPredicate extends BaseTerm implements Term, IPropertyOwner {
     public
     void accept ( TermVisitor visitor ) {
         if (visitor instanceof PredicateVisitor) {
-            ((IPredicateVisitor) visitor).visit(this);
+            ((HtPredicateVisitor) visitor).visit(this);
         }
         else {
             super.accept(visitor);
@@ -141,16 +139,14 @@ class HtPredicate extends BaseTerm implements Term, IPropertyOwner {
      */
     public
     String toString ( VariableAndFunctorInterner interner, boolean printVarName, boolean printBindings ) {
-        String result = "";
+        StringBuilder result = new StringBuilder();
 
-        if (body != null) {
-            for (int i = 0; i < body.length; i++) {
-                result +=
-                        body[i].toString(interner, printVarName, printBindings) + ((i < (body.length - 1)) ? "\n" : "");
-            }
+        for (int i = 0; i < definition.size(); i++) {
+            result.append(definition.get(i).toString(interner, printVarName, printBindings)).
+                    append((i < (definition.size() - 1)) ? "\n" : "");
         }
 
-        return result;
+        return result.toString();
     }
 
     /**
@@ -158,30 +154,23 @@ class HtPredicate extends BaseTerm implements Term, IPropertyOwner {
      */
     public
     String toString () {
-        String bodyString = "[";
+        String bodyString = IntStream.range(0, definition.size())
+                .mapToObj(i -> definition.get(i).toString() + ((i < (definition.size() - 1)) ? ", " : ""))
+                .collect(Collectors.joining("", "[", "]"));
 
-        if (body != null) {
-            for (int i = 0; i < body.length; i++) {
-                bodyString += body[i].toString() + ((i < (body.length - 1)) ? ", " : "");
-            }
-        }
-
-        bodyString += "]";
-
-        return "Clause: [ body = " + bodyString + " ]";
+        return String.format("Clause: [ definition = %s ]", bodyString);
     }
 
     //    private final static int PROPS_LENGTH = 29;
-    private final HtProperty[] props;
+    private HtProperty[] props;
 
     /**
      * Creates a predicate formed from a set of clauses.
-     *
-     * @param body The clauses that make up the body of the predicate.
      */
     public
-    HtPredicate ( HtClause[] body, HtProperty... props ) {
-        super(body);
+    HtPredicate ( HtPredicateDefinition definition, HtProperty... props ) {
+        super();
+        this.definition = definition;
         this.props = props;
     }
 

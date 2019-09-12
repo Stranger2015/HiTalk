@@ -39,7 +39,7 @@ import java.util.function.Function;
 public
 class TermRewriteTask<T extends HtClause, TC extends Term, TT extends TransformTask <T, TC>>
         extends StandardPreprocessor <T, TC>
-        implements IComposite <T, TT>, ITransformer <T, TC> {
+        implements IComposite <T, TC,TT>, ITransformer <T, TC> {
 
     protected List <TT> rewriteTasks = new ArrayList <>();
 

@@ -46,12 +46,21 @@ class BkTable<R extends Record> implements IRegistry <R> {
         return select(kind, null);
     }
 
+    /**
+     * @param r
+     */
     @Override
     public
-    void add ( BkTableKind kind, R r ) {
+    void add ( R r ) {
         if (!isRegistered(r.getId())) {
             register(r);
         }
+    }
+
+    @Override
+    public
+    void save ( R r ) {
+
     }
 
     /**
@@ -63,7 +72,7 @@ class BkTable<R extends Record> implements IRegistry <R> {
     public
     List <R> select ( BkTableKind kind, R r ) {
         BookKeepingTables bkt = new BookKeepingTables();
-        List <R> rs = this;
+        List <R> rs = this.select(kind);
         List <R> list = new ArrayList <>();
 
         for (R record : rs) {

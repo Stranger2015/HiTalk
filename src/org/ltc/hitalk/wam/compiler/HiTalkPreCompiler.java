@@ -1,9 +1,6 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.LogicCompilerObserver;
-import com.thesett.aima.logic.fol.Sentence;
-import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
+import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.logic.fol.bytecode.BaseMachine;
 import com.thesett.aima.logic.fol.compiler.SymbolKeyTraverser;
 import com.thesett.aima.logic.fol.compiler.TermWalker;
@@ -79,6 +76,7 @@ class HiTalkPreCompiler<T extends HtClause> extends BaseMachine
     HiTalkPreCompiler ( SymbolTable <Integer, String, Object> symbolTable,
                         VariableAndFunctorInterner interner,
                         HiTalkDefaultBuiltIn defaultBuiltIn,
+                        Resolver <T, T> resolver,
                         IApplication app ) {
         super(symbolTable, interner);
 

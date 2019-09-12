@@ -84,27 +84,27 @@ class HiTalkParser extends HiLogParser {
     void initializeBuiltIns () {
         super.initializeBuiltIns();
 //Logtalk operators
-        internOperator(COLON_COLON, 600, XFY);
-        internOperator(COLON_COLON, 600, FY);// message sending to "self"
-        internOperator(UP_UP, 600, FY);// "super" call (calls an inherited or imported method definition)
+        internOperator(PrologAtoms.COLON_COLON, 600, XFY);
+        internOperator(PrologAtoms.COLON_COLON, 600, FY);// message sending to "self"
+        internOperator(PrologAtoms.UP_UP, 600, FY);// "super" call (calls an inherited or imported method definition)
         // mode operator
-        internOperator(PLUS, 200, FY);// input argument (instantiated); ISO Prolog standard operator
-        internOperator(AT, 200, FY);// input argument (not modified by the call)
-        internOperator(QUESTION, 200, FY);// input/output argument
-        internOperator(MINUS, 200, FY);// output argument (not instantiated); ISO Prolog standard operator
-        internOperator(PLUS_PLUS, 200, FY);// ground argument
-        internOperator(MINUS_MINUS, 200, FY);// unbound argument (typically when returning an opaque term)
-        internOperator(LSHIFT, 400, YFX);// bitwise left-shift operator (used for context-switching calls)
+        internOperator(PrologAtoms.PLUS, 200, FY);// input argument (instantiated); ISO Prolog standard operator
+        internOperator(PrologAtoms.AT, 200, FY);// input argument (not modified by the call)
+        internOperator(PrologAtoms.QUESTION, 200, FY);// input/output argument
+        internOperator(PrologAtoms.MINUS, 200, FY);// output argument (not instantiated); ISO Prolog standard operator
+        internOperator(PrologAtoms.PLUS_PLUS, 200, FY);// ground argument
+        internOperator(PrologAtoms.MINUS_MINUS, 200, FY);// unbound argument (typically when returning an opaque term)
+        internOperator(PrologAtoms.LSHIFT, 400, YFX);// bitwise left-shift operator (used for context-switching calls)
         // some backend Prolog compilers don't declare this ISO Prolog standard operator!
-        internOperator(RSHIFT, 400, YFX);// bitwise right-shift operator (used for lambda expressions)
+        internOperator(PrologAtoms.RSHIFT, 400, YFX);// bitwise right-shift operator (used for lambda expressions)
         // some backend Prolog compilers don't declare this ISO Prolog standard operator!
-        internOperator(AS, 700, XFX);// predicate alias operator (alternative to the ::/2 or :/2 operators depending on the context)
+        internOperator(PrologAtoms.AS, 700, XFX);// predicate alias operator (alternative to the ::/2 or :/2 operators depending on the context)
 // first introduced in SWI-Prolog and YAP also for defining aliases to module predicates
 
 // HiTalk operator
-        internOperator(PUBLIC, 1150, FX);
-        internOperator(PROTECTED, 1150, FX);
-        internOperator(PRIVATE, 1150, FX);
-        internOperator(ENUMERATION, 1150, FX);
+        internOperator(PrologAtoms.PUBLIC, 1150, FX);
+        internOperator(PrologAtoms.PROTECTED, 1150, FX);
+        internOperator(PrologAtoms.PRIVATE, 1150, FX);
+        internOperator(PrologAtoms.ENUMERATION, 1150, FX);
     }
 }

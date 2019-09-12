@@ -1,7 +1,7 @@
 package org.ltc.hitalk.term.io;
 
+import com.sun.istack.internal.NotNull;
 import com.thesett.aima.logic.fol.isoprologparser.SimpleCharStream;
-import org.jetbrains.annotations.NotNull;
 import org.ltc.hitalk.entities.IProperty;
 import org.ltc.hitalk.entities.PropertyOwner;
 import sun.nio.cs.HistoricallyNamedCharset;

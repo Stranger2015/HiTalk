@@ -1,7 +1,11 @@
 package org.ltc.hitalk.entities;
 
-import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
 
+import org.ltc.hitalk.compiler.bktables.Flag;
+
+/**
+ *
+ */
 public
 interface IPropertyOwner {
 
@@ -9,8 +13,8 @@ interface IPropertyOwner {
      * @return
      */
     default
-    HiTalkFlag[] getFlags () {
-        return new HiTalkFlag[getPropLength()];
+    Flag[] getFlags () {
+        return new Flag[getPropLength()];
     }
 
     /**

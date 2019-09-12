@@ -24,5 +24,3 @@ class DcgRuleExpander<T extends HtClause, TC extends Term, TT extends TermRewrit
         super(action, target, transformer);
     }
 }
-
-

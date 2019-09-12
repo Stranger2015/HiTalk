@@ -63,10 +63,10 @@ class TermFactory implements ITermFactory {
 
     @Override
     public
-    HiTalkFlag createFlag ( String flagName, String flagValue ) {
+    Flag createFlag ( String flagName, String flagValue ) {
         int ffn = interner.internFunctorName(flagName, 0);
         int ffv = interner.internFunctorName(flagValue, 0);
-        return new HiTalkFlag(ffn, new Functor(ffv, EMPTY_TERM_ARRAY));
+        return new Flag(ffn, new Functor(ffv, EMPTY_TERM_ARRAY));
     }
 
 
@@ -91,7 +91,7 @@ class TermFactory implements ITermFactory {
      */
     @Override
     public
-    HiTalkFlag createFlag ( String name, Term... args ) {
+    Flag createFlag ( String name, Term... args ) {
         return createFlag(name, new ListTerm(args));
     }
 
@@ -107,10 +107,10 @@ class TermFactory implements ITermFactory {
      * @return
      */
     public
-    HiTalkFlag createFlag ( String name, ListTerm args ) {
+    Flag createFlag ( String name, ListTerm args ) {
         int n = interner.internFunctorName(name, args.length());
 
-        return new HiTalkFlag(n, args);
+        return new Flag(n, args);
     }
 
     //    @Override

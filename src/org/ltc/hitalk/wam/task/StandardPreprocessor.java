@@ -1,9 +1,9 @@
 package org.ltc.hitalk.wam.task;
 
 
-import com.thesett.aima.logic.fol.Clause;
 import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.entities.context.IMetrics;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.wam.transformers.ITransformer;
 
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.function.Function;
  *
  */
 public
-class StandardPreprocessor<T extends Clause, TC extends Term> extends TransformTask <T, TC> {
+class StandardPreprocessor<T extends HtClause, TC extends Term> extends TransformTask <T, TC> {
 
     /**
      * @param transformer

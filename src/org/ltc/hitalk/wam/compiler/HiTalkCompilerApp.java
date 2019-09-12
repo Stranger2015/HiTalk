@@ -18,6 +18,7 @@ import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.interpreter.ICompiler;
 import org.ltc.hitalk.parser.HiTalkParser;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.term.Atom;
 import org.ltc.hitalk.wam.machine.HiTalkWAMEngine;
 
@@ -146,7 +147,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
      * When the <code>type/1 option is not specified, the type of the flag is inferred
      * from its initial value.
      */
-    public final HiTalkFlag[] DEFAULT_FLAGS;
+    public final Flag[] DEFAULT_FLAGS;
     //library entity names
     public final HtEntityIdentifier EXPANDING;
     public final HtEntityIdentifier MONITORING;
@@ -248,7 +249,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
 
 //        ENUM = tf.createIdentifier(HtEntityKind.OBJECT, "enum");
 
-        DEFAULT_FLAGS = new HiTalkFlag[]{
+        DEFAULT_FLAGS = new Flag[]{
                 tf.createFlag("access", "read_write"),//read_only
                 tf.createFlag("keep", "false"),
                 //
@@ -294,7 +295,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
      * //    entity_prefix,
      * //    entity_type,IN eI
      * String file;
-     * // HiTalkFlag[] flags;
+     * // Flag[] flags;
      * Path source;
      * InputStream stream;
      * Path target;
@@ -307,8 +308,8 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
      * @return
      */
     protected
-    HiTalkFlag[] createFlags ( LoadContext loadContext, String scratchDirectory ) {
-        HiTalkFlag[] flags = new HiTalkFlag[]{///todo flags
+    Flag[] createFlags ( LoadContext loadContext, String scratchDirectory ) {
+        Flag[] flags = new Flag[]{///todo flags
                                               tf.createFlag("basename", fileName),//FIXME PARSE
                                               tf.createFlag("directory", fileName),//FIXME PARSE
                                               tf.createFlag("entity_identifier", new Functor(-1, Atom.EMPTY_TERM_ARRAY)),//FIXME PARSE
@@ -369,8 +370,8 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
     }
 
     protected
-    HiTalkFlag[] createFlags ( String scratchDir ) {
-        return new HiTalkFlag[]{
+    Flag[] createFlags ( String scratchDir ) {
+        return new Flag[]{
                 //we need a fixed code prefix as some of the entity predicates may need
 //                    to be called directly by the compiler/runtime
                 tf.createFlag("code_prefix", "$"),
@@ -1427,7 +1428,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
      */
     @Override
     public
-    Logger getConsole () {
+    org.slf4j.Logger getConsole () {
         return null;
     }
 
@@ -1438,7 +1439,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
      */
     @Override
     public
-    void compile ( HtClause sentence, HiTalkFlag... flags ) throws SourceCodeException {
+    void compile ( HtClause sentence, Flag... flags ) throws SourceCodeException {
 
     }
 
@@ -1476,6 +1477,11 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
     public
     void setResolver ( Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> resolver ) {
         this.resolver = resolver;
+    }
+
+    public
+    Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> getResolver () {
+        return resolver;
     }
 }
 

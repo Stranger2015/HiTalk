@@ -24,7 +24,6 @@ class InteractiveParser implements Parser <HtClause, Token> {
      */
     public
     InteractiveParser ( HtPrologParser parser, VariableAndFunctorInterner interner ) {
-//        super(interner);
         this.parser = parser;
         this.interner = interner;
     }
@@ -49,9 +48,8 @@ class InteractiveParser implements Parser <HtClause, Token> {
     public
     Sentence <HtClause> parse () throws SourceCodeException {
         try {
-            return parser.sentence();
+            return parser.parse();
         } catch (SourceCodeException e) {
-            e.printStackTrace();
             throw new ExecutionError(ExecutionError.Kind.RESOURCE_ERROR, null);
         }
     }

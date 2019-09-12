@@ -1,6 +1,6 @@
 package org.ltc.hitalk.entities.context;
 
-import org.ltc.hitalk.compiler.bktables.HiTalkFlag;
+import org.ltc.hitalk.compiler.bktables.Flag;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.PropertyOwner;
 
@@ -13,7 +13,7 @@ class Context extends PropertyOwner {
 //    protected Enum<?> kind;
 
     public
-    Context ( HiTalkFlag... flags ) {
+    Context ( Flag... flags ) {
         super(flags);
     }
 
@@ -43,7 +43,7 @@ class Context extends PropertyOwner {
      */
     @Override
     public abstract
-    HiTalkFlag[] getFlags ();
+    Flag[] getFlags ();
 
     /**
      *
