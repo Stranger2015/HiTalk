@@ -1,7 +1,5 @@
 package org.ltc.hitalk.entities;
 
-import org.ltc.hitalk.compiler.bktables.Flag;
-
 import static org.ltc.hitalk.parser.PrologAtoms.*;
 
 /**
@@ -43,7 +41,7 @@ class HtScope extends PropertyOwner {
      * @param kind
      */
     public
-    HtScope ( Kind kind, Flag... properties ) {
+    HtScope ( Kind kind, HtProperty... properties ) {
         super(properties);
         this.kind = kind;
     }

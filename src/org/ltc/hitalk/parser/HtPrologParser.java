@@ -34,12 +34,11 @@ import org.ltc.hitalk.wam.compiler.HtFunctorName;
 import org.ltc.hitalk.wam.compiler.HtTokenSource;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 import static com.thesett.aima.logic.fol.OpSymbol.Associativity.*;
 import static com.thesett.aima.logic.fol.TermUtils.flattenTerm;
 import static org.ltc.hitalk.core.BuiltIns.*;
-import static org.ltc.hitalk.parser.HtPrologParserConstants.BOF;
-import static org.ltc.hitalk.parser.HtPrologParserConstants.LBRACE;
 
 /**
  * HtPrologParser is a recursive descent parser for the language Prolog, that parses its input into first order logic
@@ -66,7 +65,7 @@ import static org.ltc.hitalk.parser.HtPrologParserConstants.LBRACE;
  */
 
 public
-class HtPrologParser implements Parser <HtClause, Token>, PrologParserConstants {
+class HtPrologParser implements Parser <HtClause, Token>, HtPrologParserConstants {
 
     /**
      * Used for debugging purposes.
@@ -82,7 +81,7 @@ class HtPrologParser implements Parser <HtClause, Token>, PrologParserConstants 
     /**
      * Used for logging to the console.
      */
-    private static final java.util.logging.Logger console = java.util.logging.Logger.getLogger("CONSOLE." + HtPrologParser.class.getName());
+    private static final Logger console = Logger.getLogger("CONSOLE." + HtPrologParser.class.getName());
 
     /**
      * Lists the tokens expected to begin a term expression as a string.
@@ -96,7 +95,7 @@ class HtPrologParser implements Parser <HtClause, Token>, PrologParserConstants 
             tokenImage[STRING_LITERAL],
             tokenImage[ATOM],
             tokenImage[BOF],
-           tokenImage[LBRACE],//,
+            tokenImage[LBRACE],
 //            tokenImage[RBRACE],
     });
 
@@ -149,7 +148,34 @@ class HtPrologParser implements Parser <HtClause, Token>, PrologParserConstants 
     @Override
     public
     void setOperator ( String operatorName, int priority, Associativity associativity ) {
+        EnumMap <OpSymbol.Fixity, OpSymbol> ops = operatorTable.getOperatorsMatchingNameByFixity(operatorName);
+        if (ops == null || ops.isEmpty()) {
+            int arity = calcArity(associativity);
+            operatorTable.setOperator(interner.internFunctorName(operatorName, arity),
+                    operatorName, priority, associativity);
+        }
+    }
 
+    private
+    int calcArity ( Associativity associativity ) {
+        int arity;
+        switch (associativity) {
+            case XF:
+            case YF:
+            case FX:
+            case FY:
+                arity = 1;
+                break;
+            case XFX:
+            case XFY:
+            case YFX:
+                arity = 2;
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + associativity);
+        }
+
+        return arity;
     }
 
     /**
@@ -371,7 +397,7 @@ class HtPrologParser implements Parser <HtClause, Token>, PrologParserConstants 
             if (IMPLIES.equals(symbol.getTextName())) {
                 if (symbol.getArity() == 2) {
                     List <Functor> flattenedArgs = flattenTerm(symbol.getArgument(1),
-                            Functor.class,PrologAtoms.COMMA, interner);
+                            Functor.class, PrologAtoms.COMMA, interner);
                     Functor head = (Functor) symbol.getArgument(0);
                     FunctorName fname = interner.getDeinternedFunctorName(head.getName());
                     Functor identifier = null;

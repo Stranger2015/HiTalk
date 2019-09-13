@@ -67,8 +67,14 @@ interface IRegistry<R extends Record> {
         return select(tableKind, r).get(0);
     }
 
+    /**
+     * @param r
+     */
     void save ( R r );
 
+    /**
+     * @param list
+     */
     default
     void save ( List <R> list ) {
         for (R r : list) {

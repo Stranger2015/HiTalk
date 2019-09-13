@@ -1,6 +1,7 @@
 package org.ltc.hitalk.compiler.bktables.db.objvals;
 
 import com.thesett.aima.logic.fol.Functor;
+import org.ltc.hitalk.compiler.bktables.BkTableKind;
 import org.ltc.hitalk.compiler.bktables.IIdentifiable;
 import org.ltc.hitalk.compiler.bktables.db.Record;
 import org.ltc.hitalk.entities.HtEntityHierarchyKind;
@@ -26,9 +27,11 @@ class BkRelation extends Record {
                  HtRelationKind relationKind,
                  HtScope scope,
                  HtEntityIdentifier entityIdentifier1,
-                 HtEntityIdentifier entityIdentifier2 ) {
+                 HtEntityIdentifier entityIdentifier2,
+                 BkTableKind kind
+    ) {
 
-        super(entityIdentifier1);
+        super(kind, entityIdentifier1);
 
         this.hierarchyKind = hierarchyKind;
         this.relationKind = relationKind;

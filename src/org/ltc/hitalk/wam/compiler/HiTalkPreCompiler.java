@@ -12,6 +12,8 @@ import org.ltc.hitalk.compiler.HiTalkBuiltInTransform;
 import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.interpreter.ICompiler;
 import org.ltc.hitalk.parser.HtClause;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -47,7 +49,7 @@ class HiTalkPreCompiler<T extends HtClause> extends BaseMachine
         implements ICompiler <T, T, T> {
 
     //Used for debugging.
-    /* private static final Logger log = Logger.getLogger(PreCompiler.class.getName()); */
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     /**
      * Holds the default built in, for standard compilation and interners and symbol tables.
@@ -58,7 +60,7 @@ class HiTalkPreCompiler<T extends HtClause> extends BaseMachine
     /**
      * Holds the built in transformation.
      */
-    protected final HiTalkBuiltInTransform builtInTransform;
+    protected final HiTalkBuiltInTransform <IApplication, T, T> builtInTransform;
 
     /**
      * Holds the compiler output observer.
@@ -82,7 +84,8 @@ class HiTalkPreCompiler<T extends HtClause> extends BaseMachine
 
         this.defaultBuiltIn = defaultBuiltIn;
         this.app = app;
-        builtInTransform = new HiTalkBuiltInTransform(defaultBuiltIn, app, resolver);//TODO GLOBAL CTX NEEDED!!
+        builtInTransform = new HiTalkBuiltInTransform <>(defaultBuiltIn, app, resolver);//TODO GLOBAL CTX NEEDED!!
+
     }
 
     /**

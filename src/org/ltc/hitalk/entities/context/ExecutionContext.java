@@ -1,6 +1,7 @@
 package org.ltc.hitalk.entities.context;
 
 import org.ltc.hitalk.compiler.bktables.Flag;
+import org.ltc.hitalk.entities.HtProperty;
 
 /**
  * execution_context(
@@ -28,7 +29,7 @@ public
 class ExecutionContext extends Context {
 
     public
-    ExecutionContext ( Flag... props ) {
+    ExecutionContext ( HtProperty... props ) {
         super(props);
     }
 

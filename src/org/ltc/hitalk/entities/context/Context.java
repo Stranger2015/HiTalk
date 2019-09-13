@@ -1,6 +1,5 @@
 package org.ltc.hitalk.entities.context;
 
-import org.ltc.hitalk.compiler.bktables.Flag;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.PropertyOwner;
 
@@ -9,13 +8,7 @@ import org.ltc.hitalk.entities.PropertyOwner;
  */
 public abstract
 class Context extends PropertyOwner {
-
-//    protected Enum<?> kind;
-
-    public
-    Context ( Flag... flags ) {
-        super(flags);
-    }
+    private HtProperty[] props;
 
     public
     Context ( HtProperty... props ) {
@@ -30,24 +23,16 @@ class Context extends PropertyOwner {
 
     }
 
-//    /**
-//     * @return
-//     */
-//    public
-//    Enum<?> getKind () {
-//        return kind;
-//    }
+    public
+    void setProps ( HtProperty... props ) {
+        this.props = props;
+    }
 
-    /**
-     * @return
-     */
-    @Override
-    public abstract
-    Flag[] getFlags ();
+    public
+    HtProperty[] getProps () {
+        return props;
+    }
 
-    /**
-     *
-     */
     public
     enum Kind {
         /**
@@ -99,6 +84,9 @@ class Context extends PropertyOwner {
             VARIABLE_NAMES,
         }
 
+        /**
+         *
+         */
         public
         enum ExecutionCtx {
             COINDUCTION_STACK,

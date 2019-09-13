@@ -9,6 +9,7 @@ import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.bktables.*;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
+import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.context.CompilationContext;
 import org.ltc.hitalk.entities.context.Context;
 import org.ltc.hitalk.entities.context.ExecutionContext;
@@ -148,6 +149,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
      * from its initial value.
      */
     public final Flag[] DEFAULT_FLAGS;
+    public final HtProperty[] DEFAULT_PROPS = new HtProperty[0];
     //library entity names
     public final HtEntityIdentifier EXPANDING;
     public final HtEntityIdentifier MONITORING;
@@ -258,7 +260,7 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
                 };
 
         compilationContext = new CompilationContext();
-        loadContext = new LoadContext(DEFAULT_FLAGS);
+        loadContext = new LoadContext(DEFAULT_PROPS);
         executionContext = new ExecutionContext();
     }
 
@@ -363,10 +365,16 @@ class HiTalkCompilerApp extends HiTalkWAMEngine implements IApplication {
             throws Exception {
         List <BkLoadedEntities> rs = registry.select(LOADED_ENTITIES, new BkLoadedEntities(identifier));
         if (rs.isEmpty()) {
-            loadContext.setFlags(createFlags(scratchDir));
+//            loadContext.setFlags(createFlags(scratchDir));
+            loadContext.setProps(createProps(scratchDir));
             compileLoad(fileName, loadContext);
-            registry.add(LOADED_ENTITIES, new BkLoadedEntities(identifier));
+            registry.add(new BkLoadedEntities(identifier));
         }
+    }
+
+    private
+    HtProperty[] createProps ( String scratchDir ) {
+        return new HtProperty[0];
     }
 
     protected

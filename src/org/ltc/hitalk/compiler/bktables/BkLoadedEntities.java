@@ -15,7 +15,7 @@ class BkLoadedEntities extends Record {
      */
     public
     BkLoadedEntities ( HtEntityIdentifier entity1 ) {
-        super(entity1);
+        super(BkTableKind.LOADED_ENTITIES, entity1);
     }
 
     /**

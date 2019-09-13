@@ -14,8 +14,6 @@ import org.ltc.hitalk.term.Atom;
 import org.ltc.hitalk.term.HiLogCompound;
 import org.ltc.hitalk.term.ListTerm;
 
-import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
-
 /**
  *
  */
@@ -66,7 +64,7 @@ class TermFactory implements ITermFactory {
     Flag createFlag ( String flagName, String flagValue ) {
         int ffn = interner.internFunctorName(flagName, 0);
         int ffv = interner.internFunctorName(flagValue, 0);
-        return new Flag(ffn, new Functor(ffv, EMPTY_TERM_ARRAY));
+        return null;//new Flag(ffn, new Functor(ffv, EMPTY_TERM_ARRAY));
     }
 
 
@@ -108,9 +106,10 @@ class TermFactory implements ITermFactory {
      */
     public
     Flag createFlag ( String name, ListTerm args ) {
-        int n = interner.internFunctorName(name, args.length());
+        int n = -1;
+        interner.internFunctorName(name, args.length());
 
-        return new Flag(n, args);
+        return null; //new Flag(n, args);
     }
 
     //    @Override

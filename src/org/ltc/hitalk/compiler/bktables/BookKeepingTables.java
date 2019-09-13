@@ -85,12 +85,25 @@ class BookKeepingTables<R extends Record> implements IRegistry <R> {
         return getTable(kind).select(kind);
     }
 
+    /**
+     * @param r
+     */
     @Override
     public
-    void add ( BkTableKind kind, R r ) {
-        getTable(kind).add(kind, r);
+    void add ( R r ) {
+
+
     }
 
+    //    @Override
+    public
+    void add ( BkTableKind kind, R r ) {
+        getTable(kind).add(r);
+    }
+
+    /**
+     * @param r
+     */
     @Override
     public
     void save ( R r ) {

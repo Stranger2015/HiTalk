@@ -21,14 +21,16 @@
  import com.thesett.aima.logic.fol.wam.builtins.BuiltInFunctor;
  import com.thesett.common.parsing.SourceCodeException;
  import com.thesett.common.util.Function;
- import org.apache.commons.lang3.tuple.Pair;
  import org.ltc.hitalk.compiler.bktables.IApplication;
  import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
  import org.ltc.hitalk.entities.*;
  import org.ltc.hitalk.parser.HtClause;
  import org.ltc.hitalk.term.ListTerm;
  import org.ltc.hitalk.term.io.HiTalkStream;
- import org.ltc.hitalk.wam.compiler.*;
+ import org.ltc.hitalk.wam.compiler.DirectiveClause;
+ import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
+ import org.ltc.hitalk.wam.compiler.HtFunctor;
+ import org.ltc.hitalk.wam.compiler.HtTokenSource;
 
  import java.io.FileNotFoundException;
  import java.io.IOException;
@@ -39,7 +41,6 @@
 
  import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.*;
  import static org.ltc.hitalk.core.BuiltIns.ENCODING;
- import static org.ltc.hitalk.entities.HtType.*;
  import static org.ltc.hitalk.entities.IRelation.*;
  import static org.ltc.hitalk.parser.HtPrologParser.BEGIN_OF_FILE;
  import static org.ltc.hitalk.parser.HtPrologParser.END_OF_FILE;
@@ -57,18 +58,18 @@
   * @author Rupert Smith
   */
  public
- class HiTalkBuiltInTransform<A extends IApplication> implements Function <Functor, Functor> {
+ class HiTalkBuiltInTransform<A extends IApplication, T, Q> implements Function <Functor, Functor> {
 
      /**
       *
-      */
-     public static final Pair EXTENDS_OBJECT = Pair.of(EXTENDS, OBJECT);
-     public static final Pair EXTENDS_CATEGORY = Pair.of(EXTENDS, CATEGORY);
-     public static final Pair EXTENDS_PROTOCOL = Pair.of(EXTENDS, PROTOCOL);
-     public static final Pair IMPLEMENTS_PROTOCOL = Pair.of(IMPLEMENTS, PROTOCOL);
-     public static final Pair IMPORTS_CATEGORY = Pair.of(IMPORTS, CATEGORY);
-     public static final Pair SPECIALIZES_CLASS = Pair.of(SPECIALIZES, OBJECT);
-     public static final Pair INSTANTIATES_CLASS = Pair.of(INSTANTIATES, OBJECT);
+      //      */
+//     public static final Pair EXTENDS_OBJECT = Pair.of(EXTENDS, OBJECT);
+//     public static final Pair EXTENDS_CATEGORY = Pair.of(EXTENDS, CATEGORY);
+//     public static final Pair EXTENDS_PROTOCOL = Pair.of(EXTENDS, PROTOCOL);
+//     public static final Pair IMPLEMENTS_PROTOCOL = Pair.of(IMPLEMENTS, PROTOCOL);
+//     public static final Pair IMPORTS_CATEGORY = Pair.of(IMPORTS, CATEGORY);
+//     public static final Pair SPECIALIZES_CLASS = Pair.of(SPECIALIZES, OBJECT);
+//     public static final Pair INSTANTIATES_CLASS = Pair.of(INSTANTIATES, OBJECT);
 
 //     static {
 //         Map <String, HtRelationKind> tmp = new HashMap <>();
@@ -105,7 +106,7 @@
      protected final AtomicInteger objectCounter = new AtomicInteger(0);
      protected final AtomicInteger categoryCounter = new AtomicInteger(0);
      protected final AtomicInteger protocolCounter = new AtomicInteger(0);
-     protected final Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> resolver;
+     protected final Resolver <T, Q> resolver;
 //IMPLEMENT BUILTINS AS THE CONSUMER
 
      /**
@@ -116,7 +117,8 @@
       * @param resolver
       */
      public
-     HiTalkBuiltInTransform ( HiTalkDefaultBuiltIn defaultBuiltIn, A app, Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> resolver ) {
+     HiTalkBuiltInTransform ( HiTalkDefaultBuiltIn defaultBuiltIn, A app,
+                              Resolver <T, Q> resolver ) {
          this.defaultBuiltIn = defaultBuiltIn;
          interner = defaultBuiltIn.getInterner();
          this.resolver = resolver;
@@ -1153,7 +1155,7 @@
      }
 
      public
-     Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> getResolver () {
+     Resolver <T, Q> getResolver () {
          return resolver;
      }
 

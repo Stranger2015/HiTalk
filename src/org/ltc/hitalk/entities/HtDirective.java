@@ -1,19 +1,19 @@
 package org.ltc.hitalk.entities;
 
-import com.thesett.aima.logic.fol.FunctorName;
 
-import static org.ltc.hitalk.entities.HtPredicateDirective.DirKind.DirSubkind;
+import com.thesett.aima.logic.fol.FunctorName;
 
 /**
  *
  */
+@Deprecated
 public
-class HtPredicateDirective {
+class HtDirective {
     /**
      *
      */
     public
-    enum DirKind implements IKind <DirSubkind> {
+    enum DirKind implements IKind {
         ALIAS_DIRECTIVE(),
         SYNCHRONIZED_DIRECTIVE,
         USES_DIRECTIVE,
@@ -62,6 +62,9 @@ class HtPredicateDirective {
             FunctorName name;
         }
 
+        /**
+         * @param subkinds
+         */
         DirKind ( DirSubkind... subkinds ) {
             this.subkinds = subkinds;
         }

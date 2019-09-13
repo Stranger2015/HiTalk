@@ -1,35 +1,35 @@
 package org.ltc.hitalk.entities;
 
-import com.thesett.aima.logic.fol.Clause;
+
 import com.thesett.aima.logic.fol.Functor;
+import org.ltc.hitalk.parser.HtClause;
 
 import static org.ltc.hitalk.entities.HtEntityKind.*;
-import static org.ltc.hitalk.entities.HtPredicateDirective.DirKind;
 
 public
-class HtEntityDirective extends Clause <Functor>/* implements Hierarchy */ {
+class HtEntityDirective extends HtClause/* implements Hierarchy */ {
     private final Kind kind;
-    private final HtPredicateDirective.DirKind dirKind;
+    //    private final HtPredicateDirective.DirKind dirKind;
     private final HtEntityKind entityKind;
+    private HtDirective.DirKind dirKind;
 
     /**
      * Creates a program sentence in L2.
      *
-     * @param body       The functors that make up the query body of the program, if any. May be <tt>null</tt>
-     * @param dirKind
+     * @param body The functors that make up the query body of the program, if any. May be <tt>null</tt>
      * @param entityKind
      */
     public
-    HtEntityDirective ( Functor[] body, Kind kind, DirKind dirKind, HtEntityKind entityKind ) {
+    HtEntityDirective ( Functor[] body, Kind kind, /*HtDirective.DirKind dirKind,*/ HtEntityKind entityKind ) {
         super(null, body);
 
         this.kind = kind;
-        this.dirKind = dirKind;
+//        this.dirKind = dirKind;
         this.entityKind = entityKind;
     }
 
     public
-    DirKind getKind () {
+    HtDirective.DirKind getKind () {
         return dirKind;
     }
 

@@ -4,6 +4,8 @@ import com.thesett.aima.logic.fol.Functor;
 import org.ltc.hitalk.compiler.bktables.db.Record;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 
+import static org.ltc.hitalk.compiler.bktables.BkTableKind.LOADED_ENTITIES;
+
 /**
  *
  */
@@ -14,7 +16,7 @@ class BkLoadedEntities extends Record {
      */
     public
     BkLoadedEntities ( HtEntityIdentifier entitiy1 ) {
-        super(entitiy1);
+        super(LOADED_ENTITIES, entitiy1);
     }
 
     /**
