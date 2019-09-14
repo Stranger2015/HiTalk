@@ -1,0 +1,55 @@
+<component name="libraryTable">
+  <library name="com.sun.maven:maven-junit-plugin:1.5" type="repository">
+    <properties maven-id="com.sun.maven:maven-junit-plugin:1.5" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/maven-junit-plugin-1.5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven-plugin-api-2.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/junit-4.5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven-project-2.1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven-settings-2.1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven-profile-2.1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven-model-2.1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven-artifact-manager-2.1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven-repository-metadata-2.1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/wagon-provider-api-1.0-beta-5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/backport-util-concurrent-3.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven-plugin-registry-2.1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/plexus-interpolation-1.8.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/plexus-utils-1.5.6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven-artifact-2.1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/plexus-container-default-1.0-alpha-9-stable-1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/classworlds-1.1-alpha-2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/ant-1.7.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/ant-launcher-1.7.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/istack-commons-test-1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/dom4j-1.6.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/xml-apis-1.0.b2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-io-1.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/ant-junit-1.7.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/parallel-junit-1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/remoting-1.333.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/lib/maven-junit-plugin-1.5-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven-plugin-api-2.0-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven-project-2.1.0-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven-settings-2.1.0-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven-profile-2.1.0-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven-model-2.1.0-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven-artifact-manager-2.1.0-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven-repository-metadata-2.1.0-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/wagon-provider-api-1.0-beta-5-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/backport-util-concurrent-3.1-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven-plugin-registry-2.1.0-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/plexus-interpolation-1.8.1-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/plexus-utils-1.5.6-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/maven-artifact-2.1.0-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/plexus-container-default-1.0-alpha-9-stable-1-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/istack-commons-test-1.0-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-io-1.4-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/parallel-junit-1.1-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/remoting-1.333-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES />
+  </library>
+</component>

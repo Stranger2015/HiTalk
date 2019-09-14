@@ -18,7 +18,7 @@ package org.ltc.hitalk.com.sshtools.vfs2nio;
 
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import java.io.*;
 import java.net.URI;

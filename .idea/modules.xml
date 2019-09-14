@@ -2,6 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/WAM.hitalk_wam.main.iml" filepath="$PROJECT_DIR$/.idea/modules/WAM.hitalk_wam.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/WAM.hitalk_wam.test.iml" filepath="$PROJECT_DIR$/.idea/modules/WAM.hitalk_wam.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hitalk_wam.iml" filepath="$PROJECT_DIR$/.idea/modules/hitalk_wam.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/hitalk_wam.main.iml" filepath="$PROJECT_DIR$/.idea/modules/hitalk_wam.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/hitalk_wam.test.iml" filepath="$PROJECT_DIR$/.idea/modules/hitalk_wam.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/../hitalk_xwam/hitalk_xwam.iml" filepath="$PROJECT_DIR$/../hitalk_xwam/hitalk_xwam.iml" />

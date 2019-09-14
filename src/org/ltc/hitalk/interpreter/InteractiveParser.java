@@ -28,6 +28,11 @@ class InteractiveParser implements Parser <HtClause, Token> {
         this.interner = interner;
     }
 
+    public
+    InteractiveParser () {
+
+    }
+
     /**
      * Establishes the token source to parse from.
      *

@@ -574,7 +574,7 @@ class HiTalkInstructionCompiler
     /**
      * @param clause
      */
-    @Override
+//    @Override
     public
     void compileClause ( HtClause clause ) {
 
@@ -583,7 +583,7 @@ class HiTalkInstructionCompiler
     /**
      * @param resolver
      */
-    @Override
+//    @Override
     public
     void setResolver ( Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> resolver ) {
 
@@ -997,7 +997,7 @@ class HiTalkInstructionCompiler
     /**
      * @return
      */
-    @Override
+//    @Override
     public
     Logger getConsole () {
         return null;
@@ -1006,7 +1006,7 @@ class HiTalkInstructionCompiler
     /**
      * @return
      */
-    @Override
+    //.  @Override
     public
     HtPrologParser getParser () {
         return null;
@@ -1026,7 +1026,7 @@ class HiTalkInstructionCompiler
     /**
      * @param rule
      */
-    @Override
+//    @Override
     public
     void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
 

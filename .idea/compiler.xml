@@ -28,6 +28,8 @@
       <module name="logtalk_compiler.main" target="1.8" />
       <module name="logtalk_compiler.test" target="1.8" />
       <module name="vfs2nio" target="1.8" />
+      <module name="WAM.hitalk_wam.main" target="1.8" />
+      <module name="WAM.hitalk_wam.test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

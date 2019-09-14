@@ -57,7 +57,7 @@ class HiTalkPreprocessor<T extends HtClause, TC extends Term, TT extends Transfo
                          VariableAndFunctorInterner interner,
                          HiTalkDefaultBuiltIn defaultBuiltIn,
                          Resolver <T, T> resolver,
-                         HiTalkCompilerApp app )
+                         HiTalkCompilerApp <T, T, T> app )
             throws LinkageException {
 
         super(symbolTable, interner, defaultBuiltIn, resolver, app);
@@ -84,7 +84,7 @@ class HiTalkPreprocessor<T extends HtClause, TC extends Term, TT extends Transfo
         }
 
         components.add((TT) new DefaultTermExpander(preCompiledTarget, defaultTransformer));
-        components.add((TT) new HiLogPreprocessor(null, defaultTransformer, interner));
+        components.add((TT) new HiLogPreprocessor <>(null, defaultTransformer, interner));
         components.add((TT) new StandardPreprocessor(null, preCompiledTarget, defaultTransformer));
 //        components.add(new SuperCompiler(preCompiledTarget, defaultTransformer));
 

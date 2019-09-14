@@ -3,7 +3,6 @@
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="org.wso2.org.apache.commons:commons-vfs2-examples:2.2-wso2v5" level="project" />
     <orderEntry type="library" name="Gradle: junit:junit:4.12" level="project" />
   </component>
 </module>

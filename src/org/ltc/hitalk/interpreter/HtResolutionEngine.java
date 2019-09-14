@@ -41,15 +41,15 @@ import java.util.*;
  * <tr><th> Responsibilities <th> Collaborations
  * </table></pre>
  *
- * @param <T> The compiled program type that the compiler produces.
+ * @param <P> The compiled program type that the compiler produces.
  * @param <Q> The compiled query type that the compiler produces.
  * @author Rupert Smith
  */
 public
-class HtResolutionEngine<T, Q> extends InteractiveParser
+class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
         implements VariableAndFunctorInterner,
-                   ICompiler <HtClause, T, Q>,//todo ????????????????????
-                   Resolver <T, Q> {
+                   ICompiler <HtClause, P, Q>,//todo ????????????????????
+                   Resolver <P, Q> {
     /**
      * Holds the parser.
      */
@@ -63,12 +63,12 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
     /**
      * Holds the compiler.
      */
-    protected ICompiler <HtClause, T, Q> compiler;
+    protected ICompiler <T, P, Q> compiler;
 
     /**
      * Holds the observer for compiler outputs.
      */
-    protected HtResolutionEngine <T, Q>.ChainedCompilerObserver chainedObserver =
+    protected HtResolutionEngine <T, P, Q>.ChainedCompilerObserver chainedObserver =
             new ChainedCompilerObserver();
 
     protected Q currentQuery;
@@ -84,10 +84,15 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
     public
     HtResolutionEngine ( HtPrologParser parser,
                          VariableAndFunctorInterner interner,
-                         ICompiler <HtClause, T, Q> compiler ) {
+                         ICompiler <T, P, Q> compiler ) {
         super(parser, interner);
         this.compiler = compiler;
         compiler.setCompilerObserver(chainedObserver);
+    }
+
+    public
+    HtResolutionEngine () {
+        super();
     }
 
     /**
@@ -115,7 +120,7 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
      * @return The resolution engines compiler.
      */
     public
-    ICompiler <HtClause, T, Q> getCompiler () {
+    ICompiler <T, P, Q> getCompiler () {
         return compiler;
     }
 
@@ -140,7 +145,7 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
                 break;
             }
 
-            getCompiler().compile(sentence);
+            getCompiler().compile(sentence.getT());
         }
     }
 
@@ -334,14 +339,14 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
      */
     public
     void compile ( Sentence <HtClause> sentence ) throws SourceCodeException {
-        compiler.compile(sentence);
+        compiler.compile(sentence.getT());
     }
 
     /**
      * {@inheritDoc}
      */
     public
-    void addToDomain ( T term ) throws LinkageException {
+    void addToDomain ( P term ) throws LinkageException {
 //        resolver.addToDomain(term);
     }
 
@@ -385,7 +390,7 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
      * {@inheritDoc}
      */
     public
-    void setCompilerObserver ( LogicCompilerObserver <T, Q> observer ) {
+    void setCompilerObserver ( LogicCompilerObserver <P, Q> observer ) {
         chainedObserver.setCompilerObserver(observer);
     }
 
@@ -461,7 +466,7 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
      */
     @Override
     public
-    void setResolver ( Resolver <T, Q> resolver ) {
+    void setResolver ( Resolver <P, Q> resolver ) {
         
     }
 
@@ -472,11 +477,11 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
      * <p/>If a chained observer is set up, all compiler outputs are forwarded onto it.
      */
     private
-    class ChainedCompilerObserver implements LogicCompilerObserver <T, Q> {
+    class ChainedCompilerObserver implements LogicCompilerObserver <P, Q> {
         /**
          * Holds the chained observer for compiler outputs.
          */
-        private LogicCompilerObserver <T, Q> observer;
+        private LogicCompilerObserver <P, Q> observer;
 
         /**
          * Sets the chained observer for compiler outputs.
@@ -484,7 +489,7 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
          * @param observer The chained observer.
          */
         public
-        void setCompilerObserver ( LogicCompilerObserver <T, Q> observer ) {
+        void setCompilerObserver ( LogicCompilerObserver <P, Q> observer ) {
             this.observer = observer;
         }
 
@@ -492,7 +497,7 @@ class HtResolutionEngine<T, Q> extends InteractiveParser
          * {@inheritDoc}
          */
         public
-        void onCompilation ( Sentence <T> sentence ) throws SourceCodeException {
+        void onCompilation ( Sentence <P> sentence ) throws SourceCodeException {
             if (observer != null) {
                 observer.onCompilation(sentence);
             }

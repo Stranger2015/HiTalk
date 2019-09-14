@@ -5,7 +5,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="commons-lang3-3.9" level="project" />
-    <orderEntry type="library" exported="" name="slf4j-api" level="project" />
     <orderEntry type="library" exported="" name="com.thesett:wam_prolog:0.9.117" level="project" />
     <orderEntry type="library" exported="" name="annotations-17.0.0" level="project" />
   </component>
