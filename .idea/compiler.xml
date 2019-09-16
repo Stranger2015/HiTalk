@@ -6,6 +6,7 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="WAM.hitalk_wam" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -18,6 +19,8 @@
       <module name="hitalk_wam.generated" target="1.8" />
       <module name="hitalk_wam.main" target="1.8" />
       <module name="hitalk_wam.test" target="1.8" />
+      <module name="IdeaProjects.WAM.hitalk_wam.main" target="1.8" />
+      <module name="IdeaProjects.WAM.hitalk_wam.test" target="1.8" />
       <module name="logt.generated" target="1.8" />
       <module name="logt.main" target="1.8" />
       <module name="logt.test" target="1.8" />
@@ -28,6 +31,7 @@
       <module name="logtalk_compiler.main" target="1.8" />
       <module name="logtalk_compiler.test" target="1.8" />
       <module name="vfs2nio" target="1.8" />
+      <module name="WAM.hitalk_wam" target="1.8" />
       <module name="WAM.hitalk_wam.main" target="1.8" />
       <module name="WAM.hitalk_wam.test" target="1.8" />
     </bytecodeTargetLevel>

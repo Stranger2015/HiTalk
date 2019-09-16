@@ -36,7 +36,7 @@ import java.util.Set;
  * @author Rupert Smith
  */
 public
-class HiLogInterpreter<S extends HtClause, T, Q> implements IInterpreter <S> {
+class HiLogInterpreter<T extends HtClause, P, Q> implements IInterpreter <T> {
 
     protected TermIO termIO;
     /* Used for debugging purposes. */
@@ -81,7 +81,7 @@ class HiLogInterpreter<S extends HtClause, T, Q> implements IInterpreter <S> {
     /**
      * Holds the resolution engine that the interpreter loop runs on.
      */
-    protected HtResolutionEngine <T, Q> engine;
+    protected HtResolutionEngine <T, P, Q> engine;
     /**
      * Holds the current interaction mode.
      */
@@ -95,7 +95,7 @@ class HiLogInterpreter<S extends HtClause, T, Q> implements IInterpreter <S> {
      * @param engine The resolution engine. This must be using an {@link InteractiveParser}.
      */
     public
-    HiLogInterpreter ( InteractiveParser parser, HtResolutionEngine <T, Q> engine ) {
+    HiLogInterpreter ( InteractiveParser parser, HtResolutionEngine <T, P, Q> engine ) {
         this.engine = engine;
 
 //        if (!(parser instanceof InteractiveParser)) {
@@ -117,7 +117,7 @@ class HiLogInterpreter<S extends HtClause, T, Q> implements IInterpreter <S> {
     @Override
     public
     HtPrologParser getParser () {
-        return null;
+        return parser;
     }
 
     /**
@@ -227,7 +227,7 @@ class HiLogInterpreter<S extends HtClause, T, Q> implements IInterpreter <S> {
                 currentPredicateName = name;
             }
 
-            addProgramClause((Sentence <S>) clause);
+//            addProgramClause(clause);
         }
     }
 
@@ -302,13 +302,13 @@ class HiLogInterpreter<S extends HtClause, T, Q> implements IInterpreter <S> {
      * and this compiler scope is closed at the EOF of the current input stream, or when another clause with a different
      * name and arity is seen.
      *
-     * @param clause The clause to add to the domain.
+     * @param sentence The clause to add to the domain.
      */
     protected
-    void addProgramClause ( Sentence <S> clause ) throws SourceCodeException {
+    void addProgramClause ( Sentence <T> sentence ) throws SourceCodeException {
         /*log.fine("Read program clause from input.");*/
 
-        engine.compile((Sentence <HtClause>) clause);
+        engine.compile(sentence.getT());
     }
 
     /**

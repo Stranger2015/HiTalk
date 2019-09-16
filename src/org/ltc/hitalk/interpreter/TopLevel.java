@@ -6,10 +6,10 @@ import org.ltc.hitalk.parser.HtClause;
  *
  */
 public abstract
-class TopLevel<T,Q> {
-    private final HtResolutionEngine<T,Q> engine;
+class TopLevel<T extends HtClause, P, Q> {
+    private final HtResolutionEngine <T, P, Q> engine;
     private final IInterpreter interpreter;
-    private final ICompiler<HtClause,T,Q> compiler;
+    private final ICompiler <T, P, Q> compiler;
 
     /**
      * @param engine
@@ -17,10 +17,25 @@ class TopLevel<T,Q> {
      * @param compiler
      */
     public
-    TopLevel ( HtResolutionEngine<T,Q> engine, IInterpreter interpreter, ICompiler<HtClause,T,Q> compiler ) {
+    TopLevel ( HtResolutionEngine <T, P, Q> engine, IInterpreter interpreter, ICompiler <T, P, Q> compiler ) {
 
         this.engine = engine;
         this.interpreter = interpreter;
         this.compiler = compiler;
+    }
+
+    public
+    IInterpreter getInterpreter () {
+        return interpreter;
+    }
+
+    public
+    ICompiler <T, P, Q> getCompiler () {
+        return compiler;
+    }
+
+    public
+    HtResolutionEngine <T, P, Q> getEngine () {
+        return engine;
     }
 }

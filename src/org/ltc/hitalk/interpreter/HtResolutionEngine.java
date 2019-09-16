@@ -48,7 +48,7 @@ import java.util.*;
 public
 class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
         implements VariableAndFunctorInterner,
-                   ICompiler <HtClause, P, Q>,//todo ????????????????????
+                   ICompiler <T, P, Q>,
                    Resolver <P, Q> {
     /**
      * Holds the parser.
@@ -73,7 +73,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
 
     protected Q currentQuery;
     protected final List <Set <Variable>> vars = new ArrayList <>();
-    protected Logger logger = LoggerFactory.getLogger(getClass());
+    protected static Logger logger = LoggerFactory.getLogger(HtResolutionEngine.class);
 
     /**
      * Creates a prolog parser using the specified interner.
@@ -85,7 +85,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     HtResolutionEngine ( HtPrologParser parser,
                          VariableAndFunctorInterner interner,
                          ICompiler <T, P, Q> compiler ) {
-        super(parser, interner);
+        super(parser.getTokenSource(), interner);
         this.compiler = compiler;
         compiler.setCompilerObserver(chainedObserver);
     }
@@ -338,7 +338,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * {@inheritDoc}
      */
     public
-    void compile ( Sentence <HtClause> sentence ) throws SourceCodeException {
+    void compile ( Sentence <T> sentence ) throws SourceCodeException {
         compiler.compile(sentence.getT());
     }
 
@@ -518,4 +518,3 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
         }
     }
 }
-

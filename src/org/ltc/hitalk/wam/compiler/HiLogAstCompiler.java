@@ -12,7 +12,7 @@ import org.ltc.hitalk.parser.HtPrologParser;
 import org.slf4j.Logger;
 
 public
-class HiLogAstCompiler <T extends HtClause> implements ICompiler <T, T, T> {
+class HiLogAstCompiler<T extends HtClause, P, Q> implements ICompiler <T, P, Q> {
     /**
      * @return
      */
@@ -28,7 +28,7 @@ class HiLogAstCompiler <T extends HtClause> implements ICompiler <T, T, T> {
     @Override
     public
     HtPrologParser getParser () {
-        return null;
+        return null;//fixme
     }
 
     /**
@@ -74,7 +74,7 @@ class HiLogAstCompiler <T extends HtClause> implements ICompiler <T, T, T> {
      */
     @Override
     public
-    void setResolver ( Resolver <T, T> resolver ) {
+    void setResolver ( Resolver <P, Q> resolver ) {
 
     }
 
@@ -97,7 +97,7 @@ class HiLogAstCompiler <T extends HtClause> implements ICompiler <T, T, T> {
      */
     @Override
     public
-    void setCompilerObserver ( LogicCompilerObserver <T, T> observer ) {
+    void setCompilerObserver ( LogicCompilerObserver <P, Q> observer ) {
 
     }
 

@@ -1,29 +1,26 @@
 package org.ltc.hitalk.interpreter;
 
-import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
-import com.thesett.aima.logic.fol.VariableAndFunctorInternerImpl;
 import com.thesett.aima.logic.fol.isoprologparser.TokenSource;
 import com.thesett.common.util.doublemaps.SymbolTable;
-import com.thesett.common.util.doublemaps.SymbolTableImpl;
-import org.ltc.hitalk.compiler.HiTalkEngine;
 import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.compiler.bktables.IConfig;
-import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
-import org.ltc.hitalk.parser.HiTalkParser;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
-import org.ltc.hitalk.wam.compiler.HiTalkAstCompiler;
 import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
-import org.ltc.hitalk.wam.compiler.HtTokenSource;
-
-import java.io.File;
 
 /**
  *
  */
 public
-class HiTalkAstInterpreterApp implements IApplication {
+class HiTalkAstInterpreterApp<T extends HtClause, P, Q> implements IApplication {
+    private IConfig config;
+
+    public
+    HiTalkAstInterpreterApp () {
+
+    }
+
     public
     SymbolTable <Integer, String, Object> getSymbolTable () {
         return symbolTable;
@@ -35,7 +32,7 @@ class HiTalkAstInterpreterApp implements IApplication {
     }
 
     public
-    HiTalkAstCompiler <HtClause> getCompiler () {
+    ICompiler <T, P, Q> getCompiler () {
         return compiler;
     }
 
@@ -44,17 +41,17 @@ class HiTalkAstInterpreterApp implements IApplication {
         return defaultBuiltIn;
     }
 
-    private final SymbolTable <Integer, String, Object> symbolTable;
-    private final VariableAndFunctorInterner interner;
-    private final HtPrologParser parser;
-    private final HiTalkAstCompiler <HtClause> compiler;
-    private final HiTalkDefaultBuiltIn defaultBuiltIn;
+    private /*final*/ SymbolTable <Integer, String, Object> symbolTable;
+    private/* final*/ VariableAndFunctorInterner interner;
+    private /*final*/ HtPrologParser parser;
+    private /*final */ ICompiler <T, P, Q> compiler;
+    private /*final*/ HiTalkDefaultBuiltIn defaultBuiltIn;
 
     public
     HiTalkAstInterpreterApp ( SymbolTable <Integer, String, Object> symbolTable,
                               VariableAndFunctorInterner interner,
                               HtPrologParser parser,
-                              HiTalkAstCompiler <HtClause> compiler,
+                              ICompiler <T, P, Q> compiler,
                               HiTalkDefaultBuiltIn defaultBuiltIn ) {
 
         this.symbolTable = symbolTable;
@@ -72,7 +69,7 @@ class HiTalkAstInterpreterApp implements IApplication {
     @Override
     public
     IConfig getConfig () {
-        return null;
+        return config;
     }
 
     /**
@@ -152,30 +149,20 @@ class HiTalkAstInterpreterApp implements IApplication {
 
     public static
     void main ( String[] args ) {
+        HiTalkAstInterpreterApp app = new HiTalkAstInterpreterApp();
         try {
-            SymbolTable <Integer, String, Object> symbolTable = new SymbolTableImpl <>();
-            VariableAndFunctorInterner interner = new VariableAndFunctorInternerImpl(
-                    "HiTalk_Variable_Namespace",
-                    "HiTalk_Functor_Namespace");
-            HtTokenSource tokenSource = HtTokenSource.getTokenSourceForFile(new File(args[0]));
-            HtPrologParser parser = new HiTalkParser(tokenSource, interner);
-            HiTalkAstCompiler <HtClause> compiler = new HiTalkAstCompiler <>(symbolTable, interner, parser);
-            Resolver <HtClause, HtClause> resolver = new HiTalkEngine(parser, interner, compiler);
-            //
-
-            HiTalkDefaultBuiltIn defaultBuiltIn = new HiTalkDefaultBuiltIn(symbolTable, interner);
-            IApplication app = new HiTalkAstInterpreterApp(symbolTable, interner, parser, compiler, defaultBuiltIn);
-
             app.setFileName(args[0]);
-//            app.createFlags(app.loadContext, DEFAULT_SCRATCH_DIRECTORY);
-            app.setParser(parser);
-            //
-            app.banner();
             app.start();
-
         } catch (Exception e) {
-//            e.printStackTrace();
-            throw new ExecutionError(ExecutionError.Kind.TYPE_ERROR, null);
+            e.printStackTrace();
         }
     }
+
+    public
+    void setConfig ( IConfig config ) {
+        this.config = config;
+    }
 }
+/*
+
+ */

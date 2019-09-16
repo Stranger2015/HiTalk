@@ -12,6 +12,7 @@ import org.ltc.hitalk.interpreter.ICompiler;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,15 +21,15 @@ import java.util.List;
  *
  */
 public
-class HiTalkAstCompiler<T extends HtClause> extends HiLogAstCompiler<T> implements ICompiler <T, T, T> {
+class HiTalkAstCompiler<T extends HtClause, P, Q> extends HiLogAstCompiler <T, P, Q> implements ICompiler <T, P, Q> {
 
     protected final SymbolTable <Integer, String, Object> symbolTable;
     protected final HtPrologParser parser;
     protected final VariableAndFunctorInterner interner;
-    protected Resolver <T, T> resolver;
+    protected Resolver <P, Q> resolver;
     //    protected final DcgRuleExpander ruleExpander;
-    protected final Logger logger = null;//  todo
-    private LogicCompilerObserver <T, T> observer;
+    protected static final Logger logger = LoggerFactory.getLogger(HiTalkAstCompiler.class);//  todo
+    private LogicCompilerObserver <P, Q> observer;
 
     /**
      * @param symbolTable
@@ -54,7 +55,7 @@ class HiTalkAstCompiler<T extends HtClause> extends HiLogAstCompiler<T> implemen
      */
     @Override
     public
-    org.slf4j.Logger getConsole () {
+    Logger getConsole () {
         return logger;
     }
 
@@ -97,7 +98,7 @@ class HiTalkAstCompiler<T extends HtClause> extends HiLogAstCompiler<T> implemen
      */
     @Override
     public
-    void setResolver ( Resolver <T, T> resolver ) {
+    void setResolver ( Resolver <P, Q> resolver ) {
         this.resolver = resolver;
     }
 
@@ -155,7 +156,7 @@ class HiTalkAstCompiler<T extends HtClause> extends HiLogAstCompiler<T> implemen
      */
     @Override
     public
-    void setCompilerObserver ( LogicCompilerObserver <T, T> observer ) {
+    void setCompilerObserver ( LogicCompilerObserver <P, Q> observer ) {
         this.observer = observer;
     }
 
@@ -180,7 +181,7 @@ class HiTalkAstCompiler<T extends HtClause> extends HiLogAstCompiler<T> implemen
     }
 
     public
-    LogicCompilerObserver <T, T> getObserver () {
+    LogicCompilerObserver <P, Q> getObserver () {
         return observer;
     }
 }

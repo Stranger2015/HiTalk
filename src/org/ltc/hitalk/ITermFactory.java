@@ -5,7 +5,6 @@ import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.compiler.bktables.Flag;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
-import org.ltc.hitalk.term.Atom;
 import org.ltc.hitalk.term.HiLogCompound;
 import org.ltc.hitalk.term.ListTerm;
 
@@ -24,7 +23,7 @@ interface ITermFactory {
      * @param s
      * @return
      */
-    Atom createAtom ( String s );
+    Functor createAtom ( String s );
 
     Functor createCompound ( String s, Term[] head, Term tail );
 

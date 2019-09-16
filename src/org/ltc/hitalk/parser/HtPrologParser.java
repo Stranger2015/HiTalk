@@ -70,13 +70,9 @@ class HtPrologParser implements Parser <HtClause, Token>, HtPrologParserConstant
     /**
      * Used for debugging purposes.
      */
-    //private static final Logger log = Logger.getLogger(HtPrologParser.class.getName());
-
 
     public static final String BEGIN_OF_FILE = "begin_of_file";
     public static final String END_OF_FILE = "end_of_file";
-    //    protected static final Functor[] EMPTY_FUNCTOR_ARRAY = new Functor[0];
-//    protected static final Term[] EMPTY_TERM_ARRAY = new Term[0];
 
     /**
      * Used for logging to the console.
@@ -103,6 +99,11 @@ class HtPrologParser implements Parser <HtClause, Token>, HtPrologParserConstant
         new VariableAndFunctorInternerImpl(
                 "Prolog_Variable_Namespace",
                 "Prolog_Functor_Namespace");
+    }
+
+    public
+    HtPrologParser () {
+
     }
 
     public

@@ -98,7 +98,7 @@ import org.ltc.hitalk.wam.compiler.HiLogAstCompiler;
  * hilog_symbol(Symbol)
  */
 public
-class HiLog<T,Q> extends TopLevel<T,Q> {
+class HiLog<T extends HtClause, P, Q> extends TopLevel <T, P, Q> {
 
     /**
      * @param engine
@@ -106,7 +106,7 @@ class HiLog<T,Q> extends TopLevel<T,Q> {
      * @param compiler
      */
     public
-    HiLog ( HtResolutionEngine<T, Q> engine, HiLogInterpreter <HtClause, T,Q> interpreter, HiLogAstCompiler compiler ) {
+    HiLog ( HtResolutionEngine <T, P, Q> engine, HiLogInterpreter <T, P, Q> interpreter, HiLogAstCompiler <T, P, Q> compiler ) {
         super(engine, interpreter, compiler);
     }
 

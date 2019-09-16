@@ -6,6 +6,7 @@ import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.bktables.*;
+import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
 import org.ltc.hitalk.entities.HtProperty;
@@ -18,7 +19,6 @@ import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.interpreter.ICompiler;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
-import org.ltc.hitalk.term.Atom;
 import org.ltc.hitalk.wam.machine.HiTalkWAMEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.ltc.hitalk.compiler.bktables.BkTableKind.LOADED_ENTITIES;
+import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 
 /**
  * Reloading files, active code and threads
@@ -156,14 +157,14 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends HiTalkWAMEngine <T, P,
     public final HtEntityIdentifier LOGTALK;
     public final HtEntityIdentifier CORE_MESSAGES;
     //
-    public final Atom OBJECT;
-    public final Atom PROTOCOL;
-    public final Atom CATEGORY;
+    public final Functor OBJECT;
+    public final Functor PROTOCOL;
+    public final Functor CATEGORY;
 
-    public final Atom END_OBJECT;
-    public final Atom END_CATEGORY;
-    public final Atom END_PROTOCOL;
-// public final Atom END_ENUM;
+    public final Functor END_OBJECT;
+    public final Functor END_CATEGORY;
+    public final Functor END_PROTOCOL;
+// public final Functor END_ENUM;
 
 
     /**
@@ -193,18 +194,18 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends HiTalkWAMEngine <T, P,
     protected final LoadContext loadContext;
     protected final ExecutionContext executionContext;
     protected LogicCompilerObserver <P, Q> observer;
-    protected LogicCompilerObserver <T, T> observer2;
+    protected LogicCompilerObserver <P, Q> observer2;
 
     /**
      * Holds the pre-compiler, for analyzing and transforming terms prior to compilation proper.
      */
-    protected ICompiler <T, T, T> preCompiler;
+    protected ICompiler <T, P, Q> preCompiler;
     protected String fileName;
     protected IConfig config;
     //    protected HiTalkCompilerApp app;
     protected boolean started;
     protected HtPrologParser parser;
-    private Resolver <P, Q> resolver;
+    protected Resolver <P, Q> resolver;
 
     /**
      * Builds an logical resolution engine from a parser, interner, compiler and resolver.
@@ -221,11 +222,11 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends HiTalkWAMEngine <T, P,
         super(parser, interner, compiler);
 
         Resolver <P, Q> resolver =
-                new HtResolutionEngine <T, P, Q>(parser, interner, compiler);
+                new HtResolutionEngine <>(parser, interner, compiler);
 
         preCompiler = new HiTalkPreprocessor(symbolTable, interner, defaultBuiltIn, resolver, this);
         instructionCompiler = compiler;
-        observer2 = new ClauseChainObserver <>(instructionCompiler);
+        observer2 = new ClauseChainObserver(instructionCompiler);
         preCompiler.setCompilerObserver(observer2);
         observer = new ChainedCompilerObserver();
         instructionCompiler.setCompilerObserver(observer);
@@ -301,6 +302,11 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends HiTalkWAMEngine <T, P,
     void main ( String[] args ) {
         IApplication application = new HiTalkCompilerApp <>();
         application.setFileName(args[0]);
+        try {
+            application.start();
+        } catch (Exception e) {
+            throw new ExecutionError(PERMISSION_ERROR, null);
+        }
     }
 
     /**
@@ -327,7 +333,7 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends HiTalkWAMEngine <T, P,
         Flag[] flags = new Flag[]{///todo flags
                                   tf.createFlag("basename", fileName),//FIXME PARSE
                                   tf.createFlag("directory", fileName),//FIXME PARSE
-                                  tf.createFlag("entity_identifier", new Functor(-1, Atom.EMPTY_TERM_ARRAY)),//FIXME PARSE
+                                  tf.createFlag("entity_identifier", new Functor(-1, null)),//FIXME PARSE
                                   tf.createFlag("file", fileName),//FIXME PARSE
                                   tf.createFlag("basename", fileName),//FIXME PARSE
         };
@@ -634,7 +640,7 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends HiTalkWAMEngine <T, P,
     //messages to the pseudo-object "user"
 
     protected
-    void compileMessageToObject ( Term pred, HtEntityIdentifier obj, ICallable call, Atom atom, Context ctx ) {
+    void compileMessageToObject ( Term pred, HtEntityIdentifier obj, ICallable call, Functor atom, Context ctx ) {
         if (obj.equals(USER) && pred.isVar() || pred.isFunctor()) {
 
         }
@@ -1326,7 +1332,7 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends HiTalkWAMEngine <T, P,
      */
     //    @Override
     public
-    ICompiler <T, T, T> getPreCompiler () {
+    ICompiler <T, P, Q> getPreCompiler () {
         return preCompiler;
     }
 
@@ -1353,6 +1359,12 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends HiTalkWAMEngine <T, P,
     public
     IConfig getConfig () {
         return config;
+    }
+
+    @Override
+    public
+    void init () {
+
     }
 
     /**
@@ -1414,7 +1426,7 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends HiTalkWAMEngine <T, P,
     public
     void banner () {
         String product = "HiTalk system";
-        String version = "v0.0.1b#";
+        String version = "v0.1.0.b#";
         int build = 0;
         String copyright = "(c) Anton Danilov, 2018-2019, All rights reserved";
         System.out.printf("\n%s, %s%d, %s.\n", product, version, build, copyright);
@@ -1533,7 +1545,7 @@ class ClauseChainObserver<T extends HtClause, P, Q> implements LogicCompilerObse
  * <p>
  * <p/>If a chained observer is set up, all compiler outputs are forwarded onto it.
  */
-class ChainedCompilerObserver<T extends HtClause, P, Q> implements LogicCompilerObserver <P, Q> {
+class ChainedCompilerObserver<P, Q> implements LogicCompilerObserver <P, Q> {
     /**
      * Holds the chained observer for compiler outputs.
      */

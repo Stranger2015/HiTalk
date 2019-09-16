@@ -5,13 +5,16 @@ import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.aima.logic.fol.bytecode.BaseMachine;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.interpreter.ICompiler;
+import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtPrologParser;
 
 public abstract
-class BaseCompiler<T extends HtClause, T1, T2>
+class BaseCompiler<T extends HtClause, P, Q>
         extends BaseMachine
-        implements ICompiler <T, T1, T2> {
+        implements ICompiler <T, P, Q> {
 
-    protected LogicCompilerObserver <T1, T2> observer;
+    protected LogicCompilerObserver <P, Q> observer;
     protected HtPrologParser parser;
 //    protected Logger console;
 
@@ -33,7 +36,7 @@ class BaseCompiler<T extends HtClause, T1, T2>
      */
     @Override
     public
-    void setCompilerObserver ( LogicCompilerObserver <T1, T2> observer ) {
+    void setCompilerObserver ( LogicCompilerObserver <P, Q> observer ) {
         this.observer = observer;
     }
 

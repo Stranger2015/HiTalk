@@ -47,7 +47,7 @@ class TermFactory implements ITermFactory {
      */
     @Override
     public
-    Atom createAtom ( String s ) {
+    Functor createAtom ( String s ) {
         int ffn = interner.internFunctorName(s, 0);
         return new Atom(ffn);
     }

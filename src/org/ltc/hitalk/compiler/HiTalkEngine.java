@@ -15,7 +15,7 @@ import org.slf4j.Logger;
  *
  */
 public
-class HiTalkEngine extends HtResolutionEngine <HtClause, HtClause> {
+class HiTalkEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P, Q> {
 
     /**
      * Builds an logical resolution engine from a parser, interner, compiler and resolver.
@@ -26,7 +26,7 @@ class HiTalkEngine extends HtResolutionEngine <HtClause, HtClause> {
     public
     HiTalkEngine ( HtPrologParser parser,
                    VariableAndFunctorInterner interner,
-                   ICompiler <HtClause, HtClause, HtClause> compiler ) {
+                   ICompiler <T, P, Q> compiler ) {
         super(parser, interner, compiler);
         compiler.setResolver(this);
     }

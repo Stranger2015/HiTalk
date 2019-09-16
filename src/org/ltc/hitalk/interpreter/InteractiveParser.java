@@ -1,7 +1,6 @@
 package org.ltc.hitalk.interpreter;
 
-import com.thesett.aima.logic.fol.OpSymbol;
-import com.thesett.aima.logic.fol.Parser;
+import com.thesett.aima.logic.fol.OpSymbol.Associativity;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.aima.logic.fol.isoprologparser.Token;
@@ -13,24 +12,28 @@ import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.HtTokenSource;
 
 public
-class InteractiveParser implements Parser <HtClause, Token> {
+class InteractiveParser extends HtPrologParser {
     protected HtPrologParser parser;
     protected VariableAndFunctorInterner interner;
 
     /**
-     * Creates a prolog parser using the specified interner.
+     * Builds a prolog parser on a token source to be parsed.
      *
-     * @param interner The functor and variable name interner.
+     * @param tokenSource The token source to be parsed.
+     * @param interner    The interner for variable and functor names.
      */
     public
-    InteractiveParser ( HtPrologParser parser, VariableAndFunctorInterner interner ) {
-        this.parser = parser;
-        this.interner = interner;
+    InteractiveParser ( HtTokenSource tokenSource, VariableAndFunctorInterner interner ) {
+        super(tokenSource, interner);
+        parser = this;
     }
 
+    /**
+     *
+     */
     public
     InteractiveParser () {
-
+        super();
     }
 
     /**
@@ -68,7 +71,7 @@ class InteractiveParser implements Parser <HtClause, Token> {
      */
     @Override
     public
-    void setOperator ( String operatorName, int priority, OpSymbol.Associativity associativity ) {
+    void setOperator ( String operatorName, int priority, Associativity associativity ) {
 
     }
 

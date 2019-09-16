@@ -15,6 +15,8 @@ interface IApplication {
      */
     IConfig getConfig ();
 
+    void init ();
+
     /**
      *
      */
@@ -56,9 +58,9 @@ interface IApplication {
     HtPrologParser getParser ();
 
     /**
-     * @param arg
+     * @param fileName
      */
-    void setFileName ( String arg );
+    void setFileName ( String fileName );
 
     void setTokenSource ( TokenSource tokenSource );
 }

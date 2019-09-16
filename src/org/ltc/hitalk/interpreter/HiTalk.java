@@ -1,13 +1,12 @@
 package org.ltc.hitalk.interpreter;
 
-import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.parser.HtClause;
 
 /**
  *
  */
 public
-class HiTalk<T,Q> extends TopLevel<T,Q> {
+class HiTalk<T extends HtClause, P, Q> extends TopLevel <T, P, Q> {
 
 //    public final Deque <Resolver <Term, Queue>> topLevelStack = new ArrayDeque <>();
 
@@ -15,9 +14,9 @@ class HiTalk<T,Q> extends TopLevel<T,Q> {
      *
      */
     public
-    HiTalk ( HtResolutionEngine<T,Q> engine,
-             HiTalkInterpreter <Term, Q> interpreter,
-             ICompiler<HtClause,T,Q> compiler ) {
+    HiTalk ( HtResolutionEngine <T, P, Q> engine,
+             HiTalkInterpreter <P, Q> interpreter,
+             ICompiler <T, P, Q> compiler ) {
         super(engine, interpreter, compiler);
     }
 }
