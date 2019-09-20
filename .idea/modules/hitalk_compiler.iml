@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module external.linked.project.id="hitalk_compiler" external.linked.project.path="$MODULE_DIR$/../../hitalk_compiler" external.root.project.path="$MODULE_DIR$/../../hitalk_compiler" external.system.id="GRADLE" external.system.module.group="hitalk" external.system.module.version="0.1.0.0-SNAPSHOT" type="JAVA_MODULE" version="4">
+  <component name="ExternalSystem" externalSystem="GRADLE" linkedProjectId="hitalk_compiler" linkedProjectPath="$MODULE_DIR$/../../hitalk_compiler" rootProjectPath="$MODULE_DIR$/../../hitalk_compiler" />
+  <component name="NewModuleRootManager">
+    <output url="file://$MODULE_DIR$/../../hitalk_compiler/production/hitalk_compiler" />
+    <output-test url="file://$MODULE_DIR$/../../hitalk_compiler/test/hitalk_compiler" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../hitalk_compiler">
+      <sourceFolder url="file://$MODULE_DIR$/../../hitalk_compiler/src" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/../../hitalk_compiler/.gradle" />
+      <excludeFolder url="file://$MODULE_DIR$/../../hitalk_compiler/build" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" exported="" name="annotations-17.0.0" level="project" />
+    <orderEntry type="library" exported="" name="commons-lang3-3.9" level="project" />
+    <orderEntry type="library" exported="" name="com.thesett:wam_prolog:0.9.117" level="project" />
+  </component>
+</module>

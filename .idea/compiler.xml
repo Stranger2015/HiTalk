@@ -7,6 +7,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="WAM.hitalk_wam" />
+        <module name="vfs2nio" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -16,6 +17,8 @@
       <module name="hitalk.generated" target="1.8" />
       <module name="hitalk.main" target="1.8" />
       <module name="hitalk.test" target="1.8" />
+      <module name="hitalk_compiler.main" target="1.8" />
+      <module name="hitalk_compiler.test" target="1.8" />
       <module name="hitalk_wam.generated" target="1.8" />
       <module name="hitalk_wam.main" target="1.8" />
       <module name="hitalk_wam.test" target="1.8" />

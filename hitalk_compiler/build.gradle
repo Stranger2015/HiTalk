@@ -1,0 +1,51 @@
+plugins {
+// id   groovy
+ id   'java'
+}
+
+buildscript {
+    repositories {
+        // Using Bintray repository:
+        maven { url "http://dl.bintray.com/davideas/maven" }
+        // or Gradle plugins repository:
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+    dependencies {
+        // Using Bintray or Gradle Plugins repository
+        classpath "eu.davidea:grabver:2.0.1"
+    }
+}
+
+group = "hitalk"
+version = "0.1.0.0-SNAPSHOT"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.slf4j:slf4j-api:1.7.12'
+    compile 'com.thesett:wam_prolog:0.9.117'
+    compile 'org.apache.commons:commons-vfs2:2.2'
+    compile 'org.codehaus.groovy:groovy-all:2.3.11'
+    testCompile "junit", "junit", "4.12"
+}
+
+//allprojects {
+//    sourceSets {
+//        main {
+//            java.srcDirs 'src', 'gen_src'
+//            resources.srcDirs 'resources'
+//        }
+//    }
+//}
+
+//configure<JavaPluginConvention> {
+//    sourceCompatibility = JavaVersion.VERSION_1_8
+//}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.example.main.Application'
+    }
+}

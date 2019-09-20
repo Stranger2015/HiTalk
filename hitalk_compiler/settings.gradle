@@ -1,0 +1,6 @@
+rootProject.name = 'hitalk_compiler'
+if (gradle.startParameter.taskNames.contains("build")) {
+    include 'module_a'
+    include 'module_b'
+}
+

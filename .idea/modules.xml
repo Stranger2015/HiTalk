@@ -2,12 +2,12 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/WAM.hitalk_wam.main.iml" filepath="$PROJECT_DIR$/.idea/modules/WAM.hitalk_wam.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/WAM.hitalk_wam.test.iml" filepath="$PROJECT_DIR$/.idea/modules/WAM.hitalk_wam.test.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hitalk_wam.iml" filepath="$PROJECT_DIR$/.idea/modules/hitalk_wam.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hitalk_wam.main.iml" filepath="$PROJECT_DIR$/.idea/modules/hitalk_wam.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hitalk_wam.test.iml" filepath="$PROJECT_DIR$/.idea/modules/hitalk_wam.test.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../hitalk_xwam/hitalk_xwam.iml" filepath="$PROJECT_DIR$/../hitalk_xwam/hitalk_xwam.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hitalk_compiler.iml" filepath="$PROJECT_DIR$/.idea/modules/hitalk_compiler.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hitalk_compiler.main.iml" filepath="$PROJECT_DIR$/.idea/modules/hitalk_compiler.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/hitalk_compiler.test.iml" filepath="$PROJECT_DIR$/.idea/modules/hitalk_compiler.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/module_a.iml" filepath="$PROJECT_DIR$/.idea/modules/module_a.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/module_b.iml" filepath="$PROJECT_DIR$/.idea/modules/module_b.iml" />
+      <module fileurl="file://$PROJECT_DIR$/vfs2nio.iml" filepath="$PROJECT_DIR$/vfs2nio.iml" />
     </modules>
   </component>
 </project>
