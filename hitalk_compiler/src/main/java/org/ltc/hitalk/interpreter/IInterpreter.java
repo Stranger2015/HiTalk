@@ -37,7 +37,7 @@ interface IInterpreter<T extends HtClause, P, Q> extends IConfigurable, ICompile
     /**
      * @return
      */
-    HtPrologParser getParser ();
+    HtPrologParser <T> getParser ();
 
     /**
      * @throws IOException

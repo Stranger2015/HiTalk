@@ -11,6 +11,7 @@ import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.HiTalkBuiltInTransform;
 import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.core.ICompiler;
+import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 
 import java.util.List;
@@ -43,8 +44,8 @@ import java.util.List;
  * @author Rupert Smith
  */
 abstract public
-class HiTalkPreCompiler<T extends HtClause, P, Q> extends BaseMachine
-        implements ICompiler <T, P, Q> {
+class HiTalkPreCompiler<T extends HtClause> extends BaseMachine
+        implements ICompiler <T, T, T> {
 
     //Used for debugging.
 //    private final Logger log = LoggerFactory.getLogger(getClass());
@@ -53,17 +54,17 @@ class HiTalkPreCompiler<T extends HtClause, P, Q> extends BaseMachine
      * Holds the default built in, for standard compilation and interners and symbol tables.
      */
     protected final HiTalkDefaultBuiltIn defaultBuiltIn;
-    protected final IApplication app;
+    protected final IApplication <T> app;
 
     /**
      * Holds the built in transformation.
      */
-    protected final HiTalkBuiltInTransform <IApplication, P, Q> builtInTransform;
+    protected final HiTalkBuiltInTransform <IApplication <T>, T> builtInTransform;
 
     /**
      * Holds the compiler output observer.
      */
-    protected LogicCompilerObserver <P, Q> observer;
+    protected LogicCompilerObserver <HtPredicate, T> observer;
 
     /**
      * Creates a new PreCompiler.
@@ -76,13 +77,13 @@ class HiTalkPreCompiler<T extends HtClause, P, Q> extends BaseMachine
     HiTalkPreCompiler ( SymbolTable <Integer, String, Object> symbolTable,
                         VariableAndFunctorInterner interner,
                         HiTalkDefaultBuiltIn defaultBuiltIn,
-                        Resolver <P, Q> resolver,
-                        IApplication app ) {
+                        Resolver <T, T> resolver,
+                        IApplication <T> app ) {
         super(symbolTable, interner);
 
         this.defaultBuiltIn = defaultBuiltIn;
         this.app = app;
-        builtInTransform = new HiTalkBuiltInTransform <>(defaultBuiltIn, app, resolver);//TODO GLOBAL CTX NEEDED!!
+        builtInTransform = new HiTalkBuiltInTransform(defaultBuiltIn, app, resolver);//TODO GLOBAL CTX NEEDED!!
 
     }
 
@@ -97,7 +98,7 @@ class HiTalkPreCompiler<T extends HtClause, P, Q> extends BaseMachine
      * @param clauses
      */
     protected abstract
-    void saveResult ( List <Q> clauses );
+    void saveResult ( List <T> clauses );
 
     /**
      * @param t
@@ -108,10 +109,10 @@ class HiTalkPreCompiler<T extends HtClause, P, Q> extends BaseMachine
 
     /**
      * {@inheritDoc}
+     * @param observer
      */
     public
-    void setCompilerObserver ( LogicCompilerObserver <P, Q> observer ) {
-        this.observer = observer;
+    void setCompilerObserver ( LogicCompilerObserver <T, T> observer ) {
     }
 
     /**
@@ -167,7 +168,7 @@ class HiTalkPreCompiler<T extends HtClause, P, Q> extends BaseMachine
     }
 
     public
-    LogicCompilerObserver <P, Q> getObserver () {
+    LogicCompilerObserver <HtPredicate, T> getObserver () {
         return observer;
     }
 }

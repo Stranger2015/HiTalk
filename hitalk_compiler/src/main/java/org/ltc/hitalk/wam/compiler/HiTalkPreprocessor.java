@@ -5,6 +5,7 @@ import com.thesett.aima.logic.fol.*;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.bktables.Flag;
+import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
@@ -23,17 +24,18 @@ import java.util.List;
  *
  */
 public
-class HiTalkPreprocessor<T extends HtClause, P, Q, TC extends Term, TT extends TransformTask <T, TC>>
-        extends HiTalkPreCompiler <T, P, Q> {
+class HiTalkPreprocessor<T extends HtClause, TC extends Term, TT extends TransformTask <T, TC>>
+        extends HiTalkPreCompiler <T> {
 
     protected final DefaultTransformer <T, TC> defaultTransformer;
     protected final HiTalkDefaultBuiltIn defaultBuiltIn;
     //    protected final HiTalkBuiltInTransform builtInTransform;
     protected final List <TT> components = new ArrayList <>();
     //    protected final Function <TC, List <TC>> defaultAction;
-    protected Resolver <P, Q> resolver;
-    protected LogicCompilerObserver <P, Q> observer;
-    protected List <Q> preCompiledTarget;
+    protected Resolver <T, T> resolver;
+    protected LogicCompilerObserver <T, T> observer;
+    protected List <T> preCompiledTarget;
+    protected HtPrologParser <T> parser;
 
     /**
      * {@inheritDoc}
@@ -56,8 +58,8 @@ class HiTalkPreprocessor<T extends HtClause, P, Q, TC extends Term, TT extends T
     HiTalkPreprocessor ( SymbolTable <Integer, String, Object> symbolTable,
                          VariableAndFunctorInterner interner,
                          HiTalkDefaultBuiltIn defaultBuiltIn,
-                         Resolver <P, Q> resolver,
-                         HiTalkCompilerApp <T, P, Q> app )
+                         Resolver <T, T> resolver,
+                         HiTalkCompilerApp <T, HtPredicate, T> app )
             throws LinkageException {
 
         super(symbolTable, interner, defaultBuiltIn, resolver, app);
@@ -78,7 +80,7 @@ class HiTalkPreprocessor<T extends HtClause, P, Q, TC extends Term, TT extends T
 //                return null;
 //            }
 //        };
-        for (Q t : preCompiledTarget) {
+        for (T t : preCompiledTarget) {
             resolver.setQuery(t);
             resolver.resolve();
         }
@@ -95,7 +97,7 @@ class HiTalkPreprocessor<T extends HtClause, P, Q, TC extends Term, TT extends T
      */
     @Override
     protected
-    void saveResult ( List <Q> clauses ) {
+    void saveResult ( List <T> clauses ) {
         preCompiledTarget = clauses;
     }
 
@@ -125,7 +127,7 @@ class HiTalkPreprocessor<T extends HtClause, P, Q, TC extends Term, TT extends T
      */
     @Override
     public
-    void setCompilerObserver ( LogicCompilerObserver <P, Q> observer ) {
+    void setCompilerObserver ( LogicCompilerObserver <T, T> observer ) {
         this.observer = observer;
     }
 
@@ -171,8 +173,8 @@ class HiTalkPreprocessor<T extends HtClause, P, Q, TC extends Term, TT extends T
      */
     @Override
     public
-    HtPrologParser getParser () {
-        return null;
+    HtPrologParser <T> getParser () {
+        return parser;
     }
 
     /**
@@ -218,7 +220,7 @@ class HiTalkPreprocessor<T extends HtClause, P, Q, TC extends Term, TT extends T
      */
     @Override
     public
-    void setResolver ( Resolver <P, Q> resolver ) {
+    void setResolver ( Resolver <T, T> resolver ) {
         this.resolver = resolver;
     }
 }

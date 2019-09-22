@@ -21,12 +21,12 @@ import java.util.List;
  *
  */
 public
-class HiTalkAstCompiler<T extends HtClause, P, Q> extends HiLogAstCompiler <T, P, Q> implements ICompiler <T, P, Q> {
+class HiTalkAstCompiler<T extends HtClause, P, Q> /*extends HiLogAstCompiler <T, P, Q> */ implements ICompiler <T, P, Q> {
 
     protected final SymbolTable <Integer, String, Object> symbolTable;
     protected final HtPrologParser <T> parser;
     protected final VariableAndFunctorInterner interner;
-    protected Resolver <P, Q> resolver;
+    protected Resolver <T, Q> resolver;
     //    protected final DcgRuleExpander ruleExpander;
     protected static final Logger logger = LoggerFactory.getLogger(HiTalkAstCompiler.class);//  todo
     private LogicCompilerObserver <P, Q> observer;
@@ -99,7 +99,7 @@ class HiTalkAstCompiler<T extends HtClause, P, Q> extends HiLogAstCompiler <T, P
      */
     @Override
     public
-    void setResolver ( Resolver <P, Q> resolver ) {
+    void setResolver ( Resolver <T, Q> resolver ) {
         this.resolver = resolver;
     }
 
@@ -158,6 +158,7 @@ class HiTalkAstCompiler<T extends HtClause, P, Q> extends HiLogAstCompiler <T, P
     @Override
     public
     void setCompilerObserver ( LogicCompilerObserver <P, Q> observer ) {
+
         this.observer = observer;
     }
 

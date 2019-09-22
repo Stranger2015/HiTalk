@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module external.system.id="GRADLE" type="JAVA_MODULE" version="4">
+  <component name="ExternalSystem" linkedProjectPath="$MODULE_DIR$/../../hitalk_compiler" rootProjectPath="$MODULE_DIR$/../../hitalk_compiler" />
+  <component name="NewModuleRootManager">
+    <output url="file://$MODULE_DIR$/../../hitalk_compiler/production/module_a" />
+    <output-test url="file://$MODULE_DIR$/../../hitalk_compiler/test/module_a" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../hitalk_compiler/module_a" />
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="hitalk_compiler" exported="" />
+  </component>
+</module>

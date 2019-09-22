@@ -2,16 +2,19 @@ package org.ltc.hitalk.compiler.bktables;
 
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
-import com.thesett.aima.logic.fol.isoprologparser.TokenSource;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.core.IConfigurable;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.wam.compiler.HtTokenSource;
+
+import java.io.FileNotFoundException;
 
 /**
  *
  */
 public
-interface IApplication extends Runnable, IConfigurable {
+interface IApplication<T extends HtClause> extends Runnable, IConfigurable {
 
     /**
      * @return
@@ -24,7 +27,7 @@ interface IApplication extends Runnable, IConfigurable {
      *
      */
     default
-    void init () throws LinkageException {
+    void init () throws LinkageException, FileNotFoundException {
         banner();
         if (!isInited()) {
             doInit();
@@ -35,7 +38,7 @@ interface IApplication extends Runnable, IConfigurable {
      *
      */
     default
-    void clear () throws LinkageException {
+    void clear () throws LinkageException, FileNotFoundException {
         setInited(false);
         doClear();
     }
@@ -49,7 +52,7 @@ interface IApplication extends Runnable, IConfigurable {
      *
      */
     default
-    void reset () throws LinkageException {
+    void reset () throws LinkageException, FileNotFoundException {
         if (isInited()) {
             clear();
         }
@@ -60,7 +63,7 @@ interface IApplication extends Runnable, IConfigurable {
      * @param b
      */
     default
-    void setInited ( boolean b ) throws LinkageException {
+    void setInited ( boolean b ) throws LinkageException, FileNotFoundException {
         if (!isInited()) {
             init();
         }
@@ -77,7 +80,7 @@ interface IApplication extends Runnable, IConfigurable {
     /**
      *
      */
-    void doInit () throws LinkageException;
+    void doInit () throws LinkageException, FileNotFoundException;
 
     /**
      *
@@ -210,20 +213,24 @@ interface IApplication extends Runnable, IConfigurable {
     /**
      * @param parser
      */
-    void setParser ( HtPrologParser parser );
+    void setParser ( HtPrologParser <T> parser );
 
     /**
      * @return
      */
-    HtPrologParser getParser ();
+    HtPrologParser <T> getParser ();
 
     /**
      * @param fileName
      */
     void setFileName ( String fileName );
 
+    String getFileName ();
+
     /**
      * @param tokenSource
      */
-    void setTokenSource ( TokenSource tokenSource );
+    void setTokenSource ( HtTokenSource tokenSource );
+
+    HtTokenSource getTokenSource ();
 }

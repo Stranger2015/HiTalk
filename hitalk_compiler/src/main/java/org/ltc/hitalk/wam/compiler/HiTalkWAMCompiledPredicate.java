@@ -26,6 +26,7 @@ import com.thesett.common.util.SizeableLinkedList;
 import com.thesett.common.util.SizeableList;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtPredicateDefinition;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
 import org.ltc.hitalk.wam.machine.HiTalkWAMResolvingMachine;
 
@@ -144,7 +145,7 @@ class HiTalkWAMCompiledPredicate
      * @param instructions A list of instructions to add to the definition.
      */
     public
-    void addInstructions ( HtPredicateDefinition <HiTalkWAMCompiledClause> definition,
+    void addInstructions ( HtPredicateDefinition <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledClause> definition,
                            SizeableList <HiTalkWAMInstruction> instructions ) {
 //        int oldLength=0;
 

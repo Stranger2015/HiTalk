@@ -11,11 +11,11 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Gradle: org.codehaus.groovy:groovy-all:2.3.11" level="project" />
-    <orderEntry type="library" name="com.thesett:wam_prolog:0.9.117" level="project" />
-    <orderEntry type="library" name="org.slf4j:slf4j-simple:1.7.2" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.commons:commons-vfs2:2.2" level="project" />
-    <orderEntry type="library" name="commons-lang3-3.9" level="project" />
-    <orderEntry type="library" name="annotations-17.0.0" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: org.codehaus.groovy:groovy-all:2.3.11" level="project" />
+    <orderEntry type="library" exported="" name="org.slf4j:slf4j-simple:1.7.2" level="project" />
+    <orderEntry type="library" exported="" name="Maven: org.apache.commons:commons-vfs2:2.2" level="project" />
+    <orderEntry type="library" exported="" name="commons-lang3-3.9" level="project" />
+    <orderEntry type="library" exported="" name="com.thesett:wam_prolog:0.9.117" level="project" />
+    <orderEntry type="library" exported="" name="annotations-17.0.0" level="project" />
   </component>
 </module>

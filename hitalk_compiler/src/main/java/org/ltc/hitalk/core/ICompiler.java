@@ -144,5 +144,5 @@ interface ICompiler<T extends HtClause, P, Q> extends LogicCompiler <T, P, Q> {
     /**
      * @param resolver
      */
-    void setResolver ( Resolver <P, Q> resolver );
+    void setResolver ( Resolver <T, Q> resolver );
 }

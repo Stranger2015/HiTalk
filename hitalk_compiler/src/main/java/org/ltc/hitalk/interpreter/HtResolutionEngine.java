@@ -69,7 +69,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser <T>
     /**
      * Holds the observer for compiler outputs.
      */
-    protected HtResolutionEngine <T, P, Q>.ChainedCompilerObserver chainedObserver =
+    protected HtResolutionEngine.ChainedCompilerObserver chainedObserver =
             new ChainedCompilerObserver();
 
     protected Q currentQuery;
@@ -87,7 +87,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser <T>
                          VariableAndFunctorInterner interner,
                          ICompiler <T, P, Q> compiler ) {
         super(parser.getTokenSource(), interner);
-        this.compiler = compiler;
+        this.compiler = compiler;//fixme NPE
         compiler.setCompilerObserver(chainedObserver);
     }
 
@@ -342,13 +342,28 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser <T>
     void compile ( Sentence <T> sentence ) throws SourceCodeException {
         compiler.compile(sentence.getT());
     }
+//
+//    /**
+//     * {@inheritDoc}
+//     */
+//    public
+//    void addToDomain ( T term ) throws LinkageException {
+////        resolver.addToDomain(term);
+//    }
 
     /**
-     * {@inheritDoc}
+     * Adds the specified construction to the domain of resolution searched by this resolver.
+     *
+     * @param term The term to add to the domain.
+     * @throws LinkageException If the term to add to the domain, cannot be added to it, because it depends on the
+     *                          existance of other clauses which are not in the domain. Implementations may elect to
+     *                          raise this as an error at the time the clauses are added to the domain, or during
+     *                          resolution, or simply to fail to find a resolution.
      */
+    @Override
     public
     void addToDomain ( P term ) throws LinkageException {
-//        resolver.addToDomain(term);
+
     }
 
     /**
@@ -467,7 +482,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser <T>
      */
     @Override
     public
-    void setResolver ( Resolver <P, Q> resolver ) {
+    void setResolver ( Resolver <T, Q> resolver ) {
 
     }
 
@@ -478,11 +493,11 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser <T>
      * <p/>If a chained observer is set up, all compiler outputs are forwarded onto it.
      */
     private
-    class ChainedCompilerObserver implements LogicCompilerObserver <P, Q> {
+    class ChainedCompilerObserver implements LogicCompilerObserver <T, Q> {
         /**
          * Holds the chained observer for compiler outputs.
          */
-        private LogicCompilerObserver <P, Q> observer;
+        private LogicCompilerObserver <T, Q> observer;
 
         /**
          * Sets the chained observer for compiler outputs.
@@ -490,20 +505,36 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser <T>
          * @param observer The chained observer.
          */
         public
-        void setCompilerObserver ( LogicCompilerObserver <P, Q> observer ) {
+        void setCompilerObserver ( LogicCompilerObserver <T, Q> observer ) {
             this.observer = observer;
         }
 
+//        /**
+//         * {@inheritDoc}
+//         */
+//        public
+//        void onCompilation ( Sentence <P> sentence ) throws SourceCodeException {
+//            if (observer != null) {
+//                observer.onCompilation(sentence);
+//            }
+//
+//            HtResolutionEngine.this.addToDomain(sentence.getT());
+//        }
+
         /**
-         * {@inheritDoc}
+         * Accepts notification of the completion of the compilation of a sentence into a (binary) form.
+         *
+         * @param sentence The compiled form of the sentence.
+         * @throws SourceCodeException If there is an error in the compiled code that prevents its further processing.
          */
+        @Override
         public
-        void onCompilation ( Sentence <P> sentence ) throws SourceCodeException {
+        void onCompilation ( Sentence <T> sentence ) throws SourceCodeException {
             if (observer != null) {
                 observer.onCompilation(sentence);
             }
 
-            HtResolutionEngine.this.addToDomain(sentence.getT());
+            HtResolutionEngine.this.addToDomain((P) sentence.getT());//fixme
         }
 
         /**

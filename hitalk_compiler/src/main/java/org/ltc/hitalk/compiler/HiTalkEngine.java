@@ -1,6 +1,7 @@
 package org.ltc.hitalk.compiler;
 
 
+import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.compiler.bktables.Flag;
@@ -29,7 +30,7 @@ class HiTalkEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P, Q
                    VariableAndFunctorInterner interner,
                    ICompiler <T, P, Q> compiler ) {
         super(parser, interner, compiler);
-        compiler.setResolver(this);
+        compiler.setResolver((Resolver <T, Q>) this);
     }
 
     /**

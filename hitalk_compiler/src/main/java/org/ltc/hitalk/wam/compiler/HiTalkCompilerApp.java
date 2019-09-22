@@ -2,24 +2,31 @@ package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.*;
 import com.thesett.common.parsing.SourceCodeException;
+import com.thesett.common.util.doublemaps.SymbolTableImpl;
 import org.ltc.hitalk.ITermFactory;
+import org.ltc.hitalk.compiler.HiTalkBuiltInTransform;
 import org.ltc.hitalk.compiler.bktables.*;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.BaseApplication;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
+import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.context.CompilationContext;
 import org.ltc.hitalk.entities.context.Context;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.LoadContext;
+import org.ltc.hitalk.interpreter.HtResolutionEngine;
+import org.ltc.hitalk.parser.HiTalkParser;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.machine.HiTalkWAMEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -120,6 +127,7 @@ import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISS
  * it starts loading the file. If another thread is already loading the file, the thread blocks until the other thread
  * finishes loading the file. After waiting, and if the file is a module file, it will make the public predicates
  * available.
+ *
  * <p>
  * Note that this schema does not prevent deadlocks under all situations. Consider two mutually dependent (see section
  * 4.3.2.1) module files A and B, where thread 1 starts loading A and thread 2 starts loading B at the same time.
@@ -179,7 +187,7 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
     /**
      * Holds the instruction generating compiler.
      */
-    protected ICompiler <T, P, Q> instructionCompiler;
+//    protected ICompiler <T, P, Q> instructionCompiler;
     protected String scratchDirectory;
     //
 //    private  BookKeepingTables bkt = new BookKeepingTables();
@@ -187,46 +195,48 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
     protected CompilationContext compilationContext;
     protected LoadContext loadContext;
     protected ExecutionContext executionContext;
-    protected LogicCompilerObserver <P, Q> instructionCompilerObserver;
-    protected LogicCompilerObserver <P, Q> preCompilerObserver;
+    protected LogicCompilerObserver <T, Q> instructionCompilerObserver;
+    protected LogicCompilerObserver <T, T> preCompilerObserver;
 
     /**
      * Holds the pre-compiler, for analyzing and transforming terms prior to compilation proper.
      */
-    protected ICompiler <T, P, Q> preCompiler;
+    protected ICompiler <T, HtPredicate, T> preCompiler;
     protected String fileName;
+    /**
+     *
+     */
     protected IConfig config;
-    //    protected HiTalkCompilerApp app;
 
-    protected HtPrologParser parser;
-    protected Resolver <P, Q> resolver;
-
-//    public
-//    HiTalkCompilerApp ( SymbolTable <Integer, String, Object> symbolTable,
-//                        VariableAndFunctorInterner interner,
-//                        HtPrologParser parser,
-//                        ICompiler <T, P, Q> compiler,
-//                        HiTalkDefaultBuiltIn defaultBuiltIn ) throws LinkageException {
-//        super(parser, interner, compiler);
-//
-//        init();
-//
-//
-//    }
+    protected HtPrologParser <T> parser;
+    protected Resolver <T, Q> resolver;
+    protected Resolver <T, T> resolver2;
+    private HiTalkDefaultBuiltIn defaultBuiltIn;
+    private HiTalkBuiltInTransform <HiTalkCompilerApp, T> builtInTransform;
 
     public
-    HiTalkCompilerApp () throws LinkageException {
-        init();
+    Resolver <T, T> getResolver2 () {
+        return resolver2;
+    }
+
+    public
+    void setResolver2 ( Resolver <T, T> resolver2 ) {
+        this.resolver2 = resolver2;
+    }
+
+    public
+    HiTalkCompilerApp ( String fileName ) throws LinkageException, FileNotFoundException {
+        setFileName(fileName);
     }
 
     public static
     void main ( String[] args ) {
         try {
-            IApplication application = new HiTalkCompilerApp <>();
-            application.setFileName(args[0]);
+            IApplication <HtClause> application = new HiTalkCompilerApp <>(args[0]);
             application.init();
             application.start();
         } catch (Exception e) {
+            e.getStackTrace();
             throw new ExecutionError(PERMISSION_ERROR, null);
         }
     }
@@ -1143,8 +1153,6 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
     }
 
     //=================================================================================
-
-
     /**
      * loads all built-in entities if not already loaded (when embedding
      * Logtalk, the pre-compiled entities are loaded prior to this file)
@@ -1234,7 +1242,7 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
      */
 //    @Override
     public
-    void setCompilerObserver ( LogicCompilerObserver <P, Q> observer ) {
+    void setCompilerObserver ( LogicCompilerObserver <T, Q> observer ) {
         this.instructionCompilerObserver = observer;
     }
 
@@ -1254,7 +1262,7 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
      */
     //    @Override
     public
-    ICompiler <T, P, Q> getPreCompiler () {
+    ICompiler <T, HtPredicate, T> getPreCompiler () {
         return preCompiler;
     }
 
@@ -1263,21 +1271,27 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
      */
     @Override
     public
-    void doInit () throws LinkageException {
-//        SymbolTable <Integer, String, Object> symbolTable = (SymbolTable <Integer, String, Object>) stdParams.get(SYMBOL_TABLE);
-//       VariableAndFunctorInterner interner = (VariableAndFunctorInterner) stdParams.get(INTERNER);
-//        HiTalkDefaultBuiltIn         defaultBuiltIn= (HiTalkDefaultBuiltIn) stdParams.get(DEFAULT_BUILTIN);
-//                resolver,
+    void doInit () throws LinkageException, FileNotFoundException {
+        setSymbolTable(new SymbolTableImpl <>());
+        setInterner(new VariableAndFunctorInternerImpl(
+                "HiTalk_Variable_NameSpace",
+                "HiTalk_Functor_NameSpace"));
+        setParser(new HiTalkParser <>(HtTokenSource.getTokenSourceForFile(new File(getFileName())), interner));
+        setConfig(new CompilerConfig());
+        setDefaultBuiltIn(new HiTalkDefaultBuiltIn(symbolTable, interner));
+        setResolver(new HtResolutionEngine(getParser(), getInterner(), getInstructionCompiler()));
+        setResolver2(new HtResolutionEngine(getParser(), getInterner(), getPreCompiler()));
+        setBuiltInTransform(new HiTalkBuiltInTransform(defaultBuiltIn, this, getResolver2()));
+        ICompiler <T, HtPredicate, T> preCompiler = new HiTalkPreprocessor(getSymbolTable(), getInterner(), getDefaultBuiltIn(), getResolver2(), this);
+        setPreCompiler(preCompiler);
+        ICompiler <T, P, Q> instructionCompiler = (ICompiler <T, P, Q>) new HiTalkInstructionCompiler(
+                getSymbolTable(),
+                getInterner(),
+                new HiTalkDefaultBuiltIn(getSymbolTable(), getInterner()));
+        setInstructionCompiler(instructionCompiler);
+        getPreCompiler().setCompilerObserver(new ClauseChainObserver <>(getPreCompiler()));
+        getInstructionCompiler().setCompilerObserver(new ChainedCompilerObserver <>());
 
-//        Resolver <P, Q> resolver =
-//                new HtResolutionEngine <>(parser, interner, compiler);
-
-        preCompiler = new HiTalkPreprocessor(symbolTable, interner, defaultBuiltIn, resolver, this);
-        instructionCompiler = compiler;
-        preCompilerObserver = new ClauseChainObserver(instructionCompiler);
-        preCompiler.setCompilerObserver(preCompilerObserver);
-        instructionCompilerObserver = new ChainedCompilerObserver();
-        instructionCompiler.setCompilerObserver(instructionCompilerObserver);
         scratchDirectory = ".\\" + DEFAULT_SCRATCH_DIRECTORY;
 
         tf = new TermFactory(interner);
@@ -1311,6 +1325,11 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
         executionContext = new ExecutionContext();
 
         super.doInit();
+    }
+
+    public
+    void setPreCompiler ( ICompiler <T, HtPredicate, T> preCompiler ) {
+        this.preCompiler = preCompiler;
     }
 
     /**
@@ -1355,30 +1374,45 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
         return executionContext;
     }
 
-//    /**
-//     * @return
-//     */
-//    @Override
-//    public
-//    Logger getConsole () {
-//        return null;
-//    }
+    public
+    void setResolver ( Resolver <T, Q> resolver ) {
+        this.resolver = resolver;
+    }
 
+    public
+    Resolver <T, Q> getResolver () {
+        return resolver;
+    }
 
-//    /**
-//     * @param resolver
-//     */
-//    @Override
-//    public
-//    void setResolver ( Resolver <P, Q> resolver ) {
-//        this.resolver = resolver;
-//    }
-//
-//    public
-//    Resolver <P, Q> getResolver () {
-//        return resolver;
-//    }
-//}
+    public
+    void setDefaultBuiltIn ( HiTalkDefaultBuiltIn defaultBuiltIn ) {
+        this.defaultBuiltIn = defaultBuiltIn;
+    }
+
+    public
+    HiTalkDefaultBuiltIn getDefaultBuiltIn () {
+        return defaultBuiltIn;
+    }
+
+    public
+    void setBuiltInTransform ( HiTalkBuiltInTransform <HiTalkCompilerApp, T> builtInTransform ) {
+        this.builtInTransform = builtInTransform;
+    }
+
+    public
+    HiTalkBuiltInTransform <HiTalkCompilerApp, T> getBuiltInTransform () {
+        return builtInTransform;
+    }
+
+    public
+    void setParser ( HiTalkParser <T> parser ) {
+        this.parser = parser;
+    }
+
+    public
+    HtPrologParser <T> getParser () {
+        return parser;
+    }
 
     /**
      * public
@@ -1451,19 +1485,6 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
 
             getResolver().addToDomain(sentence.getT());
         }
-
-//    /**
-//     * {@inheritDoc}
-//     */
-//    @Override
-//    public
-//    void onQueryCompilation ( Sentence <Q> sentence ) throws SourceCodeException {
-//        if (observer != null) {
-//            observer.onQueryCompilation(sentence);
-//        }
-//
-//        getResolver().setQuery(sentence.getT());
-//    }
 
         /**
          * @return

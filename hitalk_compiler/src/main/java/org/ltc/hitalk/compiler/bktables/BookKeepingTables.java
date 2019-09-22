@@ -28,7 +28,7 @@ class BookKeepingTables<R extends Record> implements IRegistry <R> {
     private final List <BkTable <R>> tables;
 //    private final BiConsumer <Functor, R>[] actions = new BiConsumer[TAB_LENGTH];
 
-    private IRegistry <R> registry = new BkTable <R>();
+    private IRegistry <R> registry = new BkTable <>();
 
     /**
      *

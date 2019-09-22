@@ -1,12 +1,7 @@
 package org.ltc.hitalk.interpreter;
 
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
-import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.core.BaseApplication;
-import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.HtPrologParser;
-import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
 
 /**
  *
@@ -16,36 +11,33 @@ class HiTalkAstInterpreterApp<T extends HtClause, P, Q> extends BaseApplication 
 
     /**
      *
+     * @param arg
      */
     public
-    HiTalkAstInterpreterApp () {
-
+    HiTalkAstInterpreterApp ( String arg ) {
+        setFileName(arg);
     }
 
-    /**
-     * @param symbolTable
-     * @param interner
-     * @param parser
-     * @param compiler
-     * @param defaultBuiltIn
-     */
-    public
-    HiTalkAstInterpreterApp ( SymbolTable <Integer, String, Object> symbolTable,
-                              VariableAndFunctorInterner interner,
-                              HtPrologParser parser,
-                              ICompiler <T, P, Q> compiler,
-                              HiTalkDefaultBuiltIn defaultBuiltIn ) {
-
-        this.symbolTable = symbolTable;
-        this.interner = interner;
-        this.parser = parser;
-        this.compiler = compiler;
-        this.defaultBuiltIn = defaultBuiltIn;
-    }
-
-    /**
-     * @return
-     */
+//    /**
+//     * @param symbolTable
+//     * @param interner
+//     * @param parser
+//     * @param compiler
+//     * @param defaultBuiltIn
+//     */
+//    public
+//    HiTalkAstInterpreterApp ( SymbolTable <Integer, String, Object> symbolTable,
+//                              VariableAndFunctorInterner interner,
+//                              HtPrologParser<T> parser,
+//                              ICompiler <T, P, Q> compiler,
+//                              HiTalkDefaultBuiltIn defaultBuiltIn ) {
+//
+//        this.symbolTable = symbolTable;
+//        this.interner = interner;
+//        this.parser = parser;
+//        this.compiler = compiler;
+//        this.defaultBuiltIn = defaultBuiltIn;
+//    }
 
     /**
      *
@@ -58,10 +50,10 @@ class HiTalkAstInterpreterApp<T extends HtClause, P, Q> extends BaseApplication 
 
     public static
     void main ( String[] args ) {
-        HiTalkAstInterpreterApp app = new HiTalkAstInterpreterApp();
+        HiTalkAstInterpreterApp app = new HiTalkAstInterpreterApp(args[0]);
         try {
-            app.setConfig(null);
-            app.setFileName(args[0]);
+//            app.setConfig(null);
+//            app.setFileName(args[0]);
             app.init();
             app.start();
         } catch (Exception e) {

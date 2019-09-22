@@ -94,7 +94,7 @@ class HtTermWalkers {
         positionalTraverser.setContextChangeVisitor(visitor);
         visitor.setPositionalTraverser(positionalTraverser);
 
-        return new TermWalker(new PostFixSearch <Term, Term>(), positionalTraverser, visitor);
+        return new TermWalker(new PostFixSearch <>(), positionalTraverser, visitor);
     }
 
     /**

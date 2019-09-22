@@ -84,7 +84,7 @@ class HtPredicate extends BaseTerm implements Term, IPropertyOwner {
      * @return All of the clauses that make up the getDefinition()  of the predicate.
      */
     public
-    HtPredicateDefinition getDefinition () {
+    HtPredicateDefinition/*<T,P,Q>*/ getDefinition () {
         return definition;
     }
 

@@ -17,7 +17,6 @@
 
  import com.thesett.aima.logic.fol.*;
  import com.thesett.aima.logic.fol.isoprologparser.Token;
- import com.thesett.aima.logic.fol.isoprologparser.TokenSource;
  import com.thesett.aima.logic.fol.wam.builtins.BuiltInFunctor;
  import com.thesett.common.parsing.SourceCodeException;
  import com.thesett.common.util.Function;
@@ -58,7 +57,7 @@
   * @author Rupert Smith
   */
  public
- class HiTalkBuiltInTransform<A extends IApplication, T, Q> implements Function <Functor, Functor> {
+ class HiTalkBuiltInTransform<A extends IApplication, T> implements Function <Functor, Functor> {
 
 //     public static final Pair EXTENDS_OBJECT = Pair.of(EXTENDS, OBJECT);
 //     public static final Pair EXTENDS_CATEGORY = Pair.of(EXTENDS, CATEGORY);
@@ -103,7 +102,7 @@
      protected final AtomicInteger objectCounter = new AtomicInteger(0);
      protected final AtomicInteger categoryCounter = new AtomicInteger(0);
      protected final AtomicInteger protocolCounter = new AtomicInteger(0);
-     protected final Resolver <T, Q> resolver;
+     protected final Resolver <HtPredicate, T> resolver;
 //IMPLEMENT BUILTINS AS THE CONSUMER
 
      /**
@@ -115,8 +114,7 @@
       * @param resolver
       */
      public
-     HiTalkBuiltInTransform ( HiTalkDefaultBuiltIn defaultBuiltIn, A app,
-                              Resolver <T, Q> resolver ) {
+     HiTalkBuiltInTransform ( HiTalkDefaultBuiltIn defaultBuiltIn, A app, Resolver <HtPredicate, T> resolver ) {
          this.defaultBuiltIn = defaultBuiltIn;
          interner = defaultBuiltIn.getInterner();
          this.resolver = resolver;
@@ -720,7 +718,7 @@
      boolean include_p ( Functor functor ) {
          try {
              Path path = expandSourceFileName((Functor) functor.getArgument(0));
-             TokenSource tokenSource = HtTokenSource.getTokenSourceForFile(path.toFile());//bof/eof
+             HtTokenSource tokenSource = HtTokenSource.getTokenSourceForFile(path.toFile());//bof/eof
              app.setTokenSource(tokenSource);
          } catch (FileNotFoundException fnfe) {
              throw new ExecutionError(EXISTENCE_ERROR, null);
@@ -1153,7 +1151,7 @@
      }
 
      public
-     Resolver <T, Q> getResolver () {
+     Resolver <HtPredicate, T> getResolver () {
          return resolver;
      }
 

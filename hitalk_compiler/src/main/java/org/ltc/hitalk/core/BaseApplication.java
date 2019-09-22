@@ -2,35 +2,73 @@ package org.ltc.hitalk.core;
 
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
-import com.thesett.aima.logic.fol.isoprologparser.TokenSource;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.compiler.bktables.IConfig;
+import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
+import org.ltc.hitalk.wam.compiler.HtTokenSource;
 
+import java.io.FileNotFoundException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  *
  */
 public abstract
-class BaseApplication<T extends HtClause, P, Q> implements IApplication {
+class BaseApplication<T extends HtClause, P, Q> implements IApplication <T> {//
+//    Сидоров Игорь Анатольевич (ИНН 500804331824)
+
 
     protected IConfig config;
     protected final AtomicBoolean initialized = new AtomicBoolean(false);
     protected final AtomicBoolean started = new AtomicBoolean(false);
     protected final AtomicBoolean paused = new AtomicBoolean(false);
 
-    protected /*final*/ SymbolTable <Integer, String, Object> symbolTable;
-    protected/* final*/ VariableAndFunctorInterner interner;
-    protected /*final*/ HtPrologParser parser;
-    protected /*final */ ICompiler <T, P, Q> compiler;
-    protected /*final*/ HiTalkDefaultBuiltIn defaultBuiltIn;
-    protected Runnable target;
-    private String fileName;
+    protected SymbolTable <Integer, String, Object> symbolTable;
+    protected VariableAndFunctorInterner interner;
+    protected HtPrologParser <T> parser;
+    protected ICompiler <T, P, Q> instructionCompiler;
 
+    protected ICompiler <T, HtPredicate, T> preCompiler;
+    protected HiTalkDefaultBuiltIn defaultBuiltIn;
+    protected Runnable target;
+    protected String fileName;
+
+    public
+    ICompiler <T, P, Q> getInstructionCompiler () {
+        return instructionCompiler;
+    }
+
+    public
+    void setInstructionCompiler ( ICompiler <T, P, Q> compiler ) {
+        this.instructionCompiler = compiler;
+    }
+
+    public
+    void setPreCompiler ( ICompiler <T, HtPredicate, T> preCompiler ) {
+        this.preCompiler = preCompiler;
+    }
+
+    public
+    HiTalkDefaultBuiltIn getDefaultBuiltIn () {
+        return defaultBuiltIn;
+    }
+
+    public
+    void setDefaultBuiltIn ( HiTalkDefaultBuiltIn defaultBuiltIn ) {
+        this.defaultBuiltIn = defaultBuiltIn;
+    }
+
+    /**
+     * @return
+     */
+    public
+    ICompiler <T, HtPredicate, T> getPreCompiler () {
+        return preCompiler;
+    }
 
     /**
      * @return
@@ -41,11 +79,17 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
         return config;
     }
 
+    /**
+     * @param config
+     */
     public
     void setConfig ( IConfig config ) {
         this.config = config;
     }
 
+    /**
+     *
+     */
     @Override
     public
     void doClear () {
@@ -63,7 +107,7 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
 
     @Override
     public
-    void setInited ( boolean b ) throws LinkageException {
+    void setInited ( boolean b ) throws LinkageException, FileNotFoundException {
         if (b && !isInited()) {
             init();
         }
@@ -74,7 +118,7 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
      */
     @Override
     public
-    void doInit () throws LinkageException {
+    void doInit () throws LinkageException, FileNotFoundException {
         initialized.set(true);
     }
 
@@ -205,7 +249,7 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
      */
     @Override
     public
-    HtPrologParser getParser () {
+    HtPrologParser <T> getParser () {
         return parser;
     }
 
@@ -214,7 +258,7 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
      */
     @Override
     public
-    void setParser ( HtPrologParser parser ) {
+    void setParser ( HtPrologParser <T> parser ) {
         this.parser = parser;
     }
 
@@ -232,15 +276,27 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
      */
     @Override
     public
-    void setTokenSource ( TokenSource tokenSource ) {
+    void setTokenSource ( HtTokenSource tokenSource ) {
         parser.setTokenSource(tokenSource);
     }
 
+    @Override
+    public
+    HtTokenSource getTokenSource () {
+        return parser.getTokenSource();
+    }
+
+    /**
+     * @param target
+     */
     public
     void setTarget ( Runnable target ) {
         this.target = target;
     }
 
+    /**
+     * @return
+     */
     public
     String getFileName () {
         return fileName;
