@@ -16,9 +16,7 @@
  package org.ltc.hitalk.compiler;
 
  import com.thesett.aima.logic.fol.*;
- import com.thesett.aima.logic.fol.isoprologparser.Token;
  import com.thesett.aima.logic.fol.wam.builtins.BuiltInFunctor;
- import com.thesett.common.parsing.SourceCodeException;
  import com.thesett.common.util.Function;
  import org.ltc.hitalk.compiler.bktables.IApplication;
  import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
@@ -28,10 +26,9 @@
  import org.ltc.hitalk.term.io.HiTalkStream;
  import org.ltc.hitalk.wam.compiler.DirectiveClause;
  import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
+ import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiler;
  import org.ltc.hitalk.wam.compiler.HtFunctor;
- import org.ltc.hitalk.wam.compiler.HtTokenSource;
 
- import java.io.FileNotFoundException;
  import java.io.IOException;
  import java.nio.file.Path;
  import java.nio.file.Paths;
@@ -42,7 +39,6 @@
  import static org.ltc.hitalk.core.BuiltIns.ENCODING;
  import static org.ltc.hitalk.entities.IRelation.*;
  import static org.ltc.hitalk.parser.HtPrologParser.BEGIN_OF_FILE;
- import static org.ltc.hitalk.parser.HtPrologParser.END_OF_FILE;
 
  /**
   * BuiltInTransform implements a compilation transformation over term syntax trees, that substitutes for functors that
@@ -91,7 +87,6 @@
       */
      protected final HiTalkDefaultBuiltIn defaultBuiltIn;
      protected final VariableAndFunctorInterner interner;
-     protected final A app;
 
      ///////////////////////////
      private HtEntityIdentifier entityCompiling;
@@ -102,6 +97,7 @@
      protected final AtomicInteger objectCounter = new AtomicInteger(0);
      protected final AtomicInteger categoryCounter = new AtomicInteger(0);
      protected final AtomicInteger protocolCounter = new AtomicInteger(0);
+     protected final HiTalkWAMCompiler compiler;
      protected final Resolver <HtPredicate, T> resolver;
 //IMPLEMENT BUILTINS AS THE CONSUMER
 
@@ -110,15 +106,15 @@
       * implementations.
       *
       * @param defaultBuiltIn The default built in, for standard compilation and interners and symbol tables.
-      * @param app
+      * @param compiler
       * @param resolver
       */
      public
-     HiTalkBuiltInTransform ( HiTalkDefaultBuiltIn defaultBuiltIn, A app, Resolver <HtPredicate, T> resolver ) {
+     HiTalkBuiltInTransform ( HiTalkDefaultBuiltIn defaultBuiltIn, HiTalkWAMCompiler compiler, Resolver <HtPredicate, T> resolver ) {
          this.defaultBuiltIn = defaultBuiltIn;
          interner = defaultBuiltIn.getInterner();
+         this.compiler = compiler;
          this.resolver = resolver;
-         this.app = app;
          defineBuiltIns();
 
 
@@ -440,23 +436,23 @@
      private
      boolean read_p ( Functor functor ) {
 //         parser = (HtPrologParser) getParser();
-         try {
-             Term term = app.getParser().termSentence();
-             String name = interner.getFunctorName((Functor) term);
-             while (!name.equals(END_OF_FILE)) {
-                 if (BEGIN_OF_FILE.equals(name)) {
-                     term = app.getParser().term();
-                     if (isEncodingDirective((Functor) term)) {//run directive
-                         Token token = app.getParser().lastToken();
-                         app.getParser().getTokenSource().setOffset(token.endLine, token.endColumn);
-                         lastTerm = term;
-                     }
-                 }
-             }
-             lastTerm = term;
-         } catch (SourceCodeException e) {
-             throw new ExecutionError(PERMISSION_ERROR, null);
-         }
+//         try {
+//             Term term = app.getParser().termSentence();
+//             String name = interner.getFunctorName((Functor) term);
+//             while (!name.equals(END_OF_FILE)) {
+//                 if (BEGIN_OF_FILE.equals(name)) {
+//                     term = app.getParser().term();
+//                     if (isEncodingDirective((Functor) term)) {//run directive
+//                         Token token = app.getParser().lastToken();
+//                         app.getParser().getTokenSource().setOffset(token.endLine, token.endColumn);
+//                         lastTerm = term;
+//                     }
+//                 }
+//             }
+//             lastTerm = term;
+//         } catch (SourceCodeException e) {
+//             throw new ExecutionError(PERMISSION_ERROR, null);
+//         }
          return false;
      }
 //    List <T> clauses = preprocess(sentence.getT());
@@ -681,8 +677,8 @@
 
      private
      boolean encoding_p ( Functor functor ) {
-         Token token = app.getParser().lastToken();
-         app.getParser().getTokenSource().setOffset(token.endLine, token.endColumn);
+//         Token token = /**/app.getParser().lastToken();
+//         app.getParser().getTokenSource().setOffset(token.endLine, token.endColumn);
 //         app.getParser().getTokenSource().setFileBeginPos(app.getParser().);
          lastTerm = new Functor(interner.internFunctorName(BEGIN_OF_FILE, 0), null);
          String encoding = String.valueOf(functor.getArgument(0));
@@ -716,13 +712,13 @@
 
      private
      boolean include_p ( Functor functor ) {
-         try {
-             Path path = expandSourceFileName((Functor) functor.getArgument(0));
-             HtTokenSource tokenSource = HtTokenSource.getTokenSourceForFile(path.toFile());//bof/eof
-             app.setTokenSource(tokenSource);
-         } catch (FileNotFoundException fnfe) {
-             throw new ExecutionError(EXISTENCE_ERROR, null);
-         }
+//         try {
+//             Path path = expandSourceFileName((Functor) functor.getArgument(0));
+//             HtTokenSource tokenSource = HtTokenSource.getTokenSourceForFile(path.toFile());//bof/eof
+//             app.setTokenSource(tokenSource);
+//         } catch (FileNotFoundException fnfe) {
+//             throw new ExecutionError(EXISTENCE_ERROR, null);
+//         }
 
          return true;
      }

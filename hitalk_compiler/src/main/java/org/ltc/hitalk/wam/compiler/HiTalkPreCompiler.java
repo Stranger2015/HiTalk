@@ -1,21 +1,3 @@
-package org.ltc.hitalk.wam.compiler;
-
-import com.thesett.aima.logic.fol.*;
-import com.thesett.aima.logic.fol.bytecode.BaseMachine;
-import com.thesett.aima.logic.fol.compiler.SymbolKeyTraverser;
-import com.thesett.aima.logic.fol.compiler.TermWalker;
-import com.thesett.aima.logic.fol.wam.TermWalkers;
-import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
-import com.thesett.common.parsing.SourceCodeException;
-import com.thesett.common.util.doublemaps.SymbolTable;
-import org.ltc.hitalk.compiler.HiTalkBuiltInTransform;
-import org.ltc.hitalk.compiler.bktables.IApplication;
-import org.ltc.hitalk.core.ICompiler;
-import org.ltc.hitalk.entities.HtPredicate;
-import org.ltc.hitalk.parser.HtClause;
-
-import java.util.List;
-
 /*
  * Copyright The Sett Ltd, 2005 to 2014.
  *
@@ -31,6 +13,25 @@ import java.util.List;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.ltc.hitalk.wam.compiler;
+
+import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.bytecode.BaseMachine;
+import com.thesett.aima.logic.fol.compiler.SymbolKeyTraverser;
+import com.thesett.aima.logic.fol.compiler.TermWalker;
+import com.thesett.aima.logic.fol.wam.TermWalkers;
+import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
+import com.thesett.common.parsing.SourceCodeException;
+import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.HiTalkBuiltInTransform;
+import org.ltc.hitalk.compiler.bktables.IApplication;
+import org.ltc.hitalk.core.ICompiler;
+import org.ltc.hitalk.entities.HtPredicate;
+import org.ltc.hitalk.parser.HtClause;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * PreCompiler transforms clauses for compilation, substituting built-ins for any built-ins in the source expressions to
@@ -44,27 +45,27 @@ import java.util.List;
  * @author Rupert Smith
  */
 abstract public
-class HiTalkPreCompiler<T extends HtClause> extends BaseMachine
-        implements ICompiler <T, T, T> {
+class HiTalkPreCompiler extends BaseMachine
+        implements ICompiler <HtClause, HtClause, HtClause> {
 
     //Used for debugging.
-//    private final Logger log = LoggerFactory.getLogger(getClass());
+    protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     /**
      * Holds the default built in, for standard compilation and interners and symbol tables.
      */
     protected final HiTalkDefaultBuiltIn defaultBuiltIn;
-    protected final IApplication <T> app;
+    private final HiTalkWAMCompiler compiler;
 
     /**
      * Holds the built in transformation.
      */
-    protected final HiTalkBuiltInTransform <IApplication <T>, T> builtInTransform;
+    protected final HiTalkBuiltInTransform <IApplication <HtClause>, HtClause> builtInTransform;
 
     /**
      * Holds the compiler output observer.
      */
-    protected LogicCompilerObserver <HtPredicate, T> observer;
+    protected LogicCompilerObserver <HtPredicate, HtClause> observer;
 
     /**
      * Creates a new PreCompiler.
@@ -77,13 +78,13 @@ class HiTalkPreCompiler<T extends HtClause> extends BaseMachine
     HiTalkPreCompiler ( SymbolTable <Integer, String, Object> symbolTable,
                         VariableAndFunctorInterner interner,
                         HiTalkDefaultBuiltIn defaultBuiltIn,
-                        Resolver <T, T> resolver,
-                        IApplication <T> app ) {
+                        Resolver <HtClause, HtClause> resolver,
+                        HiTalkWAMCompiler compiler ) {
         super(symbolTable, interner);
 
         this.defaultBuiltIn = defaultBuiltIn;
-        this.app = app;
-        builtInTransform = new HiTalkBuiltInTransform(defaultBuiltIn, app, resolver);//TODO GLOBAL CTX NEEDED!!
+        this.compiler = compiler;
+        builtInTransform = new HiTalkBuiltInTransform(defaultBuiltIn, compiler, resolver);//TODO GLOBAL CTX NEEDED!!
 
     }
 
@@ -91,29 +92,21 @@ class HiTalkPreCompiler<T extends HtClause> extends BaseMachine
      * {@inheritDoc}
      */
     public abstract
-    void compile ( Sentence <T> sentence ) throws SourceCodeException;
+    void compile ( Sentence <HtClause> sentence ) throws SourceCodeException;
 
 
     /**
      * @param clauses
      */
     protected abstract
-    void saveResult ( List <T> clauses );
+    void saveResult ( List <HtClause> clauses );
 
     /**
      * @param t
      * @return
      */
     protected abstract
-    List <T> preprocess ( T t );
-
-    /**
-     * {@inheritDoc}
-     * @param observer
-     */
-    public
-    void setCompilerObserver ( LogicCompilerObserver <T, T> observer ) {
-    }
+    List <HtClause> preprocess ( HtClause t );
 
     /**
      * {@inheritDoc}
@@ -168,8 +161,13 @@ class HiTalkPreCompiler<T extends HtClause> extends BaseMachine
     }
 
     public
-    LogicCompilerObserver <HtPredicate, T> getObserver () {
+    LogicCompilerObserver <HtPredicate, HtClause> getObserver () {
         return observer;
+    }
+
+    public
+    LogicCompilerObserver <HtClause, HtClause> getCompilerObserver ( HiTalkWAMCompiler.ClauseChainObserver clauseChainObserver ) {
+        return null;
     }
 }
 

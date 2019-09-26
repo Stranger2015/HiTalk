@@ -9,55 +9,58 @@ import java.util.List;
  *
  */
 public
-class BkTable<R extends Record> implements IRegistry <R> {
+class BkTable<R extends Record> extends ArrayList <R> {//implements IRegistry <R>  {
+    private final BookKeepingTables bkt;
+
+    public
+    BkTable ( BookKeepingTables bkt ) {
+        this.bkt = bkt;
+    }
+
     /**
      * @param id
      * @return
      */
     public
     boolean isRegistered ( int id ) {
-        return getById(id) != -1;
+        return false; //getById(id) != -1;
     }
 
-    /**
-     * @param identifiable
-     * @return
-     */
-    @Override
-    public
-    int register ( R identifiable ) {
-        add(identifiable);
-        return identifiable.getId();
-    }
+//    /**
+//     * @param identifiable
+//     * @return
+//     */
+////    @Override
+//    public
+//    int register ( R identifiable ) {
+//        add(identifiable);
+//        return identifiable.getId();
+//    }
 
-    /**
-     * @param id
-     * @return
-     */
-    @Override
-    public
-    int getById ( int id ) {
-        return -1;
-    }
-
-    @Override
-    public
-    List <R> select ( BkTableKind kind ) {
-        return select(kind, null);
-    }
+//    /**
+//     * @param id
+//     * @return
+//     */
+//    @Override
+//    public
+//    R getByIdf ( int id ) {
+//        return get(id);
+//    }
 
     /**
      * @param r
+     * @return
      */
     @Override
     public
-    void add ( R r ) {
-        if (!isRegistered(r.getId())) {
-            register(r);
+    boolean add ( R r ) {
+        if (!contains(r.getId())) {//todo
+            //register(r);
         }
+        return false;
     }
 
-    @Override
+    //    @Override
     public
     void save ( R r ) {
 
@@ -68,19 +71,29 @@ class BkTable<R extends Record> implements IRegistry <R> {
      * @param r
      * @return
      */
-    @Override
+//    @Override
     public
     List <R> select ( BkTableKind kind, R r ) {
-        BookKeepingTables bkt = new BookKeepingTables();
-        List <R> rs = this.select(kind);
+//        BookKeepingTables bkt = new BookKeepingTables();
+//        List <R> rs = this.select(kind);
         List <R> list = new ArrayList <>();
 
-        for (R record : rs) {
+        for (R record : this) {
             if (r == null || r.equals(record)) {
                 list.add(record);
             }
         }
 
         return list;
+    }
+
+    public
+    BookKeepingTables getBkt () {
+        return bkt;
+    }
+
+    public
+    R selectOne ( BkTableKind tableKind, R rec ) {
+        return null;
     }
 }

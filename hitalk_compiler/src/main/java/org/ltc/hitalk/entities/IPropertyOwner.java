@@ -7,7 +7,7 @@ import org.ltc.hitalk.compiler.bktables.Flag;
  *
  */
 public
-interface IPropertyOwner {
+interface IPropertyOwner<I> {
 
     /**
      * @return

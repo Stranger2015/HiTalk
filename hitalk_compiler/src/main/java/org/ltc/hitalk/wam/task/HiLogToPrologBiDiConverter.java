@@ -134,8 +134,8 @@ class HiLogToPrologBiDiConverter {
     }
 
     public
-    void setUnify ( boolean unif ) {
-        this.unify = unif;
+    void setUnify ( boolean unify ) {
+        this.unify = unify;
     }
 
     public

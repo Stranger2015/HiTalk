@@ -11,7 +11,6 @@ import org.ltc.hitalk.parser.HiTalkParser;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.HtTokenSource;
-import org.slf4j.Logger;
 
 import java.io.InputStream;
 import java.util.Objects;
@@ -50,7 +49,7 @@ class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P
      * @param compiler
      */
     public
-    HiTalkWAMEngine ( HtPrologParser parser,
+    HiTalkWAMEngine ( HtPrologParser <T> parser,
                       VariableAndFunctorInterner interner,
                       ICompiler <T, P, Q> compiler ) {
         super(parser, interner, compiler);
@@ -83,19 +82,19 @@ class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P
         HtTokenSource tokenSource = getTokenSourceForInputStream(Objects.requireNonNull(input));
 
         // Set up a parser on the token source.
-        HtPrologParser libParser = new HiTalkParser(tokenSource, interner);
+        HtPrologParser <T> libParser = new HiTalkParser <>(tokenSource, interner);
         libParser.setTokenSource(tokenSource);
 
         // Load the built-ins into the domain.
         try {
             while (true) {
-                Sentence <HtClause> sentence = libParser.parse();
+                Sentence <T> sentence = libParser.parse();
 
                 if (sentence == null) {
                     break;
                 }
 
-                compiler.compile((HtClause) sentence);
+                compiler.compile(sentence.getT());
             }
 
             compiler.endScope();
@@ -109,15 +108,6 @@ class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P
     protected
     void cleanupDomain () {
 
-    }
-
-    /**
-     * @return
-     */
-    @Override
-    public
-    Logger getConsole () {
-        return null;
     }
 
     /**

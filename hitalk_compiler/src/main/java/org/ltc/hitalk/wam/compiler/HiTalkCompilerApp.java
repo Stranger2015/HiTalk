@@ -1,3 +1,4 @@
+
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.*;
@@ -17,23 +18,24 @@ import org.ltc.hitalk.entities.context.CompilationContext;
 import org.ltc.hitalk.entities.context.Context;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.LoadContext;
-import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.parser.HiTalkParser;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
-import org.ltc.hitalk.wam.machine.HiTalkWAMEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.ltc.hitalk.compiler.bktables.BkTableKind.LOADED_ENTITIES;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
+import static org.ltc.hitalk.wam.compiler.HtTokenSource.getTokenSourceForFile;
+import static org.ltc.hitalk.wam.compiler.HtTokenSource.getTokenSourceForInputStream;
 
 /**
  * Reloading files, active code and threads
@@ -136,10 +138,10 @@ import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISS
  * The current implementation does not detect such cases and the involved threads will freeze.
  * This problem can be avoided if a mutually dependent collection of files is always loaded from the same start file.
  */
+public
 class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P, Q> {
 
     public static final String DEFAULT_SCRATCH_DIRECTORY = "scratch";
-    HiTalkWAMEngine <T, P, Q> super0;
 
     /**
      * <code>access(Access)</code>,  where <code>Access</code> can be either <code>read_write (the default) or
@@ -152,7 +154,6 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
      * When the <code>type/1 option is not specified, the type of the flag is inferred
      * from its initial value.
      */
-    //    public final Flag[] DEFAULT_FLAGS;
     public final HtProperty[] DEFAULT_PROPS = new HtProperty[0];
     //library entity names
     public HtEntityIdentifier EXPANDING;
@@ -170,11 +171,11 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
     public Functor END_CATEGORY;
     public Functor END_PROTOCOL;
 
+
     /**
      * Used for logging to the console.
      */
-    private static Logger console = LoggerFactory.getLogger(HiTalkCompilerApp.class);
-
+    protected final Logger console = LoggerFactory.getLogger(getClass().getSimpleName());
     protected boolean compiling;
     protected boolean compilingEntity;
     /**
@@ -187,42 +188,52 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
     /**
      * Holds the instruction generating compiler.
      */
-//    protected ICompiler <T, P, Q> instructionCompiler;
     protected String scratchDirectory;
+    private HiTalkWAMCompiler compiler;
+    private LogicCompilerObserver <T, Q> observer;
+
+    /**
+     * @return
+     */
+    public
+    BookKeepingTables getBkt () {
+        return bkt;
+    }
+
     //
-//    private  BookKeepingTables bkt = new BookKeepingTables();
-    protected IRegistry <BkLoadedEntities> registry = new BookKeepingTables <>();
+    protected BookKeepingTables bkt = new BookKeepingTables();
+    //    protected IRegistry <BkLoadedEntities> registry = new BookKeepingTables ();//fixme
     protected CompilationContext compilationContext;
     protected LoadContext loadContext;
     protected ExecutionContext executionContext;
-    protected LogicCompilerObserver <T, Q> instructionCompilerObserver;
-    protected LogicCompilerObserver <T, T> preCompilerObserver;
+//    protected LogicCompilerObserver <T, Q> instructionCompilerObserver;
+//    protected LogicCompilerObserver <T, T> preCompilerObserver;
 
     /**
      * Holds the pre-compiler, for analyzing and transforming terms prior to compilation proper.
      */
-    protected ICompiler <T, HtPredicate, T> preCompiler;
+//    protected ICompiler <T, HtPredicate, T> preCompiler;
     protected String fileName;
     /**
      *
      */
     protected IConfig config;
 
-    protected HtPrologParser <T> parser;
-    protected Resolver <T, Q> resolver;
-    protected Resolver <T, T> resolver2;
-    private HiTalkDefaultBuiltIn defaultBuiltIn;
-    private HiTalkBuiltInTransform <HiTalkCompilerApp, T> builtInTransform;
-
-    public
-    Resolver <T, T> getResolver2 () {
-        return resolver2;
-    }
-
-    public
-    void setResolver2 ( Resolver <T, T> resolver2 ) {
-        this.resolver2 = resolver2;
-    }
+    //    protected HtPrologParser <T> parser;
+//    protected Resolver <T, Q> resolver;
+//    protected Resolver <T, T> resolver2;
+    protected HiTalkDefaultBuiltIn defaultBuiltIn;
+    protected HiTalkBuiltInTransform <HiTalkCompilerApp, T> builtInTransform;
+//
+//    public
+//    Resolver <T, T> getResolver2 () {
+//        return resolver2;
+//    }
+//
+//    public
+//    void setResolver2 ( Resolver <T, T> resolver2 ) {
+//        this.resolver2 = resolver2;
+//    }
 
     public
     HiTalkCompilerApp ( String fileName ) throws LinkageException, FileNotFoundException {
@@ -236,7 +247,7 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
             application.init();
             application.start();
         } catch (Exception e) {
-            e.getStackTrace();
+            e.printStackTrace();
             throw new ExecutionError(PERMISSION_ERROR, null);
         }
     }
@@ -276,6 +287,7 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
     /**
      *
      */
+    protected
     void initialize () throws Exception {
         initBookKeepingTables();
         initDirectives();
@@ -299,9 +311,16 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
     }
 
     protected
-    Object loadSettingsFile ( String scratchDir ) {
-        logtalkCompile("startup.pl");
+    Object loadSettingsFile ( String scratchDir ) throws IOException, SourceCodeException {
+        InputStream input = ClassLoader.getSystemResourceAsStream("startup.pl");
+        logtalkCompile(input);
         return null;
+    }
+
+    private
+    void logtalkCompile ( InputStream input ) throws FileNotFoundException {
+        HtTokenSource tokenSource = getTokenSourceForInputStream(input);
+        compiler.compile(tokenSource);
     }
 
     /**
@@ -314,16 +333,15 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
     protected
     void loadBuiltInEntity ( HtEntityIdentifier identifier, String fileName, String scratchDir )
             throws Exception {
-        List <BkLoadedEntities> rs = registry.select(LOADED_ENTITIES, new BkLoadedEntities(identifier));
+        List rs = bkt.select(LOADED_ENTITIES);
         if (rs.isEmpty()) {
-//            loadContext.setFlags(createFlags(scratchDir));
             loadContext.setProps(createProps(scratchDir));
-            compileLoad(fileName, loadContext);
-            registry.add(new BkLoadedEntities(identifier));
+//            compileLoad(fileName, loadContext);
+            bkt.add(new BkLoadedEntities(identifier));
         }
     }
 
-    private
+    protected
     HtProperty[] createProps ( String scratchDir ) {
         return new HtProperty[0];
     }
@@ -347,40 +365,34 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
                 tf.createFlag("reload", "skip")
         };
     }
-
-    /**
-     * @param fileNames
-     * @param context
-     * @throws IOException
-     * @throws SourceCodeException
-     */
-    public
-    void compileLoad ( List <String> fileNames, LoadContext context ) throws Exception {
-        for (String fileName : fileNames) {
-            context.reset();
-            compileLoad(fileName, context);
-        }
-    }
-
-    /**
-     * @param fileName
-     * @param context
-     * @throws IOException
-     * @throws SourceCodeException
-     */
-    public
-    void compileLoad ( String fileName, LoadContext context ) throws Exception {
-        compileFile(fileName, context);
-        loadFile(fileName, context);//bytecode
-    }
-
-    public //todo read_files
-    void loadFiles ( List <String> fileNames, LoadContext context ) throws Exception {
-        for (String s : fileNames) {
-            context.reset();
-            loadFile(s, context);
-        }
-    }
+//
+//    /**
+//     * @param fileNames
+//     * @param context
+//     * @throws IOException
+//     * @throws SourceCodeException
+//     */
+//    public
+//    void compileLoad ( List <String> fileNames, LoadContext context ) throws Exception {
+//        for (String fileName : fileNames) {
+//            context.reset();
+//            compileLoad(fileName, context);
+//        }
+//    }
+//
+//    public
+//    void compileLoad ( String fileName, LoadContext context ) throws Exception {
+////        compileFile(fileName, context);
+//        loadFile(fileName, context);//bytecode
+//    }
+//
+//    public //todo read_files
+//    void loadFiles ( List <String> fileNames, LoadContext context ) throws Exception {
+//        for (String s : fileNames) {
+//            context.reset();
+//            loadFile(s, context);
+//        }
+//    }
 
     /**
      * load_files(:Files, +Options)
@@ -451,25 +463,22 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
      * @param fileName
      * @param context
      */
-    public//todo readFIles??
-    void loadFile ( String fileName, LoadContext context ) throws Exception {
-        compileFile(fileName, context);
-//        String baseName = context.get(LoadContext.Kind.Loading.BASENAME);
-        loadTargetFile(fileName, context);
-    }
-
-    protected
-    void loadTargetFile ( String targetFile, LoadContext context ) {
-
-    }
-
-    protected
-    void compileFile ( String fileName, LoadContext context ) throws Exception {
-//        // Set up a parser on the token source.
-//        parser = new HiTalkParser(tokenSource, interner);
+//    public//todo readFIles??
+//    void loadFile ( String fileName, LoadContext context ) throws Exception {
+//        compileFile(fileName, context);
+////        String baseName = context.get(LoadContext.Kind.Loading.BASENAME);
+//        loadTargetFile(fileName, context);
+//    }
 //
-//        compiler.endScope();
-    }
+////    protected
+//    void loadTargetFile ( String targetFile, LoadContext context ) {
+//
+//    }
+//
+//    protected
+//    void compileFile ( String fileName, LoadContext context ) throws Exception {
+////        compileLoad(fileName, context);
+//    }
 
 
     /**
@@ -950,9 +959,8 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
     void cacheCompilerFlags () {
 
     }
+
     //compiling and loading built-in predicates
-
-
     //CompilerFlag(+atom, ?nonvar)
 
     //gets/checks the current value of a compiler flag; the default flag
@@ -984,9 +992,16 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
      * @param fileName
      */
     public
-    void logtalkCompile ( String fileName ) {
+    void logtalkCompile ( String fileName ) throws IOException, SourceCodeException {
+        compiler.compileFile(fileName, executionContext.getFlags());
 //         user, user, user, user, [], []
-        executionContext.getFlags();
+    }
+
+    public
+    void compile ( String fileName, Flag[] flags ) throws FileNotFoundException, LinkageException {
+        HtTokenSource ts = getTokenSourceForFile(new File(fileName));
+        setTokenSource(ts);
+        getPreCompiler().compile(ts);
 
     }
     //logtalkCompile(@list(sourceFile_name))
@@ -1153,12 +1168,15 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
     }
 
     //=================================================================================
+
     /**
      * loads all built-in entities if not already loaded (when embedding
      * Logtalk, the pre-compiled entities are loaded prior to this file)
      */
     protected
     String loadBuiltInEntities () throws Exception {
+        getLogger().info("Loading built-in entities");
+
         String scratchDir = getScratchDirectory();
         loadContext.reset();//TODO
         loadBuiltInEntity(EXPANDING, "expanding", scratchDir);
@@ -1243,28 +1261,36 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
 //    @Override
     public
     void setCompilerObserver ( LogicCompilerObserver <T, Q> observer ) {
-        this.instructionCompilerObserver = observer;
+        this.observer = observer;
     }
 
     /**
      * Signal the end of a compilation scope, to trigger completion of the compilation of its contents.
      *
-     * @throws SourceCodeException If there is an error in the source to be compiled that prevents its compilation.
      */
 //    @Override
     public
-    void endScope () throws SourceCodeException {
+    void endScope () {
 
     }
 
-    /**
-     * @return
-     */
-    //    @Override
-    public
-    ICompiler <T, HtPredicate, T> getPreCompiler () {
-        return preCompiler;
-    }
+//    /**
+//     * @return
+//     */
+//    //    @Override
+//    public
+//    ICompiler <T, HtPredicate, T> getPreCompiler () throws LinkageException {
+//        if (preCompiler == null) {
+//            preCompiler = new HiTalkPreprocessor(
+//                    getSymbolTable(),
+//                    getInterner(),
+//                    getDefaultBuiltIn(),
+//                    getResolver2(),
+//                    this);
+//        }
+//
+//        return preCompiler;
+//    }
 
     /**
      *
@@ -1272,25 +1298,19 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
     @Override
     public
     void doInit () throws LinkageException, FileNotFoundException {
+        getLogger().info("Initializing");
         setSymbolTable(new SymbolTableImpl <>());
-        setInterner(new VariableAndFunctorInternerImpl(
-                "HiTalk_Variable_NameSpace",
-                "HiTalk_Functor_NameSpace"));
-        setParser(new HiTalkParser <>(HtTokenSource.getTokenSourceForFile(new File(getFileName())), interner));
+        interner = new VariableAndFunctorInternerImpl(getNameSpace("Variable"), getNameSpace("Functor"));
+        compiler = new HiTalkWAMCompiler(symbolTable, interner, new HiTalkParser <>(getTokenSourceForInputStream(System.in),
+                interner));
+        bkt = new BookKeepingTables();
         setConfig(new CompilerConfig());
-        setDefaultBuiltIn(new HiTalkDefaultBuiltIn(symbolTable, interner));
-        setResolver(new HtResolutionEngine(getParser(), getInterner(), getInstructionCompiler()));
-        setResolver2(new HtResolutionEngine(getParser(), getInterner(), getPreCompiler()));
-        setBuiltInTransform(new HiTalkBuiltInTransform(defaultBuiltIn, this, getResolver2()));
-        ICompiler <T, HtPredicate, T> preCompiler = new HiTalkPreprocessor(getSymbolTable(), getInterner(), getDefaultBuiltIn(), getResolver2(), this);
-        setPreCompiler(preCompiler);
-        ICompiler <T, P, Q> instructionCompiler = (ICompiler <T, P, Q>) new HiTalkInstructionCompiler(
-                getSymbolTable(),
-                getInterner(),
-                new HiTalkDefaultBuiltIn(getSymbolTable(), getInterner()));
-        setInstructionCompiler(instructionCompiler);
-        getPreCompiler().setCompilerObserver(new ClauseChainObserver <>(getPreCompiler()));
-        getInstructionCompiler().setCompilerObserver(new ChainedCompilerObserver <>());
+//        setDefaultBuiltIn(new HiTalkDefaultBuiltIn(symbolTable, interner));
+//        setResolver(new HtResolutionEngine(getParser(), getInterner(), getInstructionCompiler()));
+//        setResolver2(new HtResolutionEngine(getParser(), getInterner(), getPreCompiler()));
+//        setBuiltInTransform(new HiTalkBuiltInTransform(defaultBuiltIn, this, getResolver2()));
+//        getInstructionCompiler().setCompilerObserver(new ChainedCompilerObserver ());
+//        getPreCompiler().setCompilerObserver(new ClauseChainObserver (getInstructionCompiler()));
 
         scratchDirectory = ".\\" + DEFAULT_SCRATCH_DIRECTORY;
 
@@ -1328,8 +1348,8 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
     }
 
     public
-    void setPreCompiler ( ICompiler <T, HtPredicate, T> preCompiler ) {
-        this.preCompiler = preCompiler;
+    String getNameSpace ( String funcOrVariable ) {
+        return String.format("%s_%s_Namespace", getParser().language(), funcOrVariable);
     }
 
     /**
@@ -1343,12 +1363,25 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
         return l;
     }
 
-    //======================================================================
-// remaining directives
+    /**
+     *
+     */
     @Override
     public
     void doStart () {
-        //fixme
+        getLogger().info("Starting");
+        setTarget(() -> {
+            try {
+                initialize();
+                compiler.compileFile(fileName, loadContext.getFlags());
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new ExecutionError(PERMISSION_ERROR, null);
+            }
+
+        });
+        getLogger().info("Running target");
+        getTarget().run();
     }
 
     /**
@@ -1359,10 +1392,10 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
     void banner () {
         super.banner();
 
-        String product = "HiTalk system";
+        String product = "HiTalk compiler";
         String version = "v0.1.0.b#";
-        int build = 0;
-        String copyright = "(c) Anton Danilov, 2018-2019, All rights reserved";
+        int build = 5;
+        String copyright = "(c) Anton Danilov 2018-2019, All rights reserved";
         System.out.printf("\n%s, %s%d, %s.\n", product, version, build, copyright);
     }
 
@@ -1372,16 +1405,6 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
     public
     ExecutionContext getExecutionContext () {
         return executionContext;
-    }
-
-    public
-    void setResolver ( Resolver <T, Q> resolver ) {
-        this.resolver = resolver;
-    }
-
-    public
-    Resolver <T, Q> getResolver () {
-        return resolver;
     }
 
     public
@@ -1411,6 +1434,9 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
 
     public
     HtPrologParser <T> getParser () {
+        if (parser == null) {
+            setParser(new HiTalkParser <>(getTokenSourceForInputStream(System.in), getInterner()));
+        }
         return parser;
     }
 
@@ -1418,7 +1444,7 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
      * public
      */
     public static
-    class ClauseChainObserver<T extends HtClause, P, Q> implements LogicCompilerObserver <P, Q> {
+    class ClauseChainObserver<T extends HtClause, P, Q> implements LogicCompilerObserver <T, Q> {
         protected ICompiler <T, P, Q> instructionCompiler;
 
         /**
@@ -1428,14 +1454,21 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
             this.instructionCompiler = instructionCompiler;
         }
 
-        /**
-         * {@inheritDoc}
-         *
-         * @param sentence
-         */
         public
-        void onCompilation ( Sentence <P> sentence ) throws SourceCodeException {
-            instructionCompiler.compile((HtClause) sentence);
+        ClauseChainObserver ( ICompiler <T, HtPredicate, T> preCompiler, ICompiler <T, P, Q> instructionCompiler ) {
+
+        }
+
+        /**
+         * Accepts notification of the completion of the compilation of a sentence into a (binary) form.
+         *
+         * @param sentence The compiled form of the sentence.
+         * @throws SourceCodeException If there is an error in the compiled code that prevents its further processing.
+         */
+        @Override
+        public
+        void onCompilation ( Sentence <T> sentence ) throws SourceCodeException {
+            instructionCompiler.compile(sentence.getT());
         }
 
         /**
@@ -1443,10 +1476,8 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
          */
         public
         void onQueryCompilation ( Sentence <Q> sentence ) throws SourceCodeException {
-            instructionCompiler.compile((HtClause) sentence);
+            instructionCompiler.compile((T) sentence.getT());
         }
-
-
     }
 
     /**
@@ -1456,12 +1487,12 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
      * <p/>If a chained observer is set up, all compiler outputs are forwarded onto it.
      */
     public static
-    class ChainedCompilerObserver<T extends HtClause, P, Q> implements LogicCompilerObserver <P, Q> {
+    class ChainedCompilerObserver<T extends HtClause, P, Q> implements LogicCompilerObserver <T, Q> {
         /**
          * Holds the chained observer for compiler outputs.
          */
-        protected LogicCompilerObserver <P, Q> observer;
-        protected Resolver <P, Q> resolver;
+        protected LogicCompilerObserver <T, Q> observer;
+        protected Resolver <T, Q> resolver;
 
         /**
          * Sets the chained observer for compiler outputs.
@@ -1469,7 +1500,7 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
          * @param observer The chained observer.
          */
         public
-        void setCompilerObserver ( LogicCompilerObserver <P, Q> observer ) {
+        void setCompilerObserver ( LogicCompilerObserver <T, Q> observer ) {
             this.observer = observer;
         }
 
@@ -1478,7 +1509,7 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
          */
         @Override
         public
-        void onCompilation ( Sentence <P> sentence ) throws SourceCodeException {
+        void onCompilation ( Sentence <T> sentence ) throws SourceCodeException {
             if (observer != null) {
                 observer.onCompilation(sentence);
             }
@@ -1490,7 +1521,7 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
          * @return
          */
         public
-        Resolver <P, Q> getResolver () {
+        Resolver <T, Q> getResolver () {
             return resolver;
         }
 
@@ -1498,7 +1529,7 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
          * @param resolver
          */
         public
-        void setResolver ( Resolver <P, Q> resolver ) {
+        void setResolver ( Resolver <T, Q> resolver ) {
             this.resolver = resolver;
         }
 

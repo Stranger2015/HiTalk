@@ -3,13 +3,14 @@ package org.ltc.hitalk.compiler.bktables;
 import org.ltc.hitalk.compiler.bktables.db.Record;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
  * @param <R>
  */
 public
-class BookKeepingTables<R extends Record> implements IRegistry <R> {
+class BookKeepingTables<R extends Record, T extends BkTable <R>> extends LinkedList <T>/* IRegistry <T>*/ {
 
     private final static int TAB_LENGTH = BkTableKind.USER_DEFINED_FLAGS.ordinal() + 1;
 
@@ -19,6 +20,14 @@ class BookKeepingTables<R extends Record> implements IRegistry <R> {
      */
     public
     BkTable <R> getTable ( BkTableKind kind ) {
+        int index = kind.ordinal();
+        if (index >= tables.size()) {
+            BkTable <R> t = new BkTable <>(this);
+            tables.add(t);
+
+            return t;
+        }
+
         return tables.get(kind.ordinal());
     }
 
@@ -28,7 +37,7 @@ class BookKeepingTables<R extends Record> implements IRegistry <R> {
     private final List <BkTable <R>> tables;
 //    private final BiConsumer <Functor, R>[] actions = new BiConsumer[TAB_LENGTH];
 
-    private IRegistry <R> registry = new BkTable <>();
+//    private IRegistry <R> registry = new BkTable <>(this);
 
     /**
      *
@@ -38,77 +47,70 @@ class BookKeepingTables<R extends Record> implements IRegistry <R> {
         tables = new ArrayList <>();
     }
 
-    /**
-     * @param id
-     * @return
-     */
-    @Override
-    public
-    boolean isRegistered ( int id ) {
-        return registry.isRegistered(id);
-    }
+//    /**
+//     * @param id
+//     * @return
+//     */
+////    @Override
+//    public
+//    boolean isRegistered ( int id ) {
+//        return registry.isRegistered(id);
+//    }
+
+//    /**
+//     * @param identifiable
+//     * @return
+//     */
+////    @Override
+//    public
+//    int register ( T identifiable ) {
+//        return 0;
+//    }
 
     /**
      * @param identifiable
      * @return
      */
-    @Override
+//    @Override
     public
-    int register ( R identifiable ) {
-        return registry.register(identifiable);
+    int lookup ( R identifiable ) {
+        return 0;
     }
 
-    /**
-     * @param id
-     * @return
-     */
-    @Override
-    public
-    int getById ( int id ) {
-        return registry.getById(id);
-    }
-
-    /**
-     * @param kind
-     * @param pattern
-     * @return
-     */
-    @Override
-    public
-    List <R> select ( BkTableKind kind, R pattern ) {
-        return getTable(kind).select(kind, pattern);
-    }
-
-    @Override
-    public
-    List <R> select ( BkTableKind kind ) {
-        return getTable(kind).select(kind);
-    }
-
-    /**
-     * @param r
-     */
-    @Override
-    public
-    void add ( R r ) {
-
-
-    }
-
+    //
     //    @Override
     public
-    void add ( BkTableKind kind, R r ) {
-        getTable(kind).add(r);
+    List <R> select ( BkTableKind kind ) {
+        return getTable(kind).select(kind, null);
+    }
+
+//    /**
+//     * @param rs
+//     * @return
+//     */
+//    @Override
+//    public
+//    boolean add ( T rs ) {
+//        return false;
+//    }
+
+    /**
+     * @param tableKind
+     * @param rec
+     * @return
+     */
+//    @Override
+    public
+    R selectOne ( BkTableKind tableKind, R rec ) {
+        return getTable(tableKind).selectOne(tableKind, rec);
     }
 
     /**
-     * @param r
+     * @param rs
      */
-    @Override
+//    @Override
     public
-    void save ( R r ) {
-
+    void save ( BkTableKind tableKind, R rs ) {
+        getTable(tableKind).save(rs);
     }
 }
-
-

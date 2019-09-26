@@ -9,7 +9,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
 public
-class HiTalkReader extends InputStreamReader implements IPropertyOwner {
+class HiTalkReader extends InputStreamReader implements IPropertyOwner <I> {
     /**
      * Creates an InputStreamReader that uses the named charset.
      *

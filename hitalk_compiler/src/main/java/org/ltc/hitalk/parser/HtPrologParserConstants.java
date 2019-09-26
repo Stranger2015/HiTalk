@@ -43,7 +43,7 @@ interface HtPrologParserConstants {
     int WITHIN_COMMENT = 1;
 
     String[] tokenImage = {
-            "<EOF>",
+            "<EOF>",//0
             "\" \"",
             "\"\\t\"",
             "\"\\n\"",

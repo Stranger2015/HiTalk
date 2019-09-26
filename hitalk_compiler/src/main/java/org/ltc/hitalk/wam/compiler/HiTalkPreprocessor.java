@@ -24,18 +24,25 @@ import java.util.List;
  *
  */
 public
-class HiTalkPreprocessor<T extends HtClause, TC extends Term, TT extends TransformTask <T, TC>>
-        extends HiTalkPreCompiler <T> {
+class HiTalkPreprocessor<TC extends Term, TT extends TransformTask <HtClause, TC>>
+        extends HiTalkPreCompiler {
 
-    protected final DefaultTransformer <T, TC> defaultTransformer;
+    protected final DefaultTransformer <HtClause, TC> defaultTransformer;
     protected final HiTalkDefaultBuiltIn defaultBuiltIn;
     //    protected final HiTalkBuiltInTransform builtInTransform;
     protected final List <TT> components = new ArrayList <>();
     //    protected final Function <TC, List <TC>> defaultAction;
-    protected Resolver <T, T> resolver;
-    protected LogicCompilerObserver <T, T> observer;
-    protected List <T> preCompiledTarget;
-    protected HtPrologParser <T> parser;
+    protected Resolver <HtClause, HtClause> resolver;
+
+    @Override
+    public
+    LogicCompilerObserver <HtPredicate, HtClause> getObserver () {
+        return observer;
+    }
+
+    protected LogicCompilerObserver <HtPredicate, HtClause> observer;
+    protected List <HtClause> preCompiledTarget;
+    protected HtPrologParser <HtClause> parser;
 
     /**
      * {@inheritDoc}
@@ -44,7 +51,7 @@ class HiTalkPreprocessor<T extends HtClause, TC extends Term, TT extends Transfo
      */
     @Override
     public
-    void compile ( Sentence <T> sentence ) throws SourceCodeException {
+    void compile ( Sentence <HtClause> sentence ) throws SourceCodeException {
     }
 
     /**
@@ -58,17 +65,17 @@ class HiTalkPreprocessor<T extends HtClause, TC extends Term, TT extends Transfo
     HiTalkPreprocessor ( SymbolTable <Integer, String, Object> symbolTable,
                          VariableAndFunctorInterner interner,
                          HiTalkDefaultBuiltIn defaultBuiltIn,
-                         Resolver <T, T> resolver,
-                         HiTalkCompilerApp <T, HtPredicate, T> app )
+                         Resolver <HtClause, HtClause> resolver,
+                         HiTalkWAMCompiler compiler )
             throws LinkageException {
 
-        super(symbolTable, interner, defaultBuiltIn, resolver, app);
+        super(symbolTable, interner, defaultBuiltIn, resolver, compiler);
 
         this.defaultBuiltIn = defaultBuiltIn;
 //        this.builtInTransform = new HiTalkBuiltInTransform(defaultBuiltIn);
         this.resolver = resolver;
 
-        defaultTransformer = new DefaultTransformer <>((T) null);
+        defaultTransformer = new DefaultTransformer <>((HtClause) null);
 
 //        int i = interner.internFunctorName(BEGIN_OF_FILE, 0);
 //        Term target = new Functor(i, Atom.EMPTY_TERM_ARRAY);
@@ -80,16 +87,16 @@ class HiTalkPreprocessor<T extends HtClause, TC extends Term, TT extends Transfo
 //                return null;
 //            }
 //        };
-        for (T t : preCompiledTarget) {
-            resolver.setQuery(t);
-            resolver.resolve();
+        if (preCompiledTarget != null) {
+            for (HtClause t : preCompiledTarget) {
+                resolver.setQuery(t);
+                resolver.resolve();
+            }
         }
 
         components.add((TT) new DefaultTermExpander(preCompiledTarget, defaultTransformer));
         components.add((TT) new HiLogPreprocessor <>(null, defaultTransformer, interner));
         components.add((TT) new StandardPreprocessor(null, preCompiledTarget, defaultTransformer));
-//        components.add(new SuperCompiler(preCompiledTarget, defaultTransformer));
-
     }
 
     /**
@@ -97,7 +104,7 @@ class HiTalkPreprocessor<T extends HtClause, TC extends Term, TT extends Transfo
      */
     @Override
     protected
-    void saveResult ( List <T> clauses ) {
+    void saveResult ( List <HtClause> clauses ) {
         preCompiledTarget = clauses;
     }
 
@@ -106,10 +113,10 @@ class HiTalkPreprocessor<T extends HtClause, TC extends Term, TT extends Transfo
      * @return
      */
     protected
-    List <T> preprocess ( T t ) {
-        List <T> list = new ArrayList <>();
+    List <HtClause> preprocess ( HtClause t ) {
+        List <HtClause> list = new ArrayList <>();
 
-        for (TransformTask <T, TC> task : components) {
+        for (TransformTask <HtClause, TC> task : components) {
             list.addAll(task.invoke(t));
         }
         return list;
@@ -127,8 +134,8 @@ class HiTalkPreprocessor<T extends HtClause, TC extends Term, TT extends Transfo
      */
     @Override
     public
-    void setCompilerObserver ( LogicCompilerObserver <T, T> observer ) {
-        this.observer = observer;
+    void setCompilerObserver ( LogicCompilerObserver <HtClause, HtClause> observer ) {
+//        this.observer = observer;
     }
 
     /**
@@ -173,7 +180,7 @@ class HiTalkPreprocessor<T extends HtClause, TC extends Term, TT extends Transfo
      */
     @Override
     public
-    HtPrologParser <T> getParser () {
+    HtPrologParser <HtClause> getParser () {
         return parser;
     }
 
@@ -220,7 +227,7 @@ class HiTalkPreprocessor<T extends HtClause, TC extends Term, TT extends Transfo
      */
     @Override
     public
-    void setResolver ( Resolver <T, T> resolver ) {
+    void setResolver ( Resolver <HtClause, HtClause> resolver ) {
         this.resolver = resolver;
     }
 }

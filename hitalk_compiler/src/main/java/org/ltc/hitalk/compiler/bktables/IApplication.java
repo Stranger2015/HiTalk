@@ -7,6 +7,7 @@ import org.ltc.hitalk.core.IConfigurable;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.HtTokenSource;
+import org.slf4j.Logger;
 
 import java.io.FileNotFoundException;
 
@@ -15,6 +16,7 @@ import java.io.FileNotFoundException;
  */
 public
 interface IApplication<T extends HtClause> extends Runnable, IConfigurable {
+    Logger getLogger ();
 
     /**
      * @return
@@ -182,7 +184,7 @@ interface IApplication<T extends HtClause> extends Runnable, IConfigurable {
     /**
      *
      */
-    void doStart ();
+    void doStart () throws Exception;
 
     default
     void run () {

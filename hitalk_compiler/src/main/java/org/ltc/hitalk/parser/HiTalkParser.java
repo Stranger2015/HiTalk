@@ -11,20 +11,15 @@ import static com.thesett.aima.logic.fol.OpSymbol.Associativity.*;
  *
  */
 public
-class HiTalkParser<T extends HtClause> extends HiLogParser <T> {
-    /**
-     * Parses multiple sequential terms, and if more than one is encountered then the flat list of terms encountered
-     * must contain operators in order to be valid Prolog syntax. In that case the flat list of terms is passed to the
-     * {@link ( Term[])} method for 'deferred decision parsing' of dynamic operators.
-     *
-     * @return A single first order logic term.
-     * @throws SourceCodeException If the sequence of tokens does not form a valid syntactical construction as a first
-     *                             order logic term.
-     */
+class HiTalkParser<T extends HtClause> extends HtPrologParser <T> {
 
+    /**
+     * @return
+     */
+    @Override
     public
-    HiTalkParser ( VariableAndFunctorInterner interner ) {
-        super(null, interner);
+    String language () {
+        return "HiTalk";
     }
 
     /**
@@ -32,12 +27,12 @@ class HiTalkParser<T extends HtClause> extends HiLogParser <T> {
      * public
      * prolog parser on a token source to be parsed.
      *
-     * @param source
+     * @param tokenSource
      * @param interner The interner for variable and functor names.
      */
     public
-    HiTalkParser ( HtTokenSource source, VariableAndFunctorInterner interner ) {
-        super(source, interner);
+    HiTalkParser ( HtTokenSource tokenSource, VariableAndFunctorInterner interner ) {
+        super(tokenSource, interner);
     }
 
     //

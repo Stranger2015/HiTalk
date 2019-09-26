@@ -10,6 +10,8 @@ import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.HtTokenSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -18,9 +20,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  */
 public abstract
-class BaseApplication<T extends HtClause, P, Q> implements IApplication <T> {//
-//    Сидоров Игорь Анатольевич (ИНН 500804331824)
+class BaseApplication<T extends HtClause, P, Q> implements IApplication <T> {
 
+    protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     protected IConfig config;
     protected final AtomicBoolean initialized = new AtomicBoolean(false);
@@ -37,10 +39,16 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication <T> {//
     protected Runnable target;
     protected String fileName;
 
-    public
-    ICompiler <T, P, Q> getInstructionCompiler () {
-        return instructionCompiler;
-    }
+//    public
+//    ICompiler <T, P, Q> getInstructionCompiler () {
+//        if(instructionCompiler == null) {
+//           instructionCompiler= (ICompiler <T, P, Q>) new HiTalkInstructionCompiler(
+//                    getSymbolTable(),
+//                    getInterner(),
+//                    new HiTalkDefaultBuiltIn(getSymbolTable(), getInterner()));
+//        }
+//        return instructionCompiler;
+//    }
 
     public
     void setInstructionCompiler ( ICompiler <T, P, Q> compiler ) {
@@ -66,8 +74,14 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication <T> {//
      * @return
      */
     public
-    ICompiler <T, HtPredicate, T> getPreCompiler () {
+    ICompiler <T, HtPredicate, T> getPreCompiler () throws LinkageException {
         return preCompiler;
+    }
+
+    @Override
+    public final
+    Logger getLogger () {
+        return logger;
     }
 
     /**
@@ -193,15 +207,6 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication <T> {//
     State getState () {
         return null;
     }//todo
-//
-//    /**
-//     *
-//     */
-//    @Override
-//    public
-//    void doStart () {
-//
-//    }
 
     @Override
     public
@@ -283,7 +288,7 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication <T> {//
     @Override
     public
     HtTokenSource getTokenSource () {
-        return parser.getTokenSource();
+        return getParser().getTokenSource();
     }
 
     /**

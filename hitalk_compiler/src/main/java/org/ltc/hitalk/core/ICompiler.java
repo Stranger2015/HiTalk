@@ -5,6 +5,7 @@ import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.compiler.bktables.Flag;
+import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
@@ -13,10 +14,11 @@ import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
-import static com.thesett.aima.logic.fol.isoprologparser.TokenSource.*;
+import static com.thesett.aima.logic.fol.isoprologparser.TokenSource.getTokenSourceForFile;
+import static com.thesett.aima.logic.fol.isoprologparser.TokenSource.getTokenSourceForString;
+import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 
 /**
  * @param <T>
@@ -65,16 +67,10 @@ interface ICompiler<T extends HtClause, P, Q> extends LogicCompiler <T, P, Q> {
         compile((HtTokenSource) getTokenSourceForString(fn), flags);
     }
 
-    /**
-     * @param input
-     * @param flags
-     * @throws IOException
-     * @throws SourceCodeException
-     */
-    default
-    void compileInputStream ( InputStream input, Flag... flags ) throws IOException, SourceCodeException {
-        compile((HtTokenSource) getTokenSourceForInputStream(input), flags);
-    }
+//    default
+//    void compileInputStream ( InputStream input, Flag... flags ) throws IOException, SourceCodeException {
+//        compile((HtTokenSource) getTokenSourceForInputStream(input), flags);
+//    }
 
 //    /**
 //     * @param fn
@@ -95,6 +91,7 @@ interface ICompiler<T extends HtClause, P, Q> extends LogicCompiler <T, P, Q> {
      */
     default
     void compile ( HtTokenSource tokenSource, Flag... flags ) {
+        getConsole().info("Compiling" + tokenSource);
         getParser().setTokenSource(tokenSource);
         try {
             while (true) {
@@ -105,8 +102,8 @@ interface ICompiler<T extends HtClause, P, Q> extends LogicCompiler <T, P, Q> {
                 compile(sentence.getT(), flags);
             }
         } catch (Exception e) {
-//            getConsole().info(Level.SEVERE, e.getMessage(), e);
-            System.exit(1);//todo throw
+            e.printStackTrace();
+            throw new ExecutionError(PERMISSION_ERROR, null);
         }
     }
 
@@ -118,13 +115,13 @@ interface ICompiler<T extends HtClause, P, Q> extends LogicCompiler <T, P, Q> {
     /**
      * @return
      */
-    HtPrologParser getParser ();
+    HtPrologParser <T> getParser ();
 
     /**
      * @param clause
      * @throws SourceCodeException
      */
-    void compile ( HtClause clause, Flag... flags ) throws SourceCodeException;
+    void compile ( T clause, Flag... flags ) throws SourceCodeException;
 
     /**
      * @param rule
@@ -134,12 +131,12 @@ interface ICompiler<T extends HtClause, P, Q> extends LogicCompiler <T, P, Q> {
     /**
      * @param query
      */
-    void compileQuery ( HtClause query ) throws SourceCodeException;
+    void compileQuery ( Q query ) throws SourceCodeException;
 
     /**
      * @param clause
      */
-    void compileClause ( HtClause clause );
+    void compileClause ( T clause );
 
     /**
      * @param resolver

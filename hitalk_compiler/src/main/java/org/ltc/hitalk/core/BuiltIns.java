@@ -153,7 +153,6 @@ enum BuiltIns {
     ATOM_NUMBER("atom_number"),
     ;
     private final String name;
-//    private final Consumer<Functor> def;
 
     /**
      * @param name
@@ -163,6 +162,9 @@ enum BuiltIns {
 //        this.def = def;
     }
 
+    /**
+     * @return
+     */
     public
     String getName () {
         return name;

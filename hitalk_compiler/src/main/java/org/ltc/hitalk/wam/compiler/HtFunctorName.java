@@ -25,11 +25,11 @@ class HtFunctorName extends FunctorName implements IRangedArity {
     /**
      * @param name
      * @param arityMin
-     * @param arityDelta
+     * @param arityMax
      */
     public
-    HtFunctorName ( String name, int arityMin, int arityDelta ) {//delta arity byte or short
-        super(name, (arityMin & 0xfff0) | ((arityDelta >>> 8) & 0xffff));//
+    HtFunctorName ( String name, int arityMin, int arityMax ) {//delta arity byte or short
+        super(name, (arityMin & 0xfff0) | (((arityMax - arityMin) >>> 8) & 0xffff));//
     }
 
 //    /**

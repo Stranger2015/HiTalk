@@ -64,7 +64,8 @@ interface PrologAtoms {
     String BSLASH_SLASH = "\\/";
 
     String NIL = "[]";//arity 0 => ATOM
-    String CONS = "[|]";//arity 0-2: (), (|LIST OR VAR),(EL1 | TAIL OR VAR);
+    String CONS = "[|]";//;
+    String VBAR = "|";//arity 1-2: (), (|LIST OR VAR),(EL1 | TAIL OR VAR);
 
     String TRUE = "true";
     String FAIL = "fail";

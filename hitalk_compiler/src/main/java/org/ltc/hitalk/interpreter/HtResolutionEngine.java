@@ -50,7 +50,11 @@ public
 class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser <T>
         implements VariableAndFunctorInterner,
                    ICompiler <T, P, Q>,
-                   Resolver <P, Q> {
+                   Resolver <T, Q> {
+
+    protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
+
+
     /**
      * Holds the parser.
      */
@@ -69,12 +73,10 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser <T>
     /**
      * Holds the observer for compiler outputs.
      */
-    protected HtResolutionEngine.ChainedCompilerObserver chainedObserver =
-            new ChainedCompilerObserver();
+    protected ChainedCompilerObserver chainedObserver = new ChainedCompilerObserver();
 
     protected Q currentQuery;
     protected final List <Set <Variable>> vars = new ArrayList <>();
-    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
      * Creates a prolog parser using the specified interner.
@@ -86,7 +88,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser <T>
     HtResolutionEngine ( HtPrologParser <T> parser,
                          VariableAndFunctorInterner interner,
                          ICompiler <T, P, Q> compiler ) {
-        super(parser.getTokenSource(), interner);
+        super(parser, interner);
         this.compiler = compiler;//fixme NPE
         compiler.setCompilerObserver(chainedObserver);
     }
@@ -100,7 +102,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser <T>
      * Resets the engine to its default state. This will typically load any bootstrapping libraries of built-ins that
      * the engine requires, but otherwise set its domain to empty.
      */
-    public //abstract
+    public
     void reset () {
         //todo
     }
@@ -135,12 +137,12 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser <T>
     public
     void consultInputStream ( InputStream stream ) throws SourceCodeException {
         // Create a token source to read from the specified input stream.
-        Source <Token> tokenSource = HtTokenSource.getTokenSourceForInputStream(stream);
+        HtTokenSource tokenSource = HtTokenSource.getTokenSourceForInputStream(stream);
         getParser().setTokenSource(tokenSource);
 
         // Consult the type checking rules and add them to the knowledge base.
         while (true) {
-            Sentence <HtClause> sentence = getParser().parse();
+            Sentence <T> sentence = getParser().parse();
 
             if (sentence == null) {
                 break;
@@ -342,14 +344,6 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser <T>
     void compile ( Sentence <T> sentence ) throws SourceCodeException {
         compiler.compile(sentence.getT());
     }
-//
-//    /**
-//     * {@inheritDoc}
-//     */
-//    public
-//    void addToDomain ( T term ) throws LinkageException {
-////        resolver.addToDomain(term);
-//    }
 
     /**
      * Adds the specified construction to the domain of resolution searched by this resolver.
@@ -362,7 +356,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser <T>
      */
     @Override
     public
-    void addToDomain ( P term ) throws LinkageException {
+    void addToDomain ( T term ) throws LinkageException {
 
     }
 
@@ -392,7 +386,6 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser <T>
     Set <Variable> executeAndExtractBindings ( Q query ) {
         return null;
     }
-
 
     /**
      * {@inheritDoc}
@@ -464,6 +457,15 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser <T>
      */
     @Override
     public
+    void compileQuery ( Q query ) throws SourceCodeException {
+
+    }
+
+    /**
+     * @param query
+     */
+//    @Override
+    public
     void compileQuery ( HtClause query ) throws SourceCodeException {
 
     }
@@ -493,11 +495,11 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser <T>
      * <p/>If a chained observer is set up, all compiler outputs are forwarded onto it.
      */
     private
-    class ChainedCompilerObserver implements LogicCompilerObserver <T, Q> {
+    class ChainedCompilerObserver implements LogicCompilerObserver <P, Q> {
         /**
          * Holds the chained observer for compiler outputs.
          */
-        private LogicCompilerObserver <T, Q> observer;
+        private LogicCompilerObserver <P, Q> observer;
 
         /**
          * Sets the chained observer for compiler outputs.
@@ -505,21 +507,9 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser <T>
          * @param observer The chained observer.
          */
         public
-        void setCompilerObserver ( LogicCompilerObserver <T, Q> observer ) {
+        void setCompilerObserver ( LogicCompilerObserver <P, Q> observer ) {
             this.observer = observer;
         }
-
-//        /**
-//         * {@inheritDoc}
-//         */
-//        public
-//        void onCompilation ( Sentence <P> sentence ) throws SourceCodeException {
-//            if (observer != null) {
-//                observer.onCompilation(sentence);
-//            }
-//
-//            HtResolutionEngine.this.addToDomain(sentence.getT());
-//        }
 
         /**
          * Accepts notification of the completion of the compilation of a sentence into a (binary) form.
@@ -529,12 +519,12 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser <T>
          */
         @Override
         public
-        void onCompilation ( Sentence <T> sentence ) throws SourceCodeException {
+        void onCompilation ( Sentence <P> sentence ) throws SourceCodeException {
             if (observer != null) {
                 observer.onCompilation(sentence);
             }
 
-            HtResolutionEngine.this.addToDomain((P) sentence.getT());//fixme
+            HtResolutionEngine.this.addToDomain((T) sentence.getT());//fixme
         }
 
         /**

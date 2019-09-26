@@ -1,5 +1,7 @@
 package org.ltc.hitalk.interpreter;
 
+import com.thesett.aima.logic.fol.OpSymbol.Associativity;
+import com.thesett.aima.logic.fol.Parser;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.aima.logic.fol.isoprologparser.Token;
@@ -13,25 +15,16 @@ import org.ltc.hitalk.wam.compiler.HtTokenSource;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.RESOURCE_ERROR;
 
 public
-class InteractiveParser<T extends HtClause> extends HtPrologParser <T> {
+class InteractiveParser<T extends HtClause> implements Parser <T, Token> {
     protected HtPrologParser <T> parser;
     protected VariableAndFunctorInterner interner;
 
-    /**
-     * Builds a prolog parser on a token source to be parsed.
-     *
-     * @param tokenSource The token source to be parsed.
-     * @param interner    The interner for variable and functor names.
-     */
     public
-    InteractiveParser ( HtTokenSource tokenSource, VariableAndFunctorInterner interner ) {
-        super(tokenSource, interner);
-        parser = this;
+    InteractiveParser ( HtPrologParser <T> parser, VariableAndFunctorInterner interner ) {
+        this.parser = parser;
+        this.interner = interner;
     }
 
-    /**
-     *
-     */
     public
     InteractiveParser () {
         super();
@@ -59,30 +52,31 @@ class InteractiveParser<T extends HtClause> extends HtPrologParser <T> {
         try {
             return parser.parse();
         } catch (SourceCodeException e) {
+            e.printStackTrace();
             throw new ExecutionError(RESOURCE_ERROR, null);
         }
     }
-//
-//    /**
-//     * Sets up a custom operator symbol on the parser.
-//     *
-//     * @param operatorName  The name of the operator to create.
-//     * @param priority      The priority of the operator, zero unsets it.
-//     * @param associativity The operators associativity.
-//     */
-//    @Override
-//    public
-//    void setOperator ( String operatorName, int priority, Associativity associativity ) {
-//
-//    }
+
+    /**
+     * Sets up a custom operator symbol on the parser.
+     *
+     * @param operatorName  The name of the operator to create.
+     * @param priority      The priority of the operator, zero unsets it.
+     * @param associativity The operators associativity.
+     */
+    @Override
+    public
+    void setOperator ( String operatorName, int priority, Associativity associativity ) {
+
+    }
 
     public
-    void setParser ( HtPrologParser parser ) {
+    void setParser ( HtPrologParser <T> parser ) {
         this.parser = parser;
     }
 
     public
-    HtPrologParser getParser () {
+    HtPrologParser <T> getParser () {
         return parser;
     }
 }

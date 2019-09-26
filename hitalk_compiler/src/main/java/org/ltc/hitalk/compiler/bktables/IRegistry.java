@@ -30,14 +30,15 @@ interface IRegistry<R extends Record> {
         if (!isRegistered(identifiable.getId())) {
             return register(identifiable);
         }
-        return getById(identifiable.getId());
+//        return getById(identifiable.getId());
+        return -1;
     }
 
     /**
      * @param id
      * @return
      */
-    int getById ( int id );
+    R getById ( int id );
 
     /**
      * @param kind
@@ -46,16 +47,21 @@ interface IRegistry<R extends Record> {
      */
     List <R> select ( BkTableKind kind, R pattern );
 
+    default
+    List <R> select ( BkTableKind kind ) {
+        return select(kind, null);
+    }
+
     /**
      * @param kind
      * @return
      */
-    List <R> select ( BkTableKind kind );
 
     /**
      * @param r
+     * @return
      */
-    void add ( R r );
+    boolean add ( R r );
 
     /**
      * @param tableKind
@@ -68,18 +74,18 @@ interface IRegistry<R extends Record> {
     }
 
     /**
+     * @param tableKind
      * @param r
      */
-    void save ( R r );
+    void save ( BkTableKind tableKind, R r );
 
     /**
      * @param list
      */
     default
-    void save ( List <R> list ) {
+    void save ( BkTableKind tableKind, List <R> list ) {
         for (R r : list) {
-            save(r);
+            save(tableKind, r);
         }
     }
-
 }

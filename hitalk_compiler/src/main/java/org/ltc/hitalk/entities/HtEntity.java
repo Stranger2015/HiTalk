@@ -253,7 +253,7 @@ class HtEntity extends PropertyOwner implements INameable <Functor> {
             int[] array = relIndexes[kind.ordinal()];
             relIndexes[kind.ordinal()] = Arrays.copyOf(array, array.length + 1);
             relIndexes[kind.ordinal()][array.length] = idx;
-            BookKeepingTables <Record> tables = new BookKeepingTables <>();
+            BookKeepingTables <Record, BkTable <Record>> tables = new BookKeepingTables <>();
             BkTable <Record> table = tables.getTable(BkTableKind.ENTITY_RELATIONS);
         }
     }

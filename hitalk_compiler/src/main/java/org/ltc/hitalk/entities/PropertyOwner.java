@@ -4,7 +4,7 @@ package org.ltc.hitalk.entities;
  *
  */
 public abstract
-class PropertyOwner<T extends IProperty> implements IPropertyOwner {
+class PropertyOwner<T extends IProperty> implements IPropertyOwner <I> {
     private T[] props;
 
     /**

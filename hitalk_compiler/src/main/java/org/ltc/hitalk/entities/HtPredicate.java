@@ -54,7 +54,7 @@ import java.util.stream.IntStream;
  * specified line (if applicable)
  */
 public
-class HtPredicate extends BaseTerm implements Term, IPropertyOwner {
+class HtPredicate extends BaseTerm implements Term, IPropertyOwner <I> {
     /**
      * The clauses that make up this predicate.
      */

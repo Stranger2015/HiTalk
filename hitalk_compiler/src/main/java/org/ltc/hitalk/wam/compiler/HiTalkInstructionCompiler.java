@@ -210,7 +210,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
      * @param interner    The machine to translate functor and variable names.
      * @param defaultBuiltIn
      */
-    protected
+    public
     HiTalkInstructionCompiler ( SymbolTable <Integer, String, Object> symbolTable,
                                 VariableAndFunctorInterner interner,
                                 HiTalkDefaultBuiltIn defaultBuiltIn ) {
@@ -1052,6 +1052,15 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
 //    @Override
     public
     void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
+
+    }
+
+    /**
+     * @param query
+     */
+    @Override
+    public
+    void compileQuery ( HiTalkWAMCompiledQuery query ) throws SourceCodeException {
 
     }
 

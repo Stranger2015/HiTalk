@@ -25,8 +25,8 @@ class DefaultTransformer<T extends HtClause, TC extends Term> implements ITransf
     //
     protected ExecutionInfo executionInfo;
     protected ExecutionInfo executionInfoBefore;
-    protected final ITransformer <T, TC> transformer;
-    private TransformInfo <T> result;
+    protected ITransformer <T, TC> transformer;
+    protected TransformInfo <T> result;
 
     /**
      * @param term
@@ -34,7 +34,8 @@ class DefaultTransformer<T extends HtClause, TC extends Term> implements ITransf
     public
     DefaultTransformer ( T term ) {
         target = Collections.singletonList(term);
-        this.transformer = new <T>ZeroTransformer <T, TC>();//todo wtf??
+        transformer = this;
+//        this.transformer = new <T>ZeroTransformer <T, TC>();//todo wtf??
     }
 
     /**
