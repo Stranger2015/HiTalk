@@ -2,7 +2,9 @@
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.compiler.PositionalTermTraverser;
 import com.thesett.common.parsing.SourceCodeException;
+import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.common.util.doublemaps.SymbolTableImpl;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.HiTalkBuiltInTransform;
@@ -1543,6 +1545,63 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
         public
         void onQueryCompilation ( Sentence <Q> sentence ) throws SourceCodeException {
 
+        }
+    }
+
+    /**
+     *
+     */
+    public static
+    class HiTalkBuiltInTransformVisitor extends BasePositionalVisitor
+            implements PositionalTermVisitor {
+
+        private final HiTalkBuiltInTransform builtInTransform;
+
+        /**
+         * @param symbolTable
+         * @param interner
+         * @param termTraverser
+         * @param builtInTransform
+         */
+        public
+        HiTalkBuiltInTransformVisitor ( SymbolTable <Integer, String, Object> symbolTable,
+                                        VariableAndFunctorInterner interner,
+                                        PositionalTermTraverser termTraverser,
+                                        HiTalkBuiltInTransform builtInTransform ) {
+            super(interner, symbolTable, termTraverser);
+            this.builtInTransform = builtInTransform;
+        }
+
+
+        /**
+         * Sets up the positional term traverser used to traverse the term being visited, providing a positional context as
+         * it does so.
+         *
+         * @param traverser The positional term traverser used to traverse the term being visited.
+         */
+        @Override
+        public
+        void setPositionalTraverser ( PositionalTermTraverser traverser ) {
+            this.traverser = traverser;
+        }
+
+        /**
+         * Visits a term.
+         *
+         * @param term The term to visit.
+         */
+        @Override
+        public
+        void visit ( Term term ) {
+
+        }
+
+        /**
+         * @return
+         */
+        public
+        HiTalkBuiltInTransform getBuiltInTransform () {
+            return builtInTransform;
         }
     }
 }

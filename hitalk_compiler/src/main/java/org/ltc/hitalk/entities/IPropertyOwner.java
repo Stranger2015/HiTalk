@@ -3,6 +3,8 @@ package org.ltc.hitalk.entities;
 
 import org.ltc.hitalk.compiler.bktables.Flag;
 
+import java.beans.PropertyChangeEvent;
+
 /**
  *
  */
@@ -21,4 +23,14 @@ interface IPropertyOwner<I> {
      * @return
      */
     int getPropLength ();
+
+    /**
+     *
+     */
+    interface IPropertyChangeListener {
+        /**
+         * @param event
+         */
+        void onPropertyChanged ( PropertyChangeEvent event );
+    }
 }

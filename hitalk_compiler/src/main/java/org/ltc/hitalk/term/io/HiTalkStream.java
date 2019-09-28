@@ -1,27 +1,30 @@
 package org.ltc.hitalk.term.io;
 
-import com.sun.istack.internal.NotNull;
-import com.thesett.aima.logic.fol.isoprologparser.Token;
-import com.thesett.common.util.Source;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemManager;
+import org.apache.commons.vfs2.VFS;
+import org.ltc.hitalk.compiler.bktables.Flag;
 import org.ltc.hitalk.entities.IProperty;
 import org.ltc.hitalk.entities.IPropertyOwner;
-import sun.nio.cs.HistoricallyNamedCharset;
 import sun.nio.cs.StreamEncoder;
 
-import java.io.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.ReadOnlyBufferException;
 import java.nio.channels.*;
-import java.nio.charset.*;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
+import java.util.EnumSet;
 
 import static java.nio.charset.Charset.*;
 
 /**
- *
  * JAVA NIO: Channels Files etc
  * open(+SrcDest, +Mode, --Stream)
  * ===============================
@@ -32,65 +35,51 @@ import static java.nio.charset.Charset.*;
  * ByteBuffer newbb = charset.encode(cb);
  */
 public
-class HiTalkStream extends FileChannel implements SeekableByteChannel, IPropertyOwner <IProperty>, Source <Token> {
-    private final FileChannel fc;
+class HiTalkStream extends FileChannel implements IPropertyOwner <IProperty>, PropertyChangeListener {
+//    private final FileChannel channel;
+
     protected IProperty[] props;
     private ByteBuffer bbuf = ByteBuffer.allocate(8192);
     //    private CharBuffer cbuf;
     private Charset currentCharset = defaultCharset();// current cs is be saved in read manager due to include functionality
     // protected StreamDecoder sd;
     protected StreamEncoder se;
-    //    protected final EnumSet<StandardOpenOption> options;
-    protected boolean write;
-    private StreamDecoder sd;
+    protected boolean isReading;
+//    private StreamDecoder sd;
 
     public
     HiTalkStream ( Path path, String encoding, long offset, StandardOpenOption... options ) throws IOException {
-        fc = open(path, options);
+//        channel = open(path, options);
+        FileSystemManager manager = VFS.getManager();
         Charset charset = isSupported(encoding) ? forName(encoding) : defaultCharset();//currentCharset;
         if (charset.equals(currentCharset)) {
             offset = 0L;
         }
-//        CharsetEncoder encoder = charset.newEncoder();
-//        CharsetDecoder decoder = charset.newDecoder()
+        EnumSet <StandardOpenOption> optionEnumSet = EnumSet.noneOf(StandardOpenOption.class);
+        optionEnumSet.addAll(Arrays.asList(options));
+        FileObject file = manager.resolveFile(path.toUri());
+        InputStream input = file.getContent().getInputStream();
+//        chann el = Files.newByteChannel(path, options);
     }
 
     public
     HiTalkStream ( Path path, long offset, StandardOpenOption... options ) throws IOException {
         this(path, defaultCharset().name(), offset, options);
-//        open(path,options);
-//        position(offset);
-//        CharsetEncoder encoder = charset.newEncoder();
-//        CharsetDecoder decoder = charset.newDecoder();
     }
 
     public
-    void setCurrentCharset ( Charset currentCharset ) {
-        this.currentCharset = currentCharset;//todo push in stack (or is it covered by token source stack  ??)
+    HiTalkStream ( InputStream inputStream ) {
+
     }
 
+    /**
+     * @param path
+     * @param options
+     * @throws IOException
+     */
     public
     HiTalkStream ( Path path, StandardOpenOption... options ) throws IOException {
         this(path, 0L, options);
-//        position(offset);
-//        CharsetEncoder encoder = charset.newEncoder();
-        CharsetDecoder decoder = currentCharset.newDecoder();
-    }
-
-    /**
-     * @param sd
-     */
-    public
-    void setStreamDecoder ( StreamDecoder sd ) {
-        this.sd = sd;
-    }
-
-    /**
-     * @return
-     */
-    public
-    StreamDecoder getStreamDecoder () {
-        return sd;
     }
 
     /**
@@ -125,10 +114,14 @@ class HiTalkStream extends FileChannel implements SeekableByteChannel, IProperty
      *
      * @throws IOException If an I/O error occurs while closing the channel
      */
-    @Override
+//    @Override
     protected
     void implCloseChannel () throws IOException {
-
+        if (!this.isOpen()) {
+            throw new ClosedChannelException();
+        }
+        this.force(false);//fixme
+        this.close();
     }
 
     /**
@@ -144,7 +137,7 @@ class HiTalkStream extends FileChannel implements SeekableByteChannel, IProperty
     @Override
     public
     int read ( ByteBuffer dst ) throws IOException {
-        return 0;
+        return channel.read(dst);
     }
 
     /**
@@ -182,7 +175,7 @@ class HiTalkStream extends FileChannel implements SeekableByteChannel, IProperty
     @Override
     public
     int write ( ByteBuffer src ) throws IOException {
-        return 0;
+        return channel.write(src);
     }
 
     /**
@@ -219,7 +212,7 @@ class HiTalkStream extends FileChannel implements SeekableByteChannel, IProperty
     @Override
     public
     long position () throws IOException {
-        return 0;
+        return channel.position();
     }
 
     /**
@@ -243,7 +236,7 @@ class HiTalkStream extends FileChannel implements SeekableByteChannel, IProperty
     @Override
     public
     FileChannel position ( long newPosition ) throws IOException {
-        return null;
+        return channel.position(newPosition);
     }
 
     /**
@@ -257,7 +250,7 @@ class HiTalkStream extends FileChannel implements SeekableByteChannel, IProperty
     @Override
     public
     long size () throws IOException {
-        return 0;
+        return channel.size();
     }
 
     /**
@@ -280,7 +273,7 @@ class HiTalkStream extends FileChannel implements SeekableByteChannel, IProperty
     @Override
     public
     FileChannel truncate ( long size ) throws IOException {
-        return null;
+        return channel.truncate(size);
     }
 
     /**
@@ -705,385 +698,138 @@ class HiTalkStream extends FileChannel implements SeekableByteChannel, IProperty
     }
 
     /**
+     * Forces any updates to this channel's file to be written to the storage
+     * device that contains it.
+     *
+     * <p> If this channel's file resides on a local storage device then when
+     * this method returns it is guaranteed that all changes made to the file
+     * since this channel was created, or since this method was last invoked,
+     * will have been written to that device.  This is useful for ensuring that
+     * critical information is not lost in the event of a system crash.
+     *
+     * <p> If the file does not reside on a local device then no such guarantee
+     * is made.
+     *
+     * <p> The <tt>metaData</tt> parameter can be used to limit the number of
+     * I/O operations that this method is required to perform.  Passing
+     * <tt>false</tt> for this parameter indicates that only updates to the
+     * file's content need be written to storage; passing <tt>true</tt>
+     * indicates that updates to both the file's content and metadata must be
+     * written, which generally requires at least one more I/O operation.
+     * Whether this parameter actually has any effect is dependent upon the
+     * underlying operating system and is therefore unspecified.
+     *
+     * <p> Invoking this method may cause an I/O operation to occur even if the
+     * channel was only opened for reading.  Some operating systems, for
+     * example, maintain a last-access time as part of a file's metadata, and
+     * this time is updated whenever the file is read.  Whether or not this is
+     * actually done is system-dependent and is therefore unspecified.
+     *
+     * <p> This method is only guaranteed to force changes that were made to
+     * this channel's file via the methods defined in this class.  It may or
+     * may not force changes that were made by modifying the content of a
+     * {@link MappedByteBuffer <i>mapped byte buffer</i>} obtained by
+     * invoking the {@link # map} method.  Invoking the {@link
+     * MappedByteBuffer#force force} method of the mapped byte buffer will
+     * force changes made to the buffer's content to be written.  </p>
+     *
+     * @param metaData If <tt>true</tt> then this method is required to force changes
+     *                 to both the file's content and metadata to be written to
+     *                 storage; otherwise, it need only force content changes to be
+     *                 written
+     * @throws ClosedChannelException If this channel is closed
+     * @throws IOException            If some other I/O error occurs
+     */
+////    @Override
+//    public
+//    void force ( boolean metaData ) throws IOException {
+//        channel.force(metaData);
+//    }
+
+    /**
      * Retrieves and removes the head of this queue, or <tt>null</tt> if this queue is empty.
      *
      * @return The head of this queue, or <tt>null</tt> if this queue is empty.
      */
+    /**
+     * @return
+     */
     @Override
     public
-    Token poll () {
-        return null;
+    Flag[] getFlags () {
+        return new Flag[0];
     }
 
     /**
-     * Retrieves, but does not remove, the head of this queue, returning <tt>null</tt> if this queue is empty.
+     * This method gets called when a bound property is changed.
      *
-     * @return The head of this queue, or <tt>null</tt> if this queue is empty.
+     * @param evt A PropertyChangeEvent object describing the event source
+     *            and the property that has changed.
      */
     @Override
     public
-    Token peek () {
-        return null;
+    void propertyChange ( PropertyChangeEvent evt ) {
+        switch ((Property) evt.getSource()) {
+            case alias:
+                break;
+            case buffer:
+                break;
+            case buffer_size:
+                break;
+            case bom:
+                break;
+            case close_on_abort:
+                break;
+            case close_on_exec:
+                break;
+            case encoding:
+                break;
+            case end_of_stream:
+                break;
+            case bof_action:
+                break;
+            case eof_action:
+                break;
+            case file_name:
+                break;
+            case file_no:
+                break;
+            case input:
+                break;
+            case locale:
+                break;
+            case mode:
+                break;
+            case newline:
+                break;
+            case nlink:
+                break;
+            case output:
+                break;
+            case position:
+                break;
+            case reposition:
+                break;
+            case representation_errors:
+                break;
+            case timeout:
+                break;
+            case type:
+                break;
+            case tty:
+                break;
+            case write_errors:
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + evt.getSource());
+        }
     }
 
     /**
-     * public InputStreamReader(InputStream in, String charsetName)
-     * throws UnsupportedEncodingException
-     * {
-     * super(in);
-     * if (charsetName == null)
-     * throw new NullPointerException("charsetName");
-     * sd = StreamDecoder.forInputStreamReader(in, this, charsetName);
-     * }
+     * @param name
+     * @param oldValue
+     * @param newValue
      */
-    @SuppressWarnings("SynchronizeOnNonFinalField")
-    public static
-    class StreamDecoder extends Reader {
-        private static final int MIN_BYTE_BUFFER_SIZE = 32;
-        private static final int DEFAULT_BYTE_BUFFER_SIZE = 8192;
-        private volatile boolean isOpen;
-        private boolean haveLeftoverChar;
-        private char leftoverChar;
-        private static volatile boolean channelsAvailable = true;
-        private Charset cs;
-        private CharsetDecoder decoder;
-        private ByteBuffer bb;
-        private InputStream in;
-        private ReadableByteChannel ch;
-
-        public
-        StreamDecoder ( InputStream in, final Object lock, String encoding ) {
-            super(lock);
-            this.isOpen = true;
-            this.haveLeftoverChar = false;
-            this.cs = forName(encoding);
-//            this.decoder = new CharsetDecoder.(cs, 2f, 2f);
-            if (this.ch == null) {
-                this.in = in;
-                this.ch = null;
-                this.bb = ByteBuffer.allocate(8192);
-            }
-
-            this.bb.flip();
-        }
-
-        private
-        void ensureOpen () throws IOException {
-            if (!this.isOpen) {
-                throw new IOException("Stream closed");
-            }
-        }
-
-        public static
-        StreamDecoder forInputStreamReader ( HiTalkStream in, Object lock, final String encoding )
-                throws UnsupportedEncodingException {
-            String charsetName = encoding;
-            if (encoding == null) {
-                charsetName = defaultCharset().name();
-            }
-
-            try {
-                if (isSupported(charsetName)) {
-//                    return new StreamDecoder(in, lock, Charset.forName(charsetName));
-                }
-            } catch (IllegalCharsetNameException ignored) {
-            }
-
-            throw new UnsupportedEncodingException(charsetName);
-        }
-
-        public static
-        StreamDecoder forInputStreamReader ( InputStream in, Object lock, Charset charset ) {
-            return new StreamDecoder(in, lock, charset);
-        }
-
-        public static
-        StreamDecoder forInputStreamReader ( InputStream in, Object lock, CharsetDecoder decoder ) {
-            return new StreamDecoder(in, lock, decoder);
-        }
-
-        public static
-        StreamDecoder forDecoder ( ReadableByteChannel in, CharsetDecoder lock, int encoding ) {
-            return new StreamDecoder(in, lock, encoding);
-        }
-
-        public
-        String getEncoding () {
-            return this.isOpen() ? this.encodingName() : null;
-        }
-
-        public
-        int read () throws IOException {
-            return this.read0();
-        }
-
-        private
-        int read0 () throws IOException {
-            synchronized (this.lock) {
-                if (this.haveLeftoverChar) {
-                    this.haveLeftoverChar = false;
-                    return this.leftoverChar;
-                }
-                else {
-                    char[] encoding = new char[2];
-                    int var3 = this.read(encoding, 0, 2);
-                    switch (var3) {
-                        case -1:
-                            return -1;
-                        case 0:
-                        default:
-                            assert false : var3;
-
-                            return -1;
-                        case 2:
-                            this.leftoverChar = encoding[1];
-                            this.haveLeftoverChar = true;
-                        case 1:
-                            return encoding[0];
-                    }
-                }
-            }
-        }
-
-        public
-        int read ( @NotNull char[] array, int encoding, int var3 ) throws IOException {
-            int var4 = encoding;
-            int var5 = var3;
-            synchronized (this.lock) {
-                this.ensureOpen();
-                if (var4 >= 0 && var4 <= array.length && var5 >= 0 && var4 + var5 <= array.length && var4 + var5 >= 0) {
-                    if (var5 == 0) {
-                        return 0;
-                    }
-                    else {
-                        byte var7 = 0;
-                        if (this.haveLeftoverChar) {
-                            array[var4] = this.leftoverChar;
-                            ++var4;
-                            --var5;
-                            this.haveLeftoverChar = false;
-                            var7 = 1;
-                            if (var5 == 0 || !this.implReady()) {
-                                return var7;
-                            }
-                        }
-
-                        if (var5 == 1) {
-                            int var8 = this.read0();
-                            if (var8 == -1) {
-                                return var7 == 0 ? -1 : var7;
-                            }
-                            else {
-                                array[var4] = (char) var8;
-                                return var7 + 1;
-                            }
-                        }
-                        else {
-                            return var7 + this.implRead(array, var4, var4 + var5);
-                        }
-                    }
-                }
-                else {
-                    throw new IndexOutOfBoundsException();
-                }
-            }
-        }
-
-        public
-        boolean ready () throws IOException {
-            synchronized (this.lock) {
-                this.ensureOpen();
-                return this.haveLeftoverChar || this.implReady();
-            }
-        }
-
-        public
-        void close () throws IOException {
-            synchronized (this.lock) {
-                if (this.isOpen) {
-                    this.implClose();
-                    this.isOpen = false;
-                }
-            }
-        }
-
-        private
-        boolean isOpen () {
-            return this.isOpen;
-        }
-
-        private static
-        FileChannel getChannel ( FileInputStream in ) {
-            if (!channelsAvailable) {
-                return null;
-            }
-            else {
-                try {
-                    return in.getChannel();
-                } catch (UnsatisfiedLinkError encoding) {
-                    channelsAvailable = false;
-                    return null;
-                }
-            }
-        }
-
-        StreamDecoder ( InputStream in, Object encoding, Charset var3 ) {
-            this(in, encoding, var3.newDecoder().onMalformedInput(CodingErrorAction.REPLACE).onUnmappableCharacter(CodingErrorAction.REPLACE));
-        }
-
-        StreamDecoder ( InputStream in, Object encoding, CharsetDecoder var3 ) {
-            super(encoding);
-            this.isOpen = true;
-            this.haveLeftoverChar = false;
-            this.cs = var3.charset();
-            this.decoder = var3;
-            if (this.ch == null) {
-                this.in = in;
-                this.ch = null;
-                this.bb = ByteBuffer.allocate(8192);
-            }
-
-            this.bb.flip();
-        }
-
-        StreamDecoder ( ReadableByteChannel channel, CharsetDecoder encoding, int var3 ) {
-            this.isOpen = true;
-            this.haveLeftoverChar = false;
-            this.in = null;
-            this.ch = channel;
-            this.decoder = encoding;
-            this.cs = encoding.charset();
-            this.bb = ByteBuffer.allocate(var3 < 0 ? 8192 : (Math.max(var3, 32)));
-            this.bb.flip();
-        }
-
-        private
-        int readBytes () throws IOException {
-            this.bb.compact();
-
-            int var1;
-            try {
-                int encoding;
-                if (this.ch != null) {
-                    var1 = this.ch.read(this.bb);
-                    if (var1 < 0) {
-                        encoding = var1;
-                        return encoding;
-                    }
-                }
-                else {
-                    var1 = this.bb.limit();
-                    encoding = this.bb.position();
-
-                    assert encoding <= var1;
-
-                    int var3 = encoding <= var1 ? var1 - encoding : 0;
-
-                    assert var3 > 0;
-
-                    int var4 = this.in.read(this.bb.array(), this.bb.arrayOffset() + encoding, var3);
-                    if (var4 < 0) {
-                        int var5 = var4;
-                        return var5;
-                    }
-
-                    if (var4 == 0) {
-                        throw new IOException("Underlying input stream returned zero bytes");
-                    }
-
-                    assert var4 <= var3 : "n = " + var4 + ", rem = " + var3;
-
-                    this.bb.position(encoding + var4);
-                }
-            } finally {
-                this.bb.flip();
-            }
-
-            var1 = this.bb.remaining();
-
-            assert var1 != 0 : var1;
-
-            return var1;
-        }
-
-        int implRead ( char[] var1, int encoding, int var3 ) throws IOException {
-            assert var3 - encoding > 1;
-
-            CharBuffer var4 = CharBuffer.wrap(var1, encoding, var3 - encoding);
-            if (var4.position() != 0) {
-                var4 = var4.slice();
-            }
-
-            boolean var5 = false;
-
-            while (true) {
-                CoderResult var6 = this.decoder.decode(this.bb, var4, var5);
-                if (var6.isUnderflow()) {
-                    if (var5 || !var4.hasRemaining() || var4.position() > 0 && !this.inReady()) {
-                        break;
-                    }
-
-                    int var7 = this.readBytes();
-                    if (var7 < 0) {
-                        var5 = true;
-                        if (var4.position() == 0 && !this.bb.hasRemaining()) {
-                            break;
-                        }
-
-                        this.decoder.reset();
-                    }
-                }
-                else {
-                    if (var6.isOverflow()) {
-                        assert var4.position() > 0;
-                        break;
-                    }
-
-                    var6.throwException();
-                }
-            }
-
-            if (var5) {
-                this.decoder.reset();
-            }
-
-            if (var4.position() == 0) {
-                if (var5) {
-                    return -1;
-                }
-
-                assert false;
-            }
-
-            return var4.position();
-        }
-
-        String encodingName () {
-            return this.cs instanceof HistoricallyNamedCharset ? ((HistoricallyNamedCharset) this.cs).historicalName() : this.cs.name();
-        }
-
-        private
-        boolean inReady () {
-            try {
-                return this.in != null && this.in.available() > 0 || this.ch instanceof FileChannel;
-            } catch (IOException encoding) {
-                return false;
-            }
-        }
-
-        boolean implReady () {
-            return this.bb.hasRemaining() || this.inReady();
-        }
-
-        void implClose () throws IOException {
-            if (this.ch != null) {
-                this.ch.close();
-            }
-            else {
-                this.in.close();
-            }
-        }
-    }
 
     /**
      *
@@ -1098,6 +844,7 @@ class HiTalkStream extends FileChannel implements SeekableByteChannel, IProperty
         close_on_exec,
         encoding,//encoding(Encoding)
         end_of_stream,//end_of_stream(E)
+        bof_action,
         eof_action,
         file_name,
         file_no,

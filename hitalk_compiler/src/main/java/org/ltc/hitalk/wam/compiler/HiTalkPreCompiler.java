@@ -123,7 +123,7 @@ class HiTalkPreCompiler extends BaseMachine
      */
     private
     void substituteBuiltIns ( Term clause ) {
-        TermWalker walk = TermWalkers.positionalWalker(new HiTalkBuiltInTransformVisitor(symbolTable, interner, null, builtInTransform));
+        TermWalker walk = TermWalkers.positionalWalker(new HiTalkCompilerApp.HiTalkBuiltInTransformVisitor(symbolTable, interner, null, builtInTransform));
         walk.walk(clause);
     }
 

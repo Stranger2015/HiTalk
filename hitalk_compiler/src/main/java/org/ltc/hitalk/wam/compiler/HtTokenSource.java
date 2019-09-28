@@ -5,11 +5,18 @@ import com.thesett.aima.logic.fol.isoprologparser.PrologParserTokenManager;
 import com.thesett.aima.logic.fol.isoprologparser.SimpleCharStream;
 import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.aima.logic.fol.isoprologparser.TokenSource;
-import org.ltc.hitalk.interpreter.TokenBuffer;
+import org.apache.commons.vfs2.FileContent;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemManager;
+import org.apache.commons.vfs2.VFS;
+import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.term.io.HiTalkStream;
 
 import java.io.*;
+import java.net.URI;
+import java.nio.file.Path;
 
+import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.parser.HtPrologParserConstants.BOF;
 import static org.ltc.hitalk.parser.HtPrologParserConstants.EOF;
 
@@ -31,10 +38,10 @@ class HtTokenSource extends TokenSource {
      * @param inputStream
      */
     public
-    HtTokenSource ( PrologParserTokenManager tokenManager, SimpleCharStream inputStream ) throws FileNotFoundException {
+    HtTokenSource ( PrologParserTokenManager tokenManager, InputStream inputStream ) throws IOException {
         super(tokenManager);
 
-        setOffset(0, 0);
+        setOffset(0, 0);//fixme 1,1  ??????????
         setFileBeginOffset(0);
         stream = new HiTalkStream(inputStream);
     }
@@ -46,26 +53,26 @@ class HtTokenSource extends TokenSource {
      * @return A token source.
      */
     public static
-    HtTokenSource getTokenSourceForString ( String stringToTokenize, int lineOfs ) throws FileNotFoundException {
-        SimpleCharStream inputStream = new SimpleCharStream(new StringReader(stringToTokenize), 1, 1);
-        PrologParserTokenManager tokenManager = new PrologParserTokenManager(inputStream);
-
-        return new HtTokenSource(tokenManager, inputStream);
+    HtTokenSource getTokenSourceForString ( String stringToTokenize, int lineOfs ) throws IOException {
+        InputStream input = new ByteArrayInputStream(stringToTokenize.getBytes());
+        return getTokenSourceForInputStream(input);
     }
 
     /**
      * Creates a token source on a file.
      *
-     * @param file The file to tokenize.
+     * @param path The file to tokenize.
      * @return A token source.
      */
     public static
-    HtTokenSource getTokenSourceForFile ( File file ) throws FileNotFoundException {
-        Reader ins = new FileReader(file);
-        SimpleCharStream inputStream = new SimpleCharStream(ins, 1, 1);
-        PrologParserTokenManager tokenManager = new PrologParserTokenManager(inputStream);
-
-        return new HtTokenSource(tokenManager, inputStream);
+    HtTokenSource getTokenSourceForPath ( Path path ) throws IOException {
+//        InputStream input = Files.newInputStream(file);
+//        return getTokenSourceForInputStream(input);
+        FileSystemManager manager = VFS.getManager();
+        File userDir = path.toAbsolutePath().toFile();
+        URI url = userDir.toURI();
+        FileObject file = manager.resolveFile(url);
+        return getTokenSourceForVfsFileObject(file);
     }
 
     /**
@@ -76,10 +83,28 @@ class HtTokenSource extends TokenSource {
      */
     public static
     HtTokenSource getTokenSourceForInputStream ( InputStream in ) {
-        SimpleCharStream inputStream = new SimpleCharStream(in, 1, 1);
-        PrologParserTokenManager tokenManager = new PrologParserTokenManager(inputStream);
+        try {
+            BufferedInputStream input = new BufferedInputStream(in);
+            SimpleCharStream inputStream = new SimpleCharStream(in, 1, 1);
+            PrologParserTokenManager tokenManager = new PrologParserTokenManager(inputStream);
+            return new HtTokenSource(tokenManager, input);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new ExecutionError(PERMISSION_ERROR, null);
+        }
+    }
 
-        return new TokenBuffer(tokenManager, inputStream);
+    /**
+     * @param vfsFo
+     * @return
+     * @throws IOException
+     */
+    public static
+    HtTokenSource getTokenSourceForVfsFileObject ( FileObject vfsFo ) throws IOException {
+        FileContent content = vfsFo.getContent();
+        InputStream inputStream = content.getInputStream();
+
+        return getTokenSourceForInputStream(inputStream);
     }
 
     /**

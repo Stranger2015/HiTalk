@@ -1,12 +1,13 @@
 package org.ltc.hitalk.interpreter;
 
 import com.thesett.aima.logic.fol.isoprologparser.PrologParserTokenManager;
-import com.thesett.aima.logic.fol.isoprologparser.SimpleCharStream;
 import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.common.util.Sink;
 import com.thesett.common.util.Source;
 import org.ltc.hitalk.wam.compiler.HtTokenSource;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,10 +22,11 @@ class TokenBuffer extends HtTokenSource implements Source <Token>, Sink <Token> 
      * Builds a token source around the specified token manager.
      *
      * @param tokenManager The token manager to use to feed this source.
+     * @param input
      */
     public
-    TokenBuffer ( PrologParserTokenManager tokenManager, SimpleCharStream simpleCharStream ) {
-        super(tokenManager, simpleCharStream);
+    TokenBuffer ( PrologParserTokenManager tokenManager, InputStream input ) throws IOException {
+        super(tokenManager, input);
     }
 
     /**
@@ -59,9 +61,4 @@ class TokenBuffer extends HtTokenSource implements Source <Token>, Sink <Token> 
     void clear () {
         tokens.clear();
     }
-
-//    public
-//    TokenBuffer getTokenSourceForInputStream ( InputStream in) {
-//        return null;
-//    }
 }
