@@ -51,7 +51,7 @@ interface IInterpreter<T extends HtClause, P, Q> extends IConfigurable, ICompile
         setConsoleReader(initializeCommandLineReader());
 
         // Used to buffer input, and only feed it to the parser when a PERIOD is encountered.
-        TokenBuffer tokenBuffer = (TokenBuffer) getTokenSourceForInputStream(System.in);
+        TokenBuffer tokenBuffer = (TokenBuffer) getTokenSourceForInputStream(System.in, vfsFo.getName().getPath());
 
         // Used to hold the currently buffered lines of input, for the purpose of presenting this back to the user
         // in the event of a syntax or other error in the input.

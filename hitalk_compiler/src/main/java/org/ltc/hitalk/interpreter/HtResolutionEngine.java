@@ -137,7 +137,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser <T>
     public
     void consultInputStream ( InputStream stream ) throws SourceCodeException {
         // Create a token source to read from the specified input stream.
-        HtTokenSource tokenSource = HtTokenSource.getTokenSourceForInputStream(stream);
+        HtTokenSource tokenSource = HtTokenSource.getTokenSourceForInputStream(stream, vfsFo.getName().getPath());
         getParser().setTokenSource(tokenSource);
 
         // Consult the type checking rules and add them to the knowledge base.

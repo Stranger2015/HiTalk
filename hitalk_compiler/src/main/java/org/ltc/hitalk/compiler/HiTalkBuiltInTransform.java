@@ -681,9 +681,9 @@
 //         app.getParser().getTokenSource().setOffset(token.endLine, token.endColumn);
 //         app.getParser().getTokenSource().setFileBeginPos(app.getParser().);
          lastTerm = new Functor(interner.internFunctorName(BEGIN_OF_FILE, 0), null);
-         String encoding = String.valueOf(functor.getArgument(0));
          HiTalkStream in = currentinput();
-//         Charset cs = Charset.forName(encoding);
+         Functor encoding = (Functor) functor.getArgument(0);
+         Objects.requireNonNull(in).getProps()[HiTalkStream.Properties.encoding.ordinal()].setValue(encoding);
          return true;
      }
 

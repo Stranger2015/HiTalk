@@ -1,5 +1,7 @@
 package org.ltc.hitalk.compiler.bktables;
 
+import com.thesett.aima.logic.fol.Functor;
+
 /**
  * @param <NT>
  */
@@ -9,5 +11,5 @@ interface INameable<NT> {
     /**
      * @return
      */
-    NT getName ();
+    Functor getName ();
 }

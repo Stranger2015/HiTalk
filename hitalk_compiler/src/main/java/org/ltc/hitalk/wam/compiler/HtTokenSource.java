@@ -9,14 +9,12 @@ import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.VFS;
-import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.term.io.HiTalkStream;
 
 import java.io.*;
 import java.net.URI;
 import java.nio.file.Path;
 
-import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.parser.HtPrologParserConstants.BOF;
 import static org.ltc.hitalk.parser.HtPrologParserConstants.EOF;
 
@@ -25,12 +23,31 @@ import static org.ltc.hitalk.parser.HtPrologParserConstants.EOF;
  */
 public
 class HtTokenSource extends TokenSource {
+    private BufferedInputStream input;//implements PropertyChangeListener {
+    private String path;
 
     private int lineOfs;
     private int colOfs;
     private long fileBeginOffset;
+
+    public
+    HiTalkStream getStream () {
+        return stream;
+    }
+
+    public
+    void setStream ( HiTalkStream stream ) {
+        this.stream = stream;
+    }
+
     protected HiTalkStream stream;
 
+    protected
+    void onEncodingChanged ( String encoding ) {
+        fileBeginOffset = -1;
+        lineOfs = -1;
+        colOfs = -1;
+    }
     /**
      * Builds a token source around the specified token manager.
      *
@@ -42,8 +59,15 @@ class HtTokenSource extends TokenSource {
         super(tokenManager);
 
         setOffset(0, 0);//fixme 1,1  ??????????
-        setFileBeginOffset(0);
-        stream = new HiTalkStream(inputStream);
+//        setFileBeginOffset(0);
+        stream = new HiTalkStream(inputStream, this);
+    }
+
+    public
+    HtTokenSource ( PrologParserTokenManager tokenManager, BufferedInputStream input, String path ) {
+        super(tokenManager);
+        this.input = input;
+        this.path = path;
     }
 
     /**
@@ -55,7 +79,7 @@ class HtTokenSource extends TokenSource {
     public static
     HtTokenSource getTokenSourceForString ( String stringToTokenize, int lineOfs ) throws IOException {
         InputStream input = new ByteArrayInputStream(stringToTokenize.getBytes());
-        return getTokenSourceForInputStream(input);
+        return getTokenSourceForInputStream(input, "");//fixme
     }
 
     /**
@@ -66,12 +90,11 @@ class HtTokenSource extends TokenSource {
      */
     public static
     HtTokenSource getTokenSourceForPath ( Path path ) throws IOException {
-//        InputStream input = Files.newInputStream(file);
-//        return getTokenSourceForInputStream(input);
         FileSystemManager manager = VFS.getManager();
         File userDir = path.toAbsolutePath().toFile();
         URI url = userDir.toURI();
         FileObject file = manager.resolveFile(url);
+
         return getTokenSourceForVfsFileObject(file);
     }
 
@@ -79,19 +102,16 @@ class HtTokenSource extends TokenSource {
      * Creates a token source on an input stream.
      *
      * @param in The input stream to tokenize.
+     * @param path
      * @return A token source.
      */
     public static
-    HtTokenSource getTokenSourceForInputStream ( InputStream in ) {
-        try {
-            BufferedInputStream input = new BufferedInputStream(in);
-            SimpleCharStream inputStream = new SimpleCharStream(in, 1, 1);
-            PrologParserTokenManager tokenManager = new PrologParserTokenManager(inputStream);
-            return new HtTokenSource(tokenManager, input);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new ExecutionError(PERMISSION_ERROR, null);
-        }
+    HtTokenSource getTokenSourceForInputStream ( InputStream in, String path ) throws IOException {
+        BufferedInputStream input = new BufferedInputStream(in);
+        SimpleCharStream inputStream = new SimpleCharStream(in, 1, 1);
+        PrologParserTokenManager tokenManager = new PrologParserTokenManager(inputStream);
+
+        return new HtTokenSource(tokenManager, input, path);
     }
 
     /**
@@ -104,7 +124,7 @@ class HtTokenSource extends TokenSource {
         FileContent content = vfsFo.getContent();
         InputStream inputStream = content.getInputStream();
 
-        return getTokenSourceForInputStream(inputStream);
+        return getTokenSourceForInputStream(inputStream, vfsFo.getName().getPath());
     }
 
     /**

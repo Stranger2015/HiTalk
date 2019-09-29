@@ -1,11 +1,14 @@
 package org.ltc.hitalk.term.io;
 
+import com.thesett.aima.logic.fol.Term;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.VFS;
 import org.ltc.hitalk.compiler.bktables.Flag;
 import org.ltc.hitalk.entities.IProperty;
 import org.ltc.hitalk.entities.IPropertyOwner;
+import org.ltc.hitalk.wam.compiler.HtTokenSource;
+import sun.nio.cs.StreamDecoder;
 import sun.nio.cs.StreamEncoder;
 
 import java.beans.PropertyChangeEvent;
@@ -19,9 +22,12 @@ import java.nio.channels.*;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.List;
 
+import static java.nio.channels.Channels.newChannel;
 import static java.nio.charset.Charset.*;
 
 /**
@@ -35,21 +41,21 @@ import static java.nio.charset.Charset.*;
  * ByteBuffer newbb = charset.encode(cb);
  */
 public
-class HiTalkStream extends FileChannel implements IPropertyOwner <IProperty>, PropertyChangeListener {
-//    private final FileChannel channel;
+class HiTalkStream extends FileChannel implements IPropertyOwner, PropertyChangeListener {
+    private final FileChannel channel;
+    private final HtTokenSource tokenSource;
 
     protected IProperty[] props;
-    private ByteBuffer bbuf = ByteBuffer.allocate(8192);
-    //    private CharBuffer cbuf;
+    //    private ByteBuffer bbuf = ByteBuffer.allocate(8192);
     private Charset currentCharset = defaultCharset();// current cs is be saved in read manager due to include functionality
-    // protected StreamDecoder sd;
+    protected StreamDecoder sd;
     protected StreamEncoder se;
     protected boolean isReading;
-//    private StreamDecoder sd;
+    private final List <PropertyChangeListener> listeners = new ArrayList <>();
 
     public
     HiTalkStream ( Path path, String encoding, long offset, StandardOpenOption... options ) throws IOException {
-//        channel = open(path, options);
+        channel = open(path, options);
         FileSystemManager manager = VFS.getManager();
         Charset charset = isSupported(encoding) ? forName(encoding) : defaultCharset();//currentCharset;
         if (charset.equals(currentCharset)) {
@@ -59,7 +65,6 @@ class HiTalkStream extends FileChannel implements IPropertyOwner <IProperty>, Pr
         optionEnumSet.addAll(Arrays.asList(options));
         FileObject file = manager.resolveFile(path.toUri());
         InputStream input = file.getContent().getInputStream();
-//        chann el = Files.newByteChannel(path, options);
     }
 
     public
@@ -69,7 +74,7 @@ class HiTalkStream extends FileChannel implements IPropertyOwner <IProperty>, Pr
 
     public
     HiTalkStream ( InputStream inputStream ) {
-
+        channel = (FileChannel) newChannel(inputStream);
     }
 
     /**
@@ -82,6 +87,12 @@ class HiTalkStream extends FileChannel implements IPropertyOwner <IProperty>, Pr
         this(path, 0L, options);
     }
 
+    public
+    HiTalkStream ( InputStream inputStream, HtTokenSource tokenSource ) {
+        this(inputStream);
+        this.tokenSource = tokenSource;
+    }
+
     /**
      * @return
      */
@@ -91,9 +102,46 @@ class HiTalkStream extends FileChannel implements IPropertyOwner <IProperty>, Pr
         return props.length;
     }
 
+    @Override
+    public
+    void addListener ( PropertyChangeListener listener ) {
+        listeners.add(listener);
+    }
+
+    @Override
+    public
+    void removeListener ( PropertyChangeListener listener ) {
+        listeners.remove(listener);
+    }
+
+    @Override
+    public
+    void fireEvent ( IProperty property, Term newValue ) {
+        for (PropertyChangeListener listener : listeners) {
+            listener.propertyChange(new PropertyChangeEvent(property,
+                    property.getName(),
+                    property.getValue(),
+                    newValue
+            ));
+        }
+    }
+
     /**
+     * @param property
      * @return
      */
+    public
+    Term getValue ( Properties property ) {
+        return props[property.ordinal()].getValue();
+    }
+
+    public
+    void setValue ( Properties property, Term value ) {
+        if (!value.equals(getValue(property))) {//todo redundant
+            props[property.ordinal()].setValue(value);
+        }
+    }
+
     public
     IProperty[] getProps () {
         return props;
@@ -114,7 +162,7 @@ class HiTalkStream extends FileChannel implements IPropertyOwner <IProperty>, Pr
      *
      * @throws IOException If an I/O error occurs while closing the channel
      */
-//    @Override
+    @Override
     protected
     void implCloseChannel () throws IOException {
         if (!this.isOpen()) {
@@ -158,6 +206,25 @@ class HiTalkStream extends FileChannel implements IPropertyOwner <IProperty>, Pr
     long read ( ByteBuffer[] dsts, int offset, int length ) throws IOException {
         return 0;
     }
+
+//    /**
+//     * Reads a sequence of bytes from this channel into a subsequence of the
+//     * given buffers.
+//     *
+//     * <p> Bytes are read starting at this channel's current file position, and
+//     * then the file position is updated with the number of bytes actually
+//     * read.  Otherwise this method behaves exactly as specified in the {@link
+//     * ScatteringByteChannel} interface.  </p>
+//     *
+//     * @param dsts
+//     * @param offset
+//     * @param length
+////     */
+////    @Override
+////    public
+////    long read ( ByteBuffer[] dsts, int offset, int length ) throws IOException {
+////        return 0;
+////    }
 
     /**
      * Writes a sequence of bytes to this channel from the given buffer.
@@ -322,7 +389,7 @@ class HiTalkStream extends FileChannel implements IPropertyOwner <IProperty>, Pr
     @Override
     public
     void force ( boolean metaData ) throws IOException {
-
+        channel.force(metaData);
     }
 
     /**
@@ -371,7 +438,7 @@ class HiTalkStream extends FileChannel implements IPropertyOwner <IProperty>, Pr
     @Override
     public
     long transferTo ( long position, long count, WritableByteChannel target ) throws IOException {
-        return 0;
+        return channel.transferTo(position, count, target);
     }
 
     /**
@@ -420,7 +487,7 @@ class HiTalkStream extends FileChannel implements IPropertyOwner <IProperty>, Pr
     @Override
     public
     long transferFrom ( ReadableByteChannel src, long position, long count ) throws IOException {
-        return 0;
+        return channel.transferFrom(src, position, count);
     }
 
     /**
@@ -453,7 +520,7 @@ class HiTalkStream extends FileChannel implements IPropertyOwner <IProperty>, Pr
     @Override
     public
     int read ( ByteBuffer dst, long position ) throws IOException {
-        return 0;
+        return channel.read(dst, position);
     }
 
     /**
@@ -486,7 +553,7 @@ class HiTalkStream extends FileChannel implements IPropertyOwner <IProperty>, Pr
     @Override
     public
     int write ( ByteBuffer src, long position ) throws IOException {
-        return 0;
+        return channel.write(src, position);
     }
 
     /**
@@ -565,7 +632,7 @@ class HiTalkStream extends FileChannel implements IPropertyOwner <IProperty>, Pr
     @Override
     public
     MappedByteBuffer map ( MapMode mode, long position, long size ) throws IOException {
-        return null;
+        return channel.map(mode, position, size);
     }
 
     /**
@@ -637,7 +704,7 @@ class HiTalkStream extends FileChannel implements IPropertyOwner <IProperty>, Pr
     @Override
     public
     FileLock lock ( long position, long size, boolean shared ) throws IOException {
-        return null;
+        return channel.lock(position, size, shared);
     }
 
     /**
@@ -694,7 +761,7 @@ class HiTalkStream extends FileChannel implements IPropertyOwner <IProperty>, Pr
     @Override
     public
     FileLock tryLock ( long position, long size, boolean shared ) throws IOException {
-        return null;
+        return channel.tryLock(position, size, shared);
     }
 
     /**
@@ -763,14 +830,15 @@ class HiTalkStream extends FileChannel implements IPropertyOwner <IProperty>, Pr
     /**
      * This method gets called when a bound property is changed.
      *
-     * @param evt A PropertyChangeEvent object describing the event source
+     * @param event A PropertyChangeEvent object describing the event source
      *            and the property that has changed.
      */
     @Override
     public
-    void propertyChange ( PropertyChangeEvent evt ) {
-        switch ((Property) evt.getSource()) {
+    void propertyChange ( PropertyChangeEvent event ) {
+        switch ((Properties) event.getSource()) {
             case alias:
+
                 break;
             case buffer:
                 break;
@@ -783,6 +851,7 @@ class HiTalkStream extends FileChannel implements IPropertyOwner <IProperty>, Pr
             case close_on_exec:
                 break;
             case encoding:
+                Term term = props[Properties.encoding.ordinal()].getValue();
                 break;
             case end_of_stream:
                 break;
@@ -821,7 +890,7 @@ class HiTalkStream extends FileChannel implements IPropertyOwner <IProperty>, Pr
             case write_errors:
                 break;
             default:
-                throw new IllegalStateException("Unexpected value: " + evt.getSource());
+                throw new IllegalStateException("Unexpected value: " + event.getSource());
         }
     }
 
@@ -835,7 +904,7 @@ class HiTalkStream extends FileChannel implements IPropertyOwner <IProperty>, Pr
      *
      */
     public
-    enum Property {
+    enum Properties {
         alias, //        alias(Atom)
         buffer,//    buffer(Buffering)full, line or false
         buffer_size,//buffer_size(Integer)

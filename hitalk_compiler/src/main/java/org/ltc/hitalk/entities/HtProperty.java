@@ -1,17 +1,15 @@
 package org.ltc.hitalk.entities;
 
-import com.thesett.aima.logic.fol.FunctorName;
 import com.thesett.aima.logic.fol.Term;
-import org.ltc.hitalk.compiler.bktables.INameable;
 import org.ltc.hitalk.term.ListTerm;
 
 /**
  *
  */
 public
-class HtProperty implements IProperty, INameable <FunctorName> {
-    protected HtType type;
-    protected FunctorName name;
+class HtProperty implements IProperty {
+    //    protected HtType type;
+    protected String name;
     protected Term value;
 
     /**
@@ -19,7 +17,7 @@ class HtProperty implements IProperty, INameable <FunctorName> {
      * @param args
      */
     public
-    HtProperty ( FunctorName name, ListTerm args ) {
+    HtProperty ( String name, ListTerm args ) {
         this.name = name;
         this.value = args;
     }
@@ -29,19 +27,16 @@ class HtProperty implements IProperty, INameable <FunctorName> {
 
     }
 
-    /**
-     * @return
-     */
-    public
-    HtType getType () {
-        return type;
-    }
+//    public
+//    HtType getType () {
+//        return type;
+//    }
 
     /**
      * @return
      */
     public
-    FunctorName getName () {
+    String getName () {
         return name;
     }
 
@@ -54,13 +49,23 @@ class HtProperty implements IProperty, INameable <FunctorName> {
     }
 
     /**
-     * @param type
+     * @param term
+     */
+    @Override
+    public
+    void setValue ( Term term ) {
+        if (!value.equals(term)) {
+            value = term;
+        }
+    }
+
+    /**
      * @param name
      * @param value
      */
     public
-    HtProperty ( HtType type, FunctorName name, Term value ) {
-        this.type = type;
+    HtProperty ( String name, Term value ) {
+//        this.type = type;
         this.name = name;
         this.value = value;
     }

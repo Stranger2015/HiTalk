@@ -36,7 +36,6 @@ import java.util.List;
 
 import static org.ltc.hitalk.compiler.bktables.BkTableKind.LOADED_ENTITIES;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
-import static org.ltc.hitalk.wam.compiler.HtTokenSource.getTokenSourceForFile;
 import static org.ltc.hitalk.wam.compiler.HtTokenSource.getTokenSourceForInputStream;
 
 /**
@@ -216,6 +215,7 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
      */
 //    protected ICompiler <T, HtPredicate, T> preCompiler;
     protected String fileName;
+
     /**
      *
      */
@@ -320,8 +320,8 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
     }
 
     private
-    void logtalkCompile ( InputStream input ) throws FileNotFoundException {
-        HtTokenSource tokenSource = getTokenSourceForInputStream(input);
+    void logtalkCompile ( InputStream input ) throws IOException {
+        HtTokenSource tokenSource = getTokenSourceForInputStream(input, ((CompilerConfig) getConfig()).getBaseFile().getName().getPath());
         compiler.compile(tokenSource);
     }
 
@@ -1001,7 +1001,7 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
 
     public
     void compile ( String fileName, Flag[] flags ) throws FileNotFoundException, LinkageException {
-        HtTokenSource ts = getTokenSourceForFile(new File(fileName));
+        HtTokenSource ts = HtTokenSource.getTokenSourceForVfsFileObject(new File(fileName));
         setTokenSource(ts);
         getPreCompiler().compile(ts);
 
@@ -1303,7 +1303,7 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
         getLogger().info("Initializing");
         setSymbolTable(new SymbolTableImpl <>());
         interner = new VariableAndFunctorInternerImpl(getNameSpace("Variable"), getNameSpace("Functor"));
-        compiler = new HiTalkWAMCompiler(symbolTable, interner, new HiTalkParser <>(getTokenSourceForInputStream(System.in),
+        compiler = new HiTalkWAMCompiler(symbolTable, interner, new HiTalkParser <>(getTokenSourceForInputStream(System.in, vfsFo.getName().getPath()),
                 interner));
         bkt = new BookKeepingTables();
         setConfig(new CompilerConfig());
@@ -1437,7 +1437,7 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
     public
     HtPrologParser <T> getParser () {
         if (parser == null) {
-            setParser(new HiTalkParser <>(getTokenSourceForInputStream(System.in), getInterner()));
+            setParser(new HiTalkParser <>(getTokenSourceForInputStream(System.in, vfsFo.getName().getPath()), getInterner()));
         }
         return parser;
     }
