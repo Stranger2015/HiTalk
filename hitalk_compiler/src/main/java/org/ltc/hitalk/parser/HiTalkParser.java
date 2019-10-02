@@ -11,7 +11,7 @@ import static com.thesett.aima.logic.fol.OpSymbol.Associativity.*;
  *
  */
 public
-class HiTalkParser<T extends HtClause> extends HtPrologParser <T> {
+class HiTalkParser extends HtPrologParser {
 
     /**
      * @return
@@ -35,26 +35,6 @@ class HiTalkParser<T extends HtClause> extends HtPrologParser <T> {
         super(tokenSource, interner);
     }
 
-    //
-//    /**
-//     * Parses a single sentence in first order logic. A sentence consists of a term followed by a full stop.
-//     *
-//     * @return A sentence in first order logic.
-//     * @throws SourceCodeException If the token sequence does not parse into a valid sentence.
-//     */
-//    @Override
-//    public
-//    HtClause clause () throws SourceCodeException {
-//        variableContext.clear();
-//        Term term = term();
-//        if (term.isFunctor()) {
-//            Functor functor = (Functor) term;
-//            String name = interner.getFunctorName(functor);
-//        }
-//
-//        return (HtClause) term;
-//    }
-
     /**
      * Converts a term into a clause. The term must be a functor. If it is a functor corresponding to the ':-' symbol it
      * is a clause with a head and a body. If it is a functor corresponding to the '?-' symbol it is a query clause with
@@ -66,8 +46,8 @@ class HiTalkParser<T extends HtClause> extends HtPrologParser <T> {
      * @throws SourceCodeException If the term to convert to a clause does not form a valid clause.
      */
     public//fixme
-    T convert ( Term term ) throws SourceCodeException {
-        return (T) term;
+    HtClause convert ( Term term ) throws SourceCodeException {
+        return (HtClause) term;
     }
 
     /**

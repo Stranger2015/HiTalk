@@ -4,13 +4,20 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.VFS;
+import org.ltc.hitalk.compiler.bktables.IConfig;
 
+/**
+ *
+ */
 public
-class CompilerConfig implements org.ltc.hitalk.compiler.bktables.IConfig {
+class CompilerConfig implements IConfig {
     private final FileObject baseFile;
     private final FileSystemManager manager;
     private final String[] schemes;
 
+    /**
+     * @throws FileSystemException
+     */
     public
     CompilerConfig () throws FileSystemException {
         manager = VFS.getManager();
@@ -23,11 +30,17 @@ class CompilerConfig implements org.ltc.hitalk.compiler.bktables.IConfig {
         return baseFile;
     }
 
+    /**
+     * @return
+     */
     public
     FileSystemManager getManager () {
         return manager;
     }
 
+    /**
+     * @return
+     */
     public
     String[] getSchemes () {
         return schemes;

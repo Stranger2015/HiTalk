@@ -1,6 +1,5 @@
 package org.ltc.hitalk.entities.context;
 
-import org.ltc.hitalk.compiler.bktables.Flag;
 import org.ltc.hitalk.entities.HtProperty;
 
 /**
@@ -50,8 +49,8 @@ class ExecutionContext extends Context {
      */
     @Override
     public
-    Flag[] getFlags () {
-        return new Flag[0];
+    HtProperty[] getFlags () {
+        return new HtProperty[0];
     }
 
     //    @Override

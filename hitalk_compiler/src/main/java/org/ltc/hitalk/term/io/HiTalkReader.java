@@ -1,15 +1,18 @@
 package org.ltc.hitalk.term.io;
 
+import com.thesett.aima.logic.fol.Term;
 import org.jetbrains.annotations.NotNull;
+import org.ltc.hitalk.entities.IProperty;
 import org.ltc.hitalk.entities.IPropertyOwner;
 
+import java.beans.PropertyChangeListener;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
 public
-class HiTalkReader extends InputStreamReader implements IPropertyOwner <I> {
+class HiTalkReader extends InputStreamReader implements IPropertyOwner {
     /**
      * Creates an InputStreamReader that uses the named charset.
      *
@@ -30,5 +33,39 @@ class HiTalkReader extends InputStreamReader implements IPropertyOwner <I> {
     public
     int getPropLength () {
         return 0;
+    }
+
+    @Override
+    public
+    void addListener ( PropertyChangeListener listener ) {
+
+    }
+
+    @Override
+    public
+    void removeListener ( PropertyChangeListener listener ) {
+
+    }
+
+    @Override
+    public
+    void fireEvent ( IProperty property, Term value ) {
+
+    }
+
+    @Override
+    public
+    Term getValue ( HiTalkStream.Properties property ) {
+        return null;
+    }
+
+    /**
+     * @param property
+     * @param value
+     */
+    @Override
+    public
+    void setValue ( HiTalkStream.Properties property, Term value ) {
+
     }
 }

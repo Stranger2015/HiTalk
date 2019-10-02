@@ -2,10 +2,10 @@ package org.ltc.hitalk.entities;
 
 
 import com.thesett.aima.logic.fol.Term;
-import org.ltc.hitalk.compiler.bktables.Flag;
-import org.ltc.hitalk.term.io.HiTalkStream;
 
 import java.beans.PropertyChangeListener;
+
+import static org.ltc.hitalk.term.io.HiTalkStream.Properties;
 
 /**
  *
@@ -17,8 +17,8 @@ interface IPropertyOwner {
      * @return
      */
     default
-    Flag[] getFlags () {
-        return new Flag[getPropLength()];
+    HtProperty[] getFlags () {
+        return new HtProperty[getPropLength()];
     }
 
     /**
@@ -32,22 +32,12 @@ interface IPropertyOwner {
 
     void fireEvent ( IProperty property, Term value );
 
-
-    Term getValue ( HiTalkStream.Properties property );
+    Term getValue ( Properties property );
 
     /**
      * @param property
      * @param value
      */
-    void setValue ( HiTalkStream.Properties property, Term value );
+    void setValue ( Properties property, Term value );
 
-//    /**
-//     *
-//     */
-//    interface IPropertyChangeListener {
-//        /**
-//         * @param event
-//         */
-//        void onPropertyChanged ( PropertyChangeEvent event );
-//    }
 }

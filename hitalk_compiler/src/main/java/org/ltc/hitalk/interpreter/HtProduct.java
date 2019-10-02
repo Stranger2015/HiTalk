@@ -1,6 +1,5 @@
 package org.ltc.hitalk.interpreter;
 
-import com.thesett.aima.logic.fol.Functor;
 import org.ltc.hitalk.compiler.bktables.INameable;
 import org.ltc.hitalk.core.HtVersion;
 
@@ -8,7 +7,7 @@ import org.ltc.hitalk.core.HtVersion;
  *
  */
 public
-class HtProduct implements INameable <String> {
+class HtProduct implements INameable {
     protected String copyright;
     protected String name;
     protected HtVersion version;
@@ -25,7 +24,7 @@ class HtProduct implements INameable <String> {
      */
     @Override
     public
-    Functor getName () {
+    String getName () {
         return name;
     }
 }

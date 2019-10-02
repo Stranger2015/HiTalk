@@ -2,13 +2,12 @@ package org.ltc.hitalk.entities;
 
 import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.logic.fol.Term;
-import org.ltc.hitalk.compiler.bktables.INameable;
 
 /**
  * @param
  */
 public
-class HtEvent implements INameable <Functor> {
+class HtEvent {// implements INameable <Functor> {
     private final Functor name;
     private final Term obj;
     private final Term sender;
@@ -37,7 +36,6 @@ class HtEvent implements INameable <Functor> {
     /**
      * @return
      */
-    @Override
     public
     Functor getName () {
         return name;

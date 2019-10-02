@@ -39,6 +39,7 @@
  import static org.ltc.hitalk.core.BuiltIns.ENCODING;
  import static org.ltc.hitalk.entities.IRelation.*;
  import static org.ltc.hitalk.parser.HtPrologParser.BEGIN_OF_FILE;
+ import static org.ltc.hitalk.term.io.TermIO.currentInput;
 
  /**
   * BuiltInTransform implements a compilation transformation over term syntax trees, that substitutes for functors that
@@ -96,9 +97,10 @@
 
      protected final AtomicInteger objectCounter = new AtomicInteger(0);
      protected final AtomicInteger categoryCounter = new AtomicInteger(0);
-     protected final AtomicInteger protocolCounter = new AtomicInteger(0);
+
      protected final HiTalkWAMCompiler compiler;
      protected final Resolver <HtPredicate, T> resolver;
+     protected final AtomicInteger protocolCounter = new AtomicInteger(0);
 //IMPLEMENT BUILTINS AS THE CONSUMER
 
      /**
@@ -681,17 +683,15 @@
 //         app.getParser().getTokenSource().setOffset(token.endLine, token.endColumn);
 //         app.getParser().getTokenSource().setFileBeginPos(app.getParser().);
          lastTerm = new Functor(interner.internFunctorName(BEGIN_OF_FILE, 0), null);
-         HiTalkStream in = currentinput();
+         HiTalkStream in = currentInput();
          Functor encoding = (Functor) functor.getArgument(0);
-         Objects.requireNonNull(in).getProps()[HiTalkStream.Properties.encoding.ordinal()].setValue(encoding);
+//         Objects.requireNonNull(in).getProps()[HiTalkStream.Properties.encoding.ordinal()].setValue(encoding);
+//         String propName = interner.getFunctorName(encoding);
+         in.setValue(HiTalkStream.Properties.encoding, encoding);
+
          return true;
      }
 
-     private
-     HiTalkStream currentinput () {
-         return null;
-     }
-//
 //     private
 //     boolean multifile_p ( Functor functor ) {
 //         functor.setProperty(MULTIFILE, functor.getArgument(0));
@@ -735,6 +735,7 @@
 //                 libPath = interner.getFunctorName(functor)
              }
          }
+
          return null;
      }
 
@@ -1020,12 +1021,14 @@
       */
      private
      IRelation createRelation ( Functor relationFunctor, HtRelationKind relationKind, boolean dynamic ) {
-         HtScope scope = new HtScope(PUBLIC);//default scope
+
+         HtProperty[] properties = new HtProperty[0];///todo
+         HtScope scope = new HtScope(PUBLIC, properties);//default scope
          Functor subEntityFunctor = (Functor) relationFunctor.getArgument(0);
          String name = interner.getFunctorName(subEntityFunctor);
          Functor subEntName;
          if (COLON_COLON.equals(name)) {
-             scope = new HtScope(interner.getFunctorName((Functor) subEntityFunctor.getArgument(0)));
+             scope = new HtScope(interner.getFunctorName((Functor) subEntityFunctor.getArgument(0)), properties);
              subEntName = (Functor) subEntityFunctor.getArgument(1);//todo must it be already loaded??
          }
          else {

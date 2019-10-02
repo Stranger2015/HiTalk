@@ -9,8 +9,6 @@ import java.util.List;
 
 public
 class TermIO {
-    //    private final
-//    private final InputStream in;
     private final ITermFactory tf;
     private final HtPrologParser pp;
 

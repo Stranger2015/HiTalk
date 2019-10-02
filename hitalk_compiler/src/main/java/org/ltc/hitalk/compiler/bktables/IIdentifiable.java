@@ -1,12 +1,10 @@
 package org.ltc.hitalk.compiler.bktables;
 
-import com.thesett.aima.logic.fol.Functor;
-
 /**
  *
  */
 public
-interface IIdentifiable extends INameable <Functor> {
+interface IIdentifiable /*extends INameable*/ {
 
     /**
      * @return

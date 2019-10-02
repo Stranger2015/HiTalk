@@ -9,7 +9,6 @@ import org.ltc.hitalk.parser.PrologAtoms;
 public
 interface IRelation extends PrologAtoms {
 
-
     /**
      * @return
      */

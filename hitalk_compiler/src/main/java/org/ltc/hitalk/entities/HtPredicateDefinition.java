@@ -1,6 +1,5 @@
 package org.ltc.hitalk.entities;
 
-import org.ltc.hitalk.compiler.bktables.Flag;
 import org.ltc.hitalk.parser.HtClause;
 
 import java.util.Collections;
@@ -96,8 +95,8 @@ class HtPredicateDefinition<T extends ISubroutine, P extends HtPredicate, Q exte
          */
         @Override
         public
-        Flag[] getFlags () {
-            return new Flag[getPropLength()];
+        HtProperty[] getFlags () {
+            return new HtProperty[getPropLength()];
         }
     }
 
@@ -105,7 +104,8 @@ class HtPredicateDefinition<T extends ISubroutine, P extends HtPredicate, Q exte
      * @param <T>
      */
     public static
-    class BuiltInDefinition<T extends ISubroutine, P extends HtPredicate, Q extends HtClause> extends HtPredicateDefinition <T, P, Q> {
+    class BuiltInDefinition<T extends ISubroutine, P extends HtPredicate, Q extends HtClause>
+            extends HtPredicateDefinition <T, P, Q> {
 
         /**
          * @param props

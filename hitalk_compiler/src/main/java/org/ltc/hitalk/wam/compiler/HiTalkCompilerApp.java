@@ -2,10 +2,21 @@
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.*;
-import com.thesett.aima.logic.fol.compiler.PositionalTermTraverser;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.common.util.doublemaps.SymbolTableImpl;
+import org.apache.commons.vfs2.*;
+import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
+import org.apache.commons.vfs2.provider.AbstractLayeredFileProvider;
+import org.apache.commons.vfs2.provider.CompositeFileProvider;
+import org.apache.commons.vfs2.provider.compressed.CompressedFileFileProvider;
+import org.apache.commons.vfs2.provider.jar.JarFileProvider;
+import org.apache.commons.vfs2.provider.local.DefaultLocalFileProvider;
+import org.apache.commons.vfs2.provider.ram.RamFileProvider;
+import org.apache.commons.vfs2.provider.res.ResourceFileProvider;
+import org.apache.commons.vfs2.provider.temp.TemporaryFileProvider;
+import org.apache.commons.vfs2.provider.url.UrlFileProvider;
+import org.apache.commons.vfs2.provider.zip.ZipFileProvider;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.HiTalkBuiltInTransform;
 import org.ltc.hitalk.compiler.bktables.*;
@@ -22,21 +33,22 @@ import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.LoadContext;
 import org.ltc.hitalk.parser.HiTalkParser;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
+import org.ltc.hitalk.wam.printer.HtPositionalTermTraverser;
+import org.ltc.hitalk.wam.printer.HtPositionalTermVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import static java.lang.System.in;
 import static org.ltc.hitalk.compiler.bktables.BkTableKind.LOADED_ENTITIES;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
-import static org.ltc.hitalk.wam.compiler.HtTokenSource.getTokenSourceForInputStream;
 
 /**
  * Reloading files, active code and threads
@@ -161,6 +173,25 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
     public HtEntityIdentifier MONITORING;
     public HtEntityIdentifier FORWARDING;
     public HtEntityIdentifier USER;
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    CompilerConfig getConfig () {
+        return config;
+    }
+
+    /**
+     * @param config
+     */
+    @Override
+    public
+    void setConfig ( IConfig config ) {
+        this.config = (CompilerConfig) config;
+    }
+
     public HtEntityIdentifier LOGTALK;
     public HtEntityIdentifier CORE_MESSAGES;
     //
@@ -201,51 +232,39 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
         return bkt;
     }
 
-    //
     protected BookKeepingTables bkt = new BookKeepingTables();
-    //    protected IRegistry <BkLoadedEntities> registry = new BookKeepingTables ();//fixme
     protected CompilationContext compilationContext;
     protected LoadContext loadContext;
     protected ExecutionContext executionContext;
-//    protected LogicCompilerObserver <T, Q> instructionCompilerObserver;
-//    protected LogicCompilerObserver <T, T> preCompilerObserver;
 
     /**
      * Holds the pre-compiler, for analyzing and transforming terms prior to compilation proper.
      */
-//    protected ICompiler <T, HtPredicate, T> preCompiler;
     protected String fileName;
 
     /**
      *
      */
-    protected IConfig config;
+    protected CompilerConfig config;
 
-    //    protected HtPrologParser <T> parser;
-//    protected Resolver <T, Q> resolver;
-//    protected Resolver <T, T> resolver2;
     protected HiTalkDefaultBuiltIn defaultBuiltIn;
     protected HiTalkBuiltInTransform <HiTalkCompilerApp, T> builtInTransform;
-//
-//    public
-//    Resolver <T, T> getResolver2 () {
-//        return resolver2;
-//    }
-//
-//    public
-//    void setResolver2 ( Resolver <T, T> resolver2 ) {
-//        this.resolver2 = resolver2;
-//    }
 
+    /**
+     * @param fileName
+     */
     public
-    HiTalkCompilerApp ( String fileName ) throws LinkageException, FileNotFoundException {
+    HiTalkCompilerApp ( String fileName ) {
         setFileName(fileName);
     }
 
+    /**
+     * @param args
+     */
     public static
     void main ( String[] args ) {
         try {
-            IApplication <HtClause> application = new HiTalkCompilerApp <>(args[0]);
+            IApplication application = new HiTalkCompilerApp <>(args[0]);
             application.init();
             application.start();
         } catch (Exception e) {
@@ -261,7 +280,7 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
      * //    entity_prefix,
      * //    entity_type,IN eI
      * String file;
-     * // Flag[] flags;
+     * // HtProperty[] flags;
      * Path source;
      * InputStream stream;
      * Path target;
@@ -274,13 +293,13 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
      * @return
      */
     protected
-    Flag[] createFlags ( LoadContext loadContext, String scratchDirectory ) {
-        Flag[] flags = new Flag[]{///todo flags
-                                  tf.createFlag("basename", fileName),//FIXME PARSE
-                                  tf.createFlag("directory", fileName),//FIXME PARSE
-                                  tf.createFlag("entity_identifier", new Functor(-1, null)),//FIXME PARSE
-                                  tf.createFlag("file", fileName),//FIXME PARSE
-                                  tf.createFlag("basename", fileName),//FIXME PARSE
+    HtProperty[] createFlags ( LoadContext loadContext, String scratchDirectory ) {
+        HtProperty[] flags = new HtProperty[]{///todo flags
+                                              tf.createFlag("basename", fileName),//FIXME PARSE
+                                              tf.createFlag("directory", fileName),//FIXME PARSE
+                                              tf.createFlag("entity_identifier", new Functor(-1, null)),//FIXME PARSE
+                                              tf.createFlag("file", fileName),//FIXME PARSE
+                                              tf.createFlag("basename", fileName),//FIXME PARSE
         };
 
         return flags;
@@ -312,16 +331,40 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
 
     }
 
+    public
+    InputStream rr ( String s ) throws ClassNotFoundException {
+        Class cls = Class.forName(HiTalkCompilerApp.class.getName());
+
+        // returns the ClassLoader object associated with this Class
+        ClassLoader cLoader = cls.getClassLoader();
+
+        // input stream
+        InputStream i = ClassLoader.getSystemResourceAsStream(s);
+        return i;
+    }
+
+    /**
+     * @param scratchDir
+     * @return
+     * @throws IOException
+     * @throws SourceCodeException
+     */
     protected
-    Object loadSettingsFile ( String scratchDir ) throws IOException, SourceCodeException {
-        InputStream input = ClassLoader.getSystemResourceAsStream("startup.pl");
+    Object loadSettingsFile ( String scratchDir ) throws Exception {
+
+        InputStream input = rr("/startup.pl");
         logtalkCompile(input);
         return null;
     }
 
+    /**
+     * @param input
+     * @throws IOException
+     */
     private
     void logtalkCompile ( InputStream input ) throws IOException {
-        HtTokenSource tokenSource = getTokenSourceForInputStream(input, ((CompilerConfig) getConfig()).getBaseFile().getName().getPath());
+        HtTokenSource tokenSource = HtTokenSource.getTokenSourceForInputStream(input, getConfig().getBaseFile().getName().getPath());
+        setTokenSource(tokenSource);
         compiler.compile(tokenSource);
     }
 
@@ -333,8 +376,7 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
      * @throws SourceCodeException
      */
     protected
-    void loadBuiltInEntity ( HtEntityIdentifier identifier, String fileName, String scratchDir )
-            throws Exception {
+    void loadBuiltInEntity ( HtEntityIdentifier identifier, String fileName, String scratchDir ) throws Exception {
         List rs = bkt.select(LOADED_ENTITIES);
         if (rs.isEmpty()) {
             loadContext.setProps(createProps(scratchDir));
@@ -349,8 +391,8 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
     }
 
     protected
-    Flag[] createFlags ( String scratchDir ) {
-        return new Flag[]{
+    HtProperty[] createFlags ( String scratchDir ) {
+        return new HtProperty[]{
                 //we need a fixed code prefix as some of the entity predicates may need
 //                    to be called directly by the compiler/runtime
                 tf.createFlag("code_prefix", "$"),
@@ -367,121 +409,6 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
                 tf.createFlag("reload", "skip")
         };
     }
-//
-//    /**
-//     * @param fileNames
-//     * @param context
-//     * @throws IOException
-//     * @throws SourceCodeException
-//     */
-//    public
-//    void compileLoad ( List <String> fileNames, LoadContext context ) throws Exception {
-//        for (String fileName : fileNames) {
-//            context.reset();
-//            compileLoad(fileName, context);
-//        }
-//    }
-//
-//    public
-//    void compileLoad ( String fileName, LoadContext context ) throws Exception {
-////        compileFile(fileName, context);
-//        loadFile(fileName, context);//bytecode
-//    }
-//
-//    public //todo read_files
-//    void loadFiles ( List <String> fileNames, LoadContext context ) throws Exception {
-//        for (String s : fileNames) {
-//            context.reset();
-//            loadFile(s, context);
-//        }
-//    }
-
-    /**
-     * load_files(:Files, +Options)
-     * The predicate load_files/2 is the parent of all the other loading predicates except for include/1. It currently supports a subset of the options of Quintus load_files/2. Files is either a single source file or a list of source files. The specification for a source file is handed to absolute_file_name/2. See this predicate for the supported expansions. Options is a list of options using the format OptionName(OptionValue).
-     * <p>
-     * The following options are currently supported:
-     * <p>
-     * <p>
-     * autoload(Bool)If true (default false), indicate that this load is a demand load. This implies that, depending on the setting of the Prolog flag verbose_autoload, the load action is printed at level informational or silent. See also print_message/2 and current_prolog_flag/2.
-     * check_script(Bool)
-     * If false (default true), do not check the first character to be # and skip the first line when found.
-     * derived_from(File)
-     * Indicate that the loaded file is derived from File. Used by make/0 to time-check and load the original file rather than the derived file.
-     * dialect(+Dialect)
-     * Load Files with enhanced compatibility with the target Prolog system identified by Dialect. See expects_dialect/1 and section C for details.
-     * encoding(Encoding)
-     * Specify the way characters are encoded in the file. Default is taken from the Prolog flag encoding. See section 2.19.1 for details.
-     * expand(Bool)
-     * If true, run the filenames through expand_file_name/2 and load the returned files. Default is false, except for consult/1 which is intended for interactive use. Flexible location of files is defined by file_search_path/2.
-     * format(+Format)
-     * Used to specify the file format if data is loaded from a stream using the stream(Stream) option. Default is source, loading Prolog source text. If qlf, load QLF data (see qcompile/1).
-     * if(Condition)
-     * Load the file only if the specified condition is satisfied. The value true loads the file unconditionally, changed loads the file if it was not loaded before or has been modified since it was loaded the last time, and not_loaded loads the file if it was not loaded before.
-     * imports(Import)
-     * Specify what to import from the loaded module. The default for use_module/1 is all. Import is passed from the second argument of use_module/2. Traditionally it is a list of predicate indicators to import. As part of the SWI-Prolog/YAP integration, we also support Pred as Name to import a predicate under another name. Finally, Import can be the term except(Exceptions), where Exceptions is a list of predicate indicators that specify predicates that are not imported or Pred as Name terms to denote renamed predicates. See also reexport/2 and use_module/2.bug
-     * <p>
-     * If Import equals all, all operators are imported as well. Otherwise, operators are not imported. Operators can be imported selectively by adding terms op(Pri,Assoc,Name) to the Import list. If such a term is encountered, all exported operators that unify with this term are imported. Typically, this construct will be used with all arguments unbound to import all operators or with only Name bound to import a particular operator.
-     * modified(TimeStamp)
-     * Claim that the source was loaded at TimeStamp without checking the source. This option is intended to be used together with the stream(Input) option, for example after extracting the time from an HTTP server or database.
-     * module(+Module)
-     * Load the indicated file into the given module, overruling the module name specified in the :- module(Name, ...) directive. This currently serves two purposes: (1) allow loading two module files that specify the same module into the same process and force and (2): force loading source code in a specific module, even if the code provides its own module name. Experimental.
-     * must_be_module(Bool)
-     * If true, raise an error if the file is not a module file. Used by use_module/[1,2].
-     * qcompile(Atom)
-     * How to deal with quick-load-file compilation by qcompile/1. Values are:
-     * <p>
-     * never
-     * Default. Do not use qcompile unless called explicitly.
-     * auto
-     * Use qcompile for all writeable files. See comment below.
-     * large
-     * Use qcompile if the file is `large'. Currently, files larger than 100 Kbytes are considered large.
-     * part
-     * If load_files/2 appears in a directive of a file that is compiled into Quick Load Format using qcompile/1, the contents of the argument files are included in the .qlf file instead of the loading directive.
-     * <p>
-     * If this option is not present, it uses the value of the Prolog flag qcompile as default.
-     * optimise(+Boolean)
-     * Explicitly set the optimization for compiling this module. See optimise.
-     * redefine_module(+Action)
-     * Defines what to do if a file is loaded that provides a module that is already loaded from another file. Action is one of false (default), which prints an error and refuses to load the file, or true, which uses unload_file/1 on the old file and then proceeds loading the new file. Finally, there is ask, which starts interaction with the user. ask is only provided if the stream user_input is associated with a terminal.
-     * reexport(Bool)
-     * If true re-export the imported predicate. Used by reexport/1 and reexport/2.
-     * register(Bool)
-     * If false, do not register the load location and options. This option is used by make/0 and load_hotfixes/1 to avoid polluting the load-context database. See source_file_property/2.
-     * sandboxed(Bool)
-     * Load the file in sandboxed mode. This option controls the flag sandboxed_load. The only meaningful value for Bool is true. Using false while the Prolog flag is set to true raises a permission error.
-     * scope_settings(Bool)
-     * Scope style_check/1 and expects_dialect/1 to the file and files loaded from the file after the directive. Default is true. The system and user initialization files (see -f and -F) are loading with scope_settings(false).
-     * silent(Bool)
-     * If true, load the file without printing a message. The specified value is the default for all files loaded as a result of loading the specified files. This option writes the Prolog flag verbose_load with the negation of Bool.
-     * stream(Input)
-     * This SWI-Prolog extension compiles the data from the stream Input. If this option is used, Files must be a single atom which is used to identify the source location of the loaded clauses as well as to remove all clauses if the data is reconsulted.
-     * e
-     * This option is added to allow compiling from non-file locations such as databases, the web, the user (see consult/1) or other servers. It can be combined with format(qlf) to load QLF data from a stream.
-     * <p>
-     * The load_files/2 predicate can be hooked to load other data or data from objects other than files. See prolog_load_file/2 for a description and library(htt
-     *
-     * @param fileName
-     * @param context
-     */
-//    public//todo readFIles??
-//    void loadFile ( String fileName, LoadContext context ) throws Exception {
-//        compileFile(fileName, context);
-////        String baseName = context.get(LoadContext.Kind.Loading.BASENAME);
-//        loadTargetFile(fileName, context);
-//    }
-//
-////    protected
-//    void loadTargetFile ( String targetFile, LoadContext context ) {
-//
-//    }
-//
-//    protected
-//    void compileFile ( String fileName, LoadContext context ) throws Exception {
-////        compileLoad(fileName, context);
-//    }
-
 
     /**
      * //Compile_hooks(+callable)
@@ -721,7 +648,7 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
 //
 //        //user-defined flags
 //
-//        //userDefinedFlag_(Flag, Access, Type)
+//        //userDefinedFlag_(HtProperty, Access, Type)
 //        :- dynamic(userDefinedFlag_'/3).
 //
 // /        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1000,17 +927,15 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
     }
 
     public
-    void compile ( String fileName, Flag[] flags ) throws FileNotFoundException, LinkageException {
-        HtTokenSource ts = HtTokenSource.getTokenSourceForVfsFileObject(new File(fileName));
-        setTokenSource(ts);
-        getPreCompiler().compile(ts);
+    void compile ( String fileName, HtProperty[] flags ) throws IOException, LinkageException {
+        compiler.compile(HtTokenSource.getTokenSourceForVfsFileObject(VFS.getManager().resolveFile(fileName)));
 
     }
     //logtalkCompile(@list(sourceFile_name))
 
-    //compiles to disk a source file or list of source files using default flags
+    //compiles to disk a source file or list of sogurce files using default flags
 
-    //top-level calls use the current working directory for resolving any relative
+    //top-level calls use the current working directory for resolving any relativeae
     //source file paths while compiled calls in a source file use the source file
     //directory by default
 
@@ -1055,7 +980,7 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
     //note that we can only clean the compiler flags after reporting warning numbers as the
     //report/1 flag might be included in the list of flags but we cannot test for it as its
 //        //value should only be used in the default code for printing messages
-//        protected void logtalkCompile (List < String > files, List < Flag > flags){
+//        protected void logtalkCompile (List < String > files, List < HtProperty > flags){
 //
 //        }
 
@@ -1154,7 +1079,7 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
 //
 //
 //                AssertCompilerFlags([]).
-//        AssertCompilerFlags([Flag | Flags]) :- Flag =.. [Name, Value],
+//        AssertCompilerFlags([HtProperty | Flags]) :- HtProperty =.. [Name, Value],
 //        retractall(ppFileCompilerFlag_(Name, _)), assertz(ppFileCompilerFlag_(Name, Value)), AssertCompilerFlags(Flags).
 
 
@@ -1250,10 +1175,12 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
 ////
 ////        }
 //        }
+
     public
     String getScratchDirectory () {
         return scratchDirectory;
     }
+
 
     /**
      * Establishes an observer on the compiled forms that the compiler outputs.
@@ -1268,7 +1195,6 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
 
     /**
      * Signal the end of a compilation scope, to trigger completion of the compilation of its contents.
-     *
      */
 //    @Override
     public
@@ -1288,33 +1214,41 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
 //                    getInterner(),
 //                    getDefaultBuiltIn(),
 //                    getResolver2(),
-//                    this);
+//                    this);                                                                  OBJEt
 //        }
 //
 //        return preCompiler;
 //    }
+
+    protected
+    FileObject createScratchDirectory () throws Exception {
+        FileSystemOptions fileSystemOptions = new FileSystemOptions();
+        final FileObject scratchFolder = VFS.getManager().resolveFile(getScratchDirectory(), fileSystemOptions);
+        // Make sure the test folder is empty
+        scratchFolder.delete(Selectors.EXCLUDE_SELF);
+        scratchFolder.createFolder();
+
+        return scratchFolder;
+    }
 
     /**
      *
      */
     @Override
     public
-    void doInit () throws LinkageException, FileNotFoundException {
-        getLogger().info("Initializing");
+    void doInit () throws LinkageException, IOException {
+        getLogger().info("Initializing ");
+
         setSymbolTable(new SymbolTableImpl <>());
-        interner = new VariableAndFunctorInternerImpl(getNameSpace("Variable"), getNameSpace("Functor"));
-        compiler = new HiTalkWAMCompiler(symbolTable, interner, new HiTalkParser <>(getTokenSourceForInputStream(System.in, vfsFo.getName().getPath()),
-                interner));
+        interner = new VariableAndFunctorInternerImpl(
+                getNameSpace("Variable"),
+                getNameSpace("Functor"));
+        setParser(new HiTalkParser(HtTokenSource.getTokenSourceForInputStream(in, "stdin"), interner));
+
+        compiler = new HiTalkWAMCompiler(getSymbolTable(), getInterner(), getParser());
         bkt = new BookKeepingTables();
         setConfig(new CompilerConfig());
-//        setDefaultBuiltIn(new HiTalkDefaultBuiltIn(symbolTable, interner));
-//        setResolver(new HtResolutionEngine(getParser(), getInterner(), getInstructionCompiler()));
-//        setResolver2(new HtResolutionEngine(getParser(), getInterner(), getPreCompiler()));
-//        setBuiltInTransform(new HiTalkBuiltInTransform(defaultBuiltIn, this, getResolver2()));
-//        getInstructionCompiler().setCompilerObserver(new ChainedCompilerObserver ());
-//        getPreCompiler().setCompilerObserver(new ClauseChainObserver (getInstructionCompiler()));
-
-        scratchDirectory = ".\\" + DEFAULT_SCRATCH_DIRECTORY;
+        scratchDirectory = "./" + DEFAULT_SCRATCH_DIRECTORY;
 
         tf = new TermFactory(interner);
 
@@ -1334,7 +1268,7 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
 
 //        ENUM = tf.createIdentifier(HtEntityKind.OBJECT, "enum");
 //
-//        DEFAULT_FLAGS = new Flag[]{
+//        DEFAULT_FLAGS = new HtProperty[]{
 //                tf.createFlag("access", "read_write"),//read_only
 //                tf.createFlag("keep", "false"),
 //                //
@@ -1346,12 +1280,85 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
         loadContext = new LoadContext(DEFAULT_PROPS);
         executionContext = new ExecutionContext();
 
+        initVfs();
+
         super.doInit();
     }
 
+    private
+    void initVfs () {
+        try {
+            DefaultFileSystemManager fsManager = new DefaultFileSystemManager();
+//            fsManager.setLogger((Log) logger);
+            fsManager.addProvider("local", new DefaultLocalFileProvider());
+            fsManager.addProvider("zip", new ZipFileProvider());
+            fsManager.addProvider("ram", new RamFileProvider());
+            fsManager.addProvider("jar", new JarFileProvider());
+            fsManager.addProvider("temp", new TemporaryFileProvider());//ram zip
+            fsManager.addProvider("res", new ResourceFileProvider());
+            fsManager.addProvider("url", new UrlFileProvider());
+            fsManager.addProvider("layer", new AbstractLayeredFileProvider() {
+                @Override
+                protected
+                FileSystem doCreateFileSystem ( String scheme, FileObject file, FileSystemOptions fileSystemOptions ) {
+                    return null;
+                }
+
+                @Override
+                public
+                Collection <Capability> getCapabilities () {
+                    return null;
+                }
+            });
+
+            fsManager.addProvider("compress", new CompressedFileFileProvider() {
+                @Override
+                protected
+                FileSystem createFileSystem ( FileName name, FileObject file, FileSystemOptions fileSystemOptions ) throws FileSystemException {
+                    return null;
+                }
+
+                @Override
+                public
+                Collection <Capability> getCapabilities () {
+                    return null;
+                }
+            });
+            fsManager.addProvider("comp", new CompositeFileProvider() {
+                @Override
+                protected
+                String[] getSchemes () {
+                    return new String[0];
+                }
+
+                @Override
+                public
+                Collection <Capability> getCapabilities () {
+                    return null;
+                }
+            });
+
+            fsManager.init();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new ExecutionError(PERMISSION_ERROR, null);
+        }
+    }
+
+    /**
+     * @param funcOrVariable
+     * @return
+     * @throws IOException
+     */
     public
-    String getNameSpace ( String funcOrVariable ) {
-        return String.format("%s_%s_Namespace", getParser().language(), funcOrVariable);
+    String getNameSpace ( String funcOrVariable ) throws IOException {
+        return String.format("%s_%s_Namespace", language(), funcOrVariable);
+    }
+
+    private
+    String language () {
+        return "HiTalk";
     }
 
     /**
@@ -1371,7 +1378,7 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
     @Override
     public
     void doStart () {
-        getLogger().info("Starting");
+        getLogger().info("Starting ");
         setTarget(() -> {
             try {
                 initialize();
@@ -1382,7 +1389,7 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
             }
 
         });
-        getLogger().info("Running target");
+        getLogger().info("Running target ");
         getTarget().run();
     }
 
@@ -1430,16 +1437,8 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
     }
 
     public
-    void setParser ( HiTalkParser <T> parser ) {
-        this.parser = parser;
-    }
-
-    public
-    HtPrologParser <T> getParser () {
-        if (parser == null) {
-            setParser(new HiTalkParser <>(getTokenSourceForInputStream(System.in, vfsFo.getName().getPath()), getInterner()));
-        }
-        return parser;
+    LogicCompilerObserver <T, Q> getObserver () {
+        return observer;
     }
 
     /**
@@ -1552,10 +1551,12 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
      *
      */
     public static
-    class HiTalkBuiltInTransformVisitor extends BasePositionalVisitor
-            implements PositionalTermVisitor {
+    class HiTalkBuiltInTransformVisitor
+            extends HtBasePositionalVisitor
+            implements HtPositionalTermVisitor {
 
-        private final HiTalkBuiltInTransform builtInTransform;
+        private final HiTalkBuiltInTransform <IApplication, HtClause> builtInTransform;
+//        private final HtPositionalTermTraverser positionalTraverser;
 
         /**
          * @param symbolTable
@@ -1566,23 +1567,11 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
         public
         HiTalkBuiltInTransformVisitor ( SymbolTable <Integer, String, Object> symbolTable,
                                         VariableAndFunctorInterner interner,
-                                        PositionalTermTraverser termTraverser,
-                                        HiTalkBuiltInTransform builtInTransform ) {
-            super(interner, symbolTable, termTraverser);
+                                        HtPositionalTermTraverser termTraverser,
+                                        HiTalkBuiltInTransform <IApplication, HtClause> builtInTransform ) {
+            super(symbolTable, interner, termTraverser);
             this.builtInTransform = builtInTransform;
-        }
-
-
-        /**
-         * Sets up the positional term traverser used to traverse the term being visited, providing a positional context as
-         * it does so.
-         *
-         * @param traverser The positional term traverser used to traverse the term being visited.
-         */
-        @Override
-        public
-        void setPositionalTraverser ( PositionalTermTraverser traverser ) {
-            this.traverser = traverser;
+//            this.positionalTraverser = null;
         }
 
         /**
@@ -1600,8 +1589,16 @@ class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
          * @return
          */
         public
-        HiTalkBuiltInTransform getBuiltInTransform () {
+        HiTalkBuiltInTransform <IApplication, HtClause> getBuiltInTransform () {
             return builtInTransform;
+        }
+
+        @Override
+        public
+
+
+        void setPositionalTraverser ( HtPositionalTermTraverser positionalTraverser ) {
+
         }
     }
 }

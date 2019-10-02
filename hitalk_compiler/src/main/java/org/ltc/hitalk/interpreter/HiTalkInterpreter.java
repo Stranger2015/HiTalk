@@ -3,8 +3,8 @@ package org.ltc.hitalk.interpreter;
 import com.thesett.aima.logic.fol.*;
 import com.thesett.common.parsing.SourceCodeException;
 import jline.ConsoleReader;
-import org.ltc.hitalk.compiler.bktables.Flag;
 import org.ltc.hitalk.compiler.bktables.IConfig;
+import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.term.io.TermIO;
@@ -15,7 +15,10 @@ import java.util.Iterator;
 import java.util.Set;
 
 public
-class HiTalkInterpreter<T extends HtClause, P, Q> implements IInterpreter <T, P, Q> {
+class HiTalkInterpreter<P, Q> implements IInterpreter <P, Q> {
+    protected HtPrologParser parser;
+    protected IConfig config;
+
     /**
      * @return
      */
@@ -39,8 +42,8 @@ class HiTalkInterpreter<T extends HtClause, P, Q> implements IInterpreter <T, P,
      */
     @Override
     public
-    HtPrologParser <T> getParser () {
-        return null;
+    HtPrologParser getParser () {
+        return parser;
     }
 
     /**
@@ -50,7 +53,7 @@ class HiTalkInterpreter<T extends HtClause, P, Q> implements IInterpreter <T, P,
      */
     @Override
     public
-    void compile ( T clause, Flag... flags ) throws SourceCodeException {
+    void compile ( HtClause clause, HtProperty... flags ) throws SourceCodeException {
 
     }
 
@@ -77,7 +80,7 @@ class HiTalkInterpreter<T extends HtClause, P, Q> implements IInterpreter <T, P,
      */
     @Override
     public
-    void compileClause ( T clause ) {
+    void compileClause ( HtClause clause ) {
 
     }
 
@@ -86,7 +89,7 @@ class HiTalkInterpreter<T extends HtClause, P, Q> implements IInterpreter <T, P,
      */
     @Override
     public
-    void setResolver ( Resolver <T, Q> resolver ) {
+    void setResolver ( Resolver <HtClause, Q> resolver ) {
 
     }
 
@@ -96,7 +99,7 @@ class HiTalkInterpreter<T extends HtClause, P, Q> implements IInterpreter <T, P,
      */
     @Override
     public
-    void evaluate ( T clause ) throws SourceCodeException {
+    void evaluate ( HtClause clause ) throws SourceCodeException {
 
     }
 
@@ -176,6 +179,7 @@ class HiTalkInterpreter<T extends HtClause, P, Q> implements IInterpreter <T, P,
 
     }
 
+
     /**
      * Resolves a query over a logical domain, or knowledge base and a query. The domain and query to resolve over must
      * be established by prior to invoking this method. There may be more than one set of bindings that make the query
@@ -212,6 +216,17 @@ class HiTalkInterpreter<T extends HtClause, P, Q> implements IInterpreter <T, P,
     }
 
     /**
+     * Establishes an observer on the compiled forms that the compiler outputs.
+     *
+     * @param observer The compiler output observer.
+     */
+    @Override
+    public
+    void setCompilerObserver ( LogicCompilerObserver observer ) {
+
+    }
+
+    /**
      * Compiles a sentence into a (presumably binary) form, that provides a Java interface into the compiled structure.
      *
      * @param sentence The sentence to compile.
@@ -219,7 +234,7 @@ class HiTalkInterpreter<T extends HtClause, P, Q> implements IInterpreter <T, P,
      */
     @Override
     public
-    void compile ( Sentence <T> sentence ) throws SourceCodeException {
+    void compile ( Sentence sentence ) throws SourceCodeException {
 
     }
 
@@ -228,12 +243,6 @@ class HiTalkInterpreter<T extends HtClause, P, Q> implements IInterpreter <T, P,
      *
      * @param observer The compiler output observer.
      */
-    @Override
-    public
-    void setCompilerObserver ( LogicCompilerObserver <P, Q> observer ) {
-
-    }
-
     /**
      * Signal the end of a compilation scope, to trigger completion of the compilation of its contents.
      *
@@ -251,7 +260,7 @@ class HiTalkInterpreter<T extends HtClause, P, Q> implements IInterpreter <T, P,
     @Override
     public
     IConfig getConfig () {
-        return null;
+        return config;
     }
 
     /**
@@ -261,5 +270,10 @@ class HiTalkInterpreter<T extends HtClause, P, Q> implements IInterpreter <T, P,
     public
     void setConfig ( IConfig config ) {
 
+    }
+
+    public
+    void setParser ( HtPrologParser parser ) {
+        this.parser = parser;
     }
 }

@@ -7,6 +7,7 @@ import org.ltc.hitalk.compiler.bktables.IConfig;
  */
 public
 interface IConfigurable {
+
     /**
      * @return
      */

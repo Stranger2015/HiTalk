@@ -23,8 +23,8 @@ import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.Filterator;
 import com.thesett.common.util.Source;
-import org.ltc.hitalk.compiler.bktables.Flag;
 import org.ltc.hitalk.core.ICompiler;
+import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.HtTokenSource;
@@ -33,6 +33,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.*;
+
+import static com.thesett.aima.logic.fol.isoprologparser.TokenSource.getTokenSourceForInputStream;
 
 /**
  * ResolutionEngine combines together a logic {@link Parser}, a {@link VariableAndFunctorInterner} that acts as a symbol
@@ -47,7 +49,7 @@ import java.util.*;
  * @author Rupert Smith
  */
 public
-class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser <T>
+class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
         implements VariableAndFunctorInterner,
                    ICompiler <T, P, Q>,
                    Resolver <T, Q> {
@@ -58,7 +60,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser <T>
     /**
      * Holds the parser.
      */
-    protected HtPrologParser <T> parser;
+    protected HtPrologParser parser;
 
     /**
      * Holds the variable and functor symbol table.
@@ -85,7 +87,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser <T>
      * @param interner The functor and variable name interner.
      */
     public
-    HtResolutionEngine ( HtPrologParser <T> parser,
+    HtResolutionEngine ( HtPrologParser parser,
                          VariableAndFunctorInterner interner,
                          ICompiler <T, P, Q> compiler ) {
         super(parser, interner);
@@ -137,12 +139,12 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser <T>
     public
     void consultInputStream ( InputStream stream ) throws SourceCodeException {
         // Create a token source to read from the specified input stream.
-        HtTokenSource tokenSource = HtTokenSource.getTokenSourceForInputStream(stream, vfsFo.getName().getPath());
+        HtTokenSource tokenSource = (HtTokenSource) getTokenSourceForInputStream(stream/*, vfsFo.getName().getPath()*/);
         getParser().setTokenSource(tokenSource);
 
         // Consult the type checking rules and add them to the knowledge base.
         while (true) {
-            Sentence <T> sentence = getParser().parse();
+            Sentence <HtClause> sentence = getParser().parse();
 
             if (sentence == null) {
                 break;
@@ -323,9 +325,10 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser <T>
 
     /**
      * {@inheritDoc}
+     * @return
      */
     public
-    Sentence <T> parse () throws SourceCodeException {
+    Sentence <HtClause> parse () throws SourceCodeException {
         return parser.parse();
     }
 
@@ -339,9 +342,10 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser <T>
 
     /**
      * {@inheritDoc}
+     * @param sentence
      */
     public
-    void compile ( Sentence <T> sentence ) throws SourceCodeException {
+    void compile ( Sentence <HtClause> sentence ) throws SourceCodeException {
         compiler.compile(sentence.getT());
     }
 
@@ -439,7 +443,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser <T>
      */
     @Override
     public
-    void compile ( HtClause clause, Flag... flags ) throws SourceCodeException {
+    void compile ( HtClause clause, HtProperty... flags ) throws SourceCodeException {
 
     }
 
@@ -484,7 +488,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser <T>
      */
     @Override
     public
-    void setResolver ( Resolver <T, Q> resolver ) {
+    void setResolver ( Resolver <HtClause, Q> resolver ) {
 
     }
 

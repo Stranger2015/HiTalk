@@ -3,7 +3,6 @@ package org.ltc.hitalk.entities;
 import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.search.Operator;
 import org.ltc.enumus.Hierarchy;
-import org.ltc.hitalk.compiler.bktables.INameable;
 
 import java.util.Iterator;
 import java.util.function.Function;
@@ -12,7 +11,7 @@ import java.util.function.Function;
  *
  */
 public
-class HtPredicateIndicator extends BaseTerm implements INameable <Functor> {
+class HtPredicateIndicator extends BaseTerm {
     private Functor delegate;
 
     /**
@@ -151,7 +150,6 @@ class HtPredicateIndicator extends BaseTerm implements INameable <Functor> {
      *
      * @return This functors name.
      */
-    @Override
     public
     Functor getName () {
         return (Functor) getArgument(0);

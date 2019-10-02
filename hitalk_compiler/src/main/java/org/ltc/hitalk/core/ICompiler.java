@@ -4,8 +4,8 @@ import com.thesett.aima.logic.fol.LogicCompiler;
 import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.common.parsing.SourceCodeException;
-import org.ltc.hitalk.compiler.bktables.Flag;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
+import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import static com.thesett.aima.logic.fol.isoprologparser.TokenSource.getTokenSourceForFile;
 import static com.thesett.aima.logic.fol.isoprologparser.TokenSource.getTokenSourceForString;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 
@@ -26,9 +25,9 @@ import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISS
  * @param <Q>
  */
 public
-interface ICompiler<T extends HtClause, P, Q> extends LogicCompiler <T, P, Q> {
+interface ICompiler<T extends HtClause, P, Q> extends LogicCompiler <HtClause, P, Q> {
 
-    Flag[] EMPTY_FLAG_ARRAY = new Flag[0];
+    HtProperty[] EMPTY_FLAG_ARRAY = new HtProperty[0];
 
     /**
      * @param fnl
@@ -41,7 +40,7 @@ interface ICompiler<T extends HtClause, P, Q> extends LogicCompiler <T, P, Q> {
     }
 
     default
-    void compileFiles ( List <String> fnl, Flag... flags ) throws IOException, SourceCodeException {
+    void compileFiles ( List <String> fnl, HtProperty... flags ) throws IOException, SourceCodeException {
         for (String fn : fnl) {
             compileFile(fn, flags);
         }
@@ -52,8 +51,8 @@ interface ICompiler<T extends HtClause, P, Q> extends LogicCompiler <T, P, Q> {
      * @throws IOException
      */
     default
-    void compileFile ( String fn, Flag... flags ) throws IOException, SourceCodeException {
-        compile((HtTokenSource) getTokenSourceForFile(new File(fn)), flags);
+    void compileFile ( String fn, HtProperty... flags ) throws IOException, SourceCodeException {
+        compile(HtTokenSource.getTokenSourceForIoFile(new File(fn)), flags);
     }
 
     /**
@@ -63,7 +62,7 @@ interface ICompiler<T extends HtClause, P, Q> extends LogicCompiler <T, P, Q> {
      * @throws SourceCodeException
      */
     default
-    void compileString ( String fn, Flag... flags ) throws IOException, SourceCodeException {
+    void compileString ( String fn, HtProperty... flags ) throws Exception {
         compile((HtTokenSource) getTokenSourceForString(fn), flags);
     }
 
@@ -79,7 +78,7 @@ interface ICompiler<T extends HtClause, P, Q> extends LogicCompiler <T, P, Q> {
 //     * @throws SourceCodeException
 //     */
 //    default
-//    void compileZipArchive ( String fn, ZipFile zipFile, Flag... flags ) throws IOException, SourceCodeException {
+//    void compileZipArchive ( String fn, ZipFile zipFile, HtProperty... flags ) throws IOException, SourceCodeException {
 //        ZipEntry zipEntry = zipFile.getEntry(fn);
 //        InputStream input = zipFile.getInputStream(zipEntry);
 //        compileInputStream(input, flags);
@@ -90,13 +89,13 @@ interface ICompiler<T extends HtClause, P, Q> extends LogicCompiler <T, P, Q> {
      * @param flags
      */
     default
-    void compile ( HtTokenSource tokenSource, Flag... flags ) {
-        getConsole().info("Compiling" + tokenSource);
+    void compile ( HtTokenSource tokenSource, HtProperty... flags ) {
+        getConsole().info("Compiling " + tokenSource);
         getParser().setTokenSource(tokenSource);
         try {
             while (true) {
                 // Parse the next sentence or directive.
-                Sentence <T> sentence = getParser().parse();
+                Sentence <HtClause> sentence = getParser().parse();
 
                 getConsole().info(sentence.toString());
                 compile(sentence.getT(), flags);
@@ -115,13 +114,13 @@ interface ICompiler<T extends HtClause, P, Q> extends LogicCompiler <T, P, Q> {
     /**
      * @return
      */
-    HtPrologParser <T> getParser ();
+    HtPrologParser getParser ();
 
     /**
      * @param clause
      * @throws SourceCodeException
      */
-    void compile ( T clause, Flag... flags ) throws SourceCodeException;
+    void compile ( HtClause clause, HtProperty... flags ) throws SourceCodeException;
 
     /**
      * @param rule
@@ -136,10 +135,10 @@ interface ICompiler<T extends HtClause, P, Q> extends LogicCompiler <T, P, Q> {
     /**
      * @param clause
      */
-    void compileClause ( T clause );
+    void compileClause ( HtClause clause );
 
     /**
      * @param resolver
      */
-    void setResolver ( Resolver <T, Q> resolver );
+    void setResolver ( Resolver <HtClause, Q> resolver );
 }

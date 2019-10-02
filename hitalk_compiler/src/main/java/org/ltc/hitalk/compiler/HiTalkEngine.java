@@ -2,8 +2,8 @@ package org.ltc.hitalk.compiler;
 
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
-import org.ltc.hitalk.compiler.bktables.Flag;
 import org.ltc.hitalk.core.ICompiler;
+import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.parser.HtClause;
@@ -23,11 +23,11 @@ class HiTalkEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P, Q
      * @param compiler
      */
     public
-    HiTalkEngine ( HtPrologParser <T> parser,
+    HiTalkEngine ( HtPrologParser parser,
                    VariableAndFunctorInterner interner,
                    ICompiler <T, P, Q> compiler ) {
         super(parser, interner, compiler);
-        compiler.setResolver(this);
+//        compiler.setResolver(this);
     }
 
     /**
@@ -47,7 +47,7 @@ class HiTalkEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P, Q
      */
     @Override
     public
-    void compile ( HtClause sentence, Flag... flags ) throws SourceCodeException {
+    void compile ( HtClause sentence, HtProperty... flags ) throws SourceCodeException {
 //todo
     }
 

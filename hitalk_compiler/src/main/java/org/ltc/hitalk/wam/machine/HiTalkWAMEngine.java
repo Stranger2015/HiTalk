@@ -3,8 +3,8 @@ package org.ltc.hitalk.wam.machine;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
-import org.ltc.hitalk.compiler.bktables.Flag;
 import org.ltc.hitalk.core.ICompiler;
+import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.parser.HiTalkParser;
@@ -49,7 +49,7 @@ class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P
      * @param compiler
      */
     public
-    HiTalkWAMEngine ( HtPrologParser <T> parser,
+    HiTalkWAMEngine ( HtPrologParser parser,
                       VariableAndFunctorInterner interner,
                       ICompiler <T, P, Q> compiler ) {
         super(parser, interner, compiler);
@@ -79,16 +79,16 @@ class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P
 
         // Create a token source to load the model rules from.
         InputStream input = getClass().getClassLoader().getResourceAsStream(BUILT_IN_LIB);
-        HtTokenSource tokenSource = getTokenSourceForInputStream(Objects.requireNonNull(input), vfsFo.getName().getPath());
+        HtTokenSource tokenSource = (HtTokenSource) getTokenSourceForInputStream(Objects.requireNonNull(input)/*, vfsFo.getName().getPath()*/);
 
         // Set up a parser on the token source.
-        HtPrologParser <T> libParser = new HiTalkParser <>(tokenSource, interner);
+        HtPrologParser libParser = new HiTalkParser(tokenSource, interner);
         libParser.setTokenSource(tokenSource);
 
         // Load the built-ins into the domain.
         try {
             while (true) {
-                Sentence <T> sentence = libParser.parse();
+                Sentence <HtClause> sentence = libParser.parse();
 
                 if (sentence == null) {
                     break;
@@ -117,7 +117,7 @@ class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P
      */
     @Override
     public
-    void compile ( HtClause sentence, Flag... flags ) throws SourceCodeException {
+    void compile ( HtClause sentence, HtProperty... flags ) throws SourceCodeException {
 
     }
 

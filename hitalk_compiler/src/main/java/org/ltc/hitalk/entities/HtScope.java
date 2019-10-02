@@ -1,12 +1,62 @@
 package org.ltc.hitalk.entities;
 
+import com.thesett.aima.logic.fol.Term;
+import org.ltc.hitalk.term.io.HiTalkStream;
+
+import java.beans.PropertyChangeListener;
+
 import static org.ltc.hitalk.parser.PrologAtoms.*;
 
 /**
  *
  */
 public
-class HtScope extends PropertyOwner {
+class HtScope implements IPropertyOwner {
+    protected
+    PropertyOwner owner;
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    int getPropLength () {
+        return owner.getPropLength();
+    }
+
+    @Override
+    public
+    void addListener ( PropertyChangeListener listener ) {
+        owner.addListener(listener);
+    }
+
+    @Override
+    public
+    void removeListener ( PropertyChangeListener listener ) {
+        owner.removeListener(listener);
+    }
+
+    @Override
+    public
+    void fireEvent ( IProperty property, Term value ) {
+        owner.fireEvent(property, value);
+    }
+
+    @Override
+    public
+    Term getValue ( HiTalkStream.Properties property ) {
+        return owner.getValue(property);
+    }
+
+    /**
+     * @param property
+     * @param value
+     */
+    @Override
+    public
+    void setValue ( HiTalkStream.Properties property, Term value ) {
+        owner.setValue(property, value);
+    }
 
     /**
      *
@@ -40,16 +90,18 @@ class HtScope extends PropertyOwner {
      * @param kind
      */
     public
-    HtScope ( Kind kind, HtProperty... properties ) {
-        super(properties);
+    HtScope ( Kind kind, HtProperty[] properties ) {
         this.kind = kind;
+        this.properties = properties;
     }
 
     /**
      * @param name
+     * @param properties
      */
     public
-    HtScope ( String name ) {
+    HtScope ( String name, HtProperty[] properties ) {
+        this.properties = properties;
         switch (name) {
             case PUBLIC:
                 kind = Kind.PUBLIC;
@@ -66,6 +118,7 @@ class HtScope extends PropertyOwner {
     }
 
     private final Kind kind;
+    private final HtProperty[] properties;
 
     /**
      * @return

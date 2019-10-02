@@ -13,14 +13,14 @@ import org.ltc.hitalk.wam.compiler.HtTokenSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  *
  */
 public abstract
-class BaseApplication<T extends HtClause, P, Q> implements IApplication <T> {
+class BaseApplication<T extends HtClause, P, Q> implements IApplication {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
@@ -31,40 +31,42 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication <T> {
 
     protected SymbolTable <Integer, String, Object> symbolTable;
     protected VariableAndFunctorInterner interner;
-    protected HtPrologParser <T> parser;
+    protected HtPrologParser parser;
     protected ICompiler <T, P, Q> instructionCompiler;
 
     protected ICompiler <T, HtPredicate, T> preCompiler;
     protected HiTalkDefaultBuiltIn defaultBuiltIn;
     protected Runnable target;
     protected String fileName;
+    protected State state;
 
-//    public
-//    ICompiler <T, P, Q> getInstructionCompiler () {
-//        if(instructionCompiler == null) {
-//           instructionCompiler= (ICompiler <T, P, Q>) new HiTalkInstructionCompiler(
-//                    getSymbolTable(),
-//                    getInterner(),
-//                    new HiTalkDefaultBuiltIn(getSymbolTable(), getInterner()));
-//        }
-//        return instructionCompiler;
-//    }
-
+    /**
+     * @param compiler
+     */
     public
     void setInstructionCompiler ( ICompiler <T, P, Q> compiler ) {
         this.instructionCompiler = compiler;
     }
 
+    /**
+     * @param preCompiler
+     */
     public
     void setPreCompiler ( ICompiler <T, HtPredicate, T> preCompiler ) {
         this.preCompiler = preCompiler;
     }
 
+    /**
+     * @return
+     */
     public
     HiTalkDefaultBuiltIn getDefaultBuiltIn () {
         return defaultBuiltIn;
     }
 
+    /**
+     * @param defaultBuiltIn
+     */
     public
     void setDefaultBuiltIn ( HiTalkDefaultBuiltIn defaultBuiltIn ) {
         this.defaultBuiltIn = defaultBuiltIn;
@@ -121,7 +123,7 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication <T> {
 
     @Override
     public
-    void setInited ( boolean b ) throws LinkageException, FileNotFoundException {
+    void setInited ( boolean b ) throws LinkageException, IOException {
         if (b && !isInited()) {
             init();
         }
@@ -132,7 +134,7 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication <T> {
      */
     @Override
     public
-    void doInit () throws LinkageException, FileNotFoundException {
+    void doInit () throws LinkageException, IOException {
         initialized.set(true);
     }
 
@@ -205,7 +207,7 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication <T> {
     @Override
     public
     State getState () {
-        return null;
+        return state;
     }//todo
 
     @Override
@@ -254,7 +256,7 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication <T> {
      */
     @Override
     public
-    HtPrologParser <T> getParser () {
+    HtPrologParser getParser () {
         return parser;
     }
 
@@ -263,7 +265,7 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication <T> {
      */
     @Override
     public
-    void setParser ( HtPrologParser <T> parser ) {
+    void setParser ( HtPrologParser parser ) {
         this.parser = parser;
     }
 
@@ -302,6 +304,7 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication <T> {
     /**
      * @return
      */
+    @Override
     public
     String getFileName () {
         return fileName;

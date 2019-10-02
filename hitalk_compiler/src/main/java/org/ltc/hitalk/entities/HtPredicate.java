@@ -5,7 +5,11 @@ import com.thesett.aima.search.Operator;
 import com.thesett.common.util.StackQueue;
 import org.ltc.hitalk.compiler.HtPredicateVisitor;
 import org.ltc.hitalk.interpreter.IPredicateTraverser;
+import org.ltc.hitalk.term.io.HiTalkStream;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -54,11 +58,12 @@ import java.util.stream.IntStream;
  * specified line (if applicable)
  */
 public
-class HtPredicate extends BaseTerm implements Term, IPropertyOwner <I> {
+class HtPredicate extends BaseTerm implements Term, IPropertyOwner {
     /**
      * The clauses that make up this predicate.
      */
     protected HtPredicateDefinition definition;
+    final private List <PropertyChangeListener> listeners = new ArrayList <>();
 
     /**
      * Creates a predicate formed from a set of clauses.
@@ -180,5 +185,45 @@ class HtPredicate extends BaseTerm implements Term, IPropertyOwner <I> {
     public
     int getPropLength () {
         return props.length;
+    }
+
+    @Override
+    public
+    void addListener ( PropertyChangeListener listener ) {
+        listeners.add(listener);
+    }
+
+    @Override
+    public
+    void removeListener ( PropertyChangeListener listener ) {
+        listeners.remove(listener);
+    }
+
+    @Override
+    public
+    void fireEvent ( IProperty property, Term value ) {
+        for (PropertyChangeListener listener : listeners) {
+            listener.propertyChange(new PropertyChangeEvent(
+                    property,
+                    property.getName(),
+                    value,
+                    property.getValue()));
+        }
+    }
+
+    @Override
+    public
+    Term getValue ( HiTalkStream.Properties property ) {
+        return null;
+    }
+
+    /**
+     * @param property
+     * @param value
+     */
+    @Override
+    public
+    void setValue ( HiTalkStream.Properties property, Term value ) {
+
     }
 }

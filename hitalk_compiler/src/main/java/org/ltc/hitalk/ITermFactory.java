@@ -2,9 +2,9 @@ package org.ltc.hitalk;
 
 import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.logic.fol.Term;
-import org.ltc.hitalk.compiler.bktables.Flag;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
+import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.term.HiLogCompound;
 import org.ltc.hitalk.term.ListTerm;
 
@@ -27,7 +27,7 @@ interface ITermFactory {
 
     Functor createCompound ( String s, Term[] head, Term tail );
 
-    Flag createFlag ( String flagName, String flagValue );
+    HtProperty createFlag ( String flagName, String flagValue );
 
     /**
      * @param name
@@ -42,7 +42,7 @@ interface ITermFactory {
      * @param args
      * @return
      */
-    Flag createFlag ( String name, Term... args );
+    HtProperty createFlag ( String name, Term... args );
 
 //    HtProperty createProperty ( String name, String value );
 //    HtProperty createProperty ( String name, Term... args );

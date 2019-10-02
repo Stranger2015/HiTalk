@@ -81,4 +81,5 @@ interface PrologAtoms {
     String COMPLEMENTS = "complements";
     String INSTANTIATES = "instantiates";
     String SPECIALIZES = "specializes";
+    String ENCODING = "encoding";
 }

@@ -4,7 +4,6 @@ import com.thesett.aima.logic.fol.Functor;
 import org.ltc.hitalk.compiler.bktables.BkTable;
 import org.ltc.hitalk.compiler.bktables.BkTableKind;
 import org.ltc.hitalk.compiler.bktables.BookKeepingTables;
-import org.ltc.hitalk.compiler.bktables.INameable;
 import org.ltc.hitalk.compiler.bktables.db.Record;
 
 import java.util.ArrayList;
@@ -207,7 +206,7 @@ import static org.ltc.hitalk.entities.HtRelationKind.LENGTH;
  * complements(employee)).
  */
 public
-class HtEntity extends PropertyOwner implements INameable <Functor> {
+class HtEntity extends PropertyOwner {
     /**
      *
      */
@@ -235,7 +234,6 @@ class HtEntity extends PropertyOwner implements INameable <Functor> {
     /**
      * @return
      */
-    @Override
     public
     Functor getName () {
         return identifier;

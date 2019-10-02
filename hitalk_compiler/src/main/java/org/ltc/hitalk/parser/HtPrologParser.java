@@ -64,7 +64,7 @@ import static org.ltc.hitalk.core.BuiltIns.*;
  * @author Rupert Smith
  */
 public
-class HtPrologParser<T extends HtClause> implements Parser <T, Token>, HtPrologParserConstants {
+class HtPrologParser implements Parser <HtClause, Token>, HtPrologParserConstants {
 
     public static final String BEGIN_OF_FILE = "begin_of_file";
     public static final String END_OF_FILE = "end_of_file";
@@ -136,8 +136,8 @@ class HtPrologParser<T extends HtClause> implements Parser <T, Token>, HtPrologP
      */
     @Override
     public
-    Sentence <T> parse () throws SourceCodeException {
-        T clause = sentence();
+    Sentence <HtClause> parse () throws SourceCodeException {
+        HtClause clause = sentence();
         if (clause == null) {
             return null;
         }
@@ -299,8 +299,8 @@ class HtPrologParser<T extends HtClause> implements Parser <T, Token>, HtPrologP
      * @throws SourceCodeException If the token sequence does not parse into a valid sentence.
      */
     public
-    T sentence () throws SourceCodeException {
-        Sentence <T> sentence = parse();
+    HtClause sentence () throws SourceCodeException {
+        Sentence <HtClause> sentence = parse();
 
         consumeToken(PERIOD);
 
@@ -390,7 +390,7 @@ class HtPrologParser<T extends HtClause> implements Parser <T, Token>, HtPrologP
     }
 
     protected
-    T convert ( Term term ) throws SourceCodeException {
+    HtClause convert ( Term term ) throws SourceCodeException {
         // Check if the top level term is a query, an implication or neither and reduce the term into a clause
         // accordingly.
         Functor[] args = null;
@@ -413,7 +413,7 @@ class HtPrologParser<T extends HtClause> implements Parser <T, Token>, HtPrologP
                             BkLoadedEntities record = (BkLoadedEntities) bkt.selectOne(BkTableKind.LOADED_ENTITIES,
                                     new BkLoadedEntities(new HtEntityIdentifier(identifier, null)));
                             entity = record.getEntity1();
-                            return (T) new HtClause(entity, head, args);
+                            return (HtClause) new HtClause(entity, head, args);
                         }
                         else {
                             // ::/1
@@ -431,7 +431,7 @@ class HtPrologParser<T extends HtClause> implements Parser <T, Token>, HtPrologP
 //                if (symbol.isPrefix()){
 //                    body = symbol.getArgument(0);
 //                }
-                    return (T) new HtClause(null, args);
+                    return (HtClause) new HtClause(null, args);
                 }
             }
         }

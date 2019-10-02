@@ -33,12 +33,13 @@ import com.thesett.common.util.SizeableLinkedList;
 import com.thesett.common.util.SizeableList;
 import com.thesett.common.util.doublemaps.SymbolKey;
 import com.thesett.common.util.doublemaps.SymbolTable;
-import org.ltc.hitalk.compiler.bktables.Flag;
+import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn.VarIntroduction;
 import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
+import org.ltc.hitalk.wam.printer.HtPositionalTermTraverser;
 import org.ltc.hitalk.wam.printer.HtPositionalTermVisitor;
 import org.ltc.hitalk.wam.printer.HtWAMCompiledPredicatePrintingVisitor;
 import org.ltc.hitalk.wam.printer.HtWAMCompiledQueryPrintingVisitor;
@@ -203,6 +204,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
     private SymbolTable <Integer, String, Object> scopeTable;
     private Collection <Integer> seenRegisters;
     private int lastAllocatedTempReg;
+    private Logger logger;
 
     /**
      * Creates a new HiTalkInstructionCompiler.
@@ -902,7 +904,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
         // Allocate local variable slots for all variables in a query.
         QueryRegisterAllocatingVisitor allocatingVisitor = new QueryRegisterAllocatingVisitor(symbolTable, varNames, null);
 
-        PositionalTermTraverser positionalTraverser = new PositionalTermTraverserImpl();
+        HtPositionalTermTraverser positionalTraverser = new HtPositionalTermTraverserImpl();
         positionalTraverser.setContextChangeVisitor(allocatingVisitor);
 
         TermWalker walker = new TermWalker(new DepthFirstBacktrackingSearch <>(), positionalTraverser, allocatingVisitor);
@@ -998,10 +1000,10 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
     /**
      * @return
      */
-//    @Override
+    @Override
     public
     Logger getConsole () {
-        return null;
+        return logger;
     }
 
     /**
@@ -1009,7 +1011,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
      */
     @Override
     public
-    HtPrologParser <HtClause> getParser () {
+    HtPrologParser getParser () {
         return parser;
     }
 
@@ -1020,32 +1022,12 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
      */
     @Override
     public
-    void compile ( HtClause clause, Flag... flags ) throws SourceCodeException {
+    void compile ( HtClause clause, HtProperty... flags ) throws SourceCodeException {
 
     }
 
-//    /**
-//     * @param clause
-//     * @param flags
-//     * @throws SourceCodeException
-//     */
-//    @Override
-//    public
-//    void compile ( HtClause clause, Flag... flags ) throws SourceCodeException {
-//
-//    }
-
-//    /**
-//     * @param sentence
-//     * @param flags
-//     * @throws SourceCodeException
-//     */
-////    @Override
-//    public
-//    void compile ( HtClause sentence, Flag... flags ) throws SourceCodeException {
-//
-//    }
-
+    /**
+     * @return
     /**
      * @param rule
      */

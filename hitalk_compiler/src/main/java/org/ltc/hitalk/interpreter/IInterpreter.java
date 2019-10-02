@@ -23,7 +23,7 @@ import static org.ltc.hitalk.wam.compiler.HtTokenSource.getTokenSourceForInputSt
  *
  */
 public
-interface IInterpreter<T extends HtClause, P, Q> extends IConfigurable, ICompiler <T, P, Q>, Resolver <P, Q> {
+interface IInterpreter<P, Q> extends IConfigurable, ICompiler <HtClause, P, Q>, Resolver <P, Q> {
     /**
      *
      */
@@ -37,7 +37,7 @@ interface IInterpreter<T extends HtClause, P, Q> extends IConfigurable, ICompile
     /**
      * @return
      */
-    HtPrologParser <T> getParser ();
+    HtPrologParser getParser ();
 
     /**
      * @throws IOException
@@ -51,7 +51,7 @@ interface IInterpreter<T extends HtClause, P, Q> extends IConfigurable, ICompile
         setConsoleReader(initializeCommandLineReader());
 
         // Used to buffer input, and only feed it to the parser when a PERIOD is encountered.
-        TokenBuffer tokenBuffer = (TokenBuffer) getTokenSourceForInputStream(System.in, vfsFo.getName().getPath());
+        TokenBuffer tokenBuffer = (TokenBuffer) getTokenSourceForInputStream(System.in/*, vfsFo.getName().getPath()*/);
 
         // Used to hold the currently buffered lines of input, for the purpose of presenting this back to the user
         // in the event of a syntax or other error in the input.
@@ -152,7 +152,7 @@ interface IInterpreter<T extends HtClause, P, Q> extends IConfigurable, ICompile
                     getParser().setTokenSource(tokenBuffer);
 
                     // Parse the next clause.
-                    T nextClause = (T) getParser().sentence();
+                    HtClause nextClause = getParser().sentence();
 
                     /*log.fine(nextParsing.toString());*/
                     evaluate(nextClause);
@@ -212,7 +212,7 @@ interface IInterpreter<T extends HtClause, P, Q> extends IConfigurable, ICompile
      * @param clause
      * @throws SourceCodeException
      */
-    void evaluate ( T clause ) throws SourceCodeException;
+    void evaluate ( HtClause clause ) throws SourceCodeException;
 
     /**
      * @return

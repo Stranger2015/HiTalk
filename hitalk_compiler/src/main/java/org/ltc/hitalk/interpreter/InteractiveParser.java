@@ -15,12 +15,12 @@ import org.ltc.hitalk.wam.compiler.HtTokenSource;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.RESOURCE_ERROR;
 
 public
-class InteractiveParser<T extends HtClause> implements Parser <T, Token> {
-    protected HtPrologParser <T> parser;
+class InteractiveParser implements Parser <HtClause, Token> {
+    protected HtPrologParser parser;
     protected VariableAndFunctorInterner interner;
 
     public
-    InteractiveParser ( HtPrologParser <T> parser, VariableAndFunctorInterner interner ) {
+    InteractiveParser ( HtPrologParser parser, VariableAndFunctorInterner interner ) {
         this.parser = parser;
         this.interner = interner;
     }
@@ -48,7 +48,7 @@ class InteractiveParser<T extends HtClause> implements Parser <T, Token> {
      */
     @Override
     public
-    Sentence <T> parse () throws SourceCodeException {
+    Sentence <HtClause> parse () throws SourceCodeException {
         try {
             return parser.parse();
         } catch (SourceCodeException e) {
@@ -71,12 +71,12 @@ class InteractiveParser<T extends HtClause> implements Parser <T, Token> {
     }
 
     public
-    void setParser ( HtPrologParser <T> parser ) {
+    void setParser ( HtPrologParser parser ) {
         this.parser = parser;
     }
 
     public
-    HtPrologParser <T> getParser () {
+    HtPrologParser getParser () {
         return parser;
     }
 }

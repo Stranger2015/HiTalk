@@ -143,6 +143,8 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
     }
 
     /**
+     /**
+     /**
      * {@inheritDoc}
      */
     public

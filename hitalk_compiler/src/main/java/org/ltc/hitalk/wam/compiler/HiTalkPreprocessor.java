@@ -4,8 +4,8 @@ package org.ltc.hitalk.wam.compiler;
 import com.thesett.aima.logic.fol.*;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
-import org.ltc.hitalk.compiler.bktables.Flag;
 import org.ltc.hitalk.entities.HtPredicate;
+import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
@@ -42,7 +42,7 @@ class HiTalkPreprocessor<TC extends Term, TT extends TransformTask <HtClause, TC
 
     protected LogicCompilerObserver <HtPredicate, HtClause> observer;
     protected List <HtClause> preCompiledTarget;
-    protected HtPrologParser <HtClause> parser;
+    protected HtPrologParser parser;
 
     /**
      * {@inheritDoc}
@@ -180,7 +180,7 @@ class HiTalkPreprocessor<TC extends Term, TT extends TransformTask <HtClause, TC
      */
     @Override
     public
-    HtPrologParser <HtClause> getParser () {
+    HtPrologParser getParser () {
         return parser;
     }
 
@@ -191,7 +191,7 @@ class HiTalkPreprocessor<TC extends Term, TT extends TransformTask <HtClause, TC
      */
     @Override
     public
-    void compile ( HtClause clause, Flag... flags ) throws SourceCodeException {
+    void compile ( HtClause clause, HtProperty... flags ) throws SourceCodeException {
 
     }
 

@@ -1,12 +1,9 @@
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.OpSymbol;
-import com.thesett.aima.logic.fol.PositionalTermVisitor;
 import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.TermVisitor;
 import com.thesett.aima.logic.fol.compiler.DefaultTraverser;
-import com.thesett.aima.logic.fol.compiler.PositionalTermTraverser;
-import com.thesett.aima.logic.fol.compiler.PositionalTermTraverserImpl;
 import com.thesett.aima.logic.fol.compiler.TermWalker;
 import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
 import com.thesett.aima.search.util.uninformed.PostFixSearch;
@@ -89,8 +86,8 @@ class HtTermWalkers {
      * @return A positional postfix first walk over a term.
      */
     public static
-    TermWalker positionalPostfixWalker ( PositionalTermVisitor visitor ) {
-        PositionalTermTraverser positionalTraverser = new PositionalTermTraverserImpl();
+    TermWalker positionalPostfixWalker ( HtPositionalTermVisitor visitor ) {
+        HtPositionalTermTraverser positionalTraverser = new HtPositionalTermTraverserImpl();
         positionalTraverser.setContextChangeVisitor(visitor);
         visitor.setPositionalTraverser(positionalTraverser);
 

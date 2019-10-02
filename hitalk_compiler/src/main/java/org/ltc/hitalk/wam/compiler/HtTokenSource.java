@@ -1,6 +1,7 @@
 
 package org.ltc.hitalk.wam.compiler;
 
+import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.isoprologparser.PrologParserTokenManager;
 import com.thesett.aima.logic.fol.isoprologparser.SimpleCharStream;
 import com.thesett.aima.logic.fol.isoprologparser.Token;
@@ -9,8 +10,11 @@ import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.VFS;
+import org.ltc.hitalk.parser.PrologAtoms;
 import org.ltc.hitalk.term.io.HiTalkStream;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.net.URI;
 import java.nio.file.Path;
@@ -22,8 +26,8 @@ import static org.ltc.hitalk.parser.HtPrologParserConstants.EOF;
  *
  */
 public
-class HtTokenSource extends TokenSource {
-    private BufferedInputStream input;//implements PropertyChangeListener {
+class HtTokenSource extends TokenSource implements PropertyChangeListener {
+    //    private BufferedInputStream input;//implements PropertyChangeListener {
     private String path;
 
     private int lineOfs;
@@ -55,18 +59,14 @@ class HtTokenSource extends TokenSource {
      * @param inputStream
      */
     public
-    HtTokenSource ( PrologParserTokenManager tokenManager, InputStream inputStream ) throws IOException {
+    HtTokenSource ( PrologParserTokenManager tokenManager, InputStream inputStream ) {
         super(tokenManager);
-
-        setOffset(0, 0);//fixme 1,1  ??????????
-//        setFileBeginOffset(0);
         stream = new HiTalkStream(inputStream, this);
     }
 
     public
-    HtTokenSource ( PrologParserTokenManager tokenManager, BufferedInputStream input, String path ) {
-        super(tokenManager);
-        this.input = input;
+    HtTokenSource ( PrologParserTokenManager tokenManager, BufferedInputStream input, String path ) throws IOException {
+        this(tokenManager, input);
         this.path = path;
     }
 
@@ -80,6 +80,19 @@ class HtTokenSource extends TokenSource {
     HtTokenSource getTokenSourceForString ( String stringToTokenize, int lineOfs ) throws IOException {
         InputStream input = new ByteArrayInputStream(stringToTokenize.getBytes());
         return getTokenSourceForInputStream(input, "");//fixme
+    }
+
+    public static
+    HtTokenSource getTokenSourceForIoFile ( File file ) throws IOException {
+        return getTokenSourceForUri(file.toURI());
+    }
+
+    private static
+    HtTokenSource getTokenSourceForUri ( URI uri ) throws IOException {
+        FileSystemManager manager = VFS.getManager();
+        FileObject file = manager.resolveFile(uri);
+
+        return getTokenSourceForVfsFileObject(file);
     }
 
     /**
@@ -159,6 +172,10 @@ class HtTokenSource extends TokenSource {
     }
 
 
+    /**
+     * @param lineOfs
+     * @param colOfs
+     */
     public
     void setOffset ( int lineOfs, int colOfs ) {
         this.lineOfs = lineOfs;
@@ -166,6 +183,10 @@ class HtTokenSource extends TokenSource {
     }
 
 
+    /**
+     * @param token
+     * @return
+     */
     private
     Token addOffset ( Token token ) {
         if (token == null) {
@@ -179,13 +200,41 @@ class HtTokenSource extends TokenSource {
         return token;
     }
 
+    /**
+     * @return
+     */
     public
     long getFileBeginOffset () {
         return fileBeginOffset;
     }
 
+    /**
+     * @param fileBeginOffset
+     */
     public
     void setFileBeginOffset ( long fileBeginOffset ) {
         this.fileBeginOffset = fileBeginOffset;
+    }
+
+    /**
+     * This method gets called when a bound property is changed.
+     *
+     * @param event A PropertyChangeEvent object describing the event source
+     *              and the property that has changed.
+     */
+    @Override
+    public
+    void propertyChange ( PropertyChangeEvent event ) {
+        if (PrologAtoms.ENCODING.equals(event.getPropertyName())) {
+            Term value = (Term) event.getNewValue();
+        }
+    }
+
+    /**
+     * @return
+     */
+    public
+    String getPath () {
+        return path;
     }
 }

@@ -20,7 +20,7 @@ class BaseCompiler<T extends HtClause, P, Q>
         implements ICompiler <T, P, Q> {
 
     protected LogicCompilerObserver <P, Q> observer;
-    protected HtPrologParser <T> parser;
+    protected HtPrologParser parser;
 //    protected Logger console;
 
     /**

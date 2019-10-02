@@ -61,7 +61,7 @@ class TermFactory implements ITermFactory {
 
     @Override
     public
-    Flag createFlag ( String flagName, String flagValue ) {
+    HtProperty createFlag ( String flagName, String flagValue ) {
         int ffn = interner.internFunctorName(flagName, 0);
         int ffv = interner.internFunctorName(flagValue, 0);
         return null;//new Flag(ffn, new Functor(ffv, EMPTY_TERM_ARRAY));
@@ -89,7 +89,7 @@ class TermFactory implements ITermFactory {
      */
     @Override
     public
-    Flag createFlag ( String name, Term... args ) {
+    HtProperty createFlag ( String name, Term... args ) {
         return createFlag(name, new ListTerm(args));
     }
 
@@ -105,7 +105,7 @@ class TermFactory implements ITermFactory {
      * @return
      */
     public
-    Flag createFlag ( String name, ListTerm args ) {
+    HtProperty createFlag ( String name, ListTerm args ) {
         int n = -1;
         interner.internFunctorName(name, args.length());
 

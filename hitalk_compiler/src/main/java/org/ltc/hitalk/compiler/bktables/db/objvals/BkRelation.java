@@ -82,7 +82,6 @@ class BkRelation extends Record {
     /**
      * @return
      */
-    @Override
     public
     Functor getName () {
         return entity1;

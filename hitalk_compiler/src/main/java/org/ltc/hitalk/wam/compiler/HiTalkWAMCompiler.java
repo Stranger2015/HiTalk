@@ -4,8 +4,8 @@ import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.logic.fol.bytecode.BaseMachine;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
-import org.ltc.hitalk.compiler.bktables.Flag;
 import org.ltc.hitalk.core.ICompiler;
+import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
@@ -20,11 +20,17 @@ public
 class HiTalkWAMCompiler extends BaseMachine implements ICompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
+
+    public
+    HiTalkDefaultBuiltIn getDefbi () {
+        return defbi;
+    }
+
     private final HiTalkDefaultBuiltIn defbi;
 
     private HiTalkInstructionCompiler instructionCompiler;
     private HiTalkPreprocessor <Term, TransformTask <HtClause, Term>> preCompiler;
-    private HtPrologParser <HtClause> parser;
+    private HtPrologParser parser;
     private Resolver <HtClause, HiTalkWAMCompiledQuery> resolver;
     private Resolver <HtClause, HtClause> resolver2;
 
@@ -36,7 +42,9 @@ class HiTalkWAMCompiler extends BaseMachine implements ICompiler <HtClause, HiTa
      * @param parser
      */
     public
-    HiTalkWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner, HtPrologParser <HtClause> parser ) throws LinkageException {
+    HiTalkWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
+                        VariableAndFunctorInterner interner,
+                        HtPrologParser parser ) throws LinkageException {
         super(symbolTable, interner);
         this.parser = parser;
         defbi = new HiTalkDefaultBuiltIn(symbolTable, interner);
@@ -121,7 +129,7 @@ class HiTalkWAMCompiler extends BaseMachine implements ICompiler <HtClause, HiTa
      */
     @Override
     public
-    HtPrologParser <HtClause> getParser () {
+    HtPrologParser getParser () {
         return parser;
     }
 
@@ -132,7 +140,7 @@ class HiTalkWAMCompiler extends BaseMachine implements ICompiler <HtClause, HiTa
      */
     @Override
     public
-    void compile ( HtClause clause, Flag... flags ) throws SourceCodeException {
+    void compile ( HtClause clause, HtProperty... flags ) throws SourceCodeException {
 
     }
 
@@ -189,7 +197,7 @@ class HiTalkWAMCompiler extends BaseMachine implements ICompiler <HtClause, HiTa
 
     public
     void compileFile ( File file ) throws FileNotFoundException {
-        compile(HtTokenSource.getTokenSourceForFile(file));
+        compile((HtTokenSource) HtTokenSource.getTokenSourceForFile(file));
     }
 
     /**

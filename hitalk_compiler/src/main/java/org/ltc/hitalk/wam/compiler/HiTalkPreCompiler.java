@@ -28,6 +28,7 @@ import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.wam.compiler.HiTalkCompilerApp.HiTalkBuiltInTransformVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +61,7 @@ class HiTalkPreCompiler extends BaseMachine
     /**
      * Holds the built in transformation.
      */
-    protected final HiTalkBuiltInTransform <IApplication <HtClause>, HtClause> builtInTransform;
+    protected final HiTalkBuiltInTransform <IApplication, HtClause> builtInTransform;
 
     /**
      * Holds the compiler output observer.
@@ -123,7 +124,13 @@ class HiTalkPreCompiler extends BaseMachine
      */
     private
     void substituteBuiltIns ( Term clause ) {
-        TermWalker walk = TermWalkers.positionalWalker(new HiTalkCompilerApp.HiTalkBuiltInTransformVisitor(symbolTable, interner, null, builtInTransform));
+        TermWalker walk = HtTermWalkers.positionalWalker(
+                new HiTalkBuiltInTransformVisitor(
+                        symbolTable,
+                        interner,
+                        null,
+                        builtInTransform)
+        );
         walk.walk(clause);
     }
 
