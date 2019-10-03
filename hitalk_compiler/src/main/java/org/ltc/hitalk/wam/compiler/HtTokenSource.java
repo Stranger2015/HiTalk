@@ -76,8 +76,7 @@ class HtTokenSource extends TokenSource implements PropertyChangeListener {
      * @param stringToTokenize The string to tokenize.
      * @return A token source.
      */
-    public static
-    HtTokenSource getTokenSourceForString ( String stringToTokenize, int lineOfs ) throws IOException {
+    public static HtTokenSource getHtTokenSourceForString ( String stringToTokenize, int lineOfs ) throws IOException {
         InputStream input = new ByteArrayInputStream(stringToTokenize.getBytes());
         return getTokenSourceForInputStream(input, "");//fixme
     }

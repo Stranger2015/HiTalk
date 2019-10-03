@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module version="4">
   <component name="NewModuleRootManager">
+    <output url="file://$MODULE_DIR$/../../../hitalk_xwam" />
+    <output-test url="file://$MODULE_DIR$/../../hitalk_compiler/test/hitalk_compiler" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="jarefi-1.0-r18-jar-with-dependencies" level="project" />
   </component>
 </module>

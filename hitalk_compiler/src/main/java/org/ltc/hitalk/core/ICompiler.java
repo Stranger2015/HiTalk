@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import static com.thesett.aima.logic.fol.isoprologparser.TokenSource.getTokenSourceForString;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 
 /**
@@ -63,26 +62,8 @@ interface ICompiler<T extends HtClause, P, Q> extends LogicCompiler <HtClause, P
      */
     default
     void compileString ( String fn, HtProperty... flags ) throws Exception {
-        compile((HtTokenSource) getTokenSourceForString(fn), flags);
+        compile(HtTokenSource.getHtTokenSourceForString(fn, -1), flags);
     }
-
-//    default
-//    void compileInputStream ( InputStream input, Flag... flags ) throws IOException, SourceCodeException {
-//        compile((HtTokenSource) getTokenSourceForInputStream(input), flags);
-//    }
-
-//    /**
-//     * @param fn
-//     * @param flags
-//     * @throws IOException
-//     * @throws SourceCodeException
-//     */
-//    default
-//    void compileZipArchive ( String fn, ZipFile zipFile, HtProperty... flags ) throws IOException, SourceCodeException {
-//        ZipEntry zipEntry = zipFile.getEntry(fn);
-//        InputStream input = zipFile.getInputStream(zipEntry);
-//        compileInputStream(input, flags);
-//    }
 
     /**
      * @param tokenSource

@@ -1,0 +1,70 @@
+package org.ltc.hitalk.wam.compiler;
+
+import sun.misc.Resource;
+import sun.misc.URLClassPath;
+
+import java.io.IOException;
+import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedExceptionAction;
+import java.util.Objects;
+
+public class HiTalkClassLoader extends ClassLoader {
+    /**
+     * Finds and loads the class with the specified name from the URL search
+     * path. Any URLs referring to JAR files are loaded and opened as needed
+     * until the class is found.
+     *
+     * @param name the name of the class
+     * @return the resulting class
+     * @exception ClassNotFoundException if the class could not be found,
+     *            or if the loader is closed.
+     * @exception NullPointerException if {@code name} is {@code null}.
+     */
+    protected Class<?> findClass(final String name)
+            throws ClassNotFoundException
+    {
+        final Class<?> result;
+        URLClassPath ucp = null;
+        try {
+            result = AccessController.doPrivileged((PrivilegedExceptionAction <Class <?>>) () -> {
+                String path = name.replace('.', '/').concat(".class");
+                Resource res = Objects.requireNonNull(ucp).getResource(path, false);
+                if (res != null) {
+                    try {
+                        return defineClass(name, res);
+                    } catch (IOException e) {
+                        throw new ClassNotFoundException(name, e);
+                    }
+                } else {
+                    return null;
+                }
+            }, acc);
+        } catch (java.security.PrivilegedActionException pae) {
+            throw (ClassNotFoundException) pae.getException();
+        }
+        if (result == null) {
+            throw new ClassNotFoundException(name);
+        }
+        return result;
+    }
+
+    @Override
+    //
+    /**
+     * Finds the resource with the specified name on the URL search path.
+     *
+     * @param name the name of the resource
+     * @return a {@code URL} for the resource, or {@code null}
+     * if the resource could not be found, or if the loader is closed.
+     */
+    public URL findResource( final String name) {
+        /*
+         * The same restriction to finding classes applies to resources
+         */
+        return
+     }
+
+
+
+}

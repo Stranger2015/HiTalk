@@ -4,6 +4,6 @@
     <option name="sourceMapEmbedSources" />
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
-    <output url="file://$PROJECT_DIR$/hitalk_compiler" />
+    <output url="file://$PROJECT_DIR$/classes" />
   </component>
 </project>

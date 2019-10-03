@@ -35,7 +35,7 @@ class TermIO {
     TermIO ( ITermFactory tf, HtPrologParser pp ) {
         this.tf = tf;
         this.pp = pp;
-        initOptions("startup.pl");
+        initOptions("org/ltc/hitalk/wam/compiler/startup.pl");
 //        in=currentInput();
 //        expansionHooks = null;
     }

@@ -12,6 +12,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Gradle: org.codehaus.groovy:groovy-all:2.3.11" level="project" />
+    <orderEntry type="library" name="jarefi-1.0-r18-jar-with-dependencies" level="project" />
   </component>
   <component name="TestModuleProperties" production-module="hitalk_compiler.main" />
 </module>

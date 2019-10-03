@@ -86,7 +86,7 @@ interface IInterpreter<P, Q> extends IConfigurable, ICompiler <HtClause, P, Q>, 
                 // Check the input to see if a system directive was input. This is only allowed in query getMode(), and is
                 // handled differently to normal queries.
                 if (getMode() == Mode.Query) {
-                    HtTokenSource tokenSource = HtTokenSource.getTokenSourceForString(line, lineNo);
+                    HtTokenSource tokenSource = HtTokenSource.getHtTokenSourceForString(line, lineNo);
                     getParser().setTokenSource(tokenSource);
 
                     HtPrologParser.Directive directive = getParser().peekAndConsumeDirective();
@@ -117,7 +117,7 @@ interface IInterpreter<P, Q> extends IConfigurable, ICompiler <HtClause, P, Q>, 
                 }
 
                 // Buffer input tokens until EOL is reached, of the input is terminated with a PERIOD.
-                HtTokenSource tokenSource = HtTokenSource.getTokenSourceForString(line, lineNo);//todo
+                HtTokenSource tokenSource = HtTokenSource.getHtTokenSourceForString(line, lineNo);//todo
                 Token nextToken;
 
                 while (true) {

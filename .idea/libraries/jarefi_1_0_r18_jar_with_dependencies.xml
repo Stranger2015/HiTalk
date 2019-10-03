@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="jarefi-1.0-r18-jar-with-dependencies">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/jarefi-1.0-r18-jar-with-dependencies.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
