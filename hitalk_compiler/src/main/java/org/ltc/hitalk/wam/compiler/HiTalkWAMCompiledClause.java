@@ -2,6 +2,7 @@ package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.Functor;
 import com.thesett.common.util.SizeableList;
+import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtPredicateDefinition.UserDefinition;
 import org.ltc.hitalk.parser.HtClause;
 
@@ -61,7 +62,12 @@ class HiTalkWAMCompiledClause extends HtClause {
      */
     public
     HiTalkWAMCompiledClause ( HiTalkWAMCompiledPredicate parent ) {
-        super(null, null);
+        super(null, null, new Functor[0]);
+        this.parent = parent;
+    }
+
+    public HiTalkWAMCompiledClause ( Functor head, Functor[] body, HtEntityIdentifier identifier, HiTalkWAMCompiledPredicate parent ) {
+        super(head, body, identifier);
         this.parent = parent;
     }
 

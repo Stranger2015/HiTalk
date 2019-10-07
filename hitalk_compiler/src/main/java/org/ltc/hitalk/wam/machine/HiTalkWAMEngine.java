@@ -3,6 +3,7 @@ package org.ltc.hitalk.wam.machine;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
+import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
@@ -12,9 +13,12 @@ import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.HtTokenSource;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
+import java.util.logging.Logger;
 
+import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.wam.compiler.HtTokenSource.getTokenSourceForInputStream;
 
 /**
@@ -22,7 +26,7 @@ import static org.ltc.hitalk.wam.compiler.HtTokenSource.getTokenSourceForInputSt
  */
 public
 class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P, Q> {
-
+    protected final Logger log = Logger.getLogger(getClass().getSimpleName());
     /**
      * HiTalkWAMEngine implements a {@link HtResolutionEngine} for an WAM-based Prolog with built-ins. This engine loads its
      * standard library of built-ins from a resource on the classpath.
@@ -50,8 +54,7 @@ class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P
      */
     public
     HiTalkWAMEngine ( HtPrologParser parser,
-                      VariableAndFunctorInterner interner,
-                      ICompiler <T, P, Q> compiler ) {
+                      VariableAndFunctorInterner interner, ICompiler <P, Q> compiler ) {
         super(parser, interner, compiler);
     }
 
@@ -60,12 +63,11 @@ class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P
         super();
     }
 
-    public
-    void setCompiler ( ICompiler <T, P, Q> compiler ) {
+    public void setCompiler ( ICompiler <P, Q> compiler ) {
         this.compiler = compiler;
     }
 
-    protected ICompiler <T, P, Q> compiler;
+    protected ICompiler <P, Q> compiler;
 
     /**
      * {InheritDoc}
@@ -79,7 +81,13 @@ class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P
 
         // Create a token source to load the model rules from.
         InputStream input = getClass().getClassLoader().getResourceAsStream(BUILT_IN_LIB);
-        HtTokenSource tokenSource = (HtTokenSource) getTokenSourceForInputStream(Objects.requireNonNull(input)/*, vfsFo.getName().getPath()*/);
+        HtTokenSource tokenSource = null;
+        try {
+            tokenSource = getTokenSourceForInputStream(Objects.requireNonNull(input), "");
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new ExecutionError(PERMISSION_ERROR, null);
+        }
 
         // Set up a parser on the token source.
         HtPrologParser libParser = new HiTalkParser(tokenSource, interner);

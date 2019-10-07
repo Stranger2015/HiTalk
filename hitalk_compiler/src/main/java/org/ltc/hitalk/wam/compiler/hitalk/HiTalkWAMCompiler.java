@@ -1,28 +1,29 @@
-package org.ltc.hitalk.wam.compiler;
+package org.ltc.hitalk.wam.compiler.hitalk;
 
 import com.thesett.aima.logic.fol.*;
-import com.thesett.aima.logic.fol.bytecode.BaseMachine;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
-import org.ltc.hitalk.core.ICompiler;
+import org.ltc.hitalk.compiler.BaseCompiler;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
+import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledPredicate;
+import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledQuery;
+import org.ltc.hitalk.wam.compiler.HtTokenSource;
 import org.ltc.hitalk.wam.task.TransformTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 
-public
-class HiTalkWAMCompiler extends BaseMachine implements ICompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> {
+public class HiTalkWAMCompiler extends BaseCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
-    public
-    HiTalkDefaultBuiltIn getDefbi () {
+    public HiTalkDefaultBuiltIn getDefbi () {
         return defbi;
     }
 
@@ -45,15 +46,13 @@ class HiTalkWAMCompiler extends BaseMachine implements ICompiler <HtClause, HiTa
     HiTalkWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
                         VariableAndFunctorInterner interner,
                         HtPrologParser parser ) throws LinkageException {
-        super(symbolTable, interner);
-        this.parser = parser;
+        super(symbolTable, interner, parser);
         defbi = new HiTalkDefaultBuiltIn(symbolTable, interner);
         instructionCompiler = new HiTalkInstructionCompiler(symbolTable, interner, defbi);
         getPreCompiler().getCompilerObserver(new ClauseChainObserver());
     }
 
-    public
-    HiTalkPreCompiler getPreCompiler () throws LinkageException {
+    public HiTalkPreCompiler getPreCompiler () throws LinkageException {
         if (preCompiler == null) {
             preCompiler = new HiTalkPreprocessor <>(
                     getSymbolTable(),
@@ -68,12 +67,10 @@ class HiTalkWAMCompiler extends BaseMachine implements ICompiler <HtClause, HiTa
 
     private
     HiTalkDefaultBuiltIn getDefaultBuiltIn () {
-
         return new HiTalkDefaultBuiltIn(getSymbolTable(), getInterner());
     }
 
-
-    ICompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> getInstructionCompiler () {
+    HiTalkInstructionCompiler getInstructionCompiler () {
         if (instructionCompiler == null) {
             instructionCompiler = new HiTalkInstructionCompiler(
                     getSymbolTable(),
@@ -103,7 +100,7 @@ class HiTalkWAMCompiler extends BaseMachine implements ICompiler <HtClause, HiTa
     @Override
     public
     void compile ( Sentence <HtClause> sentence ) throws SourceCodeException {
-
+        getPreCompiler().compile(sentence);
     }
 
     /**
@@ -157,8 +154,7 @@ class HiTalkWAMCompiler extends BaseMachine implements ICompiler <HtClause, HiTa
      * @param query
      */
     @Override
-    public
-    void compileQuery ( HiTalkWAMCompiledQuery query ) throws SourceCodeException {
+    public void compileQuery ( HtClause query ) throws SourceCodeException {
 
     }
 
@@ -195,9 +191,8 @@ class HiTalkWAMCompiler extends BaseMachine implements ICompiler <HtClause, HiTa
         return resolver;
     }
 
-    public
-    void compileFile ( File file ) throws FileNotFoundException {
-        compile((HtTokenSource) HtTokenSource.getTokenSourceForFile(file));
+    public void compileFile ( File file ) throws IOException {
+        compile(HtTokenSource.getTokenSourceForIoFile(file));
     }
 
     /**

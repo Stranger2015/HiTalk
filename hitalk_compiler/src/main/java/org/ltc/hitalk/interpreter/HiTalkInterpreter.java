@@ -18,6 +18,7 @@ public
 class HiTalkInterpreter<P, Q> implements IInterpreter <P, Q> {
     protected HtPrologParser parser;
     protected IConfig config;
+    private Logger logger;
 
     /**
      * @return
@@ -34,7 +35,7 @@ class HiTalkInterpreter<P, Q> implements IInterpreter <P, Q> {
     @Override
     public
     Logger getConsole () {
-        return null;
+        return logger;
     }
 
     /**
@@ -66,12 +67,8 @@ class HiTalkInterpreter<P, Q> implements IInterpreter <P, Q> {
 
     }
 
-    /**
-     * @param query
-     */
     @Override
-    public
-    void compileQuery ( Q query ) throws SourceCodeException {
+    public void compileQuery ( HtClause query ) throws SourceCodeException {
 
     }
 

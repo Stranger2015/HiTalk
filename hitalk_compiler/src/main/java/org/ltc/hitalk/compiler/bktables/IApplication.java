@@ -3,6 +3,8 @@ package org.ltc.hitalk.compiler.bktables;
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.BaseCompiler;
+import org.ltc.hitalk.core.HtVersion;
 import org.ltc.hitalk.core.IConfigurable;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.HtTokenSource;
@@ -13,8 +15,7 @@ import java.io.IOException;
 /**
  *
  */
-public
-interface IApplication extends Runnable, IConfigurable {
+public interface IApplication extends Runnable, IConfigurable {
     /**
      * @return
      */
@@ -30,11 +31,12 @@ interface IApplication extends Runnable, IConfigurable {
      */
     void setConfig ( IConfig config );
 
+    BaseCompiler createCompiler ( SymbolTable symbolTable, VariableAndFunctorInterner interner, HtPrologParser parser ) {
+    }
     /**
      *
      */
-    default
-    void init () throws LinkageException, IOException {
+    default void init () throws LinkageException, IOException {
         banner();
         if (!isInited()) {
             doInit();
@@ -42,10 +44,14 @@ interface IApplication extends Runnable, IConfigurable {
     }
 
     /**
+     * @param varOrFunctor
+     * @return
+     */
+    String namespace ( String varOrFunctor );
+    /**
      *
      */
-    default
-    void clear () throws LinkageException, IOException {
+    default void clear () throws LinkageException, IOException {
         setInited(false);
         doClear();
     }
@@ -58,8 +64,7 @@ interface IApplication extends Runnable, IConfigurable {
     /**
      *
      */
-    default
-    void reset () throws LinkageException, IOException {
+    default void reset () throws LinkageException, IOException {
         if (isInited()) {
             clear();
         }
@@ -69,12 +74,10 @@ interface IApplication extends Runnable, IConfigurable {
     /**
      * @param b
      */
-    default
-    void setInited ( boolean b ) throws LinkageException, IOException {
+    default void setInited ( boolean b ) throws LinkageException, IOException {
         if (!isInited()) {
             init();
-        }
-        else {
+        } else {
             clear();
         }
     }
@@ -92,8 +95,7 @@ interface IApplication extends Runnable, IConfigurable {
     /**
      *
      */
-    default
-    void start () throws Exception {
+    default void start () throws Exception {
         if (!isStarted()) {
             doStart();
         }
@@ -102,14 +104,12 @@ interface IApplication extends Runnable, IConfigurable {
     /**
      * @param b
      */
-    default
-    void setStarted ( boolean b ) throws Exception {
+    default void setStarted ( boolean b ) throws Exception {
         if (b) {
             if (!isStarted()) {
                 doStart();
             }
-        }
-        else {
+        } else {
             if (isStarted()) {
                 pause();
             }
@@ -172,11 +172,7 @@ interface IApplication extends Runnable, IConfigurable {
      *
      */
     enum State {
-        INITED,
-        RUNNING,
-        PAUSED,
-        INTERRUPTED,
-        TERMINATED;
+        INITED, RUNNING, PAUSED, INTERRUPTED, TERMINATED;
     }
 
 
@@ -190,8 +186,7 @@ interface IApplication extends Runnable, IConfigurable {
      */
     void doStart () throws Exception;
 
-    default
-    void run () {
+    default void run () {
         Runnable target = getTarget();
         if (target != null) {
             target.run();
@@ -210,17 +205,37 @@ interface IApplication extends Runnable, IConfigurable {
      */
     void setInterner ( VariableAndFunctorInterner interner );
 
-    default
-    SymbolTable <Integer, String, Object> getSymbolTable () {
+    default SymbolTable <Integer, String, Object> getSymbolTable () {
         return null;
     }
 
     void setSymbolTable ( SymbolTable <Integer, String, Object> symbolTable );
 
     /**
+     * @return
+     */
+    IProduct product ();
+
+    /**
+     * @return
+     */
+    String language ();
+
+    /**
+     * @return
+     */
+    String tool ();
+
+    /**
      *
      */
-    void banner ();
+    default void banner () {
+        String n = product().getName();
+        HtVersion v = product().getVersion();
+        String c = product().getCopyright();
+
+        System.err.printf("\n%s %s, version %s,%s", n, v, c);
+    }
 
     /**
      * @param parser

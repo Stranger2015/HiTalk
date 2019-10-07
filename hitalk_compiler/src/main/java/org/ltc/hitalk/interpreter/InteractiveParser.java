@@ -4,18 +4,16 @@ import com.thesett.aima.logic.fol.OpSymbol.Associativity;
 import com.thesett.aima.logic.fol.Parser;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
-import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.Source;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
-import org.ltc.hitalk.wam.compiler.HtTokenSource;
+import org.ltc.hitalk.wam.compiler.HtToken;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.RESOURCE_ERROR;
 
-public
-class InteractiveParser implements Parser <HtClause, Token> {
+public class InteractiveParser implements Parser <HtClause, HtToken> {
     protected HtPrologParser parser;
     protected VariableAndFunctorInterner interner;
 
@@ -36,9 +34,8 @@ class InteractiveParser implements Parser <HtClause, Token> {
      * @param source The token source to parse from.
      */
     @Override
-    public
-    void setTokenSource ( Source <Token> source ) {
-        parser.setTokenSource((HtTokenSource) source);
+    public void setTokenSource ( Source <HtToken> source ) {
+        parser.setTokenSource(source);
     }
 
     /**

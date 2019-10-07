@@ -1,9 +1,10 @@
 package org.ltc.hitalk.interpreter;
 
-import com.thesett.aima.logic.fol.isoprologparser.PrologParserTokenManager;
-import com.thesett.aima.logic.fol.isoprologparser.Token;
+
 import com.thesett.common.util.Sink;
 import com.thesett.common.util.Source;
+import org.ltc.hitalk.wam.compiler.HtPrologParserTokenManager;
+import org.ltc.hitalk.wam.compiler.HtToken;
 import org.ltc.hitalk.wam.compiler.HtTokenSource;
 
 import java.io.IOException;
@@ -14,9 +15,8 @@ import java.util.List;
 /**
  * Used to buffer tokens.
  */
-public
-class TokenBuffer extends HtTokenSource implements Source <Token>, Sink <Token> {
-    private List <Token> tokens = new ArrayList <>();
+public class TokenBuffer extends HtTokenSource implements Source <HtToken>, Sink <HtToken> {
+    private List <HtToken> tokens = new ArrayList <>();
 
     /**
      * Builds a token source around the specified token manager.
@@ -24,8 +24,7 @@ class TokenBuffer extends HtTokenSource implements Source <Token>, Sink <Token> 
      * @param tokenManager The token manager to use to feed this source.
      * @param input
      */
-    public
-    TokenBuffer ( PrologParserTokenManager tokenManager, InputStream input ) throws IOException {
+    public TokenBuffer ( HtPrologParserTokenManager tokenManager, InputStream input ) throws IOException {
         super(tokenManager, input);
     }
 
@@ -33,24 +32,21 @@ class TokenBuffer extends HtTokenSource implements Source <Token>, Sink <Token> 
      * @param o
      * @return
      */
-    public
-    boolean offer ( Token o ) {
+    public boolean offer ( HtToken o ) {
         return tokens.add(o);
     }
 
     /**
      * @return
      */
-    public
-    Token poll () {
+    public HtToken poll () {
         return tokens.remove(0);
     }
 
     /**
      * @return
      */
-    public
-    Token peek () {
+    public HtToken peek () {
         return tokens.get(0);
     }
 

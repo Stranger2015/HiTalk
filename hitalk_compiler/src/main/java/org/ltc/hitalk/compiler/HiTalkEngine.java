@@ -15,6 +15,8 @@ import org.ltc.hitalk.parser.HtPrologParser;
 public
 class HiTalkEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P, Q> {
 
+//    protected final Logger logger = Logger.getLogger(getClass().getSimpleName());
+    
     /**
      * Builds an logical resolution engine from a parser, interner, compiler and resolver.
      *
@@ -24,8 +26,7 @@ class HiTalkEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P, Q
      */
     public
     HiTalkEngine ( HtPrologParser parser,
-                   VariableAndFunctorInterner interner,
-                   ICompiler <T, P, Q> compiler ) {
+                   VariableAndFunctorInterner interner, ICompiler <P, Q> compiler ) {
         super(parser, interner, compiler);
 //        compiler.setResolver(this);
     }

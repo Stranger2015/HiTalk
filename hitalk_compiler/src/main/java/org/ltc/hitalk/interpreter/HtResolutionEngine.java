@@ -19,7 +19,6 @@ package org.ltc.hitalk.interpreter;
 import com.thesett.aima.attribute.impl.IdAttribute.IdAttributeFactory;
 import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.logic.fol.OpSymbol.Associativity;
-import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.Filterator;
 import com.thesett.common.util.Source;
@@ -27,6 +26,7 @@ import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.wam.compiler.HtToken;
 import org.ltc.hitalk.wam.compiler.HtTokenSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,12 +50,10 @@ import static com.thesett.aima.logic.fol.isoprologparser.TokenSource.getTokenSou
  */
 public
 class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
-        implements VariableAndFunctorInterner,
-                   ICompiler <T, P, Q>,
+        implements VariableAndFunctorInterner, ICompiler <P, Q>,
                    Resolver <T, Q> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
-
 
     /**
      * Holds the parser.
@@ -70,7 +68,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     /**
      * Holds the compiler.
      */
-    protected ICompiler <T, P, Q> compiler;
+    protected ICompiler <P, Q> compiler;
 
     /**
      * Holds the observer for compiler outputs.
@@ -88,8 +86,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      */
     public
     HtResolutionEngine ( HtPrologParser parser,
-                         VariableAndFunctorInterner interner,
-                         ICompiler <T, P, Q> compiler ) {
+                         VariableAndFunctorInterner interner, ICompiler <P, Q> compiler ) {
         super(parser, interner);
         this.compiler = compiler;//fixme NPE
         compiler.setCompilerObserver(chainedObserver);
@@ -124,8 +121,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      *
      * @return The resolution engines compiler.
      */
-    public
-    ICompiler <T, P, Q> getCompiler () {
+    public ICompiler <P, Q> getCompiler () {
         return compiler;
     }
 
@@ -318,8 +314,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     /**
      * {@inheritDoc}
      */
-    public
-    void setTokenSource ( Source <Token> tokenSource ) {
+    public void setTokenSource ( Source <HtToken> tokenSource ) {
         parser.setTokenSource(tokenSource);
     }
 
@@ -460,15 +455,6 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * @param query
      */
     @Override
-    public
-    void compileQuery ( Q query ) throws SourceCodeException {
-
-    }
-
-    /**
-     * @param query
-     */
-//    @Override
     public
     void compileQuery ( HtClause query ) throws SourceCodeException {
 

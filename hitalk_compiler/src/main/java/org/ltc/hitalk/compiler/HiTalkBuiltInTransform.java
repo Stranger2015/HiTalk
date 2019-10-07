@@ -26,8 +26,8 @@
  import org.ltc.hitalk.term.io.HiTalkStream;
  import org.ltc.hitalk.wam.compiler.DirectiveClause;
  import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
- import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiler;
  import org.ltc.hitalk.wam.compiler.HtFunctor;
+ import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiler;
 
  import java.io.IOException;
  import java.nio.file.Path;

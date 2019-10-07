@@ -8,16 +8,15 @@ import org.ltc.hitalk.entities.ISubroutine;
 /**
  *
  */
-public
-class HtClause extends Clause <Functor> implements ISubroutine {
+public class HtClause extends Clause <Functor> implements ISubroutine {
     protected final HtEntityIdentifier identifier;
 
     /**
      * @param head
      * @param body
+     * @param identifier
      */
-    public
-    HtClause ( Functor head, Functor[] body ) {
+    public HtClause ( Functor head, Functor[] body, HtEntityIdentifier identifier ) {
         this(null, head, body);
     }
 
@@ -27,11 +26,14 @@ class HtClause extends Clause <Functor> implements ISubroutine {
      * @param head The head of the program.
      * @param body The functors that make up the query body of the program, if any. May be <tt>null</tt>
      */
-    public
-    HtClause ( HtEntityIdentifier identifier, Functor head, Functor[] body ) {
+    public HtClause ( HtEntityIdentifier identifier, Functor head, Functor[] body ) {
         super(head, body);
 
         this.identifier = identifier;
+    }
+
+    public HtClause ( HtEntityIdentifier identifier, Functor head ) {
+        this(identifier, head, null);
     }
 
     /**
@@ -40,13 +42,11 @@ class HtClause extends Clause <Functor> implements ISubroutine {
      * @return The wrapped sentence in the logical language.
      */
 //    @Override
-    public
-    HtClause getT () {
+    public HtClause getT () {
         return this;
     }
 
-    public
-    boolean isDcgRule () {
+    public boolean isDcgRule () {
         return false;
     }
 }

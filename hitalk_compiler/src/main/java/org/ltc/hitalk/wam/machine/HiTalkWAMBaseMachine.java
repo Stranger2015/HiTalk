@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 public abstract
 class HiTalkWAMBaseMachine extends VariableAndFunctorInternerImpl implements HiTalkWAMMachine, WAMCodeView {
     /* Used for debugging. */
-    private static final Logger log = Logger.getLogger(HiTalkWAMBaseMachine.class.getName());
+    protected final Logger log = Logger.getLogger(getClass().getSimpleName());
 
     /**
      * The symbol table key for call points.

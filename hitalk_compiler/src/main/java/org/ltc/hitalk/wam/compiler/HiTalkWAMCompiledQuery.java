@@ -26,6 +26,7 @@ import com.thesett.aima.logic.fol.wam.compiler.WAMCallPoint;
 import com.thesett.common.util.Sizeable;
 import com.thesett.common.util.SizeableLinkedList;
 import com.thesett.common.util.SizeableList;
+import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
 import org.ltc.hitalk.wam.machine.HiTalkWAMResolvingMachine;
@@ -52,9 +53,7 @@ import java.util.*;
  * @todo For each functor in the head and body, set this as the containing clause. A mapping from variables to
  * registers is maintained in the clause, and the functors need to be able to access this mapping.
  */
-public
-class HiTalkWAMCompiledQuery extends HtClause
-        implements Sentence <HiTalkWAMCompiledQuery>, Sizeable, HiTalkWAMOptimizeableListing {
+public class HiTalkWAMCompiledQuery extends HtClause implements Sentence <HiTalkWAMCompiledQuery>, Sizeable, HiTalkWAMOptimizeableListing {
 
     /* Used for debugging. */
     /* private static final Logger log = Logger.getLogger(WAMCompiledQuery.class.getName()); */
@@ -97,9 +96,8 @@ class HiTalkWAMCompiledQuery extends HtClause
      * Creates an empty (invalid) compiled program sentence in WAM. The variables of the program sentence are not
      * recorded, since they only need to be tracked in order to display the results of queries.
      */
-    public
-    HiTalkWAMCompiledQuery () {
-        super(null, null);
+    public HiTalkWAMCompiledQuery () {
+        super(null, null, new Functor[0]);
     }
 
     /**
@@ -108,12 +106,22 @@ class HiTalkWAMCompiledQuery extends HtClause
      * @param varNames     A mapping from registers to variables for the compiled clause.
      * @param freeVarNames The set of variables in the clause that are free.
      */
-    public
-    HiTalkWAMCompiledQuery ( Map <Byte, Integer> varNames, Set <Integer> freeVarNames ) {
-        super(null, null);
-
+    public HiTalkWAMCompiledQuery ( Map <Byte, Integer> varNames, Set <Integer> freeVarNames ) {
+        super(null, null, new Functor[0]);
         this.varNames = varNames;
         this.nonAnonymousFreeVariables = freeVarNames;
+    }
+
+    public HiTalkWAMCompiledQuery ( HtEntityIdentifier identifier, Functor head, Functor[] body ) {
+        super(identifier, head, body);
+    }
+
+    public HiTalkWAMCompiledQuery ( HtEntityIdentifier identifier, Functor head ) {
+        super(identifier, head);
+    }
+
+    public HiTalkWAMCompiledQuery ( Functor head, Functor[] body, HtEntityIdentifier identifier ) {
+        super(head, body, identifier);
     }
 
     /**
@@ -122,8 +130,7 @@ class HiTalkWAMCompiledQuery extends HtClause
      * @param head         The head of this clause.
      * @param instructions A list of instructions to add to the head.
      */
-    public
-    void setHead ( Functor head, SizeableList <HiTalkWAMInstruction> instructions ) {
+    public void setHead ( Functor head, SizeableList <HiTalkWAMInstruction> instructions ) {
         this.head = head;
 
         addInstructions(instructions);
@@ -135,15 +142,13 @@ class HiTalkWAMCompiledQuery extends HtClause
      * @param body         A conjunctive body functor to add to this clause.
      * @param instructions A list of instructions to add to the body.
      */
-    public
-    void addInstructions ( Functor body, SizeableList <HiTalkWAMInstruction> instructions ) {
+    public void addInstructions ( Functor body, SizeableList <HiTalkWAMInstruction> instructions ) {
         int oldLength;
 
         if (this.body == null) {
             oldLength = 0;
             this.body = new Functor[1];
-        }
-        else {
+        } else {
             oldLength = this.body.length;
             this.body = Arrays.copyOf(this.body, oldLength + 1);
         }
@@ -158,8 +163,7 @@ class HiTalkWAMCompiledQuery extends HtClause
      *
      * @param instructions The instructions to add to the clause.
      */
-    public
-    void addInstructions ( Collection <HiTalkWAMInstruction> instructions ) {
+    public void addInstructions ( Collection <HiTalkWAMInstruction> instructions ) {
         this.instructions.addAll(instructions);
     }
 
@@ -168,8 +172,7 @@ class HiTalkWAMCompiledQuery extends HtClause
      *
      * @return The wrapped sentence in the logical language.
      */
-    public
-    HiTalkWAMCompiledQuery getT () {
+    public HiTalkWAMCompiledQuery getT () {
         return this;
     }
 
@@ -178,8 +181,7 @@ class HiTalkWAMCompiledQuery extends HtClause
      *
      * @return The mapping from registers to variable names for this compiled clause.
      */
-    public
-    Map <Byte, Integer> getVarNames () {
+    public Map <Byte, Integer> getVarNames () {
         return varNames;
     }
 
@@ -188,16 +190,14 @@ class HiTalkWAMCompiledQuery extends HtClause
      *
      * @return The set of variables in the clause that are not anonymous or bound.
      */
-    public
-    Collection <Integer> getNonAnonymousFreeVariables () {
+    public Collection <Integer> getNonAnonymousFreeVariables () {
         return nonAnonymousFreeVariables;
     }
 
     /**
      * {@inheritDoc}
      */
-    public
-    long sizeof () {
+    public long sizeof () {
         return instructions.sizeof();
     }
 
@@ -207,16 +207,14 @@ class HiTalkWAMCompiledQuery extends HtClause
      * @return A list of the byte code instructions for this query.
      */
     @Override
-    public
-    List <HiTalkWAMInstruction> getInstructions () {
+    public List <HiTalkWAMInstruction> getInstructions () {
         return Collections.unmodifiableList(instructions);
     }
 
     /**
      * {@inheritDoc}
      */
-    public
-    void setOptimizedInstructions ( SizeableList <HiTalkWAMInstruction> instructions ) {
+    public void setOptimizedInstructions ( SizeableList <HiTalkWAMInstruction> instructions ) {
         unoptimizedInstructions = this.instructions;
         this.instructions = instructions;
     }
@@ -224,8 +222,7 @@ class HiTalkWAMCompiledQuery extends HtClause
     /**
      * {@inheritDoc}
      */
-    public
-    List <HiTalkWAMInstruction> getUnoptimizedInstructions () {
+    public List <HiTalkWAMInstruction> getUnoptimizedInstructions () {
         return unoptimizedInstructions;
     }
 
@@ -234,8 +231,7 @@ class HiTalkWAMCompiledQuery extends HtClause
      *
      * @return The entry call point to this compiled query.
      */
-    public
-    WAMCallPoint getCallPoint () {
+    public WAMCallPoint getCallPoint () {
         return callPoint;
     }
 
@@ -248,8 +244,7 @@ class HiTalkWAMCompiledQuery extends HtClause
      * @param callPoint The call point within the machine, at which the code is to be stored.
      * @throws LinkageException If required symbols to link to cannot be found in the binary machine.
      */
-    public
-    void emitCode ( ByteBuffer buffer, HiTalkWAMResolvingMachine machine, WAMCallPoint callPoint ) throws LinkageException {
+    public void emitCode ( ByteBuffer buffer, HiTalkWAMResolvingMachine machine, WAMCallPoint callPoint ) throws LinkageException {
         // Ensure that the size of the instruction listing does not exceed max int (highly unlikely).
         if (sizeof() > Integer.MAX_VALUE) {
             throw new IllegalStateException("The instruction listing size exceeds Integer.MAX_VALUE.");
@@ -275,8 +270,7 @@ class HiTalkWAMCompiledQuery extends HtClause
     /**
      * Defines the possible states of compiled code, unlinked, or linked into a machine.
      */
-    public
-    enum LinkStatus {
+    public enum LinkStatus {
         /**
          * The code is not yet linked into a binary machine.
          */

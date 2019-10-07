@@ -42,7 +42,7 @@ import com.thesett.common.util.doublemaps.SymbolTable;
  *
  * @author Rupert Smith
  */
-class HiTalkTopLevelCheckVisitor extends BasePositionalVisitor implements PositionalTermVisitor {
+public class HiTalkTopLevelCheckVisitor extends BasePositionalVisitor implements PositionalTermVisitor {
 
     // Used for debugging.
     /* private static final Logger log = Logger.getLogger(TopLevelCheckVisitor.class.getName()); */
@@ -54,7 +54,7 @@ class HiTalkTopLevelCheckVisitor extends BasePositionalVisitor implements Positi
      * @param symbolTable The compiler symbol table.
      * @param traverser   The positional context traverser.
      */
-    HiTalkTopLevelCheckVisitor ( VariableAndFunctorInterner interner, SymbolTable <Integer, String, Object> symbolTable, PositionalTermTraverser traverser ) {
+    public HiTalkTopLevelCheckVisitor ( VariableAndFunctorInterner interner, SymbolTable <Integer, String, Object> symbolTable, PositionalTermTraverser traverser ) {
         super(interner, symbolTable, traverser);
     }
 

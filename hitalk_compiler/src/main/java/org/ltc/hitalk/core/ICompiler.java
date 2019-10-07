@@ -2,7 +2,6 @@ package org.ltc.hitalk.core;
 
 import com.thesett.aima.logic.fol.LogicCompiler;
 import com.thesett.aima.logic.fol.Resolver;
-import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.entities.HtProperty;
@@ -19,12 +18,10 @@ import java.util.List;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 
 /**
- * @param <T>
  * @param <P>
  * @param <Q>
  */
-public
-interface ICompiler<T extends HtClause, P, Q> extends LogicCompiler <HtClause, P, Q> {
+public interface ICompiler<P, Q> extends LogicCompiler <HtClause, P, Q> {
 
     HtProperty[] EMPTY_FLAG_ARRAY = new HtProperty[0];
 
@@ -74,13 +71,14 @@ interface ICompiler<T extends HtClause, P, Q> extends LogicCompiler <HtClause, P
         getConsole().info("Compiling " + tokenSource);
         getParser().setTokenSource(tokenSource);
         try {
-            while (true) {
-                // Parse the next sentence or directive.
-                Sentence <HtClause> sentence = getParser().parse();
-
-                getConsole().info(sentence.toString());
-                compile(sentence.getT(), flags);
-            }
+//            while (true) {
+//                // Parse the next sentence or directive.
+//                Sentence <HtClause> sentence = getParser().parse();
+//
+//                getConsole().info(sentence.toString());
+//                compile(sentence.getT(), flags);
+//            }
+            List <HtClause> sentences = getParser().sentences();
         } catch (Exception e) {
             e.printStackTrace();
             throw new ExecutionError(PERMISSION_ERROR, null);
@@ -111,7 +109,7 @@ interface ICompiler<T extends HtClause, P, Q> extends LogicCompiler <HtClause, P
     /**
      * @param query
      */
-    void compileQuery ( Q query ) throws SourceCodeException;
+    void compileQuery ( HtClause query ) throws SourceCodeException;
 
     /**
      * @param clause

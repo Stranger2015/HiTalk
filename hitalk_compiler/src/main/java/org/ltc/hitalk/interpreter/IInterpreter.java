@@ -2,7 +2,6 @@ package org.ltc.hitalk.interpreter;
 
 import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.aima.logic.fol.isoprologparser.PrologParserConstants;
-import com.thesett.aima.logic.fol.isoprologparser.Token;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.parsing.SourceCodePosition;
 import jline.ConsoleReader;
@@ -10,7 +9,9 @@ import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IConfigurable;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.parser.HtPrologParserConstants;
 import org.ltc.hitalk.term.io.TermIO;
+import org.ltc.hitalk.wam.compiler.HtToken;
 import org.ltc.hitalk.wam.compiler.HtTokenSource;
 
 import java.io.IOException;
@@ -22,8 +23,7 @@ import static org.ltc.hitalk.wam.compiler.HtTokenSource.getTokenSourceForInputSt
 /**
  *
  */
-public
-interface IInterpreter<P, Q> extends IConfigurable, ICompiler <HtClause, P, Q>, Resolver <P, Q> {
+public interface IInterpreter<P, Q> extends IConfigurable, ICompiler <P, Q>, Resolver <P, Q> {
     /**
      *
      */
@@ -51,7 +51,7 @@ interface IInterpreter<P, Q> extends IConfigurable, ICompiler <HtClause, P, Q>, 
         setConsoleReader(initializeCommandLineReader());
 
         // Used to buffer input, and only feed it to the parser when a PERIOD is encountered.
-        TokenBuffer tokenBuffer = (TokenBuffer) getTokenSourceForInputStream(System.in/*, vfsFo.getName().getPath()*/);
+        TokenBuffer tokenBuffer = (TokenBuffer) getTokenSourceForInputStream(System.in, "stdin");
 
         // Used to hold the currently buffered lines of input, for the purpose of presenting this back to the user
         // in the event of a syntax or other error in the input.
@@ -118,7 +118,7 @@ interface IInterpreter<P, Q> extends IConfigurable, ICompiler <HtClause, P, Q>, 
 
                 // Buffer input tokens until EOL is reached, of the input is terminated with a PERIOD.
                 HtTokenSource tokenSource = HtTokenSource.getHtTokenSourceForString(line, lineNo);//todo
-                Token nextToken;
+                HtToken nextToken;
 
                 while (true) {
                     nextToken = tokenSource.poll();
@@ -127,15 +127,14 @@ interface IInterpreter<P, Q> extends IConfigurable, ICompiler <HtClause, P, Q>, 
                         break;
                     }
 
-                    if (nextToken.kind == PrologParserConstants.PERIOD) {
+                    if (nextToken.kind == HtPrologParserConstants.PERIOD) {
                         /*log.fine("Token was PERIOD.");*/
                         mode = (getMode() == Mode.QueryMultiLine) ? Mode.Query : getMode();
                         mode = (getMode() == Mode.ProgramMultiLine) ? Mode.Program : getMode();
 
                         tokenBuffer.offer(nextToken);
                         break;
-                    }
-                    else if (nextToken.kind == PrologParserConstants.EOF) {
+                    } else if (nextToken.kind == HtPrologParserConstants.EOF) {
                         /*log.fine("Token was EOF.");*/
                         mode = (getMode() == Mode.Query) ? Mode.QueryMultiLine : getMode();
                         mode = (getMode() == Mode.Program) ? Mode.ProgramMultiLine : getMode();

@@ -25,6 +25,7 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     protected IConfig config;
+
     protected final AtomicBoolean initialized = new AtomicBoolean(false);
     protected final AtomicBoolean started = new AtomicBoolean(false);
     protected final AtomicBoolean paused = new AtomicBoolean(false);
@@ -32,9 +33,9 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
     protected SymbolTable <Integer, String, Object> symbolTable;
     protected VariableAndFunctorInterner interner;
     protected HtPrologParser parser;
-    protected ICompiler <T, P, Q> instructionCompiler;
+    protected ICompiler <P, Q> instructionCompiler;
 
-    protected ICompiler <T, HtPredicate, T> preCompiler;
+    protected ICompiler <HtPredicate, T> preCompiler;
     protected HiTalkDefaultBuiltIn defaultBuiltIn;
     protected Runnable target;
     protected String fileName;
@@ -43,16 +44,14 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
     /**
      * @param compiler
      */
-    public
-    void setInstructionCompiler ( ICompiler <T, P, Q> compiler ) {
+    public void setInstructionCompiler ( ICompiler <P, Q> compiler ) {
         this.instructionCompiler = compiler;
     }
 
     /**
      * @param preCompiler
      */
-    public
-    void setPreCompiler ( ICompiler <T, HtPredicate, T> preCompiler ) {
+    public void setPreCompiler ( ICompiler <HtPredicate, T> preCompiler ) {
         this.preCompiler = preCompiler;
     }
 
@@ -75,8 +74,7 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
     /**
      * @return
      */
-    public
-    ICompiler <T, HtPredicate, T> getPreCompiler () throws LinkageException {
+    public ICompiler <HtPredicate, T> getPreCompiler () throws LinkageException {
         return preCompiler;
     }
 
@@ -243,13 +241,17 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
         this.symbolTable = symbolTable;
     }
 
-    /**
-     *
-     */
-    @Override
-    public
-    void banner () {
-    }
+//    /**
+//     *
+//     */
+//    @Override
+//    public void banner () {
+//        String product = "HiTalk compiler";
+//        String version = "v0.1.0.b#";
+//        int build = 51;
+//        String copyright = "(c) Anton Danilov 2018-2019, All rights reserved";
+//        System.err.printf("\n%s, %s%d, %s.\n\n", product, version, build, copyright);
+//    }
 
     /**
      * @return

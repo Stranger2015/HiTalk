@@ -6,32 +6,24 @@ import com.thesett.aima.logic.fol.bytecode.BaseMachine;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.core.ICompiler;
-import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * @param <T>
  * @param <P>
  * @param <Q>
  */
-public abstract
-class BaseCompiler<T extends HtClause, P, Q>
-        extends BaseMachine
-        implements ICompiler <T, P, Q> {
+public abstract class BaseCompiler<P, Q> extends BaseMachine implements ICompiler <P, Q> {
+
+    protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     protected LogicCompilerObserver <P, Q> observer;
     protected HtPrologParser parser;
-//    protected Logger console;
 
-    /**
-     * Creates a base machine over the specified symbol table.
-     *
-     * @param symbolTable The symbol table for the machine.
-     * @param interner    The interner for the machine.
-     */
-    public
-    BaseCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner ) {
+    public BaseCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner, HtPrologParser parser ) {
         super(symbolTable, interner);
+        this.parser = parser;
     }
 
     /**
@@ -40,8 +32,7 @@ class BaseCompiler<T extends HtClause, P, Q>
      * @param observer The compiler output observer.
      */
     @Override
-    public
-    void setCompilerObserver ( LogicCompilerObserver <P, Q> observer ) {
+    public void setCompilerObserver ( LogicCompilerObserver <P, Q> observer ) {
         this.observer = observer;
     }
 
@@ -51,8 +42,7 @@ class BaseCompiler<T extends HtClause, P, Q>
      * @throws SourceCodeException If there is an error in the source to be compiled that prevents its compilation.
      */
     @Override
-    public
-    void endScope () throws SourceCodeException {
+    public void endScope () throws SourceCodeException {
 
     }
 }

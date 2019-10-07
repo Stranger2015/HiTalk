@@ -27,7 +27,10 @@
       <w>inliner</w>
       <w>interner</w>
       <w>interners</w>
+      <w>lbrace</w>
+      <w>lbracket</w>
       <w>logtalk</w>
+      <w>lparen</w>
       <w>metacall</w>
       <w>metaclasses</w>
       <w>metavars</w>
@@ -39,9 +42,12 @@
       <w>preprocess</w>
       <w>proc</w>
       <w>prolog</w>
+      <w>rbrace</w>
+      <w>rbracket</w>
       <w>recordset</w>
       <w>researchgate</w>
       <w>rewriter</w>
+      <w>rparen</w>
       <w>specializer</w>
       <w>sshtools</w>
       <w>stdin</w>

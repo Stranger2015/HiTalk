@@ -1,6 +1,6 @@
 package org.ltc.hitalk.compiler.bktables.error;
 
-import com.thesett.aima.logic.fol.Functor;
+import org.ltc.hitalk.wam.compiler.HtFunctorName;
 
 /**
  *
@@ -10,6 +10,11 @@ class ExecutionError extends RuntimeException {
     public
     Kind getKind () {
         return kind;
+    }
+
+    @Override
+    public String getMessage () {
+        return message;
     }
 
     public
@@ -54,9 +59,8 @@ class ExecutionError extends RuntimeException {
      * //     * @param message the detail message. The detail message is saved for
      * later retrieval by the {@link #getMessage()} method.
      */
-    public
-    ExecutionError ( Kind kind, Functor functor ) {
+    public ExecutionError ( Kind kind, HtFunctorName functorName ) {
         this.kind = kind;
-        this.message = String.format("%s: %s", kind.getKindString(), functor);
+        this.message = String.format("%s: %s", kind.getKindString(), functorName);
     }
 }

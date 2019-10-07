@@ -10,15 +10,14 @@ public abstract
 class TopLevel<T extends HtClause, P, Q> {
     private final HtResolutionEngine <T, P, Q> engine;
     private final IInterpreter <P, Q> interpreter;
-    private final ICompiler <T, P, Q> compiler;
+    private final ICompiler <P, Q> compiler;
 
     /**
      * @param engine
      * @param interpreter
      * @param compiler
      */
-    public
-    TopLevel ( HtResolutionEngine <T, P, Q> engine, IInterpreter <P, Q> interpreter, ICompiler <T, P, Q> compiler ) {
+    public TopLevel ( HtResolutionEngine <T, P, Q> engine, IInterpreter <P, Q> interpreter, ICompiler <P, Q> compiler ) {
 
         this.engine = engine;
         this.interpreter = interpreter;
@@ -30,8 +29,7 @@ class TopLevel<T extends HtClause, P, Q> {
         return interpreter;
     }
 
-    public
-    ICompiler <T, P, Q> getCompiler () {
+    public ICompiler <P, Q> getCompiler () {
         return compiler;
     }
 

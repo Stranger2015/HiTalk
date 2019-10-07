@@ -15,6 +15,6 @@ class DcgRule extends HtClause {
      */
     public
     DcgRule ( Functor head, Functor[] body ) {
-        super(head, body);
+        super(null, head, body);
     }
 }

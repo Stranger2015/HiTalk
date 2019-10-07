@@ -42,8 +42,7 @@ class HiTalkDefaultBuiltIn extends BaseMachine implements HiTalkBuiltIn {
     /**
      * Enumerates the possible ways in which a variable can be introduced to a clause.
      */
-    protected
-    enum VarIntroduction {
+    public enum VarIntroduction {
         /**
          * Introduced by a get instruction.
          */
@@ -281,8 +280,7 @@ class HiTalkDefaultBuiltIn extends BaseMachine implements HiTalkBuiltIn {
      *
      * @param expression The clause head functor to allocate argument registers to.
      */
-    protected
-    void allocateArgumentRegisters ( Functor expression ) {
+    public void allocateArgumentRegisters ( Functor expression ) {
         // Assign argument registers to functors appearing directly in the argument of the outermost functor.
         // Variables are never assigned directly to argument registers.
         int reg = 0;
@@ -306,8 +304,7 @@ class HiTalkDefaultBuiltIn extends BaseMachine implements HiTalkBuiltIn {
      *
      * @param expression The expression to walk over.
      */
-    protected
-    void allocateTemporaryRegisters ( Term expression ) {
+    public void allocateTemporaryRegisters ( Term expression ) {
         // Need to assign registers to the whole syntax tree, working in from the outermost functor. The outermost
         // functor itself is not assigned to a register in l3 (only in l0). Functors already directly assigned to
         // argument registers will not be re-assigned by this, variables as arguments will be assigned.

@@ -1,5 +1,4 @@
-
-package org.ltc.hitalk.wam.compiler;
+package org.ltc.hitalk.wam.compiler.hitalk;
 
 /*
  * Copyright The Sett Ltd, 2005 to 2014.
@@ -37,7 +36,7 @@ import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
-import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn.VarIntroduction;
+import org.ltc.hitalk.wam.compiler.*;
 import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
 import org.ltc.hitalk.wam.printer.HtPositionalTermTraverser;
 import org.ltc.hitalk.wam.printer.HtPositionalTermVisitor;
@@ -157,9 +156,7 @@ import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.STACK_ADDR;
  *
  * @author Rupert Smith
  */
-public
-class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q extends HtClause>
-        extends BaseInstructionCompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>
+public class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>
         implements HiTalkBuiltIn {
 
 //public final static FunctorName OBJECT = new FunctorName("object", 2);
@@ -172,7 +169,6 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
     private final HiTalkDefaultBuiltIn defaultBuiltIn;
 
     // Used for debugging.
-    /* private static final Logger log = Logger.getLogger(HiTalkInstructionCompiler.class.getName()); */
 
     /**
      * Holds the instruction optimizer.
@@ -204,18 +200,15 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
     private SymbolTable <Integer, String, Object> scopeTable;
     private Collection <Integer> seenRegisters;
     private int lastAllocatedTempReg;
-    private Logger logger;
 
     /**
      * Creates a new HiTalkInstructionCompiler.
-     *  @param symbolTable The symbol table.
-     * @param interner    The machine to translate functor and variable names.
+     *
+     * @param symbolTable    The symbol table.
+     * @param interner       The machine to translate functor and variable names.
      * @param defaultBuiltIn
      */
-    public
-    HiTalkInstructionCompiler ( SymbolTable <Integer, String, Object> symbolTable,
-                                VariableAndFunctorInterner interner,
-                                HiTalkDefaultBuiltIn defaultBuiltIn ) {
+    public HiTalkInstructionCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner, HiTalkDefaultBuiltIn defaultBuiltIn ) {
         super(symbolTable, interner);
         optimizer = new HiTalkWAMOptimizer(symbolTable, interner);
         this.defaultBuiltIn = defaultBuiltIn;
@@ -226,16 +219,14 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
      *
      * @param observer
      */
-    public
-    void setCompilerObserver ( LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer ) {
+    public void setCompilerObserver ( LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer ) {
         this.observer = observer;
     }
 
     /**
      * {@inheritDoc}
      */
-    public
-    void endScope () throws SourceCodeException {
+    public void endScope () throws SourceCodeException {
         // Loop over all predicates in the current scope, found in the symbol table, and consume and compile them.
         for (SymbolKey predicateKey = predicatesInScope.poll(); predicateKey != null; predicateKey = predicatesInScope.poll()) {
             List <HtClause> clauseList = (List <HtClause>) scopeTable.get(predicateKey, SYMKEY_PREDICATES);
@@ -285,8 +276,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
      * it is a clause, it is retained against the predicate which it forms part of, and compiled on the
      * {@link #endScope()} method is invoked.
      */
-    public
-    void compile ( Sentence <HtClause> sentence ) throws SourceCodeException {
+    public void compile ( Sentence <HtClause> sentence ) throws SourceCodeException {
         /*log.fine("public WAMCompiledClause compile(Sentence<Term> sentence = " + sentence + "): called");*/
 
         // Extract the clause to compile from the parsed sentence.
@@ -295,8 +285,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
         // Classify the sentence to compile by the different sentence types in the language.
         if (clause.isQuery()) {
             compileQuery(clause);
-        }
-        else {
+        } else {
             // Initialise a nested symbol table for the current compilation scope, if it has not already been.
             if (scopeTable == null) {
                 scopeTable = symbolTable.enterScope(scope);
@@ -328,8 +317,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
      * @param multipleClauses   <tt>true</tt> iff the predicate contains >1 clause.
      * @param clauseNumber      The position of the clause within the predicate.
      */
-    private
-    void compileClause ( HtClause clause, HiTalkWAMCompiledPredicate compiledPredicate, boolean isFirst, boolean isLast, boolean multipleClauses, int clauseNumber ) {
+    private void compileClause ( HtClause clause, HiTalkWAMCompiledPredicate compiledPredicate, boolean isFirst, boolean isLast, boolean multipleClauses, int clauseNumber ) {
         // Used to build up the compiled clause in.
         HiTalkWAMCompiledClause result = new HiTalkWAMCompiledClause((HiTalkWAMCompiledPredicate) compiledPredicate);
 
@@ -387,12 +375,10 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
         if (isFirst && !isLast && multipleClauses) {
             // try me else.
             preFixInstructions.add(new HiTalkWAMInstruction(entryLabel, TryMeElse, retryLabel));
-        }
-        else if (!isFirst && !isLast && multipleClauses) {
+        } else if (!isFirst && !isLast && multipleClauses) {
             // retry me else.
             preFixInstructions.add(new HiTalkWAMInstruction(entryLabel, RetryMeElse, retryLabel));
-        }
-        else if (isLast && multipleClauses) {
+        } else if (isLast && multipleClauses) {
             // trust me.
             preFixInstructions.add(new HiTalkWAMInstruction(entryLabel, TrustMe));
         }
@@ -439,8 +425,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
 
                 if (expression instanceof HiTalkBuiltIn) {
                     builtIn = (HiTalkBuiltIn) expression;
-                }
-                else {
+                } else {
                     builtIn = this;
                 }
 
@@ -470,8 +455,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
      * @param clause The clause to compile as a query.
      * @throws SourceCodeException If there is an error in the source code preventing its compilation.
      */
-    public
-    void compileQuery ( HtClause clause ) throws SourceCodeException {
+    public void compileQuery ( HtClause clause ) throws SourceCodeException {
         checkDirective(clause);
         // Used to build up the compiled result in.
         HiTalkWAMCompiledQuery result;
@@ -545,8 +529,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
 
             if (expression instanceof HiTalkBuiltIn) {
                 builtIn = (HiTalkBuiltIn) expression;
-            }
-            else {
+            } else {
                 builtIn = this;
             }
 
@@ -579,8 +562,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
     /**
      * @param clause
      */
-    public
-    void compileClause ( HtClause clause ) {
+    public void compileClause ( HtClause clause ) {
 
     }
 
@@ -588,13 +570,11 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
      * @param resolver
      */
 //    @Override
-    public
-    void setResolver ( Resolver <HtClause, HiTalkWAMCompiledQuery> resolver ) {
+    public void setResolver ( Resolver <HtClause, HiTalkWAMCompiledQuery> resolver ) {
 
     }
 
-    private
-    void checkDirective ( HtClause clause ) {
+    private void checkDirective ( HtClause clause ) {
         Functor[] body = clause.getBody();
         if (body.length == 1) {
             int name = body[0].getName();
@@ -614,8 +594,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
      * @param clause The clause to determine the highest number of arguments within.
      * @return The highest number of arguments within any top-level functor in the clause.
      */
-    private
-    int findMaxArgumentsInClause ( HtClause clause ) {
+    private int findMaxArgumentsInClause ( HtClause clause ) {
         int result = 0;
 
         Functor head = clause.getHead();
@@ -642,8 +621,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
      * @param expression The clause head to compile.
      * @return A listing of the instructions for the clause head in the WAM instruction set.
      */
-    private
-    SizeableLinkedList <HiTalkWAMInstruction> compileHead ( Functor expression ) {
+    private SizeableLinkedList <HiTalkWAMInstruction> compileHead ( Functor expression ) {
         // Used to build up the results in.
         SizeableLinkedList <HiTalkWAMInstruction> instructions = new SizeableLinkedList <>();
 
@@ -654,7 +632,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
 
         // Program instructions are generated in the same order as the registers are assigned, the postfix
         // ordering used for queries is not needed.
-        BreadthFirstSearch <Term, Term> outInSearch = new BreadthFirstSearch <Term, Term>();
+        BreadthFirstSearch <Term, Term> outInSearch = new BreadthFirstSearch <>();
         outInSearch.reset();
         outInSearch.addStartState(expression);
 
@@ -711,11 +689,10 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
                         instruction = new HiTalkWAMInstruction(UnifyVar, addrMode, address, nextArg);
 
                         // Record the way in which this variable was introduced into the clause.
-                        symbolTable.put(nextArg.getSymbolKey(), SYMKEY_VARIABLE_INTRO, VarIntroduction.Unify);
-                    }
-                    else {
+                        symbolTable.put(nextArg.getSymbolKey(), SYMKEY_VARIABLE_INTRO, HiTalkDefaultBuiltIn.VarIntroduction.Unify);
+                    } else {
                         // Check if the variable is 'local' and use a local instruction on the first occurrence.
-                        VarIntroduction introduction = (VarIntroduction) symbolTable.get(nextArg.getSymbolKey(), SYMKEY_VARIABLE_INTRO);
+                        HiTalkDefaultBuiltIn.VarIntroduction introduction = (HiTalkDefaultBuiltIn.VarIntroduction) symbolTable.get(nextArg.getSymbolKey(), SYMKEY_VARIABLE_INTRO);
 
                         if (isLocalVariable(introduction, addrMode)) {
                             /*log.fine("UNIFY_LOCAL_VAL " + ((addrMode == REG_ADDR) ? "X" : "Y") +
@@ -724,8 +701,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
                             instruction = new HiTalkWAMInstruction(UnifyLocalVal, addrMode, address, nextArg);
 
                             symbolTable.put(nextArg.getSymbolKey(), SYMKEY_VARIABLE_INTRO, null);
-                        }
-                        else {
+                        } else {
                             /*log.fine("UNIFY_VAL " + ((addrMode == REG_ADDR) ? "X" : "Y") + address);*/
 
                             instruction = new HiTalkWAMInstruction(UnifyVal, addrMode, address, nextArg);
@@ -734,8 +710,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
 
                     instructions.add(instruction);
                 }
-            }
-            else if (j < numOutermostArgs) {
+            } else if (j < numOutermostArgs) {
                 Term nextVar = nextTerm;
                 int allocation = (Integer) symbolTable.get(nextVar.getSymbolKey(), SYMKEY_ALLOCATION);
                 byte addrMode = (byte) ((allocation & 0xff00) >> 8);
@@ -753,9 +728,8 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
                     instruction = new HiTalkWAMInstruction(GetVar, addrMode, address, (byte) (j & 0xff));
 
                     // Record the way in which this variable was introduced into the clause.
-                    symbolTable.put(nextVar.getSymbolKey(), SYMKEY_VARIABLE_INTRO, VarIntroduction.Get);
-                }
-                else {
+                    symbolTable.put(nextVar.getSymbolKey(), SYMKEY_VARIABLE_INTRO, HiTalkDefaultBuiltIn.VarIntroduction.Get);
+                } else {
                     /*log.fine("GET_VAL " + ((addrMode == REG_ADDR) ? "X" : "Y") + address + ", A" + j);*/
 
                     instruction = new HiTalkWAMInstruction(GetVal, addrMode, address, (byte) (j & 0xff));
@@ -768,8 +742,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
         return instructions;
     }
 
-    private
-    boolean isLocalVariable ( VarIntroduction introduction, byte addrMode ) {
+    private boolean isLocalVariable ( HiTalkDefaultBuiltIn.VarIntroduction introduction, byte addrMode ) {
         return false;
     }
 
@@ -790,8 +763,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
      *
      * @param clause The clause to allocate registers for.
      */
-    private
-    void allocatePermanentProgramRegisters ( HtClause clause ) {
+    private void allocatePermanentProgramRegisters ( HtClause clause ) {
         // A bag to hold variable occurrence counts in.
         Map <Variable, Integer> variableCountBag = new HashMap <>();
 
@@ -899,8 +871,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
      * @param clause   The clause to allocate registers for.
      * @param varNames A map of permanent variables to variable names to record the allocations in.
      */
-    private
-    void allocatePermanentQueryRegisters ( Term clause, Map <Byte, Integer> varNames ) {
+    private void allocatePermanentQueryRegisters ( Term clause, Map <Byte, Integer> varNames ) {
         // Allocate local variable slots for all variables in a query.
         QueryRegisterAllocatingVisitor allocatingVisitor = new QueryRegisterAllocatingVisitor(symbolTable, varNames, null);
 
@@ -917,8 +888,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
      *
      * @param clause The clause to check the variable occurrence and position of occurrence within.
      */
-    private
-    void gatherPositionAndOccurrenceInfo ( Term clause ) {
+    private void gatherPositionAndOccurrenceInfo ( Term clause ) {
         PositionalTermTraverser positionalTraverser = new PositionalTermTraverserImpl();
         PositionAndOccurrenceVisitor positionAndOccurrenceVisitor = new PositionAndOccurrenceVisitor(interner, symbolTable, positionalTraverser);
         positionalTraverser.setContextChangeVisitor(positionAndOccurrenceVisitor);
@@ -933,8 +903,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
      *
      * @param predicate The compiled predicate to pretty print.
      */
-    private
-    void displayCompiledPredicate ( Term predicate ) {
+    private void displayCompiledPredicate ( Term predicate ) {
         // Pretty print the clause.
         StringBuilder result = new StringBuilder();
         HtPositionalTermVisitor displayVisitor = new HtWAMCompiledPredicatePrintingVisitor(symbolTable, interner, result);
@@ -949,8 +918,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
      *
      * @param query The compiled query to pretty print.
      */
-    private
-    void displayCompiledQuery ( Term query ) {
+    private void displayCompiledQuery ( Term query ) {
         // Pretty print the clause.
         StringBuilder result = new StringBuilder();
 
@@ -975,8 +943,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
      * @return A listing of the instructions for the clause body in the WAM instruction set.
      */
     @Override
-    public
-    SizeableLinkedList <HiTalkWAMInstruction> compileBodyArguments ( Functor expression, boolean isFirstBody, FunctorName clauseName, int bodyNumber ) {
+    public SizeableLinkedList <HiTalkWAMInstruction> compileBodyArguments ( Functor expression, boolean isFirstBody, FunctorName clauseName, int bodyNumber ) {
         return defaultBuiltIn.compileBodyArguments(expression, isFirstBody, clauseName, bodyNumber);
     }
 
@@ -992,8 +959,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
      * @return A list of instructions for the body call.
      */
     @Override
-    public
-    SizeableLinkedList <HiTalkWAMInstruction> compileBodyCall ( Functor expression, boolean isFirstBody, boolean isLastBody, boolean chainRule, int permVarsRemaining ) {
+    public SizeableLinkedList <HiTalkWAMInstruction> compileBodyCall ( Functor expression, boolean isFirstBody, boolean isLastBody, boolean chainRule, int permVarsRemaining ) {
         return defaultBuiltIn.compileBodyCall(expression, isFirstBody, isLastBody, chainRule, permVarsRemaining);
     }
 
@@ -1001,8 +967,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
      * @return
      */
     @Override
-    public
-    Logger getConsole () {
+    public Logger getConsole () {
         return logger;
     }
 
@@ -1010,8 +975,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
      * @return
      */
     @Override
-    public
-    HtPrologParser getParser () {
+    public HtPrologParser getParser () {
         return parser;
     }
 
@@ -1021,28 +985,16 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
      * @throws SourceCodeException
      */
     @Override
-    public
-    void compile ( HtClause clause, HtProperty... flags ) throws SourceCodeException {
+    public void compile ( HtClause clause, HtProperty... flags ) throws SourceCodeException {
 
     }
 
-    /**
-     * @return
     /**
      * @param rule
+     * @return /**
      */
 //    @Override
-    public
-    void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
-
-    }
-
-    /**
-     * @param query
-     */
-    @Override
-    public
-    void compileQuery ( HiTalkWAMCompiledQuery query ) throws SourceCodeException {
+    public void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
 
     }
 
@@ -1052,8 +1004,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
      * preserved on the stack at the end of the query. Anonymous variables in queries are singletons, and not included
      * in the query results, so can be temporary.
      */
-    public
-    class QueryRegisterAllocatingVisitor extends DelegatingAllTermsVisitor {
+    public class QueryRegisterAllocatingVisitor extends DelegatingAllTermsVisitor {
         /**
          * The symbol table.
          */
@@ -1071,8 +1022,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
          * @param varNames    A map of permanent variables to variable names to record the allocations in.
          * @param delegate    The term visitor that this delegates to.
          */
-        public
-        QueryRegisterAllocatingVisitor ( SymbolTable <Integer, String, Object> symbolTable, Map <Byte, Integer> varNames, AllTermsVisitor delegate ) {
+        public QueryRegisterAllocatingVisitor ( SymbolTable <Integer, String, Object> symbolTable, Map <Byte, Integer> varNames, AllTermsVisitor delegate ) {
             super(delegate);
             this.symbolTable = symbolTable;
             this.varNames = varNames;
@@ -1083,8 +1033,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
          * <p>
          * <p/>Allocates unallocated variables to stack slots.
          */
-        public
-        void visit ( Variable variable ) {
+        public void visit ( Variable variable ) {
             if (symbolTable.get(variable.getSymbolKey(), SYMKEY_ALLOCATION) == null) {
                 if (variable.isAnonymous()) {
                     /*log.fine("Query variable " + variable + " is temporary.");*/
@@ -1092,8 +1041,7 @@ class HiTalkInstructionCompiler//<T extends HtClause, P extends HtPredicate, Q e
                     int allocation = (lastAllocatedTempReg++ & (0xff)) | (REG_ADDR << 8);
                     symbolTable.put(variable.getSymbolKey(), SYMKEY_ALLOCATION, allocation);
                     varNames.put((byte) allocation, variable.getName());
-                }
-                else {
+                } else {
                     /*log.fine("Query variable " + variable + " is permanent.");*/
 
                     int allocation = (numPermanentVars++ & (0xff)) | (WAMInstruction.STACK_ADDR << 8);

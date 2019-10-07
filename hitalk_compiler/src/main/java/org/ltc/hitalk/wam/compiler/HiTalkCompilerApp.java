@@ -4,11 +4,13 @@ import com.thesett.aima.logic.fol.*;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.common.util.doublemaps.SymbolTableImpl;
-import org.apache.commons.vfs2.*;
+import org.apache.commons.vfs2.CacheStrategy;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.VFS;
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
 import org.apache.commons.vfs2.provider.jar.JarFileProvider;
 import org.apache.commons.vfs2.provider.local.DefaultLocalFileProvider;
-import org.apache.commons.vfs2.provider.local.LocalFile;
 import org.apache.commons.vfs2.provider.ram.RamFileProvider;
 import org.apache.commons.vfs2.provider.res.ResourceFileProvider;
 import org.apache.commons.vfs2.provider.temp.TemporaryFileProvider;
@@ -30,14 +32,14 @@ import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.LoadContext;
 import org.ltc.hitalk.parser.HiTalkParser;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiler;
 import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
 import org.ltc.hitalk.wam.printer.HtPositionalTermTraverser;
 import org.ltc.hitalk.wam.printer.HtPositionalTermVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -175,7 +177,7 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication
      */
     @Override
     public CompilerConfig getConfig () {
-        return config;
+        return (CompilerConfig) super.getConfig();
     }
 
     /**
@@ -183,7 +185,7 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication
      */
     @Override
     public void setConfig ( IConfig config ) {
-        this.config = (CompilerConfig) config;
+        this.config = config;
     }
 
     public HtEntityIdentifier LOGTALK;
@@ -213,6 +215,10 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication
     protected ITermFactory tf;
 
     protected DefaultFileSystemManager fsManager;
+    private static final String vfsPath = "C:/Users/Anthony_2/VFS";
+    private static InputStreamReader is;
+    private static BufferedReader br;
+
     /**
      * Holds the instruction generating compiler.
      */
@@ -240,7 +246,7 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication
     /**
      *
      */
-    protected CompilerConfig config;
+//    protected CompilerConfig config;
 
     protected HiTalkDefaultBuiltIn defaultBuiltIn;
     protected HiTalkBuiltInTransform <HiTalkCompilerApp, T> builtInTransform;
@@ -264,6 +270,7 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication
             e.printStackTrace();
             throw new ExecutionError(PERMISSION_ERROR, null);
         }
+    }
     }
 
     @Override
@@ -339,7 +346,6 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication
         }
         return in;
     }
-
     /**
      * @param scratchDir
      * @return
@@ -347,7 +353,9 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication
      * @throws SourceCodeException
      */
     protected Object loadSettingsFile ( String scratchDir ) throws Exception {
-        InputStream input = getResource("file://c:/Users/Anthony_2/IdeaProjects/WAM/hitalk_compiler/src/main/resources/startup.pl");
+        InputStream input = new FileInputStream("c:\\Users\\Anthony_2\\IdeaProjects\\WAM\\hitalk_compiler\\src\\main\\resources\\empty.pl");
+//        InputStream input = new FileInputStream("c:\\Users\\Anthony_2\\IdeaProjects\\WAM\\hitalk_compiler\\src\\main\\resources\\test.pl");
+        logtalkCompile(input);
         logtalkCompile(input);
         return null;
     }
@@ -357,7 +365,7 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication
      * @throws IOException
      */
     private void logtalkCompile ( InputStream input ) throws IOException {
-        HtTokenSource tokenSource = HtTokenSource.getTokenSourceForInputStream(input, getConfig().getBaseFile().getName().getPath());
+        HtTokenSource tokenSource = HtTokenSource.getTokenSourceForInputStream(input, "");
         setTokenSource(tokenSource);
         compiler.compile(tokenSource);
     }
@@ -1189,15 +1197,6 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication
 //        return preCompiler;
 //    }
 
-    protected FileObject createScratchDirectory () throws Exception {
-        FileSystemOptions fileSystemOptions = new FileSystemOptions();
-        final FileObject scratchFolder = VFS.getManager().resolveFile(getScratchDirectory(), fileSystemOptions);
-        // Make sure the test folder is empty
-        scratchFolder.delete(Selectors.EXCLUDE_SELF);
-        scratchFolder.createFolder();
-
-        return scratchFolder;
-    }
 
     /**
      *
@@ -1247,6 +1246,7 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication
 
         initVfs();
 
+//=============================
         super.doInit();
     }
 
@@ -1254,16 +1254,23 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication
         try {
             fsManager = new DefaultFileSystemManager();
 //            fsManager.setLogger((Log) logger);
-            fsManager.addProvider("local", new DefaultLocalFileProvider());
+            fsManager.addProvider("file", new DefaultLocalFileProvider());
             fsManager.addProvider("zip", new ZipFileProvider());
             fsManager.addProvider("ram", new RamFileProvider());
             fsManager.addProvider("jar", new JarFileProvider());
             fsManager.addProvider("temp", new TemporaryFileProvider());//ram zip
             fsManager.addProvider("res", new ResourceFileProvider());
             fsManager.addProvider("url", new UrlFileProvider());
+//            fsManager.addProvider("vfs2nio", new org.ltc.hitalk.com.sshtools.vfs2nio.Vfs2NioFileSystemProvider());
+//
+//            /* Creation of root directory for VFS */
+//            is = new InputStreamReader(System.in);
+//            br = new BufferedReader(is);
+//            File f = new File("C:\\");
+//            URI uri = f.toURI();
+//            fsManager.setBaseFile(new File(System.getProperty("user.dir")));
 
-            FileObject fo = fsManager.resolveFile(new LocalFile() {
-            }"file://C:/"); fsManager.createFileSystem(fo);
+            fsManager.setCacheStrategy(CacheStrategy.ON_RESOLVE);
 
             fsManager.init();
 
@@ -1273,24 +1280,18 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication
         }
     }
 
-    /**
-     * @param funcOrVariable
-     * @return
-     * @throws IOException
-     */
-    public String getNameSpace ( String funcOrVariable ) throws IOException {
-        return String.format("%s_%s_Namespace", language(), funcOrVariable);
+    public String language () {
+        return "HiTalk";
     }
 
-    private String language () {
-        return "HiTalk";
+    public String tool () {
+        return "compiler";
     }
 
     /**
      * @return
      */
     protected List <HtEntityIdentifier> hooksPipeline () {
-//        Map <Functor, INameable <Functor>>[] tables = bkt.getTables();
         List <HtEntityIdentifier> l = new ArrayList <>();
 
         return l;
@@ -1316,19 +1317,7 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication
         getTarget().run();
     }
 
-    /**
-     *
-     */
-    @Override
-    public void banner () {
-        super.banner();
 
-        String product = "HiTalk compiler";
-        String version = "v0.1.0.b#";
-        int build = 5;
-        String copyright = "(c) Anton Danilov 2018-2019, All rights reserved";
-        System.out.printf("\n%s, %s%d, %s.\n", product, version, build, copyright);
-    }
 
     /**
      * @return
@@ -1361,16 +1350,16 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication
      * public
      */
     public static class ClauseChainObserver<T extends HtClause, P, Q> implements LogicCompilerObserver <T, Q> {
-        protected ICompiler <T, P, Q> instructionCompiler;
+        protected ICompiler <P, Q> instructionCompiler;
 
         /**
          * @param instructionCompiler
          */
-        ClauseChainObserver ( ICompiler <T, P, Q> instructionCompiler ) {
+        ClauseChainObserver ( ICompiler <P, Q> instructionCompiler ) {
             this.instructionCompiler = instructionCompiler;
         }
 
-        public ClauseChainObserver ( ICompiler <T, HtPredicate, T> preCompiler, ICompiler <T, P, Q> instructionCompiler ) {
+        public ClauseChainObserver ( ICompiler <HtPredicate, T> preCompiler, ICompiler <P, Q> instructionCompiler ) {
 
         }
 

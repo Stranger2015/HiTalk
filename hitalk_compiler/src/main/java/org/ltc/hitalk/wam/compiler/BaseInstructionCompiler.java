@@ -14,10 +14,9 @@ import java.util.Deque;
  * @param <P>
  * @param <Q>
  */
-public abstract
-class BaseInstructionCompiler<T extends HtClause, P, Q> extends BaseCompiler <T, P, Q> {
+public abstract class BaseInstructionCompiler<P, Q> extends BaseCompiler <P, Q> {
 
-    public final Deque <CompilerTask <T, Term>> tasks = new ArrayDeque <>();
+    public final Deque <CompilerTask <HtClause, Term>> tasks = new ArrayDeque <>();
 
     /**
      * Creates a base machine over the specified symbol table.
@@ -35,8 +34,7 @@ class BaseInstructionCompiler<T extends HtClause, P, Q> extends BaseCompiler <T,
     /**
      * @return
      */
-    public
-    Deque <CompilerTask <T, Term>> getTasks () {
+    public Deque <CompilerTask <HtClause, Term>> getTasks () {
         return tasks;
     }
 }

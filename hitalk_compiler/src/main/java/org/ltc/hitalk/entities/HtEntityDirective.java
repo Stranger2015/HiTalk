@@ -21,7 +21,7 @@ class HtEntityDirective extends HtClause/* implements Hierarchy */ {
      */
     public
     HtEntityDirective ( Functor[] body, Kind kind, /*HtDirective.DirKind dirKind,*/ HtEntityKind entityKind ) {
-        super(null, body);
+        super(null, null, body);
 
         this.kind = kind;
 //        this.dirKind = dirKind;

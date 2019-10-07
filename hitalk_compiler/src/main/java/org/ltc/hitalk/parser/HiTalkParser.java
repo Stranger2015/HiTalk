@@ -1,6 +1,6 @@
 package org.ltc.hitalk.parser;
 
-import com.thesett.aima.logic.fol.Term;
+import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.wam.compiler.HtTokenSource;
@@ -46,8 +46,8 @@ class HiTalkParser extends HtPrologParser {
      * @throws SourceCodeException If the term to convert to a clause does not form a valid clause.
      */
     public//fixme
-    HtClause convert ( Term term ) throws SourceCodeException {
-        return (HtClause) term;
+    HtClause convert ( Functor term ) throws SourceCodeException {
+        return super.convert(term);
     }
 
     /**

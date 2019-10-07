@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ltc.hitalk.wam.compiler;
+package org.ltc.hitalk.wam.compiler.hitalk;
 
 import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.logic.fol.bytecode.BaseMachine;
@@ -29,6 +29,9 @@ import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.wam.compiler.HiTalkCompilerApp.HiTalkBuiltInTransformVisitor;
+import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
+import org.ltc.hitalk.wam.compiler.HiTalkTopLevelCheckVisitor;
+import org.ltc.hitalk.wam.compiler.HtTermWalkers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,8 +49,7 @@ import java.util.List;
  * @author Rupert Smith
  */
 abstract public
-class HiTalkPreCompiler extends BaseMachine
-        implements ICompiler <HtClause, HtClause, HtClause> {
+class HiTalkPreCompiler extends BaseMachine implements ICompiler <HtClause, HtClause> {
 
     //Used for debugging.
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
