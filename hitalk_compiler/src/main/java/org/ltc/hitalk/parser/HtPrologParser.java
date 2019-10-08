@@ -43,6 +43,7 @@ import com.thesett.common.util.Source;
 import com.thesett.common.util.TraceIndenter;
 import org.ltc.hitalk.compiler.bktables.BookKeepingTables;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.HtFunctorName;
 import org.ltc.hitalk.wam.compiler.HtToken;
 import org.ltc.hitalk.wam.compiler.HtTokenSource;
@@ -79,7 +80,7 @@ import static org.ltc.hitalk.core.BuiltIns.SEMICOLON;
  *
  * @author Rupert Smith
  */
-public class HtPrologParser implements Parser <HtClause, HtToken>, HtPrologParserConstants {
+public class HtPrologParser extends PlPrologParser implements Parser <HtClause, HtToken>, HtPrologParserConstants {
 
     public static final String BEGIN_OF_FILE = "begin_of_file";
     public static final String END_OF_FILE = "end_of_file";
@@ -100,6 +101,7 @@ public class HtPrologParser implements Parser <HtClause, HtToken>, HtPrologParse
     private final BookKeepingTables bkt;
 
     public HtPrologParser () {
+        super();
         bkt = new BookKeepingTables();// fixme multiple instances of BKT's
     }
 

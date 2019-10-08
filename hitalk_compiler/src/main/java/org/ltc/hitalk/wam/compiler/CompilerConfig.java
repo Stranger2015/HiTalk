@@ -5,6 +5,7 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.VFS;
 import org.ltc.hitalk.compiler.bktables.IConfig;
+import org.ltc.hitalk.compiler.bktables.IProduct;
 
 /**
  *
@@ -46,4 +47,8 @@ class CompilerConfig implements IConfig {
         return schemes;
     }
 
+    @Override
+    public IProduct getProduct () {
+        return null;
+    }
 }

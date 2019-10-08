@@ -5,7 +5,7 @@ import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.IProperty;
 import org.ltc.hitalk.entities.IPropertyOwner;
 import org.ltc.hitalk.entities.PropertyOwner;
-import org.ltc.hitalk.wam.compiler.HtTokenSource;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import sun.nio.cs.StreamDecoder;
 import sun.nio.cs.StreamEncoder;
 
@@ -45,7 +45,7 @@ class HiTalkStream
     private long offset;
     private StandardOpenOption[] options;
 
-    private HtTokenSource tokenSource;
+    private PlTokenSource tokenSource;
 
     PropertyOwner <HtProperty> owner;
     protected Charset currentCharset = defaultCharset();
@@ -105,8 +105,7 @@ class HiTalkStream
         this(path, 0L, options);
     }
 
-    public
-    HiTalkStream ( InputStream inputStream, HtTokenSource tokenSource ) {
+    public HiTalkStream ( InputStream inputStream, PlTokenSource tokenSource ) {
         this(inputStream);
         this.tokenSource = tokenSource;
     }
@@ -1289,13 +1288,11 @@ class HiTalkStream
         }
     }
 
-    public
-    void setTokenSource ( HtTokenSource tokenSource ) {
+    public void setTokenSource ( PlTokenSource tokenSource ) {
         this.tokenSource = tokenSource;
     }
 
-    public
-    HtTokenSource getTokenSource () {
+    public PlTokenSource getTokenSource () {
         return tokenSource;
     }
 

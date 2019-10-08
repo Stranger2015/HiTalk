@@ -68,3 +68,27 @@ Standalone compiler + IDE.
     ]).
 
 :- end_object.
+````
+
+## *Misc*
+
+#Issues 
+List syntax changes:
+````
+<foo>()                     arguments' nil
+<foo>( Arg_1, ..., Arg_n )
+<foo>( Arg_1 | RestArgs )
+<foo>(| Args_Itself )
+[| List_Itself]
+
+[Head |] is just [ Head | _ ]//???????
+````
+Predicate indicator - **P/N**
+
+BOF
+
+Encoding
+
+
+
+````

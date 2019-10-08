@@ -15,7 +15,11 @@
  */
 package org.ltc.hitalk.wam.compiler.hitalk;
 
-import com.thesett.aima.logic.fol.*;
+
+import com.thesett.aima.logic.fol.LogicCompilerObserver;
+import com.thesett.aima.logic.fol.Resolver;
+import com.thesett.aima.logic.fol.Sentence;
+import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.aima.logic.fol.bytecode.BaseMachine;
 import com.thesett.aima.logic.fol.compiler.SymbolKeyTraverser;
 import com.thesett.aima.logic.fol.compiler.TermWalker;
@@ -28,7 +32,7 @@ import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.wam.compiler.HiTalkCompilerApp.HiTalkBuiltInTransformVisitor;
+import org.ltc.hitalk.wam.compiler.HiTalkBuiltInTransformVisitor;
 import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.HiTalkTopLevelCheckVisitor;
 import org.ltc.hitalk.wam.compiler.HtTermWalkers;
@@ -108,8 +112,7 @@ class HiTalkPreCompiler extends BaseMachine implements ICompiler <HtClause, HtCl
      * @param t
      * @return
      */
-    protected abstract
-    List <HtClause> preprocess ( HtClause t );
+    protected abstract List <HtClause> preprocess ( HtClause t );
 
     /**
      * {@inheritDoc}

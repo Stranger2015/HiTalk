@@ -24,8 +24,7 @@ import java.util.List;
 /**
  *
  */
-public
-class HiTalkPreprocessor<TC extends Term, TT extends TransformTask <HtClause, TC>>
+public class HiTalkPreprocessor<TC extends Term, TT extends TransformTask <HtClause, TC>>
         extends HiTalkPreCompiler {
 
     protected final DefaultTransformer <HtClause, TC> defaultTransformer;
@@ -113,8 +112,7 @@ class HiTalkPreprocessor<TC extends Term, TT extends TransformTask <HtClause, TC
      * @param t
      * @return
      */
-    protected
-    List <HtClause> preprocess ( HtClause t ) {
+    protected List <HtClause> preprocess ( HtClause t ) {
         List <HtClause> list = new ArrayList <>();
 
         for (TransformTask <HtClause, TC> task : components) {

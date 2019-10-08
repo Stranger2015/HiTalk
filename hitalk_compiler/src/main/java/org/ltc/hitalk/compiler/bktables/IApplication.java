@@ -31,8 +31,14 @@ public interface IApplication extends Runnable, IConfigurable {
      */
     void setConfig ( IConfig config );
 
-    BaseCompiler createCompiler ( SymbolTable symbolTable, VariableAndFunctorInterner interner, HtPrologParser parser ) {
-    }
+    /**
+     * @param symbolTable
+     * @param interner
+     * @param parser
+     * @return
+     */
+    BaseCompiler createCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner, HtPrologParser parser );
+
     /**
      *
      */

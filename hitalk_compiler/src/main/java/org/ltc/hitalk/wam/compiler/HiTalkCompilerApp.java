@@ -1,5 +1,6 @@
 package org.ltc.hitalk.wam.compiler;
 
+import com.sun.tools.javac.resources.compiler;
 import com.thesett.aima.logic.fol.*;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
@@ -17,6 +18,7 @@ import org.apache.commons.vfs2.provider.temp.TemporaryFileProvider;
 import org.apache.commons.vfs2.provider.url.UrlFileProvider;
 import org.apache.commons.vfs2.provider.zip.ZipFileProvider;
 import org.ltc.hitalk.ITermFactory;
+import org.ltc.hitalk.compiler.BaseCompiler;
 import org.ltc.hitalk.compiler.HiTalkBuiltInTransform;
 import org.ltc.hitalk.compiler.bktables.*;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
@@ -32,6 +34,7 @@ import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.LoadContext;
 import org.ltc.hitalk.parser.HiTalkParser;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiler;
 import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
 import org.ltc.hitalk.wam.printer.HtPositionalTermTraverser;
@@ -188,6 +191,16 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication
         this.config = config;
     }
 
+    @Override
+    public BaseCompiler createCompiler ( SymbolTable symbolTable, VariableAndFunctorInterner interner, HtPrologParser parser ) {
+        return new HiTalkWAMCompiler(symbolTable, interner, parser);
+    }
+
+    @Override
+    public String namespace ( String varOrFunctor ) {
+        return null;
+    }
+
     public HtEntityIdentifier LOGTALK;
     public HtEntityIdentifier CORE_MESSAGES;
     //
@@ -223,7 +236,6 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication
      * Holds the instruction generating compiler.
      */
     protected String scratchDirectory;
-    private HiTalkWAMCompiler compiler;
     private LogicCompilerObserver <T, Q> observer;
 
     /**
@@ -270,7 +282,6 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication
             e.printStackTrace();
             throw new ExecutionError(PERMISSION_ERROR, null);
         }
-    }
     }
 
     @Override
@@ -1317,6 +1328,10 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication
         getTarget().run();
     }
 
+    @Override
+    public IProduct product () {
+        return null;
+    }
 
 
     /**
