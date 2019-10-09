@@ -17,7 +17,7 @@ public class PipedParser<TERM> implements TermParser<TERM> {
 	private PipedReader reader;
 	
 	public PipedParser( final PipedReader reader
-			, final org.ltc.hitalk.parser.jp.segfault.prolog.parser.TermFactory <TERM>factory, final OperatorTable optable)
+			, final org.ltc.hitalk.parser.jp.segfault.prolog.parser.TermFactory1 <TERM>factory, final OperatorTable optable)
 	{
 		this.reader = reader;
 		Thread thread = new Thread(() -> {

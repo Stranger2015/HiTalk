@@ -6,7 +6,6 @@ import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.VFS;
-import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.parser.PrologAtoms;
 import org.ltc.hitalk.term.io.HiTalkStream;
 
@@ -84,14 +83,14 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
      * @param lexer The token manager to use to feed this source.
      * @param input
      */
-    public PlTokenSource ( PlLexer lexer, InputStream input ) {
+    public PlTokenSource ( PlLexer lexer, InputStream input ) throws IOException {
         this(lexer);
-        stream = new HiTalkStream(input, this);
+        stream = new HiTalkStream((FileInputStream) input, this);
         this.lexer = lexer;
 
     }
 
-    public PlTokenSource ( PlLexer lexer, InputStream input, String path ) {
+    public PlTokenSource ( PlLexer lexer, InputStream input, String path ) throws IOException {
         this(lexer, input);
         this.path = path;
     }
@@ -143,7 +142,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     public static PlTokenSource getTokenSourceForInputStream ( InputStream in, String path ) throws IOException {
         InputStreamReader input = new InputStreamReader(in);
 //        SimpleCharStream inputStream = new SimpleCharStream(input, 1, 1);
-        PlLexer lexer = new PlLexer(input);
+        PlLexer lexer = new PlLexer(new HiTalkStream(new FileInputStream(path)));
 
         return new PlTokenSource(lexer, in, path);
     }
@@ -209,12 +208,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
             return token;
         }
         if (token.next == null) {
-            try {
-                token.next = lexer.next(true);
-            } catch (ParseException | IOException e) {
-                e.printStackTrace();
-                throw new ExecutionError(ExecutionError.Kind.PERMISSION_ERROR, null);
-            }
+            token.next = lexer.next(true);
         }
         token = token.next;
 //        token.next=null;
@@ -244,5 +238,9 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
         PlToken t = PlToken.newToken(BOF);
         t.next = new PlToken(DOT);
         return t;
+    }
+
+    public HiTalkStream getStream () {
+        return stream;
     }
 }

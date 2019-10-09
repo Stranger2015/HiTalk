@@ -10,7 +10,7 @@ import java.util.*;
  *
  * @author shun
  */
-public class OperatorTable {
+public class OperatorTable1 {
 
     private LinkedHashMap <String, ArrayList <Operator>> table = new LinkedHashMap <>();
 

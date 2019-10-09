@@ -24,8 +24,8 @@ class ExecutionError extends RuntimeException {
         EXISTENCE_ERROR("Existence error"),
         DOMAIN_ERROR("Domain error"),
         INSTANTIATION_ERROR("Instantiation error"),
-        RESOURCE_ERROR("Resource error"),
-        REPRESENTATION_ERROR("Representation error");
+        RESOURCE_ERROR("Resource error"), REPRESENTATION_ERROR("Representation error"), SYNTAX_ERROR("Syntax error"),
+        ;
 //        OBJECT_CREATION_ERROR();
 
 

@@ -43,7 +43,8 @@ import com.thesett.common.util.Source;
 import com.thesett.common.util.TraceIndenter;
 import org.ltc.hitalk.compiler.bktables.BookKeepingTables;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.*;
+import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.HtFunctorName;
 import org.ltc.hitalk.wam.compiler.HtToken;
 import org.ltc.hitalk.wam.compiler.HtTokenSource;
@@ -80,10 +81,10 @@ import static org.ltc.hitalk.core.BuiltIns.SEMICOLON;
  *
  * @author Rupert Smith
  */
-public class HtPrologParser extends PlPrologParser implements Parser <HtClause, HtToken>, HtPrologParserConstants {
+public class HtPrologParser implements Parser <Term, PlToken>, HtPrologParserConstants {
 
-    public static final String BEGIN_OF_FILE = "begin_of_file";
-    public static final String END_OF_FILE = "end_of_file";
+//    public static final String BEGIN_OF_FILE = "begin_of_file";
+//    public static final String END_OF_FILE = "end_of_file";
 
     final protected static int HILOG_COMPOUND = 38;//todo wtf??
 
@@ -98,24 +99,37 @@ public class HtPrologParser extends PlPrologParser implements Parser <HtClause, 
     private static final String BEGIN_TERM_TOKENS = Arrays.toString(new String[]{tokenImage[FUNCTOR], tokenImage[LBRACKET], tokenImage[VAR], tokenImage[INTEGER_LITERAL], tokenImage[FLOATING_POINT_LITERAL], tokenImage[STRING_LITERAL], tokenImage[ATOM], tokenImage[BOF], tokenImage[LBRACE],//LPAREN
     });
 
-    private final BookKeepingTables bkt;
+    private final HiTalkStream input;
+    private Source <PlToken> source;
 
-    public HtPrologParser () {
-        super();
-        bkt = new BookKeepingTables();// fixme multiple instances of BKT's
-    }
+//    public HtPrologParser () {
+//        super();
+//        bkt = new BookKeepingTables();// fixme multiple instances of BKT's
+//    }
+
+    Parser <Term, PlToken> parser;
 
     /**
-     * @return
+     * @param input
+     * @param interner
+     * @param factory
+     * @param optable
      */
-    public String language () {
-        return "Prolog";
+    public HtPrologParser ( HiTalkStream input, VariableAndFunctorInterner interner, TermFactory1 <Term> factory, OperatorTable1 optable ) {
+//        super(input, interner, factory, optable);
+
+        this.input = input;
+        this.interner = interner;
+        this.factory = factory;
+        this.optable = optable;
     }
 
-    public HtPrologParser ( HtTokenSource tokenSource, VariableAndFunctorInterner interner ) {
+    public HtPrologParser ( PlTokenSource tokenSource, VariableAndFunctorInterner interner ) {
+//        super(tokenSource, interner);
+        parser = new PlPrologParser(tokenSource.getStream());
         setTokenSource(tokenSource);
         this.interner = interner;
-        bkt = new BookKeepingTables();
+//        bkt = new BookKeepingTables();
     }
 
     /**
@@ -131,8 +145,9 @@ public class HtPrologParser extends PlPrologParser implements Parser <HtClause, 
      * @param source The token source to parse from.
      */
     @Override
-    public void setTokenSource ( Source <HtToken> source ) {
-        setTokenSource((HtTokenSource) source);
+    public void setTokenSource ( Source <PlToken> source ) {
+        //setTokenSource((HtTokenSource) source);
+        this.source = source;
     }
 
     /**
@@ -141,13 +156,16 @@ public class HtPrologParser extends PlPrologParser implements Parser <HtClause, 
      * @return The fully parsed syntax tree for the next sentence.
      */
     @Override
-    public Sentence <HtClause> parse () throws SourceCodeException {
-        HtClause clause = clause();
-        if (clause == null) {
-            return null;
+    public Sentence <Term> parse () throws SourceCodeException {
+        Sentence <Term> result;
+//        HtClause clause = clause();
+        Term term = term();
+        if (term == null) {
+            result = null;
         } else {
-            return new SentenceImpl <>(clause);
+            result = new SentenceImpl <>(term);
         }
+        return result;
     }
 
     /**
@@ -204,6 +222,8 @@ public class HtPrologParser extends PlPrologParser implements Parser <HtClause, 
      * Holds the byte code machine to compile into, if using compiled mode.
      */
     protected VariableAndFunctorInterner interner;
+    private final TermFactory1 <Term> factory;
+    private final OperatorTable1 optable;
     /**
      * Holds the dynamic operator parser for parsing terms involving operators.
      */
@@ -231,7 +251,7 @@ public class HtPrologParser extends PlPrologParser implements Parser <HtClause, 
     public HtPrologParser ( HtTokenSource tokenSource, VariableAndFunctorInterner interner, BookKeepingTables bkt ) {
         //Set this parser up to use the supplied interner.
         this.interner = interner;
-        this.bkt = bkt;
+//        this.bkt = bkt;
 
         // Clears the variable scoping context for the first sentence.
         variableContext.clear();

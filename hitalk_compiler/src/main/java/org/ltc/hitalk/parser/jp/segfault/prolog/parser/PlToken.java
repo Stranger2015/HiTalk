@@ -36,7 +36,6 @@ public class PlToken {
         }
 
         TokenKind ( String s ) {
-
             this.s = s;
         }
 

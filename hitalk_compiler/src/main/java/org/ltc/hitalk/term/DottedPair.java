@@ -14,7 +14,7 @@ public class DottedPair extends RecursiveList implements Term {
 
         LIST, //-1 [.......]
         BYPASS,//-2
-        CALLABLE,//-3 blocked  term
+        AND,//-3 blocked  term
     }
 
     /**
@@ -35,6 +35,4 @@ public class DottedPair extends RecursiveList implements Term {
     public boolean isNil () {
         return arguments.length == 0;
     }
-
-    ;
 }

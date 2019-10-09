@@ -1,5 +1,7 @@
 package org.ltc.hitalk.parser.jp.segfault.prolog.parser;
 
+import com.thesett.aima.logic.fol.Term;
+
 import java.io.IOException;
 
 /**
@@ -7,13 +9,14 @@ import java.io.IOException;
  *
  * @author shun
  */
-public interface TermParser<TERM> {
+public interface TermParser<T extends Term> {
 
     /**
      * ストリーム上の次の項を解析して返します。
      *
      * @throws ParseException
      * @throws IOException
+     * @return
      */
-    TERM next () throws IOException, ParseException;
+    T next () throws IOException, ParseException;
 }

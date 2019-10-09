@@ -3,17 +3,17 @@ package org.ltc.hitalk.interpreter;
 import com.thesett.aima.logic.fol.OpSymbol.Associativity;
 import com.thesett.aima.logic.fol.Parser;
 import com.thesett.aima.logic.fol.Sentence;
+import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.Source;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
-import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
-import org.ltc.hitalk.wam.compiler.HtToken;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.RESOURCE_ERROR;
 
-public class InteractiveParser implements Parser <HtClause, HtToken> {
+public class InteractiveParser implements Parser <Term, PlToken> {
     protected HtPrologParser parser;
     protected VariableAndFunctorInterner interner;
 
@@ -28,14 +28,10 @@ public class InteractiveParser implements Parser <HtClause, HtToken> {
         super();
     }
 
-    /**
-     * Establishes the token source to parse from.
-     *
-     * @param source The token source to parse from.
-     */
+
     @Override
-    public void setTokenSource ( Source <HtToken> source ) {
-        parser.setTokenSource(source);
+    public void setTokenSource ( Source <PlToken> source ) {
+
     }
 
     /**
@@ -44,8 +40,7 @@ public class InteractiveParser implements Parser <HtClause, HtToken> {
      * @return The fully parsed syntax tree for the next sentence.
      */
     @Override
-    public
-    Sentence <HtClause> parse () throws SourceCodeException {
+    public Sentence <Term> parse () throws SourceCodeException {
         try {
             return parser.parse();
         } catch (SourceCodeException e) {
