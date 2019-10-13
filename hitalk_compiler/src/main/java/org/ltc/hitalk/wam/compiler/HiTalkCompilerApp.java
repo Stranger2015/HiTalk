@@ -1,6 +1,5 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.sun.tools.javac.resources.compiler;
 import com.thesett.aima.logic.fol.*;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
@@ -22,7 +21,6 @@ import org.ltc.hitalk.compiler.BaseCompiler;
 import org.ltc.hitalk.compiler.HiTalkBuiltInTransform;
 import org.ltc.hitalk.compiler.bktables.*;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
-import org.ltc.hitalk.core.BaseApplication;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
@@ -35,6 +33,7 @@ import org.ltc.hitalk.entities.context.LoadContext;
 import org.ltc.hitalk.parser.HiTalkParser;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiler;
 import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
 import org.ltc.hitalk.wam.printer.HtPositionalTermTraverser;
@@ -153,10 +152,7 @@ import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISS
  * The current implementation does not detect such cases and the involved threads will freeze.
  * This problem can be avoided if a mutually dependent collection of files is always loaded from the same start file.
  */
-public class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P, Q> {
-
-    public static final String DEFAULT_SCRATCH_DIRECTORY = "scratch";
-
+public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerApp <T, P, Q> {
     /**
      * <code>access(Access)</code>,  where <code>Access</code> can be either <code>read_write (the default) or
      * <code>read_only;
@@ -192,7 +188,7 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication
     }
 
     @Override
-    public BaseCompiler createCompiler ( SymbolTable symbolTable, VariableAndFunctorInterner interner, HtPrologParser parser ) {
+    public BaseCompiler createCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner, HtPrologParser parser ) {
         return new HiTalkWAMCompiler(symbolTable, interner, parser);
     }
 
@@ -324,7 +320,7 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication
     /**
      *
      */
-    protected void initialize () throws Exception {
+    public void initialize () throws Exception {
         initBookKeepingTables();
         initDirectives();
         cacheCompilerFlags();
@@ -376,7 +372,7 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication
      * @throws IOException
      */
     private void logtalkCompile ( InputStream input ) throws IOException {
-        HtTokenSource tokenSource = HtTokenSource.getTokenSourceForInputStream(input, "");
+        PlTokenSource tokenSource = PlTokenSource.getTokenSourceForInputStream(input, "");
         setTokenSource(tokenSource);
         compiler.compile(tokenSource);
     }
@@ -927,7 +923,7 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication
     }
 
     public void compile ( String fileName, HtProperty[] flags ) throws IOException, LinkageException {
-        compiler.compile(HtTokenSource.getTokenSourceForVfsFileObject(VFS.getManager().resolveFile(fileName)));
+        compiler.compile(PlTokenSource.getTokenSourceForVfsFileObject(VFS.getManager().resolveFile(fileName)));
 
     }
     //logtalkCompile(@list(sourceFile_name))
@@ -1217,10 +1213,10 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends BaseApplication
         getLogger().info("Initializing ");
 
         setSymbolTable(new SymbolTableImpl <>());
-        interner = new VariableAndFunctorInternerImpl(getNameSpace("Variable"), getNameSpace("Functor"));
-        setParser(new HiTalkParser(HtTokenSource.getTokenSourceForInputStream(in, "stdin"), interner));
+        interner = new VariableAndFunctorInternerImpl(namespace("Variable"), namespace("Functor"));
+        setParser(new HiTalkParser(PlTokenSource.getTokenSourceForInputStream(in, "stdin"), interner));
 
-        compiler = new HiTalkWAMCompiler(getSymbolTable(), getInterner(), getParser());
+        compiler = newWAMCompiler(getSymbolTable(), getInterner(), getParser());
         bkt = new BookKeepingTables();
         setConfig(new CompilerConfig());
         scratchDirectory = "./" + DEFAULT_SCRATCH_DIRECTORY;

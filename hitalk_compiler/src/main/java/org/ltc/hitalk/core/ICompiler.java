@@ -1,5 +1,6 @@
 package org.ltc.hitalk.core;
 
+
 import com.thesett.aima.logic.fol.LogicCompiler;
 import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.common.parsing.SourceCodeException;
@@ -8,7 +9,7 @@ import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
-import org.ltc.hitalk.wam.compiler.HtTokenSource;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -48,7 +49,7 @@ public interface ICompiler<P, Q> extends LogicCompiler <HtClause, P, Q> {
      */
     default
     void compileFile ( String fn, HtProperty... flags ) throws IOException, SourceCodeException {
-        compile(HtTokenSource.getTokenSourceForIoFile(new File(fn)), flags);
+        compile(PlTokenSource.getTokenSourceForIoFile(new File(fn)), flags);
     }
 
     /**
@@ -59,15 +60,14 @@ public interface ICompiler<P, Q> extends LogicCompiler <HtClause, P, Q> {
      */
     default
     void compileString ( String fn, HtProperty... flags ) throws Exception {
-        compile(HtTokenSource.getHtTokenSourceForString(fn, -1), flags);
+        compile(PlTokenSource.getPlTokenSourceForString(fn, 1), flags);
     }
 
     /**
      * @param tokenSource
      * @param flags
      */
-    default
-    void compile ( HtTokenSource tokenSource, HtProperty... flags ) {
+    default void compile ( PlTokenSource tokenSource, HtProperty... flags ) {
         getConsole().info("Compiling " + tokenSource);
         getParser().setTokenSource(tokenSource);
         try {

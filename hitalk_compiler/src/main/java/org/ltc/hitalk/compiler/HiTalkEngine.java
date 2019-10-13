@@ -1,5 +1,6 @@
 package org.ltc.hitalk.compiler;
 
+import com.thesett.aima.logic.fol.Variable;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.core.ICompiler;
@@ -7,7 +8,10 @@ import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+
+import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  *
@@ -24,9 +28,8 @@ class HiTalkEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P, Q
      * @param interner The interner.
      * @param compiler
      */
-    public
-    HiTalkEngine ( HtPrologParser parser,
-                   VariableAndFunctorInterner interner, ICompiler <P, Q> compiler ) {
+    public HiTalkEngine ( PlPrologParser parser,
+                          VariableAndFunctorInterner interner, ICompiler <P, Q> compiler ) {
         super(parser, interner, compiler);
 //        compiler.setResolver(this);
     }
@@ -77,5 +80,10 @@ class HiTalkEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P, Q
     public
     void compileClause ( HtClause clause ) {
 //todo
+    }
+
+    @Override
+    public void forEach ( Consumer <? super Set <Variable>> action ) {
+
     }
 }

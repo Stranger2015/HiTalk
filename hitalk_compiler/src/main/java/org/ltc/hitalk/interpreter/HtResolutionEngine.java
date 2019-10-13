@@ -16,22 +16,22 @@
 package org.ltc.hitalk.interpreter;
 
 
-import com.thesett.aima.attribute.impl.IdAttribute.IdAttributeFactory;
+import com.thesett.aima.attribute.impl.IdAttribute;
 import com.thesett.aima.logic.fol.*;
-import com.thesett.aima.logic.fol.OpSymbol.Associativity;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.Filterator;
 import com.thesett.common.util.Source;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.HtPrologParser;
-import org.ltc.hitalk.wam.compiler.HtToken;
-import org.ltc.hitalk.wam.compiler.HtTokenSource;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.Operator;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
+import org.ltc.hitalk.term.io.HiTalkStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
 import java.util.*;
 
 import static com.thesett.aima.logic.fol.isoprologparser.TokenSource.getTokenSourceForInputStream;
@@ -49,16 +49,14 @@ import static com.thesett.aima.logic.fol.isoprologparser.TokenSource.getTokenSou
  * @author Rupert Smith
  */
 public
-class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
-        implements VariableAndFunctorInterner, ICompiler <P, Q>,
-                   Resolver <T, Q> {
+class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser implements VariableAndFunctorInterner, ICompiler <P, Q>, Resolver <T, Q> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     /**
      * Holds the parser.
      */
-    protected HtPrologParser parser;
+    protected PlPrologParser parser;
 
     /**
      * Holds the variable and functor symbol table.
@@ -84,9 +82,8 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * @param parser
      * @param interner The functor and variable name interner.
      */
-    public
-    HtResolutionEngine ( HtPrologParser parser,
-                         VariableAndFunctorInterner interner, ICompiler <P, Q> compiler ) {
+    public HtResolutionEngine ( PlPrologParser parser,
+                                VariableAndFunctorInterner interner, ICompiler <P, Q> compiler ) {
         super(parser, interner);
         this.compiler = compiler;//fixme NPE
         compiler.setCompilerObserver(chainedObserver);
@@ -132,15 +129,14 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * @param stream The input stream to consult.
      * @throws SourceCodeException If any code read from the input stream fails to parse, compile or link.
      */
-    public
-    void consultInputStream ( InputStream stream ) throws SourceCodeException {
+    public void consultInputStream ( HiTalkStream stream ) throws SourceCodeException {
         // Create a token source to read from the specified input stream.
-        HtTokenSource tokenSource = (HtTokenSource) getTokenSourceForInputStream(stream/*, vfsFo.getName().getPath()*/);
+        PlTokenSource tokenSource = (PlTokenSource) getTokenSourceForInputStream(stream/*, vfsFo.getName().getPath()*/);
         getParser().setTokenSource(tokenSource);
 
         // Consult the type checking rules and add them to the knowledge base.
         while (true) {
-            Sentence <HtClause> sentence = getParser().parse();
+            Sentence <Term> sentence = getParser().parse();
 
             if (sentence == null) {
                 break;
@@ -210,16 +206,14 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     /**
      * {@inheritDoc}
      */
-    public
-    IdAttributeFactory <String> getVariableInterner () {
+    public IdAttribute.IdAttributeFactory <String> getVariableInterner () {
         return interner.getVariableInterner();
     }
 
     /**
      * {@inheritDoc}
      */
-    public
-    IdAttributeFactory <FunctorName> getFunctorInterner () {
+    public IdAttribute.IdAttributeFactory <FunctorName> getFunctorInterner () {
         return interner.getFunctorInterner();
     }
 
@@ -314,7 +308,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     /**
      * {@inheritDoc}
      */
-    public void setTokenSource ( Source <HtToken> tokenSource ) {
+    public void setTokenSource ( Source <PlToken> tokenSource ) {
         parser.setTokenSource(tokenSource);
     }
 
@@ -322,16 +316,14 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * {@inheritDoc}
      * @return
      */
-    public
-    Sentence <HtClause> parse () throws SourceCodeException {
+    public Sentence <Term> parse () throws SourceCodeException {
         return parser.parse();
     }
 
     /**
      * {@inheritDoc}
      */
-    public
-    void setOperator ( String operatorName, int priority, Associativity associativity ) {
+    public void setOperator ( String operatorName, int priority, Operator.Associativity associativity ) {
         parser.setOperator(operatorName, priority, associativity);
     }
 

@@ -10,35 +10,120 @@ import org.ltc.hitalk.entities.HtEntityKind;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.context.Context;
 import org.ltc.hitalk.entities.context.LoadContext;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.Atom;
-import org.ltc.hitalk.term.HiLogCompound;
+import org.ltc.hitalk.term.DottedPair;
+import org.ltc.hitalk.term.DottedPair.Kind;
 import org.ltc.hitalk.term.ListTerm;
+import org.ltc.hitalk.wam.compiler.HtFunctor;
+
+import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
 
 /**
  *
  */
-public
-class TermFactory implements ITermFactory {
+public class TermFactory implements ITermFactory {
 
     private VariableAndFunctorInterner interner;
+
 
     /**
      * @param interner
      */
-    public
-    TermFactory ( VariableAndFunctorInterner interner ) {
+    public TermFactory ( VariableAndFunctorInterner interner ) {
         this.interner = interner;
     }
 
     /**
-     * @param term
+     * @param value
+     * @return
+     */
+    @Override
+    public Term newAtom ( String value ) {
+        return newFunctor(value, new DottedPair());
+    }
+
+    /**
+     * @param value
+     * @return
+     */
+    @Override
+    public Term newAtom ( int value ) {
+        return new HtFunctor(value, EMPTY_TERM_ARRAY);
+    }
+
+    /**
+     * @param value
+     * @return
+     */
+    @Override
+    public Term newAtom ( double value ) {
+        return null;
+    }
+
+    /**
+     * @param value
      * @param args
      * @return
      */
     @Override
-    public
-    HiLogCompound createHiLogCompound ( Term term, ListTerm args ) {
-        return null;
+    public Functor newFunctor ( String value, DottedPair args ) {
+        int name = interner.internFunctorName(value, args.getArguments().length);
+        return newFunctor(name, args);
+    }
+
+    /**
+     * @param value
+     * @param args
+     * @return
+     */
+    @Override
+    public Term newFunctor ( int value, DottedPair args ) {
+        return new HtFunctor(value, args.getArguments());
+    }
+
+    /**
+     * @param value
+     * @return
+     */
+    @Override
+    public Term newVariable ( String value ) {
+        return new Variable(interner.internVariableName(value), null, false);
+    }
+
+    /**
+     * Prologの項(term)を作成します。
+     *
+     * @author shun
+     */
+
+    private Kind kind;
+    private Term[] headTail;
+
+    /**
+     * 文字列アトムを生成します。
+     */
+//        public abstract Term newAtom ( String value );
+    public Functor newAtom ( VariableAndFunctorInterner interner, TokenKind ldelim, TokenKind rdelim ) {
+        String s = String.format("%s%s", ldelim.getImage(), rdelim.getImage());
+        return new Functor(interner.internFunctorName(s, 0), EMPTY_TERM_ARRAY);
+    }
+
+    /**
+     * @param kind
+     * @param headTail
+     * @return
+     */
+    public DottedPair newDottedPair ( Kind kind, Term[] headTail ) {
+        this.kind = kind;
+        this.headTail = headTail;
+        DottedPair t;
+        if (headTail.length == 0) {
+            t = new DottedPair();
+        } else { //if (headTail.length ==1){ //[|VarOrList] []
+            t = new DottedPair(kind, headTail);
+        }
+        return t;
     }
 
     /**
@@ -46,22 +131,19 @@ class TermFactory implements ITermFactory {
      * @return
      */
     @Override
-    public
-    Functor createAtom ( String s ) {
+    public Functor createAtom ( String s ) {
         int ffn = interner.internFunctorName(s, 0);
         return new Atom(ffn);
     }
 
     @Override
-    public
-    Functor createCompound ( String s, Term[] head, Term tail ) {
+    public Functor createCompound ( String s, Term[] head, Term tail ) {
 
         return null;
     }
 
     @Override
-    public
-    HtProperty createFlag ( String flagName, String flagValue ) {
+    public HtProperty createFlag ( String flagName, String flagValue ) {
         int ffn = interner.internFunctorName(flagName, 0);
         int ffv = interner.internFunctorName(flagValue, 0);
         return null;//new Flag(ffn, new Functor(ffv, EMPTY_TERM_ARRAY));
@@ -75,8 +157,7 @@ class TermFactory implements ITermFactory {
      * @return
      */
     @Override
-    public
-    HtEntityIdentifier createIdentifier ( HtEntityKind kind, String name, Term... args ) {
+    public HtEntityIdentifier createIdentifier ( HtEntityKind kind, String name, Term... args ) {
         int n = interner.internFunctorName(name, args.length);
 
         return new HtEntityIdentifier(n, args, kind);
@@ -88,14 +169,21 @@ class TermFactory implements ITermFactory {
      * @return
      */
     @Override
-    public
-    HtProperty createFlag ( String name, Term... args ) {
+    public HtProperty createFlag ( String name, Term... args ) {
         return createFlag(name, new ListTerm(args));
     }
 
+    @Override
+    public Term newFunctor ( int hilogApply, Term name, DottedPair args ) {
+        Term[] headTail = args.getArguments();
+        Term[] nameHeadTail = new Term[headTail.length + 1];
+        System.arraycopy(headTail, 0, nameHeadTail, 1, headTail.length);
+        nameHeadTail[0] = name;
+        return new HtFunctor(hilogApply, nameHeadTail);
+    }
+
     //    @Override
-    public
-    HtProperty createProperty ( String name, String value ) {
+    public HtProperty createProperty ( String name, String value ) {
         return null;
     }
 
@@ -104,8 +192,7 @@ class TermFactory implements ITermFactory {
      * @param args
      * @return
      */
-    public
-    HtProperty createFlag ( String name, ListTerm args ) {
+    public HtProperty createFlag ( String name, ListTerm args ) {
         int n = -1;
         interner.internFunctorName(name, args.length());
 
@@ -113,8 +200,7 @@ class TermFactory implements ITermFactory {
     }
 
     //    @Override
-    public
-    HtProperty createProperty ( String name, Term... args ) {
+    public HtProperty createProperty ( String name, Term... args ) {
         int n = interner.internFunctorName(name, 0);
 
 //        return new HtProperty(n, new ListTerm(args));
@@ -125,53 +211,17 @@ class TermFactory implements ITermFactory {
      * @param kind
      * @return
      */
-    public
-    Context createContext ( Context.Kind kind ) {
+    public Context createContext ( Context.Kind kind ) {
         HtProperty[] props;
         switch (kind) {
             case LOADING:
-                props = new HtProperty[]{
-                        createProperty("entity_identifier", ""),
-                        createProperty("entity_prefix", ""),
-                        createProperty("entity_type", ""),
-                        createProperty("source", ""),
-                        createProperty("file", ""),
-                        createProperty("basename", ""),
-                        createProperty("directory", ""),
-                        createProperty("stream", ""),
-                        createProperty("target", ""), createProperty("flags", ""), createProperty("term", ""),
-                        createProperty("term_position", ""), createProperty("variable_names")
-                };
+                props = new HtProperty[]{createProperty("entity_identifier", ""), createProperty("entity_prefix", ""), createProperty("entity_type", ""), createProperty("source", ""), createProperty("file", ""), createProperty("basename", ""), createProperty("directory", ""), createProperty("stream", ""), createProperty("target", ""), createProperty("flags", ""), createProperty("term", ""), createProperty("term_position", ""), createProperty("variable_names")};
                 break;
             case COMPILATION:
-                props = new HtProperty[]{
-                        createProperty("entity_identifier", ""),
-                        createProperty("entity_prefix", ""),
-                        createProperty("entity_type", ""),
-                        createProperty("source", ""),
-                        createProperty("file", ""),
-                        createProperty("basename", ""),
-                        createProperty("directory", ""),
-                        createProperty("stream", ""),
-                        createProperty("target", ""),
-                        createProperty("flags", ""),
-                        createProperty("term", ""),
-                        createProperty("term_position", ""),
-                        createProperty("variable_names")
-                };
+                props = new HtProperty[]{createProperty("entity_identifier", ""), createProperty("entity_prefix", ""), createProperty("entity_type", ""), createProperty("source", ""), createProperty("file", ""), createProperty("basename", ""), createProperty("directory", ""), createProperty("stream", ""), createProperty("target", ""), createProperty("flags", ""), createProperty("term", ""), createProperty("term_position", ""), createProperty("variable_names")};
                 break;
             case EXECUTION:
-                props = new HtProperty[]{
-                        createProperty("context", ""),
-                        createProperty("entity", ""),
-                        createProperty("sender", ""),
-                        createProperty("this", ""),
-                        createProperty("self", ""),
-                        createProperty("file", ""),
-                        createProperty("metacall_context"),
-                        createProperty("coinduction_stack"),
-                        createProperty("context_stack")
-                };
+                props = new HtProperty[]{createProperty("context", ""), createProperty("entity", ""), createProperty("sender", ""), createProperty("this", ""), createProperty("self", ""), createProperty("file", ""), createProperty("metacall_context"), createProperty("coinduction_stack"), createProperty("context_stack")};
                 break;
 
             default:
@@ -187,8 +237,7 @@ class TermFactory implements ITermFactory {
      * @param arity
      * @return
      */
-    public
-    Functor createCompound ( String s, int arity ) {
+    public Functor createCompound ( String s, int arity ) {
         int idx = interner.internFunctorName(s, arity);
 
         return createCompound(idx, arity);
@@ -199,8 +248,7 @@ class TermFactory implements ITermFactory {
      * @param arity
      * @return
      */
-    public
-    Functor createCompound ( int s, int arity ) {
+    public Functor createCompound ( int s, int arity ) {
         Term[] args = new Term[arity];
         for (int i = 0, argsLength = args.length; i < argsLength; i++) {
             args[i] = new Variable(i, null, false);

@@ -1,45 +1,135 @@
 package org.ltc.hitalk.parser.jp.segfault.prolog.parser;
 
-import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.Operator.Kind.xf;
+import com.thesett.aima.logic.fol.Functor;
+import com.thesett.aima.logic.fol.OpSymbol;
+import com.thesett.aima.logic.fol.Term;
+import org.jetbrains.annotations.NotNull;
+
+import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.Operator.Associativity.*;
+import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.Operator.Fixity.*;
+import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
+
 
 /**
  * Prologの演算子を表現します。
  *
  * @author shun
  */
-public class Operator {
+public class Operator extends Functor implements Comparable, Cloneable {
+    public final Associativity associativity;
+    public final String textName;
+    public int lprio;
+    public int rprio;
+    private int priority;
 
-    public final int priority;
-    public final Kind kind;
-    public final String notation;
-    public final int lprio;
-    public final int rprio;
 
-    public Operator ( int priority, Kind kind, String notation, int lprio, int rprio ) {
+    /**
+     * @param priority
+     * @param associativity
+     * @param notation
+     * @param lprio
+     * @param rprio
+     */
+    public Operator ( int priority, Associativity associativity, int notation, int lprio, int rprio ) {
+        super(notation, null);
         this.priority = priority;
-        this.notation = notation;
-        this.kind = kind;
+        this.associativity = associativity;
         this.lprio = lprio;
         this.rprio = rprio;
+        textName = "";
     }
 
-    public Operator ( int priority, Kind kind, String notation ) {
-        this(priority, kind, notation, kind.round() == Kind.fx ? -1 : priority * 2 + kind.lprio(), kind.round() == xf ? -1 : priority * 2 + kind.rprio());
+//    /**
+//     * @param priority
+//     * @param associativity
+//     * @param notation
+//     * @param textName
+//     */
+//    public Operator ( int priority, Associativity associativity, int notation, String textName ) {
+//        this(priority, associativity, notation, associativity.round() == fx ? -1 : priority * 2 + associativity.lprio(), associativity.round() == xf ? -1 : priority * 2 + associativity.rprio());
+//    }
+
+    /**
+     * Creates a new functor with the specified arguments.
+     *
+     * @param name      The name of the functor.
+     * @param arguments The functors arguments.
+     * @param textName
+     */
+    public Operator ( int name, Term[] arguments, Associativity associativity, String textName, int priority ) {
+        super(name, arguments);
+        this.associativity = associativity;
+        this.textName = textName;
+        this.priority = priority;
+    }
+
+    public Operator ( int priority, Associativity associativity, int name, String textName ) {
+        super(name, EMPTY_TERM_ARRAY);
+        this.priority = priority;
+        this.associativity = associativity;
+        this.textName = textName;
+    }
+
+    public Operator ( int priority, String textName, Associativity associativity ) {
+        this(-priority, associativity, -1, textName);
+    }
+
+    /**
+     * Creates a new functor with the specified arguments.
+     *
+     * @param name          The name of the functor.
+     * @param arguments     The functors arguments.
+     * @param associativity
+     * @param textName
+     */
+    public Operator ( int name, Term[] arguments, Associativity associativity, String textName ) {
+        super(name, arguments);
+        this.associativity = associativity;
+        this.textName = textName;
+    }
+
+    /**
+     * Provides the symbols fixity, derived from its associativity.
+     *
+     * @return
+     */
+    public Fixity getFixity () {
+        switch (associativity) {
+            case fx:
+            case fy:
+                return Pre;
+
+            case xf:
+            case yf:
+                return Post;
+
+            case xfx:
+            case xfy:
+            case yfx:
+                return In;
+
+            case x:
+                break;
+            default:
+                throw new IllegalStateException("Unknown associativity.");
+        }
+
+        return null;
     }
 
     /**
      * 与えられた演算子の並び順が表記上正しいかどうかを判別します。
      */
-    public static boolean isCorrectOrder ( Kind l, Kind r ) {
+    public static boolean isCorrectOrder ( Associativity l, Associativity r ) {
         l = l.round();
         r = r.round();
         switch (r) {
             case x:
             case fx:
-                return l != Kind.x && l != xf;
+                return l != x && l != xf;
             case xfx:
             case xf:
-                return l != Kind.fx && l != Kind.xfx;
+                return l != fx && l != xfx;
             default:
                 throw new IllegalStateException(l + ", " + r);
         }
@@ -49,22 +139,41 @@ public class Operator {
     public boolean equals ( Object o ) {
         if (o instanceof Operator) {
             Operator that = (Operator) o;
-            return kind.round() == that.kind.round() && notation.equals(that.notation);
+            return associativity.round() == that.associativity.round() && getName() == that.getName();
         }
         return false;
     }
 
     @Override
     public String toString () {
-        return "op(" + lprio + ":" + rprio + ", " + kind + ", '" + notation + "')";
+        return "op(" + lprio + ":" + rprio + ", " + associativity + ", '" + getName() + "')";
     }
 
     /**
-     * 演算子の種類です。
-     *
-     * @author shun
+     * Defines the possible operator fixities.
      */
-    public enum Kind {
+    public enum Fixity {
+        /**
+         * Pre-fix.
+         */
+        Pre,
+
+        /**
+         * Post-fix.
+         */
+        Post,
+
+        /**
+         * In-fix.
+         */
+        In
+    }
+
+
+    /**
+     *
+     */
+    public enum Associativity {
 
         /**
          * 中置の二項演算子です。
@@ -101,11 +210,11 @@ public class Operator {
          */
         public final int arity;
 
-        Kind ( int arity ) {
+        Associativity ( int arity ) {
             this.arity = arity;
         }
 
-        public Kind round () {
+        public Associativity round () {
             switch (this) {
                 case xfy:
                 case yfx:
@@ -119,7 +228,7 @@ public class Operator {
             }
         }
 
-        private int lprio () {
+        public int lprio () {
             switch (this) {
                 case yfx:
                 case yf:
@@ -129,7 +238,7 @@ public class Operator {
             }
         }
 
-        private int rprio () {
+        public int rprio () {
             switch (this) {
                 case xfy:
                 case fy:
@@ -140,4 +249,78 @@ public class Operator {
         }
     }
 
+
+    /**
+     * Reports whether this operator is an prefix operator.
+     *
+     * @return <tt>true <tt>if this operator is an prefix operator.
+     */
+    public boolean isPrefix () {
+        return ((this.associativity == fx) || (associativity == fy));
+    }
+
+    /**
+     * Reports whether this operator is an postfix operator.
+     *
+     * @return <tt>true <tt>if this operator is an postfix operator.
+     */
+    public boolean isPostfix () {
+        return ((associativity == xf) || (associativity == yf));
+    }
+
+    /**
+     * Reports whether this operator is an infix operator.
+     *
+     * @return <tt>true <tt>if this operator is an infix operator.
+     */
+    public boolean isInfix () {
+        return ((associativity == xfy) || (associativity == yfx) || (associativity == xfx));
+    }
+
+    /**
+     * Reports whether this operatis is right associative.
+     *
+     * @return <tt>true</tt> if this operatis is right associative.
+     */
+    public boolean isRightAssociative () {
+        return ((associativity == fy) || (associativity == xfy));
+    }
+
+    /**
+     * Reports whether this operatis is left associative.
+     *
+     * @return <tt>true</tt> if this operatis is left associative.
+     */
+    public boolean isLeftAssociative () {
+        return ((associativity == yf) || (associativity == yfx));
+    }
+
+    /**
+     * Compares this object with the specified object for order, providing a negative integer, zero, or a positive
+     * integer as this symbols priority is less than, equal to, or greater than the comparator. If this symbol is 'less'
+     * than another that means that it has a lower priority value, which means that it binds more tightly.
+     *
+     * @param o The object to be compared with.
+     * @return A negative integer, zero, or a positive integer as this symbols priority is less than, equal to, or
+     * greater than the comparator.
+     */
+    public int compareTo ( @NotNull Object o ) {
+        return priority - ((Operator) o).priority;
+    }
+
+    /**
+     * @param op
+     * @return
+     */
+    public static OpSymbol convertOperatorToOpSymbol ( Operator op ) {
+        return new OpSymbol(-1, "", convertAssoc(op), op.priority);
+    }
+
+    /**
+     * @param op
+     * @return
+     */
+    public static OpSymbol.Associativity convertAssoc ( Operator op ) {
+        return OpSymbol.Associativity.valueOf(op.associativity.toString().toUpperCase());
+    }
 }

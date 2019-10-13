@@ -8,17 +8,16 @@ import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.Source;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
-import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.RESOURCE_ERROR;
 
 public class InteractiveParser implements Parser <Term, PlToken> {
-    protected HtPrologParser parser;
+    protected PlPrologParser parser;
     protected VariableAndFunctorInterner interner;
 
-    public
-    InteractiveParser ( HtPrologParser parser, VariableAndFunctorInterner interner ) {
+    public InteractiveParser ( PlPrologParser parser, VariableAndFunctorInterner interner ) {
         this.parser = parser;
         this.interner = interner;
     }
@@ -62,13 +61,11 @@ public class InteractiveParser implements Parser <Term, PlToken> {
 
     }
 
-    public
-    void setParser ( HtPrologParser parser ) {
+    public void setParser ( PlPrologParser parser ) {
         this.parser = parser;
     }
 
-    public
-    HtPrologParser getParser () {
+    public PlPrologParser getParser () {
         return parser;
     }
 }

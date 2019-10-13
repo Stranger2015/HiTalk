@@ -1,26 +1,28 @@
 package org.ltc.hitalk.parser;
 
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken;
+
 public interface HtPrologParserConstants {
     int EOF = 0;
-    int PERIOD = 9;
-    int LPAREN = 10;
-    int RPAREN = 11;
-    int LBRACKET = 12;
-    int RBRACKET = 13;
+    PlToken.TokenKind PERIOD = 9;
+    PlToken.TokenKind LPAREN = 10;
+    PlToken.TokenKind RPAREN = 11;
+    PlToken.TokenKind LBRACKET = 12;
+    PlToken.TokenKind RBRACKET = 13;
     int DQUOTE = 14;
     int QUOTE = 15;
-    int CONS = 16;
-    int INTEGER_LITERAL = 17;
+    PlToken.TokenKind CONS = 16;
+    PlToken.TokenKind INTEGER_LITERAL = 17;
     int DECIMAL_LITERAL = 18;
     int HEX_LITERAL = 19;
-    int FLOATING_POINT_LITERAL = 20;
+    PlToken.TokenKind FLOATING_POINT_LITERAL = 20;
     int DECIMAL_FLOATING_POINT_LITERAL = 21;
     int DECIMAL_EXPONENT = 22;
     int CHARACTER_LITERAL = 23;
-    int STRING_LITERAL = 24;
-    int VAR = 25;
-    int FUNCTOR = 26;
-    int ATOM = 27;
+    PlToken.TokenKind STRING_LITERAL = 24;
+    PlToken.TokenKind VAR = 25;
+    PlToken.TokenKind FUNCTOR = 26;
+    PlToken.TokenKind ATOM = 27;
     int NAME = 28;
     int SYMBOLIC_NAME = 29;
     int DIGIT = 30;
@@ -28,11 +30,11 @@ public interface HtPrologParserConstants {
     int LOCASE = 32;
     int HICASE = 33;
     int SYMBOL = 34;
-    int INFO = 35;
-    int TRACE = 36;
-    int USER = 37;
-    int LBRACE = 38;
-    int RBRACE = 39;
+    PlToken.TokenKind INFO = 35;
+    PlToken.TokenKind TRACE = 36;
+    PlToken.TokenKind USER = 37;
+    PlToken.TokenKind LBRACE = 38;
+    PlToken.TokenKind RBRACE = 39;
     int BOF = 40;
 
     int DEFAULT = 0;

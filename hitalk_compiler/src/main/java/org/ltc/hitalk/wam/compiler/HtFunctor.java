@@ -3,20 +3,43 @@ package org.ltc.hitalk.wam.compiler;
 import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.logic.fol.Term;
 
+import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser.HILOG_COMPOUND;
+
 /**
  *
  */
-public
-class HtFunctor extends Functor implements IRangedArity {
+public class HtFunctor extends Functor implements IRangedArity {
+
     /**
      * @param name
      * @param arityMin
      * @param arityDelta
      */
-    public
-    HtFunctor ( int name, int arityMin, int arityDelta ) {
+    public HtFunctor ( int name, int arityMin, int arityDelta ) {
         super(name, null);
         setArityRange(arityMin, arityDelta);
+    }
+
+    /**
+     * @param nameArgs
+     * @param arityDelta
+     */
+    public HtFunctor ( Term[] nameArgs, int arityDelta ) {
+        super(HILOG_COMPOUND, nameArgs);
+        setArityRange(nameArgs.length - 1, arityDelta);//minus head
+    }
+
+    public HtFunctor ( Term[] nameArgs ) {
+        this(nameArgs, 0);
+    }
+
+    public HtFunctor ( int name, Term[] args ) {
+        this(name, args, 0);
+    }
+
+    public HtFunctor ( int name, Term[] args, int arityDelta ) {
+        super(name, args);
+        setArityRange(args.length, arityDelta);
     }
 
     /**
@@ -25,8 +48,7 @@ class HtFunctor extends Functor implements IRangedArity {
      * @return The number of arguments that this functor takes.
      */
     @Override
-    public
-    int getArity () {
+    public int getArity () {
         return super.getArity();
     }
 
@@ -34,8 +56,7 @@ class HtFunctor extends Functor implements IRangedArity {
      * @return
      */
     @Override
-    public
-    int getArityInt () {
+    public int getArityInt () {
         return super.getArity();
     }
 
@@ -43,8 +64,7 @@ class HtFunctor extends Functor implements IRangedArity {
      * @return
      */
     @Override
-    public
-    Term getArityTerm () {
+    public Term getArityTerm () {
         return null;
     }
 }

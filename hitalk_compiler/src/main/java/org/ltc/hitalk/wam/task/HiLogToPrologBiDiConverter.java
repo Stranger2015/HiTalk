@@ -4,9 +4,6 @@ import com.thesett.aima.logic.fol.*;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.term.ListTerm;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.TYPE_ERROR;
 
 /**
@@ -15,7 +12,7 @@ import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.TYPE_ER
 public
 class HiLogToPrologBiDiConverter {
 
-    private final Map <Term, Term> hiLogTerms = new HashMap <>();
+//    private final Map <Term, Term> hiLogTerms = new HashMap <>();
 
     /**
      * Functor representing hilog compound where args are just in usual way
@@ -27,7 +24,7 @@ class HiLogToPrologBiDiConverter {
      * Functor representing hilog compound where args are coded as a list
      * arity = 2 source arity >= 0 or partially unknown (open lists).
      */
-    public int HILOG_APPLY2;
+//    public int HILOG_APPLY2;
 
     private boolean unify;
     private int applyF;
@@ -125,7 +122,7 @@ class HiLogToPrologBiDiConverter {
 //        transformer = this.prolog2Hilog;
 
         HILOG_APPLY = interner.internFunctorName("$hilog_apply", 2);
-        HILOG_APPLY2 = interner.internFunctorName("$hilog_apply2", 2);
+//        HILOG_APPLY2 = interner.internFunctorName("$hilog_apply2", 2);
     }
 
     public
@@ -221,8 +218,4 @@ class HiLogToPrologBiDiConverter {
         return false;
     }
 
-    public
-    Map <Term, Term> getHiLogTerms () {
-        return hiLogTerms;
-    }
 }

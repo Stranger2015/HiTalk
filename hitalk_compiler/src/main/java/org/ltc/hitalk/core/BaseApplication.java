@@ -1,5 +1,6 @@
 package org.ltc.hitalk.core;
 
+
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.util.doublemaps.SymbolTable;
@@ -7,9 +8,9 @@ import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.compiler.bktables.IConfig;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
-import org.ltc.hitalk.wam.compiler.HtTokenSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +33,7 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
 
     protected SymbolTable <Integer, String, Object> symbolTable;
     protected VariableAndFunctorInterner interner;
-    protected HtPrologParser parser;
+    protected PlPrologParser parser;
     protected ICompiler <P, Q> instructionCompiler;
 
     protected ICompiler <HtPredicate, T> preCompiler;
@@ -257,8 +258,7 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
      * @return
      */
     @Override
-    public
-    HtPrologParser getParser () {
+    public PlPrologParser getParser () {
         return parser;
     }
 
@@ -266,8 +266,7 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
      * @param parser
      */
     @Override
-    public
-    void setParser ( HtPrologParser parser ) {
+    public void setParser ( PlPrologParser parser ) {
         this.parser = parser;
     }
 
@@ -284,14 +283,12 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
      * @param tokenSource
      */
     @Override
-    public
-    void setTokenSource ( HtTokenSource tokenSource ) {
+    public void setTokenSource ( PlTokenSource tokenSource ) {
         parser.setTokenSource(tokenSource);
     }
 
     @Override
-    public
-    HtTokenSource getTokenSource () {
+    public PlTokenSource getTokenSource () {
         return getParser().getTokenSource();
     }
 

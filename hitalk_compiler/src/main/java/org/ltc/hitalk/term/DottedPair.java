@@ -5,10 +5,17 @@ import com.thesett.aima.logic.fol.Term;
 
 import java.util.Iterator;
 
+import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
+import static org.ltc.hitalk.term.DottedPair.Kind.NIL;
+
 /**
  *
  */
 public class DottedPair extends RecursiveList implements Term {
+    public DottedPair () {
+        this(NIL, EMPTY_TERM_ARRAY);
+    }
+
     public enum Kind {
         NIL, //"[]" "{}" "()" BY  INTERNED NAME
 

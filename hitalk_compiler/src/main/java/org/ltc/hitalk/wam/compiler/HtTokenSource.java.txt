@@ -8,6 +8,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.VFS;
 import org.ltc.hitalk.parser.PrologAtoms;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken;
 import org.ltc.hitalk.term.io.HiTalkStream;
 
 import java.beans.PropertyChangeEvent;
@@ -22,7 +23,7 @@ import static org.ltc.hitalk.parser.HtPrologParserConstants.PERIOD;
 /**
  *
  */
-public class HtTokenSource implements Source <HtToken>, PropertyChangeListener {
+public class HtTokenSource implements Source <PlToken>, PropertyChangeListener {
 
     /**
      * Holds the current token.

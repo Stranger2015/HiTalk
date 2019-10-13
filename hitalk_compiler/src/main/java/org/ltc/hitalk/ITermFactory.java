@@ -5,8 +5,7 @@ import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
 import org.ltc.hitalk.entities.HtProperty;
-import org.ltc.hitalk.term.HiLogCompound;
-import org.ltc.hitalk.term.ListTerm;
+import org.ltc.hitalk.term.DottedPair;
 
 /**
  *
@@ -15,9 +14,33 @@ public
 interface ITermFactory {
 
     /**
+     * 整数値アトムを生成します。
+     */
+    Term newAtom ( int value );
+
+    Term newAtom ( String value );
+
+    /**
+     * 実数値アトムを生成します。
+     */
+    Term newAtom ( double value );
+
+    /**
+     * ひとつ以上の引数を持つ関数子を作成します。
+     */
+    Term newFunctor ( String value, DottedPair args );
+
+    Term newFunctor ( int value, DottedPair args );
+
+    /**
+     * 変数を作成します。
+     */
+    Term newVariable ( String value );
+
+    /**
      * @return
      */
-    HiLogCompound createHiLogCompound ( Term term, ListTerm args );
+//    HiLogCompound createHiLogCompound ( Term term, ListTerm args );
 
     /**
      * @param s
@@ -43,6 +66,17 @@ interface ITermFactory {
      * @return
      */
     HtProperty createFlag ( String name, Term... args );
+
+//    /**/Term newFunctor ( Term[] nameHeadTail );
+
+    Term newFunctor ( int hilogApply, Term name, DottedPair args );
+
+    Term newAtomic ( int i );
+
+    Term newAtomic ( double f );
+
+
+//    Term newFunctor ( Term name, Term[] args );
 
 //    HtProperty createProperty ( String name, String value );
 //    HtProperty createProperty ( String name, Term... args );

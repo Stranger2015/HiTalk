@@ -6,8 +6,8 @@ import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.BaseCompiler;
 import org.ltc.hitalk.core.HtVersion;
 import org.ltc.hitalk.core.IConfigurable;
-import org.ltc.hitalk.parser.HtPrologParser;
-import org.ltc.hitalk.wam.compiler.HtTokenSource;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -37,7 +37,7 @@ public interface IApplication extends Runnable, IConfigurable {
      * @param parser
      * @return
      */
-    BaseCompiler createCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner, HtPrologParser parser );
+    BaseCompiler createCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner, PlPrologParser parser );
 
     /**
      *
@@ -246,12 +246,12 @@ public interface IApplication extends Runnable, IConfigurable {
     /**
      * @param parser
      */
-    void setParser ( HtPrologParser parser );
+    void setParser ( PlPrologParser parser );
 
     /**
      * @return
      */
-    HtPrologParser getParser () throws IOException;
+    PlPrologParser getParser () throws IOException;
 
     /**
      * @param fileName
@@ -266,10 +266,10 @@ public interface IApplication extends Runnable, IConfigurable {
     /**
      * @param tokenSource
      */
-    void setTokenSource ( HtTokenSource tokenSource );
+    void setTokenSource ( PlTokenSource tokenSource );
 
     /**
      * @return
      */
-    HtTokenSource getTokenSource () throws IOException;
+    PlTokenSource getTokenSource () throws IOException;
 }

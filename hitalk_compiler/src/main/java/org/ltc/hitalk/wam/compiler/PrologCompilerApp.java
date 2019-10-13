@@ -1,35 +1,64 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.sun.tools.javac.resources.compiler;
 import com.thesett.aima.logic.fol.LinkageException;
+import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.aima.logic.fol.VariableAndFunctorInternerImpl;
+import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.common.util.doublemaps.SymbolTableImpl;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.Selectors;
 import org.apache.commons.vfs2.VFS;
-import org.ltc.hitalk.compiler.bktables.BookKeepingTables;
+import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
+import org.ltc.hitalk.compiler.BaseCompiler;
 import org.ltc.hitalk.compiler.bktables.IProduct;
 import org.ltc.hitalk.compiler.bktables.TermFactory;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.BaseApplication;
+import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.context.CompilationContext;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.LoadContext;
 import org.ltc.hitalk.parser.HiTalkParser;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
 import static java.lang.System.in;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
-import static org.ltc.hitalk.wam.compiler.HiTalkCompilerApp.DEFAULT_SCRATCH_DIRECTORY;
+import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource.getTokenSourceForInputStream;
 
 /**
  *
  */
-public class PrologCompilerApp extends BaseApplication <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> {
+public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P, Q> {
 
+    public static final String DEFAULT_SCRATCH_DIRECTORY = "scratch";
+    private static final HtProperty[] DEFAULT_PROPS = new HtProperty[]{
+
+    };
+
+    protected DefaultFileSystemManager fsManager;
+    protected BaseCompiler <P, Q> compiler;
+    protected TermFactory tf;
+    protected String scratchDirectory;
+    protected CompilationContext compilationContext;
+    protected LoadContext loadContext;
+    protected ExecutionContext executionContext;
+
+    /**
+     *
+     */
+    public PrologCompilerApp () {
+    }
+
+    @Override
+    public BaseCompiler createCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner, HtPrologParser parser ) {
+        return new PrologWAMCompiler(symbolTable, interner, parser);
+    }
 
     @Override
     public void init () throws LinkageException, IOException {
@@ -60,10 +89,10 @@ public class PrologCompilerApp extends BaseApplication <HtClause, HiTalkWAMCompi
 
         setSymbolTable(new SymbolTableImpl <>());
         interner = new VariableAndFunctorInternerImpl(namespace("Variable"), namespace("Functor"));
-        setParser(new HiTalkParser(HtTokenSource.getTokenSourceForInputStream(in, "stdin"), interner));
+        setParser(new HiTalkParser(getTokenSourceForInputStream(in, "stdin"), interner));
 
         compiler = newWAMCompiler(getSymbolTable(), getInterner(), getParser());
-        bkt = new BookKeepingTables();
+//        bkt = new BookKeepingTables();
         setConfig(new CompilerConfig());
         scratchDirectory = "./" + DEFAULT_SCRATCH_DIRECTORY;
 
@@ -85,6 +114,10 @@ public class PrologCompilerApp extends BaseApplication <HtClause, HiTalkWAMCompi
 
 //=============================
         super.doInit();
+    }
+
+    public BaseCompiler <P, Q> newWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner, HtPrologParser parser ) {
+        return compiler;
     }
 
     @Override
@@ -142,18 +175,22 @@ public class PrologCompilerApp extends BaseApplication <HtClause, HiTalkWAMCompi
 
     }
 
-    public void initialize () {
+    public void initialize () throws Exception {
 
     }
 
     protected FileObject createScratchDirectory () throws Exception {
         FileSystemOptions fileSystemOptions = new FileSystemOptions();
         final FileObject scratchFolder = VFS.getManager().resolveFile(getScratchDirectory(), fileSystemOptions);
+        fsManager = VFS.getManager();
         // Make sure the test folder is empty
         scratchFolder.delete(Selectors.EXCLUDE_SELF);
         scratchFolder.createFolder();
 
         return scratchFolder;
+    }
+
+    private Path getScratchDirectory () {
     }
 
 }

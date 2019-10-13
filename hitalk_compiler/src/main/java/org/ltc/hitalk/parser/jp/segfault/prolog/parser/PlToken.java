@@ -8,25 +8,44 @@ public class PlToken {
     public boolean quote;
     private String number;
 
+    /**
+     * @param kind
+     */
     public PlToken ( TokenKind kind ) {
 
         this.kind = kind;
     }
 
+    /**
+     * @param kind
+     * @param number
+     */
     public PlToken ( TokenKind kind, String number ) {
         this(kind);
         this.number = number;
     }
 
+    /**
+     * @param kind
+     * @param number
+     * @param quote
+     */
     public PlToken ( TokenKind kind, String number, boolean quote ) {
         this(kind, number);
         this.quote = quote;
     }
 
-    enum TokenKind {
+    public String getNumber () {
+        return number;
+    }
+
+    /**
+     *
+     */
+    public enum TokenKind {
         BOF(""), EOF(""), DOT("."), LPAREN("("), RPAREN(")"), LBRACKET("["), RBRACKET("]"), LBRACE("{"), RBRACE("}"),
 
-        D_QUOTE(""), S_QUOTE("\""), B_QUOTE("\""), CONS("|"), INTEGER_LITERAL("*"), DECIMAL_LITERAL("*"), HEX_LITERAL("*"), FLOATING_POINT_LITERAL("*"), DECIMAL_FLOATING_POINT_LITERAL("*"), DECIMAL_EXPONENT("*"), CHARACTER_LITERAL("*"), STRING_LITERAL("*"), VAR("*"), FUNCTOR("*"), ATOM("*"), NAME("*"), SYMBOLIC_NAME("*"), DIGIT("*"), ANY_CHAR("*"), LOWERCASE("*"), UPPERCASE("*"), SYMBOL("*"), INFO("*"), TRACE("*"), USER("*"), COMMA(",");
+        D_QUOTE(""), S_QUOTE("\""), B_QUOTE("\""), CONS("|"), INTEGER_LITERAL("*"), DECIMAL_LITERAL("*"), HEX_LITERAL("*"), FLOATING_POINT_LITERAL("*"), DECIMAL_FLOATING_POINT_LITERAL("*"), DECIMAL_EXPONENT("*"), CHARACTER_LITERAL("*"), STRING_LITERAL("*"), VAR("*"), FUNCTOR_BEGIN("*"), ATOM("*"), NAME("*"), SYMBOLIC_NAME("*"), DIGIT("*"), ANY_CHAR("*"), LOWERCASE("*"), UPPERCASE("*"), SYMBOL("*"), INFO("*"), TRACE("*"), USER("*"), COMMA(",");
 
         private int chr;
         private String s;

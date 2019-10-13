@@ -82,4 +82,6 @@ interface PrologAtoms {
     String INSTANTIATES = "instantiates";
     String SPECIALIZES = "specializes";
     String ENCODING = "encoding";
+
+    String HILOG = "hilog";
 }

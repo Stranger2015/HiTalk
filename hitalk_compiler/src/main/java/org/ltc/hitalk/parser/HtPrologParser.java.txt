@@ -44,10 +44,9 @@ import com.thesett.common.util.TraceIndenter;
 import org.ltc.hitalk.compiler.bktables.BookKeepingTables;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.*;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.HtFunctorName;
-import org.ltc.hitalk.wam.compiler.HtToken;
-import org.ltc.hitalk.wam.compiler.HtTokenSource;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -57,6 +56,8 @@ import static com.thesett.aima.logic.fol.TermUtils.flattenTerm;
 import static java.util.Objects.requireNonNull;
 import static org.ltc.hitalk.core.BuiltIns.IMPLIES;
 import static org.ltc.hitalk.core.BuiltIns.SEMICOLON;
+import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser.BEGIN_OF_FILE;
+import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser.END_OF_FILE;
 
 /**
  * HtPrologParser is a recursive descent parser for the language Prolog, that parses its input into first order logic
@@ -96,10 +97,13 @@ public class HtPrologParser implements Parser <Term, PlToken>, HtPrologParserCon
     /**
      * Lists the tokens expected to begin a term expression as a string.
      */
-    private static final String BEGIN_TERM_TOKENS = Arrays.toString(new String[]{tokenImage[FUNCTOR], tokenImage[LBRACKET], tokenImage[VAR], tokenImage[INTEGER_LITERAL], tokenImage[FLOATING_POINT_LITERAL], tokenImage[STRING_LITERAL], tokenImage[ATOM], tokenImage[BOF], tokenImage[LBRACE],//LPAREN
+    private static final String BEGIN_TERM_TOKENS = Arrays.toString(new String[]{tokenImage[FUNCTOR.ordinal()],
+            tokenImage[LBRACKET.ordinal()], tokenImage[VAR.ordinal()], tokenImage[INTEGER_LITERAL.ordinal()], tokenImage[FLOATING_POINT_LITERAL.ordinal()], tokenImage[STRING_LITERAL.ordinal()], tokenImage[ATOM.ordinal()], tokenImage[BOF], tokenImage[LBRACE.ordinal()],//LPAREN
     });
+    private TermFactory1<Term> factory;
+    private OperatorTable1 optable;
 
-    private final HiTalkStream input;
+    protected HiTalkStream stream;
     private Source <PlToken> source;
 
 //    public HtPrologParser () {
@@ -107,7 +111,7 @@ public class HtPrologParser implements Parser <Term, PlToken>, HtPrologParserCon
 //        bkt = new BookKeepingTables();// fixme multiple instances of BKT's
 //    }
 
-    Parser <Term, PlToken> parser;
+    protected Parser <Term, PlToken> parser;
 
     /**
      * @param input
@@ -118,19 +122,12 @@ public class HtPrologParser implements Parser <Term, PlToken>, HtPrologParserCon
     public HtPrologParser ( HiTalkStream input, VariableAndFunctorInterner interner, TermFactory1 <Term> factory, OperatorTable1 optable ) {
 //        super(input, interner, factory, optable);
 
-        this.input = input;
+        this.stream = input;
         this.interner = interner;
         this.factory = factory;
         this.optable = optable;
     }
 
-    public HtPrologParser ( PlTokenSource tokenSource, VariableAndFunctorInterner interner ) {
-//        super(tokenSource, interner);
-        parser = new PlPrologParser(tokenSource.getStream());
-        setTokenSource(tokenSource);
-        this.interner = interner;
-//        bkt = new BookKeepingTables();
-    }
 
     /**
      * @return
@@ -222,8 +219,8 @@ public class HtPrologParser implements Parser <Term, PlToken>, HtPrologParserCon
      * Holds the byte code machine to compile into, if using compiled mode.
      */
     protected VariableAndFunctorInterner interner;
-    private final TermFactory1 <Term> factory;
-    private final OperatorTable1 optable;
+//    private final TermFactory1 <Term> factory;
+//    private final OperatorTable1 optable;
     /**
      * Holds the dynamic operator parser for parsing terms involving operators.
      */
@@ -240,7 +237,7 @@ public class HtPrologParser implements Parser <Term, PlToken>, HtPrologParserCon
     /**
      *
      */
-    protected final Deque <HtTokenSource> tokenSourceStack = new ArrayDeque <>();
+    protected final Deque <PlTokenSource> tokenSourceStack = new ArrayDeque <>();
 
     /**
      * Builds a prolog parser on a token source to be parsed.
@@ -248,7 +245,7 @@ public class HtPrologParser implements Parser <Term, PlToken>, HtPrologParserCon
      * @param tokenSource The token source to be parsed.
      * @param interner    The interner for variable and functor names.
      */
-    public HtPrologParser ( HtTokenSource tokenSource, VariableAndFunctorInterner interner, BookKeepingTables bkt ) {
+    public HtPrologParser ( PlTokenSource tokenSource, VariableAndFunctorInterner interner, BookKeepingTables bkt ) {
         //Set this parser up to use the supplied interner.
         this.interner = interner;
 //        this.bkt = bkt;
@@ -265,21 +262,21 @@ public class HtPrologParser implements Parser <Term, PlToken>, HtPrologParserCon
     /**
      * @return
      */
-    public HtTokenSource getTokenSource () {
+    public PlTokenSource getTokenSource () {
         return tokenSourceStack.peek();
     }
 
     /**
      * @return
      */
-    public HtTokenSource popTokenSource () {
+    public PlTokenSource popTokenSource () {
         return tokenSourceStack.pop();
     }
 
     /**
      * @param tokenSource
      */
-    public void setTokenSource ( HtTokenSource tokenSource ) {
+    public void setTokenSource ( PlTokenSource tokenSource ) {
         tokenSourceStack.push(tokenSource);
     }
 
@@ -309,13 +306,13 @@ public class HtPrologParser implements Parser <Term, PlToken>, HtPrologParserCon
      * @return A horn clause sentence in first order logic.
      * @throws SourceCodeException If the token sequence does not parse into a valid sentence.
      */
-    public HtClause sentence () throws SourceCodeException {
-        Sentence <HtClause> sentence = parse();
+    public Term sentence () throws SourceCodeException {
+        Sentence <Term> sentence = parse();
         if (sentence == null) {
             return null;
         }
 
-        consumeToken(PERIOD);
+        consumeToken(TokenKind.DOT);
 
         return sentence.getT();
     }
@@ -332,10 +329,10 @@ public class HtPrologParser implements Parser <Term, PlToken>, HtPrologParserCon
 
         // Loop consuming clauses until end of file is encountered.
         while (true) {
-            if (peekAndConsume(EOF) || peekAndConsume(BOF)) {
+            if (peekAndConsume(TokenKind.BOF) || peekAndConsume(TokenKind.EOF)) {
                 break;
             } else {
-                results.add(sentence());
+                results.add(clause());
             }
         }
 
@@ -447,7 +444,7 @@ public class HtPrologParser implements Parser <Term, PlToken>, HtPrologParserCon
      */
     public List <Term> terms ( List <Term> terms ) throws SourceCodeException {
         Term term = null;
-        HtToken nextToken = getTokenSource().peek();
+        PlToken nextToken = getTokenSource().peek();
         switch (nextToken.kind) {
             case BOF:
                 if (getTokenSource().isBofGenerated()) {
@@ -464,14 +461,14 @@ public class HtPrologParser implements Parser <Term, PlToken>, HtPrologParserCon
                 term = functor();
                 break;
             case LBRACKET:
-                term = listFunctor(consumeToken(LBRACKET), ConsType.DOT_PAIR_CONS);
+                term = listFunctor(consumeToken(LBRACKET));//ConsType.DOT_PAIR_CONS);
                 // Mark the term as bracketed to ensure that this is its final parsed form. In particular the
                 // #arglist method will not break it up if it contains commas.
                 term.setBracketed(true);
                 consumeToken(RBRACKET);
                 break;
             case LBRACE:
-                term = listFunctor(consumeToken(LBRACE), ConsType.BYPASS_CONS);
+//                term = listFunctor(consumeToken(LBRACE), ConsType.BYPASS_CONS);
                 // Mark the term as bracketed to ensure that this is its final parsed form. In particular the
                 // #arglist method will not break it up if it contains commas.
                 term.setBracketed(true);
@@ -501,7 +498,8 @@ public class HtPrologParser implements Parser <Term, PlToken>, HtPrologParserCon
                 consumeToken(RPAREN);
                 break;
             default:
-                throw new SourceCodeException("Was expecting one of " + BEGIN_TERM_TOKENS + " but got " + tokenImage[nextToken.kind] + ".", null, null, null, new SourceCodePositionImpl(nextToken.beginLine, nextToken.beginColumn, nextToken.endLine, nextToken.endColumn));
+                throw new SourceCodeException("Expected one of " + BEGIN_TERM_TOKENS + " but got " + tokenImage[nextToken.kind.ordinal()] + ".", null, null, null,
+                        new SourceCodePositionImpl(nextToken.beginLine, nextToken.beginColumn, nextToken.endLine, nextToken.endColumn));
         }
 
         terms.add(term);
@@ -534,7 +532,7 @@ public class HtPrologParser implements Parser <Term, PlToken>, HtPrologParserCon
      * @throws SourceCodeException If the token sequence does not parse as a valid atom.
      */
     public Term atom () throws SourceCodeException {
-        HtToken name = consumeToken(ATOM);
+        PlToken name = consumeToken(ATOM);
         Term result;
 
         // Used to build the possible set of operators that this functor could be parsed as.
@@ -563,12 +561,13 @@ public class HtPrologParser implements Parser <Term, PlToken>, HtPrologParserCon
      * @throws SourceCodeException If the token sequence does not parse as a valid functor.
      */
     public Term functor () throws SourceCodeException {
-        HtToken name = consumeToken(FUNCTOR);
+        PlToken name = consumeToken(FUNCTOR);
 
-        Term[] args = arglist(ConsType.ARGS_CONS);
-        consumeToken(RPAREN);
+        Term[] args = null;//arglist(ConsType.ARGS_CONS);
+//        consumeToken(RPAREN);
 
-        int nameId = interner.internFunctorName((args == null) ? name.image : name.image.substring(0, name.image.length() - 1), (args == null) ? 0 : args.length);
+        int nameId = interner.internFunctorName((args == null) ? name.image : name.image.substring(0, name.image.length() - 1),
+                (args == null) ? 0 : args.length);
 
         Functor result = new Functor(nameId, args);
 
@@ -591,20 +590,20 @@ public class HtPrologParser implements Parser <Term, PlToken>, HtPrologParserCon
      * @return A list expressed as a sequence of functors in first order.
      * @throws SourceCodeException If the token sequence does not parse as a valid list.
      */
-    public Term listFunctor ( HtToken leftDelim, ConsType consType ) throws SourceCodeException {
+    public Term listFunctor ( PlToken leftDelim/*, ConsType consType */ ) throws SourceCodeException {
         // Get the interned names of the nil and cons functors.
 //        int nilId = interner.internFunctorName(new HtFunctorName("[]", 0,1));
 //        int vbar = interner.internFunctorName(new HtFunctorName("|", 1, 2));
 //        consType = ConsType.DOT_PAIR_CONS;
-        int cons = interner.internFunctorName(String.format("%s %s", consType.begin, consType.end), 1);
-        int nilId = interner.internFunctorName(consType.begin + consType.end, 0);
+//        int cons = interner.internFunctorName(String.format("%s %s", /*consType.begin*/, consType.end), 1);
+//        int nilId = interner.internFunctorName(consType.begin + consType.end, 0);
         // A list (CONS) always starts with a '['.
         // Check if the list contains any arguments and parse them if so.
         Term[] args = null;
-        HtToken nextToken = getTokenSource().peek();
+        PlToken nextToken = getTokenSource().peek();
 //        consType.getRightDelimByLeftDelim(leftDelim.kind);
-//        HtToken rightDelim = leftDelim;
-        HtToken rightDelim = null;
+//        PlToken rightDelim = leftDelim;
+        PlToken rightDelim = null;
         switch (nextToken.kind) {
 //            case LBRACKET:
 //                term = listFunctor(consumeToken(LBRACKET),ConsType.DOT_PAIR_CONS);
@@ -629,7 +628,7 @@ public class HtPrologParser implements Parser <Term, PlToken>, HtPrologParserCon
             case VAR:
             case FUNCTOR:
             case ATOM:
-                args = arglist(ConsType.DOT_PAIR_CONS); //deeper is used the regular list syntax
+                args = null;//arglist(ConsType.DOT_PAIR_CONS); //deeper is used the regular list syntax
                 break;
             case RPAREN:
                 rightDelim = consumeToken(RPAREN);
@@ -650,84 +649,82 @@ public class HtPrologParser implements Parser <Term, PlToken>, HtPrologParserCon
         Term accumulator;
         if (getTokenSource().peek().kind == CONS) {
             if (args == null) {
-                throw new SourceCodeException("Was expecting one of " + BEGIN_TERM_TOKENS + " but got " + tokenImage[nextToken.kind] + ".", null, null, null, new SourceCodePositionImpl(nextToken.beginLine, nextToken.beginColumn, nextToken.endLine, nextToken.endColumn));
+//                throw new SourceCodeException("Was expecting one of " + BEGIN_TERM_TOKENS + " but got " + tokenImage[nextToken.kind.ordinal();] + ".", null, null, null, new SourceCodePositionImpl(nextToken.beginLine, nextToken.beginColumn, nextToken.endLine, nextToken.endColumn);
             }
 
             consumeToken(CONS);
             accumulator = term();
         } else {
-            accumulator = new Nil(nilId, null);
+//            accumulator = new Nil(null, null);
         }
 
         // A list is always terminated with a ']'.
-//       HtToken leftDelim = consType.kind1;
+//       PlToken leftDelim = consType.kind1;
 //        rightDelim = consType.kind2;
 
         // Walk down all of the lists arguments joining them together with cons/2 functors.
         if (args != null) // 'args' will contain one or more elements if not null.
         {
             for (int i = args.length - 1; i >= 0; i--) {
-                Term previousAccumulator = accumulator;
-
+//                Term previousAccumulator = //accumulator;
                 //accumulator = new Functor(consId.ordinal(), new Term[] { args[i], previousAccumulator });
-                accumulator = new Cons(cons, new Term[]{args[i], previousAccumulator});
+//                accumulator = new Cons(cons, new Term[]{args[i], previousAccumulator});
 //                todo consider [|List]
             }
         } else {
-            accumulator = new Cons(cons, new Term[]{null, accumulator});
+//            accumulator = new Cons(cons, new Term[]{null, accumulator});
         }
 
         // Set the position that the list was parsed from, as being the region between the '[' and ']' brackets.
         SourceCodePosition position = new SourceCodePositionImpl(leftDelim.beginLine, leftDelim.beginColumn, rightDelim.endLine, rightDelim.endColumn);
-        accumulator.setSourceCodePosition(position);
+//        accumulator.setSourceCodePosition(position);
 
         // The cast must succeed because arglist must return at least one argument, therefore the cons generating
         // loop must have been run at least once. If arglist is not called at all because an empty list was
         // encountered, then the accumulator will contain the 'nil' constant which is a functor of arity zero.
-        return accumulator;
+        return null;// accumulator;
     }
 
-    /**
-     *
-     */
-    enum ConsType {
-        DOT_PAIR_CONS(LBRACKET, RBRACKET, "[", "]"), ARGS_CONS(LPAREN, RPAREN, "(", ")"), BYPASS_CONS(LBRACE, RBRACE, "{", "}"),//term if no bypass e.g. dcg
-        ;
-        private int kind1;
-        private int kind2;
+//    /**
+//     *
+//     */
+//    enum ConsType {
+//        DOT_PAIR_CONS(LBRACKET, RBRACKET, "[", "]"), ARGS_CONS(LPAREN, RPAREN, "(", ")"), BYPASS_CONS(LBRACE, RBRACE, "{", "}"),//term if no bypass e.g. dcg
+//        ;
+//        private int kind1;
+//        private int kind2;
+//
+//        private String begin;
+//        private String end;
+//
+//        ConsType ( int kind1, int kind2, String begin, String end ) {
+//            this.kind1 = kind1;
+//            this.kind2 = kind2;
+//            this.begin = begin;
+//            this.end = end;
+//        }
+//
+//        /**
+//         * @return
+//         */
+//        public int getKind1 () {
+//            return kind1;
+//        }
+//
+//        /**
+//         * @return
+//         */
+//        public int getKind2 () {
+//            return kind2;
+//        }
 
-        private String begin;
-        private String end;
-
-        ConsType ( int kind1, int kind2, String begin, String end ) {
-            this.kind1 = kind1;
-            this.kind2 = kind2;
-            this.begin = begin;
-            this.end = end;
-        }
-
-        /**
-         * @return
-         */
-        public int getKind1 () {
-            return kind1;
-        }
-
-        /**
-         * @return
-         */
-        public int getKind2 () {
-            return kind2;
-        }
-
-        public int getRightDelimByLeftDelim ( int kind ) {
-            if (getKind1() == kind) {
-                return getKind2();
-            }
-            return getKind1();
-        }
-
-    }
+//        public int getRightDelimByLeftDelim ( int kind ) {
+//            if (getKind1() == kind) {
+//                return getKind2();
+//            }
+//            return getKind1();
+//        }
+//    }
 
     /**
      * Parses a sequence of terms as a comma separated argument list. The ',' operator in prolog can be used as an
@@ -743,16 +740,16 @@ public class HtPrologParser implements Parser <Term, PlToken>, HtPrologParserCon
      * @return A sequence of terms parsed as a term, then flattened back into a list separated by commas.
      * @throws SourceCodeException If the token sequence is not a valid term.
      */
-    public Term[] arglist ( ConsType consType ) throws SourceCodeException {
-        Term term = term();
-        List <Term> result = TermUtils.flattenTerm(term, Term.class, ",", interner);
-
-        return result.toArray(new Term[result.size()]);
-    }
+//    public Term[] arglist ( ConsType consType ) throws SourceCodeException {
+//        Term term = term();
+//        List <Term> result = TermUtils.flattenTerm(term, Term.class, ",", interner);
+//
+//        return result.toArray(new Term[result.size()]);
+//    }
 //
 //    public Term listContent ( ConsType consType ) throws SourceCodeException {
 //        Term t;
-//        HtToken token = getTokenSource().peek();
+//        PlToken token = getTokenSource().peek();
 //        consumeToken(token.kind);
 //        Term[] head = arglist(ConsType.DOT_PAIR_CONS);
 //        Term tail = null;
@@ -775,7 +772,7 @@ public class HtPrologParser implements Parser <Term, PlToken>, HtPrologParserCon
      * @throws SourceCodeException If the next token in the sequence is not a variable.
      */
     public Term variable () throws SourceCodeException {
-        HtToken name = consumeToken(VAR);
+        PlToken name = consumeToken(VAR);
 
         // Intern the variables name.
         int nameId = interner.internVariableName(name.image);
@@ -805,7 +802,7 @@ public class HtPrologParser implements Parser <Term, PlToken>, HtPrologParserCon
      * @throws SourceCodeException If the next token in the sequence is not an integer literal.
      */
     public Term intLiteral () throws SourceCodeException {
-        HtToken valToken = consumeToken(INTEGER_LITERAL);
+        PlToken valToken = consumeToken(INTEGER_LITERAL);
 
         NumericType result = new IntLiteral(Integer.parseInt(valToken.image));
 
@@ -823,7 +820,7 @@ public class HtPrologParser implements Parser <Term, PlToken>, HtPrologParserCon
      * @throws SourceCodeException If the next token in the sequence is not a real number literal.
      */
     public Term doubleLiteral () throws SourceCodeException {
-        HtToken valToken = consumeToken(FLOATING_POINT_LITERAL);
+        PlToken valToken = consumeToken(FLOATING_POINT_LITERAL);
 
         NumericType result = new DoubleLiteral(Double.parseDouble(valToken.image));
 
@@ -841,7 +838,7 @@ public class HtPrologParser implements Parser <Term, PlToken>, HtPrologParserCon
      * @throws SourceCodeException If the next token in the sequence is not a string literal.
      */
     public Term stringLiteral () throws SourceCodeException {
-        HtToken valToken = consumeToken(STRING_LITERAL);
+        PlToken valToken = consumeToken(STRING_LITERAL);
 
         String valWithQuotes = valToken.image;
 
@@ -889,7 +886,7 @@ public class HtPrologParser implements Parser <Term, PlToken>, HtPrologParserCon
      * @return <tt>true</tt> if the next token is ";" and it is consumed.
      */
     public boolean peekAndConsumeMore () {
-        HtToken nextToken = getTokenSource().peek();
+        PlToken nextToken = getTokenSource().peek();
 
         if ((nextToken.kind == ATOM) && Objects.equals(SEMICOLON.getName(), nextToken.image)) {
             try {
@@ -1029,11 +1026,11 @@ public class HtPrologParser implements Parser <Term, PlToken>, HtPrologParserCon
      * @return The consumed token of the expected kind.
      * @throws SourceCodeException If the next token in the sequence is not of the expected kind.
      */
-    protected HtToken consumeToken ( int kind ) throws SourceCodeException {
-        HtToken nextToken = getTokenSource().peek();
+    protected PlToken consumeToken ( TokenKind kind ) throws SourceCodeException {
+        PlToken nextToken = getTokenSource().peek();
 
         if (nextToken.kind != kind) {
-            throw new SourceCodeException("Was expecting " + tokenImage[kind] + " but got " + tokenImage[nextToken.kind] + ".", null, null, null, new SourceCodePositionImpl(nextToken.beginLine, nextToken.beginColumn, nextToken.endLine, nextToken.endColumn));
+            throw new SourceCodeException("Expected " + tokenImage[kind.ordinal()] + " but got " + tokenImage[nextToken.kind.ordinal()] + ".", null, null, null, new SourceCodePositionImpl(nextToken.beginLine, nextToken.beginColumn, nextToken.endLine, nextToken.endColumn));
         } else {
             nextToken = getTokenSource().poll();
 
@@ -1047,8 +1044,8 @@ public class HtPrologParser implements Parser <Term, PlToken>, HtPrologParserCon
      * @param kind The token kind to look for.
      * @return <tt>true</tt> iff the token was found and consumed.
      */
-    private boolean peekAndConsume ( int kind ) {
-        HtToken nextToken = getTokenSource().peek();
+    private boolean peekAndConsume ( TokenKind kind ) {
+        PlToken nextToken = getTokenSource().peek();
         if (nextToken.kind == kind) {
             try {
                 consumeToken(kind);

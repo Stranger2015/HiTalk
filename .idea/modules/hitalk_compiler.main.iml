@@ -11,11 +11,10 @@
       <sourceFolder url="file://$MODULE_DIR$/../../hitalk_compiler/src/main" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/../../hitalk_compiler/src/main/test" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/../../hitalk_compiler/src/main/java/org/ltc/hitalk/parser/jp/code" />
-      <excludeFolder url="file://$MODULE_DIR$/../../hitalk_compiler/src/main/java/org/ltc/hitalk/parser/jp/event" />
       <excludeFolder url="file://$MODULE_DIR$/../../hitalk_compiler/src/main/java/org/ltc/hitalk/parser/jp/procedure" />
       <excludeFolder url="file://$MODULE_DIR$/../../hitalk_compiler/src/main/java/org/ltc/hitalk/parser/jp/script" />
-      <excludeFolder url="file://$MODULE_DIR$/../../hitalk_compiler/src/main/java/org/ltc/hitalk/parser/jp/segfault/prolog/code" />
       <excludeFolder url="file://$MODULE_DIR$/../../hitalk_compiler/src/main/java/org/ltc/hitalk/parser/jp/segfault/prolog/term" />
+      <excludeFolder url="file://$MODULE_DIR$/../../hitalk_compiler/src/main/java/org/ltc/hitalk/parser/jp/term" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
