@@ -1,5 +1,6 @@
 package org.ltc.hitalk.interpreter;
 
+
 import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.aima.logic.fol.isoprologparser.PrologParserConstants;
 import com.thesett.common.parsing.SourceCodeException;
@@ -8,18 +9,14 @@ import jline.ConsoleReader;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IConfigurable;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.parser.HtPrologParserConstants;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.ltc.hitalk.term.io.TermIO;
-import org.ltc.hitalk.wam.compiler.HtToken;
-import org.ltc.hitalk.wam.compiler.HtTokenSource;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.ltc.hitalk.wam.compiler.HtTokenSource.getTokenSourceForInputStream;
 
 /**
  *
@@ -87,10 +84,10 @@ public interface IInterpreter<P, Q> extends IConfigurable, ICompiler <P, Q>, Res
                 // Check the input to see if a system directive was input. This is only allowed in query getMode(), and is
                 // handled differently to normal queries.
                 if (getMode() == Mode.Query) {
-                    HtTokenSource tokenSource = HtTokenSource.getHtTokenSourceForString(line, lineNo);
+                    PlTokenSource tokenSource = PlTokenSource.getPlTokenSourceForString(line, lineNo);
                     getParser().setTokenSource(tokenSource);
 
-                    HtPrologParser.Directive directive = getParser().peekAndConsumeDirective();
+                    PlPrologParser.Directive directive = getParser().peekAndConsumeDirective();
 
                     if (directive != null) {
                         switch (directive) {
@@ -118,7 +115,7 @@ public interface IInterpreter<P, Q> extends IConfigurable, ICompiler <P, Q>, Res
                 }
 
                 // Buffer input tokens until EOL is reached, of the input is terminated with a PERIOD.
-                HtTokenSource tokenSource = HtTokenSource.getHtTokenSourceForString(line, lineNo);//todo
+                PlTokenSource tokenSource = PlTokenSource.getPlTokenSourceForString(line, lineNo);//todo
                 HtToken nextToken;
 
                 while (true) {

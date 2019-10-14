@@ -1,34 +1,127 @@
 package org.ltc.hitalk.parser;
 
+import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
+import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.bktables.PlOperatorTable;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.TermParser;
 import org.ltc.hitalk.term.HlOperator;
 import org.ltc.hitalk.term.HlOperator.Associativity;
 import org.ltc.hitalk.term.io.HiTalkStream;
 
-public interface IParser<T extends Term> {
-    HiTalkStream getStream ();
+import java.io.IOException;
 
-    VariableAndFunctorInterner getInterner ();
+import static java.lang.String.format;
 
-    ITermFactory getFactory ();
+public interface IParser extends TermParser <Term> {
+    PlPrologParser getParser ();
 
-    PlOperatorTable getOptable ();
+    default void setParser ( PlPrologParser parser ) {
+        if (parser.getClass() == getParser().getClass()) {
+            throw new IllegalStateException(
+                    format("INTERNAL ERROR:%s#setParser()", parser.getClass().getSimpleName()));
+        }
 
-    void setOperator ( HlOperator op );
+        doSetParser(parser);
+    }
 
+    default void doSetParser ( PlPrologParser parser ) {
+        getParser().setParser(parser);
+    }
+
+    /*
+     * @return
+     */
+    default HiTalkStream getStream () {
+        return getParser().getStream();
+    }
+
+    /**
+     * @param stream
+     */
+    default void setStream ( HiTalkStream stream ) {
+        getParser().setStream(stream);
+    }
+
+    default VariableAndFunctorInterner getInterner () {
+        return getParser().getInterner();
+    }
+
+    default void setInterner ( VariableAndFunctorInterner interner ) {
+        getParser().setInterner(interner);
+    }
+
+    default ITermFactory getFactory () {
+        return getParser().getFactory();
+    }
+
+    default PlOperatorTable getOptable () {
+        return getParser().getOptable();
+    }
+
+    default void setOptable ( PlOperatorTable optable ) {
+        getParser().setOptable(optable);
+    }
+
+    /**
+     * @param op
+     */
+    default void setOperator ( HlOperator op ) {
+        getParser().setOperator(op);
+    }
+
+    /**
+     * @return
+     */
     String language ();
 
-    T parse ();
+    /**
+     * @return
+     * @throws SourceCodeException
+     */
+    default Sentence <Term> parse () throws SourceCodeException {
+        return getParser().parse();
+    }
 
-    void setTokenSource ( PlTokenSource source );
+    /**
+     * @return
+     */
+    default PlTokenSource getTokenSource () {
+        return getParser().getTokenSource();
+    }
 
-    PlTokenSource getTokenSource ();
+    /**
+     * @param source
+     */
+    default void setTokenSource ( PlTokenSource source ) {
+        getParser().setTokenSource(source);
+    }
 
-    void internOperator ( String colonColon, int i, Associativity xfy );
+    /**
+     * @param name
+     * @param priority
+     * @param associativity
+     */
+    default void internOperator ( String name, int priority, Associativity associativity ) {
+        getParser().internOperator(name, priority, associativity);
+    }
 
+    /**
+     *
+     */
     void initializeBuiltIns ();
+
+    default void setTermFactory ( ITermFactory factory ) {
+        getParser().setTermFactory(factory);
+    }
+
+    @Override
+    default Term next () throws IOException, ParseException {
+        return getParser().next();
+    }
 }

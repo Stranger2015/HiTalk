@@ -39,7 +39,10 @@ public class HiLogParser extends PlPrologParser {
      * @param factory
      * @param optable
      */
-    public HiLogParser ( HiTalkStream stream, VariableAndFunctorInterner interner, TermFactory factory, PlOperatorTable optable ) {
+    public HiLogParser ( HiTalkStream stream,
+                         VariableAndFunctorInterner interner,
+                         TermFactory factory,
+                         PlOperatorTable optable ) {
         super(stream, interner, factory, optable);
 
         hilogApply = interner.internFunctorName(HILOG_APPLY, 0);

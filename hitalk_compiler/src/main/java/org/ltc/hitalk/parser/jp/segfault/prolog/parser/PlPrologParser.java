@@ -1,10 +1,7 @@
 package org.ltc.hitalk.parser.jp.segfault.prolog.parser;
 
 
-import com.thesett.aima.logic.fol.Functor;
-import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.logic.fol.Variable;
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
+import com.thesett.aima.logic.fol.*;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.Source;
 import org.ltc.hitalk.ITermFactory;
@@ -35,7 +32,7 @@ import static org.ltc.hitalk.term.HlOperator.Associativity.*;
  *
  * @author shun
  */
-public class PlPrologParser implements TermParser <Term>, IParser <Term> {
+public class PlPrologParser implements IParser {
 
     public static final String BEGIN_OF_FILE = "begin_of_file";
     public static final String END_OF_FILE = "end_of_file";
@@ -69,6 +66,11 @@ public class PlPrologParser implements TermParser <Term>, IParser <Term> {
         this.interner = interner;
         this.factory = factory;
         this.operatorTable = optable;
+    }
+
+    @Override
+    public PlPrologParser getParser () {
+        return this;
     }
 
     @Override
@@ -335,7 +337,7 @@ public class PlPrologParser implements TermParser <Term>, IParser <Term> {
      * @return
      */
     @Override
-    public Term parse () {
+    public Sentence <Term> parse () {
         return null;
     }
 
@@ -400,7 +402,7 @@ public class PlPrologParser implements TermParser <Term>, IParser <Term> {
         if (ops == null || ops.isEmpty()) {
             int arity = calcArity(associativity);
             int name = interner.internFunctorName(operatorName, arity);
-            operatorTable.setOperator(new HlOperator(name, operatorName, new Term[arity], associativity, priority));//fixme
+            operatorTable.setOperator(new HlOperator(name, operatorName, associativity, priority));//fixme
         }
     }
 

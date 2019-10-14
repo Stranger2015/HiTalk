@@ -22,7 +22,6 @@ import org.ltc.hitalk.entities.context.CompilationContext;
 import org.ltc.hitalk.entities.context.Context;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.LoadContext;
-import org.ltc.hitalk.parser.HiTalkParser;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
@@ -1215,7 +1214,7 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
 
         setSymbolTable(new SymbolTableImpl <>());
         interner = new VariableAndFunctorInternerImpl(namespace("Variable"), namespace("Functor"));
-        setParser(new HiTalkParser(new HiTalkStream(), interner, );
+        setParser(createParser(new HiTalkStream(), interner, ));
         //setParser(new HiTalkParser(interner.internFunctorName(value, 0)interner.internFunctorName(value, 0)etTokenSourceForInputStream(in, "stdin"), interner));
 
         compiler = createWAMCompiler(getSymbolTable(), getInterner(), getParser());

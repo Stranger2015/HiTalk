@@ -1,6 +1,5 @@
 package org.ltc.hitalk.parser;
 
-import com.thesett.aima.logic.fol.OpSymbol;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
@@ -9,60 +8,45 @@ import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.bktables.PlOperatorTable;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
-import org.ltc.hitalk.term.HlOperator;
+import org.ltc.hitalk.term.HlOperator.Associativity;
 import org.ltc.hitalk.term.io.HiTalkStream;
 
-import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.Operator.Associativity.*;
-import static org.ltc.hitalk.term.HlOperator.Associativity.fy;
-import static org.ltc.hitalk.term.HlOperator.Associativity.xfy;
+import static org.ltc.hitalk.term.HlOperator.Associativity.*;
 
 /**
  *
  */
-public class HiTalkParser implements IParser <Term> {
-    private IParser <Term> parser;
+public class HiTalkParser implements IParser {
+    private PlPrologParser parser;
 
-    public void setParser ( IParser <Term> parser ) {
-        setparser = parser;
+    /**
+     * @param parser
+     */
+    public void setParser ( PlPrologParser parser ) {
+//        if (parser.getClass() == this.parser.getClass()) {
+//            throw new IllegalStateException("INTERNAL ERROR: HiTalkParser#setParser");
+//        }
+        this.parser = parser;
     }
 
     @Override
-    public HiTalkStream getStream () {
-        return parser.getStream();
-    }
-
-    @Override
-    public VariableAndFunctorInterner getInterner () {
-        return parser.getInterner();
-    }
-
-    @Override
-    public ITermFactory getFactory () {
-        return parser.getFactory();
-    }
-
-    @Override
-    public PlOperatorTable getOptable () {
-        return null;
-    }
-
-    @Override
-    public void setOperator ( HlOperator op ) {
-
+    public PlPrologParser getParser () {
+        return parser;
     }
 
     /**
      * @return
      */
+    @Override
     public String language () {
         return "HiTalk";
     }
 
     /**
-     *  public
+     * public
      * prolog parser on a token source to be parsed.
      *
-     * @param interner    The interner for variable and functor names.
+     * @param interner The interner for variable and functor names.
      */
     public HiTalkParser ( HiTalkStream stream,
                           VariableAndFunctorInterner interner,
@@ -74,23 +58,6 @@ public class HiTalkParser implements IParser <Term> {
         setTermFactory(factory);
         setOptable(optable);
         setParser(parser);
-    }
-
-    public void setOptable ( PlOperatorTable optable ) {
-
-    }
-
-    public void setInterner ( VariableAndFunctorInterner interner ) {
-
-
-    }
-
-    public void setTermFactory ( ITermFactory factory ) {
-
-    }
-
-    public void setStream ( HiTalkStream stream ) {
-        parser.set
     }
 
 //    /**
@@ -111,7 +78,7 @@ public class HiTalkParser implements IParser <Term> {
     /**
      * Interns and inserts into the operator table all of the built in operators and functors in Prolog.
      */
-    protected void initializeBuiltIns () {
+    public void initializeBuiltIns () {
         parser.initializeBuiltIns();
 //Logtalk operators
         internOperator(PrologAtoms.COLON_COLON, 600, xfy);
@@ -140,21 +107,29 @@ public class HiTalkParser implements IParser <Term> {
 
     @Override
     public Sentence <Term> parse () throws SourceCodeException {
-        return null;
+        return parser.parse();
     }
 
     @Override
     public void setTokenSource ( PlTokenSource source ) {
-
+        parser.setTokenSource(source);
     }
 
+    /**
+     * @return
+     */
     @Override
     public PlTokenSource getTokenSource () {
-        return null;
+        return parser.getTokenSource();
     }
 
+    /**
+     * @param name
+     * @param priority
+     * @param associativity
+     */
     @Override
-    public void setOperator ( String operatorName, int priority, OpSymbol.Associativity associativity ) {
-
+    public void internOperator ( String name, int priority, Associativity associativity ) {
+        parser.internOperator(name, priority, associativity);
     }
 }
