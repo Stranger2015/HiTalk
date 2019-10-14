@@ -116,7 +116,7 @@ class HiLogPreprocessor<T extends HtClause, TC extends Term>
 //
 //
 //        /*======================================================================
-//        /*  This module of the XSB compiler specialises (partially evaluates)	
+//        /*  This module of the XSB compiler specializes (partially evaluates)	
 //        /*  partially instantiated calls to predicates of a source module.  It	
 //        /*  essentially has the behaviour of a source-to-source transformation,	
 //        /*  but the transformation is actually done in the internal source	
@@ -135,16 +135,16 @@ class HiLogPreprocessor<T extends HtClause, TC extends Term>
 //        /*======================================================================
 //
 //        spec(module(SymTab,DL,CL,QR,Pars), module(SymTab,DL,CL1,QR,Pars)) :-
-//        initialise,
+//        initialize,
 //        collect_pi_calls(CL, DL, PI_Calls),
 //        interesting_calls(PI_Calls, CL, InterestingCalls),
 //        merge_calls(InterestingCalls, MergedCalls),
 //        %	telling(F), tell(userout), pp(MergedCalls), told, tell(F),
-//        specialise(MergedCalls, SymTab, CLmid, CL),
+//        specialize(MergedCalls, SymTab, CLmid, CL),
 //        new_clause_list(MergedCalls, CLmid, CL1),
 //        generate_table_decl(DL, MergedCalls).
 //
-//        initialise :- conset('singleton call #', 0).
+//        initialize :- conset('singleton call #', 0).
 //
 //
 //        //======================================================================//
@@ -197,8 +197,8 @@ class HiLogPreprocessor<T extends HtClause, TC extends Term>
 //        /*----------------------------------------------------------------------
 //        /* 'well, add some more'(+DeclarationList, #Calls)			
 //        /*	Adds some more calls to the list of p.i. calls that might	
-//        /*	be specialised.  These calls are the user-supplied table	
-//        /*	specialisation declarations.					
+//        /*	be specialized.  These calls are the user-supplied table	
+//        /*	specialization declarations.					
 //        /*----------------------------------------------------------------------
 //
 //        'well, add some more'([], _).
@@ -210,19 +210,19 @@ class HiLogPreprocessor<T extends HtClause, TC extends Term>
 //        /*======================================================================
 //        /* interesting_calls(+CallList, +Preds, -InterestingCallList)		
 //        /*	Finds interesting calls by filtering out all calls that either	
-//        /*	cannot be specialised, or that will not benefit by the		
-//        /*	specialisation algorithm.					
+//        /*	cannot be specialized, or that will not benefit by the		
+//        /*	specialization algorithm.					
 //        /*	The first case has to do with ensuring the soundness of clause	
 //        /*	replacement.  The constraint that is enforced is CONSECUTIVE	
 //        /*	CLAUSE SELECTION, but it is checked only when the "spec_repr"	
 //        /*	option is on.							
-//        /*	Calls that benefit from the specialisation algorithm are:	
+//        /*	Calls that benefit from the specialization algorithm are:	
 //        /*	  i. calls that select a SUBSET of the clauses of a predicate.	
 //        /*	 ii. calls that contain COMMON SUBTERMS	with the heads of the	
 //        /*	     selected clauses.						
 //        /*----------------------------------------------------------------------
 //        /*  NOTE: The consecutive clauses constraint is necessary in general,	
-//        /*	  for specialisation with clause replacement to be sound.	
+//        /*	  for specialization with clause replacement to be sound.	
 //        /*	  However, one fine day, it can be lifted for those predicates	
 //        /*	  that either the order of their clauses does not matter, or 	
 //        /*	  in the presence of mode information about the predicate.	
@@ -305,7 +305,7 @@ class HiLogPreprocessor<T extends HtClause, TC extends Term>
 //        /*	Gives a second chance to a partially instantiated call, (that	
 //        /*	does not select a subset of the predicate's clauses), by	
 //        /*	examining whether the call will benefit by the factoring of	
-//        /*	common subexpressions property of the specialisation algorithm.	
+//        /*	common subexpressions property of the specialization algorithm.	
 //        /*	This is done by finding the most specific generalisation of	
 //        /*	the call and the heads of the selected clauses, and checking	
 //        /*	whether it contains any partially instantiated arguments.	
@@ -319,7 +319,7 @@ class HiLogPreprocessor<T extends HtClause, TC extends Term>
 //        /*======================================================================
 //        /* merge_calls(+CallList, -/*	MergedList is a simplified version of CallList, where all calls	
 //        /*	that select the same clauses are merged together.  This is done	
-//        /*	since all these calls can use the same specialisation of the	
+//        /*	since all these calls can use the same specialization of the	
 //        /*	predicate and the same representative.				
 //        /*======================================================================
 //
@@ -360,25 +360,25 @@ class HiLogPreprocessor<T extends HtClause, TC extends Term>
 //
 //
 //        /*======================================================================
-//        /* specialise(+InterestingMergedCalls, #SymTab, +CLIn,-CLOut)		
-//        /*	Performs the actual specialisation of all call equivalence	
-//        /*	classes that are worth specialising.				
+//        /* specialize(+InterestingMergedCalls, #SymTab, +CLIn,-CLOut)		
+//        /*	Performs the actual specialization of all call equivalence	
+//        /*	classes that are worth specializing.				
 //        /*======================================================================
 //
-//        specialise([], _, CL, CL).
-//        specialise([pi_calls(Sym,Calls,Representable)|PICs], SymTab, CLin, CLout) :-
-//        specialise_pred(Sym, Calls, Representable, SymTab, CLin, CLmid),
-//        specialise(PICs, SymTab, CLmid, CLout).
+//        specialize([], _, CL, CL).
+//        specialize([pi_calls(Sym,Calls,Representable)|PICs], SymTab, CLin, CLout) :-
+//        specialize_pred(Sym, Calls, Representable, SymTab, CLin, CLmid),
+//        specialize(PICs, SymTab, CLmid, CLout).
 //
 //        /*----------------------------------------------------------------------
-//        /* specialise_pred(+Sym, +Calls, +Representable, #SymTab, +CLin,-CLout)	
-//        /*	Specialises calls to one predicate.  Specialisation without	
-//        /*	clause replacement is always allowed, but specialisation with	
+//        /* specialize_pred(+Sym, +Calls, +Representable, #SymTab, +CLin,-CLout)	
+//        /*	specializes calls to one predicate.  specialization without	
+//        /*	clause replacement is always allowed, but specialization with	
 //        /*	clause replacement is only allowed when all equivalence classes	
 //        /*	of calls have non-overlapping clause selection.			
 //        /*----------------------------------------------------------------------
 //
-//        specialise_pred(Sym, Calls, Representable, SymTab, CLin, CLout) :-
+//        specialize_pred(Sym, Calls, Representable, SymTab, CLin, CLout) :-
 //        sym_name(Sym, N, A),
 //        ( sym_type(Sym,tabled(_,_)) -> Tabled = 1 ; Tabled = 0 ),
 //        ( ( \+sym_type(Sym,aggregation(_)),
@@ -386,39 +386,39 @@ class HiLogPreprocessor<T extends HtClause, TC extends Term>
 //        ; non_overlapping_selection(Calls), Representable = 1
 //        )
 //        ) ->
-//        message(('% Specialising partially instantiated calls to ',
+//        message(('% specializing partially instantiated calls to ',
 //        N, '/', A)),
-//        'specialise pred'(Calls, N, A, Tabled, SymTab, CLin, CLout)
+//        'specialize pred'(Calls, N, A, Tabled, SymTab, CLin, CLout)
 //        ; CLout = CLin, Representable = 0,
 //        (sym_type(Sym,aggregation(_))
 //        ->	  message(('% specialization of aggregate predicate not performed: ',N,'/',A))
 //        ;	  warning(('Calls select overlapping clause blocks of predicate ',
 //        N, '/', A)),
 //        message(('           ',
-//        '(specialisation with representation cannot be performed!)'))
+//        '(specialization with representation cannot be performed!)'))
 //        )
 //        ).
 //
-//        :- mode 'specialise pred'(+,+,+,+,?,?,?).
+//        :- mode 'specialize pred'(+,+,+,+,?,?,?).
 //
-//        'specialise pred'([], _, _, _, _, CL, CL).
-//        'specialise pred'([BC|BCs], N, A, Tabled, SymTab, CLin, CLout) :-
+//        'specialize pred'([], _, _, _, _, CL, CL).
+//        'specialize pred'([BC|BCs], N, A, Tabled, SymTab, CLin, CLout) :-
 //        BC = body_calls(CallsMsg,SelClauses,Cs,NCs,Rep),
-//        specialise_calls(CallsMsg, SelClauses, Cs, N, A, Tabled,
+//        specialize_calls(CallsMsg, SelClauses, Cs, N, A, Tabled,
 //        SymTab, NCs, Rep, NewPred),
 //        ( var(NewPred) -> CLin = CLmid ; CLin = [NewPred|CLmid] ),
-//        'specialise pred'(BCs, N, A, Tabled, SymTab, CLmid, CLout).
+//        'specialize pred'(BCs, N, A, Tabled, SymTab, CLmid, CLout).
 //
 //        /*----------------------------------------------------------------------
-//        /* specialise_calls(+CallsMsg, +SelClauses, +Calls, +N, +A, +Tabled,	
+//        /* specialize_calls(+CallsMsg, +SelClauses, +Calls, +N, +A, +Tabled,	
 //        /*		    #SymTab, -NewCalls, -Representative, -NewPred)	
-//        /*	Specialises a list of Calls that select the same set of clauses	
-//        /*	of a predicate N/A.  In general, the specialisation involves	
+//        /*	specializes a list of Calls that select the same set of clauses	
+//        /*	of a predicate N/A.  In general, the specialization involves	
 //        /*	creating the representative of the selected clauses, a special	
-//        /*	predicate, and specialised versions of the calls (NewCalls).	
+//        /*	predicate, and specialized versions of the calls (NewCalls).	
 //        /*----------------------------------------------------------------------
 //
-//        specialise_calls(CallsMsg, SelClauses, Calls, N, A, Tabled,
+//        specialize_calls(CallsMsg, SelClauses, Calls, N, A, Tabled,
 //        SymTab, NewCalls, Representative, NewPred) :-
 //        ( singleton_sets_opt(SelClauses, Tabled, HeadArgs, Body) ->
 //        singleton_special_calls(Calls, HeadArgs, Body, NewCalls)
@@ -494,7 +494,7 @@ class HiLogPreprocessor<T extends HtClause, TC extends Term>
 //        Properties = [pred,defined,used|Prop],
 //        ( Tabled =:= 0 -> Prop = []
 //        ; Prop = [tabled],
-//        warning(('The specialisation of ', Name, '/', Arity,
+//        warning(('The specialization of ', Name, '/', Arity,
 //        ' will cause double tabling !')),
 //        ttywritenl('           (possible source of inefficiency)',STDWARN)
 //        ),
@@ -566,7 +566,7 @@ class HiLogPreprocessor<T extends HtClause, TC extends Term>
 //
 //        /*----------------------------------------------------------------------
 //        /* make_special_calls(+Calls, +Msg, +NewSym, -SpecialCalls)		
-//        /*	Creates specialised versions of partially instantiated calls	
+//        /*	Creates specialized versions of partially instantiated calls	
 //        /*	by finding their arguments w.r.t. the most specific		
 //        /*	generalisation of the calls and the heads of the selected	
 //        /*	clauses.							
@@ -624,7 +624,7 @@ class HiLogPreprocessor<T extends HtClause, TC extends Term>
 //
 //        /*----------------------------------------------------------------------
 //        /* singleton_special_calls(+Calls, +HeadArgs, +Body, -SpecialCalls)	
-//        /*	Creates specialised versions of partially instantiated calls	
+//        /*	Creates specialized versions of partially instantiated calls	
 //        /*	that select single clauses of certain types.  The new calls	
 //        /*	are mostly conjunctions of =/2 goals (for the arguments of the	
 //        /*	head), and a modified version of the literal in the body.	
@@ -830,7 +830,7 @@ class HiLogPreprocessor<T extends HtClause, TC extends Term>
 //        /*======================================================================
 //        /* generate_table_decl(+DL, +MergedCalls)				
 //        /*	Generates table declarations for some of the predicates that	
-//        /*	were created by the specialisation.  The following code has	
+//        /*	were created by the specialization.  The following code has	
 //        /*	only side-effects.						
 //        /*======================================================================
 //
@@ -845,7 +845,7 @@ class HiLogPreprocessor<T extends HtClause, TC extends Term>
 //        ( memberchk(pi_calls(Sym,CallList,_Representable), PICs) ->
 //        'search for call'(CallList, Args)
 //        ; sym_name(Sym, N, A),
-//        warning(('Table specialisation declaration for ', N, '/', A,
+//        warning(('Table specialization declaration for ', N, '/', A,
 //        ' could not be ')),
 //        ttywritenl(('           processed as intended... ',
 //        '(tabling the whole predicate instead)'),STDWARN),
@@ -908,7 +908,7 @@ class HiLogPreprocessor<T extends HtClause, TC extends Term>
 //        /*	  2. Only the heads of the clauses are tested for equality;	
 //        /*	     this is essential for this predicate to be also used in	
 //        /*	     predicate subst_rep/4.					
-//        /*	  3. A perfect example where specialisation with representation	
+//        /*	  3. A perfect example where specialization with representation	
 //        /*	     helps!							
 //        /*	  4. Predicate consecutive/3 is very similar to append/3 but	
 //        /*	     does not perform unification; only head equality check.	

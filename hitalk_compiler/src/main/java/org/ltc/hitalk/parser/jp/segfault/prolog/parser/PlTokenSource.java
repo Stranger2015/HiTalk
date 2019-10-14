@@ -397,12 +397,4 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
             return false;
         }
     }
-//
-//    public Source<PlToken> getTokenSource () {
-//        return tokenSource;
-//    }
-//
-//    public void setTokenSource ( Source<Object> tokenSource ) {
-//        this.tokenSource = tokenSource;
-//    }
 }

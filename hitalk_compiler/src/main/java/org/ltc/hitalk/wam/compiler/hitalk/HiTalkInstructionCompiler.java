@@ -35,7 +35,7 @@ import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.*;
 import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
 import org.ltc.hitalk.wam.printer.HtPositionalTermTraverser;
@@ -207,9 +207,13 @@ public class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWA
      * @param symbolTable    The symbol table.
      * @param interner       The machine to translate functor and variable names.
      * @param defaultBuiltIn
+     * @param parser
      */
-    public HiTalkInstructionCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner, HiTalkDefaultBuiltIn defaultBuiltIn ) {
-        super(symbolTable, interner);
+    public HiTalkInstructionCompiler ( SymbolTable <Integer, String, Object> symbolTable,
+                                       VariableAndFunctorInterner interner,
+                                       HiTalkDefaultBuiltIn defaultBuiltIn,
+                                       PlPrologParser parser ) {
+        super(symbolTable, interner, parser);
         optimizer = new HiTalkWAMOptimizer(symbolTable, interner);
         this.defaultBuiltIn = defaultBuiltIn;
     }
@@ -975,7 +979,7 @@ public class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWA
      * @return
      */
     @Override
-    public HtPrologParser getParser () {
+    public PlPrologParser getParser () {
         return parser;
     }
 

@@ -1,16 +1,56 @@
 package org.ltc.hitalk.parser;
 
+import com.thesett.aima.logic.fol.OpSymbol;
+import com.thesett.aima.logic.fol.Sentence;
+import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
+import com.thesett.common.parsing.SourceCodeException;
+import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.bktables.PlOperatorTable;
-import org.ltc.hitalk.compiler.bktables.TermFactory;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
+import org.ltc.hitalk.term.HlOperator;
 import org.ltc.hitalk.term.io.HiTalkStream;
 
 import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.Operator.Associativity.*;
+import static org.ltc.hitalk.term.HlOperator.Associativity.fy;
+import static org.ltc.hitalk.term.HlOperator.Associativity.xfy;
 
 /**
  *
  */
-public class HiTalkParser extends HiLogParser {
+public class HiTalkParser implements IParser <Term> {
+    private IParser <Term> parser;
+
+    public void setParser ( IParser <Term> parser ) {
+        setparser = parser;
+    }
+
+    @Override
+    public HiTalkStream getStream () {
+        return parser.getStream();
+    }
+
+    @Override
+    public VariableAndFunctorInterner getInterner () {
+        return parser.getInterner();
+    }
+
+    @Override
+    public ITermFactory getFactory () {
+        return parser.getFactory();
+    }
+
+    @Override
+    public PlOperatorTable getOptable () {
+        return null;
+    }
+
+    @Override
+    public void setOperator ( HlOperator op ) {
+
+    }
+
     /**
      * @return
      */
@@ -19,14 +59,38 @@ public class HiTalkParser extends HiLogParser {
     }
 
     /**
-     * Builds a
-     * public
+     *  public
      * prolog parser on a token source to be parsed.
      *
      * @param interner    The interner for variable and functor names.
      */
-    public HiTalkParser ( HiTalkStream stream, VariableAndFunctorInterner interner, TermFactory factory, PlOperatorTable optable ) {
-        super(stream, interner, factory, optable);
+    public HiTalkParser ( HiTalkStream stream,
+                          VariableAndFunctorInterner interner,
+                          ITermFactory factory,
+                          PlOperatorTable optable,
+                          PlPrologParser parser ) {
+        setStream(stream);
+        setInterner(interner);
+        setTermFactory(factory);
+        setOptable(optable);
+        setParser(parser);
+    }
+
+    public void setOptable ( PlOperatorTable optable ) {
+
+    }
+
+    public void setInterner ( VariableAndFunctorInterner interner ) {
+
+
+    }
+
+    public void setTermFactory ( ITermFactory factory ) {
+
+    }
+
+    public void setStream ( HiTalkStream stream ) {
+        parser.set
     }
 
 //    /**
@@ -48,7 +112,7 @@ public class HiTalkParser extends HiLogParser {
      * Interns and inserts into the operator table all of the built in operators and functors in Prolog.
      */
     protected void initializeBuiltIns () {
-        super.initializeBuiltIns();
+        parser.initializeBuiltIns();
 //Logtalk operators
         internOperator(PrologAtoms.COLON_COLON, 600, xfy);
         internOperator(PrologAtoms.COLON_COLON, 600, fy);// message sending to "self"
@@ -72,5 +136,25 @@ public class HiTalkParser extends HiLogParser {
         internOperator(PrologAtoms.PROTECTED, 1150, fx);
         internOperator(PrologAtoms.PRIVATE, 1150, fx);
         internOperator(PrologAtoms.ENUMERATION, 1150, fx);
+    }
+
+    @Override
+    public Sentence <Term> parse () throws SourceCodeException {
+        return null;
+    }
+
+    @Override
+    public void setTokenSource ( PlTokenSource source ) {
+
+    }
+
+    @Override
+    public PlTokenSource getTokenSource () {
+        return null;
+    }
+
+    @Override
+    public void setOperator ( String operatorName, int priority, OpSymbol.Associativity associativity ) {
+
     }
 }

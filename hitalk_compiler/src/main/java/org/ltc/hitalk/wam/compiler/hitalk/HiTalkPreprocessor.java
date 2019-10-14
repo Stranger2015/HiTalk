@@ -9,6 +9,7 @@ import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.expander.DefaultTermExpander;
 import org.ltc.hitalk.wam.task.HiLogPreprocessor;
@@ -178,8 +179,7 @@ public class HiTalkPreprocessor<TC extends Term, TT extends TransformTask <HtCla
      * @return
      */
     @Override
-    public
-    HtPrologParser getParser () {
+    public PlPrologParser getParser () {
         return parser;
     }
 

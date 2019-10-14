@@ -1,39 +1,42 @@
-package org.ltc.hitalk.parser.jp.segfault.prolog.parser;
+package org.ltc.hitalk.term;
 
 import com.thesett.aima.logic.fol.Term;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.Operator.Associativity;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
+import org.ltc.hitalk.term.HlOperator.Associativity;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.ltc.hitalk.term.HlOperator.Associativity.fx;
 
 /**
  * 演算子優先順位解析を行います。
  *
  * @author shun
  */
-public abstract class OperatorJoiner<TERM extends Term> {
+public abstract class HlOperatorJoiner<TERM extends Term> {
 
-    private final ArrayDeque <Operator> operators = new ArrayDeque <>();
+    private final ArrayDeque <HlOperator> operators = new ArrayDeque <>();
     private final ArrayDeque <TERM> operands = new ArrayDeque <>();
 
     // 最後に追加された演算子のタイプ
-    private Associativity associativity = Associativity.fx;
+    private Associativity associativity = fx;
 
     /**
      * 指定された演算子を受け付けるかどうかを調べます。
      */
     public boolean accept ( Associativity associativity ) {
-        return Operator.isCorrectOrder(this.associativity, associativity);
+        return HlOperator.isCorrectOrder(this.associativity, associativity);
     }
 
     /**
      * 式の構成要素となる次の演算子を追加します。
      */
-    public void push ( Operator operator ) throws ParseException {
+    public void push ( HlOperator operator ) throws ParseException {
         resolve(operator.lprio);
         operators.push(operator);
-        associativity = operator.associativity;
+        associativity = operator.getAssociativity();
     }
 
     /**
@@ -60,8 +63,8 @@ public abstract class OperatorJoiner<TERM extends Term> {
             if (operators.peek().rprio == priority) {
                 throw new ParseException("演算子の優先順位が衝突しました: " + operators.peek());
             }
-            ArrayList <TERM> args = new ArrayList <TERM>(2);
-            for (int i = operators.peek().associativity.arity; i > 0; --i) {
+            ArrayList <TERM> args = new ArrayList <>(2);
+            for (int i = operators.peek().getAssociativity().arity; i > 0; --i) {
                 args.add(0, operands.pop());
             }
             operands.push(join(operators.pop().getName(), args));

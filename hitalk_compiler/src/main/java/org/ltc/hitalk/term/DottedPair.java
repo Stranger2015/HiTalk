@@ -36,7 +36,7 @@ public class DottedPair extends RecursiveList implements Term {
     @Override
     public Iterator <Term> iterator () {
         return null;
-    }
+    }//todo
 
     @Override
     public boolean isNil () {

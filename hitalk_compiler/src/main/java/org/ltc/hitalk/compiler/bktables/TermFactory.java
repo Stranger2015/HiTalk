@@ -11,10 +11,8 @@ import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.context.Context;
 import org.ltc.hitalk.entities.context.LoadContext;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind;
-import org.ltc.hitalk.term.Atom;
-import org.ltc.hitalk.term.DottedPair;
+import org.ltc.hitalk.term.*;
 import org.ltc.hitalk.term.DottedPair.Kind;
-import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 
 import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
@@ -25,7 +23,6 @@ import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
 public class TermFactory implements ITermFactory {
 
     private VariableAndFunctorInterner interner;
-
 
     /**
      * @param interner
@@ -39,8 +36,9 @@ public class TermFactory implements ITermFactory {
      * @return
      */
     @Override
-    public Term newAtom ( String value ) {
-        return newFunctor(value, new DottedPair());
+    public Atom newAtom ( String value ) {
+        return newAtom(interner.internFunctorName(value, 0));
+//        return newFunctor(HiLogParser.hilogApply, name, new DottedPair());
     }
 
     /**
@@ -48,8 +46,8 @@ public class TermFactory implements ITermFactory {
      * @return
      */
     @Override
-    public Term newAtom ( int value ) {
-        return new HtFunctor(value, EMPTY_TERM_ARRAY);
+    public Atom newAtom ( int value ) {
+        return new Atom(value);
     }
 
     /**
@@ -57,19 +55,20 @@ public class TermFactory implements ITermFactory {
      * @return
      */
     @Override
-    public Term newAtom ( double value ) {
+    public Atom newAtom ( double value ) {
         return null;
     }
 
     /**
-     * @param value
-     * @param args
+     *
+     * @param hilogApply
+     * @param name
      * @return
      */
     @Override
-    public Functor newFunctor ( String value, DottedPair args ) {
-        int name = interner.internFunctorName(value, args.getArguments().length);
-        return newFunctor(name, args);
+    public Functor newFunctor ( int hilogApply, String name, DottedPair dottedPair ) {
+        int arity = dottedPair.getArguments().length - 1;
+        return newFunctor(interner.internFunctorName(name, arity), dottedPair);
     }
 
     /**
@@ -78,7 +77,7 @@ public class TermFactory implements ITermFactory {
      * @return
      */
     @Override
-    public Term newFunctor ( int value, DottedPair args ) {
+    public Functor newFunctor ( int value, DottedPair args ) {
         return new HtFunctor(value, args.getArguments());
     }
 
@@ -174,12 +173,22 @@ public class TermFactory implements ITermFactory {
     }
 
     @Override
-    public Term newFunctor ( int hilogApply, Term name, DottedPair args ) {
+    public Functor newFunctor ( int hilogApply, Term name, DottedPair args ) {
         Term[] headTail = args.getArguments();
         Term[] nameHeadTail = new Term[headTail.length + 1];
         System.arraycopy(headTail, 0, nameHeadTail, 1, headTail.length);
         nameHeadTail[0] = name;
         return new HtFunctor(hilogApply, nameHeadTail);
+    }
+
+    @Override
+    public IntTerm newAtomic ( int i ) {
+        return null;
+    }
+
+    @Override
+    public FloatTerm newAtomic ( double f ) {
+        return null;
     }
 
     //    @Override
@@ -215,8 +224,6 @@ public class TermFactory implements ITermFactory {
         HtProperty[] props;
         switch (kind) {
             case LOADING:
-                props = new HtProperty[]{createProperty("entity_identifier", ""), createProperty("entity_prefix", ""), createProperty("entity_type", ""), createProperty("source", ""), createProperty("file", ""), createProperty("basename", ""), createProperty("directory", ""), createProperty("stream", ""), createProperty("target", ""), createProperty("flags", ""), createProperty("term", ""), createProperty("term_position", ""), createProperty("variable_names")};
-                break;
             case COMPILATION:
                 props = new HtProperty[]{createProperty("entity_identifier", ""), createProperty("entity_prefix", ""), createProperty("entity_type", ""), createProperty("source", ""), createProperty("file", ""), createProperty("basename", ""), createProperty("directory", ""), createProperty("stream", ""), createProperty("target", ""), createProperty("flags", ""), createProperty("term", ""), createProperty("term_position", ""), createProperty("variable_names")};
                 break;

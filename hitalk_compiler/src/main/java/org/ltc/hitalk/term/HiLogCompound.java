@@ -1,13 +1,14 @@
 package org.ltc.hitalk.term;
 
-import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.logic.fol.Term;
+import org.ltc.hitalk.wam.compiler.HtFunctor;
 
 /**
  *
  */
+@Deprecated
 public
-class HiLogCompound extends Functor implements Term {
+class HiLogCompound extends HtFunctor implements Term {
     private Term name;
 
     /**

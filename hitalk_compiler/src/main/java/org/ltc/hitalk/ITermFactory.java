@@ -5,7 +5,10 @@ import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
 import org.ltc.hitalk.entities.HtProperty;
+import org.ltc.hitalk.term.Atom;
 import org.ltc.hitalk.term.DottedPair;
+import org.ltc.hitalk.term.FloatTerm;
+import org.ltc.hitalk.term.IntTerm;
 
 /**
  *
@@ -16,21 +19,21 @@ interface ITermFactory {
     /**
      * 整数値アトムを生成します。
      */
-    Term newAtom ( int value );
+    Atom newAtom ( int value );
 
-    Term newAtom ( String value );
+    Atom newAtom ( String value );
 
     /**
      * 実数値アトムを生成します。
      */
-    Term newAtom ( double value );
+    Atom newAtom ( double value );
 
     /**
      * ひとつ以上の引数を持つ関数子を作成します。
      */
-    Term newFunctor ( String value, DottedPair args );
+    Functor newFunctor ( int hilogApply, String value, DottedPair args );
 
-    Term newFunctor ( int value, DottedPair args );
+    Functor newFunctor ( int value, DottedPair args );
 
     /**
      * 変数を作成します。
@@ -69,11 +72,13 @@ interface ITermFactory {
 
 //    /**/Term newFunctor ( Term[] nameHeadTail );
 
-    Term newFunctor ( int hilogApply, Term name, DottedPair args );
+    Functor newFunctor ( int hilogApply, Term name, DottedPair args );
 
-    Term newAtomic ( int i );
+    IntTerm newAtomic ( int i );
 
-    Term newAtomic ( double f );
+    FloatTerm newAtomic ( double f );
+
+    DottedPair newDottedPair ( DottedPair.Kind kind, Term[] terms );
 
 
 //    Term newFunctor ( Term name, Term[] args );

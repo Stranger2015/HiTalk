@@ -5,6 +5,7 @@ import com.thesett.aima.logic.fol.Term;
 
 import java.util.Iterator;
 
+@Deprecated
 public
 class ListTerm extends RecursiveList {
     private static final int DOT = -1;
@@ -17,13 +18,11 @@ class ListTerm extends RecursiveList {
      *
      * @param heads The arguments; there must be two.
      */
-    public
-    ListTerm ( Term[] heads ) {
+    public ListTerm ( Term[] heads ) {
         super(DOT, heads);//fixme head, tail(s)
     }
 
-    public
-    int length () {
+    public int length () {
         return 0;//fixme
     }
 
@@ -33,8 +32,7 @@ class ListTerm extends RecursiveList {
      * @return A Java iterator over this recursively defined list.
      */
     @Override
-    public
-    Iterator <Term> iterator () {
+    public Iterator <Term> iterator () {
         return null;
     }
 
@@ -44,32 +42,28 @@ class ListTerm extends RecursiveList {
      * @return <tt>true</tt> if this is the empty list 'nil'.
      */
     @Override
-    public
-    boolean isNil () {
+    public boolean isNil () {
         return false;//fixme
     }
 
     /**
      * @return list or var
      */
-    public
-    Term getTail () {
+    public Term getTail () {
         return null;
     }
 
     /**
      * @return
      */
-    public
-    Term getHead () {
+    public Term getHead () {
         return null;
     }
 
     /**
      * @return
      */
-    public
-    boolean newTail () {
+    public boolean newTail () {
         tail = getTail();
         return !tail.isVar();
     }

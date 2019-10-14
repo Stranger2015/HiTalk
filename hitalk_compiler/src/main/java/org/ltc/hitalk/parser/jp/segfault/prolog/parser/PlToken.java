@@ -1,6 +1,5 @@
 package org.ltc.hitalk.parser.jp.segfault.prolog.parser;
 
-
 /**
  * Describes the input token stream.
  */
@@ -12,7 +11,6 @@ public class PlToken {
      * @param kind
      */
     public PlToken ( TokenKind kind ) {
-
         this.kind = kind;
     }
 

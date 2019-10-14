@@ -1,17 +1,24 @@
 package org.ltc.hitalk.wam.compiler;
 
+
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.aima.logic.fol.VariableAndFunctorInternerImpl;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.common.util.doublemaps.SymbolTableImpl;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemOptions;
-import org.apache.commons.vfs2.Selectors;
-import org.apache.commons.vfs2.VFS;
+import org.apache.commons.vfs2.*;
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
+import org.apache.commons.vfs2.provider.jar.JarFileProvider;
+import org.apache.commons.vfs2.provider.local.DefaultLocalFileProvider;
+import org.apache.commons.vfs2.provider.ram.RamFileProvider;
+import org.apache.commons.vfs2.provider.res.ResourceFileProvider;
+import org.apache.commons.vfs2.provider.temp.TemporaryFileProvider;
+import org.apache.commons.vfs2.provider.url.UrlFileProvider;
+import org.apache.commons.vfs2.provider.zip.ZipFileProvider;
+import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.BaseCompiler;
 import org.ltc.hitalk.compiler.bktables.IProduct;
+import org.ltc.hitalk.compiler.bktables.PlOperatorTable;
 import org.ltc.hitalk.compiler.bktables.TermFactory;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.BaseApplication;
@@ -19,17 +26,17 @@ import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.context.CompilationContext;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.LoadContext;
-import org.ltc.hitalk.parser.HiTalkParser;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
+import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
-import static java.lang.System.in;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
-import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource.getTokenSourceForInputStream;
 
 /**
  *
@@ -42,8 +49,8 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
     };
 
     protected DefaultFileSystemManager fsManager;
-    protected BaseCompiler <P, Q> compiler;
-    protected TermFactory tf;
+    protected BaseCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> compiler;
+    protected ITermFactory tf;
     protected String scratchDirectory;
     protected CompilationContext compilationContext;
     protected LoadContext loadContext;
@@ -56,7 +63,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
     }
 
     @Override
-    public BaseCompiler createCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner, HtPrologParser parser ) {
+    public BaseCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> createWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner, PlPrologParser parser ) {
         return new PrologWAMCompiler(symbolTable, interner, parser);
     }
 
@@ -68,7 +75,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
     @Override
     public String namespace ( String varOrFunctor ) {
         return null;
-    }
+    }//fixme
 
     @Override
     public void clear () throws LinkageException, IOException {
@@ -89,9 +96,9 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
 
         setSymbolTable(new SymbolTableImpl <>());
         interner = new VariableAndFunctorInternerImpl(namespace("Variable"), namespace("Functor"));
-        setParser(new HiTalkParser(getTokenSourceForInputStream(in, "stdin"), interner));
+        setParser(createParser(PlTokenSource.getTokenSourceForInputStream(null, "stdin"), interner));
 
-        compiler = newWAMCompiler(getSymbolTable(), getInterner(), getParser());
+        compiler = createWAMCompiler(getSymbolTable(), getInterner(), getParser());
 //        bkt = new BookKeepingTables();
         setConfig(new CompilerConfig());
         scratchDirectory = "./" + DEFAULT_SCRATCH_DIRECTORY;
@@ -116,8 +123,41 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
         super.doInit();
     }
 
-    public BaseCompiler <P, Q> newWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner, HtPrologParser parser ) {
-        return compiler;
+    public PlPrologParser createParser ( HiTalkStream stream,
+                                         VariableAndFunctorInterner interner,
+                                         ITermFactory factory,
+                                         PlOperatorTable optable ) {
+        return new PlPrologParser(stream, interner, factory, optable);
+    }
+
+    protected void initVfs () {
+        try {
+            fsManager = new DefaultFileSystemManager();
+//            fsManager.setLogger((Log) logger);
+            fsManager.addProvider("file", new DefaultLocalFileProvider());
+            fsManager.addProvider("zip", new ZipFileProvider());
+            fsManager.addProvider("ram", new RamFileProvider());
+            fsManager.addProvider("jar", new JarFileProvider());
+            fsManager.addProvider("temp", new TemporaryFileProvider());//ram zip
+            fsManager.addProvider("res", new ResourceFileProvider());
+            fsManager.addProvider("url", new UrlFileProvider());
+//            fsManager.addProvider("vfs2nio", new org.ltc.hitalk.com.sshtools.vfs2nio.Vfs2NioFileSystemProvider());
+//
+//            /* Creation of root directory for VFS */
+//            is = new InputStreamReader(System.in);
+//            br = new BufferedReader(is);
+//            File f = new File("C:\\");
+//            URI uri = f.toURI();
+//            fsManager.setBaseFile(new File(System.getProperty("user.dir")));
+
+            fsManager.setCacheStrategy(CacheStrategy.ON_RESOLVE);
+
+            fsManager.init();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new ExecutionError(PERMISSION_ERROR, null);
+        }
     }
 
     @Override
@@ -148,6 +188,10 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
         });
         getLogger().info("Running target ");
         getTarget().run();
+    }
+
+    private BaseCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> getCompiler () {
+        return compiler;
     }
 
     @Override
@@ -181,8 +225,8 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
 
     protected FileObject createScratchDirectory () throws Exception {
         FileSystemOptions fileSystemOptions = new FileSystemOptions();
-        final FileObject scratchFolder = VFS.getManager().resolveFile(getScratchDirectory(), fileSystemOptions);
-        fsManager = VFS.getManager();
+        final FileObject scratchFolder = VFS.getManager().resolveFile(String.valueOf(getScratchDirectory().toFile()));
+//        fsManager = VFS.getManager();
         // Make sure the test folder is empty
         scratchFolder.delete(Selectors.EXCLUDE_SELF);
         scratchFolder.createFolder();
@@ -191,6 +235,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
     }
 
     private Path getScratchDirectory () {
+        return Paths.get(DEFAULT_SCRATCH_DIRECTORY).toAbsolutePath();
     }
 
 }

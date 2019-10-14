@@ -7,16 +7,18 @@ import org.ltc.hitalk.compiler.BaseCompiler;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledPredicate;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledQuery;
-import org.ltc.hitalk.wam.compiler.HtTokenSource;
 
 import java.io.File;
 import java.io.IOException;
 
 public class HiTalkWAMCompiler extends BaseCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> {
-    public HiTalkWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner, HtPrologParser parser ) {
+    public HiTalkWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
+                               VariableAndFunctorInterner interner,
+                               PlPrologParser parser ) {
         super(symbolTable, interner, parser);
     }
 
@@ -167,6 +169,6 @@ public class HiTalkWAMCompiler extends BaseCompiler <HiTalkWAMCompiledPredicate,
 
 
     public void compileFile ( File file ) throws IOException {
-        compile(HtTokenSource.getTokenSourceForIoFile(file));
+        compile(PlTokenSource.getTokenSourceForIoFile(file));
     }
 }

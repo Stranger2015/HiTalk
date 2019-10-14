@@ -7,7 +7,7 @@ import org.ltc.hitalk.parser.HtClause;
  *
  */
 public
-class HiTalkAstInterpreterApp<T extends HtClause, P, Q> extends BaseApplication <T, P, Q> {
+class HiTalkAstInterpreterApp<T extends HtClause, T, T> extends BaseApplication <T, T, T> {
 
     /**
      *

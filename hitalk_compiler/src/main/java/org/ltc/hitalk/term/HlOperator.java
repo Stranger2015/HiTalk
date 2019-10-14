@@ -1,5 +1,3 @@
-package org.ltc.hitalk.term;
-
 /*
  * Copyright The Sett Ltd, 2005 to 2014.
  *
@@ -15,10 +13,14 @@ package org.ltc.hitalk.term;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.ltc.hitalk.term;
 
 
-import com.thesett.aima.logic.fol.Functor;
-import com.thesett.aima.logic.fol.Term;
+import java.util.EnumSet;
+
+import static java.lang.String.format;
+import static org.ltc.hitalk.term.HlOperator.Associativity.*;
+
 
 /**
  * Operators in first order logic, connect terms into compound units composed of many terms under the semantics of the
@@ -29,7 +31,7 @@ import com.thesett.aima.logic.fol.Term;
  * neighbouring terms in the a textual form of the language. The precedences and associativity are not part of the logic
  * as such, they are hints to a parser.
  * <p>
- * <p/>An HiLogOpSymbol is a functor, that additionally provides information to a parser as to its parsing priority and
+ * <p/>An Operator is a functor, that additionally provides information to a parser as to its parsing priority and
  * associativity. An operator is a restricted case of a functor, in that it can take a minimum of one and a maximum of
  * two arguments.
  *
@@ -44,8 +46,10 @@ import com.thesett.aima.logic.fol.Term;
  *
  * @author Rupert Smith
  */
-public
-class HiLogOpSymbol extends Functor implements Comparable, Cloneable {
+public class HlOperator/* extends HtFunctor */ implements Comparable, Cloneable {
+
+    public int lprio;
+    public int rprio;
     /**
      * Holds the raw text name of this operator.
      */
@@ -63,65 +67,73 @@ class HiLogOpSymbol extends Functor implements Comparable, Cloneable {
      * Creates a new operator with the specified name and arguments.
      *
      * @param textName      The name of the operator.
-     * @param arguments     The arguments the operator is applied to.
      * @param associativity Specifies the associativity of the operator.
      * @param priority      The operators priority.
      */
-    public
-    HiLogOpSymbol ( String textName, Term[] arguments, Associativity associativity, int priority ) {
-        super(-1, arguments);
+    public HlOperator ( int name, String textName, /*Term[] arguments,*/ Associativity associativity, int priority ) {
+//       /**/ super(name, arguments);
 
-        // Check that there is at least one and at most two arguments.
+       /* // Check that there is at least one and at most two arguments.
         if ((arguments == null) || (arguments.length < 1) || (arguments.length > 2)) {
             throw new IllegalArgumentException("An operator has minimum 1 and maximum 2 arguments.");
         }
-
+*/
         this.textName = textName;
         this.priority = priority;
         this.associativity = associativity;
     }
 
-    /**
-     * Creates a new operator with the specified name but no arguments.
-     *
-     * @param name          The interned name of the operator.
-     * @param textName      The text name of the operator.
-     * @param associativity Specifies the associativity of the operator.
-     * @param priority      The operators priority.
-     */
-    public
-    HiLogOpSymbol ( int name, String textName, Associativity associativity, int priority ) {
-        super(name, null);
-
-        this.textName = textName;
-        this.priority = priority;
-        this.associativity = associativity;
-    }
 
     /**
-     * Sets the arguments of this operator. It can be convenient to be able to set the outside of the constructor, for
-     * example, when parsing may want to create the operator first and fill in its arguments later.
-     *
-     * @param arguments The arguments the operator is applied to.
+     * 与えられた演算子の並び順が表記上正しいかどうかを判別します。
      */
-    public
-    void setArguments ( Term[] arguments ) {
-        // Check that there is at least one and at most two arguments.
-        if ((arguments == null) || (arguments.length < 1) || (arguments.length > 2)) {
-            throw new IllegalArgumentException("An operator has minimum 1 and maximum 2 arguments.");
+    public static boolean isCorrectOrder ( Associativity l, Associativity r ) {
+        l = l.round();
+        r = r.round();
+        switch (r) {
+            case x:
+            case fx:
+                return l != x && l != xf;
+            case xfx:
+            case xf:
+                return l != fx && l != xfx;
+            default:
+                throw new IllegalStateException(l + ", " + r);
         }
-
-        this.arguments = arguments;
-        this.arity = arguments.length;
     }
+
+//    /**
+//     * Creates a new functor with the specified arguments.
+//     *
+//     * @param name      The name of the functor.
+//     * @param arguments The functors arguments.
+//     */
+//    public HlOperator ( int name, Term[] arguments ) {
+//        super(name, arguments);
+//    }
+
+//    /**
+//     * Sets the arguments of this operator. It can be convenient to be able to set the outside of the constructor, for
+//     * example, when parsing may want to create the operator first and fill in its arguments later.
+//     *
+//     * @param arguments The arguments the operator is applied to.
+//     */
+//    public void setArguments ( Term[] arguments ) {
+//        // Check that there is at least one and at most two arguments.
+//        if ((arguments == null) || (arguments.length < 1) || (arguments.length > 2)) {
+//            throw new IllegalArgumentException("An operator has minimum 1 and maximum 2 arguments.");
+//        }
+//
+//        this.arguments = arguments;
+//        this.arity = arguments.length;
+//    }
 
     /**
      * Provides the symbols associativity.
      *
      * @return The symbols associativity.
      */
-    public
-    Associativity getAssociativity () {
+    public Associativity getAssociativity () {
         return associativity;
     }
 
@@ -130,8 +142,7 @@ class HiLogOpSymbol extends Functor implements Comparable, Cloneable {
      *
      * @return The symbols priority.
      */
-    public
-    int getPriority () {
+    public int getPriority () {
         return priority;
     }
 
@@ -140,34 +151,46 @@ class HiLogOpSymbol extends Functor implements Comparable, Cloneable {
      *
      * @return The symbols textual representation.
      */
-    public
-    String getTextName () {
+    public String getTextName () {
         return textName;
     }
+
+    /**
+     * @return
+     */
+    public int getLprio () {
+        return lprio;
+    }
+
+    /**
+     * @return
+     */
+    public int getRprio () {
+        return rprio;
+    }
+
 
     /**
      * Provides the symbols fixity, derived from its associativity.
      *
      * @return The symbols fixity.
      */
-    public
-    Fixity getFixity () {
+    public Fixity getFixity () {
         switch (associativity) {
-            case HY:
-            case HX:
-                return Fixity.Post;
+            case hy:
+            case hx:
 
-            case FX:
-            case FY:
+            case fx:
+            case fy:
                 return Fixity.Pre;
 
-            case XF:
-            case YF:
+            case xf:
+            case yf:
                 return Fixity.Post;
 
-            case XFX:
-            case XFY:
-            case YFX:
+            case xfx:
+            case xfy:
+            case yfx:
                 return Fixity.In;
 
             default:
@@ -180,9 +203,9 @@ class HiLogOpSymbol extends Functor implements Comparable, Cloneable {
      *
      * @return <tt>true <tt>if this operator is an prefix operator.
      */
-    public
-    boolean isPrefix () {
-        return ((associativity == Associativity.FX) || (associativity == Associativity.FY));
+    public boolean isPrefix () {
+        EnumSet <Associativity> prefixOps = EnumSet.of(fx, fy, hx, hy);
+        return prefixOps.contains(associativity);
     }
 
     /**
@@ -190,9 +213,9 @@ class HiLogOpSymbol extends Functor implements Comparable, Cloneable {
      *
      * @return <tt>true <tt>if this operator is an postfix operator.
      */
-    public
-    boolean isPostfix () {
-        return ((associativity == Associativity.XF) || (associativity == Associativity.YF) || (associativity == Associativity.HY) || (associativity == Associativity.HX));
+    public boolean isPostfix () {
+        EnumSet <Associativity> postfixOps = EnumSet.of(xf, yf);
+        return postfixOps.contains(associativity);
     }
 
     /**
@@ -200,19 +223,19 @@ class HiLogOpSymbol extends Functor implements Comparable, Cloneable {
      *
      * @return <tt>true <tt>if this operator is an infix operator.
      */
-    public
-    boolean isInfix () {
-        return ((associativity == Associativity.XFY) || (associativity == Associativity.YFX) || (associativity == Associativity.XFX));
+    public boolean isInfix () {
+        EnumSet <Associativity> infixOps = EnumSet.of(xfx, xfy, yfx);
+        return infixOps.contains(associativity);
     }
 
     /**
-     * Reports whether this operatis is right associative.
+     * Reports whether this operator is right associative.
      *
      * @return <tt>true</tt> if this operatis is right associative.
      */
-    public
-    boolean isRightAssociative () {
-        return ((associativity == Associativity.FY) || (associativity == Associativity.XFY) || (associativity == Associativity.HY));
+    public boolean isRightAssociative () {
+        EnumSet <Associativity> rightOps = EnumSet.of(xfy, fy, hy);
+        return rightOps.contains(associativity);
     }
 
     /**
@@ -220,9 +243,9 @@ class HiLogOpSymbol extends Functor implements Comparable, Cloneable {
      *
      * @return <tt>true</tt> if this operatis is left associative.
      */
-    public
-    boolean isLeftAssociative () {
-        return ((associativity == Associativity.YF) || (associativity == Associativity.YFX));
+    public boolean isLeftAssociative () {
+        EnumSet <Associativity> leftOps = EnumSet.of(yfx, yf);
+        return leftOps.contains(associativity);
     }
 
     /**
@@ -234,11 +257,8 @@ class HiLogOpSymbol extends Functor implements Comparable, Cloneable {
      * @return A negative integer, zero, or a positive integer as this symbols priority is less than, equal to, or
      * greater than the comparator.
      */
-    public
-    int compareTo ( Object o ) {
-        HiLogOpSymbol HiLogOpSymbol = (HiLogOpSymbol) o;
-
-        return Integer.compare(priority, HiLogOpSymbol.priority);
+    public int compareTo ( Object o ) {
+        return priority - ((HlOperator) o).priority;
     }
 
     /**
@@ -249,12 +269,11 @@ class HiLogOpSymbol extends Functor implements Comparable, Cloneable {
      *
      * @return A shallow copy of the symbol.
      */
-    public
-    HiLogOpSymbol copySymbol () {
+    public HlOperator copySymbol () {
         try {
-            return (HiLogOpSymbol) clone();
+            return (HlOperator) clone();
         } catch (CloneNotSupportedException e) {
-            throw new IllegalStateException("Got a CloneNotSupportedException but clone is defined on HiLogOpSymbol and should not fail.", e);
+            throw new IllegalStateException("Got a CloneNotSupportedException but clone is defined on Operator and should not fail.", e);
         }
     }
 
@@ -264,9 +283,9 @@ class HiLogOpSymbol extends Functor implements Comparable, Cloneable {
      *
      * @return The operator as a string.
      */
-    public
-    String toString () {
-        return "HiLogOpSymbol: [ name = " + textName + ", arity = " + arity + ", priority = " + priority + ", associativity = " + associativity + ", arguments = " + toStringArguments() + " ]";
+    public String toString () {
+        return format("%s: [ name = %s, priority = %d, associativity = %s ]",
+                getClass().getSimpleName(), textName, priority, associativity);
     }
 
     /**
@@ -275,70 +294,98 @@ class HiLogOpSymbol extends Functor implements Comparable, Cloneable {
      * @return A shallow clone of this object.
      * @throws CloneNotSupportedException If cloning fails.
      */
-    protected
-    Object clone () throws CloneNotSupportedException {
+    protected Object clone () throws CloneNotSupportedException {
         // Create a new state and copy the existing board position into it
-        HiLogOpSymbol newSymbol = (HiLogOpSymbol) super.clone();
 
-        return newSymbol;
+        return super.clone();
     }
 
     /**
      * Defines the possible operator associativities.
+     * /**
      */
-    public
-    enum Associativity {
-        /**
-         * Non-associative post-fix.
-         */
-        XF,
+    public enum Associativity {
 
         /**
-         * Left associative post-fix.
+         * 中置の二項演算子です。
          */
-        YF,
+        xfx(2),
 
         /**
-         *
+         * 中置の二項演算子です。(右結合)
          */
-        HY,
+        xfy(2),
 
         /**
-         *
+         * 中置の二項演算子です。(左結合)
          */
-        HX,
+        yfx(2),
 
         /**
-         * Non-associative pre-fix.
+         * 前置演算子です。
          */
-        FX,
+        fx(1), fy(1),
+        hx(1), hy(1),
 
         /**
-         * Right associative pre-fix.
+         * 前置演算子です。
          */
-        FY,
+        xf(1), yf(1),
 
         /**
-         * Non-associative in-fix.
+         * オペランドを表現します。
          */
-        XFX,
+        x(0);
 
         /**
-         * Right associative in-fix.
+         * この演算子が結合する項数です。
          */
-        XFY,
+        public final int arity;
 
-        /**
-         * Left associative in-fix.
-         */
-        YFX
+        Associativity ( int arity ) {
+            this.arity = arity;
+        }
+
+        public HlOperator.Associativity round () {
+            switch (this) {
+                case xfy:
+                case yfx:
+                    return xfx;
+                case fy:
+                    return fx;
+                case yf:
+                    return xf;
+                default:
+                    return this;
+            }
+        }
+
+        public int lprio () {
+            switch (this) {
+                case yfx:
+                case yf:
+                    return 1;
+                default:
+                    return 0;
+            }
+        }
+
+        public int rprio () {
+            switch (this) {
+                case xfy:
+                case fy:
+                    return 1;
+                default:
+                    return 0;
+            }
+        }
     }
+
 
     /**
      * Defines the possible operator fixities.
      */
-    public
-    enum Fixity {
+    public enum Fixity {
         /**
          * Pre-fix.
          */

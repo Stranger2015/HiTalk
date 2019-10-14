@@ -11,7 +11,7 @@ import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.BaseInstructionCompiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,13 +25,14 @@ public class BaseCompiler<P, Q> extends BaseMachine implements ICompiler <P, Q> 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     protected LogicCompilerObserver <P, Q> observer;
-    protected HtPrologParser parser;
+    protected PlPrologParser parser;
     protected Resolver <HtClause, Q> resolver;
     protected Resolver <HtClause, HtClause> resolver2;
     protected BaseInstructionCompiler <P, Q> instructionCompiler;
-    protected BaseInstructionCompiler <P, Q> preCompiler;
+    protected BaseInstructionCompiler <HtClause, HtClause> preCompiler;
 
-    public BaseCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner, HtPrologParser parser ) {
+    public BaseCompiler ( SymbolTable <Integer, String, Object> symbolTable,
+                          VariableAndFunctorInterner interner, PlPrologParser parser ) {
         super(symbolTable, interner);
         this.parser = parser;
     }
@@ -83,7 +84,7 @@ public class BaseCompiler<P, Q> extends BaseMachine implements ICompiler <P, Q> 
     }
 
     @Override
-    public HtPrologParser getParser () {
+    public PlPrologParser getParser () {
         return parser;
     }
 

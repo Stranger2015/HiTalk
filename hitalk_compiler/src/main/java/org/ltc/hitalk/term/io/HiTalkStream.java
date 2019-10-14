@@ -1341,19 +1341,23 @@ class HiTalkStream extends FileInputStream implements IInputStream, IOutputStrea
 
     @Override
     public char readChar () throws IOException {
+
         return 0;
     }
 
     public int read ( java.nio.CharBuffer target ) throws IOException {
-        int len = target.remaining();
-        char[] cbuf = new char[len];
-        int n = read(cbuf, 0, len);
-        if (n > 0) target.put(cbuf, 0, n);
-        return n;
+//        int len = target.remaining();
+//        byte[] cbuf = new char[len];
+//        int n = read(cbuf, 0, len);
+//        if (n > 0) target.put(cbuf, 0, n);
+//        return n;
+        return 0;
     }
+
 
     @Override
     public int readInt () throws IOException {
+
         return 0;
     }
 
@@ -1380,7 +1384,8 @@ class HiTalkStream extends FileInputStream implements IInputStream, IOutputStrea
     @NotNull
     @Override
     public String readUTF () throws IOException {
-        return null;
+
+        return "";
     }
 
     @Override

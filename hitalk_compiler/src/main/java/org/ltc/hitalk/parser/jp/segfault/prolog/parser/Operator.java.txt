@@ -1,9 +1,9 @@
 package org.ltc.hitalk.parser.jp.segfault.prolog.parser;
 
-import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.logic.fol.OpSymbol;
 import com.thesett.aima.logic.fol.Term;
 import org.jetbrains.annotations.NotNull;
+import org.ltc.hitalk.wam.compiler.HtFunctor;
 
 import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.Operator.Associativity.*;
 import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.Operator.Fixity.*;
@@ -15,7 +15,7 @@ import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
  *
  * @author shun
  */
-public class Operator extends Functor implements Comparable, Cloneable {
+public class Operator extends HtFunctor implements Comparable, Cloneable {
     public final Associativity associativity;
     public final String textName;
     public int lprio;
@@ -171,6 +171,84 @@ public class Operator extends Functor implements Comparable, Cloneable {
 
 
     /**
+     *
+     */
+    public enum Associativity {
+
+        /**
+         * 中置の二項演算子です。
+         */
+        xfx(2),
+
+        /**
+         * 中置の二項演算子です。(右結合)
+         */
+        xfy(2),
+
+        /**
+         * 中置の二項演算子です。(左結合)
+         */
+        yfx(2),
+
+        /**
+         * 前置演算子です。
+         */
+        fx(1), fy(1),
+
+        /**
+         * 前置演算子です。
+         */
+        xf(1), yf(1),
+
+        /**
+         * オペランドを表現します。
+         */
+        x(0);
+
+        /**
+         * この演算子が結合する項数です。
+         */
+        public final int arity;
+
+        Associativity ( int arity ) {
+            this.arity = arity;
+        }
+
+        public Associativity round () {
+            switch (this) {
+                case xfy:
+                case yfx:
+                    return xfx;
+                case fy:
+                    return fx;
+                case yf:
+                    return xf;
+                default:
+                    return this;
+            }
+        }
+
+        public int lprio () {
+            switch (this) {
+                case yfx:
+                case yf:
+                    return 1;
+                default:
+                    return 0;
+            }
+        }
+
+        public int rprio () {
+            switch (this) {
+                case xfy:
+                case fy:
+                    return 1;
+                default:
+                    return 0;
+            }
+        }
+    }
+  /**
      *
      */
     public enum Associativity {

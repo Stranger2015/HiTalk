@@ -1,6 +1,6 @@
 package org.ltc.hitalk.parser;
 
-import com.thesett.aima.logic.fol.Term;
+import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import org.ltc.hitalk.compiler.bktables.PlOperatorTable;
 import org.ltc.hitalk.compiler.bktables.TermFactory;
@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.Operator.Associativity.fx;
+import static org.ltc.hitalk.term.HlOperator.Associativity.fx;
 
 /**
  *
@@ -22,7 +22,7 @@ import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.Operator.Associati
 public class HiLogParser extends PlPrologParser {
 
     public static final String HILOG_APPLY = "$hilog_apply";
-    protected static int hilogApply = -1;
+    public static int hilogApply = -1;
 
     /**
      * Builds a
@@ -46,13 +46,13 @@ public class HiLogParser extends PlPrologParser {
     }
 
     //    @Override
-    protected Term compound ( String functor, DottedPair args ) throws IOException, ParseException {
-        Term result;
-        if (hilogFunctors.contains(functor)) {
-            result = factory.newFunctor(hilogApply, functor, args);// :- hilog p, q, pi/N =>
+    protected Functor compound ( String name, DottedPair args ) throws IOException, ParseException {
+        Functor result;
+        if (hilogFunctors.contains(name)) {
+            result = factory.newFunctor(hilogApply, name, args);// :- hilog p, q, pi/N =>
 // hilog p/_ q/_, pi_N/N, pi_1/1, piA1_A2/1-2.
         } else {
-            result = super.compound(functor, args);
+            result = super.compound(name, args);
         }
 
         return result;
@@ -66,7 +66,7 @@ public class HiLogParser extends PlPrologParser {
     /**
      * Interns and inserts into  the  operator table all  of   the  built in operators and functors in Prolog.
      */
-    protected void initializeBuiltIns () {
+    public void initializeBuiltIns () {
         super.initializeBuiltIns();
 
         internOperator(PrologAtoms.HILOG, 1150, fx);

@@ -7,6 +7,7 @@ import org.ltc.hitalk.compiler.bktables.IConfig;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.term.io.TermIO;
 import org.slf4j.Logger;
 
@@ -42,8 +43,7 @@ class HiTalkInterpreter<P, Q> implements IInterpreter <P, Q> {
      * @return
      */
     @Override
-    public
-    HtPrologParser getParser () {
+    public PlPrologParser getParser () {
         return parser;
     }
 

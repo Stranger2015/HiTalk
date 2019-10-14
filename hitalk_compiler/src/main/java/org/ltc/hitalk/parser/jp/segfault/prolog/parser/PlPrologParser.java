@@ -1,16 +1,24 @@
 package org.ltc.hitalk.parser.jp.segfault.prolog.parser;
 
 
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.Functor;
+import com.thesett.aima.logic.fol.Term;
+import com.thesett.aima.logic.fol.Variable;
+import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.Source;
+import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.bktables.PlOperatorTable;
-import org.ltc.hitalk.compiler.bktables.TermFactory;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
+import org.ltc.hitalk.parser.HiLogParser;
+import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.PrologAtoms;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.Operator.Associativity;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.DottedPair;
+import org.ltc.hitalk.term.HlOperator;
+import org.ltc.hitalk.term.HlOperator.Associativity;
+import org.ltc.hitalk.term.HlOperator.Fixity;
+import org.ltc.hitalk.term.HlOperatorJoiner;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.HtFunctorName;
@@ -19,43 +27,73 @@ import java.io.IOException;
 import java.util.*;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
-import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.Operator.Associativity.*;
 import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind.*;
-import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
 import static org.ltc.hitalk.term.DottedPair.Kind.*;
+import static org.ltc.hitalk.term.HlOperator.Associativity.*;
 
 /**
+ *
  * @author shun
  */
-public class PlPrologParser implements TermParser <Term>, Parser <Term, PlToken> {
+public class PlPrologParser implements TermParser <Term>, IParser <Term> {
 
     public static final String BEGIN_OF_FILE = "begin_of_file";
     public static final String END_OF_FILE = "end_of_file";
 
-    public final static int HILOG_COMPOUND = -128;
-
     protected final HiTalkStream stream;
     protected final PlLexer lexer;
-    protected final VariableAndFunctorInterner interner;
-    protected final TermFactory factory;
+    protected final ITermFactory factory;
     protected final PlOperatorTable operatorTable;
     protected final Deque <PlTokenSource> tokenSourceStack = new ArrayDeque <>();
+    protected final VariableAndFunctorInterner interner;
+
     /**
      * Holds the variable scoping context for the current sentence.
      */
     protected Map <Integer, Variable> variableContext = new HashMap <>();
+    protected HlOperator operator;
+    protected ITermFactory tf;
+
 
     /**
      * @param stream
      * @param factory
      * @param optable
      */
-    public PlPrologParser ( HiTalkStream stream, VariableAndFunctorInterner interner, TermFactory factory, PlOperatorTable optable ) {
+    public PlPrologParser ( HiTalkStream stream,
+                            VariableAndFunctorInterner interner,
+                            ITermFactory factory,
+                            PlOperatorTable optable ) {
         this.stream = stream;
         lexer = new PlLexer(stream);
         this.interner = interner;
         this.factory = factory;
         this.operatorTable = optable;
+    }
+
+    @Override
+    public HiTalkStream getStream () {
+        return getTokenSource().getStream();
+    }
+
+    @Override
+    public VariableAndFunctorInterner getInterner () {
+        return interner;
+    }
+
+    @Override
+    public ITermFactory getFactory () {
+        return tf;
+    }
+
+    @Override
+    public PlOperatorTable getOptable () {
+        return operatorTable;
+    }
+
+    @Override
+    public void setOperator ( HlOperator op ) {
+
     }
 
     /**
@@ -93,7 +131,7 @@ public class PlPrologParser implements TermParser <Term>, Parser <Term, PlToken>
     }
 
     protected Term newTerm ( PlToken token, boolean nullable, EnumSet <TokenKind> terminators ) throws IOException, ParseException {
-        OperatorJoiner <Term> joiner = new OperatorJoiner <Term>() {
+        HlOperatorJoiner <Term> joiner = new HlOperatorJoiner <Term>() {
             @Override
             protected Term join ( int notation, List <Term> args ) {
                 return new HtFunctor(notation, args.toArray(new Term[args.size()]));
@@ -113,8 +151,8 @@ public class PlPrologParser implements TermParser <Term>, Parser <Term, PlToken>
                     }
                 }
                 if (token.kind == ATOM) {
-                    for (Operator right : operatorTable.getOperatorsMatchingNameByFixity(token.image).values()) {
-                        if (joiner.accept(right.associativity)) {
+                    for (HlOperator right : operatorTable.getOperatorsMatchingNameByFixity(token.image).values()) {
+                        if (joiner.accept(right.getAssociativity())) {
                             joiner.push(right);
                             continue outer;
                         }
@@ -147,10 +185,10 @@ public class PlPrologParser implements TermParser <Term>, Parser <Term, PlToken>
                 term = factory.newAtomic(Double.parseDouble(token.image));
                 break;
             case BOF:
-                term = new HtFunctor(interner.internFunctorName(BEGIN_OF_FILE, 0), EMPTY_TERM_ARRAY);
+                term = factory.newAtom(BEGIN_OF_FILE);
                 break;
             case EOF:
-                term = new HtFunctor(interner.internFunctorName(END_OF_FILE, 0), EMPTY_TERM_ARRAY);
+                term = factory.newAtom(END_OF_FILE);
                 break;
 //            case DOT:
 //                end-of_term
@@ -220,9 +258,7 @@ public class PlPrologParser implements TermParser <Term>, Parser <Term, PlToken>
     //PSEUDO COMPOUND == (terms)
     protected DottedPair readSequence ( TokenKind ldelim, TokenKind rdelim, boolean isBlocked ) throws IOException, ParseException {
         List <Term> elements = new ArrayList <>();
-        EnumSet <TokenKind> rdelims = isBlocked ? EnumSet.of(COMMA, rdelim) :
-                ///
-                EnumSet.of(COMMA, CONS, rdelim);
+        EnumSet <TokenKind> rdelims = isBlocked ? EnumSet.of(COMMA, rdelim) : EnumSet.of(COMMA, CONS, rdelim);
         DottedPair.Kind kind = LIST;
         switch (ldelim) {
             case LPAREN:
@@ -254,10 +290,15 @@ public class PlPrologParser implements TermParser <Term>, Parser <Term, PlToken>
                 newTerm(lexer.getNextToken(), true, rdelims);
             }
 
-            return factory.newDottedPair(kind, elements.toArray(new Term[elements.size()]));
+            return factory.newDottedPair(kind, flatten(elements));
         }
 
         return (DottedPair) term;
+    }
+
+    private Term[] flatten ( List <Term> elements ) {
+
+        return elements.toArray(new Term[elements.size()]);
     }
 
     /**
@@ -272,7 +313,7 @@ public class PlPrologParser implements TermParser <Term>, Parser <Term, PlToken>
     }
 
     protected Functor compound ( String name, DottedPair args ) throws IOException, ParseException {
-        return factory.newFunctor(name, args);
+        return factory.newFunctor(HiLogParser.hilogApply, name, args);
     }
 
     /**
@@ -285,7 +326,7 @@ public class PlPrologParser implements TermParser <Term>, Parser <Term, PlToken>
     /**
      * @param source
      */
-    @Override
+//    @Override?
     public void setTokenSource ( Source <PlToken> source ) {
         setTokenSource((PlTokenSource) source);
     }
@@ -294,17 +335,8 @@ public class PlPrologParser implements TermParser <Term>, Parser <Term, PlToken>
      * @return
      */
     @Override
-    public Sentence <Term> parse () {
-        try {
-            return new SentenceImpl <>(termSentence());
-        } catch (SourceCodeException | IOException | ParseException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    @Override
-    public void setOperator ( String operatorName, int priority, OpSymbol.Associativity associativity ) {
-
+    public Term parse () {
+        return null;
     }
 
     /**
@@ -364,10 +396,11 @@ public class PlPrologParser implements TermParser <Term>, Parser <Term, PlToken>
      */
 //    @Override
     public void setOperator ( String operatorName, int priority, Associativity associativity ) {
-        EnumMap <Operator.Fixity, Operator> ops = operatorTable.getOperatorsMatchingNameByFixity(operatorName);
+        EnumMap <Fixity, HlOperator> ops = operatorTable.getOperatorsMatchingNameByFixity(operatorName);
         if (ops == null || ops.isEmpty()) {
             int arity = calcArity(associativity);
-            operatorTable.setOperator(interner.internFunctorName(operatorName, arity), operatorName, priority, associativity);
+            int name = interner.internFunctorName(operatorName, arity);
+            operatorTable.setOperator(new HlOperator(name, operatorName, new Term[arity], associativity, priority));//fixme
         }
     }
 
@@ -469,7 +502,7 @@ public class PlPrologParser implements TermParser <Term>, Parser <Term, PlToken>
 //     * @param associativity
 //     */
 //    public void setOperator ( String operatorName, int priority, Associativity associativity ) {
-////        new Operator(operatorName,priority,associativity);
+////        new HlOperator(operatorName,priority,associativity);
 //     operatorTable.setOperator(operatorName,priority,associativity);
 //    }
 
@@ -491,13 +524,13 @@ public class PlPrologParser implements TermParser <Term>, Parser <Term, PlToken>
         }
 
         int name = interner.internFunctorName(operatorName, arity);
-        operatorTable.setOperator(name, operatorName, priority, associativity);
+        operatorTable.setOperator(new HlOperator(name, operatorName, associativity, priority));
     }
 
     /**
      * Interns and inserts into the operator table all of the built in operators and names in Prolog.
      */
-    protected void initializeBuiltIns () {
+    public void initializeBuiltIns () {
         // Initializes the operator table with the standard ISO prolog built-in operators.
         internOperator(PrologAtoms.IMPLIES, 1200, xfx);
         internOperator(PrologAtoms.IMPLIES, 1200, fx);

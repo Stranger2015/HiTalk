@@ -4,18 +4,10 @@ import com.thesett.aima.logic.fol.*;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.common.util.doublemaps.SymbolTableImpl;
-import org.apache.commons.vfs2.CacheStrategy;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.VFS;
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
-import org.apache.commons.vfs2.provider.jar.JarFileProvider;
-import org.apache.commons.vfs2.provider.local.DefaultLocalFileProvider;
-import org.apache.commons.vfs2.provider.ram.RamFileProvider;
-import org.apache.commons.vfs2.provider.res.ResourceFileProvider;
-import org.apache.commons.vfs2.provider.temp.TemporaryFileProvider;
-import org.apache.commons.vfs2.provider.url.UrlFileProvider;
-import org.apache.commons.vfs2.provider.zip.ZipFileProvider;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.BaseCompiler;
 import org.ltc.hitalk.compiler.HiTalkBuiltInTransform;
@@ -32,8 +24,9 @@ import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.LoadContext;
 import org.ltc.hitalk.parser.HiTalkParser;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
+import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiler;
 import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
 import org.ltc.hitalk.wam.printer.HtPositionalTermTraverser;
@@ -50,6 +43,8 @@ import java.util.List;
 import static java.lang.System.in;
 import static org.ltc.hitalk.compiler.bktables.BkTableKind.LOADED_ENTITIES;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
+import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource.getTokenSourceForInputStream;
+import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource.getTokenSourceForVfsFileObject;
 
 /**
  * Reloading files, active code and threads
@@ -188,13 +183,20 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
     }
 
     @Override
-    public BaseCompiler createCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner, HtPrologParser parser ) {
+    public BaseCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>
+    createWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
+                        VariableAndFunctorInterner interner,
+                        PlPrologParser parser ) {
         return new HiTalkWAMCompiler(symbolTable, interner, parser);
+    }
+
+    public PlPrologParser createParser ( HiTalkStream stream, VariableAndFunctorInterner interner, ITermFactory factory, PlOperatorTable opTable ) {
+        return new PlPrologParser(stream, interner, factory, opTable);
     }
 
     @Override
     public String namespace ( String varOrFunctor ) {
-        return null;
+        return "";
     }
 
     public HtEntityIdentifier LOGTALK;
@@ -363,7 +365,6 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
         InputStream input = new FileInputStream("c:\\Users\\Anthony_2\\IdeaProjects\\WAM\\hitalk_compiler\\src\\main\\resources\\empty.pl");
 //        InputStream input = new FileInputStream("c:\\Users\\Anthony_2\\IdeaProjects\\WAM\\hitalk_compiler\\src\\main\\resources\\test.pl");
         logtalkCompile(input);
-        logtalkCompile(input);
         return null;
     }
 
@@ -372,7 +373,7 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
      * @throws IOException
      */
     private void logtalkCompile ( InputStream input ) throws IOException {
-        PlTokenSource tokenSource = PlTokenSource.getTokenSourceForInputStream(input, "");
+        PlTokenSource tokenSource = getTokenSourceForInputStream(input, "");
         setTokenSource(tokenSource);
         compiler.compile(tokenSource);
     }
@@ -923,7 +924,7 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
     }
 
     public void compile ( String fileName, HtProperty[] flags ) throws IOException, LinkageException {
-        compiler.compile(PlTokenSource.getTokenSourceForVfsFileObject(VFS.getManager().resolveFile(fileName)));
+        compiler.compile(getTokenSourceForVfsFileObject(VFS.getManager().resolveFile(fileName)));
 
     }
     //logtalkCompile(@list(sourceFile_name))
@@ -1214,9 +1215,10 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
 
         setSymbolTable(new SymbolTableImpl <>());
         interner = new VariableAndFunctorInternerImpl(namespace("Variable"), namespace("Functor"));
-        setParser(new HiTalkParser(PlTokenSource.getTokenSourceForInputStream(in, "stdin"), interner));
+        setParser(new HiTalkParser(new HiTalkStream(), interner, );
+        //setParser(new HiTalkParser(interner.internFunctorName(value, 0)interner.internFunctorName(value, 0)etTokenSourceForInputStream(in, "stdin"), interner));
 
-        compiler = newWAMCompiler(getSymbolTable(), getInterner(), getParser());
+        compiler = createWAMCompiler(getSymbolTable(), getInterner(), getParser());
         bkt = new BookKeepingTables();
         setConfig(new CompilerConfig());
         scratchDirectory = "./" + DEFAULT_SCRATCH_DIRECTORY;
@@ -1257,35 +1259,35 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
         super.doInit();
     }
 
-    private void initVfs () {
-        try {
-            fsManager = new DefaultFileSystemManager();
-//            fsManager.setLogger((Log) logger);
-            fsManager.addProvider("file", new DefaultLocalFileProvider());
-            fsManager.addProvider("zip", new ZipFileProvider());
-            fsManager.addProvider("ram", new RamFileProvider());
-            fsManager.addProvider("jar", new JarFileProvider());
-            fsManager.addProvider("temp", new TemporaryFileProvider());//ram zip
-            fsManager.addProvider("res", new ResourceFileProvider());
-            fsManager.addProvider("url", new UrlFileProvider());
-//            fsManager.addProvider("vfs2nio", new org.ltc.hitalk.com.sshtools.vfs2nio.Vfs2NioFileSystemProvider());
+//    protected void initVfs () {
+//        try {
+//            fsManager = new DefaultFileSystemManager();
+////            fsManager.setLogger((Log) logger);
+//            fsManager.addProvider("file", new DefaultLocalFileProvider());
+//            fsManager.addProvider("zip", new ZipFileProvider());
+//            fsManager.addProvider("ram", new RamFileProvider());
+//            fsManager.addProvider("jar", new JarFileProvider());
+//            fsManager.addProvider("temp", new TemporaryFileProvider());//ram zip
+//            fsManager.addProvider("res", new ResourceFileProvider());
+//            fsManager.addProvider("url", new UrlFileProvider());
+////            fsManager.addProvider("vfs2nio", new org.ltc.hitalk.com.sshtools.vfs2nio.Vfs2NioFileSystemProvider());
+////
+////            /* Creation of root directory for VFS */
+////            is = new InputStreamReader(System.in);
+////            br = new BufferedReader(is);
+////            File f = new File("C:\\");
+////            URI uri = f.toURI();
+////            fsManager.setBaseFile(new File(System.getProperty("user.dir")));
 //
-//            /* Creation of root directory for VFS */
-//            is = new InputStreamReader(System.in);
-//            br = new BufferedReader(is);
-//            File f = new File("C:\\");
-//            URI uri = f.toURI();
-//            fsManager.setBaseFile(new File(System.getProperty("user.dir")));
-
-            fsManager.setCacheStrategy(CacheStrategy.ON_RESOLVE);
-
-            fsManager.init();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new ExecutionError(PERMISSION_ERROR, null);
-        }
-    }
+//            fsManager.setCacheStrategy(CacheStrategy.ON_RESOLVE);
+//
+//            fsManager.init();
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            throw new ExecutionError(PERMISSION_ERROR, null);
+//        }
+//    }
 
     public String language () {
         return "HiTalk";

@@ -15,13 +15,11 @@
  */
 package org.ltc.hitalk.compiler.bktables;
 
-import com.thesett.aima.logic.fol.OpSymbol;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.Operator;
+import org.ltc.hitalk.term.HlOperator;
 
 import java.util.EnumMap;
 
-import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.Operator.Associativity;
-import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.Operator.Fixity;
+import static org.ltc.hitalk.term.HlOperator.Fixity;
 
 /**
  * OperatorTable maintains a table of dynamically defined operators. Implementations of this table may provide their own
@@ -42,19 +40,9 @@ public interface PlOperatorTable {
      * Sets the priority and associativity of a named operator in this table. This method may be used to remove
      * operators by some implementations, through a special setting of the priority value.
      *
-     * @param name          The interned name of the operator as a functor.
-     * @param textName      The text name of the operator to set in the table.
-     * @param priority      The priority of the operator.
-     * @param associativity The associativity of the operator.
+     * @param operator         The interned name of the operator as a functor.
      */
-    default void setOperator ( int name, String textName, int priority, Associativity associativity ) {
-        new Operator(priority, associativity, name, textName);
-    }
-
-    default void setOperator ( String textName, int priority, Associativity associativity ) {
-        new Operator(priority, associativity, -1, textName);
-
-    }
+    void setOperator ( HlOperator operator );
 
     /**
      * Checks the operator table for all possible operators matching a given name.
@@ -62,7 +50,7 @@ public interface PlOperatorTable {
      * @param name The name of the operator to find.
      * @return An array of matching operators, or <tt>null</tt> if none can be found.
      */
-    EnumMap <Fixity, Operator> getOperatorsMatchingNameByFixity ( String name );
+    EnumMap <Fixity, HlOperator> getOperatorsMatchingNameByFixity ( String name );
 
-    OpSymbol convert ( String name );//    }
+    HlOperator convert ( String name );
 }

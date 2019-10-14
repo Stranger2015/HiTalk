@@ -8,6 +8,8 @@ import org.ltc.hitalk.core.HtVersion;
 import org.ltc.hitalk.core.IConfigurable;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
+import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledPredicate;
+import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledQuery;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -37,7 +39,10 @@ public interface IApplication extends Runnable, IConfigurable {
      * @param parser
      * @return
      */
-    BaseCompiler createCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner, PlPrologParser parser );
+    BaseCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> createWAMCompiler (
+            SymbolTable <Integer, String, Object> symbolTable,
+            VariableAndFunctorInterner interner,
+            PlPrologParser parser );
 
     /**
      *

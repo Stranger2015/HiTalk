@@ -10,6 +10,7 @@ import org.ltc.hitalk.core.IConfigurable;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.parser.HtPrologParserConstants;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.term.io.TermIO;
 import org.ltc.hitalk.wam.compiler.HtToken;
 import org.ltc.hitalk.wam.compiler.HtTokenSource;
@@ -37,7 +38,7 @@ public interface IInterpreter<P, Q> extends IConfigurable, ICompiler <P, Q>, Res
     /**
      * @return
      */
-    HtPrologParser getParser ();
+    PlPrologParser getParser ();
 
     /**
      * @throws IOException

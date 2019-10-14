@@ -8,7 +8,7 @@ import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.slf4j.Logger;
 
@@ -68,7 +68,7 @@ public interface ICompiler<P, Q> extends LogicCompiler <HtClause, P, Q> {
      * @param flags
      */
     default void compile ( PlTokenSource tokenSource, HtProperty... flags ) {
-        getConsole().info("Compiling " + tokenSource);
+        getConsole().info("Compiling " + tokenSource.getPath());
         getParser().setTokenSource(tokenSource);
         try {
 //            while (true) {
@@ -78,7 +78,7 @@ public interface ICompiler<P, Q> extends LogicCompiler <HtClause, P, Q> {
 //                getConsole().info(sentence.toString());
 //                compile(sentence.getT(), flags);
 //            }
-            List <HtClause> sentences = getParser().sentences();
+//            List <HtClause> sentences = getParser().sentences();
         } catch (Exception e) {
             e.printStackTrace();
             throw new ExecutionError(PERMISSION_ERROR, null);
@@ -93,7 +93,7 @@ public interface ICompiler<P, Q> extends LogicCompiler <HtClause, P, Q> {
     /**
      * @return
      */
-    HtPrologParser getParser ();
+    PlPrologParser getParser ();
 
     /**
      * @param clause
@@ -120,4 +120,6 @@ public interface ICompiler<P, Q> extends LogicCompiler <HtClause, P, Q> {
      * @param resolver
      */
     void setResolver ( Resolver <HtClause, Q> resolver );
+
+    void compile ( String fileName, HtProperty[] flags );
 }

@@ -11,7 +11,7 @@ import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +39,7 @@ abstract public class PrologPreCompiler extends BaseMachine implements ICompiler
     }
 
     @Override
-    public HtPrologParser getParser () {
+    public PlPrologParser getParser () {
         return null;
     }
 
