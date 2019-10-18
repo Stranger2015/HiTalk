@@ -4,12 +4,16 @@ package org.ltc.hitalk.core;
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import com.thesett.common.util.doublemaps.SymbolTableImpl;
+import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.compiler.bktables.IConfig;
+import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
+import org.ltc.hitalk.term.io.TermIO;
 import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,18 +26,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public abstract
 class BaseApplication<T extends HtClause, P, Q> implements IApplication {
-
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     protected IConfig config;
-
+    //protected TermIO
     protected final AtomicBoolean initialized = new AtomicBoolean(false);
     protected final AtomicBoolean started = new AtomicBoolean(false);
     protected final AtomicBoolean paused = new AtomicBoolean(false);
 
-    protected SymbolTable <Integer, String, Object> symbolTable;
-    protected VariableAndFunctorInterner interner;
-    protected PlPrologParser parser;
+    protected SymbolTable <Integer, String, Object> symbolTable = new SymbolTableImpl <>();
+
     protected ICompiler <P, Q> instructionCompiler;
 
     protected ICompiler <HtPredicate, T> preCompiler;
@@ -59,29 +61,26 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
     /**
      * @return
      */
-    public
-    HiTalkDefaultBuiltIn getDefaultBuiltIn () {
+    public HiTalkDefaultBuiltIn getDefaultBuiltIn () {
         return defaultBuiltIn;
     }
 
     /**
      * @param defaultBuiltIn
      */
-    public
-    void setDefaultBuiltIn ( HiTalkDefaultBuiltIn defaultBuiltIn ) {
+    public void setDefaultBuiltIn ( HiTalkDefaultBuiltIn defaultBuiltIn ) {
         this.defaultBuiltIn = defaultBuiltIn;
     }
 
     /**
      * @return
      */
-    public ICompiler <HtPredicate, T> getPreCompiler () throws LinkageException {
+    public ICompiler <HtPredicate, T> getPreCompiler () {
         return preCompiler;
     }
 
     @Override
-    public final
-    Logger getLogger () {
+    public final Logger getLogger () {
         return logger;
     }
 
@@ -89,16 +88,14 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
      * @return
      */
     @Override
-    public
-    IConfig getConfig () {
+    public IConfig getConfig () {
         return config;
     }
 
     /**
      * @param config
      */
-    public
-    void setConfig ( IConfig config ) {
+    public void setConfig ( IConfig config ) {
         this.config = config;
     }
 
@@ -106,8 +103,7 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
      *
      */
     @Override
-    public
-    void doClear () {
+    public void doClear () {
         initialized.set(false);
     }
 
@@ -115,14 +111,17 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
      * @return
      */
     @Override
-    public
-    boolean isInited () {
+    public boolean isInited () {
         return initialized.get();
     }
 
+    /**
+     * @param b
+     * @throws LinkageException
+     * @throws IOException
+     */
     @Override
-    public
-    void setInited ( boolean b ) throws LinkageException, IOException {
+    public void setInited ( boolean b ) throws LinkageException, IOException {
         if (b && !isInited()) {
             init();
         }
@@ -132,8 +131,8 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
      *
      */
     @Override
-    public
-    void doInit () throws LinkageException, IOException {
+    public void doInit () throws LinkageException, IOException {
+        getLogger().info("Initializing... ");
         initialized.set(true);
     }
 
@@ -141,8 +140,7 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
      * @return
      */
     @Override
-    public
-    boolean isStarted () {
+    public boolean isStarted () {
         return started.get();
     }
 
@@ -150,68 +148,57 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
      * @return
      */
     @Override
-    public
-    void pause () {
+    public void pause () {
         paused.set(true);
     }
 
     @Override
-    public
-    boolean isPaused () {
+    public boolean isPaused () {
         return paused.get();
     }
 
     @Override
-    public
-    void resume () {
+    public void resume () {
         paused.set(false);
     }
 
     @Override
-    public
-    boolean isRunning () {
+    public boolean isRunning () {
         return false;
     }//todo
 
     @Override
-    public
-    void abort () {///todo
+    public void abort () {///todo
 
     }
 
     @Override
-    public
-    void shutdown () {//todo
+    public void shutdown () {//todo
 
     }
 
     @Override
-    public
-    void isShuttingDown () {///todo
+    public void isShuttingDown () {///todo
 
     }
 
     @Override
-    public
-    void interrupt () {//todo
+    public void interrupt () {//todo
 
     }
 
     @Override
-    public
-    boolean isInterrupted () {
+    public boolean isInterrupted () {
         return false;
     }
 
     @Override
-    public
-    State getState () {
+    public State getState () {
         return state;
     }//todo
 
     @Override
-    public
-    Runnable getTarget () {
+    public Runnable getTarget () {
         return target;
     }
 
@@ -219,47 +206,33 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
      * @return
      */
     @Override
-    public
-    VariableAndFunctorInterner getInterner () {
-        return interner;
+    public VariableAndFunctorInterner getInterner () {
+        return TermIO.instance().getInterner();
     }
 
     @Override
-    public
-    void setInterner ( VariableAndFunctorInterner interner ) {
-        this.interner = interner;
-    }
-
-    @Override
-    public
-    SymbolTable <Integer, String, Object> getSymbolTable () {
+    public SymbolTable <Integer, String, Object> getSymbolTable () {
         return symbolTable;
     }
 
+    /**
+     * @param symbolTable
+     */
     @Override
-    public
-    void setSymbolTable ( SymbolTable <Integer, String, Object> symbolTable ) {
+    public void setSymbolTable ( SymbolTable <Integer, String, Object> symbolTable ) {
         this.symbolTable = symbolTable;
     }
-
-//    /**
-//     *
-//     */
-//    @Override
-//    public void banner () {
-//        String product = "HiTalk compiler";
-//        String version = "v0.1.0.b#";
-//        int build = 51;
-//        String copyright = "(c) Anton Danilov 2018-2019, All rights reserved";
-//        System.err.printf("\n%s, %s%d, %s.\n\n", product, version, build, copyright);
-//    }
 
     /**
      * @return
      */
     @Override
     public PlPrologParser getParser () {
-        return parser;
+        return TermIO.instance().getParser();
+    }
+
+    public IOperatorTable getOperatorTable () {
+        return TermIO.instance().getOptable();
     }
 
     /**
@@ -267,15 +240,14 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
      */
     @Override
     public void setParser ( PlPrologParser parser ) {
-        this.parser = parser;
+        TermIO.instance().setParser(parser);
     }
 
     /**
      * @param fileName
      */
     @Override
-    public
-    void setFileName ( String fileName ) {
+    public void setFileName ( String fileName ) {
         this.fileName = fileName;
     }
 
@@ -284,9 +256,12 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
      */
     @Override
     public void setTokenSource ( PlTokenSource tokenSource ) {
-        parser.setTokenSource(tokenSource);
+        getParser().setTokenSource(tokenSource);
     }
 
+    /**
+     * @return
+     */
     @Override
     public PlTokenSource getTokenSource () {
         return getParser().getTokenSource();
@@ -295,8 +270,7 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
     /**
      * @param target
      */
-    public
-    void setTarget ( Runnable target ) {
+    public void setTarget ( Runnable target ) {
         this.target = target;
     }
 
@@ -304,8 +278,14 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
      * @return
      */
     @Override
-    public
-    String getFileName () {
+    public String getFileName () {
         return fileName;
+    }
+
+    /**
+     * @return
+     */
+    public ITermFactory getTermFactory () {
+        return TermIO.instance().getTermFactory();
     }
 }

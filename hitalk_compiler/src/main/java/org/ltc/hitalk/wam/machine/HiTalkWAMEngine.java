@@ -10,8 +10,9 @@ import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.parser.HiTalkParser;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.HtPrologParser;
-import org.ltc.hitalk.wam.compiler.HtTokenSource;
+import org.ltc.hitalk.parser.IParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,7 +20,6 @@ import java.util.Objects;
 import java.util.logging.Logger;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
-import static org.ltc.hitalk.wam.compiler.HtTokenSource.getTokenSourceForInputStream;
 
 /**
  *
@@ -52,9 +52,8 @@ class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P
      * @param interner The functor and variable name interner.
      * @param compiler
      */
-    public
-    HiTalkWAMEngine ( HtPrologParser parser,
-                      VariableAndFunctorInterner interner, ICompiler <P, Q> compiler ) {
+    public HiTalkWAMEngine ( PlPrologParser parser,
+                             VariableAndFunctorInterner interner, ICompiler <P, Q> compiler ) {
         super(parser, interner, compiler);
     }
 
@@ -81,22 +80,22 @@ class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P
 
         // Create a token source to load the model rules from.
         InputStream input = getClass().getClassLoader().getResourceAsStream(BUILT_IN_LIB);
-        HtTokenSource tokenSource = null;
+        PlTokenSource tokenSource = null;
         try {
-            tokenSource = getTokenSourceForInputStream(Objects.requireNonNull(input), "");
+            tokenSource = PlTokenSource.getTokenSourceForInputStream(Objects.requireNonNull(input), "");
         } catch (IOException e) {
             e.printStackTrace();
             throw new ExecutionError(PERMISSION_ERROR, null);
         }
 
         // Set up a parser on the token source.
-        HtPrologParser libParser = new HiTalkParser(tokenSource, interner);
+        IParser libParser = new HiTalkParser(getParser());
         libParser.setTokenSource(tokenSource);
 
         // Load the built-ins into the domain.
         try {
             while (true) {
-                Sentence <HtClause> sentence = libParser.parse();
+                Sentence <HtClause> sentence = libParser.parseClause();
 
                 if (sentence == null) {
                     break;

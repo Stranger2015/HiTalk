@@ -24,6 +24,7 @@
  import org.ltc.hitalk.parser.HtClause;
  import org.ltc.hitalk.term.ListTerm;
  import org.ltc.hitalk.term.io.HiTalkStream;
+ import org.ltc.hitalk.term.io.TermIO;
  import org.ltc.hitalk.wam.compiler.DirectiveClause;
  import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
  import org.ltc.hitalk.wam.compiler.HtFunctor;
@@ -38,8 +39,7 @@
  import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.*;
  import static org.ltc.hitalk.core.BuiltIns.ENCODING;
  import static org.ltc.hitalk.entities.IRelation.*;
- import static org.ltc.hitalk.parser.HtPrologParser.BEGIN_OF_FILE;
- import static org.ltc.hitalk.term.io.TermIO.currentInput;
+ import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser.BEGIN_OF_FILE;
 
  /**
   * BuiltInTransform implements a compilation transformation over term syntax trees, that substitutes for functors that
@@ -683,7 +683,7 @@
 //         app.getParser().getTokenSource().setOffset(token.endLine, token.endColumn);
 //         app.getParser().getTokenSource().setFileBeginPos(app.getParser().);
          lastTerm = new Functor(interner.internFunctorName(BEGIN_OF_FILE, 0), null);
-         HiTalkStream in = currentInput();
+         HiTalkStream in = TermIO.instance().currentInput();
          Functor encoding = (Functor) functor.getArgument(0);
 //         Objects.requireNonNull(in).getProps()[HiTalkStream.Properties.encoding.ordinal()].setValue(encoding);
 //         String propName = interner.getFunctorName(encoding);

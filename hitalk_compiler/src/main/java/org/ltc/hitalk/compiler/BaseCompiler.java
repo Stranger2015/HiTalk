@@ -13,6 +13,7 @@ import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.BaseInstructionCompiler;
+import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +30,7 @@ public class BaseCompiler<P, Q> extends BaseMachine implements ICompiler <P, Q> 
     protected Resolver <HtClause, Q> resolver;
     protected Resolver <HtClause, HtClause> resolver2;
     protected BaseInstructionCompiler <P, Q> instructionCompiler;
-    protected BaseInstructionCompiler <HtClause, HtClause> preCompiler;
+    protected PrologPreCompiler preCompiler;
 
     public BaseCompiler ( SymbolTable <Integer, String, Object> symbolTable,
                           VariableAndFunctorInterner interner, PlPrologParser parser ) {
@@ -113,10 +114,15 @@ public class BaseCompiler<P, Q> extends BaseMachine implements ICompiler <P, Q> 
         this.resolver = resolver;
     }
 
+    @Override
+    public void compile ( String fileName, HtProperty[] flags ) {
+
+    }
+
     /**
      * Chains compilation completion events onto the instruction compiler.
      */
-    class ClauseChainObserver implements LogicCompilerObserver <HtClause, HtClause> {
+    public class ClauseChainObserver implements LogicCompilerObserver <HtClause, HtClause> {
         /**
          * {@inheritDoc}
          */

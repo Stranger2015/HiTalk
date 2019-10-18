@@ -21,6 +21,8 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
+import java.util.EnumSet;
 
 import static java.nio.charset.Charset.*;
 
@@ -34,35 +36,72 @@ import static java.nio.charset.Charset.*;
  * ByteBuffer newbb = charset.encode(cb);
  */
 public
-class HiTalkStream extends FileInputStream implements IInputStream, IOutputStream, IPropertyOwner, PropertyChangeListener {
+class HiTalkStream implements IInputStream, IOutputStream, IPropertyOwner, PropertyChangeListener {
 
     public static final int BB_ALLOC_SIZE = 32768;
-    private final FileChannel channel = this.getChannel();
-
+    private FileDescriptor fd;
+    //private final File file;
+    private FileChannel channel;
+    //
     private Path path;
     private long offset;
-    private StandardOpenOption[] options;
+    protected final EnumSet <StandardOpenOption> options = EnumSet.noneOf(StandardOpenOption.class);
 
+    protected FileInputStream inputStream;
+    private boolean isOpen;
     private PlTokenSource tokenSource;
+
+    public HiTalkStream ( FileOutputStream out ) {
+        setOutputStream(out);
+    }
+
+    public HiTalkStream ( FileDescriptor fd ) {
+
+        this.fd = fd;
+    }
+
+    /**
+     * @return
+     */
+    public FileInputStream getInputStream () {
+        return inputStream;
+    }
+
+    public void setInputStream ( FileInputStream inputStream ) {
+        this.inputStream = inputStream;
+        channel = inputStream.getChannel();
+    }
+
+    public FileOutputStream getOutputStream () {
+        return outputStream;
+    }
+
+    //autoflushable?
+    public void setOutputStream ( FileOutputStream outputStream ) {
+        this.outputStream = outputStream;
+        channel = outputStream.getChannel();
+    }
+
+    protected FileOutputStream outputStream;
+//    private PlTokenSource tokenSource;
 
     PropertyOwner <HtProperty> owner;
     protected Charset currentCharset = defaultCharset();
     protected StreamDecoder sd;
     protected StreamEncoder se;
     protected boolean isReading;
-    private PushbackInputStream inputStream;
+    private PushbackInputStream pushbackInputStream;
 
     public HiTalkStream ( Path path, String encoding, long offset, StandardOpenOption... options ) throws IOException {
-        super(path.toFile());
+        //file =  path.toFile();
+        this.options.addAll(Arrays.asList(options));
         this.offset = offset;
-        this.options = options;
         Charset charset = isSupported(encoding) ? forName(encoding) : defaultCharset();//currentCharset;
         CharsetEncoder encoder = charset.newEncoder();
         CharsetDecoder decoder = charset.newDecoder();
         if (isReading) {
             sd = StreamDecoder.forDecoder(this, decoder, BB_ALLOC_SIZE);
-        }
-        else {
+        } else {
             se = StreamEncoder.forEncoder(this, encoder, BB_ALLOC_SIZE);
         }
     }
@@ -73,18 +112,18 @@ class HiTalkStream extends FileInputStream implements IInputStream, IOutputStrea
      * @param options
      * @throws IOException
      */
-    public
-    HiTalkStream ( Path path, long offset, StandardOpenOption... options ) throws IOException {
+    public HiTalkStream ( Path path, long offset, StandardOpenOption... options ) throws IOException {
         this(path, defaultCharset().name(), offset, options);
     }
+
 
     /**
      * @param inputStream
      */
     public HiTalkStream ( FileInputStream inputStream ) throws IOException {
-        super(inputStream.getFD());
-//        channel = getChannel();
-        this.inputStream = new PushbackInputStream(inputStream);
+//        super(inputStream.getFD());
+        pushbackInputStream = new PushbackInputStream(inputStream);
+        setInputStream(inputStream);
     }
 
     /**
@@ -92,34 +131,62 @@ class HiTalkStream extends FileInputStream implements IInputStream, IOutputStrea
      * @param options
      * @throws IOException
      */
-    public
-    HiTalkStream ( Path path, StandardOpenOption... options ) throws IOException {
+    public HiTalkStream ( Path path, StandardOpenOption... options ) throws IOException {
         this(path, 0L, options);
     }
 
     public HiTalkStream ( FileInputStream inputStream, PlTokenSource tokenSource ) throws IOException {
         this(inputStream);
-        this.tokenSource = tokenSource;
+        this.setTokenSource(tokenSource);
     }
 
-    public HiTalkStream ( @NotNull String name ) throws FileNotFoundException {
-        super(name);
+    public HiTalkStream ( @NotNull String name, StandardOpenOption... options ) throws IOException {
+        for (StandardOpenOption option : options) {
+            switch (option) {
+                case READ:
+                    setInputStream(new FileInputStream(name));
+                    break;
+                case WRITE:
+                    setOutputStream(new FileOutputStream(name));// file lock
+                    break;
+                case APPEND:
+                    setOutputStream(new FileOutputStream(name));
+                    channel.position();
+                    channel.position();
+                    break;
+                case TRUNCATE_EXISTING:
+                    break;
+                case CREATE:
+                    break;
+                case CREATE_NEW:
+                    break;
+                case DELETE_ON_CLOSE:
+                    break;
+                case SPARSE:
+                    break;
+                case SYNC:
+                    break;
+                case DSYNC:
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected option: " + option);
+            }
+        }
     }
 
+    //todo redundant
     public HiTalkStream ( @NotNull File file ) throws FileNotFoundException {
-        super(file);
+//        this.file = file.getAbsoluteFile();
     }
 
-    public HiTalkStream ( @NotNull FileDescriptor fdObj ) {
-        super(fdObj);
-    }
+//    public HiTalkStream ( @NotNull FileDescriptor fdObj ) {
+//        super(fdObj);
+//    }
 
     /**
-     * @return
      */
     @Override
-    public
-    int getPropLength () {
+    public int getPropLength () {
         return owner.getPropLength();
     }
 
@@ -127,8 +194,7 @@ class HiTalkStream extends FileInputStream implements IInputStream, IOutputStrea
      * @param listener
      */
     @Override
-    public
-    void addListener ( PropertyChangeListener listener ) {
+    public void addListener ( PropertyChangeListener listener ) {
         owner.addListener(listener);
     }
 
@@ -136,8 +202,7 @@ class HiTalkStream extends FileInputStream implements IInputStream, IOutputStrea
      * @param listener
      */
     @Override
-    public
-    void removeListener ( PropertyChangeListener listener ) {
+    public void removeListener ( PropertyChangeListener listener ) {
         owner.removeListener(listener);
     }
 
@@ -146,8 +211,7 @@ class HiTalkStream extends FileInputStream implements IInputStream, IOutputStrea
      * @param newValue
      */
     @Override
-    public
-    void fireEvent ( IProperty property, Term newValue ) {
+    public void fireEvent ( IProperty property, Term newValue ) {
         owner.fireEvent(property, newValue);
     }
 
@@ -155,8 +219,7 @@ class HiTalkStream extends FileInputStream implements IInputStream, IOutputStrea
      * @param property
      * @return
      */
-    public
-    Term getValue ( Properties property ) {
+    public Term getValue ( Properties property ) {
         return owner.getValue(property);
     }
 
@@ -164,8 +227,7 @@ class HiTalkStream extends FileInputStream implements IInputStream, IOutputStrea
      * @param property
      * @param value
      */
-    public
-    void setValue ( Properties property, Term value ) {
+    public void setValue ( Properties property, Term value ) {
         if (!value.equals(getValue(property))) {//todo redundant
             owner.setValue(property, value);
         }
@@ -174,16 +236,14 @@ class HiTalkStream extends FileInputStream implements IInputStream, IOutputStrea
     /**
      * @return
      */
-    public
-    Charset getCurrentCharset () {
+    public Charset getCurrentCharset () {
         return currentCharset;
     }
 
     /**
      * @param currentCharset
      */
-    public
-    void setCurrentCharset ( Charset currentCharset ) {
+    public void setCurrentCharset ( Charset currentCharset ) {
         if (!this.currentCharset.equals(currentCharset)) {
             this.currentCharset = currentCharset;
         }
@@ -299,8 +359,7 @@ class HiTalkStream extends FileInputStream implements IInputStream, IOutputStrea
      * @throws ClosedChannelException If this channel is closed
      * @throws IOException            If some other I/O error occurs
      */
-    public
-    long position () throws IOException {
+    public long position () throws IOException {
         return channel.position();
     }
 
@@ -322,8 +381,7 @@ class HiTalkStream extends FileInputStream implements IInputStream, IOutputStrea
      * @throws IllegalArgumentException If the new position is negative
      * @throws IOException              If some other I/O error occurs
      */
-    public
-    FileChannel position ( long newPosition ) throws IOException {
+    public FileChannel position ( long newPosition ) throws IOException {
         return channel.position(newPosition);
     }
 
@@ -335,8 +393,7 @@ class HiTalkStream extends FileInputStream implements IInputStream, IOutputStrea
      * @throws ClosedChannelException If this channel is closed
      * @throws IOException            If some other I/O error occurs
      */
-    public
-    long size () throws IOException {
+    public long size () throws IOException {
         return channel.size();
     }
 
@@ -357,8 +414,7 @@ class HiTalkStream extends FileInputStream implements IInputStream, IOutputStrea
      * @throws IllegalArgumentException    If the new size is negative
      * @throws IOException                 If some other I/O error occurs
      */
-    public
-    FileChannel truncate ( long size ) throws IOException {
+    public FileChannel truncate ( long size ) throws IOException {
         return null;
     }
 
@@ -422,8 +478,7 @@ class HiTalkStream extends FileInputStream implements IInputStream, IOutputStrea
      * @throws ClosedChannelException If this channel is closed
      * @throws IOException            If some other I/O error occurs
      */
-    public
-    void force ( boolean metaData ) throws IOException {
+    public void force ( boolean metaData ) throws IOException {
         channel.force(metaData);
     }
 
@@ -568,7 +623,7 @@ class HiTalkStream extends FileInputStream implements IInputStream, IOutputStrea
      *                     or if some other I/O error occurs
      */
     public void unread ( int c ) throws IOException {
-        inputStream.unread(c);
+        pushbackInputStream.unread(c);
     }
 
 
@@ -602,8 +657,7 @@ class HiTalkStream extends FileInputStream implements IInputStream, IOutputStrea
         return 0;
     }
 
-    public
-    int write () throws IOException {
+    public int write () throws IOException {
         return 0;//todo
     }
 
@@ -711,7 +765,7 @@ class HiTalkStream extends FileInputStream implements IInputStream, IOutputStrea
      * If a file is expected to grow in size and a lock on the entire file is
      * required then a region starting at zero, and no smaller than the
      * expected maximum size of the file, should be locked.  The zero-argument
-     *  method simply locks a region of size {@link
+     * method simply locks a region of size {@link
      * Long#MAX_VALUE}.
      *
      * <p> Some operating systems do not support shared locks, in which case a
@@ -802,8 +856,7 @@ class HiTalkStream extends FileInputStream implements IInputStream, IOutputStrea
      * @throws IOException                  If some other I/O error occurs
      * @see #lock(long, long, boolean)
      */
-    public
-    FileLock tryLock ( long position, long size, boolean shared ) throws IOException {
+    public FileLock tryLock ( long position, long size, boolean shared ) throws IOException {
         return channel.tryLock(position, size, shared);
     }
 
@@ -1226,8 +1279,7 @@ class HiTalkStream extends FileInputStream implements IInputStream, IOutputStrea
      *              and the property that has changed.
      */
     @Override
-    public
-    void propertyChange ( PropertyChangeEvent event ) {
+    public void propertyChange ( PropertyChangeEvent event ) {
         switch ((Properties) event.getSource()) {
             case alias:
 
@@ -1475,7 +1527,12 @@ class HiTalkStream extends FileInputStream implements IInputStream, IOutputStrea
 
     @Override
     public boolean isOpen () {
-        return false;
+        return isOpen;
+    }
+
+    @Override
+    public void close () throws IOException {
+
     }
 
     /**

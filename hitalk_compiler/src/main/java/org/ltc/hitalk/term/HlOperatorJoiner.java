@@ -2,13 +2,13 @@ package org.ltc.hitalk.term;
 
 import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
-import org.ltc.hitalk.term.HlOperator.Associativity;
+import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ltc.hitalk.term.HlOperator.Associativity.fx;
+import static org.ltc.hitalk.term.HlOpSymbol.Associativity.fx;
 
 /**
  * 演算子優先順位解析を行います。
@@ -17,7 +17,7 @@ import static org.ltc.hitalk.term.HlOperator.Associativity.fx;
  */
 public abstract class HlOperatorJoiner<TERM extends Term> {
 
-    private final ArrayDeque <HlOperator> operators = new ArrayDeque <>();
+    private final ArrayDeque <HlOpSymbol> operators = new ArrayDeque <>();
     private final ArrayDeque <TERM> operands = new ArrayDeque <>();
 
     // 最後に追加された演算子のタイプ
@@ -27,13 +27,13 @@ public abstract class HlOperatorJoiner<TERM extends Term> {
      * 指定された演算子を受け付けるかどうかを調べます。
      */
     public boolean accept ( Associativity associativity ) {
-        return HlOperator.isCorrectOrder(this.associativity, associativity);
+        return HlOpSymbol.isCorrectOrder(this.associativity, associativity);
     }
 
     /**
      * 式の構成要素となる次の演算子を追加します。
      */
-    public void push ( HlOperator operator ) throws ParseException {
+    public void push ( HlOpSymbol operator ) throws ParseException {
         resolve(operator.lprio);
         operators.push(operator);
         associativity = operator.getAssociativity();

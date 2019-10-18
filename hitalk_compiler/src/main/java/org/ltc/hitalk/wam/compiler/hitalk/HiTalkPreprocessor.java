@@ -8,7 +8,6 @@ import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.expander.DefaultTermExpander;
@@ -36,14 +35,13 @@ public class HiTalkPreprocessor<TC extends Term, TT extends TransformTask <HtCla
     protected Resolver <HtClause, HtClause> resolver;
 
     @Override
-    public
-    LogicCompilerObserver <HtPredicate, HtClause> getObserver () {
+    public LogicCompilerObserver <HtPredicate, HtClause> getObserver () {
         return observer;
     }
 
     protected LogicCompilerObserver <HtPredicate, HtClause> observer;
     protected List <HtClause> preCompiledTarget;
-    protected HtPrologParser parser;
+    protected PlPrologParser parser;
 
     /**
      * {@inheritDoc}
@@ -170,9 +168,8 @@ public class HiTalkPreprocessor<TC extends Term, TT extends TransformTask <HtCla
      * @return
      */
     @Override
-    public
-    Logger getConsole () {
-        return null;
+    public Logger getConsole () {
+        return logger;
     }
 
     /**
@@ -228,5 +225,10 @@ public class HiTalkPreprocessor<TC extends Term, TT extends TransformTask <HtCla
     public
     void setResolver ( Resolver <HtClause, HtClause> resolver ) {
         this.resolver = resolver;
+    }
+
+    @Override
+    public void compile ( String fileName, HtProperty[] flags ) {
+
     }
 }

@@ -92,6 +92,6 @@ class HtVersion {
 
     @Override
     public String toString () {
-        return format("version %d.%d.%d#%d%s%s", major, minor, patch, build, suffix, snapshot ? "SNAPSHOT" : "");
+        return format("version %d.%d.%d build#%d%s %s", major, minor, patch, build, suffix, snapshot ? "SNAPSHOT" : "");
     }
 }

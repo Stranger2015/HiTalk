@@ -15,6 +15,8 @@ import org.ltc.hitalk.term.*;
 import org.ltc.hitalk.term.DottedPair.Kind;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 
+import java.nio.file.Path;
+
 import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
 
 /**
@@ -123,6 +125,11 @@ public class TermFactory implements ITermFactory {
             t = new DottedPair(kind, headTail);
         }
         return t;
+    }
+
+    @Override
+    public HtProperty createFlag ( String scratch_directory, Path scratchDir ) {
+        return null;
     }
 
     /**

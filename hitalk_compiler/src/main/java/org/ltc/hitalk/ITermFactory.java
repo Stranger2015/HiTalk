@@ -10,6 +10,8 @@ import org.ltc.hitalk.term.DottedPair;
 import org.ltc.hitalk.term.FloatTerm;
 import org.ltc.hitalk.term.IntTerm;
 
+import java.nio.file.Path;
+
 /**
  *
  */
@@ -79,6 +81,8 @@ interface ITermFactory {
     FloatTerm newAtomic ( double f );
 
     DottedPair newDottedPair ( DottedPair.Kind kind, Term[] terms );
+
+    HtProperty createFlag ( String scratch_directory, Path scratchDir );
 
 
 //    Term newFunctor ( Term name, Term[] args );

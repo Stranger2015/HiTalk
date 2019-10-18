@@ -3,13 +3,14 @@ package org.ltc.hitalk.compiler.bktables;
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.util.doublemaps.SymbolTable;
-import org.ltc.hitalk.compiler.BaseCompiler;
+import com.thesett.common.util.doublemaps.SymbolTableImpl;
+import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.HtVersion;
 import org.ltc.hitalk.core.IConfigurable;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
-import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledPredicate;
-import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledQuery;
+import org.ltc.hitalk.wam.compiler.Language;
+import org.ltc.hitalk.wam.compiler.Tools;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -33,24 +34,33 @@ public interface IApplication extends Runnable, IConfigurable {
      */
     void setConfig ( IConfig config );
 
-    /**
-     * @param symbolTable
-     * @param interner
-     * @param parser
-     * @return
-     */
-    BaseCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> createWAMCompiler (
-            SymbolTable <Integer, String, Object> symbolTable,
-            VariableAndFunctorInterner interner,
-            PlPrologParser parser );
+//    /**
+//     * @param symbolTable
+//     * @param interner
+//     * @param parser
+//     * @return
+//     */
+//    BaseCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> createWAMCompiler (
+//            SymbolTable <Integer, String, Object> symbolTable,
+//            VariableAndFunctorInterner interner,
+//            PlPrologParser parser );
 
     /**
      *
      */
     default void init () throws LinkageException, IOException {
         banner();
-        if (!isInited()) {
-            doInit();
+        try {
+            if (!isInited()) {
+                doInit();
+            }
+        } catch (Throwable throwable) {
+            try {
+                throwable.printStackTrace();
+                throw new ExecutionError(ExecutionError.Kind.PERMISSION_ERROR, null);
+            } finally {
+                undoInit();
+            }
         }
     }
 
@@ -59,6 +69,7 @@ public interface IApplication extends Runnable, IConfigurable {
      * @return
      */
     String namespace ( String varOrFunctor );
+
     /**
      *
      */
@@ -103,6 +114,10 @@ public interface IApplication extends Runnable, IConfigurable {
      */
     void doInit () throws LinkageException, IOException;
 
+    /**
+     *
+     */
+    void undoInit ();
     /**
      *
      */
@@ -211,13 +226,13 @@ public interface IApplication extends Runnable, IConfigurable {
      */
     VariableAndFunctorInterner getInterner ();
 
-    /**
-     * @param interner
-     */
-    void setInterner ( VariableAndFunctorInterner interner );
+//    /**
+//     * @param interner
+//     */
+//    void setInterner ( VariableAndFunctorInterner interner );
 
     default SymbolTable <Integer, String, Object> getSymbolTable () {
-        return null;
+        return new SymbolTableImpl <>();
     }
 
     void setSymbolTable ( SymbolTable <Integer, String, Object> symbolTable );
@@ -230,12 +245,12 @@ public interface IApplication extends Runnable, IConfigurable {
     /**
      * @return
      */
-    String language ();
+    Language language ();
 
     /**
      * @return
      */
-    String tool ();
+    Tools tool ();
 
     /**
      *
@@ -245,7 +260,7 @@ public interface IApplication extends Runnable, IConfigurable {
         HtVersion v = product().getVersion();
         String c = product().getCopyright();
 
-        System.err.printf("\n%s %s, version %s,%s", n, v, c);
+        System.err.printf("\n%s %s, %s\n\n", n, v, c);
     }
 
     /**

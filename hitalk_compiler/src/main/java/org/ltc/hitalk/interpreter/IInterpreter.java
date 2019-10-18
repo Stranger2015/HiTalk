@@ -2,21 +2,24 @@ package org.ltc.hitalk.interpreter;
 
 
 import com.thesett.aima.logic.fol.Resolver;
-import com.thesett.aima.logic.fol.isoprologparser.PrologParserConstants;
+import com.thesett.aima.logic.fol.isoprologparser.PrologParser;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.parsing.SourceCodePosition;
 import jline.ConsoleReader;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IConfigurable;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.HtPrologParserConstants;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.ltc.hitalk.term.io.TermIO;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind.DOT;
+import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind.EOF;
 
 /**
  *
@@ -49,7 +52,7 @@ public interface IInterpreter<P, Q> extends IConfigurable, ICompiler <P, Q>, Res
         setConsoleReader(initializeCommandLineReader());
 
         // Used to buffer input, and only feed it to the parser when a PERIOD is encountered.
-        TokenBuffer tokenBuffer = (TokenBuffer) getTokenSourceForInputStream(System.in, "stdin");
+        TokenBuffer tokenBuffer = (TokenBuffer) TokenBuffer.getTokenSourceForInputStream(System.in, "stdin");
 
         // Used to hold the currently buffered lines of input, for the purpose of presenting this back to the user
         // in the event of a syntax or other error in the input.
@@ -87,7 +90,7 @@ public interface IInterpreter<P, Q> extends IConfigurable, ICompiler <P, Q>, Res
                     PlTokenSource tokenSource = PlTokenSource.getPlTokenSourceForString(line, lineNo);
                     getParser().setTokenSource(tokenSource);
 
-                    PlPrologParser.Directive directive = getParser().peekAndConsumeDirective();
+                    PrologParser.Directive directive = getParser().peekAndConsumeDirective();
 
                     if (directive != null) {
                         switch (directive) {
@@ -116,7 +119,7 @@ public interface IInterpreter<P, Q> extends IConfigurable, ICompiler <P, Q>, Res
 
                 // Buffer input tokens until EOL is reached, of the input is terminated with a PERIOD.
                 PlTokenSource tokenSource = PlTokenSource.getPlTokenSourceForString(line, lineNo);//todo
-                HtToken nextToken;
+                PlToken nextToken;
 
                 while (true) {
                     nextToken = tokenSource.poll();
@@ -125,14 +128,14 @@ public interface IInterpreter<P, Q> extends IConfigurable, ICompiler <P, Q>, Res
                         break;
                     }
 
-                    if (nextToken.kind == HtPrologParserConstants.PERIOD) {
+                    if (nextToken.kind == PlToken.TokenKind.DOT) {
                         /*log.fine("Token was PERIOD.");*/
                         mode = (getMode() == Mode.QueryMultiLine) ? Mode.Query : getMode();
                         mode = (getMode() == Mode.ProgramMultiLine) ? Mode.Program : getMode();
 
                         tokenBuffer.offer(nextToken);
                         break;
-                    } else if (nextToken.kind == HtPrologParserConstants.EOF) {
+                    } else if (nextToken.kind == EOF) {
                         /*log.fine("Token was EOF.");*/
                         mode = (getMode() == Mode.Query) ? Mode.QueryMultiLine : getMode();
                         mode = (getMode() == Mode.Program) ? Mode.ProgramMultiLine : getMode();
@@ -145,7 +148,7 @@ public interface IInterpreter<P, Q> extends IConfigurable, ICompiler <P, Q>, Res
                 }
 
                 // Evaluate the current token buffer, whenever the input is terminated with a PERIOD.
-                if ((nextToken != null) && (nextToken.kind == PrologParserConstants.PERIOD)) {
+                if ((nextToken != null) && (nextToken.kind == DOT)) {
                     getParser().setTokenSource(tokenBuffer);
 
                     // Parse the next clause.

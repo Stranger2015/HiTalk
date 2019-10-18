@@ -2,19 +2,20 @@ package org.ltc.hitalk.parser.jp.segfault.prolog.parser;
 
 
 import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.isoprologparser.PrologParser;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.Source;
 import org.ltc.hitalk.ITermFactory;
-import org.ltc.hitalk.compiler.bktables.PlOperatorTable;
+import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.parser.HiLogParser;
 import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.PrologAtoms;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.DottedPair;
-import org.ltc.hitalk.term.HlOperator;
-import org.ltc.hitalk.term.HlOperator.Associativity;
-import org.ltc.hitalk.term.HlOperator.Fixity;
+import org.ltc.hitalk.term.HlOpSymbol;
+import org.ltc.hitalk.term.HlOpSymbol.Associativity;
+import org.ltc.hitalk.term.HlOpSymbol.Fixity;
 import org.ltc.hitalk.term.HlOperatorJoiner;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
@@ -26,7 +27,7 @@ import java.util.*;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind.*;
 import static org.ltc.hitalk.term.DottedPair.Kind.*;
-import static org.ltc.hitalk.term.HlOperator.Associativity.*;
+import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
 
 /**
  *
@@ -40,7 +41,7 @@ public class PlPrologParser implements IParser {
     protected final HiTalkStream stream;
     protected final PlLexer lexer;
     protected final ITermFactory factory;
-    protected final PlOperatorTable operatorTable;
+    protected final IOperatorTable operatorTable;// = new HlOperatorTable();
     protected final Deque <PlTokenSource> tokenSourceStack = new ArrayDeque <>();
     protected final VariableAndFunctorInterner interner;
 
@@ -48,8 +49,8 @@ public class PlPrologParser implements IParser {
      * Holds the variable scoping context for the current sentence.
      */
     protected Map <Integer, Variable> variableContext = new HashMap <>();
-    protected HlOperator operator;
-    protected ITermFactory tf;
+    protected HlOpSymbol operator;
+//    protected ITermFactory termFactory = new TermFactory(getInterner());
 
 
     /**
@@ -60,7 +61,7 @@ public class PlPrologParser implements IParser {
     public PlPrologParser ( HiTalkStream stream,
                             VariableAndFunctorInterner interner,
                             ITermFactory factory,
-                            PlOperatorTable optable ) {
+                            IOperatorTable optable ) {
         this.stream = stream;
         lexer = new PlLexer(stream);
         this.interner = interner;
@@ -71,31 +72,6 @@ public class PlPrologParser implements IParser {
     @Override
     public PlPrologParser getParser () {
         return this;
-    }
-
-    @Override
-    public HiTalkStream getStream () {
-        return getTokenSource().getStream();
-    }
-
-    @Override
-    public VariableAndFunctorInterner getInterner () {
-        return interner;
-    }
-
-    @Override
-    public ITermFactory getFactory () {
-        return tf;
-    }
-
-    @Override
-    public PlOperatorTable getOptable () {
-        return operatorTable;
-    }
-
-    @Override
-    public void setOperator ( HlOperator op ) {
-
     }
 
     /**
@@ -115,7 +91,7 @@ public class PlPrologParser implements IParser {
             if (token == null) {
                 token = PlToken.newToken(EOF);
             }
-            return newTerm(token, false, EnumSet.of(TokenKind.DOT));//fixme EOF
+            return newTerm(token, false, EnumSet.of(DOT));//fixme EOF
         } catch (ParseException e) {
 //            int row = ;
 //            int col = reader.getCol();
@@ -132,7 +108,8 @@ public class PlPrologParser implements IParser {
         return tokenSourceStack.pop();
     }
 
-    protected Term newTerm ( PlToken token, boolean nullable, EnumSet <TokenKind> terminators ) throws IOException, ParseException {
+    protected Term newTerm ( PlToken token, boolean nullable, EnumSet <TokenKind> terminators )
+            throws IOException, ParseException {
         HlOperatorJoiner <Term> joiner = new HlOperatorJoiner <Term>() {
             @Override
             protected Term join ( int notation, List <Term> args ) {
@@ -153,7 +130,7 @@ public class PlPrologParser implements IParser {
                     }
                 }
                 if (token.kind == ATOM) {
-                    for (HlOperator right : operatorTable.getOperatorsMatchingNameByFixity(token.image).values()) {
+                    for (HlOpSymbol right : operatorTable.getOperatorsMatchingNameByFixity(token.image).values()) {
                         if (joiner.accept(right.getAssociativity())) {
                             joiner.push(right);
                             continue outer;
@@ -398,11 +375,11 @@ public class PlPrologParser implements IParser {
      */
 //    @Override
     public void setOperator ( String operatorName, int priority, Associativity associativity ) {
-        EnumMap <Fixity, HlOperator> ops = operatorTable.getOperatorsMatchingNameByFixity(operatorName);
+        EnumMap <Fixity, HlOpSymbol> ops = operatorTable.getOperatorsMatchingNameByFixity(operatorName);
         if (ops == null || ops.isEmpty()) {
             int arity = calcArity(associativity);
             int name = interner.internFunctorName(operatorName, arity);
-            operatorTable.setOperator(new HlOperator(name, operatorName, associativity, priority));//fixme
+            operatorTable.setOperator(name, operatorName, priority, associativity);
         }
     }
 
@@ -525,8 +502,9 @@ public class PlPrologParser implements IParser {
             arity = 1;
         }
 
-        int name = interner.internFunctorName(operatorName, arity);
-        operatorTable.setOperator(new HlOperator(name, operatorName, associativity, priority));
+        int name;
+        name = interner.internFunctorName(operatorName, arity);
+        operatorTable.setOperator(name, operatorName, priority, associativity);
     }
 
     /**
@@ -599,5 +577,10 @@ public class PlPrologParser implements IParser {
 
         interner.internFunctorName(PrologAtoms.BYPASS_NIL, 0);
         interner.internFunctorName(new HtFunctorName(PrologAtoms.BYPASS_CONS, 0, 2));
+    }
+
+    public PrologParser.Directive peekAndConsumeDirective () {
+
+        return null;//fixme
     }
 }

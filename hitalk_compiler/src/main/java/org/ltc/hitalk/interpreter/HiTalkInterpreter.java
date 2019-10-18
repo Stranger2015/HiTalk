@@ -1,12 +1,13 @@
 package org.ltc.hitalk.interpreter;
 
+
 import com.thesett.aima.logic.fol.*;
 import com.thesett.common.parsing.SourceCodeException;
 import jline.ConsoleReader;
 import org.ltc.hitalk.compiler.bktables.IConfig;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.term.io.TermIO;
 import org.slf4j.Logger;
@@ -16,8 +17,8 @@ import java.util.Iterator;
 import java.util.Set;
 
 public
-class HiTalkInterpreter<P, Q> implements IInterpreter <P, Q> {
-    protected HtPrologParser parser;
+class HiTalkInterpreter<P, Q> implements IInterpreter <P, Q>, IParser {
+    protected PlPrologParser parser;
     protected IConfig config;
     private Logger logger;
 
@@ -45,6 +46,16 @@ class HiTalkInterpreter<P, Q> implements IInterpreter <P, Q> {
     @Override
     public PlPrologParser getParser () {
         return parser;
+    }
+
+    @Override
+    public String language () {
+        return null;
+    }
+
+    @Override
+    public void initializeBuiltIns () {
+
     }
 
     /**
@@ -90,6 +101,11 @@ class HiTalkInterpreter<P, Q> implements IInterpreter <P, Q> {
 
     }
 
+    @Override
+    public void compile ( String fileName, HtProperty[] flags ) {
+
+    }
+
     /**
      * @param clause
      * @throws SourceCodeException
@@ -104,8 +120,7 @@ class HiTalkInterpreter<P, Q> implements IInterpreter <P, Q> {
      * @return
      */
     @Override
-    public
-    ConsoleReader getConsoleReader () {
+    public ConsoleReader getConsoleReader () {
         return null;
     }
 
@@ -141,8 +156,7 @@ class HiTalkInterpreter<P, Q> implements IInterpreter <P, Q> {
      * @return
      */
     @Override
-    public
-    TermIO getTermIO () {
+    public TermIO getTermIO () {
         return null;
     }
 
@@ -207,8 +221,7 @@ class HiTalkInterpreter<P, Q> implements IInterpreter <P, Q> {
      * @return An iterator that generates all solutions on demand as a sequence of variable bindings.
      */
     @Override
-    public
-    Iterator <Set <Variable>> iterator () {
+    public Iterator <Set <Variable>> iterator () {
         return null;
     }
 
@@ -235,11 +248,6 @@ class HiTalkInterpreter<P, Q> implements IInterpreter <P, Q> {
 
     }
 
-    /**
-     * Establishes an observer on the compiled forms that the compiler outputs.
-     *
-     * @param observer The compiler output observer.
-     */
     /**
      * Signal the end of a compilation scope, to trigger completion of the compilation of its contents.
      *
@@ -269,8 +277,10 @@ class HiTalkInterpreter<P, Q> implements IInterpreter <P, Q> {
 
     }
 
-    public
-    void setParser ( HtPrologParser parser ) {
+    /**
+     * @param parser
+     */
+    public void setParser ( PlPrologParser parser ) {
         this.parser = parser;
     }
 }

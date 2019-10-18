@@ -15,11 +15,12 @@
  */
 package org.ltc.hitalk.compiler.bktables;
 
-import org.ltc.hitalk.term.HlOperator;
+import org.ltc.hitalk.term.HlOpSymbol;
+import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 
 import java.util.EnumMap;
 
-import static org.ltc.hitalk.term.HlOperator.Fixity;
+import static org.ltc.hitalk.term.HlOpSymbol.Fixity;
 
 /**
  * OperatorTable maintains a table of dynamically defined operators. Implementations of this table may provide their own
@@ -35,14 +36,13 @@ import static org.ltc.hitalk.term.HlOperator.Fixity;
  *
  * @author Rupert Smith
  */
-public interface PlOperatorTable {
+public interface IOperatorTable {
     /**
      * Sets the priority and associativity of a named operator in this table. This method may be used to remove
      * operators by some implementations, through a special setting of the priority value.
      *
-     * @param operator         The interned name of the operator as a functor.
      */
-    void setOperator ( HlOperator operator );
+    void setOperator ( int name, String textName, int priority, Associativity associativity );
 
     /**
      * Checks the operator table for all possible operators matching a given name.
@@ -50,7 +50,5 @@ public interface PlOperatorTable {
      * @param name The name of the operator to find.
      * @return An array of matching operators, or <tt>null</tt> if none can be found.
      */
-    EnumMap <Fixity, HlOperator> getOperatorsMatchingNameByFixity ( String name );
-
-    HlOperator convert ( String name );
+    EnumMap <Fixity, HlOpSymbol> getOperatorsMatchingNameByFixity ( String name );
 }

@@ -6,18 +6,19 @@ import java.util.*;
 import java.util.function.Function;
 
 /**
- * @param <Term>
+ * @param <T>
  * @code private static Hierarchy<Type> hierarchy = new Hierarchy<>(Type.class, e -> e.parent);
  */
-public class Hierarchy<Term extends Enum <Term>> {
-    private final Function <Term, Term> parentAccessor;
-    private final Map <Term, Term[]> children = new HashMap <>();
+public
+class Hierarchy<T extends Enum <T>> {
+    private final Function <T, T> parentAccessor;
+    private final Map <T, T[]> children = new HashMap <>();
 
     /**
      * @param type
      * @param parentAccessor
      */
-    public Hierarchy ( Class <Term> type, Function <Term, T> parentAccessor ) {
+    public Hierarchy ( Class <T> type, Function <T, T> parentAccessor ) {
         this.parentAccessor = parentAccessor;
 
         Map <T, Collection <T>> hm = new HashMap <>();

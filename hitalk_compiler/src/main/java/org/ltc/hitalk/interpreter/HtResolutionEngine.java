@@ -24,17 +24,15 @@ import com.thesett.common.util.Source;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.Operator;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
+import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-
-import static com.thesett.aima.logic.fol.isoprologparser.TokenSource.getTokenSourceForInputStream;
 
 /**
  * ResolutionEngine combines together a logic {@link Parser}, a {@link VariableAndFunctorInterner} that acts as a symbol
@@ -49,7 +47,8 @@ import static com.thesett.aima.logic.fol.isoprologparser.TokenSource.getTokenSou
  * @author Rupert Smith
  */
 public
-class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser implements VariableAndFunctorInterner, ICompiler <P, Q>, Resolver <T, Q> {
+class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
+        implements VariableAndFunctorInterner, ICompiler <P, Q>, Resolver <T, Q> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
@@ -84,7 +83,8 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser imp
      */
     public HtResolutionEngine ( PlPrologParser parser,
                                 VariableAndFunctorInterner interner, ICompiler <P, Q> compiler ) {
-        super(parser, interner);
+        super(parser);
+        this.interner = interner;
         this.compiler = compiler;//fixme NPE
         compiler.setCompilerObserver(chainedObserver);
     }
@@ -131,7 +131,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser imp
      */
     public void consultInputStream ( HiTalkStream stream ) throws SourceCodeException {
         // Create a token source to read from the specified input stream.
-        PlTokenSource tokenSource = (PlTokenSource) getTokenSourceForInputStream(stream/*, vfsFo.getName().getPath()*/);
+        PlTokenSource tokenSource = stream.getTokenSource();
         getParser().setTokenSource(tokenSource);
 
         // Consult the type checking rules and add them to the knowledge base.
@@ -142,7 +142,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser imp
                 break;
             }
 
-            getCompiler().compile(sentence.getT());
+//            getCompiler().compile(sentence.getT());
         }
     }
 
@@ -323,7 +323,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser imp
     /**
      * {@inheritDoc}
      */
-    public void setOperator ( String operatorName, int priority, Operator.Associativity associativity ) {
+    public void setOperator ( String operatorName, int priority, Associativity associativity ) {
         parser.setOperator(operatorName, priority, associativity);
     }
 
@@ -467,6 +467,11 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser imp
     @Override
     public
     void setResolver ( Resolver <HtClause, Q> resolver ) {
+
+    }
+
+    @Override
+    public void compile ( String fileName, HtProperty[] flags ) {
 
     }
 

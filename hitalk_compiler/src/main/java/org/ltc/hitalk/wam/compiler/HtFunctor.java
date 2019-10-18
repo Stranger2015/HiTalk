@@ -3,8 +3,6 @@ package org.ltc.hitalk.wam.compiler;
 import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.logic.fol.Term;
 
-import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser.HILOG_COMPOUND;
-
 /**
  *
  */
@@ -20,19 +18,19 @@ public class HtFunctor extends Functor implements IRangedArity {
         setArityRange(arityMin, arityDelta);
     }
 
-    /**
-     * @param nameArgs
-     * @param arityDelta
-     */
-    public HtFunctor ( Term[] nameArgs, int arityDelta ) {
-        super(HILOG_COMPOUND, nameArgs);
-        setArityRange(nameArgs.length - 1, arityDelta);//minus head
-    }
-
-    public HtFunctor ( Term[] nameArgs ) {
-        this(nameArgs, 0);
-    }
-
+    //    /**
+//     * @param nameArgs
+//     * @param arityDelta
+//     */
+//    public HtFunctor ( Term[] nameArgs, int arityDelta ) {
+//        super(HILOG_COMPOUND, nameArgs);
+//        setArityRange(nameArgs.length - 1, arityDelta);//minus head
+//    }
+//
+//    public HtFunctor ( Term[] nameArgs ) {
+//        this(nameArgs, 0);
+//    }
+//
     public HtFunctor ( int name, Term[] args ) {
         this(name, args, 0);
     }

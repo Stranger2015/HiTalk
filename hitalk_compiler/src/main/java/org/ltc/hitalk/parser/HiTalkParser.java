@@ -5,19 +5,23 @@ import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.ITermFactory;
-import org.ltc.hitalk.compiler.bktables.PlOperatorTable;
+import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
-import org.ltc.hitalk.term.HlOperator.Associativity;
+import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 import org.ltc.hitalk.term.io.HiTalkStream;
 
-import static org.ltc.hitalk.term.HlOperator.Associativity.*;
+import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
 
 /**
  *
  */
 public class HiTalkParser implements IParser {
     private PlPrologParser parser;
+
+    public HiTalkParser ( PlPrologParser parser ) {
+        this.parser = parser;
+    }
 
     /**
      * @param parser
@@ -51,7 +55,7 @@ public class HiTalkParser implements IParser {
     public HiTalkParser ( HiTalkStream stream,
                           VariableAndFunctorInterner interner,
                           ITermFactory factory,
-                          PlOperatorTable optable,
+                          IOperatorTable optable,
                           PlPrologParser parser ) {
         setStream(stream);
         setInterner(interner);

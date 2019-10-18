@@ -3,50 +3,48 @@ package org.ltc.hitalk.interpreter;
 
 import com.thesett.common.util.Sink;
 import com.thesett.common.util.Source;
-import org.ltc.hitalk.wam.compiler.HtPrologParserTokenManager;
-import org.ltc.hitalk.wam.compiler.HtToken;
-import org.ltc.hitalk.wam.compiler.HtTokenSource;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlLexer;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Used to buffer tokens.
  */
-public class TokenBuffer extends HtTokenSource implements Source <HtToken>, Sink <HtToken> {
-    private List <HtToken> tokens = new ArrayList <>();
+public class TokenBuffer extends PlTokenSource implements Source <PlToken>, Sink <PlToken> {
+    private List <PlToken> tokens = new ArrayList <>();
 
     /**
      * Builds a token source around the specified token manager.
      *
-     * @param tokenManager The token manager to use to feed this source.
-     * @param input
+     * @param lexer
      */
-    public TokenBuffer ( HtPrologParserTokenManager tokenManager, InputStream input ) throws IOException {
-        super(tokenManager, input);
+    public TokenBuffer ( PlLexer lexer ) throws IOException {
+        super(lexer);
     }
 
     /**
      * @param o
      * @return
      */
-    public boolean offer ( HtToken o ) {
+    public boolean offer ( PlToken o ) {
         return tokens.add(o);
     }
 
     /**
      * @return
      */
-    public HtToken poll () {
+    public PlToken poll () {
         return tokens.remove(0);
     }
 
     /**
      * @return
      */
-    public HtToken peek () {
+    public PlToken peek () {
         return tokens.get(0);
     }
 

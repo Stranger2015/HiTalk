@@ -5,13 +5,13 @@ import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.ITermFactory;
-import org.ltc.hitalk.compiler.bktables.PlOperatorTable;
+import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.TermParser;
-import org.ltc.hitalk.term.HlOperator;
-import org.ltc.hitalk.term.HlOperator.Associativity;
+import org.ltc.hitalk.term.HlOpSymbol;
+import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 import org.ltc.hitalk.term.io.HiTalkStream;
 
 import java.io.IOException;
@@ -60,18 +60,18 @@ public interface IParser extends TermParser <Term> {
         return getParser().getFactory();
     }
 
-    default PlOperatorTable getOptable () {
+    default IOperatorTable getOptable () {
         return getParser().getOptable();
     }
 
-    default void setOptable ( PlOperatorTable optable ) {
+    default void setOptable ( IOperatorTable optable ) {
         getParser().setOptable(optable);
     }
 
     /**
      * @param op
      */
-    default void setOperator ( HlOperator op ) {
+    default void setOperator ( HlOpSymbol op ) {
         getParser().setOperator(op);
     }
 
@@ -123,5 +123,13 @@ public interface IParser extends TermParser <Term> {
     @Override
     default Term next () throws IOException, ParseException {
         return getParser().next();
+    }
+
+    default Sentence <HtClause> parseClause () {
+        return getParser().parseClause();
+    }
+
+    default HtClause sentence () {
+        return getParser().sentence();
     }
 }

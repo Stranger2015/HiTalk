@@ -323,7 +323,7 @@ public class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWA
      */
     private void compileClause ( HtClause clause, HiTalkWAMCompiledPredicate compiledPredicate, boolean isFirst, boolean isLast, boolean multipleClauses, int clauseNumber ) {
         // Used to build up the compiled clause in.
-        HiTalkWAMCompiledClause result = new HiTalkWAMCompiledClause((HiTalkWAMCompiledPredicate) compiledPredicate);
+        HiTalkWAMCompiledClause result = new HiTalkWAMCompiledClause(compiledPredicate);
 
         // Check if the clause to compile is a fact (no body).
         boolean isFact = clause.getBody() == null;

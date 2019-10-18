@@ -16,10 +16,13 @@
 package org.ltc.hitalk.term;
 
 
+import com.thesett.aima.logic.fol.Term;
+import org.ltc.hitalk.wam.compiler.HtFunctor;
+
 import java.util.EnumSet;
 
 import static java.lang.String.format;
-import static org.ltc.hitalk.term.HlOperator.Associativity.*;
+import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
 
 
 /**
@@ -46,7 +49,7 @@ import static org.ltc.hitalk.term.HlOperator.Associativity.*;
  *
  * @author Rupert Smith
  */
-public class HlOperator/* extends HtFunctor */ implements Comparable, Cloneable {
+public class HlOpSymbol extends HtFunctor implements Comparable, Cloneable {
 
     public int lprio;
     public int rprio;
@@ -62,6 +65,7 @@ public class HlOperator/* extends HtFunctor */ implements Comparable, Cloneable 
      * Holds the priority of this operator.
      */
     protected int priority;
+    private int name;
 
     /**
      * Creates a new operator with the specified name and arguments.
@@ -70,19 +74,18 @@ public class HlOperator/* extends HtFunctor */ implements Comparable, Cloneable 
      * @param associativity Specifies the associativity of the operator.
      * @param priority      The operators priority.
      */
-    public HlOperator ( int name, String textName, /*Term[] arguments,*/ Associativity associativity, int priority ) {
-//       /**/ super(name, arguments);
+    public HlOpSymbol ( int name, String textName, Associativity associativity, int priority ) {
+        super(name, null);
 
-       /* // Check that there is at least one and at most two arguments.
+        // Check that there is at least one and at most two arguments.
         if ((arguments == null) || (arguments.length < 1) || (arguments.length > 2)) {
             throw new IllegalArgumentException("An operator has minimum 1 and maximum 2 arguments.");
         }
-*/
+
         this.textName = textName;
         this.priority = priority;
         this.associativity = associativity;
     }
-
 
     /**
      * 与えられた演算子の並び順が表記上正しいかどうかを判別します。
@@ -102,31 +105,21 @@ public class HlOperator/* extends HtFunctor */ implements Comparable, Cloneable 
         }
     }
 
-//    /**
-//     * Creates a new functor with the specified arguments.
-//     *
-//     * @param name      The name of the functor.
-//     * @param arguments The functors arguments.
-//     */
-//    public HlOperator ( int name, Term[] arguments ) {
-//        super(name, arguments);
-//    }
+    /**
+     * Sets the arguments of this operator. It can be convenient to be able to set the outside of the constructor, for
+     * example, when parsing may want to create the operator first and fill in its arguments later.
+     *
+     * @param arguments The arguments the operator is applied to.
+     */
+    public void setArguments ( Term[] arguments ) {
+        // Check that there is at least one and at most two arguments.
+        if ((arguments == null) || (arguments.length < 1) || (arguments.length > 2)) {
+            throw new IllegalArgumentException("An operator has minimum 1 and maximum 2 arguments.");
+        }
 
-//    /**
-//     * Sets the arguments of this operator. It can be convenient to be able to set the outside of the constructor, for
-//     * example, when parsing may want to create the operator first and fill in its arguments later.
-//     *
-//     * @param arguments The arguments the operator is applied to.
-//     */
-//    public void setArguments ( Term[] arguments ) {
-//        // Check that there is at least one and at most two arguments.
-//        if ((arguments == null) || (arguments.length < 1) || (arguments.length > 2)) {
-//            throw new IllegalArgumentException("An operator has minimum 1 and maximum 2 arguments.");
-//        }
-//
-//        this.arguments = arguments;
-//        this.arity = arguments.length;
-//    }
+        this.arguments = arguments;
+        this.arity = arguments.length;
+    }
 
     /**
      * Provides the symbols associativity.
@@ -258,7 +251,7 @@ public class HlOperator/* extends HtFunctor */ implements Comparable, Cloneable 
      * greater than the comparator.
      */
     public int compareTo ( Object o ) {
-        return priority - ((HlOperator) o).priority;
+        return priority - ((HlOpSymbol) o).priority;
     }
 
     /**
@@ -269,9 +262,9 @@ public class HlOperator/* extends HtFunctor */ implements Comparable, Cloneable 
      *
      * @return A shallow copy of the symbol.
      */
-    public HlOperator copySymbol () {
+    public HlOpSymbol copySymbol () {
         try {
-            return (HlOperator) clone();
+            return (HlOpSymbol) clone();
         } catch (CloneNotSupportedException e) {
             throw new IllegalStateException("Got a CloneNotSupportedException but clone is defined on Operator and should not fail.", e);
         }
@@ -298,6 +291,10 @@ public class HlOperator/* extends HtFunctor */ implements Comparable, Cloneable 
         // Create a new state and copy the existing board position into it
 
         return super.clone();
+    }
+
+    public int getName () {
+        return name;
     }
 
     /**
@@ -346,20 +343,32 @@ public class HlOperator/* extends HtFunctor */ implements Comparable, Cloneable 
             this.arity = arity;
         }
 
-        public HlOperator.Associativity round () {
+        /**
+         * @return
+         */
+        public HlOpSymbol.Associativity round () {
+            Associativity result;
             switch (this) {
                 case xfy:
                 case yfx:
-                    return xfx;
+                    result = xfx;
+                    break;
                 case fy:
-                    return fx;
+                    result = fx;
+                    break;
                 case yf:
-                    return xf;
+                    result = xf;
+                    break;
                 default:
-                    return this;
+                    result = this;
+                    break;
             }
+            return result;
         }
 
+        /**
+         * @return
+         */
         public int lprio () {
             switch (this) {
                 case yfx:
@@ -395,6 +404,11 @@ public class HlOperator/* extends HtFunctor */ implements Comparable, Cloneable 
          * Post-fix.
          */
         Post,
+
+        /**
+         *
+         */
+        textName,
 
         /**
          * In-fix.

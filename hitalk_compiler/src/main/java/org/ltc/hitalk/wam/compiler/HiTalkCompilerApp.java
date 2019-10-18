@@ -3,7 +3,6 @@ package org.ltc.hitalk.wam.compiler;
 import com.thesett.aima.logic.fol.*;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
-import com.thesett.common.util.doublemaps.SymbolTableImpl;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.VFS;
@@ -18,11 +17,12 @@ import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtProperty;
-import org.ltc.hitalk.entities.context.CompilationContext;
 import org.ltc.hitalk.entities.context.Context;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.LoadContext;
+import org.ltc.hitalk.parser.HiTalkParser;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.ltc.hitalk.term.io.HiTalkStream;
@@ -33,9 +33,12 @@ import org.ltc.hitalk.wam.printer.HtPositionalTermVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.net.MalformedURLException;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +47,7 @@ import static org.ltc.hitalk.compiler.bktables.BkTableKind.LOADED_ENTITIES;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource.getTokenSourceForInputStream;
 import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource.getTokenSourceForVfsFileObject;
+import static org.ltc.hitalk.wam.compiler.Language.HITALK;
 
 /**
  * Reloading files, active code and threads
@@ -181,6 +185,12 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
         this.config = config;
     }
 
+    /**
+     * @param symbolTable
+     * @param interner
+     * @param parser
+     * @return
+     */
     @Override
     public BaseCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>
     createWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
@@ -189,13 +199,12 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
         return new HiTalkWAMCompiler(symbolTable, interner, parser);
     }
 
-    public PlPrologParser createParser ( HiTalkStream stream, VariableAndFunctorInterner interner, ITermFactory factory, PlOperatorTable opTable ) {
-        return new PlPrologParser(stream, interner, factory, opTable);
-    }
-
-    @Override
-    public String namespace ( String varOrFunctor ) {
-        return "";
+    public IParser createParser ( HiTalkStream stream,
+                                  VariableAndFunctorInterner interner,
+                                  ITermFactory factory,
+                                  IOperatorTable opTable ) {
+        return new HiTalkParser(stream, interner, factory, opTable,//fixme
+                new PlPrologParser(stream, interner, factory, opTable));
     }
 
     public HtEntityIdentifier LOGTALK;
@@ -209,7 +218,6 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
     public Functor END_CATEGORY;
     public Functor END_PROTOCOL;
 
-
     /**
      * Used for logging to the console.
      */
@@ -222,7 +230,6 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
      * Can be used to perform conditional code optimizations in term_expansion/2 (see also the -O option)
      * or to omit execution of directives during compilation.
      */
-    protected ITermFactory tf;
 
     protected DefaultFileSystemManager fsManager;
     private static final String vfsPath = "C:/Users/Anthony_2/VFS";
@@ -232,7 +239,7 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
     /**
      * Holds the instruction generating compiler.
      */
-    protected String scratchDirectory;
+//    protected Path scratchDirectory;
     private LogicCompilerObserver <T, Q> observer;
 
     /**
@@ -243,21 +250,16 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
     }
 
     protected BookKeepingTables bkt = new BookKeepingTables();
-    protected CompilationContext compilationContext;
-    protected LoadContext loadContext;
-    protected ExecutionContext executionContext;
+//    protected CompilationContext compilationContext;
+//    protected LoadContext loadContext;
+//    protected ExecutionContext executionContext;
 
     /**
      * Holds the pre-compiler, for analyzing and transforming terms prior to compilation proper.
      */
-    protected String fileName;
 
-    /**
-     *
-     */
-//    protected CompilerConfig config;
-
-    protected HiTalkDefaultBuiltIn defaultBuiltIn;
+//    protected String fileName;
+//    protected HiTalkDefaultBuiltIn defaultBuiltIn;
     protected HiTalkBuiltInTransform <HiTalkCompilerApp, T> builtInTransform;
 
     /**
@@ -308,11 +310,11 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
      */
     protected HtProperty[] createFlags ( LoadContext loadContext, String scratchDirectory ) {
         HtProperty[] flags = new HtProperty[]{///todo flags
-                tf.createFlag("basename", fileName),//FIXME PARSE
-                tf.createFlag("directory", fileName),//FIXME PARSE
-                tf.createFlag("entity_identifier", new Functor(-1, null)),//FIXME PARSE
-                tf.createFlag("file", fileName),//FIXME PARSE
-                tf.createFlag("basename", fileName),//FIXME PARSE
+                getTermFactory().createFlag("basename", fileName),//FIXME PARSE
+                getTermFactory().createFlag("directory", fileName),//FIXME PARSE
+                getTermFactory().createFlag("entity_identifier", new Functor(-1, null)),//FIXME PARSE
+                getTermFactory().createFlag("file", fileName),//FIXME PARSE
+                getTermFactory().createFlag("basename", fileName),//FIXME PARSE
         };
 
         return flags;
@@ -325,14 +327,15 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
         initBookKeepingTables();
         initDirectives();
         cacheCompilerFlags();
-        String scratchDirectory = loadBuiltInEntities();
+        Path scratchDirectory = loadBuiltInEntities();
         startRuntimeThreading();
         Object result = loadSettingsFile(scratchDirectory);
 //        printMessage(BANNER, CORE, BANNER);
 //        printMessage(comment(settings), CORE, DEFAULT_FLAGS);
 //        expandGoals()
 //        ;
-//        compileHooks();        reportSettingsFile(result);
+//        compileHooks();
+        reportSettingsFile(result);
     }
 
     /**
@@ -342,7 +345,7 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
 
     }
 
-    public InputStream getResource ( String s ) throws ClassNotFoundException, MalformedURLException, FileSystemException {
+    public InputStream getResource ( String s ) throws FileSystemException {
 //    fsManager.addOperationProvider();
 //       URL url = new URL("");
 
@@ -354,17 +357,11 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
         }
         return in;
     }
-    /**
-     * @param scratchDir
-     * @return
-     * @throws IOException
-     * @throws SourceCodeException
-     */
-    protected Object loadSettingsFile ( String scratchDir ) throws Exception {
-        InputStream input = new FileInputStream("c:\\Users\\Anthony_2\\IdeaProjects\\WAM\\hitalk_compiler\\src\\main\\resources\\empty.pl");
-//        InputStream input = new FileInputStream("c:\\Users\\Anthony_2\\IdeaProjects\\WAM\\hitalk_compiler\\src\\main\\resources\\test.pl");
-        logtalkCompile(input);
-        return null;
+
+
+    protected Object loadSettingsFile ( Path scratchDirectory ) throws Exception {
+
+        return super.loadSettingsFile(scratchDirectory);
     }
 
     /**
@@ -384,7 +381,7 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
      * @throws IOException
      * @throws SourceCodeException
      */
-    protected void loadBuiltInEntity ( HtEntityIdentifier identifier, String fileName, String scratchDir ) throws Exception {
+    protected void loadBuiltInEntity ( HtEntityIdentifier identifier, String fileName, Path scratchDir ) throws Exception {
         List rs = bkt.select(LOADED_ENTITIES);
         if (rs.isEmpty()) {
             loadContext.setProps(createProps(scratchDir));
@@ -393,26 +390,26 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
         }
     }
 
-    protected HtProperty[] createProps ( String scratchDir ) {
+    protected HtProperty[] createProps ( Path scratchDir ) {
         return new HtProperty[0];
     }
 
-    protected HtProperty[] createFlags ( String scratchDir ) {
+    protected HtProperty[] createFlags ( Path scratchDir ) {
         return new HtProperty[]{
                 //we need a fixed code prefix as some of the entity predicates may need
 //                    to be called directly by the compiler/runtime
-                tf.createFlag("code_prefix", "$"),
+                getTermFactory().createFlag("code_prefix", "$"),
                 //delete the generated intermediate files as they may be non-portable
                 //between backend Prolog compilers
-                tf.createFlag("clean", "on"),
+                getTermFactory().createFlag("clean", "on"),
                 //use a scratch directory where we expect to have writing permission
-                tf.createFlag("scratch_directory", scratchDir),
+                getTermFactory().createFlag("scratch_directory", scratchDir),
                 //optimize entity code, allowing static binding to this entity resource
-                tf.createFlag("optimize", "on"),
+                getTermFactory().createFlag("optimize", "on"),
                 //don't print any messages on the compilation and loading of these entities
-                tf.createFlag("report", "off"),
+                getTermFactory().createFlag("report", "off"),
                 //prevent any attempts of logtalk_make(all) to reload this file
-                tf.createFlag("reload", "skip")};
+                getTermFactory().createFlag("reload", "skip")};
     }
 
     /**
@@ -1090,11 +1087,12 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
     /**
      * loads all built-in entities if not already loaded (when embedding
      * Logtalk, the pre-compiled entities are loaded prior to this file)
+     * @return
      */
-    protected String loadBuiltInEntities () throws Exception {
-        getLogger().info("Loading built-in entities");
+    protected Path loadBuiltInEntities () throws Exception {
+        getLogger().info("Loading built-in entities... ");
 
-        String scratchDir = getScratchDirectory();
+        Path scratchDir = getScratchDirectory();
         loadContext.reset();//TODO
         loadBuiltInEntity(EXPANDING, "expanding", scratchDir);
         loadBuiltInEntity(MONITORING, "monitoring", scratchDir);
@@ -1155,6 +1153,7 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
      * ;	% bare-bones message printing
      * writeq(Component), write(' '), write(Kind), write(': '), writeq(Message), nl
      * ).
+     * @return
      */
 //    protected
 //    void printMessage ( Functor kind, Atom component, Atom message ){
@@ -1163,7 +1162,10 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
 ////
 ////        }
 //        }
-    public String getScratchDirectory () {
+    public Path getScratchDirectory () {
+        if (scratchDirectory == null) {
+            scratchDirectory = Paths.get(DEFAULT_SCRATCH_DIRECTORY).toAbsolutePath();
+        }
         return scratchDirectory;
     }
 
@@ -1210,91 +1212,56 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
      */
     @Override
     public void doInit () throws LinkageException, IOException {
-        getLogger().info("Initializing ");
-
-        setSymbolTable(new SymbolTableImpl <>());
-        interner = new VariableAndFunctorInternerImpl(namespace("Variable"), namespace("Functor"));
-        setParser(createParser(new HiTalkStream(), interner, ));
-        //setParser(new HiTalkParser(interner.internFunctorName(value, 0)interner.internFunctorName(value, 0)etTokenSourceForInputStream(in, "stdin"), interner));
-
-        compiler = createWAMCompiler(getSymbolTable(), getInterner(), getParser());
-        bkt = new BookKeepingTables();
-        setConfig(new CompilerConfig());
-        scratchDirectory = "./" + DEFAULT_SCRATCH_DIRECTORY;
-
-        tf = new TermFactory(interner);
-
-        EXPANDING = tf.createIdentifier(HtEntityKind.PROTOCOL, "expanding");
-        MONITORING = tf.createIdentifier(HtEntityKind.PROTOCOL, "monitoring");
-        FORWARDING = tf.createIdentifier(HtEntityKind.PROTOCOL, "forwarding");
-        USER = tf.createIdentifier(HtEntityKind.OBJECT, "user");
-        LOGTALK = tf.createIdentifier(HtEntityKind.OBJECT, "logtalk");
-        CORE_MESSAGES = tf.createIdentifier(HtEntityKind.CATEGORY, "core_messages");
-        OBJECT = tf.createAtom("object");
-        PROTOCOL = tf.createAtom("protocol");
-        CATEGORY = tf.createAtom("category");
-        END_OBJECT = tf.createAtom("end_object");
-//        END_ENUM = tf.createAtom("end_enum");
-        END_PROTOCOL = tf.createAtom("end_protocol");
-        END_CATEGORY = tf.createAtom("end_category");
-
-//        ENUM = tf.createIdentifier(HtEntityKind.OBJECT, "enum");
+//            setSymbolTable(new SymbolTableImpl <>());
+//            interner = new VariableAndFunctorInternerImpl(namespace("Variable"), namespace("Functor"));
+////        setParser(createParser(new, interner, new, opTable));
+//            //setParser(new HiTalkParser(interner.internFunctorName(value, 0)interner.internFunctorName(value, 0)etTokenSourceForInputStream(in, "stdin"), interner));
 //
-//        DEFAULT_FLAGS = new HtProperty[]{
-//                tf.createFlag("access", "read_write"),//read_only
-//                tf.createFlag("keep", "false"),
-//                //
-//                tf.createFlag("type", "false"),
+//            compiler = createWAMCompiler(getSymbolTable(), getInterner(), getParser());
+//            bkt = new BookKeepingTables();
+//            setConfig(new CompilerConfig());
+//            scratchDirectory = "./" + DEFAULT_SCRATCH_DIRECTORY;
 //
-//                };
-
-        compilationContext = new CompilationContext();
-        loadContext = new LoadContext(DEFAULT_PROPS);
-        executionContext = new ExecutionContext();
-
-        initVfs();
-
-//=============================
-        super.doInit();
-    }
-
-//    protected void initVfs () {
-//        try {
-//            fsManager = new DefaultFileSystemManager();
-////            fsManager.setLogger((Log) logger);
-//            fsManager.addProvider("file", new DefaultLocalFileProvider());
-//            fsManager.addProvider("zip", new ZipFileProvider());
-//            fsManager.addProvider("ram", new RamFileProvider());
-//            fsManager.addProvider("jar", new JarFileProvider());
-//            fsManager.addProvider("temp", new TemporaryFileProvider());//ram zip
-//            fsManager.addProvider("res", new ResourceFileProvider());
-//            fsManager.addProvider("url", new UrlFileProvider());
-////            fsManager.addProvider("vfs2nio", new org.ltc.hitalk.com.sshtools.vfs2nio.Vfs2NioFileSystemProvider());
+//            getTermFactory() = new TermFactory(interner);
+//
+//
+////        ENUM = getTermFactory().createIdentifier(HtEntityKind.OBJECT, "enum");
 ////
-////            /* Creation of root directory for VFS */
-////            is = new InputStreamReader(System.in);
-////            br = new BufferedReader(is);
-////            File f = new File("C:\\");
-////            URI uri = f.toURI();
-////            fsManager.setBaseFile(new File(System.getProperty("user.dir")));
+////        DEFAULT_FLAGS = new HtProperty[]{
+////                getTermFactory().createFlag("access", "read_write"),//read_only
+////                getTermFactory().createFlag("keep", "false"),
+////                //
+////                getTermFactory().createFlag("type", "false"),
+////
+////                };
 //
-//            fsManager.setCacheStrategy(CacheStrategy.ON_RESOLVE);
 //
-//            fsManager.init();
 //
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            throw new ExecutionError(PERMISSION_ERROR, null);
-//        }
+//            initVfs();
+        super.doInit();
+        EXPANDING = getTermFactory().createIdentifier(HtEntityKind.PROTOCOL, "expanding");
+        MONITORING = getTermFactory().createIdentifier(HtEntityKind.PROTOCOL, "monitoring");
+        FORWARDING = getTermFactory().createIdentifier(HtEntityKind.PROTOCOL, "forwarding");
+        USER = getTermFactory().createIdentifier(HtEntityKind.OBJECT, "user");
+        LOGTALK = getTermFactory().createIdentifier(HtEntityKind.OBJECT, "logtalk");
+        CORE_MESSAGES = getTermFactory().createIdentifier(HtEntityKind.CATEGORY, "core_messages");
+        OBJECT = getTermFactory().createAtom("object");
+        PROTOCOL = getTermFactory().createAtom("protocol");
+        CATEGORY = getTermFactory().createAtom("category");
+        END_OBJECT = getTermFactory().createAtom("end_object");
+//        END_ENUM = getTermFactory().createAtom("end_enum");
+        END_PROTOCOL = getTermFactory().createAtom("end_protocol");
+        END_CATEGORY = getTermFactory().createAtom("end_category");
+//=============================
+    }
+
+    public Language language () {
+        return HITALK;
+    }
+
+//    public Tools tool () {
+//        return COMPILER;
 //    }
-
-    public String language () {
-        return "HiTalk";
-    }
-
-    public String tool () {
-        return "compiler";
-    }
 
     /**
      * @return
@@ -1306,45 +1273,19 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
     }
 
     /**
-     *
-     */
-    @Override
-    public void doStart () {
-        getLogger().info("Starting ");
-        setTarget(() -> {
-            try {
-                initialize();
-                compiler.compileFile(fileName, loadContext.getFlags());
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new ExecutionError(PERMISSION_ERROR, null);
-            }
-
-        });
-        getLogger().info("Running target ");
-        getTarget().run();
-    }
-
-    @Override
-    public IProduct product () {
-        return null;
-    }
-
-
-    /**
      * @return
      */
     public ExecutionContext getExecutionContext () {
         return executionContext;
     }
 
-    public void setDefaultBuiltIn ( HiTalkDefaultBuiltIn defaultBuiltIn ) {
-        this.defaultBuiltIn = defaultBuiltIn;
-    }
-
-    public HiTalkDefaultBuiltIn getDefaultBuiltIn () {
-        return defaultBuiltIn;
-    }
+//    public void setDefaultBuiltIn ( HiTalkDefaultBuiltIn defaultBuiltIn ) {
+//        this.defaultBuiltIn = defaultBuiltIn;
+//    }
+//
+//    public HiTalkDefaultBuiltIn getDefaultBuiltIn () {
+//        return defaultBuiltIn;
+//    }
 
     public void setBuiltInTransform ( HiTalkBuiltInTransform <HiTalkCompilerApp, T> builtInTransform ) {
         this.builtInTransform = builtInTransform;

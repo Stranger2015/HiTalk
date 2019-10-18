@@ -3,7 +3,6 @@ package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
-import com.thesett.aima.logic.fol.VariableAndFunctorInternerImpl;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.common.util.doublemaps.SymbolTableImpl;
 import org.apache.commons.vfs2.*;
@@ -17,26 +16,32 @@ import org.apache.commons.vfs2.provider.url.UrlFileProvider;
 import org.apache.commons.vfs2.provider.zip.ZipFileProvider;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.BaseCompiler;
+import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.IProduct;
-import org.ltc.hitalk.compiler.bktables.PlOperatorTable;
-import org.ltc.hitalk.compiler.bktables.TermFactory;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.BaseApplication;
+import org.ltc.hitalk.core.HtVersion;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.context.CompilationContext;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.LoadContext;
+import org.ltc.hitalk.interpreter.HtProduct;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.ltc.hitalk.term.io.HiTalkStream;
+import org.ltc.hitalk.term.io.TermIO;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
+import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
+import static org.ltc.hitalk.wam.compiler.Tools.COMPILER;
 
 /**
  *
@@ -50,11 +55,14 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
 
     protected DefaultFileSystemManager fsManager;
     protected BaseCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> compiler;
-    protected ITermFactory tf;
-    protected String scratchDirectory;
-    protected CompilationContext compilationContext;
-    protected LoadContext loadContext;
-    protected ExecutionContext executionContext;
+
+    protected Path scratchDirectory = Paths.get(DEFAULT_SCRATCH_DIRECTORY).toAbsolutePath();
+    protected CompilationContext compilationContext = new CompilationContext();
+    protected LoadContext loadContext = new LoadContext(DEFAULT_PROPS);
+    protected ExecutionContext executionContext = new ExecutionContext();
+    protected IProduct product = new HtProduct("Copyright (c) Anton Danilov 2018-2019, All rights reserved",
+            PROLOG.name() + " " + COMPILER.name(),
+            new HtVersion(0, 1, 0, 50, " ", true));
 
     /**
      *
@@ -62,29 +70,23 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
     public PrologCompilerApp () {
     }
 
-    @Override
-    public BaseCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> createWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner, PlPrologParser parser ) {
+    //    @Override
+    public BaseCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> createWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
+                                                                                                 VariableAndFunctorInterner interner,
+                                                                                                 PlPrologParser parser ) {
         return new PrologWAMCompiler(symbolTable, interner, parser);
     }
 
     @Override
-    public void init () throws LinkageException, IOException {
-
-    }
-
-    @Override
     public String namespace ( String varOrFunctor ) {
-        return null;
-    }//fixme
-
-    @Override
-    public void clear () throws LinkageException, IOException {
-
+        return "namespace " + varOrFunctor;
     }
 
-    @Override
-    public void reset () throws LinkageException, IOException {
-
+    public LoadContext getLoadContext () {
+        if (loadContext == null) {
+            loadContext = new LoadContext(DEFAULT_PROPS);
+        }
+        return loadContext;
     }
 
     /**
@@ -92,18 +94,18 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
      */
     @Override
     public void doInit () throws LinkageException, IOException {
-        getLogger().info("Initializing ");
-
+        super.doInit();
         setSymbolTable(new SymbolTableImpl <>());
-        interner = new VariableAndFunctorInternerImpl(namespace("Variable"), namespace("Functor"));
-        setParser(createParser(PlTokenSource.getTokenSourceForInputStream(null, "stdin"), interner));
+
+//        setParser(createParser(getParser()));
+//                PlTokenSource.getTokenSourceForInputStream(null, "stdin"), interner));
 
         compiler = createWAMCompiler(getSymbolTable(), getInterner(), getParser());
 //        bkt = new BookKeepingTables();
         setConfig(new CompilerConfig());
-        scratchDirectory = "./" + DEFAULT_SCRATCH_DIRECTORY;
+        //scratchDirectory = "./" + DEFAULT_SCRATCH_DIRECTORY;
 
-        tf = new TermFactory(interner);
+//            termFactory = new TermFactory(interner);
 
 //        DEFAULT_FLAGS = new HtProperty[]{
 //                tf.createFlag("access", "read_write"),//read_only
@@ -118,15 +120,22 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
         executionContext = new ExecutionContext();
 
         initVfs();
-
 //=============================
-        super.doInit();
     }
 
-    public PlPrologParser createParser ( HiTalkStream stream,
-                                         VariableAndFunctorInterner interner,
-                                         ITermFactory factory,
-                                         PlOperatorTable optable ) {
+    /**
+     *
+     */
+    @Override
+    public void undoInit () {
+        getLogger().info("cancelled!");
+        initialized.set(false);
+    }
+
+    public IParser createParser ( HiTalkStream stream,
+                                  VariableAndFunctorInterner interner,
+                                  ITermFactory factory,
+                                  IOperatorTable optable ) {
         return new PlPrologParser(stream, interner, factory, optable);
     }
 
@@ -160,13 +169,48 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
         }
     }
 
-    @Override
-    public void start () throws Exception {
+    /**
+     *
+     */
+    public void initialize () throws Exception {
+//        initBookKeepingTables();
+        initDirectives();
+        cacheCompilerFlags();
+        Path scratchDirectory = loadBuiltIns();
+        startRuntimeThreading();
+        Object result = loadSettingsFile(scratchDirectory);
+        reportSettingsFile(result);
+    }
+
+    private void reportSettingsFile ( Object result ) {
 
     }
 
-    @Override
-    public void setStarted ( boolean b ) throws Exception {
+    /**
+     * @param scratchDir
+     * @return
+     * @throws IOException
+     */
+    protected Object loadSettingsFile ( Path scratchDir ) throws Exception {
+        InputStream input = new FileInputStream("c:\\Users\\Anthony_2\\IdeaProjects\\WAM\\hitalk_compiler\\src\\main\\resources\\empty.pl");
+//        InputStream input = new FileInputStream("c:\\Users\\Anthony_2\\IdeaProjects\\WAM\\hitalk_compiler\\src\\main\\resources\\test.pl");
+//        logtalkCompile(input);
+        return scratchDir;
+    }
+
+    private void startRuntimeThreading () {
+
+    }
+
+    private Path loadBuiltIns () {
+        return null;
+    }
+
+    private void cacheCompilerFlags () {
+    }
+
+    private void initDirectives () {
+
 
     }
 
@@ -175,52 +219,42 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
      */
     @Override
     public void doStart () throws Exception {
-        getLogger().info("Starting ");
+        getLogger().info("Starting... ");
         setTarget(() -> {
             try {
-                initialize();
+                this.initialize();
                 getCompiler().compile(fileName, loadContext.getFlags());
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new ExecutionError(PERMISSION_ERROR, null);
             }
-
         });
         getLogger().info("Running target ");
         getTarget().run();
     }
+
+//    @Override
+public void setInterner ( VariableAndFunctorInterner interner ) {
+    TermIO.instance().setInterner(interner);
+}
 
     private BaseCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> getCompiler () {
         return compiler;
     }
 
     @Override
-    public void run () {
-
-    }
-
-    @Override
     public IProduct product () {
-        return null;
+        return product;
     }
 
     @Override
-    public String language () {
-        return null;
+    public Language language () {
+        return PROLOG;
     }
 
     @Override
-    public String tool () {
-        return null;
-    }
-
-    @Override
-    public void banner () {
-
-    }
-
-    public void initialize () throws Exception {
-
+    public Tools tool () {
+        return COMPILER;
     }
 
     protected FileObject createScratchDirectory () throws Exception {
