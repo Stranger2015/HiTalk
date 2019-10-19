@@ -32,6 +32,19 @@ public class BaseCompiler<P, Q> extends BaseMachine implements ICompiler <P, Q> 
     protected BaseInstructionCompiler <P, Q> instructionCompiler;
     protected PrologPreCompiler preCompiler;
 
+    /**
+     * @return
+     */
+    public PrologPreCompiler getPreCompiler () {
+        return preCompiler;
+    }
+
+
+    /**
+     * @param symbolTable
+     * @param interner
+     * @param parser
+     */
     public BaseCompiler ( SymbolTable <Integer, String, Object> symbolTable,
                           VariableAndFunctorInterner interner, PlPrologParser parser ) {
         super(symbolTable, interner);

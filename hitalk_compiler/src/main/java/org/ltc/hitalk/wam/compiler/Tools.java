@@ -26,4 +26,8 @@ public enum Tools implements Tool {
     public Set <SourceVersion> getSourceVersions () {
         return null;
     }
+
+    public String getName () {
+        return name;
+    }
 }

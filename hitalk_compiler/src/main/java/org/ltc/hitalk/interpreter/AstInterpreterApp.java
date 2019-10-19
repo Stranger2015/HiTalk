@@ -21,8 +21,6 @@ import static org.ltc.hitalk.wam.compiler.Tools.INTERPRETER;
 public
 class AstInterpreterApp<T extends HtClause, P, Q> extends BaseApplication <T, P, Q> {
 
-//    private BaseCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> WAMCompiler;
-
     /**
      * @param arg
      */
@@ -59,6 +57,11 @@ class AstInterpreterApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
 
     @Override
     public void undoInit () {
+
+    }
+
+    @Override
+    public void shutdown () {
 
     }
 

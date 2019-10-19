@@ -283,12 +283,6 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
         }
     }
 
-    @Override
-    public void shutdown () {
-//        setShuttingDown(true);
-        fsManager.close();
-    }
-
     /**
      * String basename;
      * Path directory;
@@ -1087,6 +1081,7 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
     /**
      * loads all built-in entities if not already loaded (when embedding
      * Logtalk, the pre-compiled entities are loaded prior to this file)
+     *
      * @return
      */
     protected Path loadBuiltInEntities () throws Exception {
@@ -1153,6 +1148,7 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
      * ;	% bare-bones message printing
      * writeq(Component), write(' '), write(Kind), write(': '), writeq(Message), nl
      * ).
+     *
      * @return
      */
 //    protected

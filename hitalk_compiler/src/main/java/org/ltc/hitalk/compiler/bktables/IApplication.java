@@ -174,8 +174,9 @@ public interface IApplication extends Runnable, IConfigurable {
 
     /**
      *
+     * @return
      */
-    void isShuttingDown ();
+    boolean isShuttingDown ();
 
     /**
      *
@@ -200,7 +201,6 @@ public interface IApplication extends Runnable, IConfigurable {
     enum State {
         INITED, RUNNING, PAUSED, INTERRUPTED, TERMINATED;
     }
-
 
     /**
      * @return

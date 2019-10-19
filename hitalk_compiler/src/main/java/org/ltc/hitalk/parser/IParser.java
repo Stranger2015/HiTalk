@@ -125,9 +125,7 @@ public interface IParser extends TermParser <Term> {
         return getParser().next();
     }
 
-    default Sentence <HtClause> parseClause () {
-        return getParser().parseClause();
-    }
+    Sentence <HtClause> parseClause ();
 
     default HtClause sentence () {
         return getParser().sentence();

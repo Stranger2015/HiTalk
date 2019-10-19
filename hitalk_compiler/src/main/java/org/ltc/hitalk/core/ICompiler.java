@@ -31,13 +31,11 @@ public interface ICompiler<P, Q> extends LogicCompiler <HtClause, P, Q> {
      * @throws IOException
      * @throws SourceCodeException
      */
-    default
-    void compileFiles ( List <String> fnl ) throws IOException, SourceCodeException {
+    default void compileFiles ( List <String> fnl ) throws IOException, SourceCodeException {
         compileFiles(fnl, EMPTY_FLAG_ARRAY);
     }
 
-    default
-    void compileFiles ( List <String> fnl, HtProperty... flags ) throws IOException, SourceCodeException {
+    default void compileFiles ( List <String> fnl, HtProperty... flags ) throws IOException, SourceCodeException {
         for (String fn : fnl) {
             compileFile(fn, flags);
         }
@@ -47,8 +45,7 @@ public interface ICompiler<P, Q> extends LogicCompiler <HtClause, P, Q> {
      * @param fn
      * @throws IOException
      */
-    default
-    void compileFile ( String fn, HtProperty... flags ) throws IOException, SourceCodeException {
+    default void compileFile ( String fn, HtProperty... flags ) throws IOException, SourceCodeException {
         compile(PlTokenSource.getTokenSourceForIoFile(new File(fn)), flags);
     }
 
@@ -58,9 +55,8 @@ public interface ICompiler<P, Q> extends LogicCompiler <HtClause, P, Q> {
      * @throws IOException
      * @throws SourceCodeException
      */
-    default
-    void compileString ( String fn, HtProperty... flags ) throws Exception {
-        compile(PlTokenSource.getPlTokenSourceForString(fn, 1), flags);
+    default void compileString ( String fn, HtProperty... flags ) throws Exception {
+//        compile(PlTokenSource.getPlTokenSourceForString(fn, 1), flags);
     }
 
     /**
@@ -68,7 +64,7 @@ public interface ICompiler<P, Q> extends LogicCompiler <HtClause, P, Q> {
      * @param flags
      */
     default void compile ( PlTokenSource tokenSource, HtProperty... flags ) {
-        getConsole().info("Compiling " + tokenSource.getPath());
+        getConsole().info("Compiling " + tokenSource.getPath() + "... ");
         getParser().setTokenSource(tokenSource);
         try {
 //            while (true) {

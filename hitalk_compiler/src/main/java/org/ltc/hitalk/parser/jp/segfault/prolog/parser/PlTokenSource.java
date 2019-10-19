@@ -19,7 +19,10 @@ import org.ltc.hitalk.wam.compiler.HtFunctorName;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Path;
 
@@ -111,16 +114,18 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     /**
      * Creates a token source on a string.
      *
-     * @param stringToTokenize The string to tokenize.
      * @return A token source.
      */
-    public static PlTokenSource getPlTokenSourceForString ( String stringToTokenize, int lineOfs ) throws IOException {
-        InputStream input = new ByteArrayInputStream(stringToTokenize.getBytes());
-        return getTokenSourceForInputStream(input, "");//fixme
-    }
+//    public static PlTokenSource getPlTokenSourceForString ( String stringToTokenize, int lineOfs ) throws IOException {
+//        InputStream input = new ByteArrayInputStream(stringToTokenize.getBytes());
+//        return getTokenSourceForInputStream(input, "");//fixme
+//    }
 
     public static PlTokenSource getTokenSourceForIoFile ( File file ) throws IOException {
-        return getTokenSourceForUri(file.toURI());
+        FileInputStream in = new FileInputStream(file);
+        PlLexer lexer = new PlLexer(new HiTalkStream(in));
+
+        return new PlTokenSource(lexer, in, file.getAbsolutePath());
     }
 
     private static PlTokenSource getTokenSourceForUri ( URI uri ) throws IOException {
@@ -155,6 +160,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     public static PlTokenSource getTokenSourceForInputStream ( InputStream in, String path ) throws IOException {
 //        InputStreamReader input = new InputStreamReader(in);
 //        SimpleCharStream inputStream = new SimpleCharStream(input, 1, 1);
+//        if(in in)
         PlLexer lexer = new PlLexer(new HiTalkStream(new FileInputStream(path)));
 
         return new PlTokenSource(lexer, in, path);

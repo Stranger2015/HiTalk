@@ -4,22 +4,17 @@ package org.ltc.hitalk.interpreter;
 import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.aima.logic.fol.isoprologparser.PrologParser;
 import com.thesett.common.parsing.SourceCodeException;
-import com.thesett.common.parsing.SourceCodePosition;
 import jline.ConsoleReader;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IConfigurable;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.ltc.hitalk.term.io.TermIO;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind.DOT;
-import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind.EOF;
 
 /**
  *
@@ -65,146 +60,98 @@ public interface IInterpreter<P, Q> extends IConfigurable, ICompiler <P, Q>, Res
         while (true) {
             String line = null;
 
-            try {
-                line = getConsoleReader().readLine(getQueryPrompt());
-                inputLines.add(line);
-                // JLine returns null if CTRL-D is pressed. Exit program getMode() back to query getMode(), or exit the
-                // interpreter completely from query getMode().
-                if ((line == null) && ((getMode() == Mode.Query) || (getMode() == Mode.QueryMultiLine))) {
-                    /*log.fine("CTRL-D in query getMode(), exiting.");*/
+            line = getConsoleReader().readLine(getQueryPrompt());
+            inputLines.add(line);
+            // JLine returns null if CTRL-D is pressed. Exit program getMode() back to query getMode(), or exit the
+            // interpreter completely from query getMode().
+            if ((line == null) && ((getMode() == Mode.Query) || (getMode() == Mode.QueryMultiLine))) {
+                /*log.fine("CTRL-D in query getMode(), exiting.");*/
 
-                    System.out.println();
-                    break;
-                }
-                else if ((line == null) && (getMode() == Mode.Program || (getMode() == Mode.ProgramMultiLine))) {
-                    /*log.fine("CTRL-D in program getMode(), returning to query getMode().");*/
+                System.out.println();
+                break;
+            } else if ((line == null) && (getMode() == Mode.Program || (getMode() == Mode.ProgramMultiLine))) {
+                /*log.fine("CTRL-D in program getMode(), returning to query getMode().");*/
 
-                    System.out.println();
-                    mode = Mode.Query; /////fixme
+                System.out.println();
+                mode = Mode.Query; /////fixme
+                continue;
+            }
+
+            // Check the input to see if a system directive was input. This is only allowed in query getMode(), and is
+            // handled differently to normal queries.
+            if (getMode() == Mode.Query) {
+//                    PlTokenSource tokenSource = PlTokenSource.getPlTokenSourceForString(line, lineNo);
+//                    getParser().setTokenSource(tokenSource);
+
+                PrologParser.Directive directive = getParser().peekAndConsumeDirective();
+
+                if (directive != null) {
+                    switch (directive) {
+                        case Trace:
+                            /*log.fine("Got trace directive.");*/
+                            break;
+                        case Info:
+                            /*log.fine("Got info directive.");*/
+                            break;
+                        case User:
+                            /*log.fine("Got user directive, entering program getMode().");*/
+                            mode = Mode.Program;
+                            break;
+                    }
+                    inputLines.clear();
                     continue;
                 }
-
-                // Check the input to see if a system directive was input. This is only allowed in query getMode(), and is
-                // handled differently to normal queries.
-                if (getMode() == Mode.Query) {
-                    PlTokenSource tokenSource = PlTokenSource.getPlTokenSourceForString(line, lineNo);
-                    getParser().setTokenSource(tokenSource);
-
-                    PrologParser.Directive directive = getParser().peekAndConsumeDirective();
-
-                    if (directive != null) {
-                        switch (directive) {
-                            case Trace:
-                                /*log.fine("Got trace directive.");*/
-                                break;
-                            case Info:
-                                /*log.fine("Got info directive.");*/
-                                break;
-                            case User:
-                                /*log.fine("Got user directive, entering program getMode().");*/
-                                mode = Mode.Program;
-                                break;
-                        }
-                        inputLines.clear();
-                        continue;
-                    }
-                }
-
-                // For normal queries, the query functor '?-' begins every statement, this is not passed back from
-                // JLine even though it is used as the command prompt.
-                if (getMode() == Mode.Query) {
-                    line = getQueryPrompt() + line;
-                    inputLines.set(inputLines.size() - 1, line);
-                }
-
-                // Buffer input tokens until EOL is reached, of the input is terminated with a PERIOD.
-                PlTokenSource tokenSource = PlTokenSource.getPlTokenSourceForString(line, lineNo);//todo
-                PlToken nextToken;
-
-                while (true) {
-                    nextToken = tokenSource.poll();
-
-                    if (nextToken == null) {
-                        break;
-                    }
-
-                    if (nextToken.kind == PlToken.TokenKind.DOT) {
-                        /*log.fine("Token was PERIOD.");*/
-                        mode = (getMode() == Mode.QueryMultiLine) ? Mode.Query : getMode();
-                        mode = (getMode() == Mode.ProgramMultiLine) ? Mode.Program : getMode();
-
-                        tokenBuffer.offer(nextToken);
-                        break;
-                    } else if (nextToken.kind == EOF) {
-                        /*log.fine("Token was EOF.");*/
-                        mode = (getMode() == Mode.Query) ? Mode.QueryMultiLine : getMode();
-                        mode = (getMode() == Mode.Program) ? Mode.ProgramMultiLine : getMode();
-
-                        lineNo++;
-                        break;
-                    }
-
-                    tokenBuffer.offer(nextToken);
-                }
-
-                // Evaluate the current token buffer, whenever the input is terminated with a PERIOD.
-                if ((nextToken != null) && (nextToken.kind == DOT)) {
-                    getParser().setTokenSource(tokenBuffer);
-
-                    // Parse the next clause.
-                    HtClause nextClause = getParser().sentence();
-
-                    /*log.fine(nextParsing.toString());*/
-                    evaluate(nextClause);
-
-                    inputLines.clear();
-                }
-            } catch (SourceCodeException e) {
-                SourceCodePosition sourceCodePosition = e.getSourceCodePosition().asZeroOffsetPosition();
-                int startLine = sourceCodePosition.getStartLine();
-                int endLine = sourceCodePosition.getEndLine();
-                int startColumn = sourceCodePosition.getStartColumn();
-                int endColumn = sourceCodePosition.getEndColumn();
-
-                System.out.println("[(" + startLine + ", " + startColumn + "), (" + endLine + ", " + endColumn + ")]");
-
-                for (int i = 0; i < inputLines.size(); i++) {
-                    String errorLine = inputLines.get(i);
-                    System.out.println(errorLine);
-
-                    // Check if the line has the error somewhere in it, and mark the part of it that contains the error.
-                    int pos = 0;
-
-                    if (i == startLine) {
-                        for (; pos < startColumn; pos++) {
-                            System.out.print(" ");
-                        }
-                    }
-
-                    if (i == endLine) {
-                        for (; pos <= endColumn; pos++) {
-                            System.out.print("^");
-                        }
-
-                        System.out.println();
-                    }
-
-                    if ((i > startLine) && (i < endLine)) {
-                        for (; pos < errorLine.length(); pos++) {
-                            System.out.print("^");
-                        }
-
-                        System.out.println();
-                    }
-                }
-
-                System.out.println();
-                System.out.println(e.getMessage());
-                System.out.println();
-
-                inputLines.clear();
-                tokenBuffer.clear();
             }
+
+            // For normal queries, the query functor '?-' begins every statement, this is not passed back from
+            // JLine even though it is used as the command prompt.
+            if (getMode() == Mode.Query) {
+                line = getQueryPrompt() + line;
+                inputLines.set(inputLines.size() - 1, line);
+            }
+
+            // Buffer input tokens until EOL is reached, of the input is terminated with a PERIOD.
+//                PlTokenSource tokenSource = PlTokenSource.getPlTokenSourceForString(line, lineNo);//todo
+            PlToken nextToken;
+
+//                while (true) {
+////                    nextToken = tokenSource.poll();
+////
+//                    if (nextToken == null) {
+//                        break;
+//                    }
+//
+//                    if (nextToken.kind == PlToken.TokenKind.DOT) {
+//                        /*log.fine("Token was PERIOD.");*/
+//                        mode = (getMode() == Mode.QueryMultiLine) ? Mode.Query : getMode();
+//                        mode = (getMode() == Mode.ProgramMultiLine) ? Mode.Program : getMode();
+//
+//                        tokenBuffer.offer(nextToken);
+//                        break;
+//                    } else if (nextToken.kind == EOF) {
+//                        /*log.fine("Token was EOF.");*/
+//                        mode = (getMode() == Mode.Query) ? Mode.QueryMultiLine : getMode();
+//                        mode = (getMode() == Mode.Program) ? Mode.ProgramMultiLine : getMode();
+//
+//                        lineNo++;
+//                        break;
+//                    }
+//
+//                    tokenBuffer.offer(nextToken);
+//                }
+//
+//                 Evaluate the current token buffer, whenever the input is terminated with a PERIOD.
+//                if ((nextToken != null) && (nextToken.kind == DOT)) {
+//                    getParser().setTokenSource(tokenBuffer);
+//
+//                     Parse the next clause.
+//                    HtClause nextClause = getParser().sentence();
+//
+//                    /*log.fine(nextParsing.toString());*/
+//                    evaluate(nextClause);
+//
+//                    inputLines.clear();
+//                }
         }
     }
 

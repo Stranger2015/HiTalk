@@ -33,6 +33,7 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
     protected final AtomicBoolean initialized = new AtomicBoolean(false);
     protected final AtomicBoolean started = new AtomicBoolean(false);
     protected final AtomicBoolean paused = new AtomicBoolean(false);
+    protected final AtomicBoolean shuttingDown = new AtomicBoolean(false);
 
     protected SymbolTable <Integer, String, Object> symbolTable = new SymbolTableImpl <>();
 
@@ -172,14 +173,14 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
 
     }
 
+//    @Override
+//    public void shutdown () {//todo
+//
+//    }
+
     @Override
-    public void shutdown () {//todo
-
-    }
-
-    @Override
-    public void isShuttingDown () {///todo
-
+    public boolean isShuttingDown () {
+        return shuttingDown.get();
     }
 
     @Override
@@ -210,6 +211,9 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
         return TermIO.instance().getInterner();
     }
 
+    /**
+     * @return
+     */
     @Override
     public SymbolTable <Integer, String, Object> getSymbolTable () {
         return symbolTable;
@@ -231,6 +235,9 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
         return TermIO.instance().getParser();
     }
 
+    /**
+     * @return
+     */
     public IOperatorTable getOperatorTable () {
         return TermIO.instance().getOptable();
     }
@@ -287,5 +294,12 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
      */
     public ITermFactory getTermFactory () {
         return TermIO.instance().getTermFactory();
+    }
+
+    /**
+     * @param shuttingDown
+     */
+    public void setShuttingDown ( boolean shuttingDown ) {
+        this.shuttingDown.set(shuttingDown);
     }
 }

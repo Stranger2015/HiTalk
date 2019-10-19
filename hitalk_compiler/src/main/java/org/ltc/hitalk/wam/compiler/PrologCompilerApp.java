@@ -2,7 +2,10 @@ package org.ltc.hitalk.wam.compiler;
 
 
 import com.thesett.aima.logic.fol.LinkageException;
+import com.thesett.aima.logic.fol.Sentence;
+import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
+import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.common.util.doublemaps.SymbolTableImpl;
 import org.apache.commons.vfs2.*;
@@ -16,6 +19,7 @@ import org.apache.commons.vfs2.provider.url.UrlFileProvider;
 import org.apache.commons.vfs2.provider.zip.ZipFileProvider;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.BaseCompiler;
+import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.IProduct;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
@@ -29,13 +33,13 @@ import org.ltc.hitalk.interpreter.HtProduct;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.term.io.TermIO;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 
-import java.io.FileInputStream;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -61,13 +65,17 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
     protected LoadContext loadContext = new LoadContext(DEFAULT_PROPS);
     protected ExecutionContext executionContext = new ExecutionContext();
     protected IProduct product = new HtProduct("Copyright (c) Anton Danilov 2018-2019, All rights reserved",
-            PROLOG.name() + " " + COMPILER.name(),
+            PROLOG.getName() + " " + COMPILER.getName(),
             new HtVersion(0, 1, 0, 50, " ", true));
 
     /**
      *
      */
     public PrologCompilerApp () {
+    }
+
+    public PrologCompilerApp ( String fn ) {
+        fileName = fn;
     }
 
     //    @Override
@@ -87,6 +95,20 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
             loadContext = new LoadContext(DEFAULT_PROPS);
         }
         return loadContext;
+    }
+
+    /**
+     * @param args
+     */
+    public static void main ( String[] args ) {
+        try {
+            IApplication application = new PrologCompilerApp <>(args[0]);
+            application.init();
+            application.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ExecutionError(PERMISSION_ERROR, null);
+        }
     }
 
     /**
@@ -192,9 +214,42 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
      * @throws IOException
      */
     protected Object loadSettingsFile ( Path scratchDir ) throws Exception {
-        InputStream input = new FileInputStream("c:\\Users\\Anthony_2\\IdeaProjects\\WAM\\hitalk_compiler\\src\\main\\resources\\empty.pl");
-//        InputStream input = new FileInputStream("c:\\Users\\Anthony_2\\IdeaProjects\\WAM\\hitalk_compiler\\src\\main\\resources\\test.pl");
-//        logtalkCompile(input);
+//        InputStream input = new FileInputStream();//
+        File file = new File("c:\\Users\\Anthony_2\\IdeaProjects\\WAM\\hitalk_compiler\\src\\main\\resources\\empty.pl");
+//        compiler.compile("c:\\Users\\Anthony_2\\IdeaProjects\\WAM\\hitalk_compiler\\src\\main\\resources\\empty.pl", new HtProperty[0]);
+
+        // Create a token source to load the model rules from.
+//        InputStream input = getClass().getClassLoader().getResourceAsStream(BUILT_IN_LIB);
+        PlTokenSource tokenSource = null;
+        try {
+            tokenSource = PlTokenSource.getTokenSourceForIoFile(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new ExecutionError(PERMISSION_ERROR, null);
+        }
+
+        // Set up a parser on the token source.
+        IParser libParser = TermIO.instance().getParser();
+        libParser.setTokenSource(tokenSource);
+
+        // Load the built-ins into the domain.
+        try {
+            while (true) {
+                Sentence <Term> sentence = libParser.parse();
+                if (sentence == null) {
+                    break;
+                }
+
+                compiler.compile(tokenSource);
+            }
+
+            compiler.endScope();
+        } catch (SourceCodeException e) {
+            // There should not be any errors in the built in library, if there are then the prolog engine just
+            // isn't going to work, so report this as a bug.
+            throw new IllegalStateException("Got an exception whilst loading the built-in library.", e);
+        }
+
         return scratchDir;
     }
 
@@ -229,14 +284,14 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
                 throw new ExecutionError(PERMISSION_ERROR, null);
             }
         });
-        getLogger().info("Running target ");
+        getLogger().info("Running target... ");
         getTarget().run();
     }
 
-//    @Override
-public void setInterner ( VariableAndFunctorInterner interner ) {
-    TermIO.instance().setInterner(interner);
-}
+    //    @Override
+    public void setInterner ( VariableAndFunctorInterner interner ) {
+        TermIO.instance().setInterner(interner);
+    }
 
     private BaseCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> getCompiler () {
         return compiler;
@@ -268,8 +323,13 @@ public void setInterner ( VariableAndFunctorInterner interner ) {
         return scratchFolder;
     }
 
-    private Path getScratchDirectory () {
+    public Path getScratchDirectory () {
+        System.getProperty("user.home");
         return Paths.get(DEFAULT_SCRATCH_DIRECTORY).toAbsolutePath();
     }
 
+    @Override
+    public void shutdown () {
+        fsManager.close();
+    }
 }
