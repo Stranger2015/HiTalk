@@ -1,6 +1,5 @@
 package org.ltc.hitalk.wam.compiler;
 
-
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.Term;
@@ -38,7 +37,6 @@ import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.term.io.TermIO;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -65,7 +63,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
     protected LoadContext loadContext = new LoadContext(DEFAULT_PROPS);
     protected ExecutionContext executionContext = new ExecutionContext();
     protected IProduct product = new HtProduct("Copyright (c) Anton Danilov 2018-2019, All rights reserved",
-            PROLOG.getName() + " " + COMPILER.getName(),
+            language().getName() + " " + tool().getName(),
             new HtVersion(0, 1, 0, 50, " ", true));
 
     /**
@@ -90,6 +88,9 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
         return "namespace " + varOrFunctor;
     }
 
+    /**
+     * @return
+     */
     public LoadContext getLoadContext () {
         if (loadContext == null) {
             loadContext = new LoadContext(DEFAULT_PROPS);
@@ -200,7 +201,8 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
         cacheCompilerFlags();
         Path scratchDirectory = loadBuiltIns();
         startRuntimeThreading();
-        Object result = loadSettingsFile(scratchDirectory);
+        Path path = Paths.get("c:\\Users\\Anthony_2\\IdeaProjects\\WAM\\hitalk_compiler\\src\\main\\resources\\empty.pl");
+        Object result = loadSettingsFile(path);
         reportSettingsFile(result);
     }
 
@@ -209,27 +211,18 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
     }
 
     /**
-     * @param scratchDir
+     *
+     * @param  path
+     *
      * @return
      * @throws IOException
      */
-    protected Object loadSettingsFile ( Path scratchDir ) throws Exception {
-//        InputStream input = new FileInputStream();//
-        File file = new File("c:\\Users\\Anthony_2\\IdeaProjects\\WAM\\hitalk_compiler\\src\\main\\resources\\empty.pl");
-//        compiler.compile("c:\\Users\\Anthony_2\\IdeaProjects\\WAM\\hitalk_compiler\\src\\main\\resources\\empty.pl", new HtProperty[0]);
-
+    protected Object loadSettingsFile ( Path path ) throws Exception {
         // Create a token source to load the model rules from.
 //        InputStream input = getClass().getClassLoader().getResourceAsStream(BUILT_IN_LIB);
-        PlTokenSource tokenSource = null;
-        try {
-            tokenSource = PlTokenSource.getTokenSourceForIoFile(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new ExecutionError(PERMISSION_ERROR, null);
-        }
-
+        PlTokenSource tokenSource = PlTokenSource.getTokenSourceForIoFile(path.toFile());
         // Set up a parser on the token source.
-        IParser libParser = TermIO.instance().getParser();
+        LibParser libParser = new LibParser();//TermIO.instance().getParser();
         libParser.setTokenSource(tokenSource);
 
         // Load the built-ins into the domain.
@@ -250,7 +243,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
             throw new IllegalStateException("Got an exception whilst loading the built-in library.", e);
         }
 
-        return scratchDir;
+        return path;
     }
 
     private void startRuntimeThreading () {

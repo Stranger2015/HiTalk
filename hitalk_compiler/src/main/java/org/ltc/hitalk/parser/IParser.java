@@ -13,6 +13,7 @@ import org.ltc.hitalk.parser.jp.segfault.prolog.parser.TermParser;
 import org.ltc.hitalk.term.HlOpSymbol;
 import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 import org.ltc.hitalk.term.io.HiTalkStream;
+import org.ltc.hitalk.wam.compiler.Language;
 
 import java.io.IOException;
 
@@ -78,13 +79,13 @@ public interface IParser extends TermParser <Term> {
     /**
      * @return
      */
-    String language ();
+    Language language ();
 
     /**
      * @return
      * @throws SourceCodeException
      */
-    default Sentence <Term> parse () throws SourceCodeException {
+    default Sentence <Term> parse () throws SourceCodeException, ParseException, IOException {
         return getParser().parse();
     }
 
@@ -130,4 +131,6 @@ public interface IParser extends TermParser <Term> {
     default HtClause sentence () {
         return getParser().sentence();
     }
+
+    HtClause convert ( Term t );
 }

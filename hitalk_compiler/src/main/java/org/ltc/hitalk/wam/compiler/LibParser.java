@@ -1,23 +1,19 @@
-package org.ltc.hitalk.interpreter;
+package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
-import org.ltc.hitalk.wam.compiler.Language;
+import org.ltc.hitalk.term.io.TermIO;
 
-public class InteractiveParser implements IParser {
-    protected PlPrologParser parser;
+public class LibParser implements IParser {
+    protected PlPrologParser parser = TermIO.instance().getParser();
 
-    public InteractiveParser ( PlPrologParser parser ) {
-        this.parser = parser;
+    @Override
+    public PlPrologParser getParser () {
+        return parser;
     }
-
-    public InteractiveParser () {
-        super();
-    }
-
 
     @Override
     public Language language () {
@@ -37,9 +33,5 @@ public class InteractiveParser implements IParser {
     @Override
     public HtClause convert ( Term t ) {
         return null;
-    }
-
-    public PlPrologParser getParser () {
-        return parser;
     }
 }

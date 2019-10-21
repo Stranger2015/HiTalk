@@ -5,7 +5,6 @@ import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
-import org.apache.commons.vfs2.VFS;
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.BaseCompiler;
@@ -24,7 +23,6 @@ import org.ltc.hitalk.parser.HiTalkParser;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiler;
 import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
@@ -33,10 +31,7 @@ import org.ltc.hitalk.wam.printer.HtPositionalTermVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -45,8 +40,7 @@ import java.util.List;
 import static java.lang.System.in;
 import static org.ltc.hitalk.compiler.bktables.BkTableKind.LOADED_ENTITIES;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
-import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource.getTokenSourceForInputStream;
-import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource.getTokenSourceForVfsFileObject;
+import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource.getTokenSourceForIoFile;
 import static org.ltc.hitalk.wam.compiler.Language.HITALK;
 
 /**
@@ -358,15 +352,15 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
         return super.loadSettingsFile(scratchDirectory);
     }
 
-    /**
-     * @param input
-     * @throws IOException
-     */
-    private void logtalkCompile ( InputStream input ) throws IOException {
-        PlTokenSource tokenSource = getTokenSourceForInputStream(input, "");
-        setTokenSource(tokenSource);
-        compiler.compile(tokenSource);
-    }
+//    /**
+//     * @param input
+//     * @throws IOException
+//     */
+//    private void logtalkCompile ( InputStream input ) throws IOException, SourceCodeException {
+//        PlTokenSource tokenSource = getTokenSourceForInputStream(input, "");
+//        setTokenSource(tokenSource);
+//        compiler.compile(tokenSource);
+//    }
 
     /**
      * @param identifier
@@ -913,8 +907,9 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
 //         user, user, user, user, [], []
     }
 
-    public void compile ( String fileName, HtProperty[] flags ) throws IOException, LinkageException {
-        compiler.compile(getTokenSourceForVfsFileObject(VFS.getManager().resolveFile(fileName)));
+    public void compile ( String fileName, HtProperty[] flags ) throws IOException, SourceCodeException {
+//        compiler.compile(getTokenSourceForVfsFileObject(fsManager.resolveFile(fileName)));
+        compiler.compile(getTokenSourceForIoFile(new File(fileName)));
 
     }
     //logtalkCompile(@list(sourceFile_name))
@@ -1428,6 +1423,9 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
             return builtInTransform;
         }
 
+        /**
+         * @param positionalTraverser
+         */
         @Override
         public void setPositionalTraverser ( HtPositionalTermTraverser positionalTraverser ) {
 

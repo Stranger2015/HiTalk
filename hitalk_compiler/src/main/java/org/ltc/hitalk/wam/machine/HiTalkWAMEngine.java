@@ -3,7 +3,6 @@ package org.ltc.hitalk.wam.machine;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
-import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
@@ -14,12 +13,8 @@ import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.Objects;
 import java.util.logging.Logger;
-
-import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 
 /**
  *
@@ -81,12 +76,7 @@ class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P
         // Create a token source to load the model rules from.
         InputStream input = getClass().getClassLoader().getResourceAsStream(BUILT_IN_LIB);
         PlTokenSource tokenSource = null;
-        try {
-            tokenSource = PlTokenSource.getTokenSourceForInputStream(Objects.requireNonNull(input), "");
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new ExecutionError(PERMISSION_ERROR, null);
-        }
+        //            tokenSource = PlTokenSource.getTokenSourceForInputStream(Objects.requireNonNull(input), "");
 
         // Set up a parser on the token source.
         IParser libParser = new HiTalkParser(getParser());

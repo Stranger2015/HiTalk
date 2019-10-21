@@ -9,7 +9,9 @@ import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.ltc.hitalk.term.io.TermIO;
+import org.ltc.hitalk.wam.compiler.Language;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -31,6 +33,11 @@ class HiTalkInterpreter<P, Q> implements IInterpreter <P, Q>, IParser {
         return null;
     }
 
+    @Override
+    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException {
+
+    }
+
     /**
      * @return
      */
@@ -49,13 +56,23 @@ class HiTalkInterpreter<P, Q> implements IInterpreter <P, Q>, IParser {
     }
 
     @Override
-    public String language () {
-        return null;
+    public Language language () {
+        return parser.language();
     }
 
     @Override
     public void initializeBuiltIns () {
 
+    }
+
+    @Override
+    public Sentence <HtClause> parseClause () {
+        return parser.parseClause();
+    }
+
+    @Override
+    public HtClause convert ( Term t ) {
+        return null;
     }
 
     /**

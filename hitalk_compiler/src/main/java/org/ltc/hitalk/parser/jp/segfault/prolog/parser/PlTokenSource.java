@@ -5,16 +5,13 @@ import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.parsing.SourceCodePositionImpl;
 import com.thesett.common.util.Source;
-import org.apache.commons.vfs2.FileContent;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemManager;
-import org.apache.commons.vfs2.VFS;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.parser.PrologAtoms;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 import org.ltc.hitalk.term.io.HiTalkStream;
+import org.ltc.hitalk.term.io.TermIO;
 import org.ltc.hitalk.wam.compiler.HtFunctorName;
 
 import java.beans.PropertyChangeEvent;
@@ -23,9 +20,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
+import static java.nio.file.StandardOpenOption.READ;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind.BOF;
 import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind.DOT;
@@ -64,16 +62,25 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     private boolean encodingChanged;
     private String encoding;
 
+    /**
+     * @return
+     */
     public boolean isEofGenerated () {
         return isEofGenerated;
     }
 
     private boolean isEofGenerated;
 
+    /**
+     * @return
+     */
     public boolean isBofGenerated () {
         return isBofGenerated;
     }
 
+    /**
+     * @param bofGenerated
+     */
     public void setBofGenerated ( boolean bofGenerated ) {
         isBofGenerated = bofGenerated;
     }
@@ -82,9 +89,13 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     private long fileBeginOffset = 0L;
 
     protected HiTalkStream stream;
-    private InputStream input;
+    //    private InputStream input;
     private String path;
 
+    /**
+     * @param encoding
+     * @throws IOException
+     */
     protected void onEncodingChanged ( String encoding ) throws IOException {
         if (token.kind == DOT) {
             fileBeginOffset = stream.position();
@@ -102,10 +113,15 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     public PlTokenSource ( PlLexer lexer, InputStream input ) throws IOException {
         this(lexer);
         stream = new HiTalkStream((FileInputStream) input, this);
-        this.lexer = lexer;
-
+//        this.lexer = lexer;
     }
 
+    /**
+     * @param lexer
+     * @param input
+     * @param path
+     * @throws IOException
+     */
     public PlTokenSource ( PlLexer lexer, InputStream input, String path ) throws IOException {
         this(lexer, input);
         this.path = path;
@@ -122,63 +138,78 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
 //    }
 
     public static PlTokenSource getTokenSourceForIoFile ( File file ) throws IOException {
+        PlLexer lexer = new PlLexer(createHiTalkStream(file.getAbsolutePath(), READ));
         FileInputStream in = new FileInputStream(file);
-        PlLexer lexer = new PlLexer(new HiTalkStream(in));
-
         return new PlTokenSource(lexer, in, file.getAbsolutePath());
     }
 
-    private static PlTokenSource getTokenSourceForUri ( URI uri ) throws IOException {
-        FileSystemManager manager = VFS.getManager();
-        FileObject file = manager.resolveFile(uri);
-
-        return getTokenSourceForVfsFileObject(file);
-    }
+//    private static PlTokenSource getTokenSourceForUri ( URI uri ) throws IOException {
+//        FileSystemManager manager = VFS.getManager();
+//        FileObject file = manager.resolveFile(uri);
+//
+//        return getTokenSourceForVfsFileObject(file);
+//    }
 
     /**
      * Creates a token source on a file.
      *
      * @param path The file to tokenize.
+     *
      * @return A token source.
      */
-    public static PlTokenSource getTokenSourceForPath ( Path path ) throws IOException {
-        FileSystemManager manager = VFS.getManager();
-        File userDir = path.toAbsolutePath().toFile();
-        URI url = userDir.toURI();
-        FileObject file = manager.resolveFile(url);
-
-        return getTokenSourceForVfsFileObject(file);
-    }
+//    public static PlTokenSource getTokenSourceForPath ( Path path ) throws IOException {
+//        FileSystemManager manager = VFS.getManager();
+//        File userDir = path.toAbsolutePath().toFile();
+//        URI url = userDir.toURI();
+//        FileObject file = manager.resolveFile(url);
+//
+//        return getTokenSourceForVfsFileObject(file);
+//    }
 
     /**
      * Creates a token source on an input stream.
      *
      * @param in   The input stream to tokenize.
      * @param path
+     *
      * @return A token source.
      */
-    public static PlTokenSource getTokenSourceForInputStream ( InputStream in, String path ) throws IOException {
+//    public static PlTokenSource getTokenSourceForInputStream ( InputStream in, String path ) throws IOException {
 //        InputStreamReader input = new InputStreamReader(in);
 //        SimpleCharStream inputStream = new SimpleCharStream(input, 1, 1);
 //        if(in in)
-        PlLexer lexer = new PlLexer(new HiTalkStream(new FileInputStream(path)));
-
-        return new PlTokenSource(lexer, in, path);
-    }
+//        PlLexer lexer = new PlLexer(createHiTalkStream(new FileInputStream(path), path));
+//
+//        return new PlTokenSource(lexer, in, path);
+//    }
 
     /**
-     * @param vfsFo
+     *
+     * @param path
+     *
      * @return
      * @throws IOException
      */
-    public static PlTokenSource getTokenSourceForVfsFileObject ( FileObject vfsFo ) throws IOException {
-        FileContent content = vfsFo.getContent();
-        InputStream inputStream = content.getInputStream();
-
-        return getTokenSourceForInputStream(inputStream, vfsFo.getName().getPath());
+    public static HiTalkStream createHiTalkStream ( String path, StandardOpenOption... options ) throws IOException {
+        return TermIO.instance().addStream(new HiTalkStream(Paths.get(path), options));
     }
 
+//    /**
+//     *
+//     * @param vfsFo
+//     *
+//     * @return
+//     * @throws IOException
+//     */
+//    public static PlTokenSource getTokenSourceForVfsFileObject ( FileObject vfsFo ) throws IOException {
+//        FileContent content = vfsFo.getContent();
+//        InputStream inputStream = content.getInputStream();
+//
+//        return getTokenSourceForInputStream(inputStream, vfsFo.getName().getPath());
+//    }
+//
     /**
+     *
      * @return
      */
     public long getFileBeginOffset () {
@@ -186,6 +217,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     }
 
     /**
+     *
      * @param fileBeginOffset
      */
     public void setFileBeginOffset ( long fileBeginOffset ) {
@@ -206,6 +238,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     }
 
     /**
+     *
      * @return
      */
     public String getPath () {
@@ -213,6 +246,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     }
 
     /**
+     *
      * @return
      */
     public boolean isEncodingChanged () {
@@ -220,12 +254,16 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     }
 
     /**
+     *
      * @param encodingChanged
      */
     public void setEncodingChanged ( boolean encodingChanged ) {
         this.encodingChanged = encodingChanged;
     }
 
+    /**
+     * @return
+     */
     public PlToken poll () {
         if (!isBofGenerated()) {
             setBofGenerated(true);
@@ -371,6 +409,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
      * @throws SourceCodeException If the next token in the sequence is not of the expected kind.
      */
     protected PlToken consumeToken ( TokenKind kind ) throws SourceCodeException {
+        PlToken result;
         PlToken nextToken = peek();
 
         if (nextToken.kind != kind) {
@@ -378,12 +417,14 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
         } else {
             nextToken = poll();
 
-            return nextToken;
+            result = nextToken;
         }
+        return result;
     }
 
     /**
-     * Peeks ahead for the given token entityKind, and if one is foudn with that entityKind, it is consumed.
+     * Peeks ahead for the given token entityKind,
+     * and if one is found with that entityKind, it is consumed.
      *
      * @param kind The token kind to look for.
      * @return <tt>true</tt> iff the token was found and consumed.

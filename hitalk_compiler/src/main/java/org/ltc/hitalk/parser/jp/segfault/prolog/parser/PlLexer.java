@@ -103,7 +103,6 @@ public class PlLexer {
             throw new ParseException(":Bad char `" + (char) chr + ":0x" + Integer.toHexString(chr) + "'.");
         }
         if (valued && token.kind == ATOM) {
-
             if ((chr = stream.read()) == '(') {
                 return new PlToken(FUNCTOR_BEGIN);
             }

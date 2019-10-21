@@ -33,10 +33,10 @@ class TermIO {
         }
     }
 
-    private final VariableAndFunctorInterner interner;
-    private final ITermFactory termFactory;
+    private VariableAndFunctorInterner interner;
+    private ITermFactory termFactory;
     private PlPrologParser parser;
-    private final IOperatorTable optable;
+    private IOperatorTable optable;
 
     /**
      * @return
@@ -46,7 +46,7 @@ class TermIO {
     }
 
 
-    protected final List <HiTalkStream> streams = new ArrayList <>(3);
+    protected final List <HiTalkStream> streams = new ArrayList <>();
 
     /**
      * @param i
@@ -54,6 +54,29 @@ class TermIO {
      */
     public HiTalkStream getStream ( int i ) {
         return streams.get(i);
+    }
+
+    /**
+     * @param termFactory
+     */
+    public void setTermFactory ( ITermFactory termFactory ) {
+        this.termFactory = termFactory;
+    }
+
+    /**
+     * @param optable
+     */
+    public void setOptable ( IOperatorTable optable ) {
+        this.optable = optable;
+    }
+
+    /**
+     * @param stream
+     * @return
+     */
+    public HiTalkStream addStream ( HiTalkStream stream ) {
+        streams.add(stream);
+        return stream;
     }
 
     /**
@@ -77,19 +100,30 @@ class TermIO {
         return getStream(2);
     }
 
+    /**
+     * @return
+     */
     public VariableAndFunctorInterner getInterner () {
         return interner;
     }
 
+    /**
+     * @return
+     */
     public ITermFactory getTermFactory () {
         return termFactory;
-
     }
 
+    /**
+     * @return
+     */
     public PlPrologParser getParser () {
         return parser;
     }
 
+    /**
+     * @return
+     */
     public IOperatorTable getOptable () {
         return optable;
     }
@@ -97,18 +131,10 @@ class TermIO {
     /**
      *
      */
-    public TermIO () throws IOException {
-//        FileInputStream in = new FileInputStream("current_input");
-//        FileOutputStream out = new FileOutputStream("current_output");
-//        FileOutputStream err = new FileOutputStream("current_error");
-
-        streams.add(new HiTalkStream(FileDescriptor.in));
-        streams.add(new HiTalkStream(FileDescriptor.out));
-        streams.add(new HiTalkStream(FileDescriptor.err));
-
-//        System.setIn(in);
-//        System.setOut(new PrintStream(out));
-//        System.setErr(new PrintStream(err, true));
+    private TermIO () throws IOException {
+        streams.add(new HiTalkStream(FileDescriptor.in, true));//  "current_input"
+        streams.add(new HiTalkStream(FileDescriptor.out, false));// "current_output"
+        streams.add(new HiTalkStream(FileDescriptor.err, false));// "current_error"
 
         interner = new VariableAndFunctorInternerImpl(
                 "HiTalk_Variable_Namespace",
@@ -117,7 +143,6 @@ class TermIO {
         termFactory = new TermFactory(interner);
         optable = new PlDynamicOperatorParser();
         parser = new PlPrologParser(getStream(0), interner, termFactory, optable);
-
 
         initOptions("org/ltc/hitalk/wam/compiler/startup.pl");
     }
@@ -130,13 +155,13 @@ class TermIO {
      * @param parser
      */
     public void setParser ( PlPrologParser parser ) {
-        TermIO.instance().setParser(parser);
+        this.parser = parser;
     }
 
     /**
      * @param interner
      */
     public void setInterner ( VariableAndFunctorInterner interner ) {
-        TermIO.instance().setInterner(interner);
+        this.interner = interner;
     }
 }

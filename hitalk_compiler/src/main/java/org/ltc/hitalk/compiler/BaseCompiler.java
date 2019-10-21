@@ -12,10 +12,14 @@ import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.ltc.hitalk.wam.compiler.BaseInstructionCompiler;
 import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * @param <P>
@@ -128,7 +132,13 @@ public class BaseCompiler<P, Q> extends BaseMachine implements ICompiler <P, Q> 
     }
 
     @Override
-    public void compile ( String fileName, HtProperty[] flags ) {
+    public void compile ( String fileName, HtProperty[] flags ) throws IOException, SourceCodeException {
+        PlTokenSource ts = PlTokenSource.getTokenSourceForIoFile(new File(fileName));
+        compile(ts, flags);
+    }
+
+    @Override
+    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException {
 
     }
 

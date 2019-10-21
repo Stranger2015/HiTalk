@@ -168,7 +168,7 @@ public class HiTalkWAMCompiler extends BaseCompiler <HiTalkWAMCompiledPredicate,
     }
 
 
-    public void compileFile ( File file ) throws IOException {
+    public void compileFile ( File file ) throws IOException, SourceCodeException {
         compile(PlTokenSource.getTokenSourceForIoFile(file));
     }
 }

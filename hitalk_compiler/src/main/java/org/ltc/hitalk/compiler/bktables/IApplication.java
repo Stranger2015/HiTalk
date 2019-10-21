@@ -34,17 +34,6 @@ public interface IApplication extends Runnable, IConfigurable {
      */
     void setConfig ( IConfig config );
 
-//    /**
-//     * @param symbolTable
-//     * @param interner
-//     * @param parser
-//     * @return
-//     */
-//    BaseCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> createWAMCompiler (
-//            SymbolTable <Integer, String, Object> symbolTable,
-//            VariableAndFunctorInterner interner,
-//            PlPrologParser parser );
-
     /**
      *
      */
@@ -212,6 +201,9 @@ public interface IApplication extends Runnable, IConfigurable {
      */
     void doStart () throws Exception;
 
+    /**
+     *
+     */
     default void run () {
         Runnable target = getTarget();
         if (target != null) {
@@ -219,6 +211,9 @@ public interface IApplication extends Runnable, IConfigurable {
         }
     }
 
+    /**
+     * @return
+     */
     Runnable getTarget ();
 
     /**
@@ -231,10 +226,16 @@ public interface IApplication extends Runnable, IConfigurable {
 //     */
 //    void setInterner ( VariableAndFunctorInterner interner );
 
+    /**
+     * @return
+     */
     default SymbolTable <Integer, String, Object> getSymbolTable () {
         return new SymbolTableImpl <>();
     }
 
+    /**
+     * @param symbolTable
+     */
     void setSymbolTable ( SymbolTable <Integer, String, Object> symbolTable );
 
     /**

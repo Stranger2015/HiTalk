@@ -24,6 +24,7 @@ import com.thesett.common.util.Source;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
@@ -32,6 +33,7 @@ import org.ltc.hitalk.term.io.HiTalkStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -129,7 +131,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * @param stream The input stream to consult.
      * @throws SourceCodeException If any code read from the input stream fails to parse, compile or link.
      */
-    public void consultInputStream ( HiTalkStream stream ) throws SourceCodeException {
+    public void consultInputStream ( HiTalkStream stream ) throws SourceCodeException, IOException, ParseException {
         // Create a token source to read from the specified input stream.
         PlTokenSource tokenSource = stream.getTokenSource();
         getParser().setTokenSource(tokenSource);
@@ -316,7 +318,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * {@inheritDoc}
      * @return
      */
-    public Sentence <Term> parse () throws SourceCodeException {
+    public Sentence <Term> parse () throws SourceCodeException, IOException, ParseException {
         return parser.parse();
     }
 
@@ -412,6 +414,11 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
         }
 
         return results;
+    }
+
+    @Override
+    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException {
+        compiler.compile(tokenSource, flags);
     }
 
     /**

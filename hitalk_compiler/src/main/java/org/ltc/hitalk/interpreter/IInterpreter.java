@@ -47,8 +47,8 @@ public interface IInterpreter<P, Q> extends IConfigurable, ICompiler <P, Q>, Res
         setConsoleReader(initializeCommandLineReader());
 
         // Used to buffer input, and only feed it to the parser when a PERIOD is encountered.
-        TokenBuffer tokenBuffer = (TokenBuffer) TokenBuffer.getTokenSourceForInputStream(System.in, "stdin");
-
+//        TokenBuffer tokenBuffer = (TokenBuffer) TokenBuffer.getTokenSourceForInputStream(System.in, "stdin");
+//
         // Used to hold the currently buffered lines of input, for the purpose of presenting this back to the user
         // in the event of a syntax or other error in the input.
         List <String> inputLines = new ArrayList <>();

@@ -3,13 +3,16 @@ package org.ltc.hitalk.wam.compiler.prolog;
 import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
+import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
 import org.ltc.hitalk.wam.task.TransformTask;
 import org.ltc.hitalk.wam.transformers.DefaultTransformer;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +39,11 @@ public class PrologPreprocessor<TC extends Term, TT extends TransformTask <HtCla
         super(symbolTable, interner);
         this.defaultTransformer = defaultTransformer;
         this.defaultBuiltIn = defaultBuiltIn;
+    }
+
+    @Override
+    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException {
+
     }
 
     @Override

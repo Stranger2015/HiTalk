@@ -6,12 +6,17 @@ import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 import org.ltc.hitalk.term.io.HiTalkStream;
+import org.ltc.hitalk.wam.compiler.Language;
+
+import java.io.IOException;
 
 import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
+import static org.ltc.hitalk.wam.compiler.Language.HITALK;
 
 /**
  *
@@ -42,8 +47,8 @@ public class HiTalkParser implements IParser {
      * @return
      */
     @Override
-    public String language () {
-        return "HiTalk";
+    public Language language () {
+        return HITALK;
     }
 
     /**
@@ -110,7 +115,17 @@ public class HiTalkParser implements IParser {
     }
 
     @Override
-    public Sentence <Term> parse () throws SourceCodeException {
+    public Sentence <HtClause> parseClause () {
+        return parser.parseClause();
+    }
+
+    @Override
+    public HtClause convert ( Term t ) {
+        return null;
+    }
+
+    @Override
+    public Sentence <Term> parse () throws SourceCodeException, IOException, ParseException {
         return parser.parse();
     }
 

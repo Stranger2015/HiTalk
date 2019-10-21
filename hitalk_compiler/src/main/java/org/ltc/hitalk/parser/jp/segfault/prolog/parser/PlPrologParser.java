@@ -9,6 +9,7 @@ import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.parser.HiLogParser;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.PrologAtoms;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind;
@@ -20,6 +21,7 @@ import org.ltc.hitalk.term.HlOperatorJoiner;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.HtFunctorName;
+import org.ltc.hitalk.wam.compiler.Language;
 
 import java.io.IOException;
 import java.util.*;
@@ -28,6 +30,7 @@ import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISS
 import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind.*;
 import static org.ltc.hitalk.term.DottedPair.Kind.*;
 import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
+import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
 
 /**
  *
@@ -50,8 +53,6 @@ public class PlPrologParser implements IParser {
      */
     protected Map <Integer, Variable> variableContext = new HashMap <>();
     protected HlOpSymbol operator;
-//    protected ITermFactory termFactory = new TermFactory(getInterner());
-
 
     /**
      * @param stream
@@ -77,15 +78,15 @@ public class PlPrologParser implements IParser {
     /**
      * @return
      */
-    public String language () {
-        return "Prolog";
+    public Language language () {
+        return PROLOG;
     }
 
     /**
      * @return
      */
     @Override
-    public Term next () throws IOException {// 次のProlog節を解析して返します。
+    public Term next () throws IOException {
         try {
             PlToken token = lexer.next(true);
             if (token == null) {
@@ -98,6 +99,16 @@ public class PlPrologParser implements IParser {
 //            throw new ParseException(e.getMessage(); + " [" + row + ":" + col + "]", e, row, col);
             throw new ExecutionError(PERMISSION_ERROR, null);//e.getMessage(); + " [" + row + ":" + col + "]", e, row, col);
         }
+    }
+
+    @Override
+    public Sentence <HtClause> parseClause () {
+        return null;
+    }
+
+    @Override
+    public HtClause convert ( Term t ) {
+        return null;
     }
 
     public PlTokenSource getTokenSource () {
@@ -314,8 +325,8 @@ public class PlPrologParser implements IParser {
      * @return
      */
     @Override
-    public Sentence <Term> parse () {
-        return null;
+    public Sentence <Term> parse () throws ParseException, IOException, SourceCodeException {
+        return new SentenceImpl <>(termSentence());
     }
 
     /**

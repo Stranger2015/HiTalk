@@ -9,12 +9,14 @@ import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.term.DottedPair;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
+import org.ltc.hitalk.wam.compiler.Language;
 
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
 import static org.ltc.hitalk.term.HlOpSymbol.Associativity.fx;
+import static org.ltc.hitalk.wam.compiler.Language.HILOG;
 
 /**
  *
@@ -62,8 +64,8 @@ public class HiLogParser extends PlPrologParser {
     }
 
     @Override
-    public String language () {
-        return "HiLog";
+    public Language language () {
+        return HILOG;
     }
 
     /**
