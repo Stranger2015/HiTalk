@@ -3,19 +3,17 @@ package org.ltc.hitalk.wam.compiler.hitalk;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
-import org.ltc.hitalk.compiler.BaseCompiler;
-import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
-import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledPredicate;
-import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledQuery;
+import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 
-import java.io.File;
-import java.io.IOException;
-
-public class HiTalkWAMCompiler extends BaseCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> {
+public class HiTalkWAMCompiler extends PrologWAMCompiler {
+    /**
+     * @param symbolTable
+     * @param interner
+     * @param parser
+     */
     public HiTalkWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
                                VariableAndFunctorInterner interner,
                                PlPrologParser parser ) {
@@ -131,17 +129,6 @@ public class HiTalkWAMCompiler extends BaseCompiler <HiTalkWAMCompiledPredicate,
 //    }
 
     /**
-     * @param clause
-     * @param flags
-     * @throws SourceCodeException
-     */
-    @Override
-    public
-    void compile ( HtClause clause, HtProperty... flags ) throws SourceCodeException {
-
-    }
-
-    /**
      * @param rule
      */
     @Override
@@ -168,7 +155,7 @@ public class HiTalkWAMCompiler extends BaseCompiler <HiTalkWAMCompiledPredicate,
     }
 
 
-    public void compileFile ( File file ) throws IOException, SourceCodeException {
-        compile(PlTokenSource.getTokenSourceForIoFile(file));
-    }
+//    public void compileFile ( File file ) throws IOException, SourceCodeException {
+//        compile(PlTokenSource.getTokenSourceForIoFile(file));
+//    }
 }

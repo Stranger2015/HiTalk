@@ -7,6 +7,9 @@ import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.TermFactory;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
+import org.ltc.hitalk.core.ICompiler;
+import org.ltc.hitalk.entities.HtPredicate;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlDynamicOperatorParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 
@@ -37,6 +40,7 @@ class TermIO {
     private ITermFactory termFactory;
     private PlPrologParser parser;
     private IOperatorTable optable;
+    private ICompiler <HtPredicate, HtClause> compiler;
 
     /**
      * @return
@@ -163,5 +167,13 @@ class TermIO {
      */
     public void setInterner ( VariableAndFunctorInterner interner ) {
         this.interner = interner;
+    }
+
+    public ICompiler <HtPredicate, HtClause> getCompiler () {
+        return compiler;
+    }
+
+    public void setCompiler ( ICompiler <HtPredicate, HtClause> compiler ) {
+        this.compiler = compiler;
     }
 }

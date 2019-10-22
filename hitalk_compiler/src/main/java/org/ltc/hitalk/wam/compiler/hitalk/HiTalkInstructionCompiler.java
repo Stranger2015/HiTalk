@@ -1,5 +1,3 @@
-package org.ltc.hitalk.wam.compiler.hitalk;
-
 /*
  * Copyright The Sett Ltd, 2005 to 2014.
  *
@@ -15,6 +13,7 @@ package org.ltc.hitalk.wam.compiler.hitalk;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.ltc.hitalk.wam.compiler.hitalk;
 
 import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.logic.fol.compiler.PositionalTermTraverser;
@@ -32,7 +31,6 @@ import com.thesett.common.util.SizeableLinkedList;
 import com.thesett.common.util.SizeableList;
 import com.thesett.common.util.doublemaps.SymbolKey;
 import com.thesett.common.util.doublemaps.SymbolTable;
-import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
@@ -156,7 +154,7 @@ import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.STACK_ADDR;
  *
  * @author Rupert Smith
  */
-public class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>
+public class HiTalkInstructionCompiler extends PrologInstructionCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>
         implements HiTalkBuiltIn {
 
 //public final static FunctorName OBJECT = new FunctorName("object", 2);
@@ -177,7 +175,7 @@ public class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWA
     /**
      * Holds a list of all predicates encountered in the current scope.
      */
-    protected Queue <SymbolKey> predicatesInScope = new LinkedList <>();
+    protected Queue <SymbolKey> predicatesInScope = new LinkedList <>();//fixme Deque
     /**
      * This is used to keep track of the number of permanent variables.
      */
@@ -233,17 +231,17 @@ public class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWA
     public void endScope () throws SourceCodeException {
         // Loop over all predicates in the current scope, found in the symbol table, and consume and compile them.
         for (SymbolKey predicateKey = predicatesInScope.poll(); predicateKey != null; predicateKey = predicatesInScope.poll()) {
-            List <HtClause> clauseList = (List <HtClause>) scopeTable.get(predicateKey, SYMKEY_PREDICATES);
+            List <HtClause> clauses = (List <HtClause>) scopeTable.get(predicateKey, SYMKEY_PREDICATES);
 
             // Used to keep track of where within the predicate the current clause is.
-            int size = clauseList.size();
+            int size = clauses.size();
             int current = 0;
             boolean multipleClauses = size > 1;
 
             // Used to build up the compiled predicate in.
             HiTalkWAMCompiledPredicate result = null;
 
-            for (Iterator <HtClause> iterator = clauseList.iterator(); iterator.hasNext(); iterator.remove()) {
+            for (Iterator <HtClause> iterator = clauses.iterator(); iterator.hasNext(); iterator.remove()) {
                 HtClause clause = iterator.next();
 
                 if (result == null) {
@@ -280,37 +278,10 @@ public class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWA
      * it is a clause, it is retained against the predicate which it forms part of, and compiled on the
      * {@link #endScope()} method is invoked.
      */
-    public void compile ( Sentence <HtClause> sentence ) throws SourceCodeException {
-        /*log.fine("public WAMCompiledClause compile(Sentence<Term> sentence = " + sentence + "): called");*/
-
-        // Extract the clause to compile from the parsed sentence.
-        HtClause clause = sentence.getT();
-
-        // Classify the sentence to compile by the different sentence types in the language.
-        if (clause.isQuery()) {
-            compileQuery(clause);
-        } else {
-            // Initialise a nested symbol table for the current compilation scope, if it has not already been.
-            if (scopeTable == null) {
-                scopeTable = symbolTable.enterScope(scope);
-            }
-
-            // Check in the symbol table, if a compiled predicate with name matching the program clause exists, and if
-            // not create it.
-            SymbolKey predicateKey = scopeTable.getSymbolKey(clause.getHead().getName());
-            List <HtClause> clauseList = (List <HtClause>) scopeTable.get(predicateKey, SYMKEY_PREDICATES);
-
-            if (clauseList == null) {
-                clauseList = new ArrayList <>();
-                scopeTable.put(predicateKey, SYMKEY_PREDICATES, clauseList);
-                predicatesInScope.offer(predicateKey);
-            }
-
-            // Add the clause to compile to its parent predicate for compilation at the end of the current scope.
-            clauseList.add(clause);
-        }
-    }
-
+//    public void compile ( Sentence <HtClause> sentence ) throws SourceCodeException {
+//        super.compile(sentence);
+//    }
+//
     /**
      * Compiles a program clause, and adds its instructions to a compiled predicate.
      *
@@ -321,7 +292,12 @@ public class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWA
      * @param multipleClauses   <tt>true</tt> iff the predicate contains >1 clause.
      * @param clauseNumber      The position of the clause within the predicate.
      */
-    private void compileClause ( HtClause clause, HiTalkWAMCompiledPredicate compiledPredicate, boolean isFirst, boolean isLast, boolean multipleClauses, int clauseNumber ) {
+    private void compileClause ( HtClause clause,
+                                 HiTalkWAMCompiledPredicate compiledPredicate,
+                                 boolean isFirst,
+                                 boolean isLast,
+                                 boolean multipleClauses,
+                                 int clauseNumber ) {
         // Used to build up the compiled clause in.
         HiTalkWAMCompiledClause result = new HiTalkWAMCompiledClause(compiledPredicate);
 
@@ -456,7 +432,7 @@ public class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWA
     /**
      * Compiles a clause as a query. The clause should have no head, only a body.
      *
-     * @param clause The clause to compile as a query.
+     * @param clause lause The clause to compile as a query.
      * @throws SourceCodeException If there is an error in the source code preventing its compilation.
      */
     public void compileQuery ( HtClause clause ) throws SourceCodeException {
@@ -567,14 +543,6 @@ public class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWA
      * @param clause
      */
     public void compileClause ( HtClause clause ) {
-
-    }
-
-    /**
-     * @param resolver
-     */
-//    @Override
-    public void setResolver ( Resolver <HtClause, HiTalkWAMCompiledQuery> resolver ) {
 
     }
 
@@ -947,7 +915,11 @@ public class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWA
      * @return A listing of the instructions for the clause body in the WAM instruction set.
      */
     @Override
-    public SizeableLinkedList <HiTalkWAMInstruction> compileBodyArguments ( Functor expression, boolean isFirstBody, FunctorName clauseName, int bodyNumber ) {
+    public SizeableLinkedList <HiTalkWAMInstruction> compileBodyArguments (
+            Functor expression,
+            boolean isFirstBody,
+            FunctorName clauseName,
+            int bodyNumber ) {
         return defaultBuiltIn.compileBodyArguments(expression, isFirstBody, clauseName, bodyNumber);
     }
 
@@ -978,20 +950,20 @@ public class HiTalkInstructionCompiler extends BaseInstructionCompiler <HiTalkWA
     /**
      * @return
      */
-    @Override
-    public PlPrologParser getParser () {
-        return parser;
-    }
+//    @Override
+//    public PlPrologParser getParser () {
+//        return parser;
+//    }
 
-    /**
-     * @param clause
-     * @param flags
-     * @throws SourceCodeException
-     */
-    @Override
-    public void compile ( HtClause clause, HtProperty... flags ) throws SourceCodeException {
-
-    }
+//    /**
+//     * @param clause
+//     * @param flags
+//     * @throws SourceCodeException
+//     */
+//    @Override
+//    public void compile ( HtClause clause, HtProperty... flags ) throws SourceCodeException {
+//
+//    }
 
     /**
      * @param rule

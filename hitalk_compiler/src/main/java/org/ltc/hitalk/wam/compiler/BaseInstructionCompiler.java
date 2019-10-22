@@ -35,7 +35,9 @@ public abstract class BaseInstructionCompiler<P, Q> extends BaseCompiler <P, Q> 
      * @param symbolTable The symbol table for the machine.
      * @param interner    The interner for the machine.
      */
-    public BaseInstructionCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner, PlPrologParser parser ) {
+    public BaseInstructionCompiler ( SymbolTable <Integer, String, Object> symbolTable,
+                                     VariableAndFunctorInterner interner,
+                                     PlPrologParser parser ) {
         super(symbolTable, interner, parser);
     }
 }

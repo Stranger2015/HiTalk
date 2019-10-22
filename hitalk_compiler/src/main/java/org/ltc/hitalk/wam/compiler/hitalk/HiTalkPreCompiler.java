@@ -17,7 +17,6 @@ package org.ltc.hitalk.wam.compiler.hitalk;
 
 
 import com.thesett.aima.logic.fol.*;
-import com.thesett.aima.logic.fol.bytecode.BaseMachine;
 import com.thesett.aima.logic.fol.compiler.SymbolKeyTraverser;
 import com.thesett.aima.logic.fol.compiler.TermWalker;
 import com.thesett.aima.logic.fol.wam.TermWalkers;
@@ -33,8 +32,7 @@ import org.ltc.hitalk.wam.compiler.HiTalkCompilerApp.HiTalkBuiltInTransformVisit
 import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.HiTalkTopLevelCheckVisitor;
 import org.ltc.hitalk.wam.compiler.HtTermWalkers;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
 
 import java.util.List;
 
@@ -50,16 +48,16 @@ import java.util.List;
  * @author Rupert Smith
  */
 abstract public
-class HiTalkPreCompiler extends BaseMachine implements ICompiler <HtClause, HtClause> {
+class HiTalkPreCompiler extends PrologPreCompiler implements ICompiler <HtClause, HtClause> {
 
     //Used for debugging.
-    protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
+//    protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     /**
      * Holds the default built in, for standard compilation and interners and symbol tables.
      */
     protected final HiTalkDefaultBuiltIn defaultBuiltIn;
-    private final HiTalkWAMCompiler compiler;
+    protected final HiTalkWAMCompiler compiler;
 
     /**
      * Holds the built in transformation.

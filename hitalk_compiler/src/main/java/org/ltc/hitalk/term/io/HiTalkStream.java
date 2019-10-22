@@ -64,13 +64,21 @@ class HiTalkStream implements IInputStream, IOutputStream, IPropertyOwner, Prope
     protected PlTokenSource tokenSource;
 
     /**
+     * @param fn
+     * @param isReading s
+     */
+    public static HiTalkStream createHiTalkStream ( String fn, boolean isReading ) throws IOException {
+        return new HiTalkStream(Paths.get(fn), isReading ? READ : WRITE);
+    }
+
+    /**
      * @param path
      * @param encoding
      * @param offset
      * @param options
      * @throws IOException
      */
-    public HiTalkStream ( Path path, String encoding, long offset, StandardOpenOption... options ) throws IOException {
+    protected HiTalkStream ( Path path, String encoding, long offset, StandardOpenOption... options ) throws IOException {
         this.options.addAll(Arrays.asList(options));
         if (this.options.contains(READ)) {
             setInputStream(new FileInputStream(path.toFile()));
@@ -95,7 +103,7 @@ class HiTalkStream implements IInputStream, IOutputStream, IPropertyOwner, Prope
      * @param options
      * @throws IOException
      */
-    public HiTalkStream ( Path path, long offset, StandardOpenOption... options ) throws IOException {
+    protected HiTalkStream ( Path path, long offset, StandardOpenOption... options ) throws IOException {
         this(path, defaultCharset().name(), offset, options);
     }
 
@@ -104,17 +112,17 @@ class HiTalkStream implements IInputStream, IOutputStream, IPropertyOwner, Prope
      * @param options
      * @throws IOException
      */
-    public HiTalkStream ( Path path, StandardOpenOption... options ) throws IOException {
+    protected HiTalkStream ( Path path, StandardOpenOption... options ) throws IOException {
         this(path, 0L, options);
     }
 
-    public HiTalkStream ( FileInputStream inputStream, PlTokenSource tokenSource ) throws IOException {
+    protected HiTalkStream ( FileInputStream inputStream, PlTokenSource tokenSource ) throws IOException {
         options.add(READ);
         setInputStream(inputStream);
         setTokenSource(tokenSource);
     }
 
-    public HiTalkStream ( @NotNull String name, StandardOpenOption... options ) throws IOException {
+    protected HiTalkStream ( @NotNull String name, StandardOpenOption... options ) throws IOException {
         this.options.addAll(Arrays.asList(options));
         for (StandardOpenOption option : options) {
             switch (option) {
@@ -148,21 +156,18 @@ class HiTalkStream implements IInputStream, IOutputStream, IPropertyOwner, Prope
         }
     }
 
-
-//    /**
-//     * @param fileInputStream
-//     * @param path
-//     * @throws IOException
-//     */
-//    public HiTalkStream ( FileInputStream fileInputStream, String path ) throws IOException {
-//        this(fileInputStream, getTokenSourceForIoFile(Paths.get(path).toFile()));
-//        setInputStream(fileInputStream);
-//    }
-
+    /**
+     * @param name
+     * @throws IOException
+     */
     private void newInputStream ( String name ) throws IOException {
         setInputStream(new FileInputStream(name));
     }
 
+    /**
+     * @param name
+     * @throws IOException
+     */
     private void newOutputStream ( String name ) throws IOException {
         setOutputStream(new FileOutputStream(name));
     }
@@ -171,7 +176,7 @@ class HiTalkStream implements IInputStream, IOutputStream, IPropertyOwner, Prope
      * @param out
      * @throws IOException
      */
-    public HiTalkStream ( FileOutputStream out ) throws IOException {
+    protected HiTalkStream ( FileOutputStream out ) throws IOException {
         options.add(WRITE);
         setOutputStream(out);
     }
@@ -180,7 +185,7 @@ class HiTalkStream implements IInputStream, IOutputStream, IPropertyOwner, Prope
      * @param fd
      * @throws IOException
      */
-    public HiTalkStream ( FileDescriptor fd, boolean isReading ) throws IOException {
+    protected HiTalkStream ( FileDescriptor fd, boolean isReading ) throws IOException {
         this.fd = fd;
         this.isReading = isReading;
         options.add(isReading ? READ : WRITE);
@@ -217,7 +222,7 @@ class HiTalkStream implements IInputStream, IOutputStream, IPropertyOwner, Prope
         channel = inputStream.getChannel();
         fd = inputStream.getFD();
         dis = new DataInputStream(inputStream);
-        pushbackInputStream = new PushbackInputStream(inputStream);
+        pushbackInputStream = new PushbackInputStream(dis);
     }
 
     /**
@@ -244,7 +249,6 @@ class HiTalkStream implements IInputStream, IOutputStream, IPropertyOwner, Prope
     protected StreamDecoder sd;
     protected StreamEncoder se;
     protected PushbackInputStream pushbackInputStream;
-
 
     /**
      *
@@ -505,7 +509,7 @@ class HiTalkStream implements IInputStream, IOutputStream, IPropertyOwner, Prope
      * @throws IOException
      */
     public int read () throws IOException {
-        return dis.readChar();
+        return readChar();
     }
 
     /**
@@ -556,7 +560,7 @@ class HiTalkStream implements IInputStream, IOutputStream, IPropertyOwner, Prope
      * @throws IOException
      */
     public void write ( char c ) throws IOException {
-        dos.writeChar(c);
+        writeChar(c);
     }
 
     /**
@@ -849,12 +853,12 @@ class HiTalkStream implements IInputStream, IOutputStream, IPropertyOwner, Prope
 
     @Override
     public int skipBytes ( int n ) throws IOException {
-        return 0;
+        return Math.toIntExact(pushbackInputStream.skip(n));
     }
 
     @Override
     public boolean readBoolean () throws IOException {
-        return false;
+        return dis.readBoolean();
     }
 
     @Override
@@ -916,7 +920,7 @@ class HiTalkStream implements IInputStream, IOutputStream, IPropertyOwner, Prope
     @Override
     public String readUTF () throws IOException {
 
-        return "";
+        return dis.readUTF();
     }
 
 //    @Override
@@ -1011,7 +1015,7 @@ class HiTalkStream implements IInputStream, IOutputStream, IPropertyOwner, Prope
 
     @Override
     public void close () throws IOException {
-
+        dis.close();
     }
 
     /**

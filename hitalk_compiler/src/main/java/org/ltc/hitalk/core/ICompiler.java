@@ -1,7 +1,6 @@
 package org.ltc.hitalk.core;
 
 
-import com.thesett.aima.logic.fol.LogicCompiler;
 import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.entities.HtProperty;
@@ -9,6 +8,7 @@ import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
+import org.ltc.hitalk.wam.compiler.hitalk.ILogicCompiler;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -19,7 +19,7 @@ import java.util.List;
  * @param <P>
  * @param <Q>
  */
-public interface ICompiler<P, Q> extends LogicCompiler <HtClause, P, Q> {
+public interface ICompiler<P, Q> extends ILogicCompiler <HtClause, P, Q> {
 
     HtProperty[] EMPTY_FLAG_ARRAY = new HtProperty[0];
 

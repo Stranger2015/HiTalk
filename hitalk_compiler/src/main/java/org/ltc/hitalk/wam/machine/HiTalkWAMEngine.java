@@ -4,7 +4,6 @@ import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.core.ICompiler;
-import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.parser.HiTalkParser;
@@ -107,17 +106,17 @@ class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P
 
     }
 
-    /**
-     * @param sentence
-     * @param flags
-     * @throws SourceCodeException
-     */
-    @Override
-    public
-    void compile ( HtClause sentence, HtProperty... flags ) throws SourceCodeException {
-
-    }
-
+//    /**
+//     * @param sentence
+//     * @param flags
+//     * @throws SourceCodeException
+//     */
+//    @Override
+//    public
+//    void compile ( HtClause sentence, HtProperty... flags ) throws SourceCodeException {
+//
+//    }
+//
     /**
      * @param rule
      */

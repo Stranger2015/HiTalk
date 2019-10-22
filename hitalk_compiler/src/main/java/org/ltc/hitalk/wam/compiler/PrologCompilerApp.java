@@ -4,7 +4,6 @@ import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
-import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.common.util.doublemaps.SymbolTableImpl;
 import org.apache.commons.vfs2.*;
@@ -211,9 +210,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
     }
 
     /**
-     *
-     * @param  path
-     *
+     * @param path
      * @return
      * @throws IOException
      */
@@ -225,23 +222,20 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
         LibParser libParser = new LibParser();//TermIO.instance().getParser();
         libParser.setTokenSource(tokenSource);
 
-        // Load the built-ins into the domain.
-        try {
-            while (true) {
-                Sentence <Term> sentence = libParser.parse();
-                if (sentence == null) {
-                    break;
-                }
-
-                compiler.compile(tokenSource);
+        // Load the built-ins into the domainwhile (true) {
+        while (true) {
+            Sentence <Term> sentence = libParser.parse();
+            if (sentence == null) {
+                break;
             }
-
-            compiler.endScope();
-        } catch (SourceCodeException e) {
-            // There should not be any errors in the built in library, if there are then the prolog engine just
-            // isn't going to work, so report this as a bug.
-            throw new IllegalStateException("Got an exception whilst loading the built-in library.", e);
+//            compiler.compile(sentence);
+            HtClause cl = libParser.convert(sentence.getT());
+            compiler.compile(cl);
         }
+        compiler.endScope();
+//         There should not be any errors in the built in library, if there are then the prolog engine just
+//         isn't going to work, so report this as a bug.
+//        throw new IllegalStateException("Got an exception whilst loading the built-in library.", e);
 
         return path;
     }

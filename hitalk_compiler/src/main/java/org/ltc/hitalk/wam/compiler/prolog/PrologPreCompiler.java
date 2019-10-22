@@ -21,7 +21,8 @@ import org.slf4j.LoggerFactory;
 abstract public class PrologPreCompiler extends BaseMachine implements ICompiler <HtClause, HtClause> {
 
 
-    private Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
+    protected Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
+    protected PlPrologParser parser;
 
     /**
      * Creates a base machine over the specified symbol table.
@@ -29,7 +30,7 @@ abstract public class PrologPreCompiler extends BaseMachine implements ICompiler
      * @param symbolTable The symbol table for the machine.
      * @param interner    The interner for the machine.
      */
-    public PrologPreCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner ) {
+    protected PrologPreCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner ) {
         super(symbolTable, interner);
     }
 
@@ -40,7 +41,7 @@ abstract public class PrologPreCompiler extends BaseMachine implements ICompiler
 
     @Override
     public PlPrologParser getParser () {
-        return null;
+        return parser;
     }
 
     @Override

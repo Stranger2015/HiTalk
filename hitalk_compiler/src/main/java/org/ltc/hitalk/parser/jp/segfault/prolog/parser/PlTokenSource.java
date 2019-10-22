@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
 import static java.nio.file.StandardOpenOption.READ;
@@ -89,6 +88,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     private long fileBeginOffset = 0L;
 
     protected HiTalkStream stream;
+    private InputStream input;
     //    private InputStream input;
     private String path;
 
@@ -104,17 +104,18 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
         }
     }
 
-    /**
-     * Builds a token source around the specified token manager.
-     *
-     * @param lexer The token manager to use to feed this source.
-     * @param input
-     */
-    public PlTokenSource ( PlLexer lexer, InputStream input ) throws IOException {
-        this(lexer);
-        stream = new HiTalkStream((FileInputStream) input, this);
+//    /**
+//     * Builds a token source around the specified token manager.
+//     *
+//     * @param lexer The token manager to use to feed this source.
+//     * @param input
+//     */
+//    public PlTokenSource ( PlLexer lexer, InputStream input ) throws IOException {
+//        this(lexer);
+//        stream = HiTalkStream.createHiTalkStream(input);
 //        this.lexer = lexer;
-    }
+//    }
+//
 
     /**
      * @param lexer
@@ -123,7 +124,8 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
      * @throws IOException
      */
     public PlTokenSource ( PlLexer lexer, InputStream input, String path ) throws IOException {
-        this(lexer, input);
+        this.lexer = lexer;
+        this.input = input;
         this.path = path;
     }
 
@@ -191,7 +193,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
      * @throws IOException
      */
     public static HiTalkStream createHiTalkStream ( String path, StandardOpenOption... options ) throws IOException {
-        return TermIO.instance().addStream(new HiTalkStream(Paths.get(path), options));
+        return TermIO.instance().addStream(HiTalkStream.createHiTalkStream(path, true));
     }
 
 //    /**
