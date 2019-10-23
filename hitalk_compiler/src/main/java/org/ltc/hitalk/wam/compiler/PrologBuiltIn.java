@@ -17,7 +17,7 @@ import com.thesett.common.util.SizeableLinkedList;
  * @author Rupert Smith
  */
 public
-interface HiTalkBuiltIn {
+interface PrologBuiltIn {
 
     /**
      * Compiles the arguments to a call to a body of a clause into an instruction listing in WAM.

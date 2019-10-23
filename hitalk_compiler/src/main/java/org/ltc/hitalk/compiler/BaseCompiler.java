@@ -11,8 +11,6 @@ import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
-import org.ltc.hitalk.wam.compiler.BaseInstructionCompiler;
-import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,15 +38,15 @@ abstract public class BaseCompiler<P, Q> extends BaseMachine implements ICompile
     protected PlPrologParser parser;
     protected Resolver <HtClause, Q> resolver;
     protected Resolver <HtClause, HtClause> resolver2;
-    protected BaseInstructionCompiler <P, Q> instructionCompiler;
-    protected PrologPreCompiler preCompiler;
+//    protected BaseInstructionCompiler <P, Q> instructionCompiler;
+//    protected PrologPreCompiler preCompiler;
 
-    /**
-     * @return
-     */
-    public PrologPreCompiler getPreCompiler () {
-        return preCompiler;
-    }
+//    /**
+//     * @return
+//     */
+//    public PrologPreCompiler getPreCompiler () {
+//        return preCompiler;
+//    }
 
 
     /**
@@ -104,58 +102,6 @@ abstract public class BaseCompiler<P, Q> extends BaseMachine implements ICompile
         this.observer = observer;
     }
 
-//    /**
-//     * Signal the end of a compilation scope, to trigger completion of the compilation of its contents.
-//     * {@inheritDoc}
-//     *
-//     * @throws SourceCodeException If there is an error in the source to be compiled that prevents its compilation.
-//     */
-//    @Override
-//    public void endScope () throws SourceCodeException {
-//
-//            // Loop over all predicates in the current scope, found in the symbol table, and consume and compile them.
-//            for (SymbolKey predicateKey = predicatesInScope.poll(); predicateKey != null; predicateKey = predicatesInScope.poll()) {
-//                List <HtClause> clauses = (List <HtClause>) scopeTable.get(predicateKey, SYMKEY_PREDICATES);
-//
-//                // Used to keep track of where within the predicate the current clause is.
-//                int size = clauses.size();
-//                int current = 0;
-//                boolean multipleClauses = size > 1;
-//
-//                // Used to build up the compiled predicate in.
-//                HiTalkWAMCompiledPredicate result = null;
-//
-//                for (Iterator <HtClause> iterator = clauses.iterator(); iterator.hasNext(); iterator.remove()) {
-//                    HtClause clause = iterator.next();
-//
-//                    if (result == null) {
-//                        result = new HiTalkWAMCompiledPredicate(clause.getHead().getName());
-//                    }
-//
-//                    // Compile the single clause, adding it to the parent compiled predicate.
-//                    compileClause(clause, result, current == 0, current >= (size - 1), multipleClauses, current);
-//                    current++;
-//                }
-//
-//                // Run the optimizer on the output.
-//                result = optimizer.apply(result);
-//
-//                displayCompiledPredicate(result);
-//                observer.onCompilation(result);
-//
-//                // Move up the low water mark on the predicates table.
-//                symbolTable.setLowMark(predicateKey, SYMKEY_PREDICATES);
-//            }
-//
-//            // Clear up the symbol table, and bump the compilation scope up by one.
-//            symbolTable.clearUpToLowMark(SYMKEY_PREDICATES);
-//            scopeTable = null;
-//            scope++;
-//        }
-//
-//    }
-
-
     /**
      * @param resolver2
      */
@@ -182,17 +128,7 @@ abstract public class BaseCompiler<P, Q> extends BaseMachine implements ICompile
     }
 
     @Override
-    public void compile ( HtClause clause, HtProperty... flags ) throws SourceCodeException {
-
-    }
-
-    @Override
     public void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
-
-    }
-
-    @Override
-    public void compileQuery ( HtClause query ) throws SourceCodeException {
 
     }
 

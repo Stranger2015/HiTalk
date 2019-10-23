@@ -4,10 +4,15 @@ import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.BaseCompiler;
+import org.ltc.hitalk.entities.HtProperty;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledPredicate;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledQuery;
 import org.ltc.hitalk.wam.compiler.hitalk.PrologInstructionCompiler;
+
+import java.io.IOException;
 
 /**
  *
@@ -40,5 +45,15 @@ public class PrologWAMCompiler extends BaseCompiler <HiTalkWAMCompiledPredicate,
     @Override
     public void endScope () throws SourceCodeException {
 
+    }
+
+    @Override
+    public void compile ( HtClause clause, HtProperty... flags ) throws SourceCodeException {
+        preCompiler.compile(clause, flags);
+    }
+
+    @Override
+    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException {
+        preCompiler.compile(tokenSource, flags);
     }
 }

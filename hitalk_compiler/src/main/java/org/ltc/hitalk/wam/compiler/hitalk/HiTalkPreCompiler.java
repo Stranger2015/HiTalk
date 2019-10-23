@@ -56,8 +56,6 @@ class HiTalkPreCompiler extends PrologPreCompiler implements ICompiler <HtClause
     /**
      * Holds the default built in, for standard compilation and interners and symbol tables.
      */
-    protected final HiTalkDefaultBuiltIn defaultBuiltIn;
-    protected final HiTalkWAMCompiler compiler;
 
     /**
      * Holds the built in transformation.

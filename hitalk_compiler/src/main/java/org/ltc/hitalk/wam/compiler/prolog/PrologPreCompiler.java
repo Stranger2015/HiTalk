@@ -19,10 +19,12 @@ import org.slf4j.LoggerFactory;
  *
  */
 abstract public class PrologPreCompiler extends BaseMachine implements ICompiler <HtClause, HtClause> {
-
-
     protected Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
+
     protected PlPrologParser parser;
+    protected PrologDefaultBuiltIn defaultBuiltIn;
+    protected PrologWAMCompiler compiler;
+
 
     /**
      * Creates a base machine over the specified symbol table.
