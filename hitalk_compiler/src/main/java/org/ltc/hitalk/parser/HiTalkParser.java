@@ -24,6 +24,9 @@ import static org.ltc.hitalk.wam.compiler.Language.HITALK;
 public class HiTalkParser implements IParser {
     private PlPrologParser parser;
 
+    /**
+     * @param parser
+     */
     public HiTalkParser ( PlPrologParser parser ) {
         this.parser = parser;
     }

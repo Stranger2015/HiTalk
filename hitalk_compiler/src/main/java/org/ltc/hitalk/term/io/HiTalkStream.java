@@ -42,7 +42,7 @@ import static java.nio.file.StandardOpenOption.WRITE;
  * ByteBuffer newbb = charset.encode(cb);
  */
 public
-class HiTalkStream implements IInputStream, IOutputStream, IPropertyOwner, PropertyChangeListener {
+class HiTalkStream implements IInputStream, IOutputStream, IPropertyOwner, PropertyChangeListener, Cloneable {
 
     public static final int BB_ALLOC_SIZE = 32768;
 
@@ -185,7 +185,7 @@ class HiTalkStream implements IInputStream, IOutputStream, IPropertyOwner, Prope
      * @param fd
      * @throws IOException
      */
-    protected HiTalkStream ( FileDescriptor fd, boolean isReading ) throws IOException {
+    public HiTalkStream ( FileDescriptor fd, boolean isReading ) throws IOException {
         this.fd = fd;
         this.isReading = isReading;
         options.add(isReading ? READ : WRITE);
@@ -1016,6 +1016,15 @@ class HiTalkStream implements IInputStream, IOutputStream, IPropertyOwner, Prope
     @Override
     public void close () throws IOException {
         dis.close();
+    }
+
+    public void setInputStream ( InputStream inputStream ) throws IOException {
+        System.setIn(inputStream);
+    }
+
+    @Override
+    public HiTalkStream copy () throws CloneNotSupportedException {
+        return (HiTalkStream) this.clone();
     }
 
     /**

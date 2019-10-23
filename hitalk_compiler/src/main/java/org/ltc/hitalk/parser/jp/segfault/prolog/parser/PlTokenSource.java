@@ -16,8 +16,8 @@ import org.ltc.hitalk.wam.compiler.HtFunctorName;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.StandardOpenOption;
@@ -62,6 +62,26 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     private String encoding;
 
     /**
+     * @param string
+     * @return
+     * @throws IOException
+     * @throws CloneNotSupportedException
+     */
+    public static PlTokenSource getPlTokenSourceForString ( String string ) throws IOException, CloneNotSupportedException {
+//        HiTalkStream stream = new HiTalkStream(FileDescriptor.in, true);
+//        PlLexer lexer = new PlLexer(stream);
+//        return new PlTokenSource(lexer, new ByteArrayInputStream(string.getBytes()));
+        return getPlTokenSourceForStdin(new ByteArrayInputStream(string.getBytes()));
+    }
+
+    private static PlTokenSource getPlTokenSourceForStdin ( InputStream inputStream ) throws IOException, CloneNotSupportedException {
+        HiTalkStream stream = TermIO.instance().currentInput().copy();
+        stream.setInputStream(inputStream);
+        PlLexer lexer = new PlLexer(stream);
+        return new PlTokenSource(lexer);
+    }
+
+    /**
      * @return
      */
     public boolean isEofGenerated () {
@@ -88,8 +108,8 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     private long fileBeginOffset = 0L;
 
     protected HiTalkStream stream;
-    private InputStream input;
     //    private InputStream input;
+//        private InputStream input;
     private String path;
 
     /**
@@ -119,30 +139,23 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
 
     /**
      * @param lexer
-     * @param input
      * @param path
      * @throws IOException
      */
-    public PlTokenSource ( PlLexer lexer, InputStream input, String path ) throws IOException {
+    public PlTokenSource ( PlLexer lexer, String path ) throws IOException {
         this.lexer = lexer;
-        this.input = input;
         this.path = path;
     }
 
     /**
-     * Creates a token source on a string.
-     *
-     * @return A token source.
+     * @param file
+     * @return
+     * @throws IOException
      */
-//    public static PlTokenSource getPlTokenSourceForString ( String stringToTokenize, int lineOfs ) throws IOException {
-//        InputStream input = new ByteArrayInputStream(stringToTokenize.getBytes());
-//        return getTokenSourceForInputStream(input, "");//fixme
-//    }
-
     public static PlTokenSource getTokenSourceForIoFile ( File file ) throws IOException {
         PlLexer lexer = new PlLexer(createHiTalkStream(file.getAbsolutePath(), READ));
-        FileInputStream in = new FileInputStream(file);
-        return new PlTokenSource(lexer, in, file.getAbsolutePath());
+//        FileInputStream in = new FileInputStream(file);
+        return new PlTokenSource(lexer);
     }
 
 //    private static PlTokenSource getTokenSourceForUri ( URI uri ) throws IOException {
@@ -169,26 +182,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
 //    }
 
     /**
-     * Creates a token source on an input stream.
-     *
-     * @param in   The input stream to tokenize.
      * @param path
-     *
-     * @return A token source.
-     */
-//    public static PlTokenSource getTokenSourceForInputStream ( InputStream in, String path ) throws IOException {
-//        InputStreamReader input = new InputStreamReader(in);
-//        SimpleCharStream inputStream = new SimpleCharStream(input, 1, 1);
-//        if(in in)
-//        PlLexer lexer = new PlLexer(createHiTalkStream(new FileInputStream(path), path));
-//
-//        return new PlTokenSource(lexer, in, path);
-//    }
-
-    /**
-     *
-     * @param path
-     *
      * @return
      * @throws IOException
      */
@@ -209,9 +203,8 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
 //
 //        return getTokenSourceForInputStream(inputStream, vfsFo.getName().getPath());
 //    }
-//
+
     /**
-     *
      * @return
      */
     public long getFileBeginOffset () {
@@ -219,7 +212,6 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     }
 
     /**
-     *
      * @param fileBeginOffset
      */
     public void setFileBeginOffset ( long fileBeginOffset ) {
@@ -240,7 +232,6 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     }
 
     /**
-     *
      * @return
      */
     public String getPath () {
@@ -248,7 +239,6 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     }
 
     /**
-     *
      * @return
      */
     public boolean isEncodingChanged () {
@@ -256,7 +246,6 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     }
 
     /**
-     *
      * @param encodingChanged
      */
     public void setEncodingChanged ( boolean encodingChanged ) {
@@ -382,9 +371,6 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
         internOperator(PrologAtoms.UP, 200, yfx);
         internOperator(PrologAtoms.STAR_STAR, 200, yfx);
         internOperator(PrologAtoms.AS, 200, fy);
-        //FIXME
-//        internOperator(PrologAtoms.VBAR, 1001, XFY);
-//        internOperator(PrologAtoms.VBAR, 1001, FY);
 
         // Intern all built in functors.
         interner.internFunctorName(PrologAtoms.ARGLIST_NIL, 0);

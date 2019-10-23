@@ -15,6 +15,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource.getPlTokenSourceForString;
+import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource.getTokenSourceForIoFile;
+
 /**
  * @param <P>
  * @param <Q>
@@ -43,7 +46,8 @@ public interface ICompiler<P, Q> extends ILogicCompiler <HtClause, P, Q> {
      * @throws IOException
      */
     default void compileFile ( String fn, HtProperty... flags ) throws IOException, SourceCodeException {
-        compile(PlTokenSource.getTokenSourceForIoFile(new File(fn)), flags);
+
+        compile(getTokenSourceForIoFile(new File(fn)), flags);
     }
 
     /**
@@ -52,8 +56,8 @@ public interface ICompiler<P, Q> extends ILogicCompiler <HtClause, P, Q> {
      * @throws IOException
      * @throws SourceCodeException
      */
-    default void compileString ( String fn, HtProperty... flags ) throws Exception {
-//        compile(PlTokenSource.getPlTokenSourceForString(fn, 1), flags);
+    default void compileString ( String string, HtProperty... flags ) throws Exception {
+        compile(getPlTokenSourceForString(string), flags);
     }
 
     /**

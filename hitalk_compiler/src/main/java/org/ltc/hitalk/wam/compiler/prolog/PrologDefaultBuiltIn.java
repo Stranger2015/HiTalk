@@ -322,7 +322,7 @@ public class PrologDefaultBuiltIn extends BaseMachine implements PrologBuiltIn {
      * @param addrMode     The addressing mode of the variable, permanent variables are stack allocated.
      * @return <tt>true</tt> iff the variable is unsafe.
      */
-    protected boolean isLocalVariable ( VarIntroduction introduction, byte addrMode ) {
+    public boolean isLocalVariable ( VarIntroduction introduction, byte addrMode ) {
         if (STACK_ADDR == addrMode) {
             return (introduction == VarIntroduction.Get) || (introduction == VarIntroduction.Put);
         } else {

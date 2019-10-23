@@ -9,6 +9,15 @@ import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 
 public class HiTalkWAMCompiler extends PrologWAMCompiler {
+    public enum ImplPolicy {
+        NATIVE_LOGTALK,   //using specializer
+        PROLOG_CONVERSION,//using specializer
+        META_INTERPRETATION,
+        PROLOG_MODELLING,
+        WAM;
+
+    }
+
     /**
      * @param symbolTable
      * @param interner
@@ -132,8 +141,7 @@ public class HiTalkWAMCompiler extends PrologWAMCompiler {
      * @param rule
      */
     @Override
-    public
-    void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
+    public void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
 
     }
 
@@ -149,8 +157,7 @@ public class HiTalkWAMCompiler extends PrologWAMCompiler {
      * @param clause
      */
     @Override
-    public
-    void compileClause ( HtClause clause ) {
+    public void compileClause ( HtClause clause ) {
 
     }
 

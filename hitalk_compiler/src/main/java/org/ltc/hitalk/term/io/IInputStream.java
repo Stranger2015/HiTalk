@@ -7,8 +7,5 @@ import java.nio.channels.ReadableByteChannel;
  *
  */
 public interface IInputStream extends DataInput, ReadableByteChannel {
-    /**
-     * @return
-     */
-//    Term readTerm ();
+    HiTalkStream copy () throws CloneNotSupportedException;
 }

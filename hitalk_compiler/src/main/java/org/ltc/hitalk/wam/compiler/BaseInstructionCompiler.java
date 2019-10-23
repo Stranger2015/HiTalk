@@ -1,7 +1,12 @@
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.compiler.PositionalTermTraverser;
+import com.thesett.aima.logic.fol.compiler.PositionalTermTraverserImpl;
+import com.thesett.aima.logic.fol.compiler.TermWalker;
+import com.thesett.aima.logic.fol.wam.compiler.PositionAndOccurrenceVisitor;
 import com.thesett.aima.logic.fol.wam.compiler.WAMLabel;
+import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
 import com.thesett.aima.search.util.uninformed.BreadthFirstSearch;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.SizeableLinkedList;
@@ -12,7 +17,12 @@ import org.ltc.hitalk.compiler.BaseCompiler;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkInstructionCompiler;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
+import org.ltc.hitalk.wam.printer.HtPositionalTermTraverser;
+import org.ltc.hitalk.wam.printer.HtPositionalTermVisitor;
+import org.ltc.hitalk.wam.printer.HtWAMCompiledPredicatePrintingVisitor;
+import org.ltc.hitalk.wam.printer.HtWAMCompiledQueryPrintingVisitor;
 import org.ltc.hitalk.wam.task.CompilerTask;
 
 import java.io.IOException;
@@ -29,6 +39,10 @@ import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.STACK_ADDR;
  * @param <Q>
  */
 public abstract class BaseInstructionCompiler<P, Q> extends BaseCompiler <P, Q> {
+
+    public PrologDefaultBuiltIn getDefaultBuiltIn () {
+        return defaultBuiltIn;
+    }
 
     protected final PrologDefaultBuiltIn defaultBuiltIn;
     /**
@@ -58,9 +72,9 @@ public abstract class BaseInstructionCompiler<P, Q> extends BaseCompiler <P, Q> 
     /**
      * Holds the current nested compilation scope symbol table.
      */
-    private SymbolTable <Integer, String, Object> scopeTable;
-    private Collection <Integer> seenRegisters;
-    private int lastAllocatedTempReg;
+    protected SymbolTable <Integer, String, Object> scopeTable;
+    protected Collection <Integer> seenRegisters;
+    protected int lastAllocatedTempReg;
 
     /**
      * @return
@@ -210,6 +224,60 @@ public abstract class BaseInstructionCompiler<P, Q> extends BaseCompiler <P, Q> 
         observer.onQueryCompilation(result);
     }
 
+
+    /**
+     * Gather information about variable counts and positions of occurrence of constants and variable within a clause.
+     *
+     * @param clause The clause to check the variable occurrence and position of occurrence within.
+     */
+    private void gatherPositionAndOccurrenceInfo ( Term clause ) {
+        PositionalTermTraverser positionalTraverser = new PositionalTermTraverserImpl();
+        PositionAndOccurrenceVisitor positionAndOccurrenceVisitor = new PositionAndOccurrenceVisitor(interner, symbolTable, positionalTraverser);
+        positionalTraverser.setContextChangeVisitor(positionAndOccurrenceVisitor);
+
+        TermWalker walker = new TermWalker(new DepthFirstBacktrackingSearch <>(), positionalTraverser, positionAndOccurrenceVisitor);
+
+        walker.walk(clause);
+    }
+
+    /**
+     * Pretty prints a compiled query.
+     *
+     * @param query The compiled query to pretty print.
+     */
+    private void displayCompiledQuery ( Term query ) {
+        // Pretty print the clause.
+        StringBuilder result = new StringBuilder();
+
+        HtPositionalTermVisitor displayVisitor = new HtWAMCompiledQueryPrintingVisitor(symbolTable, interner, result);
+
+        HtTermWalkers.positionalWalker(displayVisitor).walk(query);
+
+        /*log.fine(result.toString());*/
+    }
+
+
+    /**
+     * Allocates stack slots to all free variables in a query clause.
+     * <p>
+     * <p/>At the end of processing a query its variable bindings are usually printed. For this reason all free
+     * variables in a query are marked as permanent variables on the call stack, to ensure that they are preserved.
+     *
+     * @param clause   The clause to allocate registers for.
+     * @param varNames A map of permanent variables to variable names to record the allocations in.
+     */
+    private void allocatePermanentQueryRegisters ( Term clause, Map <Byte, Integer> varNames ) {
+        // Allocate local variable slots for all variables in a query.
+        HiTalkInstructionCompiler.QueryRegisterAllocatingVisitor allocatingVisitor;
+        allocatingVisitor = new HiTalkInstructionCompiler.QueryRegisterAllocatingVisitor(symbolTable, varNames, null);
+
+        HtPositionalTermTraverser positionalTraverser = new HtPositionalTermTraverserImpl();
+        positionalTraverser.setContextChangeVisitor(allocatingVisitor);
+
+        TermWalker walker = new TermWalker(new DepthFirstBacktrackingSearch <>(), positionalTraverser, allocatingVisitor);
+
+        walker.walk(clause);
+    }
 
     private void checkDirective ( HtClause clause ) {
         Functor[] body = clause.getBody();
@@ -372,6 +440,121 @@ public abstract class BaseInstructionCompiler<P, Q> extends BaseCompiler <P, Q> 
         result.addInstructions(postFixInstructions);
     }
 
+    /**
+     * Allocates stack slots where needed to the variables in a program clause. The algorithm here is fairly complex.
+     * <p>
+     * <p/>A clause head and first body functor are taken together as the first unit, subsequent clause body functors
+     * are taken as subsequent units. A variable appearing in more than one unit is said to be permanent, and must be
+     * stored on the stack, rather than a register, otherwise the register that it occupies may be overwritten by calls
+     * to subsequent units. These variables are called permanent, which really means that they are local variables on
+     * the call stack.
+     * <p>
+     * <p/>In addition to working out which variables are permanent, the variables are also ordered by reverse position
+     * of last body of occurrence, and assigned to allocation slots in this order. The number of permanent variables
+     * remaining at each body call is also calculated and recorded against the body functor in the symbol table using
+     * column {@link SymbolTableKeys#SYMKEY_PERM_VARS_REMAINING}. This allocation ordering of the variables and the
+     * count of the number remaining are used to implement environment trimming.
+     *
+     * @param clause The clause to allocate registers for.
+     */
+    private void allocatePermanentProgramRegisters ( HtClause clause ) {
+        // A bag to hold variable occurrence counts in.
+        Map <Variable, Integer> variableCountBag = new HashMap <>();
+
+        // A mapping from variables to the body number in which they appear last.
+        Map <Variable, Integer> lastBodyMap = new HashMap <>();
+
+        // Holds the variable that are in the head and first clause body argument.
+        Collection <Variable> firstGroupVariables = new HashSet <>();
+
+        // Get the occurrence counts of variables in all clauses after the initial head and first body grouping.
+        // In the same pass, pick out which body variables last occur in.
+        if ((clause.getBody() != null)) {
+            for (int i = clause.getBody().length - 1; i >= 1; i--) {
+                Set <Variable> groupVariables = TermUtils.findFreeVariables(clause.getBody()[i]);
+
+                // Add all their counts to the bag and update their last occurrence positions.
+                for (Variable variable : groupVariables) {
+                    Integer count = variableCountBag.get(variable);
+                    variableCountBag.put(variable, (count == null) ? 1 : (count + 1));
+
+                    if (!lastBodyMap.containsKey(variable)) {
+                        lastBodyMap.put(variable, i);
+                    }
+
+                    // If the cut level variable is seen, automatically add it to the first group variables,
+                    // so that it will be counted as a permanent variable, and assigned a stack slot. This
+                    // will only occur for deep cuts, that is where the cut comes after the first group.
+                    if (variable instanceof Cut.CutLevelVariable) {
+                        firstGroupVariables.add(variable);
+                    }
+                }
+            }
+        }
+
+        // Get the set of variables in the head and first clause body argument.
+        if (clause.getHead() != null) {
+            Set <Variable> headVariables = TermUtils.findFreeVariables(clause.getHead());
+            firstGroupVariables.addAll(headVariables);
+        }
+
+        if ((clause.getBody() != null) && (clause.getBody().length > 0)) {
+            Set <Variable> firstArgVariables = TermUtils.findFreeVariables(clause.getBody()[0]);
+            firstGroupVariables.addAll(firstArgVariables);
+        }
+
+        // Add their counts to the bag, and set their last positions of occurrence as required.
+        for (Variable variable : firstGroupVariables) {
+            Integer count = variableCountBag.get(variable);
+            variableCountBag.put(variable, (count == null) ? 1 : (count + 1));
+
+            if (!lastBodyMap.containsKey(variable)) {
+                lastBodyMap.put(variable, 0);
+            }
+        }
+
+        // Sort the variables by reverse position of last occurrence.
+        List <Map.Entry <Variable, Integer>> lastBodyList = new ArrayList <>(lastBodyMap.entrySet());
+        lastBodyList.sort(( o1, o2 ) -> o2.getValue().compareTo(o1.getValue()));
+
+        // Holds counts of permanent variable last appearances against the body in which they last occur.
+        int[] permVarsRemainingCount = new int[(clause.getBody() != null) ? clause.getBody().length : 0];
+
+        // Search the count bag for all variable occurrences greater than one, and assign them to stack slots.
+        // The variables are examined by reverse position of last occurrence, to ensure that later variables
+        // are assigned to lower permanent allocation slots for environment trimming purposes.
+        for (Map.Entry <Variable, Integer> entry : lastBodyList) {
+            Variable variable = entry.getKey();
+            Integer count = variableCountBag.get(variable);
+            int body = entry.getValue();
+
+            if ((count != null) && (count > 1)) {
+                /*log.fine("Variable " + variable + " is permanent, count = " + count);*/
+
+                int allocation = (numPermanentVars++ & (0xff)) | (STACK_ADDR << 8);
+                symbolTable.put(variable.getSymbolKey(), SYMKEY_ALLOCATION, allocation);
+
+                // Check if the variable is the cut level variable, and cache its stack slot in 'cutLevelVarSlot', so that
+                // the clause compiler knows which variable to use for the get_level instruction.
+                if (variable instanceof Cut.CutLevelVariable) {
+                    //cutLevelVarSlot = allocation;
+                    cutLevelVarSlot = numPermanentVars - 1;
+                    /*log.fine("cutLevelVarSlot = " + cutLevelVarSlot);*/
+                }
+
+                permVarsRemainingCount[body]++;
+            }
+        }
+
+        // Roll up the permanent variable remaining counts from the counts of last position of occurrence and
+        // store the count of permanent variables remaining against the body.
+        int permVarsRemaining = 0;
+
+        for (int i = permVarsRemainingCount.length - 1; i >= 0; i--) {
+            symbolTable.put(clause.getBody()[i].getSymbolKey(), SYMKEY_PERM_VARS_REMAINING, permVarsRemaining);
+            permVarsRemaining += permVarsRemainingCount[i];
+        }
+    }
 
     /**
      * {@inheritDoc}
@@ -416,6 +599,22 @@ public abstract class BaseInstructionCompiler<P, Q> extends BaseCompiler <P, Q> 
         scopeTable = null;
         scope++;
     }
+
+    /**
+     * Pretty prints a compiled predicate.
+     *
+     * @param predicate The compiled predicate to pretty print.
+     */
+    private void displayCompiledPredicate ( Term predicate ) {
+        // Pretty print the clause.
+        StringBuilder result = new StringBuilder();
+        HtPositionalTermVisitor displayVisitor = new HtWAMCompiledPredicatePrintingVisitor(symbolTable, interner, result);
+
+        HtTermWalkers.positionalWalker(displayVisitor).walk(predicate);
+
+        /*log.fine(result.toString());*/
+    }
+
 
     /**
      * Examines all top-level functors within a clause, including any head and body, and determines which functor has
@@ -524,7 +723,7 @@ public abstract class BaseInstructionCompiler<P, Q> extends BaseCompiler <P, Q> 
                         // Check if the variable is 'local' and use a local instruction on the first occurrence.
                         HiTalkDefaultBuiltIn.VarIntroduction introduction = (HiTalkDefaultBuiltIn.VarIntroduction) symbolTable.get(nextArg.getSymbolKey(), SYMKEY_VARIABLE_INTRO);
 
-                        if (isLocalVariable(introduction, addrMode)) {
+                        if (defaultBuiltIn.isLocalVariable(introduction, addrMode)) {
                             /*log.fine("UNIFY_LOCAL_VAL " + ((addrMode == REG_ADDR) ? "X" : "Y") +
                                 address);*/
 

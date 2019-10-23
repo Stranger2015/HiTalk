@@ -16,25 +16,12 @@
 package org.ltc.hitalk.wam.compiler.hitalk;
 
 import com.thesett.aima.logic.fol.*;
-import com.thesett.aima.logic.fol.compiler.PositionalTermTraverser;
-import com.thesett.aima.logic.fol.compiler.PositionalTermTraverserImpl;
-import com.thesett.aima.logic.fol.compiler.TermWalker;
-import com.thesett.aima.logic.fol.wam.compiler.PositionAndOccurrenceVisitor;
 import com.thesett.aima.logic.fol.wam.compiler.WAMInstruction;
-import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
-import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.SizeableLinkedList;
 import com.thesett.common.util.doublemaps.SymbolTable;
-import org.ltc.hitalk.entities.HtProperty;
-import org.ltc.hitalk.interpreter.DcgRule;
-import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.*;
 import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
-import org.ltc.hitalk.wam.printer.HtPositionalTermVisitor;
-import org.ltc.hitalk.wam.printer.HtWAMCompiledPredicatePrintingVisitor;
-import org.ltc.hitalk.wam.printer.HtWAMCompiledQueryPrintingVisitor;
-import org.slf4j.Logger;
 
 import java.util.Map;
 
@@ -177,53 +164,6 @@ public class HiTalkInstructionCompiler extends PrologInstructionCompiler <HiTalk
     }
 
     /**
-     * Gather information about variable counts and positions of occurrence of constants and variable within a clause.
-     *
-     * @param clause The clause to check the variable occurrence and position of occurrence within.
-     */
-    private void gatherPositionAndOccurrenceInfo ( Term clause ) {
-        PositionalTermTraverser positionalTraverser = new PositionalTermTraverserImpl();
-        PositionAndOccurrenceVisitor positionAndOccurrenceVisitor = new PositionAndOccurrenceVisitor(interner, symbolTable, positionalTraverser);
-        positionalTraverser.setContextChangeVisitor(positionAndOccurrenceVisitor);
-
-        TermWalker walker = new TermWalker(new DepthFirstBacktrackingSearch <>(), positionalTraverser, positionAndOccurrenceVisitor);
-
-        walker.walk(clause);
-    }
-
-    /**
-     * Pretty prints a compiled predicate.
-     *
-     * @param predicate The compiled predicate to pretty print.
-     */
-    private void displayCompiledPredicate ( Term predicate ) {
-        // Pretty print the clause.
-        StringBuilder result = new StringBuilder();
-        HtPositionalTermVisitor displayVisitor = new HtWAMCompiledPredicatePrintingVisitor(symbolTable, interner, result);
-
-        HtTermWalkers.positionalWalker(displayVisitor).walk(predicate);
-
-        /*log.fine(result.toString());*/
-    }
-
-    /**
-     * Pretty prints a compiled query.
-     *
-     * @param query The compiled query to pretty print.
-     */
-    private void displayCompiledQuery ( Term query ) {
-        // Pretty print the clause.
-        StringBuilder result = new StringBuilder();
-
-        HtPositionalTermVisitor displayVisitor = new HtWAMCompiledQueryPrintingVisitor(symbolTable, interner, result);
-
-        HtTermWalkers.positionalWalker(displayVisitor).walk(query);
-
-        /*log.fine(result.toString());*/
-    }
-
-
-    /**
      * Compiles a call to a body of a clause into an instruction listing in WAM.
      *
      * @param expression        The body functor to call.
@@ -240,52 +180,12 @@ public class HiTalkInstructionCompiler extends PrologInstructionCompiler <HiTalk
     }
 
     /**
-     * @return
-     */
-    @Override
-    public Logger getConsole () {
-        return logger;
-    }
-
-    @Override
-    public void compile ( HtClause clause, HtProperty... flags ) throws SourceCodeException {
-//        super.compile(clause,flags);
-    }
-
-    /**
-     * @return
-     */
-//    @Override
-//    public PlPrologParser getParser () {
-//        return parser;
-//    }
-
-//    /**
-//     * @param clause
-//     * @param flags
-//     * @throws SourceCodeException
-//     */
-//    @Override
-//    public void compile ( HtClause clause, HtProperty... flags ) throws SourceCodeException {
-//
-//    }
-
-    /**
-     * @param rule
-     * @return /**
-     */
-//    @Override
-    public void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
-
-    }
-
-    /**
      * QueryRegisterAllocatingVisitor visits named variables in a query, and if they are not already allocated to a
      * permanent stack slot, allocates them one. All named variables in queries are stack allocated, so that they are
      * preserved on the stack at the end of the query. Anonymous variables in queries are singletons, and not included
      * in the query results, so can be temporary.
      */
-    public class QueryRegisterAllocatingVisitor extends DelegatingAllTermsVisitor {
+    public static class QueryRegisterAllocatingVisitor extends DelegatingAllTermsVisitor {
         /**
          * The symbol table.
          */
