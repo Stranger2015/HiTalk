@@ -17,7 +17,6 @@
 
  import com.thesett.aima.logic.fol.*;
  import com.thesett.aima.logic.fol.wam.builtins.BuiltInFunctor;
- import com.thesett.common.util.Function;
  import org.ltc.hitalk.compiler.bktables.IApplication;
  import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
  import org.ltc.hitalk.entities.*;
@@ -28,7 +27,7 @@
  import org.ltc.hitalk.wam.compiler.DirectiveClause;
  import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
  import org.ltc.hitalk.wam.compiler.HtFunctor;
- import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiler;
+ import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
 
  import java.io.IOException;
  import java.nio.file.Path;
@@ -54,7 +53,7 @@
   * @author Rupert Smith
   */
  public
- class HiTalkBuiltInTransform<A extends IApplication, T> implements Function <Functor, Functor> {
+ class HiTalkBuiltInTransform<A extends IApplication, T> extends PrologBuiltInTransform <A, T> {
 
 //     public static final Pair EXTENDS_OBJECT = Pair.of(EXTENDS, OBJECT);
 //     public static final Pair EXTENDS_CATEGORY = Pair.of(EXTENDS, CATEGORY);
@@ -81,14 +80,6 @@
       * Holds a mapping from functor names to built-in implementations.
       */
 //     private final Map <HtFunctorName, Predicate <Functor>> builtIns = new HashMap <>();
-     private final PredicateTable builtIns = new PredicateTable();
-
-     /**
-      * Holds the default built in, for standard compilation and interners and symbol tables.
-      */
-     protected final HiTalkDefaultBuiltIn defaultBuiltIn;
-     protected final VariableAndFunctorInterner interner;
-
      ///////////////////////////
      private HtEntityIdentifier entityCompiling;
      private IRelation lastRelation;
@@ -97,9 +88,6 @@
 
      protected final AtomicInteger objectCounter = new AtomicInteger(0);
      protected final AtomicInteger categoryCounter = new AtomicInteger(0);
-
-     protected final HiTalkWAMCompiler compiler;
-     protected final Resolver <HtPredicate, T> resolver;
      protected final AtomicInteger protocolCounter = new AtomicInteger(0);
 //IMPLEMENT BUILTINS AS THE CONSUMER
 
@@ -108,17 +96,16 @@
       * implementations.
       *
       * @param defaultBuiltIn The default built in, for standard compilation and interners and symbol tables.
-      * @param compiler
+      * @param preCompiler
       * @param resolver
       */
-     public
-     HiTalkBuiltInTransform ( HiTalkDefaultBuiltIn defaultBuiltIn, HiTalkWAMCompiler compiler, Resolver <HtPredicate, T> resolver ) {
-         this.defaultBuiltIn = defaultBuiltIn;
-         interner = defaultBuiltIn.getInterner();
-         this.compiler = compiler;
-         this.resolver = resolver;
-         defineBuiltIns();
+     public HiTalkBuiltInTransform ( HiTalkDefaultBuiltIn defaultBuiltIn,
+                                     PrologPreCompiler preCompiler,
+                                     Resolver <HtClause, HtClause> resolver ) {
+         super(defaultBuiltIn, defaultBuiltIn.getInterner(), preCompiler, resolver);
 
+         defineBuiltIns();
+     }
 
 //***************************************************************************************************************
 
@@ -181,10 +168,8 @@
 ////        atom_prefix/2
 ////        sub_atom/5
 ////        sub_atom_icasechk/3
-     }
 
-     private
-     void defineBuiltIns () {
+     private void defineBuiltIns () {
 //         builtIns.put(new HtFunctorName(TRUE, 0), this::true_p);
 //         builtIns.put(new HtFunctorName(FAIL, 0), this::fail_p);
 //         builtIns.put(new HtFunctorName(FALSE, 0), this::fail_p);
@@ -297,128 +282,103 @@
 //         builtIns.put(new HtFunctorName(SUB_ATOM_ICASECHK, 2), this::sub_atom_icasechk_p);
      }
 
-     private
-     boolean nl_p ( Functor functor ) {
+     private boolean nl_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean ttyflush_p ( Functor functor ) {
+     private boolean ttyflush_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean seen_p ( Functor functor ) {
+     private boolean seen_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean functor_p ( Functor functor ) {
+     private boolean functor_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean char_code_p ( Functor functor ) {
+     private boolean char_code_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean seeing_p ( Functor functor ) {
+     private boolean seeing_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean append1_p ( Functor functor ) {
+     private boolean append1_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean told_p ( Functor functor ) {
+     private boolean told_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean atom_chars_p ( Functor functor ) {
+     private boolean atom_chars_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean telling_p ( Functor functor ) {
+     private boolean telling_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean tell_p ( Functor functor ) {
+     private boolean tell_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean see_p ( Functor functor ) {
+     private boolean see_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean number_chars_p ( Functor functor ) {
+     private boolean number_chars_p ( Functor functor ) {
          return true;
      }
 
-     private
-     boolean atom_number_p ( Functor functor ) {
+     private boolean atom_number_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean name_p ( Functor functor ) {
+     private boolean name_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean term_to_atom_p ( Functor functor ) {
+     private boolean term_to_atom_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean atom_to_term_p ( Functor functor ) {
+     private boolean atom_to_term_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean atom_concat_p ( Functor functor ) {
+     private boolean atom_concat_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean atomic_concat_p ( Functor functor ) {
+     private boolean atomic_concat_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean atomic_list_concat_p ( Functor functor ) {
+     private boolean atomic_list_concat_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean atom_length_p ( Functor functor ) {
+     private boolean atom_length_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean atom_prefix_p ( Functor functor ) {
+     private boolean atom_prefix_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean sub_atom_p ( Functor functor ) {
+     private boolean sub_atom_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean sub_atom_icasechk_p ( Functor functor ) {
+     private boolean sub_atom_icasechk_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean current_input_p ( Functor functor ) {
+     private boolean current_input_p ( Functor functor ) {
          try {//(/*InputStream input = in*/) {
              HiTalkStream input;
              throw new IOException();
@@ -429,14 +389,12 @@
 //         return false;
      }
 
-     private
-     boolean current_output_p ( Functor functor ) {
+     private boolean current_output_p ( Functor functor ) {
 
          return false;
      }
 
-     private
-     boolean read_p ( Functor functor ) {
+     private boolean read_p ( Functor functor ) {
 //         parser = (HtPrologParser) getParser();
 //         try {
 //             Term term = app.getParser().termSentence();
@@ -479,139 +437,112 @@
 //         return false;
 //     }
 
-     private
-     boolean create_logtalk_flag_p ( Functor functor ) {
+     private boolean create_logtalk_flag_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean set_logtalk_flag_p ( Functor functor ) {
+     private boolean set_logtalk_flag_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean current_logtalk_flag_p ( Functor functor ) {
+     private boolean current_logtalk_flag_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean current_event_p ( Functor functor ) {
+     private boolean current_event_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean define_events_p ( Functor functor ) {
+     private boolean define_events_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean abolish_events_p ( Functor functor ) {
+     private boolean abolish_events_p ( Functor functor ) {
          return true;
      }
 
-     private
-     boolean conforms_to_protocol_p ( Functor functor ) {
+     private boolean conforms_to_protocol_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean complements_object_p ( Functor functor ) {
+     private boolean complements_object_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean extends_category_p ( Functor functor ) {
+     private boolean extends_category_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean extends_object_p ( Functor functor ) {
+     private boolean extends_object_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean extends_protocol_p ( Functor functor ) {
+     private boolean extends_protocol_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean specializes_class_p ( Functor functor ) {
+     private boolean specializes_class_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean instantiates_class_p ( Functor functor ) {
+     private boolean instantiates_class_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean imports_category_p ( Functor functor ) {
+     private boolean imports_category_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean implements_protocol_p ( Functor functor ) {
+     private boolean implements_protocol_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean abolish_object_p ( Functor functor ) {
+     private boolean abolish_object_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean abolish_protocol_p ( Functor functor ) {
+     private boolean abolish_protocol_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean create_protocol_p ( Functor functor ) {
+     private boolean create_protocol_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean create_category_p ( Functor functor ) {
+     private boolean create_category_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean current_object_p ( Functor functor ) {
+     private boolean current_object_p ( Functor functor ) {
 
          return true;
      }
 
-     private
-     boolean current_category_p ( Functor functor ) {
+     private boolean current_category_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean current_protocol_p ( Functor functor ) {
+     private boolean current_protocol_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean category_property_p ( Functor functor ) {
+     private boolean category_property_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean abolish_category_p ( Functor functor ) {
+     private boolean abolish_category_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean protocol_property_p ( Functor functor ) {
+     private boolean protocol_property_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean object_property_p ( Functor functor ) {
+     private boolean object_property_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean logtalk_library_path_p ( Functor functor ) {
+     private boolean logtalk_library_path_p ( Functor functor ) {
          return false;
      }
 
@@ -622,53 +553,37 @@
       * @return The result of applying the function to its argument.
       */
      @Override
-     public
-     Functor apply ( Functor functor ) {
+     public Functor apply ( Functor functor ) {
          return null;
-     }
-
-     /**
-      * @return
-      */
-     public
-     HiTalkDefaultBuiltIn getDefaultBuiltIn () {
-         return defaultBuiltIn;
      }
 
 //     ==================================================================
 
-     private
-     boolean discontiguous_p ( Functor functor ) {
+     private boolean discontiguous_p ( Functor functor ) {
          return true;
      }
 
-     private
-     boolean not_p ( Functor functor ) {
+     private boolean not_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean expand_term_p ( Functor functor ) {
+     private boolean expand_term_p ( Functor functor ) {
          return true;
      }
 
-     private
-     boolean expand_goal_p ( Functor functor ) {
+     private boolean expand_goal_p ( Functor functor ) {
          return true;
      }
 
-     private
-     boolean hilog_p ( Functor functor ) {
+     private boolean hilog_p ( Functor functor ) {
          return true;
      }
 
-     private
-     boolean create_object_p ( Functor functor ) {
+     private boolean create_object_p ( Functor functor ) {
          return createObject(functor);
      }
 
-     private
-     boolean createObject ( Functor functor ) {
+     private boolean createObject ( Functor functor ) {
          Functor identifier = (Functor) functor.getArgument(0);
          ListTerm relations = (ListTerm) functor.getArgument(1);
          ListTerm directives = (ListTerm) functor.getArgument(2);
@@ -677,8 +592,7 @@
          return false;
      }
 
-     private
-     boolean encoding_p ( Functor functor ) {
+     private boolean encoding_p ( Functor functor ) {
 //         Token token = /**/app.getParser().lastToken();
 //         app.getParser().getTokenSource().setOffset(token.endLine, token.endColumn);
 //         app.getParser().getTokenSource().setFileBeginPos(app.getParser().);
@@ -710,8 +624,7 @@
 //         return true;
 //     }
 
-     private
-     boolean include_p ( Functor functor ) {
+     private boolean include_p ( Functor functor ) {
 //         try {
 //             Path path = expandSourceFileName((Functor) functor.getArgument(0));
 //             HtTokenSource tokenSource = HtTokenSource.getTokenSourceForFile(path.toFile());//bof/eof
@@ -723,14 +636,12 @@
          return true;
      }
 
-     public
-     Path expandSourceFileName ( Functor functor ) {
+     public Path expandSourceFileName ( Functor functor ) {
          String filename = interner.getFunctorName(functor);
 
          if (functor.isAtom()) {
              return null;//fixme aliases + \-->/
-         }
-         else {
+         } else {
              if (functor.getArity() == 1) {
 //                 libPath = interner.getFunctorName(functor)
              }
@@ -744,8 +655,7 @@
       * @return
       */
      @SuppressWarnings("ToArrayCallWithZeroLengthArrayArgument")
-     public
-     Path convertsToOsFileName ( Functor functor ) {
+     public Path convertsToOsFileName ( Functor functor ) {
          List <String> names = new ArrayList <>();
          for (; ; functor = (Functor) functor.getArgument(0)) {
              String name = interner.getFunctorName(functor);
@@ -754,12 +664,10 @@
              }
              if (functor.getArity() == 1) {
                  names.add(name);///fixme
-             }
-             else {
+             } else {
                  if (!functor.isGround()) {
                      throw new ExecutionError(INSTANTIATION_ERROR, null);
-                 }
-                 else {
+                 } else {
                      throw new ExecutionError(TYPE_ERROR, null);
                  }
              }
@@ -780,20 +688,17 @@
          };
      }
 
-     private
-     Path expandLibraryAlias ( Functor library ) {
+     private Path expandLibraryAlias ( Functor library ) {
          Functor location = logtalkLibraryPath(library);
          return Paths.get("");
      }
 
-     private
-     Functor logtalkLibraryPath ( Functor library ) {
+     private Functor logtalkLibraryPath ( Functor library ) {
 
          return null;
      }
 
-     private
-     Path expandPath ( Functor sourceFileName ) {
+     private Path expandPath ( Functor sourceFileName ) {
          List <String> names = new ArrayList <>();
          for (Functor functor = sourceFileName; ; functor = (Functor) functor.getArgument(0)) {
              String name = interner.getFunctorName(functor);
@@ -802,12 +707,10 @@
              }
              if (functor.getArity() == 1) {
                  names.add(name);
-             }
-             else {
+             } else {
                  if (!functor.isGround()) {
                      throw new ExecutionError(INSTANTIATION_ERROR, null);
-                 }
-                 else {
+                 } else {
                      throw new ExecutionError(TYPE_ERROR, null);
                  }
              }
@@ -876,86 +779,72 @@
 //         return true;
 //     }
 
-     private
-     boolean public_p ( Functor functor ) {
+     private boolean public_p ( Functor functor ) {
 
          return true;
      }
 
-     private
-     boolean protected_p ( Functor functor ) {
+     private boolean protected_p ( Functor functor ) {
 
          return true;
      }
 
-     private
-     boolean private_p ( Functor functor ) {
+     private boolean private_p ( Functor functor ) {
 
          return true;
      }
 
-     private
-     boolean true_p ( Functor functor ) {
+     private boolean true_p ( Functor functor ) {
          return true;
      }
 
-     private
-     boolean fail_p ( Functor functor ) {
+     private boolean fail_p ( Functor functor ) {
          return false;
      }
 
-     private
-     boolean cut_p ( Functor functor ) {
+     private boolean cut_p ( Functor functor ) {
          return true;
      }
 
-     private
-     boolean unifies_p ( Functor functor ) {
+     private boolean unifies_p ( Functor functor ) {
          boolean result = false;
 
          return result;
      }
 
-     private
-     boolean nonUnifies_p ( Functor functor ) {
+     private boolean nonUnifies_p ( Functor functor ) {
          boolean result = false;
 
          return result;
      }
 
-     private
-     boolean assign_p ( Functor functor ) {
+     private boolean assign_p ( Functor functor ) {
          return true;
      }
 
-     private
-     boolean conjunction_p ( Functor functor ) {
+     private boolean conjunction_p ( Functor functor ) {
          boolean result = false;
 
          return result;
      }
 
-     private
-     boolean disjunction_p ( Functor functor ) {
+     private boolean disjunction_p ( Functor functor ) {
          boolean result = false;
 
          return result;
      }
 
-     private
-     boolean call_p ( Functor functor ) {
+     private boolean call_p ( Functor functor ) {
          boolean result = false;
 
          return result;
      }
 
-     private
-     boolean apply_p ( Functor functor ) {
+     private boolean apply_p ( Functor functor ) {
          return true;
      }
 
-     private
-     boolean object_p ( Functor functor ) {
+     private boolean object_p ( Functor functor ) {
          if (isEntityCompiling()) {
              throw new ExecutionError(PERMISSION_ERROR, null);
          }
@@ -966,8 +855,7 @@
      }
 
      @SuppressWarnings("SuspiciousMethodCalls")
-     private
-     void handleEntityRelations ( HtFunctor entityFunctor, boolean dynamic ) {
+     private void handleEntityRelations ( HtFunctor entityFunctor, boolean dynamic ) {
          int arityMax = entityFunctor.getArityMin() + entityFunctor.getArityDelta();
 //         HtEntityKind entityKind = entityCompiling.getKind();
          EnumSet <HtRelationKind> kinds = EnumSet.noneOf(HtRelationKind.class);
@@ -980,8 +868,7 @@
                  for (; listTerm.isNil(); listTerm.newTail()) {
                      handleNormalizedRelations((Functor) listTerm.getHead(), kinds, relations, dynamic);
                  }
-             }
-             else {
+             } else {
                  if (entityFunctor.getArityDelta() != 0) {
                      FunctorName name = interner.getDeinternedFunctorName(entityFunctor.getName());
                      relationFunctor = (Functor) entityFunctor.getArgument(1);
@@ -991,11 +878,10 @@
          }
      }
 
-     private
-     void handleNormalizedRelations ( Functor functor,
-                                      EnumSet <HtRelationKind> kinds,
-                                      List <Set <IRelation>> relations,
-                                      boolean dynamic ) {
+     private void handleNormalizedRelations ( Functor functor,
+                                              EnumSet <HtRelationKind> kinds,
+                                              List <Set <IRelation>> relations,
+                                              boolean dynamic ) {
 
          String name = interner.getFunctorName(functor);
 //         HtRelationKind relationKind = relationKindMap.get(name);
@@ -1019,8 +905,7 @@
       * @param dynamic
       * @return
       */
-     private
-     IRelation createRelation ( Functor relationFunctor, HtRelationKind relationKind, boolean dynamic ) {
+     private IRelation createRelation ( Functor relationFunctor, HtRelationKind relationKind, boolean dynamic ) {
 
          HtProperty[] properties = new HtProperty[0];///todo
          HtScope scope = new HtScope(PUBLIC, properties);//default scope
@@ -1030,8 +915,7 @@
          if (COLON_COLON.equals(name)) {
              scope = new HtScope(interner.getFunctorName((Functor) subEntityFunctor.getArgument(0)), properties);
              subEntName = (Functor) subEntityFunctor.getArgument(1);//todo must it be already loaded??
-         }
-         else {
+         } else {
              subEntName = (Functor) subEntityFunctor.getArgument(0);
          }
          HtEntityKind subEntityKind = detectSubEntityKind(relationKind, entityCompiling.getKind());
@@ -1039,13 +923,11 @@
          return new HtRelation(entityCompiling, scope, new HtEntityIdentifier(subEntName, subEntityKind), relationKind);
      }
 
-     private
-     HtEntityKind detectSubEntityKind ( HtRelationKind relationKind, HtEntityKind kind ) {
+     private HtEntityKind detectSubEntityKind ( HtRelationKind relationKind, HtEntityKind kind ) {
          return null;
      }
 
-     private
-     boolean isList ( Term relationTerm ) {
+     private boolean isList ( Term relationTerm ) {
          return relationTerm instanceof ListTerm;
      }
 
@@ -1083,13 +965,11 @@
 //         return result;
 //     }
 
-     private
-     boolean isEntityCompiling () {
+     private boolean isEntityCompiling () {
          return entityCompiling != null;
      }
 
-     private
-     boolean protocol_p ( Functor functor ) {
+     private boolean protocol_p ( Functor functor ) {
          if (isEntityCompiling()) {
              throw new ExecutionError(PERMISSION_ERROR, null);
          }
@@ -1103,8 +983,7 @@
       * @param functor
       * @return
       */
-     protected
-     boolean isEncodingDirective ( Functor functor ) {
+     protected boolean isEncodingDirective ( Functor functor ) {
          boolean result = false;
          if (isDirective(functor)) {
              functor = (Functor) functor.getArgument(0);
@@ -1118,13 +997,11 @@
       * @param functor
       * @return
       */
-     private
-     boolean isDirective ( Functor functor ) {
+     private boolean isDirective ( Functor functor ) {
          return interner.getFunctorName(functor).equals(IMPLIES) && functor.getArity() == 1;
      }
 
-     private
-     boolean category_p ( Functor functor ) {
+     private boolean category_p ( Functor functor ) {
          if (isEntityCompiling()) {
              throw new ExecutionError(PERMISSION_ERROR, null);
          }
@@ -1134,28 +1011,23 @@
          return true;
      }
 
-     public
-     AtomicInteger getObjectCounter () {
+     public AtomicInteger getObjectCounter () {
          return objectCounter;
      }
 
-     public
-     AtomicInteger getCategoryCounter () {
+     public AtomicInteger getCategoryCounter () {
          return categoryCounter;
      }
 
-     public
-     AtomicInteger getProtocolCounter () {
+     public AtomicInteger getProtocolCounter () {
          return protocolCounter;
      }
 
-     public
-     Resolver <HtPredicate, T> getResolver () {
+     public Resolver <HtClause, HtClause> getResolver () {
          return resolver;
      }
 
-     private
-     boolean end_object_p ( Functor functor ) {
+     private boolean end_object_p ( Functor functor ) {
          if (getObjectCounter().get() == 0) {
              throw new ExecutionError(PERMISSION_ERROR, null);
          }
@@ -1163,16 +1035,14 @@
          return endEntity(HtEntityKind.OBJECT);
      }
 
-     private
-     boolean end_protocol_p ( Functor functor ) {
+     private boolean end_protocol_p ( Functor functor ) {
          if (getProtocolCounter().get() == 0) {
              throw new ExecutionError(PERMISSION_ERROR, null);
          }
          return endEntity(HtEntityKind.PROTOCOL);
      }
 
-     private
-     boolean end_category_p ( Functor functor ) {
+     private boolean end_category_p ( Functor functor ) {
          if (getCategoryCounter().get() == 0) {
              throw new ExecutionError(PERMISSION_ERROR, null);
          }
@@ -1194,18 +1064,15 @@
          return true;
      }
 
-     private
-     boolean op_p ( Functor functor ) {
+     private boolean op_p ( Functor functor ) {
          return true;
      }
 
-     private
-     boolean current_op_p ( Functor functor ) {
+     private boolean current_op_p ( Functor functor ) {
          return true;
      }
 
-     private
-     boolean initialization_p ( Functor functor ) {
+     private boolean initialization_p ( Functor functor ) {
          return true;
      }
 //======================================================
@@ -1229,23 +1096,19 @@
 //======================================================
 
      //
-     public
-     VariableAndFunctorInterner getInterner () {
+     public VariableAndFunctorInterner getInterner () {
          return interner;
      }
 
-     public
-     HtClause getLastDirective () {
+     public HtClause getLastDirective () {
          return lastDirective;
      }
 
-     public
-     IRelation getLastRelation () {
+     public IRelation getLastRelation () {
          return lastRelation;
      }
 
-     public
-     Term getLastTerm () {
+     public Term getLastTerm () {
          return lastTerm;
      }
  }

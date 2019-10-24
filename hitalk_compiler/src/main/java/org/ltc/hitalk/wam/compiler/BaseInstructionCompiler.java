@@ -5,6 +5,7 @@ import com.thesett.aima.logic.fol.compiler.PositionalTermTraverser;
 import com.thesett.aima.logic.fol.compiler.PositionalTermTraverserImpl;
 import com.thesett.aima.logic.fol.compiler.TermWalker;
 import com.thesett.aima.logic.fol.wam.compiler.PositionAndOccurrenceVisitor;
+import com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys;
 import com.thesett.aima.logic.fol.wam.compiler.WAMLabel;
 import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
 import com.thesett.aima.search.util.uninformed.BreadthFirstSearch;
@@ -14,7 +15,6 @@ import com.thesett.common.util.SizeableList;
 import com.thesett.common.util.doublemaps.SymbolKey;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.BaseCompiler;
-import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkInstructionCompiler;
@@ -25,7 +25,6 @@ import org.ltc.hitalk.wam.printer.HtWAMCompiledPredicatePrintingVisitor;
 import org.ltc.hitalk.wam.printer.HtWAMCompiledQueryPrintingVisitor;
 import org.ltc.hitalk.wam.task.CompilerTask;
 
-import java.io.IOException;
 import java.util.*;
 
 import static com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys.*;
@@ -34,25 +33,28 @@ import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.HiTalkWAMInstruct
 import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.REG_ADDR;
 import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.STACK_ADDR;
 
-/**
- * @param <P>
- * @param <Q>
- */
-public abstract class BaseInstructionCompiler<P, Q> extends BaseCompiler <P, Q> {
+public abstract class BaseInstructionCompiler
+        extends BaseCompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> {
 
     public PrologDefaultBuiltIn getDefaultBuiltIn () {
         return defaultBuiltIn;
     }
 
+    protected LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer;
+//    protected LogicCompilerObserver <HtClause, HtClause> observer2;
+
     protected final PrologDefaultBuiltIn defaultBuiltIn;
+
     /**
      * Holds the instruction optimizer.
      */
-    protected HiTalkOptimizer optimizer;
+    protected final HiTalkOptimizer optimizer;
+
     /**
      * Holds a list of all predicates encountered in the current scope.
      */
-    protected Deque <SymbolKey> predicatesInScope = new ArrayDeque <>();
+    protected final Deque <SymbolKey> predicatesInScope = new ArrayDeque <>();
+
     /**
      * This is used to keep track of the number of permanent variables.
      */
@@ -97,20 +99,11 @@ public abstract class BaseInstructionCompiler<P, Q> extends BaseCompiler <P, Q> 
     public BaseInstructionCompiler ( SymbolTable <Integer, String, Object> symbolTable,
                                      VariableAndFunctorInterner interner,
                                      PrologDefaultBuiltIn defaultBuiltIn,
+                                     LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer,
                                      PlPrologParser parser ) {
-        super(symbolTable, interner, parser);
+        super(symbolTable, interner, parser, observer);
         optimizer = new HiTalkWAMOptimizer(symbolTable, interner);
         this.defaultBuiltIn = defaultBuiltIn;
-
-    }
-
-    @Override
-    public void compileClause ( HtClause clause ) {
-        super.compileClause(clause);
-    }
-
-    @Override
-    public void compileFile ( String fn, HtProperty... flags ) throws IOException, SourceCodeException {
 
     }
 
@@ -120,7 +113,7 @@ public abstract class BaseInstructionCompiler<P, Q> extends BaseCompiler <P, Q> 
      * @param clause lause The clause to compile as a query.
      * @throws SourceCodeException If there is an error in the source code preventing its compilation.
      */
-    public void compileQuery ( HtClause clause ) throws SourceCodeException {
+    public void compileQuery ( Sentence <HtClause> clause ) throws SourceCodeException {
         checkDirective(clause);
         // Used to build up the compiled result in.
         HiTalkWAMCompiledQuery result;
@@ -135,7 +128,7 @@ public abstract class BaseInstructionCompiler<P, Q> extends BaseCompiler <P, Q> 
         seenRegisters = new TreeSet <>();
 
         // This is used to keep track of the next temporary register available to allocate.
-        lastAllocatedTempReg = findMaxArgumentsInClause(clause);
+        lastAllocatedTempReg = findMaxArgumentsInClause(clause.getT());
 
         // This is used to keep track of the number of permanent variables.
         numPermanentVars = 0;
@@ -150,7 +143,7 @@ public abstract class BaseInstructionCompiler<P, Q> extends BaseCompiler <P, Q> 
         SizeableList <HiTalkWAMInstruction> postFixInstructions = new SizeableLinkedList <>();
 
         // Find all the free non-anonymous variables in the clause.
-        Set <Variable> freeVars = TermUtils.findFreeNonAnonymousVariables(clause);
+        Set <Variable> freeVars = TermUtils.findFreeNonAnonymousVariables(clause.getT());
         Set <Integer> freeVarNames = new TreeSet <>();
 
         for (Variable var : freeVars) {
@@ -159,10 +152,10 @@ public abstract class BaseInstructionCompiler<P, Q> extends BaseCompiler <P, Q> 
 
         // Allocate permanent variables for a query. In queries all variables are permanent so that they are preserved
         // on the stack upon completion of the query.
-        allocatePermanentQueryRegisters(clause, varNames);
+        allocatePermanentQueryRegisters(clause.getT(), varNames);
 
         // Gather information about the counts and positions of occurrence of variables and constants within the clause.
-        gatherPositionAndOccurrenceInfo(clause);
+        gatherPositionAndOccurrenceInfo(clause.getT());
 
         result = new HiTalkWAMCompiledQuery(varNames, freeVarNames);
 
@@ -180,7 +173,7 @@ public abstract class BaseInstructionCompiler<P, Q> extends BaseCompiler <P, Q> 
         result.addInstructions(preFixInstructions);
 
         // Compile all of the conjunctive parts of the body of the clause, if there are any.
-        Functor[] expressions = clause.getBody();
+        Functor[] expressions = clause.getT().getBody();
 
         // The current query does not have a name, so invent one for it.
         FunctorName fn = new FunctorName("tq", 0);
@@ -190,13 +183,7 @@ public abstract class BaseInstructionCompiler<P, Q> extends BaseCompiler <P, Q> 
             boolean isFirstBody = i == 0;
 
             // Select a non-default built-in implementation to compile the functor with, if it is a built-in.
-            PrologBuiltIn builtIn;
-
-            if (expression instanceof PrologBuiltIn) {
-                builtIn = (PrologBuiltIn) expression;
-            } else {
-                builtIn = this;
-            }
+            PrologBuiltIn builtIn = expression instanceof PrologBuiltIn ? (PrologBuiltIn) expression : defaultBuiltIn;
 
             // The 'isFirstBody' parameter is only set to true, when this is the first functor of a rule, which it
             // never is for a query.
@@ -279,16 +266,12 @@ public abstract class BaseInstructionCompiler<P, Q> extends BaseCompiler <P, Q> 
         walker.walk(clause);
     }
 
-    private void checkDirective ( HtClause clause ) {
-        Functor[] body = clause.getBody();
+    private void checkDirective ( Sentence <HtClause> clause ) {
+        Functor[] body = clause.getT().getBody();
         if (body.length == 1) {
             int name = body[0].getName();
-
-            switch (name) {
-
-                default:
-                    throw new IllegalStateException("Unexpected value: " + name);
-            }
+//fixme
+//            throw new IllegalStateException("Unexpected value: " + name);
         }
     }
 
@@ -417,7 +400,7 @@ public abstract class BaseInstructionCompiler<P, Q> extends BaseCompiler <P, Q> 
                 if (expression instanceof PrologBuiltIn) {
                     builtIn = (PrologBuiltIn) expression;
                 } else {
-                    builtIn = this;
+                    builtIn = defaultBuiltIn;
                 }
 
                 // The 'isFirstBody' parameter is only set to true, when this is the first functor of a rule.
@@ -485,7 +468,7 @@ public abstract class BaseInstructionCompiler<P, Q> extends BaseCompiler <P, Q> 
                     // If the cut level variable is seen, automatically add it to the first group variables,
                     // so that it will be counted as a permanent variable, and assigned a stack slot. This
                     // will only occur for deep cuts, that is where the cut comes after the first group.
-                    if (variable instanceof Cut.CutLevelVariable) {
+                    if (isCutLevelVariable(variable)) {
                         firstGroupVariables.add(variable);
                     }
                 }
@@ -536,7 +519,7 @@ public abstract class BaseInstructionCompiler<P, Q> extends BaseCompiler <P, Q> 
 
                 // Check if the variable is the cut level variable, and cache its stack slot in 'cutLevelVarSlot', so that
                 // the clause compiler knows which variable to use for the get_level instruction.
-                if (variable instanceof Cut.CutLevelVariable) {
+                if (isCutLevelVariable(variable)) {
                     //cutLevelVarSlot = allocation;
                     cutLevelVarSlot = numPermanentVars - 1;
                     /*log.fine("cutLevelVarSlot = " + cutLevelVarSlot);*/
@@ -554,6 +537,11 @@ public abstract class BaseInstructionCompiler<P, Q> extends BaseCompiler <P, Q> 
             symbolTable.put(clause.getBody()[i].getSymbolKey(), SYMKEY_PERM_VARS_REMAINING, permVarsRemaining);
             permVarsRemaining += permVarsRemainingCount[i];
         }
+    }
+
+    private boolean isCutLevelVariable ( Variable variable ) {
+
+        return false;
     }
 
     /**

@@ -4,6 +4,7 @@ import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.core.ICompiler;
+import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.parser.HiTalkParser;
@@ -19,7 +20,7 @@ import java.util.logging.Logger;
  *
  */
 public
-class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P, Q> {
+class HiTalkWAMEngine<T extends HtClause, P extends HtPredicate, Q extends HtClause> extends HtResolutionEngine <T, P, Q> {
     protected final Logger log = Logger.getLogger(getClass().getSimpleName());
     /**
      * HiTalkWAMEngine implements a {@link HtResolutionEngine} for an WAM-based Prolog with built-ins. This engine loads its
@@ -47,7 +48,7 @@ class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P
      * @param compiler
      */
     public HiTalkWAMEngine ( PlPrologParser parser,
-                             VariableAndFunctorInterner interner, ICompiler <P, Q> compiler ) {
+                             VariableAndFunctorInterner interner, ICompiler <T, P, Q> compiler ) {
         super(parser, interner, compiler);
     }
 
@@ -56,11 +57,11 @@ class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P
         super();
     }
 
-    public void setCompiler ( ICompiler <P, Q> compiler ) {
+    public void setCompiler ( ICompiler <T, P, Q> compiler ) {
         this.compiler = compiler;
     }
 
-    protected ICompiler <P, Q> compiler;
+    protected ICompiler <T, P, Q> compiler;
 
     /**
      * {InheritDoc}

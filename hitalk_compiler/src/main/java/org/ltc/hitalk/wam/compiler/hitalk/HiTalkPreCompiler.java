@@ -24,14 +24,12 @@ import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.HiTalkBuiltInTransform;
-import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.wam.compiler.HiTalkCompilerApp.HiTalkBuiltInTransformVisitor;
 import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.HiTalkTopLevelCheckVisitor;
-import org.ltc.hitalk.wam.compiler.HtTermWalkers;
+import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
 
 import java.util.List;
@@ -49,19 +47,6 @@ import java.util.List;
  */
 abstract public
 class HiTalkPreCompiler extends PrologPreCompiler implements ICompiler <HtClause, HtClause> {
-
-    //Used for debugging.
-//    protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
-
-    /**
-     * Holds the default built in, for standard compilation and interners and symbol tables.
-     */
-
-    /**
-     * Holds the built in transformation.
-     */
-    protected final HiTalkBuiltInTransform <IApplication, HtClause> builtInTransform;
-
     /**
      * Holds the compiler output observer.
      */
@@ -70,22 +55,20 @@ class HiTalkPreCompiler extends PrologPreCompiler implements ICompiler <HtClause
 
     /**
      * Creates a new PreCompiler.
-     *
-     * @param symbolTable    The symbol table.
+     *  @param symbolTable    The symbol table.
      * @param interner       The machine to translate functor and variable names.
      * @param defaultBuiltIn The default built in, for standard compilation and interners and symbol tables.
+     * @param compiler
      */
     public
     HiTalkPreCompiler ( SymbolTable <Integer, String, Object> symbolTable,
                         VariableAndFunctorInterner interner,
-                        HiTalkDefaultBuiltIn defaultBuiltIn,
-                        Resolver <HtClause, HtClause> resolver,
-                        HiTalkWAMCompiler compiler ) {
+                        PrologDefaultBuiltIn defaultBuiltIn,
+                        Resolver <HtClause, HtClause> resolver, HiTalkWAMCompiler compiler ) {
         super(symbolTable, interner);
 
         this.defaultBuiltIn = defaultBuiltIn;
-        this.compiler = compiler;
-        builtInTransform = new HiTalkBuiltInTransform(defaultBuiltIn, compiler, resolver);//TODO GLOBAL CTX NEEDED!!
+        builtInTransform = new HiTalkBuiltInTransform <>(defaultBuiltIn, this, resolver);//TODO GLOBAL CTX NEEDED!!
 
     }
 
@@ -108,30 +91,6 @@ class HiTalkPreCompiler extends PrologPreCompiler implements ICompiler <HtClause
      */
     protected abstract List <HtClause> preprocess ( HtClause t );
 
-    /**
-     * {@inheritDoc}
-     */
-    public
-    void endScope () {
-
-    }
-
-    /**
-     * Substitutes built-ins within a clause, with their built-in definitions.
-     *
-     * @param clause The clause to transform.
-     */
-    private
-    void substituteBuiltIns ( Term clause ) {
-        TermWalker walk = HtTermWalkers.positionalWalker(
-                new HiTalkBuiltInTransformVisitor(
-                        symbolTable,
-                        interner,
-                        null,
-                        builtInTransform)
-        );
-        walk.walk(clause);
-    }
 
     /**
      * Runs a symbol key traverser over the clause to be compiled, to ensure that all of its terms and sub-terms have

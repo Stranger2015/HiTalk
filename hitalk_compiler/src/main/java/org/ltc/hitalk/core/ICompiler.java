@@ -1,6 +1,5 @@
 package org.ltc.hitalk.core;
 
-
 import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.entities.HtProperty;
@@ -11,6 +10,7 @@ import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.ltc.hitalk.wam.compiler.hitalk.ILogicCompiler;
 import org.slf4j.Logger;
 
+import javax.naming.OperationNotSupportedException;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -22,7 +22,7 @@ import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource.getT
  * @param <P>
  * @param <Q>
  */
-public interface ICompiler<P, Q> extends ILogicCompiler <HtClause, P, Q> {
+public interface ICompiler<T, P, Q> extends ILogicCompiler <T, P, Q> {
 
     HtProperty[] EMPTY_FLAG_ARRAY = new HtProperty[0];
 
@@ -46,12 +46,11 @@ public interface ICompiler<P, Q> extends ILogicCompiler <HtClause, P, Q> {
      * @throws IOException
      */
     default void compileFile ( String fn, HtProperty... flags ) throws IOException, SourceCodeException {
-
         compile(getTokenSourceForIoFile(new File(fn)), flags);
     }
 
     /**
-     * @param fn
+     * @param string
      * @param flags
      * @throws IOException
      * @throws SourceCodeException
@@ -61,7 +60,6 @@ public interface ICompiler<P, Q> extends ILogicCompiler <HtClause, P, Q> {
     }
 
     /**
-     *
      * @param tokenSource
      * @param flags
      */
@@ -86,7 +84,7 @@ public interface ICompiler<P, Q> extends ILogicCompiler <HtClause, P, Q> {
     /**
      * @param rule
      */
-    void compileDcgRule ( DcgRule rule ) throws SourceCodeException;
+    void compileDcgRule ( DcgRule rule ) throws SourceCodeException, OperationNotSupportedException;
 
     /**
      * @param query
@@ -103,5 +101,5 @@ public interface ICompiler<P, Q> extends ILogicCompiler <HtClause, P, Q> {
      */
     void setResolver ( Resolver <HtClause, Q> resolver );
 
-    void compile ( String fileName, HtProperty[] flags ) throws IOException, SourceCodeException;
+    void compile ( String fileName, HtProperty... flags ) throws IOException, SourceCodeException;
 }

@@ -50,7 +50,7 @@ import java.util.*;
  */
 public
 class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
-        implements VariableAndFunctorInterner, ICompiler <P, Q>, Resolver <T, Q> {
+        implements VariableAndFunctorInterner, ICompiler <T, P, Q> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
@@ -67,7 +67,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     /**
      * Holds the compiler.
      */
-    protected ICompiler <P, Q> compiler;
+    protected ICompiler <T, P, Q> compiler;
 
     /**
      * Holds the observer for compiler outputs.
@@ -76,6 +76,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
 
     protected Q currentQuery;
     protected final List <Set <Variable>> vars = new ArrayList <>();
+    private Resolver <HtClause, Q> resolver;
 
     /**
      * Creates a prolog parser using the specified interner.
@@ -84,7 +85,8 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * @param interner The functor and variable name interner.
      */
     public HtResolutionEngine ( PlPrologParser parser,
-                                VariableAndFunctorInterner interner, ICompiler <P, Q> compiler ) {
+                                VariableAndFunctorInterner interner,
+                                ICompiler <T, P, Q> compiler ) {
         super(parser);
         this.interner = interner;
         this.compiler = compiler;//fixme NPE
@@ -120,7 +122,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      *
      * @return The resolution engines compiler.
      */
-    public ICompiler <P, Q> getCompiler () {
+    public ICompiler <T, P, Q> getCompiler () {
         return compiler;
     }
 
@@ -333,8 +335,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * {@inheritDoc}
      * @param sentence
      */
-    public
-    void compile ( Sentence <HtClause> sentence ) throws SourceCodeException {
+    public void compile ( Sentence sentence ) throws SourceCodeException {
         compiler.compile(sentence.getT());
     }
 
@@ -394,6 +395,11 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     public
     void setCompilerObserver ( LogicCompilerObserver <P, Q> observer ) {
         chainedObserver.setCompilerObserver(observer);
+    }
+
+    @Override
+    public void compile ( Sentence sentence ) throws SourceCodeException {
+
     }
 
     /**
@@ -468,17 +474,13 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
 
     }
 
-    /**
-     * @param resolver
-     */
     @Override
-    public
-    void setResolver ( Resolver <HtClause, Q> resolver ) {
-
+    public void setResolver ( Resolver <HtClause, Q> resolver ) {
+        this.resolver = resolver;
     }
 
     @Override
-    public void compile ( String fileName, HtProperty[] flags ) {
+    public void compile ( String fileName, HtProperty... flags ) {
 
     }
 

@@ -64,7 +64,8 @@ public class PrologDefaultBuiltIn extends BaseMachine implements PrologBuiltIn {
      * @param symbolTable The symbol table for the machine.
      * @param interner    The interner for the machine.
      */
-    public PrologDefaultBuiltIn ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner ) {
+    public PrologDefaultBuiltIn ( SymbolTable <Integer, String, Object> symbolTable,
+                                  VariableAndFunctorInterner interner ) {
         super(symbolTable, interner);
     }
 

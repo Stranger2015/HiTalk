@@ -36,7 +36,7 @@ public class InteractiveParser implements IParser {
 
     @Override
     public HtClause convert ( Term t ) {
-        return null;
+        return null;//todo
     }
 
     public PlPrologParser getParser () {

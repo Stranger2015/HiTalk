@@ -37,26 +37,25 @@ import org.ltc.hitalk.parser.HtClause;
  * <tr><td> Accept observers to notify of all compiled representation generated.
  * </table></pre>
  *
- * @param <C>  The type of source sentence that the compiler works over.
- * @param <CC> The type of programs that the compiler builds.
+ * @param <P>  The type of source sentence that the compiler works over.
  * @param <Q>  The type of queries that the compiler builds.
  * @author Rupert Smith
  */
-public interface ILogicCompiler<C extends HtClause, CC, Q> {
+public interface ILogicCompiler<T extends HtClause, P, Q> {
     /**
      * Compiles a sentence into a (presumably binary) form, that provides a Java interface into the compiled structure.
      *
      * @param sentence The sentence to compile.
      * @throws SourceCodeException If there is an error in the source to be compiled that prevents its compilation.
      */
-    void compile ( Sentence <C> sentence ) throws SourceCodeException;
+    void compile ( Sentence <T> sentence ) throws SourceCodeException;
 
     /**
      * Establishes an observer on the compiled forms that the compiler outputs.
      *
      * @param observer The compiler output observer.
      */
-    void setCompilerObserver ( LogicCompilerObserver <CC, Q> observer );
+    void setCompilerObserver ( LogicCompilerObserver <P, Q> observer );
 
     /**
      * Signal the end of a compilation scope, to trigger completion of the compilation of its contents.

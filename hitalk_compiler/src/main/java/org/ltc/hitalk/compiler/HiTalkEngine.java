@@ -29,7 +29,7 @@ class HiTalkEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P, Q
      * @param compiler
      */
     public HiTalkEngine ( PlPrologParser parser,
-                          VariableAndFunctorInterner interner, ICompiler <P, Q> compiler ) {
+                          VariableAndFunctorInterner interner, ICompiler <T, P, Q> compiler ) {
         super(parser, interner, compiler);
 //        compiler.setResolver(this);
     }
@@ -82,7 +82,7 @@ class HiTalkEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P, Q
 //todo
     }
 
-    @Override
+    //    @Override
     public void forEach ( Consumer <? super Set <Variable>> action ) {
 
     }

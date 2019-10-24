@@ -14,6 +14,7 @@ import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.OperationNotSupportedException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayDeque;
@@ -27,27 +28,19 @@ import static com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys.SYMKEY_PRE
  * @param <P>
  * @param <Q>
  */
-abstract public class BaseCompiler<P, Q> extends BaseMachine implements ICompiler <P, Q> {
+abstract
+public class BaseCompiler<T extends HtClause, P, Q>
+        extends BaseMachine
+        implements ICompiler <T, P, Q> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     protected SymbolTable <Integer, String, Object> scopeTable;
     protected int scope;
     protected Deque <SymbolKey> predicatesInScope = new ArrayDeque <>();
-    protected LogicCompilerObserver <P, Q> observer;
     protected PlPrologParser parser;
     protected Resolver <HtClause, Q> resolver;
-    protected Resolver <HtClause, HtClause> resolver2;
-//    protected BaseInstructionCompiler <P, Q> instructionCompiler;
-//    protected PrologPreCompiler preCompiler;
-
-//    /**
-//     * @return
-//     */
-//    public PrologPreCompiler getPreCompiler () {
-//        return preCompiler;
-//    }
-
+    protected LogicCompilerObserver <P, Q> observer;
 
     /**
      * @param symbolTable
@@ -55,14 +48,17 @@ abstract public class BaseCompiler<P, Q> extends BaseMachine implements ICompile
      * @param parser
      */
     protected BaseCompiler ( SymbolTable <Integer, String, Object> symbolTable,
-                             VariableAndFunctorInterner interner, PlPrologParser parser ) {
+                             VariableAndFunctorInterner interner,
+                             PlPrologParser parser,
+                             LogicCompilerObserver <P, Q> observer ) {
         super(symbolTable, interner);
         this.parser = parser;
+        this.observer = observer;
     }
 
     @Override
-    public void compile ( Sentence <HtClause> sentence ) throws SourceCodeException {
-        logger.debug("public WAMCompiledClause compile(Sentence<HtClause> sentence = " + sentence + "): called");
+    public void compile ( Sentence <T> sentence ) throws SourceCodeException {
+        logger.debug("compile(Sentence<T> sentence = " + sentence + "): called... ");
 
         // Extract the clause to compile from the parsed sentence.
         HtClause clause = sentence.getT();
@@ -102,19 +98,8 @@ abstract public class BaseCompiler<P, Q> extends BaseMachine implements ICompile
         this.observer = observer;
     }
 
-    /**
-     * @param resolver2
-     */
-    public void setResolver2 ( Resolver <HtClause, HtClause> resolver2 ) {
-        this.resolver2 = resolver2;
-    }
-
     public Resolver <HtClause, Q> getResolver () {
         return resolver;
-    }
-
-    public Resolver <HtClause, HtClause> getResolver2 () {
-        return resolver2;
     }
 
     @Override
@@ -128,22 +113,22 @@ abstract public class BaseCompiler<P, Q> extends BaseMachine implements ICompile
     }
 
     @Override
-    public void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
+    public void compileDcgRule ( DcgRule rule ) throws SourceCodeException, OperationNotSupportedException {
 
     }
 
-    @Override
-    public void compileClause ( HtClause clause ) {
-
-    }
-
+    //    @Override
+//    public void compileClause ( HtClause clause ) {
+//
+//    }
+//
     @Override
     public void setResolver ( Resolver <HtClause, Q> resolver ) {
         this.resolver = resolver;
     }
 
     @Override
-    public void compile ( String fileName, HtProperty[] flags ) throws IOException, SourceCodeException {
+    public void compile ( String fileName, HtProperty... flags ) throws IOException, SourceCodeException {
         PlTokenSource ts = PlTokenSource.getTokenSourceForIoFile(new File(fileName));
         compile(ts, flags);
     }
@@ -162,22 +147,7 @@ abstract public class BaseCompiler<P, Q> extends BaseMachine implements ICompile
         }
     }
 
-    /**
-     * Chains compilation completion events onto the instruction compiler.
-     */
-    public class ClauseChainObserver implements LogicCompilerObserver <HtClause, HtClause> {
-        /**
-         * {@inheritDoc}
-         */
-        public void onCompilation ( Sentence <HtClause> sentence ) throws SourceCodeException {
-            BaseCompiler.this.instructionCompiler.compile(sentence);
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public void onQueryCompilation ( Sentence <HtClause> sentence ) throws SourceCodeException {
-
-        }
+    public LogicCompilerObserver <P, Q> getObserver () {
+        return observer;
     }
 }

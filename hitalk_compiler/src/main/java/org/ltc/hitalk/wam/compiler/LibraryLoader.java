@@ -15,15 +15,15 @@ import org.ltc.hitalk.term.io.TermIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+import javax.naming.OperationNotSupportedException;
 
 /**
  *
  */
-public class LibraryLoader extends BaseCompiler <HtPredicate, HtClause> implements ICompiler <HtPredicate, HtClause> {
+public class LibraryLoader<T extends HtClause, P extends HtPredicate, Q extends HtClause> extends BaseCompiler <T, P, Q> implements ICompiler <T, P, Q> {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
     protected final PlPrologParser parser = TermIO.instance().getParser();
-    protected final ICompiler <HtPredicate, HtClause> compiler = TermIO.instance().getCompiler();
+    protected final ICompiler <T, P, Q> compiler = TermIO.instance().getCompiler();
 
     /**
      * @param symbolTable
@@ -32,23 +32,24 @@ public class LibraryLoader extends BaseCompiler <HtPredicate, HtClause> implemen
      */
     public LibraryLoader ( SymbolTable <Integer, String, Object> symbolTable,
                            VariableAndFunctorInterner interner,
-                           PlPrologParser parser ) {
-        super(symbolTable, interner, parser);
+                           PlPrologParser parser,
+                           LogicCompilerObserver <P, Q> observer ) {
+        super(symbolTable, interner, parser, observer);
     }
 
     /**
      * @return
      */
-    public Logger getConsole () {
-        return logger;
-    }
-
+//    public Logger getConsole () {
+//        return logger;
+//    }
+//
     /**
      * @return
      */
-    public PlPrologParser getParser () {
-        return parser;
-    }
+//    public PlPrologParser getParser () {
+//        return parser;
+//    }
 
     /**
      * @param clause
@@ -63,8 +64,8 @@ public class LibraryLoader extends BaseCompiler <HtPredicate, HtClause> implemen
      * @param rule
      * @throws SourceCodeException
      */
-    public void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
-
+    public void compileDcgRule ( DcgRule rule ) throws SourceCodeException, OperationNotSupportedException {
+        throw new OperationNotSupportedException("DCG LIB LDR");
     }
 
     /**
@@ -75,27 +76,15 @@ public class LibraryLoader extends BaseCompiler <HtPredicate, HtClause> implemen
 
     }
 
-    /**
-     * @param clause
-     */
+    @Override
     public void compileClause ( HtClause clause ) {
 
     }
 
-    public void setCompilerObserver ( LogicCompilerObserver observer ) {
-
-    }
-
+    /**
+     * @throws SourceCodeException
+     */
     public void endScope () throws SourceCodeException {
 
     }
-
-    /**
-     * @param tokenSource
-     * @param flags
-     * @throws IOException
-     * @throws SourceCodeException
-     */
-//    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException {
-//    }
 }

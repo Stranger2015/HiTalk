@@ -16,7 +16,6 @@ import org.ltc.hitalk.wam.task.HiLogPreprocessor;
 import org.ltc.hitalk.wam.task.StandardPreprocessor;
 import org.ltc.hitalk.wam.task.TransformTask;
 import org.ltc.hitalk.wam.transformers.DefaultTransformer;
-import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,7 +33,6 @@ public class HiTalkPreprocessor<TC extends Term, TT extends TransformTask <HtCla
     //    protected final HiTalkBuiltInTransform builtInTransform;
     protected final List <TT> components = new ArrayList <>();
     //    protected final Function <TC, List <TC>> defaultAction;
-    protected Resolver <HtClause, HtClause> resolver;
 
     @Override
     public LogicCompilerObserver <HtPredicate, HtClause> getObserver () {
@@ -44,16 +42,6 @@ public class HiTalkPreprocessor<TC extends Term, TT extends TransformTask <HtCla
     protected LogicCompilerObserver <HtPredicate, HtClause> observer;
     protected List <HtClause> preCompiledTarget;
     protected PlPrologParser parser;
-
-    /**
-     * {@inheritDoc}
-     *
-     * @param sentence
-     */
-    @Override
-    public
-    void compile ( Sentence <HtClause> sentence ) throws SourceCodeException {
-    }
 
     /**
      * Creates a base machine over the specified symbol table.
@@ -127,20 +115,16 @@ public class HiTalkPreprocessor<TC extends Term, TT extends TransformTask <HtCla
 
     }
 
-    /**
-     * Establishes an observer on the compiled forms that the compiler outputs.
-     *
-     * @param observer The compiler output observer.
-     */
     @Override
-    public
-    void setCompilerObserver ( LogicCompilerObserver <HtClause, HtClause> observer ) {
-//        this.observer = observer;
+    public void compile ( Sentence sentence ) throws SourceCodeException {
+
     }
 
-    /**
-     * Signal the end of a compilation scope, to trigger completion of the compilation of its contents.
-     */
+    @Override
+    public void setCompilerObserver ( LogicCompilerObserver observer ) {
+
+    }
+
     @Override
     public
     void endScope () {
@@ -171,21 +155,13 @@ public class HiTalkPreprocessor<TC extends Term, TT extends TransformTask <HtCla
 
     }
 
-    /**
-     * @return
-     */
-    @Override
-    public Logger getConsole () {
-        return logger;
-    }
-
-    /**
-     * @return
-     */
-    @Override
-    public PlPrologParser getParser () {
-        return parser;
-    }
+//    /**
+//     * @return
+//     */
+//    @Override
+//    public PlPrologParser getParser () {
+//        return parser;
+//    }
 
     /**
      * @param clause
@@ -223,15 +199,6 @@ public class HiTalkPreprocessor<TC extends Term, TT extends TransformTask <HtCla
     public
     void compileClause ( HtClause clause ) {
 
-    }
-
-    /**
-     * @param resolver
-     */
-    @Override
-    public
-    void setResolver ( Resolver <HtClause, HtClause> resolver ) {
-        this.resolver = resolver;
     }
 
     @Override
