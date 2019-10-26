@@ -20,7 +20,7 @@ interface ISpecializer<T extends HtClause, TC extends Term> extends ITransformer
      * Applies a transformation to the clause.
      *
      * @param clause The clause to transform.
-     * @return A clause which is a transformation of the argument.
+     * @return A clause which is the transformation of the argument.
      */
     @Override
     default

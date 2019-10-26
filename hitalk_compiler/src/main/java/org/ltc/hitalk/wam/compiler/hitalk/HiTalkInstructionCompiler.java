@@ -15,18 +15,14 @@
  */
 package org.ltc.hitalk.wam.compiler.hitalk;
 
-import com.thesett.aima.logic.fol.*;
-import com.thesett.aima.logic.fol.wam.compiler.WAMInstruction;
+import com.thesett.aima.logic.fol.Functor;
+import com.thesett.aima.logic.fol.LogicCompilerObserver;
+import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.util.SizeableLinkedList;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.*;
 import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
-
-import java.util.Map;
-
-import static com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys.SYMKEY_ALLOCATION;
-import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.REG_ADDR;
 
 /**
  * WAMCompiled implements a compiler for the logical language, WAM, into a form suitable for passing to an
@@ -132,7 +128,7 @@ import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.REG_ADDR;
  *
  * @author Rupert Smith
  */
-public class HiTalkInstructionCompiler extends PrologInstructionCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>
+public class HiTalkInstructionCompiler extends PrologInstructionCompiler
         implements PrologBuiltIn {
 
 //public final static FunctorName OBJECT = new FunctorName("object", 2);
@@ -141,8 +137,6 @@ public class HiTalkInstructionCompiler extends PrologInstructionCompiler <HiTalk
 //public final static FunctorName END_CATEGORY = new FunctorName("end_category",0);
 //public final static FunctorName PROTOCOL = new FunctorName("protocol", 2);
 //public final static FunctorName END_PROTOCOL =new FunctorName( "end_protocol",0);
-
-//    private final HiTalkDefaultBuiltIn defaultBuiltIn;
 
     /**
      * Creates a new HiTalkInstructionCompiler.
@@ -155,12 +149,11 @@ public class HiTalkInstructionCompiler extends PrologInstructionCompiler <HiTalk
     public HiTalkInstructionCompiler ( SymbolTable <Integer, String, Object> symbolTable,
                                        VariableAndFunctorInterner interner,
                                        HiTalkDefaultBuiltIn defaultBuiltIn,
+                                       LogicCompilerObserver <
+                                               HiTalkWAMCompiledPredicate,
+                                               HiTalkWAMCompiledQuery> observer,
                                        PlPrologParser parser ) {
-        super(symbolTable, interner, defaultBuiltIn, parser);
-    }
-
-    private boolean isLocalVariable ( HiTalkDefaultBuiltIn.VarIntroduction introduction, byte addrMode ) {
-        return false;
+        super(symbolTable, interner, defaultBuiltIn, observer, parser);
     }
 
     /**
@@ -175,63 +168,11 @@ public class HiTalkInstructionCompiler extends PrologInstructionCompiler <HiTalk
      * @return A list of instructions for the body call.
      */
     @Override
-    public SizeableLinkedList <HiTalkWAMInstruction> compileBodyCall ( Functor expression, boolean isFirstBody, boolean isLastBody, boolean chainRule, int permVarsRemaining ) {
+    public SizeableLinkedList <HiTalkWAMInstruction> compileBodyCall ( Functor expression,
+                                                                       boolean isFirstBody,
+                                                                       boolean isLastBody,
+                                                                       boolean chainRule,
+                                                                       int permVarsRemaining ) {
         return defaultBuiltIn.compileBodyCall(expression, isFirstBody, isLastBody, chainRule, permVarsRemaining);
-    }
-
-    /**
-     * QueryRegisterAllocatingVisitor visits named variables in a query, and if they are not already allocated to a
-     * permanent stack slot, allocates them one. All named variables in queries are stack allocated, so that they are
-     * preserved on the stack at the end of the query. Anonymous variables in queries are singletons, and not included
-     * in the query results, so can be temporary.
-     */
-    public static class QueryRegisterAllocatingVisitor extends DelegatingAllTermsVisitor {
-        /**
-         * The symbol table.
-         */
-        protected final SymbolTable <Integer, String, Object> symbolTable;
-
-        /**
-         * Holds a map of permanent variables to variable names to record the allocations in.
-         */
-        private final Map <Byte, Integer> varNames;
-
-        /**
-         * Creates a query variable allocator.
-         *
-         * @param symbolTable The symbol table.
-         * @param varNames    A map of permanent variables to variable names to record the allocations in.
-         * @param delegate    The term visitor that this delegates to.
-         */
-        public QueryRegisterAllocatingVisitor ( SymbolTable <Integer, String, Object> symbolTable, Map <Byte, Integer> varNames, AllTermsVisitor delegate ) {
-            super(delegate);
-            this.symbolTable = symbolTable;
-            this.varNames = varNames;
-        }
-
-        /**
-         * {@inheritDoc}
-         * <p>
-         * <p/>Allocates unallocated variables to stack slots.
-         */
-        public void visit ( Variable variable ) {
-            if (symbolTable.get(variable.getSymbolKey(), SYMKEY_ALLOCATION) == null) {
-                if (variable.isAnonymous()) {
-                    /*log.fine("Query variable " + variable + " is temporary.");*/
-
-                    int allocation = (lastAllocatedTempReg++ & (0xff)) | (REG_ADDR << 8);
-                    symbolTable.put(variable.getSymbolKey(), SYMKEY_ALLOCATION, allocation);
-                    varNames.put((byte) allocation, variable.getName());
-                } else {
-                    /*log.fine("Query variable " + variable + " is permanent.");*/
-
-                    int allocation = (numPermanentVars++ & (0xff)) | (WAMInstruction.STACK_ADDR << 8);
-                    symbolTable.put(variable.getSymbolKey(), SYMKEY_ALLOCATION, allocation);
-                    varNames.put((byte) allocation, variable.getName());
-                }
-            }
-
-            super.visit(variable);
-        }
     }
 }

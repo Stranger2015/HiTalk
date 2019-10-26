@@ -23,14 +23,15 @@ import com.thesett.aima.logic.fol.wam.TermWalkers;
 import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
-import org.ltc.hitalk.compiler.HiTalkBuiltInTransform;
+import org.ltc.hitalk.compiler.PrologBuiltInTransform;
+import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.HiTalkTopLevelCheckVisitor;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
+import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 
 import java.util.List;
 
@@ -46,7 +47,7 @@ import java.util.List;
  * @author Rupert Smith
  */
 abstract public
-class HiTalkPreCompiler extends PrologPreCompiler implements ICompiler <HtClause, HtClause> {
+class HiTalkPreCompiler extends PrologPreCompiler implements ICompiler <HtClause, HtPredicate, HtClause> {
     /**
      * Holds the compiler output observer.
      */
@@ -55,35 +56,34 @@ class HiTalkPreCompiler extends PrologPreCompiler implements ICompiler <HtClause
 
     /**
      * Creates a new PreCompiler.
-     *  @param symbolTable    The symbol table.
+     *
+     * @param symbolTable    The symbol table.
      * @param interner       The machine to translate functor and variable names.
      * @param defaultBuiltIn The default built in, for standard compilation and interners and symbol tables.
      * @param compiler
      */
-    public
-    HiTalkPreCompiler ( SymbolTable <Integer, String, Object> symbolTable,
-                        VariableAndFunctorInterner interner,
-                        PrologDefaultBuiltIn defaultBuiltIn,
-                        Resolver <HtClause, HtClause> resolver, HiTalkWAMCompiler compiler ) {
-        super(symbolTable, interner);
+    public HiTalkPreCompiler ( SymbolTable <Integer, String, Object> symbolTable,
+                               VariableAndFunctorInterner interner,
+                               PrologDefaultBuiltIn defaultBuiltIn,
+                               PrologBuiltInTransform <IApplication, T> builtInTransform,
+                               Resolver <HtClause, HtClause> resolver,
+                               PrologWAMCompiler compiler ) {
+        super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, compiler);
 
-        this.defaultBuiltIn = defaultBuiltIn;
-        builtInTransform = new HiTalkBuiltInTransform <>(defaultBuiltIn, this, resolver);//TODO GLOBAL CTX NEEDED!!
+//        builtInTransform = new HiTalkBuiltInTransform (defaultBuiltIn, this, resolver);//TODO GLOBAL CTX NEEDED!!77
 
     }
 
     /**
      * {@inheritDoc}
      */
-    public abstract
-    void compile ( Sentence <HtClause> sentence ) throws SourceCodeException;
+    public abstract void compile ( Sentence <HtClause> sentence ) throws SourceCodeException;
 
 
     /**
      * @param clauses
      */
-    protected abstract
-    void saveResult ( List <HtClause> clauses );
+    protected abstract void saveResult ( List <HtClause> clauses );
 
     /**
      * @param t
@@ -98,8 +98,7 @@ class HiTalkPreCompiler extends PrologPreCompiler implements ICompiler <HtClause
      *
      * @param clause The clause to initialise the symbol keys of.
      */
-    private
-    void initializeSymbolTable ( Term clause ) {
+    private void initializeSymbolTable ( Term clause ) {
         // Run the symbol key traverser over the clause, to ensure that all terms have their symbol keys correctly
         // set up.
         SymbolKeyTraverser symbolKeyTraverser = new SymbolKeyTraverser(interner, symbolTable, null);
@@ -114,19 +113,12 @@ class HiTalkPreCompiler extends PrologPreCompiler implements ICompiler <HtClause
      *
      * @param clause The clause to top-level check.
      */
-    private
-    void topLevelCheck ( Term clause ) {
+    private void topLevelCheck ( Term clause ) {
         TermWalker walk = TermWalkers.positionalWalker(new HiTalkTopLevelCheckVisitor(interner, symbolTable, null));
         walk.walk(clause);
     }
 
-    public
-    HiTalkDefaultBuiltIn getDefaultBuiltIn () {
-        return defaultBuiltIn;
-    }
-
-    public
-    LogicCompilerObserver <HtPredicate, HtClause> getObserver () {
+    public LogicCompilerObserver <HtPredicate, HtClause> getObserver () {
         return observer;
     }
 

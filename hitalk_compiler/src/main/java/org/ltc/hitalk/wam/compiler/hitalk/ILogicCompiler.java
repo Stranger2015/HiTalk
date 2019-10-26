@@ -18,7 +18,6 @@ package org.ltc.hitalk.wam.compiler.hitalk;
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.common.parsing.SourceCodeException;
-import org.ltc.hitalk.parser.HtClause;
 
 /**
  * A compiler over any language that has a one-to-one mapping from some input form, to some output form. Compiles from
@@ -37,11 +36,9 @@ import org.ltc.hitalk.parser.HtClause;
  * <tr><td> Accept observers to notify of all compiled representation generated.
  * </table></pre>
  *
- * @param <P>  The type of source sentence that the compiler works over.
- * @param <Q>  The type of queries that the compiler builds.
  * @author Rupert Smith
  */
-public interface ILogicCompiler<T extends HtClause, P, Q> {
+public interface ILogicCompiler<T, P, Q> {
     /**
      * Compiles a sentence into a (presumably binary) form, that provides a Java interface into the compiled structure.
      *

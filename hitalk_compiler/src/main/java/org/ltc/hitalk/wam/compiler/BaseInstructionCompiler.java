@@ -41,8 +41,6 @@ public abstract class BaseInstructionCompiler
     }
 
     protected LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer;
-//    protected LogicCompilerObserver <HtClause, HtClause> observer2;
-
     protected final PrologDefaultBuiltIn defaultBuiltIn;
 
     /**
@@ -778,5 +776,63 @@ public abstract class BaseInstructionCompiler
             FunctorName clauseName,
             int bodyNumber ) {
         return defaultBuiltIn.compileBodyArguments(expression, isFirstBody, clauseName, bodyNumber);
+    }
+
+    /**
+     * QueryRegisterAllocatingVisitor visits named variables in a query, and if they are not already allocated to a
+     * permanent stack slot, allocates them one. All named variables in queries are stack allocated, so that they are
+     * preserved on the stack at the end of the query. Anonymous variables in queries are singletons, and not included
+     * in the query results, so can be temporary.
+     */
+    public class QueryRegisterAllocatingVisitor extends DelegatingAllTermsVisitor {
+        /**
+         * The symbol table.
+         */
+        protected final SymbolTable <Integer, String, Object> symbolTable;
+
+        /**
+         * Holds a map of permanent variables to variable names to record the allocations in.
+         */
+        private final Map <Byte, Integer> varNames;
+
+        /**
+         * Creates a query variable allocator.
+         *
+         * @param symbolTable The symbol table.
+         * @param varNames    A map of permanent variables to variable names to record the allocations in.
+         * @param delegate    The term visitor that this delegates to.
+         */
+        public QueryRegisterAllocatingVisitor ( SymbolTable <Integer, String, Object> symbolTable,
+                                                Map <Byte, Integer> varNames,
+                                                AllTermsVisitor delegate ) {
+            super(delegate);
+            this.symbolTable = symbolTable;
+            this.varNames = varNames;
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * <p/>Allocates unallocated variables to stack slots.
+         */
+        public void visit ( Variable variable ) {
+            if (symbolTable.get(variable.getSymbolKey(), SYMKEY_ALLOCATION) == null) {
+                if (variable.isAnonymous()) {
+                    //log.fine("Query variable " + variable + " is temporary.");
+
+                    int allocation = (lastAllocatedTempReg++ & (0xff)) | (REG_ADDR << 8);
+                    symbolTable.put(variable.getSymbolKey(), SYMKEY_ALLOCATION, allocation);
+                    varNames.put((byte) allocation, variable.getName());
+                } else {
+                    /*log.fine("Query variable " + variable + " is permanent.");*/
+
+                    int allocation = (numPermanentVars++ & (0xff)) | (HiTalkWAMInstruction.STACK_ADDR << 8);
+                    symbolTable.put(variable.getSymbolKey(), SYMKEY_ALLOCATION, allocation);
+                    varNames.put((byte) allocation, variable.getName());
+                }
+            }
+
+            super.visit(variable);
+        }
     }
 }

@@ -260,6 +260,7 @@ public class TermFactory implements ITermFactory {
     /**
      * @param s
      * @param arity
+     *
      * @return
      */
     public Functor createCompound ( int s, int arity ) {
@@ -269,4 +270,6 @@ public class TermFactory implements ITermFactory {
         }
         return new Functor(s, args);
     }
+
+
 }

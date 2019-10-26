@@ -1,7 +1,16 @@
 
 package org.ltc.hitalk.core;
 
+import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.Properties;
+
 import static java.lang.String.format;
+import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.RESOURCE_ERROR;
 
 /**
  *
@@ -12,6 +21,17 @@ class HtVersion {
     private int minor;
     private int patch;
     private int build;
+
+    private int updateBuildNum ( String compilerProps, String buildNum ) throws IOException {
+        Properties properties = new Properties();
+        File file = Paths.get(compilerProps).toAbsolutePath().toFile();
+        /*return*/
+        properties.load(new FileInputStream(new File(compilerProps)));
+        int build = (int) properties.get(buildNum);
+        properties.replace(buildNum, ++build);
+        return build;
+    }
+
     private String suffix;
 
     /**
@@ -26,7 +46,12 @@ class HtVersion {
         this.major = major;
         this.minor = minor;
         this.patch = patch;
-        this.build = build;
+        try {
+            this.build = build == -1 ? updateBuildNum("compiler.properties", "build.num") : build;
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new ExecutionError(RESOURCE_ERROR, null);
+        }
         this.suffix = suffix;
         this.snapshot = snapshot;
     }

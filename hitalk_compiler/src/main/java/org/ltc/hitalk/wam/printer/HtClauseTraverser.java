@@ -28,7 +28,7 @@ interface HtClauseTraverser extends TermTraverser {
      * @param clause  The clause to visit.
      * @param reverse <tt>true</tt> if the child operators should be presented in reverse order to what is deemed to be
      *                a natural, left-to-right ordering.
-     * @return An iterator over operators producing the traveresed elements of the clause.
+     * @return An iterator over operators producing the traversed elements of the clause.
      */
     Iterator <Operator <Term>> traverse ( HtClause clause, boolean reverse );
 }

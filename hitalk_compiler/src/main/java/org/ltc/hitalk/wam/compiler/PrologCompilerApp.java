@@ -1,9 +1,6 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.LinkageException;
-import com.thesett.aima.logic.fol.Sentence;
-import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
+import com.thesett.aima.logic.fol.*;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.common.util.doublemaps.SymbolTableImpl;
 import org.apache.commons.vfs2.*;
@@ -47,7 +44,7 @@ import static org.ltc.hitalk.wam.compiler.Tools.COMPILER;
 /**
  *
  */
-public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P, Q> {
+public abstract class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P, Q> {
 
     public static final String DEFAULT_SCRATCH_DIRECTORY = "scratch";
     private static final HtProperty[] DEFAULT_PROPS = new HtProperty[]{
@@ -55,7 +52,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
     };
 
     protected DefaultFileSystemManager fsManager;
-    protected BaseCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> compiler;
+    protected BaseCompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> compiler;
 
     protected Path scratchDirectory = Paths.get(DEFAULT_SCRATCH_DIRECTORY).toAbsolutePath();
     protected CompilationContext compilationContext = new CompilationContext();
@@ -63,7 +60,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
     protected ExecutionContext executionContext = new ExecutionContext();
     protected IProduct product = new HtProduct("Copyright (c) Anton Danilov 2018-2019, All rights reserved",
             language().getName() + " " + tool().getName(),
-            new HtVersion(0, 1, 0, 50, " ", true));
+            new HtVersion(0, 1, 0, 61, " ", true));
 
     /**
      *
@@ -76,10 +73,11 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
     }
 
     //    @Override
-    public BaseCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> createWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
-                                                                                                 VariableAndFunctorInterner interner,
-                                                                                                 PlPrologParser parser ) {
-        return new PrologWAMCompiler(symbolTable, interner, parser);
+    public BaseCompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> createWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
+                                                                                                           VariableAndFunctorInterner interner,
+                                                                                                           PlPrologParser parser,
+                                                                                                           ) {
+        return new PrologWAMCompiler(symbolTable, interner, parser, );
     }
 
     @Override
@@ -154,6 +152,26 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
         initialized.set(false);
     }
 
+    /**
+     * @param symbolTable
+     * @param interner
+     * @param observer
+     * @param parser
+     * @return
+     */
+    public abstract BaseCompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>
+    createWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
+                        VariableAndFunctorInterner interner,
+                        LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer,
+                        PlPrologParser parser );
+
+    /**
+     * @param stream
+     * @param interner
+     * @param factory
+     * @param optable
+     * @return
+     */
     public IParser createParser ( HiTalkStream stream,
                                   VariableAndFunctorInterner interner,
                                   ITermFactory factory,
@@ -161,6 +179,9 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
         return new PlPrologParser(stream, interner, factory, optable);
     }
 
+    /**
+     *
+     */
     protected void initVfs () {
         try {
             fsManager = new DefaultFileSystemManager();
@@ -280,7 +301,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
         TermIO.instance().setInterner(interner);
     }
 
-    private BaseCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> getCompiler () {
+    private BaseCompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> getCompiler () {
         return compiler;
     }
 

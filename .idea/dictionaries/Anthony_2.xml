@@ -54,6 +54,7 @@
       <w>stdin</w>
       <w>subterm</w>
       <w>supercall</w>
+      <w>transpiler</w>
       <w>traverser</w>
       <w>ttyflush</w>
       <w>unsets</w>

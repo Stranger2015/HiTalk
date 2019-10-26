@@ -22,6 +22,7 @@ import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.Filterator;
 import com.thesett.common.util.Source;
 import org.ltc.hitalk.core.ICompiler;
+import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
@@ -44,13 +45,11 @@ import java.util.*;
  * <tr><th> Responsibilities <th> Collaborations
  * </table></pre>
  *
- * @param <P> The compiled program type that the compiler produces.
- * @param <Q> The compiled query type that the compiler produces.
  * @author Rupert Smith
  */
 public
-class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
-        implements VariableAndFunctorInterner, ICompiler <T, P, Q> {
+class HtResolutionEngine extends InteractiveParser
+        implements VariableAndFunctorInterner, ICompiler <HtClause, HtPredicate, HtClause> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
@@ -67,16 +66,16 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     /**
      * Holds the compiler.
      */
-    protected ICompiler <T, P, Q> compiler;
+    protected ICompiler <HtClause, HtPredicate, HtClause> compiler;
 
     /**
      * Holds the observer for compiler outputs.
      */
     protected ChainedCompilerObserver chainedObserver = new ChainedCompilerObserver();
 
-    protected Q currentQuery;
+    protected HtClause currentQuery;
     protected final List <Set <Variable>> vars = new ArrayList <>();
-    private Resolver <HtClause, Q> resolver;
+    protected Resolver <HtClause, HtClause> resolver;
 
     /**
      * Creates a prolog parser using the specified interner.
@@ -86,15 +85,14 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      */
     public HtResolutionEngine ( PlPrologParser parser,
                                 VariableAndFunctorInterner interner,
-                                ICompiler <T, P, Q> compiler ) {
+                                ICompiler <HtClause, HtPredicate, HtClause> compiler ) {
         super(parser);
         this.interner = interner;
         this.compiler = compiler;//fixme NPE
         compiler.setCompilerObserver(chainedObserver);
     }
 
-    public
-    HtResolutionEngine () {
+    public HtResolutionEngine () {
         super();
     }
 
@@ -102,8 +100,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * Resets the engine to its default state. This will typically load any bootstrapping libraries of built-ins that
      * the engine requires, but otherwise set its domain to empty.
      */
-    public
-    void reset () {
+    public void reset () {
         //todo
     }
 
@@ -112,8 +109,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      *
      * @return The resolution engines interner.
      */
-    public
-    VariableAndFunctorInterner getInterner () {
+    public VariableAndFunctorInterner getInterner () {
         return interner;
     }
 
@@ -122,7 +118,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      *
      * @return The resolution engines compiler.
      */
-    public ICompiler <T, P, Q> getCompiler () {
+    public ICompiler <HtClause, HtPredicate, HtClause> getCompiler () {
         return compiler;
     }
 
@@ -156,8 +152,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * @param solution An iterable over the variables in the solution.
      * @return All the variables printed as a string, one per line.
      */
-    public
-    String printSolution ( Iterable <Variable> solution ) {
+    public String printSolution ( Iterable <Variable> solution ) {
         StringBuilder result = new StringBuilder();
 
         for (Variable var : solution) {
@@ -173,8 +168,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * @param variables An iterable over the variables in the solution.
      * @return All the variables printed as a string, one per line.
      */
-    public
-    String printSolution ( Map <String, Variable> variables ) {
+    public String printSolution ( Map <String, Variable> variables ) {
         StringBuilder result = new StringBuilder();
 
         for (Map.Entry <String, Variable> entry : variables.entrySet()) {
@@ -190,8 +184,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * @param var The variable to print.
      * @return The variable binding in the form 'Var = value'.
      */
-    public
-    String printVariableBinding ( Term var ) {
+    public String printVariableBinding ( Term var ) {
         return var.toString(getInterner(), true, false) + " = " + var.getValue().toString(getInterner(), false, true);
     }
 
@@ -202,8 +195,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * @param solutions The resolution solutions to convert to map form.
      * @return An iterator over a map from the string name of variables to their bindings, for the solutions.
      */
-    public
-    Iterable <Map <String, Variable>> expandResultSetToMap ( Iterator <Set <Variable>> solutions ) {
+    public Iterable <Map <String, Variable>> expandResultSetToMap ( Iterator <Set <Variable>> solutions ) {
         return new Filterator <>(solutions, this::apply);
     }
 
@@ -224,88 +216,77 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     /**
      * {@inheritDoc}
      */
-    public
-    int internFunctorName ( String name, int numArgs ) {
+    public int internFunctorName ( String name, int numArgs ) {
         return interner.internFunctorName(name, numArgs);
     }
 
     /**
      * {@inheritDoc}
      */
-    public
-    int internFunctorName ( FunctorName name ) {
+    public int internFunctorName ( FunctorName name ) {
         return interner.internFunctorName(name);
     }
 
     /**
      * {@inheritDoc}
      */
-    public
-    int internVariableName ( String name ) {
+    public int internVariableName ( String name ) {
         return interner.internVariableName(name);
     }
 
     /**
      * {@inheritDoc}
      */
-    public
-    String getVariableName ( int name ) {
+    public String getVariableName ( int name ) {
         return interner.getVariableName(name);
     }
 
     /**
      * {@inheritDoc}
      */
-    public
-    String getVariableName ( Variable variable ) {
+    public String getVariableName ( Variable variable ) {
         return interner.getVariableName(variable);
     }
 
     /**
      * {@inheritDoc}
      */
-    public
-    FunctorName getDeinternedFunctorName ( int name ) {
+    public FunctorName getDeinternedFunctorName ( int name ) {
         return interner.getDeinternedFunctorName(name);
     }
 
     /**
      * {@inheritDoc}
      */
-    public
-    String getFunctorName ( int name ) {
+    public String getFunctorName ( int name ) {
         return interner.getFunctorName(name);
     }
 
     /**
      * {@inheritDoc}
      */
-    public
-    int getFunctorArity ( int name ) {
+    public int getFunctorArity ( int name ) {
         return interner.getFunctorArity(name);
     }
 
     /**
      * {@inheritDoc}
      */
-    public
-    FunctorName getFunctorFunctorName ( Functor functor ) {
+    public FunctorName getFunctorFunctorName ( Functor functor ) {
         return interner.getFunctorFunctorName(functor);
     }
 
     /**
      * {@inheritDoc}
      */
-    public
-    String getFunctorName ( Functor functor ) {
+    public String getFunctorName ( Functor functor ) {
         return interner.getFunctorName(functor);
     }
 
     /**
      * {@inheritDoc}
      */
-    public
-    int getFunctorArity ( Functor functor ) {
+    public int getFunctorArity ( Functor functor ) {
         return interner.getFunctorArity(functor);
     }
 
@@ -318,6 +299,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
 
     /**
      * {@inheritDoc}
+     *
      * @return
      */
     public Sentence <Term> parse () throws SourceCodeException, IOException, ParseException {
@@ -333,9 +315,10 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
 
     /**
      * {@inheritDoc}
+     *
      * @param sentence
      */
-    public void compile ( Sentence sentence ) throws SourceCodeException {
+    public void compile ( Sentence <HtClause> sentence ) throws SourceCodeException {
         compiler.compile(sentence.getT());
     }
 
@@ -348,25 +331,21 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      *                          raise this as an error at the time the clauses are added to the domain, or during
      *                          resolution, or simply to fail to find a resolution.
      */
-    @Override
-    public
-    void addToDomain ( T term ) throws LinkageException {
+    public void addToDomain ( HtClause term ) throws LinkageException {
 
     }
 
     /**
      * {@inheritDoc}
      */
-    public
-    void setQuery ( Q query ) throws LinkageException {
+    public void setQuery ( HtClause query ) throws LinkageException {
         currentQuery = query;
     }
 
     /**
      * {@inheritDoc}
      */
-    public
-    Set <Variable> resolve () {
+    public Set <Variable> resolve () {
         // Check that a query has been set to resolve.
         if (currentQuery == null) {
             throw new IllegalStateException("No query set to resolve.");
@@ -376,42 +355,42 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
         return executeAndExtractBindings(currentQuery);
     }
 
-    private
-    Set <Variable> executeAndExtractBindings ( Q query ) {
+    private Set <Variable> executeAndExtractBindings ( HtClause query ) {
         return null;
     }
 
     /**
      * {@inheritDoc}
      */
-    public
-    Iterator <Set <Variable>> iterator () {
+    public Iterator <Set <Variable>> iterator () {
         return vars.iterator();
     }
 
     /**
      * {@inheritDoc}
      */
-    public
-    void setCompilerObserver ( LogicCompilerObserver <P, Q> observer ) {
+    public void setCompilerObserver ( LogicCompilerObserver <HtPredicate, HtClause> observer ) {
         chainedObserver.setCompilerObserver(observer);
     }
 
     @Override
-    public void compile ( Sentence sentence ) throws SourceCodeException {
+    public void compile ( Sentence <HtClause> sentence ) throws SourceCodeException {
+
+    }
+
+    @Override
+    public void setCompilerObserver ( LogicCompilerObserver <HtPredicate, HtClause> observer ) {
 
     }
 
     /**
      * {@inheritDoc}
      */
-    public
-    void endScope () throws SourceCodeException {
+    public void endScope () throws SourceCodeException {
         compiler.endScope();
     }
 
-    private
-    Map <String, Variable> apply ( Set <Variable> variables ) {
+    private Map <String, Variable> apply ( Set <Variable> variables ) {
         Map <String, Variable> results = new HashMap <>();
 
         for (Variable var : variables) {
@@ -431,8 +410,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * @return
      */
     @Override
-    public
-    Logger getConsole () {
+    public Logger getConsole () {
         return logger;
     }
 
@@ -442,8 +420,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * @throws SourceCodeException
      */
     @Override
-    public
-    void compile ( HtClause clause, HtProperty... flags ) throws SourceCodeException {
+    public void compile ( HtClause clause, HtProperty... flags ) throws SourceCodeException {
 
     }
 
@@ -451,8 +428,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * @param rule
      */
     @Override
-    public
-    void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
+    public void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
 
     }
 
@@ -460,8 +436,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * @param query
      */
     @Override
-    public
-    void compileQuery ( HtClause query ) throws SourceCodeException {
+    public void compileQuery ( HtClause query ) throws SourceCodeException {
 
     }
 
@@ -469,13 +444,12 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * @param clause
      */
     @Override
-    public
-    void compileClause ( HtClause clause ) {
+    public void compileClause ( HtClause clause ) {
 
     }
 
     @Override
-    public void setResolver ( Resolver <HtClause, Q> resolver ) {
+    public void setResolver ( Resolver <HtClause, HtClause> resolver ) {
         this.resolver = resolver;
     }
 
@@ -491,19 +465,18 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * <p/>If a chained observer is set up, all compiler outputs are forwarded onto it.
      */
     private
-    class ChainedCompilerObserver implements LogicCompilerObserver <P, Q> {
+    class ChainedCompilerObserver implements LogicCompilerObserver <HtPredicate, HtClause> {
         /**
          * Holds the chained observer for compiler outputs.
          */
-        private LogicCompilerObserver <P, Q> observer;
+        private LogicCompilerObserver <HtPredicate, HtClause> observer;
 
         /**
          * Sets the chained observer for compiler outputs.
          *
          * @param observer The chained observer.
          */
-        public
-        void setCompilerObserver ( LogicCompilerObserver <P, Q> observer ) {
+        public void setCompilerObserver ( LogicCompilerObserver <HtPredicate, HtClause> observer ) {
             this.observer = observer;
         }
 
@@ -514,20 +487,18 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
          * @throws SourceCodeException If there is an error in the compiled code that prevents its further processing.
          */
         @Override
-        public
-        void onCompilation ( Sentence <P> sentence ) throws SourceCodeException {
+        public void onCompilation ( Sentence <HtPredicate> sentence ) throws SourceCodeException {
             if (observer != null) {
                 observer.onCompilation(sentence);
             }
 
-            HtResolutionEngine.this.addToDomain((T) sentence.getT());//fixme
+            HtResolutionEngine.this.addToDomain(sentence);//fixme
         }
 
         /**
          * {@inheritDoc}
          */
-        public
-        void onQueryCompilation ( Sentence <Q> sentence ) throws SourceCodeException {
+        public void onQueryCompilation ( Sentence <Q> sentence ) throws SourceCodeException {
             if (observer != null) {
                 observer.onQueryCompilation(sentence);
             }

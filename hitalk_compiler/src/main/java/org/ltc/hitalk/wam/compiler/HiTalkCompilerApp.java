@@ -186,11 +186,12 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
      * @return
      */
     @Override
-    public BaseCompiler <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>
+    public BaseCompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>
     createWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
                         VariableAndFunctorInterner interner,
+                        LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer,
                         PlPrologParser parser ) {
-        return new HiTalkWAMCompiler(symbolTable, interner, parser);
+        return new HiTalkWAMCompiler(symbolTable, interner, parser, observer);
     }
 
     public IParser createParser ( HiTalkStream stream,
@@ -1294,16 +1295,16 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
      * public
      */
     public static class ClauseChainObserver<T extends HtClause, P, Q> implements LogicCompilerObserver <T, Q> {
-        protected ICompiler <P, Q> instructionCompiler;
+        protected ICompiler <T, P, Q> instructionCompiler;
 
         /**
          * @param instructionCompiler
          */
-        ClauseChainObserver ( ICompiler <P, Q> instructionCompiler ) {
+        ClauseChainObserver ( ICompiler <T, P, Q> instructionCompiler ) {
             this.instructionCompiler = instructionCompiler;
         }
 
-        public ClauseChainObserver ( ICompiler <HtPredicate, T> preCompiler, ICompiler <P, Q> instructionCompiler ) {
+        public ClauseChainObserver ( ICompiler <T, HtPredicate, T> preCompiler, ICompiler <T, P, Q> instructionCompiler ) {
 
         }
 
