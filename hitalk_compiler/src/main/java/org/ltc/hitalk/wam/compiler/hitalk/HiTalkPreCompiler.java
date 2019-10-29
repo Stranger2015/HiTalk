@@ -28,6 +28,7 @@ import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.HiTalkTopLevelCheckVisitor;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
@@ -65,10 +66,11 @@ class HiTalkPreCompiler extends PrologPreCompiler implements ICompiler <HtClause
     public HiTalkPreCompiler ( SymbolTable <Integer, String, Object> symbolTable,
                                VariableAndFunctorInterner interner,
                                PrologDefaultBuiltIn defaultBuiltIn,
-                               PrologBuiltInTransform <IApplication, T> builtInTransform,
+                               PrologBuiltInTransform <IApplication, Term> builtInTransform,
                                Resolver <HtClause, HtClause> resolver,
+                               PlPrologParser parser,
                                PrologWAMCompiler compiler ) {
-        super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, compiler);
+        super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, parser, compiler);
 
 //        builtInTransform = new HiTalkBuiltInTransform (defaultBuiltIn, this, resolver);//TODO GLOBAL CTX NEEDED!!77
 

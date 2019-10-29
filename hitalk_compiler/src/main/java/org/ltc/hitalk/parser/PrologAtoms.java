@@ -2,6 +2,7 @@ package org.ltc.hitalk.parser;
 
 public
 interface PrologAtoms {
+
     String BYPASS_NIL = "{}";//arity 0 => ATOM
     String BYPASS_CONS = "{|}";//arity 0-2: {}, {| TERM_LIST OR VAR),{ERM1 | TERM_TAIL OR VAR}; depends on ctx:
     // bypass/ dcg_escape/ other

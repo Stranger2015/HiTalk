@@ -42,8 +42,7 @@ class HiLogPreprocessor<T extends HtClause, TC extends Term>
      * @return
      */
     @Override
-    public
-    T specialize ( T clause ) {
+    public List <HtClause> specialize ( T clause ) {
         return clause;
     }
 

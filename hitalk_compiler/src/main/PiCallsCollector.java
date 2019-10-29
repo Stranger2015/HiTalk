@@ -9,10 +9,16 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
+import static java.util.Collections.singleton;
+
 /**
  *
  */
 public class PiCallsCollector implements Collector <HtClause, PiCall.Builder, List <HtClause>> {
+    private static PiCall.Builder apply ( PiCall.Builder left, PiCall.Builder right ) {
+        return left.addAll(right.build());
+    }
+
     @Override
     public Supplier <PiCall.Builder> supplier () {
         return PiCall::newBuilder;
@@ -25,17 +31,16 @@ public class PiCallsCollector implements Collector <HtClause, PiCall.Builder, Li
 
     @Override
     public BinaryOperator <PiCall.Builder> combiner () {
-        return ( left, right ) -> left.addAll(right.build());
-
+        return PiCallsCollector::apply;
     }
 
     @Override
     public Function <PiCall.Builder, List <HtClause>> finisher () {
-        return null;
+        return PiCall.Builder::build;
     }
 
     @Override
     public Set <Characteristics> characteristics () {
-        return null;
+        return singleton(Characteristics.UNORDERED);
     }
 }

@@ -10,16 +10,21 @@ import org.ltc.hitalk.compiler.HtPredicateVisitor;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtPredicateDefinition;
 import org.ltc.hitalk.parser.HtClause;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
 public abstract
-class HtBasicTraverser implements HtPredicateTraverser, HtClauseTraverser, FunctorTraverser, HtClauseVisitor,
-                                  HtPredicateVisitor {
+class HtBasicTraverser implements HtPredicateTraverser,
+        HtClauseTraverser,
+        FunctorTraverser,
+        HtClauseVisitor,
+        HtPredicateVisitor {
     /** Used for debugging purposes. */
-    /* private static final Logger log = Logger.getLogger(BasicTraverser.class.getName()); */
+    protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     /**
      * Flag used to indicate that clause heads should come before bodies in the left-to-right ordering of clauses.
@@ -87,7 +92,7 @@ class HtBasicTraverser implements HtPredicateTraverser, HtClauseTraverser, Funct
      */
     public
     Iterator <Operator <Term>> traverse ( HtPredicate predicate, boolean reverse ) {
-        /*log.fine("Traversing predicate " + predicate.toString());*/
+        logger.debug("Traversing predicate " + predicate.toString());
 
         HtPredicateDefinition body = predicate.getDefinition();
 
@@ -112,7 +117,7 @@ class HtBasicTraverser implements HtPredicateTraverser, HtClauseTraverser, Funct
      */
     public
     Iterator <Operator <Term>> traverse ( HtClause clause, boolean reverse ) {
-        /*log.fine("Traversing clause " + clause.toString());*/
+        logger.debug("Traversing clause " + clause.toString());
 
         Functor head = clause.getHead();
         Functor[] body = clause.getBody();
@@ -187,9 +192,8 @@ class HtBasicTraverser implements HtPredicateTraverser, HtClauseTraverser, Funct
      * @param clause      The containing clause.
      * @return A reversable operator.
      */
-    protected abstract
-    HtBasicTraverser.StackableOperator createBodyOperator ( Functor bodyFunctor, int pos, Functor[] body,
-                                                            HtClause clause );
+    protected abstract StackableOperator createBodyOperator ( Functor bodyFunctor, int pos, Functor[] body,
+                                                              HtClause clause );
 
     /**
      * When traversing the body clauses of a predicate, creates a reversible operator to use to transition into each
@@ -201,9 +205,8 @@ class HtBasicTraverser implements HtPredicateTraverser, HtClauseTraverser, Funct
      * @param predicate  The containing predicate.
      * @return A reversable operator.
      */
-    protected abstract
-    HtBasicTraverser.StackableOperator createClauseOperator ( HtClause bodyClause, int pos, HtPredicateDefinition body,
-                                                              HtPredicate predicate );
+    protected abstract StackableOperator createClauseOperator ( HtClause bodyClause, int pos, HtPredicateDefinition body,
+                                                                HtPredicate predicate );
 
     /**
      * When traversing the argument terms of a functor, creates a reversible operator to use to transition into each

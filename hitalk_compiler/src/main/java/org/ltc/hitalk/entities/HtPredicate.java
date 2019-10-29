@@ -62,8 +62,8 @@ class HtPredicate extends BaseTerm implements Term, IPropertyOwner {
     /**
      * The clauses that make up this predicate.
      */
-    protected HtPredicateDefinition definition;
-    final private List <PropertyChangeListener> listeners = new ArrayList <>();
+    final protected HtPredicateDefinition definition;
+    final protected List <PropertyChangeListener> listeners = new ArrayList <>();
 
     /**
      * Creates a predicate formed from a set of clauses.

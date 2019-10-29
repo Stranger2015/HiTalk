@@ -5,8 +5,9 @@ import com.thesett.aima.logic.fol.compiler.PositionalContext;
 import com.thesett.aima.logic.fol.compiler.PositionalTermTraverser;
 import com.thesett.aima.logic.fol.wam.builtins.Conjunction;
 import com.thesett.aima.logic.fol.wam.builtins.Disjunction;
-import com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys;
 import com.thesett.common.util.doublemaps.SymbolTable;
+
+import static com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys.SYMKEY_TOP_LEVEL_FUNCTOR;
 
 /*
  * Copyright The Sett Ltd, 2005 to 2014.
@@ -54,7 +55,9 @@ public class HiTalkTopLevelCheckVisitor extends BasePositionalVisitor implements
      * @param symbolTable The compiler symbol table.
      * @param traverser   The positional context traverser.
      */
-    public HiTalkTopLevelCheckVisitor ( VariableAndFunctorInterner interner, SymbolTable <Integer, String, Object> symbolTable, PositionalTermTraverser traverser ) {
+    public HiTalkTopLevelCheckVisitor ( VariableAndFunctorInterner interner,
+                                        SymbolTable <Integer, String, Object> symbolTable,
+                                        PositionalTermTraverser traverser ) {
         super(interner, symbolTable, traverser);
     }
 
@@ -74,7 +77,7 @@ public class HiTalkTopLevelCheckVisitor extends BasePositionalVisitor implements
     protected
     void enterFunctor ( Functor functor ) {
         if (isTopLevel()) {
-            symbolTable.put(functor.getSymbolKey(), SymbolTableKeys.SYMKEY_TOP_LEVEL_FUNCTOR, true);
+            symbolTable.put(functor.getSymbolKey(), SYMKEY_TOP_LEVEL_FUNCTOR, true);
         }
     }
 
@@ -96,7 +99,7 @@ public class HiTalkTopLevelCheckVisitor extends BasePositionalVisitor implements
                 Term parentTerm = parentContext.getTerm();
 
                 if ((parentTerm instanceof Conjunction) || (parentTerm instanceof Disjunction)) {
-                    Boolean isTopLevel = (Boolean) symbolTable.get(parentTerm.getSymbolKey(), SymbolTableKeys.SYMKEY_TOP_LEVEL_FUNCTOR);
+                    Boolean isTopLevel = (Boolean) symbolTable.get(parentTerm.getSymbolKey(), SYMKEY_TOP_LEVEL_FUNCTOR);
 
                     return (isTopLevel == null) ? false : isTopLevel;
                 }

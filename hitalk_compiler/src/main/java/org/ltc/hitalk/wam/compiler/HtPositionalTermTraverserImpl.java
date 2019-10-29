@@ -47,8 +47,8 @@ import java.util.Iterator;
  * @author Rupert Smith
  */
 public
-class
-HtPositionalTermTraverserImpl extends HtBasicTraverser implements HtPositionalTermTraverser {
+class HtPositionalTermTraverserImpl extends HtBasicTraverser
+        implements HtPositionalTermTraverser {
     /**
      * Flag used to indicate that a term context is being entered.
      */
@@ -67,7 +67,7 @@ HtPositionalTermTraverserImpl extends HtBasicTraverser implements HtPositionalTe
     /**
      * Holds the context stack for the traversal.
      */
-    protected StackQueue <HtPositionalTermTraverserImpl.HtPositionalContextOperator> contextStack = new StackQueue <HtPositionalContextOperator>();
+    protected StackQueue <HtPositionalContextOperator> contextStack = new StackQueue <>();
 
     /**
      * Inidicates that the initial context has been established at the start of a traversal.
@@ -304,7 +304,7 @@ HtPositionalTermTraverserImpl extends HtBasicTraverser implements HtPositionalTe
     @Override
     public
     Iterator <Operator <Term>> traverse ( HtClause clause, boolean reverse ) {
-        return null;
+        return super.traverse(clause, reverse);
     }
 
     /**

@@ -3,6 +3,7 @@ package org.ltc.hitalk.entities;
 import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.search.Operator;
 import org.ltc.enumus.Hierarchy;
+import org.ltc.hitalk.wam.compiler.HtFunctor;
 
 import java.util.Iterator;
 import java.util.function.Function;
@@ -12,16 +13,20 @@ import java.util.function.Function;
  */
 public
 class HtPredicateIndicator extends BaseTerm {
-    private Functor delegate;
+    //private final HtFunctor functor;
+    protected HtFunctor delegate;
 
     /**
      * @param name
      * @param arg1
      * @param arg2
      */
-    public
-    HtPredicateIndicator ( Functor name, Term arg1, Term arg2 ) {
-        delegate = new Functor(name.getName(), new Term[]{name, arg1, arg2});
+    public HtPredicateIndicator ( HtFunctor name, Term arg1, Term arg2 ) {
+        delegate = new HtFunctor(name.getName(), new Term[]{name, arg1, arg2});
+    }
+
+    public HtPredicateIndicator ( HtFunctor functor ) {
+        this(functor, functor.getArgument(0), functor.getArgument(1));
     }
 
     /**
@@ -91,7 +96,7 @@ class HtPredicateIndicator extends BaseTerm {
         delegate.free();
     }
 
-    /**
+    /*
      * Gets the actual value of a term, which is either the term itself, or in the case of variables, the value that is
      * currently assigned to the variable. For functors, the value is the functor itself.
      *
@@ -271,16 +276,15 @@ class HtPredicateIndicator extends BaseTerm {
         return delegate.toString(interner, printVarName, printBindings);
     }
 
-//    /**
-//     * Creates a string representation of this functors arguments, mostly used for debugging purposes.
-//     *
-//     * @return A string reprenestation of this functors arguments.
-//     */
-//    protected
-//    String toStringArguments () {
-//        return delegate.toStringArguments();
-//    }
-
+    /**
+     * Creates a string representation of this functors arguments, mostly used for debugging purposes.
+     *
+     * @return A string reprenestation of this functors arguments.
+     */
+    protected String toStringArguments () {
+        return delegate.toStringArguments();
+    }
+//
     /**
      *
      */

@@ -1,14 +1,14 @@
 package org.ltc.hitalk.parser;
 
 import com.thesett.aima.logic.fol.Clause;
-import com.thesett.aima.logic.fol.Functor;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.ISubroutine;
+import org.ltc.hitalk.wam.compiler.HtFunctor;
 
 /**
  *
  */
-public class HtClause extends Clause <Functor> implements ISubroutine {
+public class HtClause extends Clause <HtFunctor> implements ISubroutine {
     protected final HtEntityIdentifier identifier;
 
     /**
@@ -16,7 +16,7 @@ public class HtClause extends Clause <Functor> implements ISubroutine {
      * @param body
      * @param identifier
      */
-    public HtClause ( Functor head, Functor[] body, HtEntityIdentifier identifier ) {
+    public HtClause ( HtFunctor head, HtFunctor[] body, HtEntityIdentifier identifier ) {
         this(null, head, body);
     }
 
@@ -26,13 +26,17 @@ public class HtClause extends Clause <Functor> implements ISubroutine {
      * @param head The head of the program.
      * @param body The functors that make up the query body of the program, if any. May be <tt>null</tt>
      */
-    public HtClause ( HtEntityIdentifier identifier, Functor head, Functor[] body ) {
+    public HtClause ( HtEntityIdentifier identifier, HtFunctor head, HtFunctor[] body ) {
         super(head, body);
 
         this.identifier = identifier;
     }
 
-    public HtClause ( HtEntityIdentifier identifier, Functor head ) {
+    /**
+     * @param identifier
+     * @param head
+     */
+    public HtClause ( HtEntityIdentifier identifier, HtFunctor head ) {
         this(identifier, head, null);
     }
 

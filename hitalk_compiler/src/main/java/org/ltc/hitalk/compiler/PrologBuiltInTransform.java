@@ -9,11 +9,12 @@ import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
 
-public class PrologBuiltInTransform<A extends IApplication, T>/*<A extends IApplication, T>*/ implements Function <HtFunctor, HtFunctor> {
+public class PrologBuiltIxnTransform<A extends IApplication, T extends HtClause>
+        implements Function <HtFunctor, HtFunctor> {
 
     protected final VariableAndFunctorInterner interner;
     protected final PrologPreCompiler preCompiler;
-    protected final Resolver <HtClause, HtClause> resolver;
+    protected final Resolver <T, T> resolver;
     protected final PredicateTable predicateTable = new PredicateTable();
 
     /**
@@ -30,11 +31,11 @@ public class PrologBuiltInTransform<A extends IApplication, T>/*<A extends IAppl
     public PrologBuiltInTransform ( PrologDefaultBuiltIn defaultBuiltIn,
                                     VariableAndFunctorInterner interner,
                                     PrologPreCompiler preCompiler,
-                                    Resolver <HtClause, HtClause> resolver ) {
+                                    Resolver <T, T> resolver ) {
         this.defaultBuiltIn = defaultBuiltIn;
         this.interner = interner;
         this.preCompiler = preCompiler;
-        this.resolver = resolver;
+\this.resolver = resolver;
     }
 
     /**

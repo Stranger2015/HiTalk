@@ -32,7 +32,7 @@ public class PrologPreprocessor<TC extends Term, TT extends TransformTask <HtCla
     public PrologPreprocessor ( SymbolTable <Integer, String, Object> symbolTable,
                                 VariableAndFunctorInterner interner,
                                 PrologDefaultBuiltIn defaultBuiltIn,
-                                PrologBuiltInTransform <IApplication, T> builtInTransform,
+                                PrologBuiltInTransform <IApplication, Term> builtInTransform,
                                 Resolver <HtClause, HtClause> resolver,
                                 PrologWAMCompiler compiler ) {
 
@@ -89,3 +89,34 @@ public class PrologPreprocessor<TC extends Term, TT extends TransformTask <HtCla
 
     }
 }
+/*decode_hilog_term(HiLogPred,[Arg],Code,_Level,Depth) :-
+	Depth1 is Depth+1,
+	is_unary_op(HiLogPred),
+	!,
+        escape(HiLogPred,EscPred),
+	decode_literal_internal(Arg,ArgCode,1,Depth1),
+	Code = [EscPred,' ',ArgCode].
+
+decode_hilog_term(HiLogPred,[Arg1,Arg2],Code,_Level,Depth) :-
+	Depth1 is Depth+1,
+	is_binary_op(HiLogPred),
+	!,
+        escape(HiLogPred,EscPred),
+	decode_literal_internal(Arg1,Arg1Code,1,Depth1),
+	decode_literal_internal(Arg2,Arg2Code,1,Depth1),
+	Code = [Arg1Code,' ',EscPred,' ',Arg2Code].
+
+decode_hilog_term(HiLogPred,Args,Code,Level,Depth) :-
+	Depth1 is Depth+1,
+	decode_literal_internal(HiLogPred,HiLogPredCode,1,Depth1),
+	Code = [HiLogPredCode|RestCode1],
+	(Args == []
+	-> (Level==0 -> RestCode1 = RestCode2
+	   ; RestCode1 = ['(',')'|RestCode2]
+	   )
+	;
+	    decode_list_add_separator(Args,ArgCode1,decode_literal_internal(_,_,1,Depth1),FL_COMMA),
+	    RestCode1 = ['(',ArgCode1,')'|RestCode2]
+	),
+	RestCode2 = [].
+  */

@@ -34,12 +34,12 @@ public class PiCall extends HtFunctor {
      */
     public static class Builder {
         final List <HtClause> clauses = new ArrayList <>();
-        HtClause clause;
 
         /**
          *
          */
         public List <HtClause> build () {
+            //todo
             return clauses;
         }
 
@@ -47,27 +47,27 @@ public class PiCall extends HtFunctor {
          * @param clause
          * @return
          */
-        public boolean add ( HtClause clause ) {
-            return clauses.add(clause);
+        public Builder add ( HtClause clause ) {
+            clauses.add(clause);
+            return this;
         }
 
         /**
          * @param clauses
          * @return
          */
-        public boolean addAll ( List <HtClause> clauses ) {
-            return this.clauses.addAll(clauses);
+        public Builder addAll ( List <HtClause> clauses ) {
+            this.clauses.addAll(clauses);
+            return this;
         }
 
         /**
          * @param builder
          * @param clause
          */
-        public static void add ( Builder builder, HtClause clause ) {
-            builder.clauses.add(clause);
-        }
-
-        public static void add ( Builder builder, HtClause clause ) {
-        }
+//        public static Builder add ( Builder builder, HtClause clause ) {
+//            builder.clauses.add(clause);
+//            return builder;
+//        }
     }
 }

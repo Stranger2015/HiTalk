@@ -39,6 +39,7 @@
       <w>nlink</w>
       <w>nonvar</w>
       <w>optimizeable</w>
+      <w>pred</w>
       <w>preds</w>
       <w>preprocess</w>
       <w>proc</w>

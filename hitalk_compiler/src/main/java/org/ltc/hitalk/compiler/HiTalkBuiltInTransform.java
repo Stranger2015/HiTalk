@@ -93,7 +93,7 @@
 //IMPLEMENT BUILTINS AS THE CONSUMER
 
      /**
-      * Initializes the built-in transformation by population the the table of mappings of functors onto their built-in
+      * Initializes the built-in transformation by population the table of mappings of functors onto their built-in
       * implementations.
       *
       * @param defaultBuiltIn The default built in, for standard compilation and interners and symbol tables.
@@ -866,9 +866,11 @@
              Functor subEntityFunctor = (HtFunctor) relationFunctor.getArgument(0);
              if (subEntityFunctor instanceof DottedPair) {
                  DottedPair listTerm = (DottedPair) subEntityFunctor;
-
                  for (; listTerm.isNil(); listTerm.newTail()) {
-                     handleNormalizedRelations(listTerm.getHeads(), kinds, relations, dynamic);
+                     Term[] heads = listTerm.getHeads();
+                     for (int j = 1, len = heads.length - 2; j < len; j++) {
+                         handleNormalizedRelations((HtFunctor) heads[j], kinds, relations, dynamic);
+                     }
                  }
              } else if (entityFunctor.getArityDelta() != 0) {
                  FunctorName name = interner.getDeinternedFunctorName(entityFunctor.getName());
@@ -878,7 +880,7 @@
          }
      }
 
-     private void handleNormalizedRelations ( Term[] heads,//fixme
+     private void handleNormalizedRelations ( HtFunctor functor,//fixme
                                               EnumSet <HtRelationKind> kinds,
                                               List <Set <IRelation>> relations,
                                               boolean dynamic ) {

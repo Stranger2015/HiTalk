@@ -1,6 +1,7 @@
 package org.ltc.hitalk.wam.compiler.prolog;
 
 import com.thesett.aima.logic.fol.Resolver;
+import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.aima.logic.fol.bytecode.BaseMachine;
 import com.thesett.common.util.doublemaps.SymbolTable;
@@ -18,15 +19,15 @@ import org.slf4j.LoggerFactory;
  */
 abstract public
 class PrologPreCompiler extends BaseMachine implements ICompiler <HtClause, HtPredicate, HtClause> {
-    protected Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
+    final protected Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
-    protected PlPrologParser parser;
-    protected PrologDefaultBuiltIn defaultBuiltIn;
+    final protected PlPrologParser parser;
+    final protected PrologDefaultBuiltIn defaultBuiltIn;
     /**
      * Holds the built in transformation.
      */
-    protected final PrologBuiltInTransform <IApplication, T> builtInTransform;
-    protected Resolver <HtClause, HtClause> resolver;
+    protected final PrologBuiltInTransform <IApplication, Term> builtInTransform;
+    final protected Resolver <HtClause, HtClause> resolver;
     protected final PrologWAMCompiler compiler;
 
     /**
@@ -40,13 +41,15 @@ class PrologPreCompiler extends BaseMachine implements ICompiler <HtClause, HtPr
     public PrologPreCompiler ( SymbolTable <Integer, String, Object> symbolTable,
                                VariableAndFunctorInterner interner,
                                PrologDefaultBuiltIn defaultBuiltIn,
-                               PrologBuiltInTransform <IApplication, T> builtInTransform,
+                               PrologBuiltInTransform <IApplication, Term> builtInTransform,
                                Resolver <HtClause, HtClause> resolver,
+                               PlPrologParser parser,
                                PrologWAMCompiler compiler ) {
         super(symbolTable, interner);
         this.defaultBuiltIn = defaultBuiltIn;
         this.builtInTransform = builtInTransform;
         this.resolver = resolver;
+        this.parser = parser;
         this.compiler = compiler;
     }
 

@@ -18,6 +18,10 @@ public class HtFunctor extends Functor implements IRangedArity {
         setArityRange(arityMin, arityDelta);
     }
 
+    /**
+     * @param name
+     * @param args
+     */
     //    /**
 //     * @param nameArgs
 //     * @param arityDelta
@@ -35,6 +39,11 @@ public class HtFunctor extends Functor implements IRangedArity {
         this(name, args, 0);
     }
 
+    /**
+     * @param name
+     * @param args
+     * @param arityDelta
+     */
     public HtFunctor ( int name, Term[] args, int arityDelta ) {
         super(name, args);
         setArityRange(args.length, arityDelta);
@@ -48,6 +57,14 @@ public class HtFunctor extends Functor implements IRangedArity {
     @Override
     public int getArity () {
         return super.getArity();
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public String toStringArguments () {
+        return super.toStringArguments();
     }
 
     /**

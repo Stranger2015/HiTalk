@@ -213,8 +213,7 @@ class SuperCompiler<T extends HtClause, TC extends Term> extends StandardPreproc
      * @return
      */
     @Override
-    public
-    T specialize ( T clause ) {
+    public List <HtClause> specialize ( T clause ) {
         return clause;
     }
 
