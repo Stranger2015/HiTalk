@@ -81,6 +81,7 @@ class HtWAMCompiledTermsPrintingVisitor extends HtDelegatingAllTermsVisitor impl
     /**
      * {@inheritDoc}
      */
+    @Override
     public
     void setPositionalTraverser ( HtPositionalTermTraverser traverser ) {
         this.traverser = traverser;

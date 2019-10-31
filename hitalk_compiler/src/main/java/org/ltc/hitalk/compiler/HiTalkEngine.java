@@ -4,6 +4,7 @@ import com.thesett.aima.logic.fol.Variable;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.core.ICompiler;
+import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.interpreter.HtResolutionEngine;
@@ -17,10 +18,10 @@ import java.util.function.Consumer;
  *
  */
 public
-class HiTalkEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P, Q> {
+class HiTalkEngine extends HtResolutionEngine {
 
 //    protected final Logger logger = Logger.getLogger(getClass().getSimpleName());
-    
+
     /**
      * Builds an logical resolution engine from a parser, interner, compiler and resolver.
      *
@@ -29,7 +30,8 @@ class HiTalkEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P, Q
      * @param compiler
      */
     public HiTalkEngine ( PlPrologParser parser,
-                          VariableAndFunctorInterner interner, ICompiler <T, P, Q> compiler ) {
+                          VariableAndFunctorInterner interner,
+                          ICompiler <HtClause, HtPredicate, HtClause> compiler ) {
         super(parser, interner, compiler);
 //        compiler.setResolver(this);
     }
@@ -39,8 +41,7 @@ class HiTalkEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P, Q
      * the engine requires, but otherwise set its domain to empty.
      */
     @Override
-    public
-    void reset () {
+    public void reset () {
 //todo
     }
 
@@ -50,8 +51,7 @@ class HiTalkEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P, Q
      * @throws SourceCodeException
      */
     @Override
-    public
-    void compile ( HtClause sentence, HtProperty... flags ) throws SourceCodeException {
+    public void compile ( HtClause sentence, HtProperty... flags ) throws SourceCodeException {
 //todo
     }
 
@@ -59,8 +59,7 @@ class HiTalkEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P, Q
      * @param rule
      */
     @Override
-    public
-    void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
+    public void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
 //todo
     }
 
@@ -68,8 +67,7 @@ class HiTalkEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P, Q
      * @param query
      */
     @Override
-    public
-    void compileQuery ( HtClause query ) {
+    public void compileQuery ( HtClause query ) {
 //todo
     }
 
@@ -77,8 +75,7 @@ class HiTalkEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P, Q
      * @param clause
      */
     @Override
-    public
-    void compileClause ( HtClause clause ) {
+    public void compileClause ( HtClause clause ) {
 //todo
     }
 

@@ -1,7 +1,7 @@
 package org.ltc.hitalk.entities;
 
-import com.thesett.aima.logic.fol.Functor;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledPredicate;
+import org.ltc.hitalk.wam.compiler.HtFunctor;
 
 import java.util.function.Consumer;
 
@@ -13,8 +13,7 @@ class PredefinedProc implements ISubroutine {
     /**
      * @return
      */
-    public
-    boolean isBuiltIn () {
+    public boolean isBuiltIn () {
         return builtIn;
     }
 
@@ -28,59 +27,70 @@ class PredefinedProc implements ISubroutine {
         PROLOG(Lang::acceptProlog),
         WAM(Lang::acceptWAM);
 
-        private static
-        void acceptJava ( Functor functor ) {
-
+        /**
+         * @param functor
+         */
+        protected static void acceptJava ( HtFunctor functor, Consumer <HtFunctor> proc ) {
+            proc.accept(functor);
         }
 
-        private static
-        void acceptProlog ( Functor functor ) {
-
+        /**
+         * @param functor
+         */
+        protected static void acceptProlog ( HtFunctor functor, HtPredicate proc ) {
+            final ISubroutine clause = proc.getDefinition().get(0);
         }
 
-        private static
-        void acceptWAM ( Functor functor ) {
-
+        /**
+         * @param functor
+         */
+        private static void acceptWAM ( HtFunctor functor, HiTalkWAMCompiledPredicate proc ) {
+            proc.
         }
 
-        Object proc;
+        /**
+         *
+         */
+        protected Object proc;
 
         /**
          * @param proc
          */
-        Lang ( Object proc ) {
-            this.proc = proc;
-
-        }
-
-        Lang ( Consumer <Functor> proc ) {
+        Lang ( Consumer <HtFunctor> proc ) {
             this.proc = proc;
         }
 
+        /**
+         * @param proc
+         */
         Lang ( HiTalkWAMCompiledPredicate proc ) {
             this.proc = proc;
         }
 
+        /**
+         * @param proc
+         */
+        Lang ( HtPredicate proc ) {
+            this.proc = proc;
+        }
     }
 
     /**
      *
      */
-    protected Functor head;
+    protected HtFunctor head;
 
     /**
      *
      */
-    public
-    PredefinedProc () {
+    public PredefinedProc () {
     }
 
     /**
      * @return
      */
     @Override
-    public
-    Functor getHead () {
+    public HtFunctor getHead () {
         return head;
     }
 
@@ -88,6 +98,5 @@ class PredefinedProc implements ISubroutine {
      * @return
      */
     @Override
-    public abstract
-    Functor[] getBody ();
+    public abstract HtFunctor[] getBody ();
 }

@@ -4,24 +4,17 @@ import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.PredicateTable;
-import org.ltc.hitalk.entities.HtPredicate;
-import org.ltc.hitalk.entities.HtPredicateDefinition;
 import org.ltc.hitalk.entities.HtPredicateIndicator;
-import org.ltc.hitalk.entities.ISubroutine;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.wam.printer.HtPositionalTermVisitor;
 import org.ltc.hitalk.wam.transformers.ISpecializer;
 import org.ltc.hitalk.wam.transformers.TransformInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-
-import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
 
 /**
  *
@@ -56,17 +49,17 @@ class Specializer implements ISpecializer <HtClause, Term> {
     @Override
     public List <HtClause> specialize ( HtClause clause ) {
         List <HtClause> spClauses = new ArrayList <>();
-        List <PiCall> piCalls = new ArrayList <>();
-        HtPositionalTermVisitor ptv = new HiTalkCompilerApp.HiTalkBuiltInTransformVisitor();
-        ptv.setPositionalTraverser(new HtPositionalTermTraverserImpl();
-        for (HtPredicateDefinition <ISubroutine, HtPredicate, HtClause> pd : predicateTable) {
-            for (int i = 0; i < pd.size(); i++) {
-                piCalls.addAll(collectPiCalls(pd));
-
-
+//        List <PiCall> piCalls = new ArrayList <>();
+        PrologPositionalTransformVisitor pptv = new PrologPositionalTransformVisitor(symbolTable, interner);
+        pptv.setPositionalTraverser(new HtPositionalTermTraverserImpl());
+//        for (HtPredicateDefinition <ISubroutine, HtPredicate, HtClause> pd : predicateTable) {
+//            for (int i = 0; i < pd.size(); i++) {
+//                piCalls.addAll(collectPiCalls(pd));
+//
+//
 //                spClauses.add((HtClause)sub);
-            }
-        }
+//            }
+//        }
 //        for (PiCall piCall : piCalls) {
 //            spClauses = specializePred( piCall );
 //        }
@@ -74,22 +67,6 @@ class Specializer implements ISpecializer <HtClause, Term> {
         return spClauses;
     }
 
-    private Collection <? extends PiCall> collectPiCalls ( HtPredicateDefinition <ISubroutine, HtPredicate, HtClause> pd ) {
-        List <PiCall> piCalls = new ArrayList <>();
-        for (int i = 0; i < pd.size(); i++) {
-            ISubroutine sub = pd.get(i);
-            if (pd.isBuiltIn()) {
-                continue;
-            }
-//            HtFunctor head = sub.getHead();
-            HtFunctor[] body = sub.getBody();
-            int name = -1;
-            Term[] args = EMPTY_TERM_ARRAY;
-            piCalls.add(new PiCall(name, args));
-        }
-
-        return null;
-    }
 
     protected HtFunctor chb ( HtFunctor functor ) {
         switch (functor.getName()) {

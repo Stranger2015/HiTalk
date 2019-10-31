@@ -28,7 +28,6 @@ import java.util.*;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind.*;
-import static org.ltc.hitalk.term.DottedPair.Kind.*;
 import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
 import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
 

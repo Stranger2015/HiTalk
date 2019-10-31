@@ -25,9 +25,6 @@ import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiler;
-import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
-import org.ltc.hitalk.wam.printer.HtPositionalTermTraverser;
-import org.ltc.hitalk.wam.printer.HtPositionalTermVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1324,112 +1321,6 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
          */
         public void onQueryCompilation ( Sentence <Q> sentence ) throws SourceCodeException {
             instructionCompiler.compile((T) sentence.getT());
-        }
-    }
-
-    /**
-     * ChainedCompilerObserver implements the compiler observer for this resolution engine. Compiled programs are added
-     * to the resolvers domain. Compiled queries are executed.
-     * <p>
-     * <p/>If a chained observer is set up, all compiler outputs are forwarded onto it.
-     */
-    public static class ChainedCompilerObserver<T extends HtClause, P, Q> implements LogicCompilerObserver <T, Q> {
-        /**
-         * Holds the chained observer for compiler outputs.
-         */
-        protected LogicCompilerObserver <T, Q> observer;
-        protected Resolver <T, Q> resolver;
-
-        /**
-         * Sets the chained observer for compiler outputs.
-         *
-         * @param observer The chained observer.
-         */
-        public void setCompilerObserver ( LogicCompilerObserver <T, Q> observer ) {
-            this.observer = observer;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void onCompilation ( Sentence <T> sentence ) throws SourceCodeException {
-            if (observer != null) {
-                observer.onCompilation(sentence);
-            }
-
-            getResolver().addToDomain(sentence.getT());
-        }
-
-        /**
-         * @return
-         */
-        public Resolver <T, Q> getResolver () {
-            return resolver;
-        }
-
-        /**
-         * @param resolver
-         */
-        public void setResolver ( Resolver <T, Q> resolver ) {
-            this.resolver = resolver;
-        }
-
-        /**
-         * Accepts notification of the completion of the compilation of a query into binary form.
-         *
-         * @param sentence The compiled query.
-         * @throws SourceCodeException If there is an error in the compiled code that prevents its further processing.
-         */
-        @Override
-        public void onQueryCompilation ( Sentence <Q> sentence ) throws SourceCodeException {
-
-        }
-    }
-
-    /**
-     *
-     */
-    public static class HiTalkBuiltInTransformVisitor extends HtBasePositionalVisitor implements HtPositionalTermVisitor {
-
-        private final HiTalkBuiltInTransform <IApplication, HtClause> builtInTransform;
-//        private final HtPositionalTermTraverser positionalTraverser;
-
-        /**
-         * @param symbolTable
-         * @param interner
-         * @param termTraverser
-         * @param builtInTransform
-         */
-        public HiTalkBuiltInTransformVisitor ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner, HtPositionalTermTraverser termTraverser, HiTalkBuiltInTransform <IApplication, HtClause> builtInTransform ) {
-            super(symbolTable, interner, termTraverser);
-            this.builtInTransform = builtInTransform;
-//            this.positionalTraverser = null;
-        }
-
-        /**
-         * Visits a term.
-         *
-         * @param term The term to visit.
-         */
-        @Override
-        public void visit ( Term term ) {
-
-        }
-
-        /**
-         * @return
-         */
-        public HiTalkBuiltInTransform <IApplication, HtClause> getBuiltInTransform () {
-            return builtInTransform;
-        }
-
-        /**
-         * @param positionalTraverser
-         */
-        @Override
-        public void setPositionalTraverser ( HtPositionalTermTraverser positionalTraverser ) {
-
         }
     }
 }

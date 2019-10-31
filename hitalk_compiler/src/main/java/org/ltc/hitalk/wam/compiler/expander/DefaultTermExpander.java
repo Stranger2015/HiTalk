@@ -20,7 +20,7 @@ class DefaultTermExpander<T extends HtClause, TC extends Term, TT extends TermRe
 
     protected final Function <TC, List <TC>> dcgExpansionAction = this::dcgExpansion;
     protected final Function <TC, List <TC>> defaultExpansionAction = this::defaultExpansion;
-    private final TermRewriteTask[] trt;
+    protected final TermRewriteTask[] trt;
 
     /**
      * @param t

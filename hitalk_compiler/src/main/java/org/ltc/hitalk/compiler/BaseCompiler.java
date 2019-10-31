@@ -11,6 +11,7 @@ import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
+import org.ltc.hitalk.wam.compiler.HiTalkCompilerApp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +40,7 @@ public class BaseCompiler<T extends HtClause, P, Q>
     protected int scope;
     protected Deque <SymbolKey> predicatesInScope = new ArrayDeque <>();
     protected PlPrologParser parser;
-    protected Resolver <HtClause, Q> resolver;
+    protected Resolver <T, Q> resolver;
     protected LogicCompilerObserver <P, Q> observer;
 
     /**
@@ -93,12 +94,11 @@ public class BaseCompiler<T extends HtClause, P, Q>
      *
      * @param observer The compiler output observer.
      */
-    @Override
-    public void setCompilerObserver ( LogicCompilerObserver <P, Q> observer ) {
+    public void setCompilerObserver ( HiTalkCompilerApp.ChainedCompilerObserver observer ) {
         this.observer = observer;
     }
 
-    public Resolver <HtClause, Q> getResolver () {
+    public Resolver <T, Q> getResolver () {
         return resolver;
     }
 

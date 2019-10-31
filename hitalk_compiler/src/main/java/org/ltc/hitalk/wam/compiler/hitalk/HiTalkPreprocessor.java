@@ -7,6 +7,7 @@ import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
+import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
@@ -121,7 +122,7 @@ public class HiTalkPreprocessor<TC extends Term, TT extends TransformTask <HtCla
     }
 
     @Override
-    public void setCompilerObserver ( LogicCompilerObserver observer ) {
+    public void setCompilerObserver ( HtResolutionEngine.ChainedCompilerObserver observer ) {
 
     }
 

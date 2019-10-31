@@ -1,6 +1,5 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.Functor;
 import com.thesett.common.util.SizeableList;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtPredicateDefinition.UserDefinition;
@@ -55,19 +54,21 @@ class HiTalkWAMCompiledClause extends HtClause {
      */
     private boolean addedToParent;
 
-    /**
-     * Creates a clause within a parent predicate.
-     *
-     * @param parent The parent predicate.
-     */
-    public
-    HiTalkWAMCompiledClause ( HiTalkWAMCompiledPredicate parent ) {
-        super(null, null, new Functor[0]);
-        this.parent = parent;
-    }
+//    /**?????
+//     * Creates a clause within a parent predicate.
+//     *
+//     * @param parent The parent predicate.
+//     */
+//    public HiTalkWAMCompiledClause ( HiTalkWAMCompiledPredicate parent ) {
+//        super(null, null, new Functor[0]);
+//        this.parent = parent;
+//    }
 
-    public HiTalkWAMCompiledClause ( Functor head, Functor[] body, HtEntityIdentifier identifier, HiTalkWAMCompiledPredicate parent ) {
-        super(head, body, identifier);
+    public HiTalkWAMCompiledClause ( HtFunctor head,
+                                     HtFunctor[] body,
+                                     HtEntityIdentifier identifier,
+                                     HiTalkWAMCompiledPredicate parent ) {
+        super(identifier, head, body);
         this.parent = parent;
     }
 
@@ -77,15 +78,13 @@ class HiTalkWAMCompiledClause extends HtClause {
      * @param body         A conjunctive body functor to add to this clause.
      * @param instructions A list of instructions to add to the body.
      */
-    public
-    void addInstructions ( Functor body, SizeableList <HiTalkWAMInstruction> instructions ) {
+    public void addInstructions ( HtFunctor body, SizeableList <HiTalkWAMInstruction> instructions ) {
         int oldLength;
 
         if (this.body == null) {
             oldLength = 0;
-            this.body = new Functor[1];
-        }
-        else {
+            this.body = new HtFunctor[1];
+        } else {
             oldLength = this.body.length;
             this.body = Arrays.copyOf(this.body, oldLength + 1);
         }
@@ -100,8 +99,7 @@ class HiTalkWAMCompiledClause extends HtClause {
      *
      * @param instructions The instructions to add to the clause.
      */
-    public
-    void addInstructions ( SizeableList <HiTalkWAMInstruction> instructions ) {
+    public void addInstructions ( SizeableList <HiTalkWAMInstruction> instructions ) {
         addInstructionsAndThisToParent(instructions);
     }
 
@@ -111,13 +109,11 @@ class HiTalkWAMCompiledClause extends HtClause {
      *
      * @param instructions The instructions to add.
      */
-    private
-    void addInstructionsAndThisToParent ( SizeableList <HiTalkWAMInstruction> instructions ) {
+    private void addInstructionsAndThisToParent ( SizeableList <HiTalkWAMInstruction> instructions ) {
         if (!addedToParent) {
             parent.addInstructions(new UserDefinition <>(this), instructions);
             addedToParent = true;
-        }
-        else {
+        } else {
             parent.addInstructions(instructions);
         }
     }

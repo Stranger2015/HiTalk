@@ -21,7 +21,9 @@ import java.util.logging.Logger;
  */
 public
 class HiTalkWAMEngine<T extends HtClause, P extends HtPredicate, Q extends HtClause> extends HtResolutionEngine <T, P, Q> {
+
     protected final Logger log = Logger.getLogger(getClass().getSimpleName());
+
     /**
      * HiTalkWAMEngine implements a {@link HtResolutionEngine} for an WAM-based Prolog with built-ins. This engine loads its
      * standard library of built-ins from a resource on the classpath.

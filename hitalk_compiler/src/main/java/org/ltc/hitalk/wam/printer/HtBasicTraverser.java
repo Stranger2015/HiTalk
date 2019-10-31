@@ -1,7 +1,6 @@
 package org.ltc.hitalk.wam.printer;
 
 import com.thesett.aima.logic.fol.Functor;
-import com.thesett.aima.logic.fol.FunctorTraverser;
 import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.search.Operator;
 import com.thesett.aima.search.util.backtracking.Reversable;
@@ -20,7 +19,7 @@ import java.util.Queue;
 public abstract
 class HtBasicTraverser implements HtPredicateTraverser,
         HtClauseTraverser,
-        FunctorTraverser,
+        HtFunctorTraverser,
         HtClauseVisitor,
         HtPredicateVisitor {
     /** Used for debugging purposes. */

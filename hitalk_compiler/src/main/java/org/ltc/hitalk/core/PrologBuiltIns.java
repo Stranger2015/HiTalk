@@ -1,10 +1,12 @@
 package org.ltc.hitalk.core;
 
+import java.util.function.Consumer;
+
 /**
  *
  */
 public
-enum BuiltIns {
+enum PrologBuiltIns {
     PUBLIC("public"),
     PROTECTED("protected"),
     PRIVATE("private"),
@@ -152,14 +154,17 @@ enum BuiltIns {
     ATOM_TO_TERM("atom_to_term"),
     ATOM_NUMBER("atom_number"),
     ;
+
+
     private final String name;
+    private final Consumer <T> impl;
 
     /**
      * @param name
      */
-    BuiltIns ( String name/*, Consumer <Functor> def*/ ) {
+    PrologBuiltIns ( String name, Consumer impl ) {
         this.name = name;
-//        this.def = def;
+        this.impl = impl;
     }
 
     /**

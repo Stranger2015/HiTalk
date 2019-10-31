@@ -11,14 +11,15 @@ import org.ltc.hitalk.wam.compiler.HtFunctor;
 public class HtClause extends Clause <HtFunctor> implements ISubroutine {
     protected final HtEntityIdentifier identifier;
 
-    /**
-     * @param head
-     * @param body
-     * @param identifier
-     */
-    public HtClause ( HtFunctor head, HtFunctor[] body, HtEntityIdentifier identifier ) {
-        this(null, head, body);
-    }
+//    /**
+//     * @param head
+//     * @param body
+//     * @param identifier
+//     */
+//    public HtClause ( HtFunctor head, HtFunctor[] body, HtEntityIdentifier identifier ) {
+//        this(null, head, body);
+//        this.identifier = identifier;
+//    }
 
     /**
      * Creates a program sentence in L2.

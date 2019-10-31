@@ -9,7 +9,7 @@ import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
 
-public class PrologBuiltIxnTransform<A extends IApplication, T extends HtClause>
+public class PrologBuiltInTransform<A extends IApplication, T extends HtClause>
         implements Function <HtFunctor, HtFunctor> {
 
     protected final VariableAndFunctorInterner interner;
@@ -35,7 +35,7 @@ public class PrologBuiltIxnTransform<A extends IApplication, T extends HtClause>
         this.defaultBuiltIn = defaultBuiltIn;
         this.interner = interner;
         this.preCompiler = preCompiler;
-\this.resolver = resolver;
+        this.resolver = resolver;
     }
 
     /**

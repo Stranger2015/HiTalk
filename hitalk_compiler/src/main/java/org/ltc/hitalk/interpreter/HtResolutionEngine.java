@@ -49,7 +49,8 @@ import java.util.*;
  */
 public
 class HtResolutionEngine extends InteractiveParser
-        implements VariableAndFunctorInterner, ICompiler <HtClause, HtPredicate, HtClause> {
+        implements VariableAndFunctorInterner,
+        ICompiler <HtClause, HtPredicate, HtClause> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
@@ -368,19 +369,10 @@ class HtResolutionEngine extends InteractiveParser
 
     /**
      * {@inheritDoc}
+     * @param observer
      */
-    public void setCompilerObserver ( LogicCompilerObserver <HtPredicate, HtClause> observer ) {
+    public void setCompilerObserver ( ChainedCompilerObserver observer ) {
         chainedObserver.setCompilerObserver(observer);
-    }
-
-    @Override
-    public void compile ( Sentence <HtClause> sentence ) throws SourceCodeException {
-
-    }
-
-    @Override
-    public void setCompilerObserver ( LogicCompilerObserver <HtPredicate, HtClause> observer ) {
-
     }
 
     /**
@@ -465,18 +457,18 @@ class HtResolutionEngine extends InteractiveParser
      * <p/>If a chained observer is set up, all compiler outputs are forwarded onto it.
      */
     private
-    class ChainedCompilerObserver implements LogicCompilerObserver <HtPredicate, HtClause> {
+    class ChainedCompilerObserver implements LogicCompilerObserver <HtClause, HtClause> {
         /**
          * Holds the chained observer for compiler outputs.
          */
-        private LogicCompilerObserver <HtPredicate, HtClause> observer;
+        private LogicCompilerObserver <HtClause, HtClause> observer;
 
         /**
          * Sets the chained observer for compiler outputs.
          *
          * @param observer The chained observer.
          */
-        public void setCompilerObserver ( LogicCompilerObserver <HtPredicate, HtClause> observer ) {
+        public void setCompilerObserver ( LogicCompilerObserver <HtClause, HtClause> observer ) {
             this.observer = observer;
         }
 
@@ -487,18 +479,18 @@ class HtResolutionEngine extends InteractiveParser
          * @throws SourceCodeException If there is an error in the compiled code that prevents its further processing.
          */
         @Override
-        public void onCompilation ( Sentence <HtPredicate> sentence ) throws SourceCodeException {
+        public void onCompilation ( Sentence <HtClause> sentence ) throws SourceCodeException {
             if (observer != null) {
                 observer.onCompilation(sentence);
             }
 
-            HtResolutionEngine.this.addToDomain(sentence);//fixme
+            HtResolutionEngine.this.addToDomain(sentence.getT());//fixme
         }
 
         /**
          * {@inheritDoc}
          */
-        public void onQueryCompilation ( Sentence <Q> sentence ) throws SourceCodeException {
+        public void onQueryCompilation ( Sentence <HtClause> sentence ) throws SourceCodeException {
             if (observer != null) {
                 observer.onQueryCompilation(sentence);
             }

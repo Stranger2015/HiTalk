@@ -1,17 +1,9 @@
 package org.ltc.hitalk.wam.task;
 
-import com.thesett.aima.logic.fol.*;
-import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.wam.transformers.ISpecializer;
-import org.ltc.hitalk.wam.transformers.ITransformer;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
-
-/**
+/*
+ *//**
  * public
- */
+ *//*
 public
 class HiLogPreprocessor<T extends HtClause, TC extends Term>
         extends StandardPreprocessor <T, TC>
@@ -28,47 +20,52 @@ class HiLogPreprocessor<T extends HtClause, TC extends Term>
     }
 
 
-    /**
+    *//**
      * @return
-     */
+ *//*
     public
     HiLogToPrologBiDiConverter getConverter () {
         return converter;
     }
 
 
-    /**
+    *//**
      * @param clause
      * @return
-     */
+ *//*
     @Override
-    public List <HtClause> specialize ( T clause ) {
-        return clause;
+    public List <T> specialize ( T clause ) {
+        return Collections.singletonList(clause);
     }
 
-    /**
+    @Override
+    public void run () {
+
+    }
+
+    *//**
      * Collects all partially instantiated calls to ( HiLog ) predicates
      * defined within the module under compilation.
      * The algorithm for collecting the calls is quadratic in the number of predicates,
      * but "only" O(nlogn) in the number of partially instantiated calls to each predicate.
-     */
+ *//*
     class PiCallsCollector {
 
-        /**
+        *//**
          * @return
-         */
-        List <Functor> collect () {
-            List <Functor> piCalls = new ArrayList <>();
-            PredicateVisitor visitor = new PredicateVisitor() {
+ *//*
+        List <HtFunctor> collect () {
+            List <HtFunctor> piCalls = new ArrayList <>();
+            HtPredicateVisitor visitor = new HtPredicateVisitor() {
                 @Override
                 public
-                void visit ( Predicate predicate ) {
-                    Clause[] clauses = predicate.getBody();
-                    for (Clause clause : clauses) {
+                void visit ( HtPredicate predicate ) {
+                    HtPredicateDefinition def = predicate.getDefinition();
+                    for (;;) {
                         if (clause.isQuery()) {
                             continue;
                         }
-                        Functor[] body = clause.getBody();
+                        HtFunctor[] body = clause.getBody();
 //                        bod.TODO
                     }
                 }
@@ -81,10 +78,10 @@ class HiLogPreprocessor<T extends HtClause, TC extends Term>
             };
 
             return piCalls;
-        }
-    }
+        }*/
+//    }
 
-}
+//}
 
 ///* File:      spec.P
 // ** Author(s): Kostis F. Sagonas

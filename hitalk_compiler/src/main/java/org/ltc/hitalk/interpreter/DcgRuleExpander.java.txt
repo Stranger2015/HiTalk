@@ -23,4 +23,8 @@ class DcgRuleExpander<T extends HtClause, TC extends Term, TT extends TermRewrit
     DcgRuleExpander ( Function <T, List <T>> action, List <TC> target, ITransformer <T, TC> transformer ) {
         super(action, target, transformer);
     }
+
+    public void run () {
+
+    }
 }

@@ -1,7 +1,11 @@
 package org.ltc.hitalk.wam.printer;
 
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.IntegerTypeVisitor;
+import com.thesett.aima.logic.fol.LiteralTypeVisitor;
+import com.thesett.aima.logic.fol.TermVisitor;
+import com.thesett.aima.logic.fol.VariableVisitor;
 import org.ltc.hitalk.compiler.HtPredicateVisitor;
+import org.ltc.hitalk.wam.compiler.HtFunctorVisitor;
 
 /**
  * AllTermsVisitor defines a composite visitor made up of the visitors over all types of terms.
@@ -21,7 +25,7 @@ import org.ltc.hitalk.compiler.HtPredicateVisitor;
  */
 public
 interface HtAllTermsVisitor extends TermVisitor,
-                                    FunctorVisitor,
+        HtFunctorVisitor,
                                     VariableVisitor,
                                     HtClauseVisitor,
                                     IntegerTypeVisitor,

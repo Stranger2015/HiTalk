@@ -53,8 +53,7 @@ import java.util.*;
  * registers is maintained in the clause, and the functors need to be able to access this mapping.
  */
 public
-class HiTalkWAMCompiledPredicate
-        extends HtPredicate
+class HiTalkWAMCompiledPredicate extends HtPredicate
         implements Sentence <HiTalkWAMCompiledPredicate>, Sizeable, HiTalkWAMOptimizeableListing {
     //Used for debugging.
     //private static final Logger log = Logger.getLogger(WAMCompiledClause.class.getName());
@@ -121,8 +120,10 @@ class HiTalkWAMCompiledPredicate
      */
     protected IdAttributeFactory <FunctorName> functorInterner;
 
-    public
-    HiTalkWAMCompiledPredicate ( int name ) {
+    /**
+     * @param name
+     */
+    public HiTalkWAMCompiledPredicate ( int name ) {
         super(null);
         this.name = name;
     }

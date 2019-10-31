@@ -13,13 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.ltc.hitalk.wam.printer;
+
 
 import com.thesett.aima.logic.fol.*;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
+import org.ltc.hitalk.entities.HtPredicateDefinition;
+import org.ltc.hitalk.entities.ISubroutine;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.wam.compiler.HtFunctor;
+import org.ltc.hitalk.wam.compiler.HtPositionalTermTraverserImpl;
+import org.ltc.hitalk.wam.compiler.PiCall;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * HtBasePositionalVisitor is an {@link HtAllTermsVisitor} that is being driven by a {@link HtPositionalTermTraverser}.
@@ -39,6 +47,8 @@ import org.ltc.hitalk.parser.HtClause;
  */
 public
 class HtBasePositionalVisitor implements HtAllTermsVisitor {
+
+    List <PiCall> piCalls = new ArrayList <>();
 
     /**
      * The name interner.
@@ -60,27 +70,22 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
      *
      * @param interner    The name interner.
      * @param symbolTable The compiler symbol table.
-     * @param traverser   The positional context traverser.
      */
-    public
-    HtBasePositionalVisitor ( SymbolTable <Integer, String, Object> symbolTable,
-                              VariableAndFunctorInterner interner,
-                              HtPositionalTermTraverser traverser ) {
+    public HtBasePositionalVisitor ( SymbolTable <Integer, String, Object> symbolTable,
+                                     VariableAndFunctorInterner interner ) {
 
         this.symbolTable = symbolTable;
         this.interner = interner;
-        this.traverser = traverser;
+        this.traverser = new HtPositionalTermTraverserImpl();
     }
 
     /**
      * {@inheritDoc}
      */
-    public
-    void visit ( Term term ) {
+    public void visit ( Term term ) {
         if (traverser.isEnteringContext()) {
             enterTerm(term);
-        }
-        else if (traverser.isLeavingContext()) {
+        } else if (traverser.isLeavingContext()) {
             leaveTerm(term);
             term.setTermTraverser(null);
         }
@@ -89,12 +94,10 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
     /**
      * {@inheritDoc}
      */
-    public
-    void visit ( Functor functor ) {
+    public void visit ( HtFunctor functor ) {
         if (traverser.isEnteringContext()) {
             enterFunctor(functor);
-        }
-        else if (traverser.isLeavingContext()) {
+        } else if (traverser.isLeavingContext()) {
             leaveFunctor(functor);
             functor.setTermTraverser(null);
         }
@@ -103,12 +106,10 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
     /**
      * {@inheritDoc}
      */
-    public
-    void visit ( Variable variable ) {
+    public void visit ( Variable variable ) {
         if (traverser.isEnteringContext()) {
             enterVariable(variable);
-        }
-        else if (traverser.isLeavingContext()) {
+        } else if (traverser.isLeavingContext()) {
             leaveVariable(variable);
             variable.setTermTraverser(null);
         }
@@ -117,42 +118,39 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
     /**
      * {@inheritDoc}
      */
-    public
-    void visit ( HtPredicate predicate ) {
+    public void visit ( HtPredicate predicate ) {
         if (traverser.isEnteringContext()) {
             enterPredicate(predicate);
-        }
-        else if (traverser.isLeavingContext()) {
+        } else if (traverser.isLeavingContext()) {
             leavePredicate(predicate);
             predicate.setTermTraverser(null);
         }
     }
 
+    public void leavePredicate ( HtPredicate predicate ) {
+
+
+    }
+
     /**
      * {@inheritDoc}
      */
-    public
-    void visit ( HtClause clause ) {
+    public void visit ( HtClause clause ) {
         if (traverser.isEnteringContext()) {
             enterClause(clause);
-        }
-        else if (traverser.isLeavingContext()) {
+        } else if (traverser.isLeavingContext()) {
             leaveClause(clause);
             clause.setTermTraverser(null);
         }
     }
 
     /**
-     /**
-     /**
      * {@inheritDoc}
      */
-    public
-    void visit ( IntegerType literal ) {
+    public void visit ( IntegerType literal ) {
         if (traverser.isEnteringContext()) {
             enterIntLiteral(literal);
-        }
-        else if (traverser.isLeavingContext()) {
+        } else if (traverser.isLeavingContext()) {
             leaveIntLiteral(literal);
             literal.setTermTraverser(null);
         }
@@ -161,12 +159,10 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
     /**
      * {@inheritDoc}
      */
-    public
-    void visit ( LiteralType literal ) {
+    public void visit ( LiteralType literal ) {
         if (traverser.isEnteringContext()) {
             enterLiteral(literal);
-        }
-        else if (traverser.isLeavingContext()) {
+        } else if (traverser.isLeavingContext()) {
             leaveLiteral(literal);
             literal.setTermTraverser(null);
         }
@@ -177,8 +173,7 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
      *
      * @param term The term being entered.
      */
-    protected
-    void enterTerm ( Term term ) {
+    protected void enterTerm ( Term term ) {
     }
 
     /**
@@ -186,8 +181,7 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
      *
      * @param term The term being left.
      */
-    protected
-    void leaveTerm ( Term term ) {
+    protected void leaveTerm ( Term term ) {
     }
 
     /**
@@ -195,8 +189,8 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
      *
      * @param functor The functor being entered.
      */
-    protected
-    void enterFunctor ( Functor functor ) {
+    protected void enterFunctor ( HtFunctor functor ) {
+
     }
 
     /**
@@ -204,8 +198,7 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
      *
      * @param functor The functor being left.
      */
-    protected
-    void leaveFunctor ( Functor functor ) {
+    protected void leaveFunctor ( HtFunctor functor ) {
     }
 
     /**
@@ -213,8 +206,7 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
      *
      * @param variable The variable being entered.
      */
-    protected
-    void enterVariable ( Variable variable ) {
+    protected void enterVariable ( Variable variable ) {
     }
 
     /**
@@ -222,8 +214,7 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
      *
      * @param variable The variable being left.
      */
-    protected
-    void leaveVariable ( Variable variable ) {
+    protected void leaveVariable ( Variable variable ) {
     }
 
     /**
@@ -231,70 +222,87 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
      *
      * @param predicate The predicate being entered.
      */
-    protected
-    void enterPredicate ( HtPredicate predicate ) {
-    }
+    protected void enterPredicate ( HtPredicate predicate ) {
+        HtPredicateDefinition <ISubroutine, HtPredicate, HtClause> def = predicate.getDefinition();
+        final List <HtClause> clauses = new ArrayList <>();
+        for (int i = 0; i < def.size(); i++) {
+            if (!def.isBuiltIn()) {
+                clauses.add((HtClause) def.get(i));
+            } else {
+                def.isBuiltIn()
+            }
+        }
 
-    /**
-     * Called when a predicate is being left during the visitation.
-     *
-     * @param predicate The predicate being left.
-     */
-    protected
-    void leavePredicate ( HtPredicate predicate ) {
-    }
+//    private Collection <? extends PiCall> collectPiCalls ( HtPredicateDefinition <ISubroutine, HtPredicate, HtClause> pd ) {
+//        piCalls = new ArrayList <>();
+//        for (int i = 0; i < pd.size(); i++) {
+//            ISubroutine sub = pd.get(i);
+//            if (pd.isBuiltIn()) {
+//                continue;
+//            }
+//            HtFunctor head = sub.getHead();
+//            HtFunctor[] body = sub.getBody();
+//            int name = -1;
+//            Term[] args = EMPTY_TERM_ARRAY;
+//            piCalls.add(new PiCall(name, args));
+//        }
+//
+//        return null;
+//    }
 
-    /**
-     * Called when a clause is entered during the visitation.
-     *
-     * @param clause The clause being entered.
-     */
-    protected
-    void enterClause ( HtClause clause ) {
-    }
+//====================================================
+        /**
+         * Called when a clause is entered during the visitation.
+         *
+         * @param clause The clause being entered.
+         */
+        protected
+        void enterClause (HtClause clause ){
+        }
 
-    /**
-     * Called when a clause is being left during the visitation.
-     *
-     * @param clause The clause being left.
-     */
-    protected
-    void leaveClause ( HtClause clause ) {
-    }
+        /**
+         * Called when a clause is being left during the visitation.
+         *
+         * @param clause The clause being left.
+         */
+        protected
+        void leaveClause (HtClause clause ){
+        }
 
-    /**
-     * Called when a integer literal is entered during the visitation.
-     *
-     * @param literal The integer literal being entered.
-     */
-    protected
-    void enterIntLiteral ( IntegerType literal ) {
-    }
+        /**
+         * Called when a integer literal is entered during the visitation.
+         *
+         * @param literal The integer literal being entered.
+         */
+        protected
+        void enterIntLiteral (IntegerType literal ){
+        }
 
-    /**
-     * Called when a integer literal is being left during the visitation.
-     *
-     * @param literal The integer literal being left.
-     */
-    protected
-    void leaveIntLiteral ( IntegerType literal ) {
-    }
+        /**
+         * Called when a integer literal is being left during the visitation.
+         *
+         * @param literal The integer literal being left.
+         */
+        protected
+        void leaveIntLiteral (IntegerType literal ){
+        }
 
-    /**
-     * Called when a literal is entered during the visitation.
-     *
-     * @param literal The literal being entered.
-     */
-    protected
-    void enterLiteral ( LiteralType literal ) {
-    }
+        /**
+         * Called when a literal is entered during the visitation.
+         *
+         * @param literal The literal being entered.
+         */
+        protected
+        void enterLiteral (LiteralType literal ){
+        }
 
-    /**
-     * Called when a literal is being left during the visitation.
-     *
-     * @param literal The literal being left.
-     */
-    protected
-    void leaveLiteral ( LiteralType literal ) {
+        /**
+         * Called when a literal is being left during the visitation.
+         *
+         * @param literal The literal being left.
+         */
+        protected
+        void leaveLiteral (LiteralType literal ){
+        }
     }
 }

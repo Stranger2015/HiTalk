@@ -3,6 +3,7 @@ package org.ltc.hitalk.wam.transformers;
 import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.parser.HtClause;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -16,7 +17,9 @@ interface ISpecializer<T extends HtClause, TC extends Term> extends ITransformer
      * @param clause
      * @return
      */
-    List <HtClause> specialize ( T clause );
+    default List <T> specialize ( T clause ) {
+        return Collections.singletonList(clause);
+    }
 
     /**
      * Applies a transformation to the clause.
@@ -25,8 +28,7 @@ interface ISpecializer<T extends HtClause, TC extends Term> extends ITransformer
      * @return A clause which is the transformation of the argument.
      */
     @Override
-    default
-    T transform ( T clause ) {
+    default List <T> transform ( T clause ) {
         return specialize(clause);
     }
 }

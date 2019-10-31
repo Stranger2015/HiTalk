@@ -1,5 +1,6 @@
+package org.ltc.hitalk.wam.compiler;
+
 import com.thesett.aima.logic.fol.Term;
-import org.ltc.hitalk.wam.compiler.HtFunctor;
 
 public class PredicateData extends HtFunctor {
     /**

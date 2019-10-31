@@ -159,7 +159,7 @@ class HtPositionalTermTraverserImpl extends HtBasicTraverser
      */
     public
     Term getTerm () {
-        HtPositionalTermTraverserImpl.HtPositionalContextOperator position = contextStack.peek();
+        HtPositionalContextOperator position = contextStack.peek();
 
         return (position != null) ? position.getTerm() : null;
     }
@@ -169,7 +169,7 @@ class HtPositionalTermTraverserImpl extends HtBasicTraverser
      */
     public
     int getPosition () {
-        HtPositionalTermTraverserImpl.HtPositionalContextOperator position = contextStack.peek();
+        HtPositionalContextOperator position = contextStack.peek();
 
         return (position != null) ? position.getPosition() : -1;
     }
@@ -203,7 +203,7 @@ class HtPositionalTermTraverserImpl extends HtBasicTraverser
      */
     public
     PositionalContext getParentContext () {
-        HtPositionalTermTraverserImpl.HtPositionalContextOperator position = contextStack.peek();
+        HtPositionalContextOperator position = contextStack.peek();
 
         return (position != null) ? position.getParentContext() : null;
     }

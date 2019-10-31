@@ -5,12 +5,10 @@ import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.aima.logic.fol.isoprologparser.PrologParser;
 import com.thesett.common.parsing.SourceCodeException;
 import jline.ConsoleReader;
-import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IConfigurable;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken;
-import org.ltc.hitalk.term.io.TermIO;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,7 +17,7 @@ import java.util.List;
 /**
  *
  */
-public interface IInterpreter<P, Q> extends IConfigurable, ICompiler <P, Q>, Resolver <P, Q> {
+public interface IInterpreter<P, Q> extends IConfigurable/*, ICompiler <HtClause,P, Q>*/, Resolver <P, Q> {
     /**
      *
      */
@@ -182,10 +180,10 @@ public interface IInterpreter<P, Q> extends IConfigurable, ICompiler <P, Q>, Res
      */
     ConsoleReader initializeCommandLineReader () throws IOException;
 
-    /**
-     * @return
-     */
-    TermIO getTermIO ();
+//    /**
+//     * @return
+//     */
+//    TermIO getTermIO ();
 
 //    /**
 //     *

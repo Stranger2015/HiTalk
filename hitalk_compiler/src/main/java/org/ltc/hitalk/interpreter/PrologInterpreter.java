@@ -1,49 +1,54 @@
 package org.ltc.hitalk.interpreter;
 
 
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.LinkageException;
+import com.thesett.aima.logic.fol.Sentence;
+import com.thesett.aima.logic.fol.Term;
+import com.thesett.aima.logic.fol.Variable;
 import com.thesett.common.parsing.SourceCodeException;
 import jline.ConsoleReader;
 import org.ltc.hitalk.compiler.bktables.IConfig;
-import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
-import org.ltc.hitalk.term.io.TermIO;
 import org.ltc.hitalk.wam.compiler.Language;
+import org.ltc.hitalk.wam.compiler.prolog.ChainedCompilerObserver;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Set;
 
 public
-class HiTalkInterpreter<P, Q> implements IInterpreter <P, Q>, IParser {
-    protected PlPrologParser parser;
+class PrologInterpreter<P, Q> implements IInterpreter <P, Q>, IParser {
+    protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
+    protected final PlPrologParser parser;
     protected IConfig config;
-    private Logger logger;
+    protected ConsoleReader reader;
+    private ChainedCompilerObserver observer;
+
+    public PrologInterpreter ( PlPrologParser parser ) {
+        this.parser = parser;
+    }
 
     /**
      * @return
      */
     @Override
-    public
-    Mode getMode () {
+    public Mode getMode () {
         return null;
     }
 
-    @Override
-    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException {
-
-    }
+//    @Override
+//    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException {
+//
+//    }
 
     /**
      * @return
      */
-    @Override
-    public
-    Logger getConsole () {
+    public Logger getConsole () {
         return logger;
     }
 
@@ -62,7 +67,7 @@ class HiTalkInterpreter<P, Q> implements IInterpreter <P, Q>, IParser {
 
     @Override
     public void initializeBuiltIns () {
-
+        parser.initializeBuiltIns();
     }
 
     @Override
@@ -75,61 +80,61 @@ class HiTalkInterpreter<P, Q> implements IInterpreter <P, Q>, IParser {
         return null;
     }
 
+//    /**
+//     * @param clause
+//     * @param flags
+//     * @throws SourceCodeException
+//     */
+//    @Override
+//    public
+//    void compile ( HtClause clause, HtProperty... flags ) throws SourceCodeException {
+
+//    }
+
+//    /**
+//     * @param rule
+//     */
+//    @Override
+//    public
+//    void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
+//
+//    }
+
+//    @Override
+//    public void compileQuery ( HtClause query ) throws SourceCodeException {
+//
+//    }
+
+//    /**
+//     * @param clause
+//     */
+//    @Override
+//    public
+//    void compileClause ( HtClause clause ) {
+
+//    }
+//
+//    /**
+//     * @param resolver
+//     */
+//    @Override
+//    public
+//    void setResolver ( Resolver <HtClause, Q> resolver ) {
+//
+//    }
+
+//    @Override
+//    public void compile ( String fileName, HtProperty... flags ) {
+//
+//    }
+//
+
     /**
      * @param clause
-     * @param flags
      * @throws SourceCodeException
      */
     @Override
-    public
-    void compile ( HtClause clause, HtProperty... flags ) throws SourceCodeException {
-
-    }
-
-    /**
-     * @param rule
-     */
-    @Override
-    public
-    void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
-
-    }
-
-    @Override
-    public void compileQuery ( HtClause query ) throws SourceCodeException {
-
-    }
-
-    /**
-     * @param clause
-     */
-    @Override
-    public
-    void compileClause ( HtClause clause ) {
-
-    }
-
-    /**
-     * @param resolver
-     */
-    @Override
-    public
-    void setResolver ( Resolver <HtClause, Q> resolver ) {
-
-    }
-
-    @Override
-    public void compile ( String fileName, HtProperty[] flags ) {
-
-    }
-
-    /**
-     * @param clause
-     * @throws SourceCodeException
-     */
-    @Override
-    public
-    void evaluate ( HtClause clause ) throws SourceCodeException {
+    public void evaluate ( HtClause clause ) throws SourceCodeException {
 
     }
 
@@ -138,24 +143,22 @@ class HiTalkInterpreter<P, Q> implements IInterpreter <P, Q>, IParser {
      */
     @Override
     public ConsoleReader getConsoleReader () {
-        return null;
+        return reader;
     }
 
     /**
      * @param reader
      */
     @Override
-    public
-    void setConsoleReader ( ConsoleReader reader ) {
-
+    public void setConsoleReader ( ConsoleReader reader ) {
+        this.reader = reader;
     }
 
     /**
      * @return
      */
     @Override
-    public
-    String getQueryPrompt () {
+    public String getQueryPrompt () {
         return null;
     }
 
@@ -164,16 +167,7 @@ class HiTalkInterpreter<P, Q> implements IInterpreter <P, Q>, IParser {
      * @throws IOException
      */
     @Override
-    public
-    ConsoleReader initializeCommandLineReader () throws IOException {
-        return null;
-    }
-
-    /**
-     * @return
-     */
-    @Override
-    public TermIO getTermIO () {
+    public ConsoleReader initializeCommandLineReader () throws IOException {
         return null;
     }
 
@@ -187,8 +181,7 @@ class HiTalkInterpreter<P, Q> implements IInterpreter <P, Q>, IParser {
      *                          resolution, or simply to fail to find a resolution.
      */
     @Override
-    public
-    void addToDomain ( P term ) throws LinkageException {
+    public void addToDomain ( P term ) throws LinkageException {
 
     }
 
@@ -202,8 +195,7 @@ class HiTalkInterpreter<P, Q> implements IInterpreter <P, Q>, IParser {
      *                          fail to find a resolution.
      */
     @Override
-    public
-    void setQuery ( Q query ) throws LinkageException {
+    public void setQuery ( Q query ) throws LinkageException {
 
     }
 
@@ -217,18 +209,16 @@ class HiTalkInterpreter<P, Q> implements IInterpreter <P, Q>, IParser {
      * @return A list of variable bindings, if the query can be satisfied, or <tt>null</tt> otherwise.
      */
     @Override
-    public
-    Set <Variable> resolve () {
+    public Set <Variable> resolve () {
         return null;
-    }
+    }//todo
 
     /**
      * Resets the resolver. This should clear any start and goal states, and leave the resolver in a state in which it
      * is ready to be run.
      */
     @Override
-    public
-    void reset () {
+    public void reset () {
 
     }
 
@@ -240,39 +230,37 @@ class HiTalkInterpreter<P, Q> implements IInterpreter <P, Q>, IParser {
     @Override
     public Iterator <Set <Variable>> iterator () {
         return null;
-    }
+    }//todo
 
     /**
      * Establishes an observer on the compiled forms that the compiler outputs.
      *
      * @param observer The compiler output observer.
      */
-    @Override
-    public
-    void setCompilerObserver ( LogicCompilerObserver observer ) {
-
+//    @Override
+    public void setCompilerObserver ( ChainedCompilerObserver observer ) {
+        this.observer = observer;
     }
 
-    /**
-     * Compiles a sentence into a (presumably binary) form, that provides a Java interface into the compiled structure.
-     *
-     * @param sentence The sentence to compile.
-     * @throws SourceCodeException If there is an error in the source to be compiled that prevents its compilation.
-     */
-    @Override
-    public
-    void compile ( Sentence sentence ) throws SourceCodeException {
-
-    }
+//    /**
+//     * Compiles a sentence into a (presumably binary) form, that provides a Java interface into the compiled structure.
+//     *
+//     * @param sentence The sentence to compile.
+//     * @throws SourceCodeException If there is an error in the source to be compiled that prevents its compilation.
+//     */
+//    @Override
+//    public
+//    void compile ( Sentence sentence ) throws SourceCodeException {
+//
+//    }
 
     /**
      * Signal the end of a compilation scope, to trigger completion of the compilation of its contents.
      *
      * @throws SourceCodeException If there is an error in the source to be compiled that prevents its compilation.
      */
-    @Override
-    public
-    void endScope () throws SourceCodeException {
+//    @Override
+    public void endScope () throws SourceCodeException {
 
     }
 
@@ -280,8 +268,7 @@ class HiTalkInterpreter<P, Q> implements IInterpreter <P, Q>, IParser {
      * @return
      */
     @Override
-    public
-    IConfig getConfig () {
+    public IConfig getConfig () {
         return config;
     }
 
@@ -289,15 +276,14 @@ class HiTalkInterpreter<P, Q> implements IInterpreter <P, Q>, IParser {
      * @param config
      */
     @Override
-    public
-    void setConfig ( IConfig config ) {
+    public void setConfig ( IConfig config ) {
 
     }
 
-    /**
-     * @param parser
-     */
-    public void setParser ( PlPrologParser parser ) {
-        this.parser = parser;
-    }
+//    /**
+//     * @param parser
+//     */
+//    public void setParser ( PlPrologParser parser ) {
+//        this.parser = parser;
+//    }
 }
