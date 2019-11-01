@@ -18,7 +18,6 @@ package org.ltc.hitalk.wam.compiler.hitalk;
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.common.parsing.SourceCodeException;
-import org.ltc.hitalk.interpreter.HtResolutionEngine;
 
 /**
  * A compiler over any language that has a one-to-one mapping from some input form, to some output form. Compiles from
@@ -53,7 +52,7 @@ public interface ILogicCompiler<T, P, Q> {
      *
      * @param observer The compiler output observer.
      */
-    void setCompilerObserver ( HtResolutionEngine.ChainedCompilerObserver observer );
+    void setCompilerObserver ( LogicCompilerObserver <P, Q> observer );
 
     /**
      * Signal the end of a compilation scope, to trigger completion of the compilation of its contents.

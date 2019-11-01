@@ -22,7 +22,7 @@ import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource.getT
  * @param <P>
  * @param <Q>
  */
-public interface ICompiler<T, P, Q> extends ILogicCompiler <T, P, Q> {
+public interface ICompiler<T extends HtClause, P, Q> extends ILogicCompiler <T, P, Q> {
 
     HtProperty[] EMPTY_FLAG_ARRAY = new HtProperty[0];
 
@@ -79,7 +79,7 @@ public interface ICompiler<T, P, Q> extends ILogicCompiler <T, P, Q> {
      * @param clause
      * @throws SourceCodeException
      */
-    void compile ( HtClause clause, HtProperty... flags ) throws SourceCodeException;
+    void compile ( T clause, HtProperty... flags ) throws SourceCodeException;
 
     /**
      * @param rule
@@ -89,17 +89,19 @@ public interface ICompiler<T, P, Q> extends ILogicCompiler <T, P, Q> {
     /**
      * @param query
      */
-    void compileQuery ( HtClause query ) throws SourceCodeException;
+    void compileQuery ( Q query ) throws SourceCodeException;
 
     /**
      * @param clause
      */
-    void compileClause ( HtClause clause );
+    void compileClause ( T clause );
 
     /**
      * @param resolver
      */
-    void setResolver ( Resolver <HtClause, Q> resolver );
+    void setResolver ( Resolver <P, Q> resolver );
 
     void compile ( String fileName, HtProperty... flags ) throws IOException, SourceCodeException;
+
+    void compile ( T clause );
 }

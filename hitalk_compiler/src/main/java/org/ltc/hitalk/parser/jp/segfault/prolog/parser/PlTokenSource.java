@@ -140,9 +140,8 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     /**
      * @param lexer
      * @param path
-     * @throws IOException
      */
-    public PlTokenSource ( PlLexer lexer, String path ) throws IOException {
+    public PlTokenSource ( PlLexer lexer, String path ) {
         this.lexer = lexer;
         this.path = path;
     }

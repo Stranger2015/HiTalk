@@ -26,9 +26,9 @@ import org.ltc.hitalk.wam.compiler.HtFunctorVisitor;
 public
 interface HtAllTermsVisitor extends TermVisitor,
         HtFunctorVisitor,
-                                    VariableVisitor,
-                                    HtClauseVisitor,
-                                    IntegerTypeVisitor,
-                                    LiteralTypeVisitor,
-                                    HtPredicateVisitor {
+        VariableVisitor,
+        HtClauseVisitor,
+        IntegerTypeVisitor,
+        LiteralTypeVisitor,
+        HtPredicateVisitor {
 }

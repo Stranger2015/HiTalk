@@ -7,7 +7,6 @@ import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlLexer;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +21,7 @@ public class TokenBuffer extends PlTokenSource implements Source <PlToken>, Sink
      *
      * @param lexer
      */
-    public TokenBuffer ( PlLexer lexer ) throws IOException {
+    public TokenBuffer ( PlLexer lexer ) {
         super(lexer);
     }
 

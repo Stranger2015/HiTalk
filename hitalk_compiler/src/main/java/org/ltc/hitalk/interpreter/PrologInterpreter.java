@@ -1,35 +1,47 @@
 package org.ltc.hitalk.interpreter;
 
-
-import com.thesett.aima.logic.fol.LinkageException;
-import com.thesett.aima.logic.fol.Sentence;
-import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.logic.fol.Variable;
+import com.thesett.aima.logic.fol.*;
 import com.thesett.common.parsing.SourceCodeException;
 import jline.ConsoleReader;
 import org.ltc.hitalk.compiler.bktables.IConfig;
+import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.term.io.TermIO;
 import org.ltc.hitalk.wam.compiler.Language;
 import org.ltc.hitalk.wam.compiler.prolog.ChainedCompilerObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.Set;
 
 public
-class PrologInterpreter<P, Q> implements IInterpreter <P, Q>, IParser {
+class PrologInterpreter<T extends HtClause, P, Q> implements IInterpreter <T, P, Q>, IParser {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
+
     protected final PlPrologParser parser;
     protected IConfig config;
     protected ConsoleReader reader;
-    private ChainedCompilerObserver observer;
+    protected final ICompiler <T, P, Q> compiler;
+    protected LogicCompilerObserver <P, Q> observer;
+    protected Mode mode;
+    protected HtResolutionEngine <T, P, Q> engine;
+    protected int currentPredicateName;
 
-    public PrologInterpreter ( PlPrologParser parser ) {
+
+    /**
+     * @param parser
+     * @param compiler
+     */
+    public PrologInterpreter ( PlPrologParser parser, ICompiler <T, P, Q> compiler, Resolver <P, Q> resolver ) {
         this.parser = parser;
+        this.compiler = compiler;
+        engine = new HtResolutionEngine <>(parser,
+                TermIO.instance().getInterner(),
+                compiler, resolver
+        );
     }
 
     /**
@@ -37,13 +49,8 @@ class PrologInterpreter<P, Q> implements IInterpreter <P, Q>, IParser {
      */
     @Override
     public Mode getMode () {
-        return null;
+        return mode;
     }
-
-//    @Override
-//    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException {
-//
-//    }
 
     /**
      * @return
@@ -60,6 +67,9 @@ class PrologInterpreter<P, Q> implements IInterpreter <P, Q>, IParser {
         return parser;
     }
 
+    /**
+     * @return
+     */
     @Override
     public Language language () {
         return parser.language();
@@ -80,62 +90,34 @@ class PrologInterpreter<P, Q> implements IInterpreter <P, Q>, IParser {
         return null;
     }
 
-//    /**
-//     * @param clause
-//     * @param flags
-//     * @throws SourceCodeException
-//     */
-//    @Override
-//    public
-//    void compile ( HtClause clause, HtProperty... flags ) throws SourceCodeException {
-
-//    }
-
-//    /**
-//     * @param rule
-//     */
-//    @Override
-//    public
-//    void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
-//
-//    }
-
-//    @Override
-//    public void compileQuery ( HtClause query ) throws SourceCodeException {
-//
-//    }
-
-//    /**
-//     * @param clause
-//     */
-//    @Override
-//    public
-//    void compileClause ( HtClause clause ) {
-
-//    }
-//
-//    /**
-//     * @param resolver
-//     */
-//    @Override
-//    public
-//    void setResolver ( Resolver <HtClause, Q> resolver ) {
-//
-//    }
-
-//    @Override
-//    public void compile ( String fileName, HtProperty... flags ) {
-//
-//    }
-//
-
     /**
      * @param clause
      * @throws SourceCodeException
      */
     @Override
-    public void evaluate ( HtClause clause ) throws SourceCodeException {
+    public void evaluate ( T clause ) throws SourceCodeException {
+        if (clause.isQuery()) {
+            engine.endScope();
+            engine.compileClause(clause);
+//            evaluateQuery();
+        } else {
+            // Check if the program clause is new, or a continuation of the current predicate.
+            int name = clause.getHead().getName();
 
+            if (/*currentPredicateName == null ||*/ currentPredicateName != name) {
+                engine.endScope();
+                currentPredicateName = name;
+            }
+
+            addProgramClause(clause);
+        }
+    }
+
+    /**
+     * @param clause
+     */
+    private void addProgramClause ( HtClause clause ) {
+        //todo
     }
 
     /**
@@ -159,16 +141,15 @@ class PrologInterpreter<P, Q> implements IInterpreter <P, Q>, IParser {
      */
     @Override
     public String getQueryPrompt () {
-        return null;
+        return "?- ";
     }
 
     /**
      * @return
-     * @throws IOException
      */
     @Override
-    public ConsoleReader initializeCommandLineReader () throws IOException {
-        return null;
+    public ConsoleReader initializeCommandLineReader () {
+        return reader;
     }
 
     /**
@@ -198,7 +179,6 @@ class PrologInterpreter<P, Q> implements IInterpreter <P, Q>, IParser {
     public void setQuery ( Q query ) throws LinkageException {
 
     }
-
 
     /**
      * Resolves a query over a logical domain, or knowledge base and a query. The domain and query to resolve over must
@@ -237,29 +217,15 @@ class PrologInterpreter<P, Q> implements IInterpreter <P, Q>, IParser {
      *
      * @param observer The compiler output observer.
      */
-//    @Override
     public void setCompilerObserver ( ChainedCompilerObserver observer ) {
         this.observer = observer;
     }
-
-//    /**
-//     * Compiles a sentence into a (presumably binary) form, that provides a Java interface into the compiled structure.
-//     *
-//     * @param sentence The sentence to compile.
-//     * @throws SourceCodeException If there is an error in the source to be compiled that prevents its compilation.
-//     */
-//    @Override
-//    public
-//    void compile ( Sentence sentence ) throws SourceCodeException {
-//
-//    }
 
     /**
      * Signal the end of a compilation scope, to trigger completion of the compilation of its contents.
      *
      * @throws SourceCodeException If there is an error in the source to be compiled that prevents its compilation.
      */
-//    @Override
     public void endScope () throws SourceCodeException {
 
     }
@@ -277,13 +243,6 @@ class PrologInterpreter<P, Q> implements IInterpreter <P, Q>, IParser {
      */
     @Override
     public void setConfig ( IConfig config ) {
-
+        this.config = config;
     }
-
-//    /**
-//     * @param parser
-//     */
-//    public void setParser ( PlPrologParser parser ) {
-//        this.parser = parser;
-//    }
 }

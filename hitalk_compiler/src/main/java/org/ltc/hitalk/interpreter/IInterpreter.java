@@ -2,7 +2,6 @@ package org.ltc.hitalk.interpreter;
 
 
 import com.thesett.aima.logic.fol.Resolver;
-import com.thesett.aima.logic.fol.isoprologparser.PrologParser;
 import com.thesett.common.parsing.SourceCodeException;
 import jline.ConsoleReader;
 import org.ltc.hitalk.core.IConfigurable;
@@ -17,7 +16,8 @@ import java.util.List;
 /**
  *
  */
-public interface IInterpreter<P, Q> extends IConfigurable/*, ICompiler <HtClause,P, Q>*/, Resolver <P, Q> {
+public interface IInterpreter<T extends HtClause, P, Q> extends IConfigurable/*, ICompiler <HtClause,P, Q>*/,
+        Resolver <P, Q> {
     /**
      *
      */
@@ -36,8 +36,7 @@ public interface IInterpreter<P, Q> extends IConfigurable/*, ICompiler <HtClause
     /**
      * @throws IOException
      */
-    default
-    void interpreterLoop () throws IOException {
+    default void interpreterLoop () throws IOException {
         // Display the welcome message.
 //        banner();
 
@@ -71,7 +70,7 @@ public interface IInterpreter<P, Q> extends IConfigurable/*, ICompiler <HtClause
                 /*log.fine("CTRL-D in program getMode(), returning to query getMode().");*/
 
                 System.out.println();
-                mode = Mode.Query; /////fixme
+                mode = Mode.Query; //fixme
                 continue;
             }
 
@@ -81,7 +80,7 @@ public interface IInterpreter<P, Q> extends IConfigurable/*, ICompiler <HtClause
 //                    PlTokenSource tokenSource = PlTokenSource.getPlTokenSourceForString(line, lineNo);
 //                    getParser().setTokenSource(tokenSource);
 
-                PrologParser.Directive directive = getParser().peekAndConsumeDirective();
+                PlPrologParser.Directive directive = getParser().peekAndConsumeDirective();
 
                 if (directive != null) {
                     switch (directive) {
@@ -157,7 +156,7 @@ public interface IInterpreter<P, Q> extends IConfigurable/*, ICompiler <HtClause
      * @param clause
      * @throws SourceCodeException
      */
-    void evaluate ( HtClause clause ) throws SourceCodeException;
+    void evaluate ( T clause ) throws SourceCodeException;
 
     /**
      * @return
@@ -179,37 +178,4 @@ public interface IInterpreter<P, Q> extends IConfigurable/*, ICompiler <HtClause
      * @throws IOException
      */
     ConsoleReader initializeCommandLineReader () throws IOException;
-
-//    /**
-//     * @return
-//     */
-//    TermIO getTermIO ();
-
-//    /**
-//     *
-//     */
-//    default
-//    void banner () {
-//        System.out.printf("\n| %s %s %s\n| %s\n", getProductName(), getVersion(), getCopyright(), getLicense());
-//    }
-
-//    /**
-//     * @return
-//     */
-//    String getProductName ();
-
-//    HtVersion getVersion ();
-
-//    default
-//    String getCopyright () {
-//        return "Copyright (c) 2019, Anton Danilov, All rights reserved.";
-//    }
-
-//    /**
-//     * @return
-//     */
-//    default
-//    String getLicense () {
-//        return "Licensed under the Apache License, Version 2.0.\n" + "| https//www.apache.org/licenses/LICENSE-2.0";
-//    }
 }

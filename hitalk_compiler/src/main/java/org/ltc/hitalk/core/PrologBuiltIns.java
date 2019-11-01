@@ -1,5 +1,7 @@
 package org.ltc.hitalk.core;
 
+import org.ltc.hitalk.wam.compiler.HtFunctor;
+
 import java.util.function.Consumer;
 
 /**
@@ -157,12 +159,12 @@ enum PrologBuiltIns {
 
 
     private final String name;
-    private final Consumer <T> impl;
+    private final Consumer <HtFunctor> impl;
 
     /**
      * @param name
      */
-    PrologBuiltIns ( String name, Consumer impl ) {
+    PrologBuiltIns ( String name, Consumer <HtFunctor> impl ) {
         this.name = name;
         this.impl = impl;
     }

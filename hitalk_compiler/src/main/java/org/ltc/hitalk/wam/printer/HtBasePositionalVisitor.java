@@ -127,8 +127,7 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
         }
     }
 
-    public void leavePredicate ( HtPredicate predicate ) {
-
+    protected void leavePredicate ( HtPredicate predicate ) {
 
     }
 
@@ -215,6 +214,7 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
      * @param variable The variable being left.
      */
     protected void leaveVariable ( Variable variable ) {
+
     }
 
     /**
@@ -229,9 +229,10 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
             if (!def.isBuiltIn()) {
                 clauses.add((HtClause) def.get(i));
             } else {
-                def.isBuiltIn()
+                def.isBuiltIn();
             }
         }
+    }
 
 //    private Collection <? extends PiCall> collectPiCalls ( HtPredicateDefinition <ISubroutine, HtPredicate, HtClause> pd ) {
 //        piCalls = new ArrayList <>();
@@ -305,4 +306,3 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
         void leaveLiteral (LiteralType literal ){
         }
     }
-}

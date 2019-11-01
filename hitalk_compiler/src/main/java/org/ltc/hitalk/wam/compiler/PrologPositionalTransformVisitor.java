@@ -8,7 +8,8 @@ import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
 import org.ltc.hitalk.wam.printer.HtPositionalTermTraverser;
 import org.ltc.hitalk.wam.printer.HtPositionalTermVisitor;
 
-public class PrologPositionalTransformVisitor extends HtBasePositionalVisitor implements HtPositionalTermVisitor {
+public class PrologPositionalTransformVisitor extends HtBasePositionalVisitor
+        implements HtPositionalTermVisitor {
 
     protected HtPositionalTermTraverser positionalTraverser;
 

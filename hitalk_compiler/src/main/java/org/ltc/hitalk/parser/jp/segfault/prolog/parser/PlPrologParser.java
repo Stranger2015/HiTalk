@@ -2,7 +2,6 @@ package org.ltc.hitalk.parser.jp.segfault.prolog.parser;
 
 
 import com.thesett.aima.logic.fol.*;
-import com.thesett.aima.logic.fol.isoprologparser.PrologParser;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.Source;
 import org.ltc.hitalk.ITermFactory;
@@ -28,6 +27,7 @@ import java.util.*;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind.*;
+import static org.ltc.hitalk.term.DottedPair.Kind.*;
 import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
 import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
 
@@ -46,6 +46,14 @@ public class PlPrologParser implements IParser {
     protected final IOperatorTable operatorTable;// = new HlOperatorTable();
     protected final Deque <PlTokenSource> tokenSourceStack = new ArrayDeque <>();
     protected final VariableAndFunctorInterner interner;
+
+    /**
+     * Describes the possible system directives in interactive mode.
+     */
+    public enum Directive {
+        Trace, Info, User, File
+    }
+
 
     /**
      * Holds the variable scoping context for the current sentence.
@@ -589,7 +597,7 @@ public class PlPrologParser implements IParser {
         interner.internFunctorName(new HtFunctorName(PrologAtoms.BYPASS_CONS, 0, 2));
     }
 
-    public PrologParser.Directive peekAndConsumeDirective () {
+    public Directive peekAndConsumeDirective () {
 
         return null;//fixme
     }

@@ -117,20 +117,37 @@ public interface IParser extends TermParser <Term> {
      */
     void initializeBuiltIns ();
 
+    /**
+     * @param factory
+     */
     default void setTermFactory ( ITermFactory factory ) {
         getParser().setTermFactory(factory);
     }
 
+    /**
+     * @return
+     * @throws IOException
+     */
     @Override
-    default Term next () throws IOException, ParseException {
+    default Term next () throws IOException {
         return getParser().next();
     }
 
+    /**
+     * @return
+     */
     Sentence <HtClause> parseClause ();
 
+    /**
+     * @return
+     */
     default HtClause sentence () {
         return getParser().sentence();
     }
 
+    /**
+     * @param t
+     * @return
+     */
     HtClause convert ( Term t );
 }

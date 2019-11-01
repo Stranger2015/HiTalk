@@ -9,6 +9,7 @@ import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.compiler.bktables.IConfig;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
+import org.ltc.hitalk.compiler.bktables.IProduct;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
@@ -29,7 +30,7 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     protected IConfig config;
-    //protected TermIO
+    protected IProduct product;
     protected final AtomicBoolean initialized = new AtomicBoolean(false);
     protected final AtomicBoolean started = new AtomicBoolean(false);
     protected final AtomicBoolean paused = new AtomicBoolean(false);
@@ -37,9 +38,9 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
 
     protected SymbolTable <Integer, String, Object> symbolTable = new SymbolTableImpl <>();
 
-    protected ICompiler <P, Q> instructionCompiler;
+    protected ICompiler <T, P, Q> instructionCompiler;
 
-    protected ICompiler <HtPredicate, T> preCompiler;
+    protected ICompiler <T, HtPredicate, T> preCompiler;
     protected HiTalkDefaultBuiltIn defaultBuiltIn;
     protected Runnable target;
     protected String fileName;
@@ -48,14 +49,14 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
     /**
      * @param compiler
      */
-    public void setInstructionCompiler ( ICompiler <P, Q> compiler ) {
+    public void setInstructionCompiler ( ICompiler <T, P, Q> compiler ) {
         this.instructionCompiler = compiler;
     }
 
     /**
      * @param preCompiler
      */
-    public void setPreCompiler ( ICompiler <HtPredicate, T> preCompiler ) {
+    public void setPreCompiler ( ICompiler <T, HtPredicate, T> preCompiler ) {
         this.preCompiler = preCompiler;
     }
 
@@ -76,7 +77,7 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
     /**
      * @return
      */
-    public ICompiler <HtPredicate, T> getPreCompiler () {
+    public ICompiler <T, HtPredicate, T> getPreCompiler () {
         return preCompiler;
     }
 

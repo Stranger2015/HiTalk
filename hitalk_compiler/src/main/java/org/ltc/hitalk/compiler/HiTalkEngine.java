@@ -1,24 +1,19 @@
 package org.ltc.hitalk.compiler;
 
-import com.thesett.aima.logic.fol.Variable;
+import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
-import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.core.ICompiler;
-import org.ltc.hitalk.entities.HtPredicate;
-import org.ltc.hitalk.entities.HtProperty;
-import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 
-import java.util.Set;
 import java.util.function.Consumer;
 
 /**
  *
  */
 public
-class HiTalkEngine extends HtResolutionEngine {
+class HiTalkEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P, Q> {
 
 //    protected final Logger logger = Logger.getLogger(getClass().getSimpleName());
 
@@ -31,9 +26,9 @@ class HiTalkEngine extends HtResolutionEngine {
      */
     public HiTalkEngine ( PlPrologParser parser,
                           VariableAndFunctorInterner interner,
-                          ICompiler <HtClause, HtPredicate, HtClause> compiler ) {
-        super(parser, interner, compiler);
-//        compiler.setResolver(this);
+                          ICompiler <T, P, Q> compiler,
+                          Resolver <P, Q> resolver ) {
+        super(parser, interner, compiler, resolver);
     }
 
     /**
@@ -45,42 +40,8 @@ class HiTalkEngine extends HtResolutionEngine {
 //todo
     }
 
-    /**
-     * @param sentence
-     * @param flags
-     * @throws SourceCodeException
-     */
-    @Override
-    public void compile ( HtClause sentence, HtProperty... flags ) throws SourceCodeException {
-//todo
-    }
-
-    /**
-     * @param rule
-     */
-    @Override
-    public void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
-//todo
-    }
-
-    /**
-     * @param query
-     */
-    @Override
-    public void compileQuery ( HtClause query ) {
-//todo
-    }
-
-    /**
-     * @param clause
-     */
-    @Override
-    public void compileClause ( HtClause clause ) {
-//todo
-    }
-
     //    @Override
-    public void forEach ( Consumer <? super Set <Variable>> action ) {
+    public void forEach ( Consumer action ) {
 
     }
 }

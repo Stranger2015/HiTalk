@@ -1,11 +1,10 @@
 package org.ltc.hitalk.wam.machine;
 
+import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.core.ICompiler;
-import org.ltc.hitalk.entities.HtPredicate;
-import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.parser.HiTalkParser;
 import org.ltc.hitalk.parser.HtClause;
@@ -20,7 +19,7 @@ import java.util.logging.Logger;
  *
  */
 public
-class HiTalkWAMEngine<T extends HtClause, P extends HtPredicate, Q extends HtClause> extends HtResolutionEngine <T, P, Q> {
+class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P, Q> {
 
     protected final Logger log = Logger.getLogger(getClass().getSimpleName());
 
@@ -50,13 +49,10 @@ class HiTalkWAMEngine<T extends HtClause, P extends HtPredicate, Q extends HtCla
      * @param compiler
      */
     public HiTalkWAMEngine ( PlPrologParser parser,
-                             VariableAndFunctorInterner interner, ICompiler <T, P, Q> compiler ) {
-        super(parser, interner, compiler);
-    }
-
-    public
-    HiTalkWAMEngine () {
-        super();
+                             VariableAndFunctorInterner interner,
+                             ICompiler <T, P, Q> compiler,
+                             Resolver <P, Q> resolver ) {
+        super(parser, interner, compiler, resolver);
     }
 
     public void setCompiler ( ICompiler <T, P, Q> compiler ) {
@@ -70,8 +66,7 @@ class HiTalkWAMEngine<T extends HtClause, P extends HtPredicate, Q extends HtCla
      * <p>
      * Loads the built-in library resource specified by {@link #BUILT_IN_LIB}.
      */
-    public
-    void reset () {
+    public void reset () {
         // Reset the resolver to completely clear out its domain.
         cleanupDomain();
 
@@ -87,13 +82,13 @@ class HiTalkWAMEngine<T extends HtClause, P extends HtPredicate, Q extends HtCla
         // Load the built-ins into the domain.
         try {
             while (true) {
-                Sentence <HtClause> sentence = libParser.parseClause();
+                Sentence <T> sentence = libParser.parseClause();
 
                 if (sentence == null) {
                     break;
                 }
 
-                compiler.compile(sentence.getT());
+                compiler.compile(sentence);
             }
 
             compiler.endScope();
@@ -104,47 +99,8 @@ class HiTalkWAMEngine<T extends HtClause, P extends HtPredicate, Q extends HtCla
         }
     }
 
-    protected
-    void cleanupDomain () {
+    protected void cleanupDomain () {
 
     }
 
-//    /**
-//     * @param sentence
-//     * @param flags
-//     * @throws SourceCodeException
-//     */
-//    @Override
-//    public
-//    void compile ( HtClause sentence, HtProperty... flags ) throws SourceCodeException {
-//
-//    }
-//
-    /**
-     * @param rule
-     */
-    @Override
-    public
-    void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
-
-    }
-
-    /**
-     * @param query
-     */
-    @Override
-    public
-    void compileQuery ( HtClause query ) {
-
-    }
-
-    /**
-     * @param clause
-     */
-    @Override
-    public
-    void compileClause ( HtClause clause ) {
-
-    }
 }
-

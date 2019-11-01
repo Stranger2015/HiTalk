@@ -54,7 +54,7 @@ public class DottedPair extends RecursiveList implements Term {
     /**
      *
      */
-    enum Kind {
+    public enum Kind {
         NIL, //"[]" "{}" "()" BY  INTERNED NAME
 
         LIST, //-1 [.......]
