@@ -2,15 +2,14 @@ package org.ltc.hitalk.wam.compiler;
 
 import org.ltc.hitalk.parser.HtClause;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
+
+import static java.util.stream.Collector.Characteristics.UNORDERED;
 
 /**
  *
@@ -21,40 +20,63 @@ class PiCallsCollector<T extends HtClause> implements Collector <T, PiCallsColle
     /**
      * @return
      */
-    public Builder <T> newBuilder () {
+    public Builder <T> builder () {
         return new Builder <>();
     }
 
+    /**
+     * @return
+     */
     @Override
     public Supplier <Builder <T>> supplier () {
-        return null;
+        return this::builder;
     }
 
+    /**
+     * @return
+     */
     @Override
     public BiConsumer <Builder <T>, T> accumulator () {
-        return null;
+        return Builder::add;
     }
 
+    /**
+     * @return
+     */
     @Override
     public BinaryOperator <Builder <T>> combiner () {
-        return null;
+        return ( left, right ) -> left.addAll(right.build());
     }
 
+    /**
+     * @return
+     */
     @Override
     public Function <Builder <T>, List <T>> finisher () {
-        return null;
+        return Builder::build;
     }
 
+    /**
+     * @return
+     */
     @Override
     public Set <Characteristics> characteristics () {
-        return EnumSet.of(Characteristics.UNORDERED);
+        return Collections.unmodifiableSet(EnumSet.of(UNORDERED));
+    }
+
+    /**
+     * @return
+     */
+    public static PiCallsCollector toPiCallsCollector () {
+        return new PiCallsCollector();
     }
 
     /**
      *
      */
-    static class Builder<T extends HtClause> /*implements Supplier <Builder <T>>*/ {
+    public static class Builder<T extends HtClause> implements Supplier <Builder <T>> {
         final List <T> clauses = new ArrayList <>();
+        public final Builder <T> builder = new Builder <>();
 
         /**
          *
@@ -89,6 +111,10 @@ class PiCallsCollector<T extends HtClause> implements Collector <T, PiCallsColle
          */
         public Builder <T> apply ( Builder <T> left, Builder <T> right ) {
             return left.addAll(right.build());
+        }
+
+        public Builder <T> get () {
+            return builder;
         }
     }
 }

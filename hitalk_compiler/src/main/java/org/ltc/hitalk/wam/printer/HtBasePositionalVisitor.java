@@ -225,12 +225,14 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
     protected void enterPredicate ( HtPredicate predicate ) {
         HtPredicateDefinition <ISubroutine, HtPredicate, HtClause> def = predicate.getDefinition();
         final List <HtClause> clauses = new ArrayList <>();
-        for (int i = 0; i < def.size(); i++) {
-            if (!def.isBuiltIn()) {
-                clauses.add((HtClause) def.get(i));
-            } else {
-                def.isBuiltIn();
-            }
+        int bound = def.size();
+        for (int i1 = 0; i1 < bound; i1++) {
+            HtClause clause = (HtClause) def.get(i1);
+            if (!def.isBuiltIn()) clauses.add(clause);
+        }
+        for (int j = 0; j < clauses.size(); j++) {
+            final HtClause clause = clauses.get(j);
+            chb(clause.getBody());
         }
     }
 

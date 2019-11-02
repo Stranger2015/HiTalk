@@ -67,13 +67,6 @@ class Specializer implements ISpecializer <HtClause, Term> {
         return spClauses;
     }
 
-
-    protected HtFunctor chb ( HtFunctor functor ) {
-        switch (functor.getName()) {
-            case COMMA
-        }
-    }
-
     public List <PiCall> mergeCalls () {
         List <PiCall> l = new ArrayList <>();
         return l;

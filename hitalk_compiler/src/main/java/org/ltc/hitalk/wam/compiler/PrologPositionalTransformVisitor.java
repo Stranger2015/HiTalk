@@ -89,7 +89,8 @@ public class PrologPositionalTransformVisitor extends HtBasePositionalVisitor
     }
 
     protected void enterPredicate ( HtPredicate predicate ) {
-        super.enterPredicate(predicate);
+
+//        super.enterPredicate(predicate);
     }
 
     protected void leavePredicate ( HtPredicate predicate ) {
