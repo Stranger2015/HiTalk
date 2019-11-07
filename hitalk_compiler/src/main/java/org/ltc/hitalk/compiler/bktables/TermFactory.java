@@ -12,7 +12,7 @@ import org.ltc.hitalk.entities.context.Context;
 import org.ltc.hitalk.entities.context.LoadContext;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.*;
-import org.ltc.hitalk.term.DottedPair.Kind;
+import org.ltc.hitalk.term.PackedDottedPair.Kind;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 
 import java.nio.file.Path;
@@ -68,7 +68,7 @@ public class TermFactory implements ITermFactory {
      * @return
      */
     @Override
-    public Functor newFunctor ( int hilogApply, String name, DottedPair dottedPair ) {
+    public Functor newFunctor ( int hilogApply, String name, PackedDottedPair dottedPair ) {
         int arity = dottedPair.getArguments().length - 1;
         return newFunctor(interner.internFunctorName(name, arity), dottedPair);
     }
@@ -79,7 +79,7 @@ public class TermFactory implements ITermFactory {
      * @return
      */
     @Override
-    public Functor newFunctor ( int value, DottedPair args ) {
+    public Functor newFunctor ( int value, PackedDottedPair args ) {
         return new HtFunctor(value, args.getArguments());
     }
 
@@ -115,14 +115,14 @@ public class TermFactory implements ITermFactory {
      * @param headTail
      * @return
      */
-    public DottedPair newDottedPair ( Kind kind, Term[] headTail ) {
+    public PackedDottedPair newDottedPair ( Kind kind, Term[] headTail ) {
         this.kind = kind;
         this.headTail = headTail;
-        DottedPair t;
+        PackedDottedPair t;
         if (headTail.length == 0) {
-            t = new DottedPair();
+            t = new PackedDottedPair();
         } else { //if (headTail.length ==1){ //[|VarOrList] []
-            t = new DottedPair(kind, headTail);
+            t = new PackedDottedPair(kind, headTail);
         }
         return t;
     }
@@ -180,7 +180,7 @@ public class TermFactory implements ITermFactory {
     }
 
     @Override
-    public Functor newFunctor ( int hilogApply, Term name, DottedPair args ) {
+    public Functor newFunctor ( int hilogApply, Term name, PackedDottedPair args ) {
         Term[] headTail = args.getArguments();
         Term[] nameHeadTail = new Term[headTail.length + 1];
         System.arraycopy(headTail, 0, nameHeadTail, 1, headTail.length);

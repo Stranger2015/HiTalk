@@ -14,7 +14,7 @@ import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
-import org.ltc.hitalk.term.io.TermIO;
+import org.ltc.hitalk.term.io.Environment;
 import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -209,7 +209,7 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
      */
     @Override
     public VariableAndFunctorInterner getInterner () {
-        return TermIO.instance().getInterner();
+        return Environment.instance().getInterner();
     }
 
     /**
@@ -233,14 +233,14 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
      */
     @Override
     public PlPrologParser getParser () {
-        return TermIO.instance().getParser();
+        return Environment.instance().getParser();
     }
 
     /**
      * @return
      */
     public IOperatorTable getOperatorTable () {
-        return TermIO.instance().getOptable();
+        return Environment.instance().getOptable();
     }
 
     /**
@@ -248,7 +248,7 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
      */
     @Override
     public void setParser ( PlPrologParser parser ) {
-        TermIO.instance().setParser(parser);
+        Environment.instance().setParser(parser);
     }
 
     /**
@@ -294,7 +294,7 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
      * @return
      */
     public ITermFactory getTermFactory () {
-        return TermIO.instance().getTermFactory();
+        return Environment.instance().getTermFactory();
     }
 
     /**

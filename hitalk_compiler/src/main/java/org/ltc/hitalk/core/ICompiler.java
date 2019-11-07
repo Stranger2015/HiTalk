@@ -10,7 +10,6 @@ import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.ltc.hitalk.wam.compiler.hitalk.ILogicCompiler;
 import org.slf4j.Logger;
 
-import javax.naming.OperationNotSupportedException;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -84,17 +83,12 @@ public interface ICompiler<T extends HtClause, P, Q> extends ILogicCompiler <T, 
     /**
      * @param rule
      */
-    void compileDcgRule ( DcgRule rule ) throws SourceCodeException, OperationNotSupportedException;
+    void compileDcgRule ( DcgRule rule ) throws SourceCodeException;
 
     /**
      * @param query
      */
     void compileQuery ( Q query ) throws SourceCodeException;
-
-    /**
-     * @param clause
-     */
-    void compileClause ( T clause );
 
     /**
      * @param resolver

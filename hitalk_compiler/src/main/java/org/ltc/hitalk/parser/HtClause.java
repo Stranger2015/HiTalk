@@ -3,6 +3,7 @@ package org.ltc.hitalk.parser;
 import com.thesett.aima.logic.fol.Clause;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.ISubroutine;
+import org.ltc.hitalk.term.PackedDottedPair;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 
 /**
@@ -53,5 +54,9 @@ public class HtClause extends Clause <HtFunctor> implements ISubroutine {
 
     public boolean isDcgRule () {
         return false;
+    }
+
+    public PackedDottedPair getBodyAsDottedPair () {
+        return null;
     }
 }

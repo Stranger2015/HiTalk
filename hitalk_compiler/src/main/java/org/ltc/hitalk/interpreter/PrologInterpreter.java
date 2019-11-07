@@ -8,7 +8,7 @@ import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
-import org.ltc.hitalk.term.io.TermIO;
+import org.ltc.hitalk.term.io.Environment;
 import org.ltc.hitalk.wam.compiler.Language;
 import org.ltc.hitalk.wam.compiler.prolog.ChainedCompilerObserver;
 import org.slf4j.Logger;
@@ -39,7 +39,7 @@ class PrologInterpreter<T extends HtClause, P, Q> implements IInterpreter <T, P,
         this.parser = parser;
         this.compiler = compiler;
         engine = new HtResolutionEngine <>(parser,
-                TermIO.instance().getInterner(),
+                Environment.instance().getInterner(),
                 compiler, resolver
         );
     }

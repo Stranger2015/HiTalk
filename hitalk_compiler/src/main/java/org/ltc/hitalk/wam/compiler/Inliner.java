@@ -22,14 +22,14 @@ public class Inliner implements IInliner <HtClause, Term> {
 
     private final SymbolTable <Integer, String, Object> symbolTable;
     private final VariableAndFunctorInterner interner;
-    private final List <PiCall> piCalls;
+    private final List <PiCalls> piCalls;
 
     /**
      *
      */
     public Inliner ( SymbolTable <Integer, String, Object> symbolTable,
                      VariableAndFunctorInterner interner,
-                     List <PiCall> piCalls ) {
+                     List <PiCalls> piCalls ) {
         this.symbolTable = symbolTable;
         this.interner = interner;
         this.piCalls = piCalls;

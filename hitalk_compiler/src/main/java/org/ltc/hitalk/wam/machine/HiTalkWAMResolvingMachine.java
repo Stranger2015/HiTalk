@@ -373,12 +373,10 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
 
                 // Fill in this functors name and arity and allocate storage space for its arguments.
                 int arity = functorName.getArity();
-                Term[] arguments = new Term[arity];
 
                 // Loop over all of the functors arguments, recursively decoding them.
-                for (int i = 0; i < arity; i++) {
-                    arguments[i] = decodeHeap(val + 1 + i, variableContext);
-                }
+                Term[] arguments = range(0, arity).mapToObj(i -> decodeHeap(val + 1 + i, variableContext))
+                        .toArray(Term[]::new);
 
                 // Create a new functor to hold the decoded data.
                 result = new Functor(f, arguments);

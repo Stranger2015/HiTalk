@@ -22,7 +22,7 @@ import java.util.stream.IntStream;
 
 import static org.ltc.hitalk.term.PackedDottedPair.Kind.TRUE;
 
-public class PrologPositionalTransformVisitor extends HtBasePositionalVisitor
+public class PrologPositionalTransformVisitorNew extends HtBasePositionalVisitor
         implements HtPositionalTermVisitor {
 
     protected HtPositionalTermTraverser positionalTraverser;
@@ -33,8 +33,8 @@ public class PrologPositionalTransformVisitor extends HtBasePositionalVisitor
      * @param symbolTable The compiler symbol table.
      * @param interner    The name interner.
      */
-    public PrologPositionalTransformVisitor ( SymbolTable <Integer, String, Object> symbolTable,
-                                              VariableAndFunctorInterner interner ) {
+    public PrologPositionalTransformVisitorNew ( SymbolTable <Integer, String, Object> symbolTable,
+                                                 VariableAndFunctorInterner interner ) {
         super(symbolTable, interner);
     }
 
@@ -126,12 +126,12 @@ public class PrologPositionalTransformVisitor extends HtBasePositionalVisitor
 
     private void chb ( PackedDottedPair body, Map <IFunctor, List <PiCalls>> hb ) {
         for (int i = 0, bodyLength = body.size(); i < bodyLength; i++) {
-            final PackedDottedPair dp = (PackedDottedPair) body.get(i);
-            switch (dp.getKind()) {
+            final PackedDottedPair goal = (PackedDottedPair) body.get(i);
+            switch (goal.getKind()) {
                 case NOT:
                     final IFunctor g1 = (IFunctor);
-
-                    chb0((IFunctor) dp.getHeads()[i], hb);
+                    HtBasePositionalVisitor metaint = new HtBasePositionalVisitor()
+                    chb0((IFunctor) goal.get(i), hb);
                 case AND:
                 case OR:
                     chb0(j + 1, body, hb);//FALLING DOWN

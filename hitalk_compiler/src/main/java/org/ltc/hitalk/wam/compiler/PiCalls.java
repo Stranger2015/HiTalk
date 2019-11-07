@@ -8,7 +8,7 @@ import java.util.List;
 /**
  *
  */
-public class PiCall extends HtFunctor {
+public class PiCalls extends HtFunctor {
 
     protected final List <HtFunctor> clauses = new ArrayList <>();
     protected boolean representable;
@@ -17,7 +17,7 @@ public class PiCall extends HtFunctor {
      * @param name
      * @param args
      */
-    public PiCall ( int name, Term[] args ) {
+    public PiCalls ( int name, Term[] args ) {
         super(name, args);
     }
 }

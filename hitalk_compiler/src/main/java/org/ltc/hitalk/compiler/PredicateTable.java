@@ -6,6 +6,7 @@ import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtPredicateDefinition;
 import org.ltc.hitalk.entities.ISubroutine;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.wam.compiler.HtFunctor;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,5 +29,9 @@ class PredicateTable extends HashMap <FunctorName, HtPredicateDefinition <ISubro
     @Override
     public Iterator <HtPredicateDefinition <ISubroutine, HtPredicate, HtClause>> iterator () {
         return values().iterator();
+    }
+
+    public boolean lookup ( HtFunctor functor ) {
+        this.
     }
 }

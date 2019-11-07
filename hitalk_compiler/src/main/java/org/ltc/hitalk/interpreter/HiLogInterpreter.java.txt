@@ -7,7 +7,7 @@ import org.ltc.hitalk.compiler.bktables.Flag;
 import org.ltc.hitalk.compiler.bktables.IConfig;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
-import org.ltc.hitalk.term.io.TermIO;
+import org.ltc.hitalk.term.io.Environment;
 import org.slf4j.Logger;
 
 import java.io.IOException;

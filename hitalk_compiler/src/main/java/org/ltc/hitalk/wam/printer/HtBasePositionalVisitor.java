@@ -19,15 +19,9 @@ package org.ltc.hitalk.wam.printer;
 import com.thesett.aima.logic.fol.*;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
-import org.ltc.hitalk.entities.HtPredicateDefinition;
-import org.ltc.hitalk.entities.ISubroutine;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.HtPositionalTermTraverserImpl;
-import org.ltc.hitalk.wam.compiler.PiCall;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * HtBasePositionalVisitor is an {@link HtAllTermsVisitor} that is being driven by a {@link HtPositionalTermTraverser}.
@@ -48,7 +42,7 @@ import java.util.List;
 public
 class HtBasePositionalVisitor implements HtAllTermsVisitor {
 
-    List <PiCall> piCalls = new ArrayList <>();
+//    List <PiCall> piCalls = new ArrayList <>();
 
     /**
      * The name interner.
@@ -223,17 +217,7 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
      * @param predicate The predicate being entered.
      */
     protected void enterPredicate ( HtPredicate predicate ) {
-        HtPredicateDefinition <ISubroutine, HtPredicate, HtClause> def = predicate.getDefinition();
-        final List <HtClause> clauses = new ArrayList <>();
-        int bound = def.size();
-        for (int i1 = 0; i1 < bound; i1++) {
-            HtClause clause = (HtClause) def.get(i1);
-            if (!def.isBuiltIn()) clauses.add(clause);
-        }
-        for (int j = 0; j < clauses.size(); j++) {
-            final HtClause clause = clauses.get(j);
-            chb(clause.getBody());
-        }
+
     }
 
 //    private Collection <? extends PiCall> collectPiCalls ( HtPredicateDefinition <ISubroutine, HtPredicate, HtClause> pd ) {

@@ -27,6 +27,19 @@ class PredefinedProc implements ISubroutine {
         PROLOG(Lang::acceptProlog),
         WAM(Lang::acceptWAM);
 
+        private static void acceptWAM ( HtFunctor functor ) {
+
+        }
+
+        private static void acceptProlog ( HtFunctor functor ) {
+
+        }
+
+        private static void acceptJava ( HtFunctor functor ) {
+
+
+        }
+
         /**
          * @param functor
          */
@@ -45,7 +58,7 @@ class PredefinedProc implements ISubroutine {
          * @param functor
          */
         private static void acceptWAM ( HtFunctor functor, HiTalkWAMCompiledPredicate proc ) {
-            proc.
+            proc.getDefinition();//todo
         }
 
         /**

@@ -12,11 +12,11 @@ import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.PrologAtoms;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind;
-import org.ltc.hitalk.term.DottedPair;
 import org.ltc.hitalk.term.HlOpSymbol;
 import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 import org.ltc.hitalk.term.HlOpSymbol.Fixity;
 import org.ltc.hitalk.term.HlOperatorJoiner;
+import org.ltc.hitalk.term.PackedDottedPair;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.HtFunctorName;
@@ -27,8 +27,8 @@ import java.util.*;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind.*;
-import static org.ltc.hitalk.term.DottedPair.Kind.*;
 import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
+import static org.ltc.hitalk.term.PackedDottedPair.Kind.*;
 import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
 
 /**
@@ -191,7 +191,7 @@ public class PlPrologParser implements IParser {
 //                end-of_term
 //                break;
             case LPAREN:
-                DottedPair dottedPair = readSequence(token.kind, RPAREN, true);//blocked sequence
+                PackedDottedPair dottedPair = readSequence(token.kind, RPAREN, true);//blocked sequence
                 break;
             case LBRACKET:
                 dottedPair = readSequence(token.kind, RBRACKET, false);
@@ -253,10 +253,10 @@ public class PlPrologParser implements IParser {
     }
 
     //PSEUDO COMPOUND == (terms)
-    protected DottedPair readSequence ( TokenKind ldelim, TokenKind rdelim, boolean isBlocked ) throws IOException, ParseException {
+    protected PackedDottedPair readSequence ( TokenKind ldelim, TokenKind rdelim, boolean isBlocked ) throws IOException, ParseException {
         List <Term> elements = new ArrayList <>();
         EnumSet <TokenKind> rdelims = isBlocked ? EnumSet.of(COMMA, rdelim) : EnumSet.of(COMMA, CONS, rdelim);
-        DottedPair.Kind kind = LIST;
+        PackedDottedPair.Kind kind = LIST;
         switch (ldelim) {
             case LPAREN:
                 if (isBlocked) {
@@ -290,11 +290,10 @@ public class PlPrologParser implements IParser {
             return factory.newDottedPair(kind, flatten(elements));
         }
 
-        return (DottedPair) term;
+        return (PackedDottedPair) term;
     }
 
     private Term[] flatten ( List <Term> elements ) {
-
         return elements.toArray(new Term[elements.size()]);
     }
 
@@ -305,11 +304,11 @@ public class PlPrologParser implements IParser {
      * @throws ParseException
      */
     protected Functor compound ( String name ) throws IOException, ParseException {
-        DottedPair args = readSequence(LPAREN, RPAREN, false);
+        PackedDottedPair args = readSequence(LPAREN, RPAREN, false);
         return compound(name, args);
     }
 
-    protected Functor compound ( String name, DottedPair args ) throws IOException, ParseException {
+    protected Functor compound ( String name, PackedDottedPair args ) throws IOException, ParseException {
         return factory.newFunctor(HiLogParser.hilogApply, name, args);
     }
 
@@ -578,8 +577,8 @@ public class PlPrologParser implements IParser {
         internOperator(PrologAtoms.STAR_STAR, 200, yfx);
         internOperator(PrologAtoms.AS, 200, fy);
         //FIXME
-        internOperator(PrologAtoms.VBAR, 1001, xfy);
-        internOperator(PrologAtoms.VBAR, 1001, fy);
+//        internOperator(PrologAtoms.VBAR, 1001, xfy);
+//        internOperator(PrologAtoms.VBAR, 1001, fy);
 
         // Intern all built in names.
         interner.internFunctorName(PrologAtoms.ARGLIST_NIL, 0);

@@ -27,7 +27,7 @@ class Specializer implements ISpecializer <HtClause, Term> {
     private final SymbolTable <Integer, String, Object> symbolTable;
     private final VariableAndFunctorInterner interner;
     private final PredicateTable predicateTable;
-    private final List <PiCall> piCalls;
+    private final List <PiCalls> piCalls;
 
     /**
      *
@@ -35,7 +35,7 @@ class Specializer implements ISpecializer <HtClause, Term> {
     public Specializer ( SymbolTable <Integer, String, Object> symbolTable,
                          VariableAndFunctorInterner interner,
                          PredicateTable predicateTable,
-                         List <PiCall> piCalls ) {
+                         List <PiCalls> piCalls ) {
         this.symbolTable = symbolTable;
         this.interner = interner;
         this.predicateTable = predicateTable;
@@ -60,17 +60,50 @@ class Specializer implements ISpecializer <HtClause, Term> {
 //                spClauses.add((HtClause)sub);
 //            }
 //        }
-//        for (PiCall piCall : piCalls) {
-//            spClauses = specializePred( piCall );
-//        }
+//
 
         return spClauses;
     }
 
-    public List <PiCall> mergeCalls () {
-        List <PiCall> l = new ArrayList <>();
+    public List <PiCalls> mergeCalls () {
+        List <PiCalls> l = new ArrayList <>();
         return l;
     }
+
+    /**
+     * interesting_calls([], _, []).
+     * <p>
+     * interesting_calls([pi_calls(Sym,C)|Cs], Preds, ICL) :-
+     * Pred = pred(Sym,_Clauses,_),
+     * (memberchk(Pred, Preds)  % may not be there if dynamic
+     * ->	'interesting calls'(C, Pred, IC),
+     * ( IC == [] -> ICL = ICs ; ICL = [pi_calls(Sym,IC)|ICs] ),
+     * interesting_calls(Cs, Preds, ICs)
+     * ;	interesting_calls(Cs, Preds, ICL)
+     * ).
+     *
+     * @param piCalls
+     */
+    private void interestingCalls ( final List <PiCalls> piCalls, final PredicateTable predicates ) {
+
+        piCalls.forEach(piCall -> {
+            final int sym = piCall.getName();
+            final Term[] calls = piCall.getArguments();
+            if (predicates.lookup(piCall)) {
+                List <PiCalls> icalls = interestingCalls0(calls, predicates);
+            }
+        });
+    }
+
+    /**
+     * @param calls
+     * @param predicates
+     * @return
+     */
+    private List <PiCalls> interestingCalls0 ( Term[] calls, PredicateTable predicates ) {
+        return piCalls;
+    }
+
 // specialise_pred(Sym, Calls, Representable, SymTab, CLin, CLout) :-
 //    sym_name(Sym, N, A),
 //	( sym_type(Sym,tabled(_,_)) -> Tabled = 1 ; Tabled = 0 ),
@@ -79,7 +112,7 @@ class Specializer implements ISpecializer <HtClause, Term> {
 //    ; non_overlapping_selection(Calls), Representable = 1
 //            )
 //            ) ->
-//    message(('% Specialising partially instantiated calls to ',
+//   message(('% Specialising partially instantiated calls to ',
 //            N, '/', A)),
 //            'specialise pred'(Calls, N, A, Tabled, SymTab, CLin, CLout)
 //    ; CLout = CLin, Representable = 0,
@@ -102,7 +135,7 @@ class Specializer implements ISpecializer <HtClause, Term> {
 	'specialise pred'(BCs, N, A, Tabled, SymTab, CLmid, CLout).
 */
 
-    private List <HtClause> specializePred ( PiCall piCall ) {
+    private List <HtClause> specializePred ( PiCalls piCall ) {
         List <HtClause> spClauses = new ArrayList <>();
         HtPredicateIndicator symbol = new HtPredicateIndicator(piCall);
 //noinspection PlaceholderCountMatchesArgumentCount
@@ -117,7 +150,6 @@ class Specializer implements ISpecializer <HtClause, Term> {
     collect_pi_calls(CL, DL, PI_Calls),
     interesting_calls(PI_Calls, CL, InterestingCalls),
     merge_calls(InterestingCalls, MergedCalls),
-%	telling(F), tell(userout), pp(MergedCalls), told, tell(F),
     specialise(MergedCalls, SymTab, CLmid, CL),
     new_clause_list(MergedCalls, CLmid, CL1),
     generate_table_decl(DL, MergedCalls).
@@ -158,6 +190,40 @@ chb(goal(Sym,Args), HB) :-
 chb(inlinegoal(_,_,_), _).
 
 
+   add_new_clause(New,[X|L]) :-
+       var(X)
+        -> X=New   % first element
+        ;  add_new_clause1(New,L,0).
+
+   add_new_clause1(New,[_|L],N) :-
+       L = [Y|_], nonvar(Y), !,
+       N1 is N+1, add_new_clause1(New,L,N1).
+
+   add_new_clause1(New,[X|L1],N) :-    % X is last bound on list
+       (add_tree(New,X,N)
+        -> true
+        ;  L1=[Y|_],
+           N1 is N+1,
+           add_tree(New,Y,N1)
+       ).
+
+   add_tree(New,[X|Y],N) :-
+       (N =:= 0
+        -> (var(X)
+            -> X=New
+            ;  var(Y), Y=New
+           )
+        ;  N1 is N-1,
+           (var(Y)
+            -> (add_tree(New,X,N1)
+                -> true
+                ;  add_tree(New,Y,N1)
+               )
+            ;  add_tree(New,Y,N1)
+           )
+       ).
+
+
 :- mode filter_goal(+,+).
 
 filter_goal(Sym, Args) :- sym_prop(defined, Sym), sth_bound(Args).
@@ -174,18 +240,6 @@ filter_goal(Sym, Args) :- sym_prop(defined, Sym), sth_bound(Args).
 //    chb(Goal, Calls),
 //	'well, add some more'(Goals, Calls).
 //
-//            */
-    /*
-    interesting_calls([], _, []).
-    interesting_calls([pi_calls(Sym,C)|Cs], Preds, ICL) :-
-	Pred = pred(Sym,_Clauses,_),
-	(memberchk(Pred, Preds)  % may not be there if dynamic
-	 ->	'interesting calls'(C, Pred, IC),
-		( IC == [] -> ICL = ICs ; ICL = [pi_calls(Sym,IC)|ICs] ),
-		interesting_calls(Cs, Preds, ICs)
-	 ;	interesting_calls(Cs, Preds, ICL)
-	).
-*/
 /*
     interesting_indeed(body_call(Args), pred(Sym,Clauses,_),body_call(Args,SelectedClauses)) :-
     find_selected_clauses(Args, Clauses, SelectedClauses),

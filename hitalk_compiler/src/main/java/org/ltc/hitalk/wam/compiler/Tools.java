@@ -27,6 +27,9 @@ public enum Tools implements Tool {
         return null;
     }
 
+    /**
+     * @return
+     */
     public String getName () {
         return name;
     }

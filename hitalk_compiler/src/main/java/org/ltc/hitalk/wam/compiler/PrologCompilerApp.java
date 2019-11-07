@@ -29,8 +29,8 @@ import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
+import org.ltc.hitalk.term.io.Environment;
 import org.ltc.hitalk.term.io.HiTalkStream;
-import org.ltc.hitalk.term.io.TermIO;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 
 import java.io.IOException;
@@ -298,7 +298,7 @@ public abstract class PrologCompilerApp<T extends HtClause, P, Q> extends BaseAp
 
     //    @Override
     public void setInterner ( VariableAndFunctorInterner interner ) {
-        TermIO.instance().setInterner(interner);
+        Environment.instance().setInterner(interner);
     }
 
     private BaseCompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> getCompiler () {

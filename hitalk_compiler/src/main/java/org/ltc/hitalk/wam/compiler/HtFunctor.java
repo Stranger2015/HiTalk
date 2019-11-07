@@ -3,10 +3,12 @@ package org.ltc.hitalk.wam.compiler;
 import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.logic.fol.Term;
 
+import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
+
 /**
  *
  */
-public class HtFunctor extends Functor implements IRangedArity {
+public class HtFunctor extends Functor implements IFunctor {
 
     /**
      * @param name
@@ -14,7 +16,7 @@ public class HtFunctor extends Functor implements IRangedArity {
      * @param arityDelta
      */
     public HtFunctor ( int name, int arityMin, int arityDelta ) {
-        super(name, null);
+        super(name, EMPTY_TERM_ARRAY);
         setArityRange(arityMin, arityDelta);
     }
 
@@ -22,19 +24,6 @@ public class HtFunctor extends Functor implements IRangedArity {
      * @param name
      * @param args
      */
-    //    /**
-//     * @param nameArgs
-//     * @param arityDelta
-//     */
-//    public HtFunctor ( Term[] nameArgs, int arityDelta ) {
-//        super(HILOG_COMPOUND, nameArgs);
-//        setArityRange(nameArgs.length - 1, arityDelta);//minus head
-//    }
-//
-//    public HtFunctor ( Term[] nameArgs ) {
-//        this(nameArgs, 0);
-//    }
-//
     public HtFunctor ( int name, Term[] args ) {
         this(name, args, 0);
     }

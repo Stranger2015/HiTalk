@@ -6,9 +6,9 @@ import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.term.Atom;
-import org.ltc.hitalk.term.DottedPair;
 import org.ltc.hitalk.term.FloatTerm;
 import org.ltc.hitalk.term.IntTerm;
+import org.ltc.hitalk.term.PackedDottedPair;
 
 import java.nio.file.Path;
 
@@ -33,9 +33,9 @@ interface ITermFactory {
     /**
      * ひとつ以上の引数を持つ関数子を作成します。
      */
-    Functor newFunctor ( int hilogApply, String value, DottedPair args );
+    Functor newFunctor ( int hilogApply, String value, PackedDottedPair args );
 
-    Functor newFunctor ( int value, DottedPair args );
+    Functor newFunctor ( int value, PackedDottedPair args );
 
     /**
      * 変数を作成します。
@@ -74,13 +74,13 @@ interface ITermFactory {
 
 //    /**/Term newFunctor ( Term[] nameHeadTail );
 
-    Functor newFunctor ( int hilogApply, Term name, DottedPair args );
+    Functor newFunctor ( int hilogApply, Term name, PackedDottedPair args );
 
     IntTerm newAtomic ( int i );
 
     FloatTerm newAtomic ( double f );
 
-    DottedPair newDottedPair ( DottedPair.Kind kind, Term[] terms );
+    PackedDottedPair newDottedPair ( PackedDottedPair.Kind kind, Term[] terms );
 
     HtProperty createFlag ( String scratch_directory, Path scratchDir );
 

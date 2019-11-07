@@ -1,8 +1,13 @@
 package org.ltc.hitalk.wam.compiler;
 
-import org.ltc.hitalk.parser.HtClause;
+import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
+import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.PredicateTable;
+import org.ltc.hitalk.term.io.Environment;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -15,45 +20,70 @@ import static java.util.stream.Collector.Characteristics.UNORDERED;
  *
  */
 public
-class PiCallsCollector<T extends HtClause> implements Collector <T, PiCallsCollector.Builder <T>, List <T>> {
+class PiCallsCollector<T extends PiCalls, A, R extends PiCalls> implements Collector <T, A, R> {
+
+    private final PredicateTable predicateTable;
+    private final PrologPositionalTransformVisitorNew pptv;
+    private final VariableAndFunctorInterner interner;
+    private final SymbolTable <Integer, String, Object> symbolTable;
+
+    private final Supplier <A> supplier;
+    private final BiConsumer <A, T> accumulator;
+    private final BinaryOperator <A> combiner;
+    private final Function <A, R> finisher;
+    private final PiCallsList piCallsList = new PiCallsList();
+
+    /**
+     *
+     */
+    public PiCallsCollector () {
+        predicateTable = Environment.instance().getPredicateTable();
+        symbolTable = Environment.instance().getSymbolTable();
+        interner = Environment.instance().getInterner();
+        pptv = new PrologPositionalTransformVisitorNew(symbolTable, interner);
+        supplier = supplier();
+        accumulator = accumulator();
+        combiner = combiner();
+        finisher = finisher();
+    }
 
     /**
      * @return
      */
-    public Builder <T> builder () {
-        return new Builder <>();
+    public PiCallsList builder () {
+        return new PiCallsList();
     }
 
     /**
      * @return
      */
     @Override
-    public Supplier <Builder <T>> supplier () {
-        return this::builder;
+    public Supplier <A> supplier () {
+        return supplier;
     }
 
     /**
      * @return
      */
     @Override
-    public BiConsumer <Builder <T>, T> accumulator () {
-        return Builder::add;
+    public BiConsumer <A, T> accumulator () {
+        return accumulator;
     }
 
     /**
      * @return
      */
     @Override
-    public BinaryOperator <Builder <T>> combiner () {
-        return ( left, right ) -> left.addAll(right.build());
+    public BinaryOperator <A> combiner () {
+        return combiner;
     }
 
     /**
      * @return
      */
     @Override
-    public Function <Builder <T>, List <T>> finisher () {
-        return Builder::build;
+    public Function <A, R> finisher () {
+        return finisher;
     }
 
     /**
@@ -67,54 +97,22 @@ class PiCallsCollector<T extends HtClause> implements Collector <T, PiCallsColle
     /**
      * @return
      */
-    public static PiCallsCollector toPiCallsCollector () {
-        return new PiCallsCollector();
+    public static PiCallsCollector <PiCalls, PiCallsList, PiCalls> toPiCallsCollector () {
+        return new PiCallsCollector <>();
     }
 
     /**
-     *
+     * @return
      */
-    public static class Builder<T extends HtClause> implements Supplier <Builder <T>> {
-        final List <T> clauses = new ArrayList <>();
-        public final Builder <T> builder = new Builder <>();
+    public BiConsumer <A, T> getAccumulator () {
 
-        /**
-         *
-         */
-        public List <T> build () {
-            //todo
-            return clauses;
-        }
+        return accumulator;
+    }
 
-        /**
-         * @param clause
-         * @return
-         */
-        public Builder <T> add ( T clause ) {
-            clauses.add(clause);
-            return this;
-        }
-
-        /**
-         * @param clauses
-         * @return
-         */
-        public Builder <T> addAll ( List <T> clauses ) {
-            this.clauses.addAll(clauses);
-            return this;
-        }
-
-        /**
-         * @param left
-         * @param right
-         * @return
-         */
-        public Builder <T> apply ( Builder <T> left, Builder <T> right ) {
-            return left.addAll(right.build());
-        }
-
-        public Builder <T> get () {
-            return builder;
-        }
+    /**
+     * @return
+     */
+    public PredicateTable getPredicateTable () {
+        return predicateTable;
     }
 }

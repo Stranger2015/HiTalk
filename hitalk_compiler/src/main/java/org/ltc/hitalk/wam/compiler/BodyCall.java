@@ -6,7 +6,7 @@ import org.ltc.hitalk.parser.HtClause;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BodyCall extends PiCall {
+public class BodyCall extends PiCalls {
     List <Term> args = new ArrayList <>();
     List <HtClause> selectedClauses = new ArrayList <>();
 

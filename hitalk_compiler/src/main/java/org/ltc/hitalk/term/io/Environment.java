@@ -3,7 +3,9 @@ package org.ltc.hitalk.term.io;
 
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.aima.logic.fol.VariableAndFunctorInternerImpl;
+import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.ITermFactory;
+import org.ltc.hitalk.compiler.PredicateTable;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.TermFactory;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
@@ -24,12 +26,12 @@ import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISS
  *
  */
 public
-class TermIO {
-    private static TermIO instance;
+class Environment {
+    private static Environment instance;
 
     static {
         try {
-            instance = new TermIO();
+            instance = new Environment();
         } catch (IOException e) {
             e.printStackTrace();
             throw new ExecutionError(PERMISSION_ERROR, null);
@@ -40,12 +42,14 @@ class TermIO {
     private ITermFactory termFactory;
     private PlPrologParser parser;
     private IOperatorTable optable;
-    private ICompiler <HtPredicate, HtClause> compiler;
+    private ICompiler <HtClause, HtPredicate, HtClause> compiler;
+    private PredicateTable predicateTable;
+    private SymbolTable <Integer, String, Object> symbolTable;
 
     /**
      * @return
      */
-    public static TermIO instance () {
+    public static Environment instance () {
         return instance;
     }
 
@@ -135,7 +139,7 @@ class TermIO {
     /**
      *
      */
-    private TermIO () throws IOException {
+    private Environment () throws IOException {
         streams.add(new HiTalkStream(FileDescriptor.in, true));//  "current_input"
         streams.add(new HiTalkStream(FileDescriptor.out, false));// "current_output"
         streams.add(new HiTalkStream(FileDescriptor.err, false));// "current_error"
@@ -169,11 +173,24 @@ class TermIO {
         this.interner = interner;
     }
 
-    public ICompiler <HtPredicate, HtClause> getCompiler () {
+    public ICompiler <HtClause, HtPredicate, HtClause> getCompiler () {
         return compiler;
     }
 
-    public void setCompiler ( ICompiler <HtPredicate, HtClause> compiler ) {
+    public void setCompiler ( ICompiler <HtClause, HtPredicate, HtClause> compiler ) {
         this.compiler = compiler;
     }
+
+    public PredicateTable getPredicateTable () {
+        return predicateTable;
+    }
+
+    public void setPredicateTable ( PredicateTable predicateTable ) {
+        this.predicateTable = predicateTable;
+    }
+
+    public SymbolTable <Integer, String, Object> getSymbolTable () {
+        return symbolTable;
+    }
+
 }

@@ -11,11 +11,9 @@ import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
-import org.ltc.hitalk.wam.compiler.HiTalkCompilerApp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.OperationNotSupportedException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayDeque;
@@ -30,8 +28,7 @@ import static com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys.SYMKEY_PRE
  * @param <Q>
  */
 abstract
-public class BaseCompiler<T extends HtClause, P, Q>
-        extends BaseMachine
+public class BaseCompiler<T extends HtClause, P, Q> extends BaseMachine
         implements ICompiler <T, P, Q> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
@@ -52,6 +49,7 @@ public class BaseCompiler<T extends HtClause, P, Q>
                              VariableAndFunctorInterner interner,
                              PlPrologParser parser,
                              LogicCompilerObserver <P, Q> observer ) {
+
         super(symbolTable, interner);
         this.parser = parser;
         this.observer = observer;
@@ -66,7 +64,7 @@ public class BaseCompiler<T extends HtClause, P, Q>
 
         // Classify the sentence to compile by the different sentence types in the language.
         if (clause.isQuery()) {
-            compileQuery(clause);
+            compileQuery(clause.getT());
         } else {
             // Initialize a nested symbol table for the current compilation scope, if it has not already been.
             if (scopeTable == null) {
@@ -94,7 +92,7 @@ public class BaseCompiler<T extends HtClause, P, Q>
      *
      * @param observer The compiler output observer.
      */
-    public void setCompilerObserver ( HiTalkCompilerApp.ChainedCompilerObserver observer ) {
+    public void setCompilerObserver ( LogicCompilerObserver <P, Q> observer ) {
         this.observer = observer;
     }
 
@@ -113,18 +111,8 @@ public class BaseCompiler<T extends HtClause, P, Q>
     }
 
     @Override
-    public void compileDcgRule ( DcgRule rule ) throws SourceCodeException, OperationNotSupportedException {
+    public void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
 
-    }
-
-    //    @Override
-//    public void compileClause ( HtClause clause ) {
-//
-//    }
-//
-    @Override
-    public void setResolver ( Resolver <HtClause, Q> resolver ) {
-        this.resolver = resolver;
     }
 
     @Override
@@ -142,7 +130,7 @@ public class BaseCompiler<T extends HtClause, P, Q>
             if (t == null) {
                 break;
             }
-            HtClause c = parser.convert(t);
+            T c = parser.convert(t);
             compile(c, flags);
         }
     }

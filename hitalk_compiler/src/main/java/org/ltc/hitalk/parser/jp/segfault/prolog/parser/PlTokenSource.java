@@ -10,8 +10,8 @@ import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.parser.PrologAtoms;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.HlOpSymbol.Associativity;
+import org.ltc.hitalk.term.io.Environment;
 import org.ltc.hitalk.term.io.HiTalkStream;
-import org.ltc.hitalk.term.io.TermIO;
 import org.ltc.hitalk.wam.compiler.HtFunctorName;
 
 import java.beans.PropertyChangeEvent;
@@ -75,7 +75,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     }
 
     private static PlTokenSource getPlTokenSourceForStdin ( InputStream inputStream ) throws IOException, CloneNotSupportedException {
-        HiTalkStream stream = TermIO.instance().currentInput().copy();
+        HiTalkStream stream = Environment.instance().currentInput().copy();
         stream.setInputStream(inputStream);
         PlLexer lexer = new PlLexer(stream);
         return new PlTokenSource(lexer);
@@ -186,7 +186,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
      * @throws IOException
      */
     public static HiTalkStream createHiTalkStream ( String path, StandardOpenOption... options ) throws IOException {
-        return TermIO.instance().addStream(HiTalkStream.createHiTalkStream(path, true));
+        return Environment.instance().addStream(HiTalkStream.createHiTalkStream(path, true));
     }
 
 //    /**

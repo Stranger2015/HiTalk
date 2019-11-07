@@ -5,10 +5,10 @@ import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
-import org.ltc.hitalk.term.io.TermIO;
+import org.ltc.hitalk.term.io.Environment;
 
 public class LibParser implements IParser {
-    protected PlPrologParser parser = TermIO.instance().getParser();
+    protected PlPrologParser parser = Environment.instance().getParser();
 
     @Override
     public PlPrologParser getParser () {
