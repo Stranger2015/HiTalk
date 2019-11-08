@@ -30,5 +30,6 @@ interface HtAllTermsVisitor extends TermVisitor,
         HtClauseVisitor,
         IntegerTypeVisitor,
         LiteralTypeVisitor,
-        HtPredicateVisitor {
+        HtPredicateVisitor,
+        PackedDottedPairVisitor {
 }

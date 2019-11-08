@@ -3,7 +3,6 @@ package org.ltc.hitalk.parser;
 import com.thesett.aima.logic.fol.Clause;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.ISubroutine;
-import org.ltc.hitalk.term.PackedDottedPair;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 
 /**
@@ -11,16 +10,6 @@ import org.ltc.hitalk.wam.compiler.HtFunctor;
  */
 public class HtClause extends Clause <HtFunctor> implements ISubroutine {
     protected final HtEntityIdentifier identifier;
-
-//    /**
-//     * @param head
-//     * @param body
-//     * @param identifier
-//     */
-//    public HtClause ( HtFunctor head, HtFunctor[] body, HtEntityIdentifier identifier ) {
-//        this(null, head, body);
-//        this.identifier = identifier;
-//    }
 
     /**
      * Creates a program sentence in L2.
@@ -52,11 +41,30 @@ public class HtClause extends Clause <HtFunctor> implements ISubroutine {
         return this;
     }
 
+    /**
+     * @return
+     */
     public boolean isDcgRule () {
         return false;
     }
 
-    public PackedDottedPair getBodyAsDottedPair () {
-        return null;
+//    public PackedDottedPair getBodyAsDottedPair () {
+//        return getBody();
+//    }
+
+    /**
+     * @param i
+     * @return
+     */
+    @Override
+    public HtFunctor getGoal ( int i ) {
+        return getBody()[i];
+    }
+
+    /**
+     * @return
+     */
+    public int bodyLength () {
+        return getBody().length;
     }
 }

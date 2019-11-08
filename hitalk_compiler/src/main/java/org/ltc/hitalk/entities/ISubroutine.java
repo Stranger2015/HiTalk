@@ -18,6 +18,8 @@ interface ISubroutine {
      */
     HtFunctor[] getBody ();
 
+    HtFunctor getGoal ( int i );
+
     /**
      * @param interner
      * @param printVarName

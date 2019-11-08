@@ -1,5 +1,6 @@
 package org.ltc.hitalk.entities;
 
+import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.PrologBuiltIns;
 import org.ltc.hitalk.parser.HtClause;
 
@@ -59,6 +60,13 @@ class HtPredicateDefinition<T extends ISubroutine, P extends HtPredicate, Q exte
         this.subroutines.addAll(definition.subroutines);
     }
 
+    public List <HtClause> getClauses () {
+        if (isBuiltIn()) {
+            throw new ExecutionError(ExecutionError.Kind.EXISTENCE_ERROR, null);
+        }
+        return null;/*Stream.collect();*/
+    }
+
     /**
      *
      */
@@ -82,6 +90,10 @@ class HtPredicateDefinition<T extends ISubroutine, P extends HtPredicate, Q exte
         public HtProperty[] getFlags () {
             return new HtProperty[getPropLength()];
         }
+
+        public boolean isBuiltIn () {
+            return false;
+        }
     }
 
     /**
@@ -99,6 +111,13 @@ class HtPredicateDefinition<T extends ISubroutine, P extends HtPredicate, Q exte
         public BuiltInDefinition ( T subroutine, PrologBuiltIns builtIn, HtProperty... props ) {
             super(subroutine, props);
             this.builtIn = builtIn;
+        }
+
+        /**
+         * @return
+         */
+        public boolean isBuiltIn () {
+            return true;
         }
     }
 }

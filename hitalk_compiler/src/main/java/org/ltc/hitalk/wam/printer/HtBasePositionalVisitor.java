@@ -20,8 +20,11 @@ import com.thesett.aima.logic.fol.*;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.PackedDottedPair;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.HtPositionalTermTraverserImpl;
+
+import static org.ltc.hitalk.term.PackedDottedPair.Kind;
 
 /**
  * HtBasePositionalVisitor is an {@link HtAllTermsVisitor} that is being driven by a {@link HtPositionalTermTraverser}.
@@ -137,6 +140,55 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
         }
     }
 
+
+    /**
+     * @param dottedPair
+     */
+    @Override
+    public void visit ( PackedDottedPair dottedPair ) {
+        if (traverser.isEnteringContext()) {
+            enterDottedPair(dottedPair);
+        } else if (traverser.isLeavingContext()) {
+            leaveDottedPair(dottedPair);
+            dottedPair.setTermTraverser(null);
+        }
+    }
+
+
+    /**
+     * @param dottedPair
+     */
+    protected void enterDottedPair ( PackedDottedPair dottedPair ) {
+        final Kind kind = dottedPair.getKind();
+        switch (kind) {
+            case NIL:
+                break;
+            case TRUE:
+                break;
+            case LIST:
+                break;
+            case BYPASS:
+                break;
+            case NOT:
+            case AND:
+            case OR:
+                break;
+            case GOAL:
+                break;
+            case INLINE_GOAL:
+                break;
+            case OTHER:
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + kind);
+        }
+    }
+
+    protected void leaveDottedPair ( PackedDottedPair dottedPair ) {
+
+
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -238,57 +290,53 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
 //    }
 
 //====================================================
-        /**
-         * Called when a clause is entered during the visitation.
-         *
-         * @param clause The clause being entered.
-         */
-        protected
-        void enterClause (HtClause clause ){
-        }
 
-        /**
-         * Called when a clause is being left during the visitation.
-         *
-         * @param clause The clause being left.
-         */
-        protected
-        void leaveClause (HtClause clause ){
-        }
-
-        /**
-         * Called when a integer literal is entered during the visitation.
-         *
-         * @param literal The integer literal being entered.
-         */
-        protected
-        void enterIntLiteral (IntegerType literal ){
-        }
-
-        /**
-         * Called when a integer literal is being left during the visitation.
-         *
-         * @param literal The integer literal being left.
-         */
-        protected
-        void leaveIntLiteral (IntegerType literal ){
-        }
-
-        /**
-         * Called when a literal is entered during the visitation.
-         *
-         * @param literal The literal being entered.
-         */
-        protected
-        void enterLiteral (LiteralType literal ){
-        }
-
-        /**
-         * Called when a literal is being left during the visitation.
-         *
-         * @param literal The literal being left.
-         */
-        protected
-        void leaveLiteral (LiteralType literal ){
-        }
+    /**
+     * Called when a clause is entered during the visitation.
+     *
+     * @param clause The clause being entered.
+     */
+    protected void enterClause ( HtClause clause ) {
     }
+
+    /**
+     * Called when a clause is being left during the visitation.
+     *
+     * @param clause The clause being left.
+     */
+    protected void leaveClause ( HtClause clause ) {
+    }
+
+    /**
+     * Called when a integer literal is entered during the visitation.
+     *
+     * @param literal The integer literal being entered.
+     */
+    protected void enterIntLiteral ( IntegerType literal ) {
+    }
+
+    /**
+     * Called when a integer literal is being left during the visitation.
+     *
+     * @param literal The integer literal being left.
+     */
+    protected void leaveIntLiteral ( IntegerType literal ) {
+    }
+
+    /**
+     * Called when a literal is entered during the visitation.
+     *
+     * @param literal The literal being entered.
+     */
+    protected void enterLiteral ( LiteralType literal ) {
+    }
+
+    /**
+     * Called when a literal is being left during the visitation.
+     *
+     * @param literal The literal being left.
+     */
+    protected void leaveLiteral ( LiteralType literal ) {
+    }
+
+}

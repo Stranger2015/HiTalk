@@ -1,6 +1,7 @@
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.Term;
+import org.ltc.hitalk.term.PackedDottedPair;
 
 /**
  *
@@ -16,13 +17,23 @@ public interface IFunctor extends IRangedArity {
      */
     Term[] getArguments ();
 
+    /**
+     * @param i
+     * @return
+     */
     Term getArgument ( int i );
 
     /**
      * @return
      */
     default int getArity () {
-
         return getArguments().length;
+    }
+
+    /**
+     * @return
+     */
+    default boolean isDottedPair () {
+        return this instanceof PackedDottedPair;
     }
 }

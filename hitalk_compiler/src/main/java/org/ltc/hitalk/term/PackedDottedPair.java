@@ -63,9 +63,20 @@ public class PackedDottedPair extends RecursiveList implements Term, IFunctor {
         }
     }
 
+    /**
+     * @return
+     */
     @Override
     public Iterator <Term> iterator () {
-        return null;
+        return new Iterator <Term>() {
+            public boolean hasNext () {
+                return false;
+            }
+
+            public Term next () {
+                return null;
+            }
+        };
     }
 
     @Override
@@ -104,33 +115,37 @@ public class PackedDottedPair extends RecursiveList implements Term, IFunctor {
         AND,//-3 blocked  term
         OR,
         NOT,
+        IF,
         TRUE,
         GOAL(),
         INLINE_GOAL,
         OTHER();
 
-        private Subkind[] subkinds;
+        //        private Subkind[] subkinds;
         private IFunctor goal;
 
-        /**
-         *
-         */
-        enum Subkind {
-            IF,
-        }
-
-        /**
-         * @param subkinds
-         */
-        Kind ( Subkind... subkinds ) {
-            this.subkinds = subkinds;
-        }
+//        /**
+//         *
+//         */
+//        enum Subkind {
+//            IF,
+//        }
+//
+//        /**
+//         * @param subkinds
+//         */
+//        Kind ( Subkind... subkinds ) {
+//            this.subkinds = subkinds;
+//        }
 
         /**
          * @param goal
          */
         Kind ( IFunctor goal ) {
             this.goal = goal;
+        }
+
+        Kind () {
         }
     }
 }
