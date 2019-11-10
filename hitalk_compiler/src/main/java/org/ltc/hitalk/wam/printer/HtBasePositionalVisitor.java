@@ -92,7 +92,7 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
      * {@inheritDoc}
      * @param functor
      */
-    public void visit ( IFunctor functor ) {
+    public void visit ( IFunctor functor ) throws LinkageException {
         if (traverser.isEnteringContext()) {
             enterFunctor(functor);
         } else if (traverser.isLeavingContext()) {
@@ -132,7 +132,7 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
     /**
      * {@inheritDoc}
      */
-    public void visit ( HtClause clause ) {
+    public void visit ( HtClause clause ) throws LinkageException {
         if (traverser.isEnteringContext()) {
             enterClause(clause);
         } else if (traverser.isLeavingContext()) {
@@ -146,7 +146,7 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
      * @param dottedPair
      */
     @Override
-    public void visit ( PackedDottedPair dottedPair ) {
+    public void visit ( PackedDottedPair dottedPair ) throws LinkageException {
         if (traverser.isEnteringContext()) {
             enterDottedPair(dottedPair);
         } else if (traverser.isLeavingContext()) {
@@ -159,7 +159,7 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
     /**
      * @param dottedPair
      */
-    protected void enterDottedPair ( PackedDottedPair dottedPair ) {
+    protected void enterDottedPair ( PackedDottedPair dottedPair ) throws LinkageException {
         final Kind kind = dottedPair.getKind();
         switch (kind) {
             case NIL:
@@ -235,7 +235,7 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
      *
      * @param functor The functor being entered.
      */
-    protected void enterFunctor ( IFunctor functor ) {
+    protected void enterFunctor ( IFunctor functor ) throws LinkageException {
 
     }
 
@@ -297,7 +297,7 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
      *
      * @param clause The clause being entered.
      */
-    protected void enterClause ( HtClause clause ) {
+    protected void enterClause ( HtClause clause ) throws LinkageException {
     }
 
     /**

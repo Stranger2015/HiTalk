@@ -1,6 +1,7 @@
 package org.ltc.hitalk;
 
 import com.thesett.aima.logic.fol.Term;
+import com.thesett.aima.logic.fol.Variable;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
 import org.ltc.hitalk.entities.HtProperty;
@@ -42,7 +43,7 @@ interface ITermFactory {
     /**
      * 変数を作成します。
      */
-    Term newVariable ( String value );
+    Variable newVariable ( String value );
 
     /**
      * @param s

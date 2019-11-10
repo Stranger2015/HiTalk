@@ -1,5 +1,8 @@
 package org.ltc.hitalk.wam.compiler;
 
+import com.thesett.aima.logic.fol.LinkageException;
+import com.thesett.aima.logic.fol.Resolver;
+import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
@@ -17,10 +20,12 @@ public class PiCallsCollectorVisitor extends MetaInterpreterVisitor {
      * @param interner    The name interner.
      */
     protected PiCallsCollectorVisitor ( SymbolTable <Integer, String, Object> symbolTable,
-                                        VariableAndFunctorInterner interner ) {
-        super(symbolTable, interner);
+                                        VariableAndFunctorInterner interner,
+                                        Resolver <HtPredicate, HtClause> resolver ) {
+        super(symbolTable, interner, resolver);
     }
 
+    @Override
     protected void enterPredicate ( HtPredicate predicate ) {
         super.enterPredicate(predicate);
     }
@@ -37,7 +42,7 @@ public class PiCallsCollectorVisitor extends MetaInterpreterVisitor {
         super.leaveClause(clause);
     }
 
-    protected void enterDottedPair ( PackedDottedPair dottedPair ) {
+    protected void enterDottedPair ( PackedDottedPair dottedPair ) throws LinkageException {
         super.enterDottedPair(dottedPair);
     }
 
@@ -45,7 +50,7 @@ public class PiCallsCollectorVisitor extends MetaInterpreterVisitor {
         super.leaveDottedPair(dottedPair);
     }
 
-    protected void enterFunctor ( IFunctor functor ) {
+    protected void enterFunctor ( IFunctor functor ) throws LinkageException {
         super.enterFunctor(functor);
     }
 
@@ -59,7 +64,7 @@ public class PiCallsCollectorVisitor extends MetaInterpreterVisitor {
         super.enterGoal(functor);
     }
 
-    protected void filterGoal ( IFunctor functor ) {
-        super.filterGoal(functor);
+    protected boolean filterGoal ( IFunctor symbol, Term[] args ) {
+        return super.filterGoal(symbol, args);
     }
 }

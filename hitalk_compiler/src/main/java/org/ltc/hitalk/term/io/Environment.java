@@ -1,6 +1,7 @@
 package org.ltc.hitalk.term.io;
 
 
+import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.aima.logic.fol.VariableAndFunctorInternerImpl;
 import com.thesett.common.util.doublemaps.SymbolTable;
@@ -11,6 +12,7 @@ import org.ltc.hitalk.compiler.bktables.TermFactory;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.entities.HtPredicate;
+import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlDynamicOperatorParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
@@ -45,6 +47,7 @@ class Environment {
     private ICompiler <HtClause, HtPredicate, HtClause> compiler;
     private PredicateTable predicateTable;
     private SymbolTable <Integer, String, Object> symbolTable;
+    private Resolver <HtPredicate, HtClause> resolver;
 
     /**
      * @return
@@ -53,7 +56,9 @@ class Environment {
         return instance;
     }
 
-
+    /**
+     *
+     */
     protected final List <HiTalkStream> streams = new ArrayList <>();
 
     /**
@@ -151,6 +156,7 @@ class Environment {
         termFactory = new TermFactory(interner);
         optable = new PlDynamicOperatorParser();
         parser = new PlPrologParser(getStream(0), interner, termFactory, optable);
+        resolver = new HtResolutionEngine <>(parser, interner, compiler, )
 
         initOptions("org/ltc/hitalk/wam/compiler/startup.pl");
     }
@@ -193,4 +199,11 @@ class Environment {
         return symbolTable;
     }
 
+    public Resolver <HtPredicate, HtClause> getResolver () {
+        return resolver;
+    }
+
+    public void setResolver ( Resolver <HtPredicate, HtClause> resolver ) {
+        this.resolver = resolver;
+    }
 }

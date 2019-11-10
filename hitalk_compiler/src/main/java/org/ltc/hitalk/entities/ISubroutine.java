@@ -2,6 +2,7 @@ package org.ltc.hitalk.entities;
 
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 
 /**
  *
@@ -18,7 +19,7 @@ interface ISubroutine {
      */
     HtFunctor[] getBody ();
 
-    HtFunctor getGoal ( int i );
+    IFunctor getGoal ( int i );
 
     /**
      * @param interner

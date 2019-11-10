@@ -1,8 +1,11 @@
 package org.ltc.hitalk.wam.compiler;
 
+import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.PredicateTable;
+import org.ltc.hitalk.entities.HtPredicate;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.io.Environment;
 
 import java.util.*;
@@ -18,8 +21,7 @@ import static java.util.stream.Collector.Characteristics.UNORDERED;
  *
  */
 public
-class PiCallsCollector
-        implements Collector <PiCalls, List <PiCalls>, PiCalls> {
+class PiCallsCollector implements Collector <PiCalls, List <PiCalls>, PiCalls> {
 
     private final PredicateTable predicateTable;
     private final MetaInterpreterVisitor miv;
@@ -32,6 +34,7 @@ class PiCallsCollector
     private final Function <List <PiCalls>, PiCalls> finisher;
 
     private final List <PiCalls> piCallsList = new ArrayList <>();
+    private final Resolver <HtPredicate, HtClause> resolver;
 
     /**
      *
@@ -41,11 +44,12 @@ class PiCallsCollector
         predicateTable = Environment.instance().getPredicateTable();
         symbolTable = Environment.instance().getSymbolTable();
         interner = Environment.instance().getInterner();
+        resolver = Environment.instance().getResolver();
         supplier = supplier();
         accumulator = accumulator();
         combiner = combiner();
         finisher = finisher();
-        miv = new PiCallsCollectorVisitor(symbolTable, interner);
+        miv = new PiCallsCollectorVisitor(symbolTable, interner, resolver);
     }
 
     /**

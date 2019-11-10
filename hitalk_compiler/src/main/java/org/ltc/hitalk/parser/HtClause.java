@@ -4,6 +4,7 @@ import com.thesett.aima.logic.fol.Clause;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.ISubroutine;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 
 /**
  *
@@ -19,7 +20,6 @@ public class HtClause extends Clause <HtFunctor> implements ISubroutine {
      */
     public HtClause ( HtEntityIdentifier identifier, HtFunctor head, HtFunctor[] body ) {
         super(head, body);
-
         this.identifier = identifier;
     }
 
@@ -48,16 +48,12 @@ public class HtClause extends Clause <HtFunctor> implements ISubroutine {
         return false;
     }
 
-//    public PackedDottedPair getBodyAsDottedPair () {
-//        return getBody();
-//    }
-
     /**
      * @param i
      * @return
      */
     @Override
-    public HtFunctor getGoal ( int i ) {
+    public IFunctor getGoal ( int i ) {
         return getBody()[i];
     }
 

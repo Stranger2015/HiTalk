@@ -1,23 +1,13 @@
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.logic.fol.TermTraverser;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.thesett.aima.logic.fol.Variable;
+import org.ltc.hitalk.term.PackedDottedPair;
 
 /**
  *
  */
-public class PiCalls implements IFunctor {
-
-    protected final IFunctor sym;
-    protected final List <IFunctor> calls = new ArrayList <>();
-
-    public boolean isRepresentable () {
-        return representable;
-    }
-
+public class PiCalls extends PackedDottedPair {
     /**
      *
      */
@@ -27,40 +17,51 @@ public class PiCalls implements IFunctor {
      * @param sym
      * @param calls
      */
-    public PiCalls ( IFunctor sym, List <IFunctor> calls ) {
-        this.sym = sym;
-        this.calls.addAll(calls);
+    public PiCalls ( IFunctor sym, PackedDottedPair calls ) {
+        Term[] t = getArguments();
+        t[0] = (Term) sym;
+        setCalls(calls);
     }
 
-    public int getName () {
-        return sym.getName();
+    /**
+     * @return
+     */
+    @Override
+    public int getArity () {
+        return 2;   // piCalls(symbol, Calls)
     }
 
-    public Term[] getArguments () {
-        return new Term[0];
-    }
-
-    public Term getArgument ( int i ) {
-        return null;
-    }
-
-    public boolean isBracketed () {
-        return false;
-    }
-
-    public void setTermTraverser ( TermTraverser traverser ) {
-
-    }
-
+    /**
+     * @return
+     */
+    @Override //todo
     public boolean isDefined () {
         return false;
     }
 
-    public int getArityInt () {
-        return 0;
+    /**
+     * @return
+     */
+    public boolean isRepresentable () {
+        return representable;
     }
 
-    public Term getArityTerm () {
-        return null;
+    public void setMgCalls ( Variable var ) {
+        this.getHeads()[0] = var;
+    }
+
+    /**
+     * @param calls
+     */
+    public void setCalls ( PackedDottedPair calls ) {
+        this.getHeads()[0] = calls;
+    }
+
+
+    /**
+     * @return
+     */
+    public PackedDottedPair getCalls () {
+        return (PackedDottedPair) this.getHeads()[0];
     }
 }

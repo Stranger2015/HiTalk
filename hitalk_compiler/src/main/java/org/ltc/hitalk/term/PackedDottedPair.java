@@ -86,18 +86,6 @@ public class PackedDottedPair extends RecursiveList implements Term, IFunctor {
         return name < 0;
     }
 
-    public int getArityInt () {
-        return 0;
-    }
-
-    public Term getArityTerm () {
-        return null;
-    }
-
-    public Term[] getArguments () {
-        return new Term[0];
-    }
-
     public int size () {
         return getHeads().length;
     }
@@ -107,6 +95,18 @@ public class PackedDottedPair extends RecursiveList implements Term, IFunctor {
             return TRUE;
         }
         return getHeads()[i];
+    }
+
+    public boolean isDefined () {
+        return false;
+    }
+
+    public int getArityInt () {
+        return 0;
+    }
+
+    public Term getArityTerm () {
+        return null;
     }
 
     /**
@@ -126,22 +126,7 @@ public class PackedDottedPair extends RecursiveList implements Term, IFunctor {
         INLINE_GOAL,
         OTHER();
 
-        //        private Subkind[] subkinds;
         private IFunctor goal;
-
-//        /**
-//         *
-//         */
-//        enum Subkind {
-//            IF,
-//        }
-//
-//        /**
-//         * @param subkinds
-//         */
-//        Kind ( Subkind... subkinds ) {
-//            this.subkinds = subkinds;
-//        }
 
         /**
          * @param goal
@@ -150,6 +135,9 @@ public class PackedDottedPair extends RecursiveList implements Term, IFunctor {
             this.goal = goal;
         }
 
+        /**
+         *
+         */
         Kind () {
         }
     }

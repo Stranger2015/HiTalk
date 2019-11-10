@@ -1,9 +1,6 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.Resolver;
-import com.thesett.aima.logic.fol.Unifier;
-import com.thesett.aima.logic.fol.Variable;
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
+import com.thesett.aima.logic.fol.*;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
@@ -20,8 +17,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
+import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
 
 /**
  *
@@ -29,9 +28,10 @@ import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISS
 public abstract class MetaInterpreterVisitor extends HtBasePositionalVisitor
         implements HtPositionalTermVisitor {
 
-    private final Resolver <HtPredicate, HtClause> resolver;
+    protected final Resolver <HtPredicate, HtClause> resolver;
     protected HtPositionalTermTraverser positionalTraverser;
-    protected List <HtClause> clauses = new ArrayList <>();
+    protected final List <HtClause> clauses = new ArrayList <>();
+    protected final Set <Variable> bindings = new HashSet <>();
 
     /**
      * Creates a positional visitor.
@@ -46,16 +46,23 @@ public abstract class MetaInterpreterVisitor extends HtBasePositionalVisitor
         this.resolver = resolver;
     }
 
+    /**
+     * @param positionalTraverser
+     */
     public void setPositionalTraverser ( HtPositionalTermTraverser positionalTraverser ) {
         this.positionalTraverser = positionalTraverser;
     }
 
+    /**
+     * @param predicate The predicate being entered.
+     */
+    @Override
     protected void enterPredicate ( HtPredicate predicate ) {
         final HtPredicateDefinition def = predicate.getDefinition();
-        for (int i = 0; i < def.size(); i++) {
-            final HtClause cl = (HtClause) def.get(i);
-            visit(cl);//todo stack
-        }
+        //todo op stack ==> term.accept(this);
+        int bound = def.size();
+        IntStream.range(0, bound).mapToObj(i -> (HtClause) def.get(i)).forEachOrdered(clause ->
+                clause.accept(this));
 
     }
 
@@ -69,11 +76,9 @@ public abstract class MetaInterpreterVisitor extends HtBasePositionalVisitor
      * @param clause The clause being entered.
      */
     @Override
-    protected void enterClause ( HtClause clause ) {
-        for (int i = 0; i < clause.bodyLength(); i++) {
-            IFunctor goal = clause.getGoal(i);
-            visit(goal);
-        }
+    protected void enterClause ( HtClause clause ) throws LinkageException {
+        IntStream.range(0, clause.bodyLength()).mapToObj(clause::getGoal).forEachOrdered(goal ->
+                goal.accept(this));
     }
 
     protected void leaveClause ( HtClause clause ) {
@@ -81,23 +86,23 @@ public abstract class MetaInterpreterVisitor extends HtBasePositionalVisitor
     }
 
     @Override
-    protected void enterDottedPair ( PackedDottedPair dottedPair ) {
+    protected void enterDottedPair ( PackedDottedPair dottedPair ) throws LinkageException {
         for (int i = 0, headsSize = dottedPair.size(); i <= headsSize; i++) {
             switch (dottedPair.getKind()) {
                 case NOT:
-                    visit(dottedPair.get(i));
+                    dottedPair.get(i).accept(this);
                     break;
                 case AND://fall down
                 case OR:
                 case IF:
-                    visit(dottedPair.get(i));
-                    visit(dottedPair.get(i + 1));
+                    dottedPair.get(i).accept(this);
+                    dottedPair.get(i + 1).accept(this);
                     break;
                 case GOAL:
                     IFunctor goal = (IFunctor) dottedPair.get(i);
                     if (goal.isDefined()) {
                         final Set <PiCalls> hbSet = new HashSet <>();
-                        lookupGoal(goal, hbSet);
+                        lookupGoal((PiCalls) goal, hbSet);
                     }
                     break;
                 case TRUE:
@@ -112,18 +117,24 @@ public abstract class MetaInterpreterVisitor extends HtBasePositionalVisitor
         }
     }
 
-    Set <Variable> lookupGoal ( IFunctor goal, Set <PiCalls> hbSet ) {
-//        Unifier<HtFunctor> unifier = this::unify;
-//        final PiCalls mgGoal = new PiCalls();
+    public void lookupGoal ( PiCalls goal, Set <PiCalls> hbSet ) throws LinkageException {
         ITermFactory factory = Environment.instance().getTermFactory();
-        final IFunctor ggoal = factory.createMostGeneral(goal);
-        Unifier <HtFunctor> unifier = ( query, statement ) -> unify(query, statement);
+        goal.setMgCalls(factory.newVariable("Calls"));
+        final HtFunctor eqf = new HtFunctor(interner.internFunctorName("=", 2), EMPTY_TERM_ARRAY);// fixme
+        final HtClause query = new HtClause(null, null, new HtFunctor[]{eqf});
+        eqf.setArgument(0, goal);
+        for (PiCalls hbEl : hbSet) {
+            eqf.setArgument(1, hbEl);//fixme
+            resolver.reset();
+            resolver.setQuery(query);
+            final Set <Variable> bindings = resolver.resolve();
+            if (bindings != null) {
+                this.bindings.addAll(bindings);
+                return;
+            }
+        }
 
-        return null;
-    }
-
-    public HtFunctor mgt ( HtFunctor f, PiCalls pc ) {
-
+        hbSet.add(goal);//if not found just add
     }
 
     @Override
@@ -132,11 +143,11 @@ public abstract class MetaInterpreterVisitor extends HtBasePositionalVisitor
     }
 
     @Override
-    protected void enterFunctor ( IFunctor functor ) {
+    protected void enterFunctor ( IFunctor functor ) throws LinkageException {
         if (!functor.isBracketed() && functor.isDottedPair()) {
             enterDottedPair((PackedDottedPair) functor);
         } else {
-            enterGoal(functor);
+            enterGoal(functor);//fixme redundant
         }
     }
 
@@ -155,16 +166,24 @@ public abstract class MetaInterpreterVisitor extends HtBasePositionalVisitor
 
     }
 
+    /**
+     * @param functor
+     */
     protected void leaveGoal ( IFunctor functor ) {
 
     }
 
-    protected void filterGoal ( IFunctor functor ) {
-
+    /**
+     * @param sym
+     * @param args
+     */
+    protected boolean filterGoal ( IFunctor sym, Term[] args ) {
+//        lookupGoal(sym, args);
+        return true;
     }// ->	% partially instantiated (HiLog) call
 
-    public Set <Variable> unify ( HtFunctor query, HtFunctor statement ) {
-        resolver.reset();
-        return resolver.resolve();
-    }
+//    public Set <Variable> unify ( HtFunctor query, HtFunctor statement ) {
+//        resolver.reset();
+//        return resolver.resolve();
+//    }
 }

@@ -84,12 +84,12 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     public HtResolutionEngine ( PlPrologParser parser,
                                 VariableAndFunctorInterner interner,
                                 ICompiler <T, P, Q> compiler,
-                                Resolver <P, Q> resolver ) {
+            /*Resolver <P, Q> resolver*/ ) {
         super(parser);
 
         this.interner = interner;
         this.compiler = compiler;
-        this.resolver = resolver;
+        this.resolver = this;//fixme
         this.compiler.setCompilerObserver(observer);
     }
 
@@ -98,7 +98,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * the engine requires, but otherwise set its domain to empty.
      */
     public void reset () {
-        resolver.reset();
+        resolver.reset();//fixme
     }
 
     /**

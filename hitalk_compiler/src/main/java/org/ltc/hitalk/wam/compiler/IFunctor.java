@@ -7,7 +7,7 @@ import org.ltc.hitalk.term.PackedDottedPair;
 /**
  *
  */
-public interface IFunctor extends IRangedArity {
+public interface IFunctor extends Term, IRangedArity {
     /**
      * @return
      */
