@@ -21,8 +21,8 @@ import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.PackedDottedPair;
-import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.HtPositionalTermTraverserImpl;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import static org.ltc.hitalk.term.PackedDottedPair.Kind;
 
@@ -90,8 +90,9 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
 
     /**
      * {@inheritDoc}
+     * @param functor
      */
-    public void visit ( HtFunctor functor ) {
+    public void visit ( IFunctor functor ) {
         if (traverser.isEnteringContext()) {
             enterFunctor(functor);
         } else if (traverser.isLeavingContext()) {
@@ -234,7 +235,7 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
      *
      * @param functor The functor being entered.
      */
-    protected void enterFunctor ( HtFunctor functor ) {
+    protected void enterFunctor ( IFunctor functor ) {
 
     }
 
@@ -243,7 +244,7 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
      *
      * @param functor The functor being left.
      */
-    protected void leaveFunctor ( HtFunctor functor ) {
+    protected void leaveFunctor ( IFunctor functor ) {
     }
 
     /**
@@ -283,7 +284,7 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
 //            HtFunctor[] body = sub.getBody();
 //            int name = -1;
 //            Term[] args = EMPTY_TERM_ARRAY;
-//            piCalls.add(new PiCall(name, args));
+//            piCalls.add(new PiCalls(name, args));
 //        }
 //
 //        return null;

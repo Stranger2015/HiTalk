@@ -1,6 +1,5 @@
 package org.ltc.hitalk.compiler.bktables;
 
-import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.Variable;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
@@ -14,6 +13,7 @@ import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.*;
 import org.ltc.hitalk.term.PackedDottedPair.Kind;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.nio.file.Path;
 
@@ -40,7 +40,6 @@ public class TermFactory implements ITermFactory {
     @Override
     public Atom newAtom ( String value ) {
         return newAtom(interner.internFunctorName(value, 0));
-//        return newFunctor(HiLogParser.hilogApply, name, new DottedPair());
     }
 
     /**
@@ -57,18 +56,17 @@ public class TermFactory implements ITermFactory {
      * @return
      */
     @Override
-    public Atom newAtom ( double value ) {
-        return null;
+    public FloatTerm newAtom ( double value ) {
+        return newAtomic(value);
     }
 
     /**
-     *
      * @param hilogApply
      * @param name
      * @return
      */
     @Override
-    public Functor newFunctor ( int hilogApply, String name, PackedDottedPair dottedPair ) {
+    public IFunctor newFunctor ( int hilogApply, String name, PackedDottedPair dottedPair ) {
         int arity = dottedPair.getArguments().length - 1;
         return newFunctor(interner.internFunctorName(name, arity), dottedPair);
     }
@@ -79,7 +77,7 @@ public class TermFactory implements ITermFactory {
      * @return
      */
     @Override
-    public Functor newFunctor ( int value, PackedDottedPair args ) {
+    public IFunctor newFunctor ( int value, PackedDottedPair args ) {
         return new HtFunctor(value, args.getArguments());
     }
 
@@ -88,8 +86,12 @@ public class TermFactory implements ITermFactory {
      * @return
      */
     @Override
-    public Term newVariable ( String value ) {
-        return new Variable(interner.internVariableName(value), null, false);
+    public Variable newVariable ( String value ) {
+        return new Variable(
+                interner.internVariableName(value),
+                null,
+                false
+        );
     }
 
     /**
@@ -105,9 +107,9 @@ public class TermFactory implements ITermFactory {
      * 文字列アトムを生成します。
      */
 //        public abstract Term newAtom ( String value );
-    public Functor newAtom ( VariableAndFunctorInterner interner, TokenKind ldelim, TokenKind rdelim ) {
+    public IFunctor newAtom ( VariableAndFunctorInterner interner, TokenKind ldelim, TokenKind rdelim ) {
         String s = String.format("%s%s", ldelim.getImage(), rdelim.getImage());
-        return new Functor(interner.internFunctorName(s, 0), EMPTY_TERM_ARRAY);
+        return new HtFunctor(interner.internFunctorName(s, 0), EMPTY_TERM_ARRAY);
     }
 
     /**
@@ -132,22 +134,34 @@ public class TermFactory implements ITermFactory {
         return null;
     }
 
+    public IFunctor createMostGeneral ( IFunctor functor ) {
+//        List <Term> l = new ArrayList <>();
+//        for (int i = 0; i < functor.getArity(); i++) {
+//            l.add(createVariable(String.format("$VAR%d", i)));
+//        }
+
+        return createMostGeneral(functor.getName());
+    }
+
+    public Variable createVariable ( String vname ) {
+        return new Variable(interner.internVariableName(vname), null, false);
+    }
+
     /**
      * @param s
      * @return
      */
     @Override
-    public Functor createAtom ( String s ) {
+    public IFunctor createAtom ( String s ) {
         int ffn = interner.internFunctorName(s, 0);
-        return new Atom(ffn);
+        return new HtFunctor(ffn, EMPTY_TERM_ARRAY);
     }
 
-    @Override
-    public Functor createCompound ( String s, Term[] head, Term tail ) {
-
-        return null;
-    }
-
+    /**
+     * @param flagName
+     * @param flagValue
+     * @return
+     */
     @Override
     public HtProperty createFlag ( String flagName, String flagValue ) {
         int ffn = interner.internFunctorName(flagName, 0);
@@ -180,7 +194,7 @@ public class TermFactory implements ITermFactory {
     }
 
     @Override
-    public Functor newFunctor ( int hilogApply, Term name, PackedDottedPair args ) {
+    public IFunctor newFunctor ( int hilogApply, Term name, PackedDottedPair args ) {
         Term[] headTail = args.getArguments();
         Term[] nameHeadTail = new Term[headTail.length + 1];
         System.arraycopy(headTail, 0, nameHeadTail, 1, headTail.length);
@@ -251,25 +265,21 @@ public class TermFactory implements ITermFactory {
      * @param arity
      * @return
      */
-    public Functor createCompound ( String s, int arity ) {
+    public IFunctor createCompound ( String s, int arity ) {
         int idx = interner.internFunctorName(s, arity);
 
-        return createCompound(idx, arity);
+        return createMostGeneral(idx);
     }
 
     /**
-     * @param s
-     * @param arity
-     *
+     * @param name
      * @return
      */
-    public Functor createCompound ( int s, int arity ) {
-        Term[] args = new Term[arity];
+    public IFunctor createMostGeneral ( int name ) {
+        Term[] args = new Term[interner.getFunctorArity(name)];
         for (int i = 0, argsLength = args.length; i < argsLength; i++) {
             args[i] = new Variable(i, null, false);
         }
-        return new Functor(s, args);
+        return new HtFunctor(name, args);
     }
-
-
 }

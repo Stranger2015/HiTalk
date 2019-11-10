@@ -1,6 +1,7 @@
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.Term;
+import com.thesett.aima.logic.fol.TermTraverser;
 import org.ltc.hitalk.term.PackedDottedPair;
 
 /**
@@ -36,4 +37,11 @@ public interface IFunctor extends IRangedArity {
     default boolean isDottedPair () {
         return this instanceof PackedDottedPair;
     }
+
+    boolean isBracketed ();
+
+    void setTermTraverser ( TermTraverser traverser );
+
+    boolean isDefined ();
+
 }

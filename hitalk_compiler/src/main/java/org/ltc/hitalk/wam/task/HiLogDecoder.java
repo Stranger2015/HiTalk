@@ -4,15 +4,15 @@ import com.thesett.aima.logic.fol.*;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.wam.compiler.HtFunctor;
-import org.ltc.hitalk.wam.compiler.PrologPositionalTransformVisitor;
+import org.ltc.hitalk.wam.compiler.IFunctor;
+import org.ltc.hitalk.wam.compiler.MetaInterpreterVisitor;
 
 import static java.lang.String.format;
 
 /**
  *
  */
-public class HiLogDecoder extends PrologPositionalTransformVisitor {
+public class HiLogDecoder extends MetaInterpreterVisitor {
     /**
      * Creates a positional visitor.
      *
@@ -29,7 +29,7 @@ public class HiLogDecoder extends PrologPositionalTransformVisitor {
      * @return
      */
     public Term decode ( Term term ) {
-//        enterTerm(term);
+        visit(term);
         return term;
     }
 
@@ -51,7 +51,7 @@ public class HiLogDecoder extends PrologPositionalTransformVisitor {
      * @param functor The functor being entered.
      */
     @Override
-    protected void enterFunctor ( HtFunctor functor ) {
+    protected void enterFunctor ( IFunctor functor ) {
         super.enterFunctor(functor);
     }
 
@@ -59,7 +59,7 @@ public class HiLogDecoder extends PrologPositionalTransformVisitor {
      * @param functor The functor being left.
      */
     @Override
-    protected void leaveFunctor ( HtFunctor functor ) {
+    protected void leaveFunctor ( IFunctor functor ) {
         super.leaveFunctor(functor);
     }
 

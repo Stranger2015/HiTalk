@@ -1,6 +1,5 @@
 package org.ltc.hitalk;
 
-import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
@@ -9,6 +8,8 @@ import org.ltc.hitalk.term.Atom;
 import org.ltc.hitalk.term.FloatTerm;
 import org.ltc.hitalk.term.IntTerm;
 import org.ltc.hitalk.term.PackedDottedPair;
+import org.ltc.hitalk.term.PackedDottedPair.Kind;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.nio.file.Path;
 
@@ -27,15 +28,16 @@ interface ITermFactory {
 
     /**
      * 実数値アトムを生成します。
+     * @return
      */
-    Atom newAtom ( double value );
+    FloatTerm newAtom ( double value );
 
     /**
      * ひとつ以上の引数を持つ関数子を作成します。
      */
-    Functor newFunctor ( int hilogApply, String value, PackedDottedPair args );
+    IFunctor newFunctor ( int hilogApply, String value, PackedDottedPair args );
 
-    Functor newFunctor ( int value, PackedDottedPair args );
+    IFunctor newFunctor ( int value, PackedDottedPair args );
 
     /**
      * 変数を作成します。
@@ -43,17 +45,12 @@ interface ITermFactory {
     Term newVariable ( String value );
 
     /**
-     * @return
-     */
-//    HiLogCompound createHiLogCompound ( Term term, ListTerm args );
-
-    /**
      * @param s
      * @return
      */
-    Functor createAtom ( String s );
+    IFunctor createAtom ( String s );
 
-    Functor createCompound ( String s, Term[] head, Term tail );
+//    Functor createCompound ( String s, Term[] head, Term tail );
 
     HtProperty createFlag ( String flagName, String flagValue );
 
@@ -74,21 +71,21 @@ interface ITermFactory {
 
 //    /**/Term newFunctor ( Term[] nameHeadTail );
 
-    Functor newFunctor ( int hilogApply, Term name, PackedDottedPair args );
+    IFunctor newFunctor ( int hilogApply, Term name, PackedDottedPair args );
 
     IntTerm newAtomic ( int i );
 
     FloatTerm newAtomic ( double f );
 
-    PackedDottedPair newDottedPair ( PackedDottedPair.Kind kind, Term[] terms );
+    PackedDottedPair newDottedPair ( Kind kind, Term[] terms );
 
     HtProperty createFlag ( String scratch_directory, Path scratchDir );
 
-
-//    Term newFunctor ( Term name, Term[] args );
-
-//    HtProperty createProperty ( String name, String value );
-//    HtProperty createProperty ( String name, Term... args );
+    /**
+     * @param functor
+     * @return
+     */
+    IFunctor createMostGeneral ( IFunctor functor );
 
 }
 /*

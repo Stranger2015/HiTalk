@@ -22,6 +22,7 @@ class HtBasicTraverser implements HtPredicateTraverser,
         HtFunctorTraverser,
         HtClauseVisitor,
         HtPredicateVisitor {
+
     /** Used for debugging purposes. */
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 

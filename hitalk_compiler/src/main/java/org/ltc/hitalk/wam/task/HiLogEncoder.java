@@ -4,15 +4,15 @@ import com.thesett.aima.logic.fol.*;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.wam.compiler.HtFunctor;
-import org.ltc.hitalk.wam.compiler.PrologPositionalTransformVisitor;
+import org.ltc.hitalk.wam.compiler.IFunctor;
+import org.ltc.hitalk.wam.compiler.MetaInterpreterVisitor;
 
 import static java.lang.String.format;
 
 /**
  *
  */
-public class HiLogEncoder extends PrologPositionalTransformVisitor {
+public class HiLogEncoder extends MetaInterpreterVisitor {
 
     /**
      * Creates a positional visitor.
@@ -44,12 +44,12 @@ public class HiLogEncoder extends PrologPositionalTransformVisitor {
     }
 
     @Override
-    protected void enterFunctor ( HtFunctor functor ) {
+    protected void enterFunctor ( IFunctor functor ) {
 
     }
 
     @Override
-    protected void leaveFunctor ( HtFunctor functor ) {
+    protected void leaveFunctor ( IFunctor functor ) {
     }
 
     @Override

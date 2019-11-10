@@ -22,7 +22,7 @@ class PiCallsCollector
         implements Collector <PiCalls, List <PiCalls>, PiCalls> {
 
     private final PredicateTable predicateTable;
-    private final PrologPositionalTransformVisitorNew pptv;
+    private final MetaInterpreterVisitor miv;
     private final VariableAndFunctorInterner interner;
     private final SymbolTable <Integer, String, Object> symbolTable;
 
@@ -30,7 +30,8 @@ class PiCallsCollector
     private final BiConsumer <List <PiCalls>, PiCalls> accumulator;
     private final BinaryOperator <List <PiCalls>> combiner;
     private final Function <List <PiCalls>, PiCalls> finisher;
-//    private final PiCallsList piCallsList = new PiCallsList();
+
+    private final List <PiCalls> piCallsList = new ArrayList <>();
 
     /**
      *
@@ -40,11 +41,11 @@ class PiCallsCollector
         predicateTable = Environment.instance().getPredicateTable();
         symbolTable = Environment.instance().getSymbolTable();
         interner = Environment.instance().getInterner();
-        pptv = new PrologPositionalTransformVisitorNew(symbolTable, interner);
         supplier = supplier();
         accumulator = accumulator();
         combiner = combiner();
         finisher = finisher();
+        miv = new PiCallsCollectorVisitor(symbolTable, interner);
     }
 
     /**
@@ -60,7 +61,9 @@ class PiCallsCollector
      */
     @Override
     public BiConsumer <List <PiCalls>, PiCalls> accumulator () {
-        return List::add;
+        return ( piCalls, e ) -> {
+            piCalls.add(e);
+        };
     }
 
     /**
@@ -80,13 +83,6 @@ class PiCallsCollector
     @Override
     public Function <List <PiCalls>, PiCalls> finisher () {
         return ( piCalls ) -> {
-//     * final Set<Integer> xs = new HashSet<>();
-//     * final Set<Integer> ys = new HashSet<>();
-//     *
-//     * for (Point p : points) {
-//     * xs.add(p.x());
-//     * ys.add(p.y());
-//     * }
 
             return null;
         };

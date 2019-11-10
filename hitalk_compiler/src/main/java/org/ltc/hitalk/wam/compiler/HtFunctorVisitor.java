@@ -33,5 +33,5 @@ public interface HtFunctorVisitor extends TermVisitor {
      *
      * @param functor The functor to visit.
      */
-    void visit ( HtFunctor functor );
+    void visit ( IFunctor functor );
 }

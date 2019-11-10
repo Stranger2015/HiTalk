@@ -32,7 +32,6 @@ import org.ltc.hitalk.term.io.HiTalkStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.OperationNotSupportedException;
 import java.io.IOException;
 import java.util.*;
 
@@ -418,7 +417,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * @param rule
      */
     @Override
-    public void compileDcgRule ( DcgRule rule ) throws SourceCodeException, OperationNotSupportedException {//fixme
+    public void compileDcgRule ( DcgRule rule ) throws SourceCodeException {//fixme
         compiler.compileDcgRule(rule);
     }
 
@@ -428,14 +427,6 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     @Override
     public void compileQuery ( Q query ) throws SourceCodeException {
         compiler.compileQuery(query);
-    }
-
-    /**
-     * @param clause
-     */
-    @Override
-    public void compileClause ( T clause ) {
-        compiler.compileClause(clause);
     }
 
     @Override

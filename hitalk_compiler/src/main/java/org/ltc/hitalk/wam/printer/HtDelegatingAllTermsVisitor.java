@@ -3,7 +3,8 @@ package org.ltc.hitalk.wam.printer;
 import com.thesett.aima.logic.fol.*;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.wam.compiler.HtFunctor;
+import org.ltc.hitalk.term.PackedDottedPair;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 
 /*
  * Copyright The Sett Ltd, 2005 to 2014.
@@ -130,7 +131,13 @@ class HtDelegatingAllTermsVisitor implements HtAllTermsVisitor {
 
     }
 
-    public void visit ( HtFunctor functor ) {
+    @Override
+    public void visit ( IFunctor functor ) {
+
+    }
+
+    @Override
+    public void visit ( PackedDottedPair dottedPair ) {
 
     }
 }

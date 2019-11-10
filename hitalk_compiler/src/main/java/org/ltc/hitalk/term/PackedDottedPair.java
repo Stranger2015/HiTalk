@@ -13,6 +13,8 @@ import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
  */
 public class PackedDottedPair extends RecursiveList implements Term, IFunctor {
 
+    public static final Term TRUE = new PackedDottedPair(Kind.TRUE);
+
     /**
      *
      */
@@ -24,7 +26,7 @@ public class PackedDottedPair extends RecursiveList implements Term, IFunctor {
      * @param kind
      * @param arguments
      */
-    public PackedDottedPair ( Kind kind, Term[] arguments ) {
+    public PackedDottedPair ( Kind kind, Term... arguments ) {
         super(-kind.ordinal(), arguments);
     }
 
@@ -101,6 +103,9 @@ public class PackedDottedPair extends RecursiveList implements Term, IFunctor {
     }
 
     public Term get ( int i ) {
+        if (size() == i) {
+            return TRUE;
+        }
         return getHeads()[i];
     }
 
