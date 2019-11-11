@@ -32,7 +32,6 @@ import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.HiTalkTopLevelCheckVisitor;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
-import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 
 import java.util.List;
 
@@ -60,17 +59,18 @@ class HiTalkPreCompiler extends PrologPreCompiler implements ICompiler <HtClause
      *
      * @param symbolTable    The symbol table.
      * @param interner       The machine to translate functor and variable names.
+     * @param builtInTransform
      * @param defaultBuiltIn The default built in, for standard compilation and interners and symbol tables.
-     * @param compiler
+     * @param parser
+     * @param resolver
      */
     public HiTalkPreCompiler ( SymbolTable <Integer, String, Object> symbolTable,
                                VariableAndFunctorInterner interner,
+                               PrologBuiltInTransform <IApplication, HtClause> builtInTransform,
                                PrologDefaultBuiltIn defaultBuiltIn,
-                               PrologBuiltInTransform <IApplication, Term> builtInTransform,
-                               Resolver <HtClause, HtClause> resolver,
-                               PlPrologParser parser,
-                               PrologWAMCompiler compiler ) {
-        super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, parser, compiler);
+                               Resolver <HtPredicate, HtClause> resolver,
+                               PlPrologParser parser ) {
+        super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, parser);
 
 //        builtInTransform = new HiTalkBuiltInTransform (defaultBuiltIn, this, resolver);//TODO GLOBAL CTX NEEDED!!77
 

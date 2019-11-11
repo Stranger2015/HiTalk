@@ -27,7 +27,7 @@ import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
-import org.ltc.hitalk.term.HlOpSymbol.Associativity;
+import org.ltc.hitalk.term.HlOpSymbol;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +65,6 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * Holds the compiler.
      */
     protected ICompiler <T, P, Q> compiler;
-    protected Resolver <P, Q> resolver;
 
     /**
      * Holds the observer for compiler outputs.
@@ -74,6 +73,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
 
     protected Q currentQuery;
     protected final List <Set <Variable>> vars = new ArrayList <>();
+    protected Resolver <P, Q> resolver;
 
     /**
      * Creates a prolog parser using the specified interner.
@@ -84,21 +84,22 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     public HtResolutionEngine ( PlPrologParser parser,
                                 VariableAndFunctorInterner interner,
                                 ICompiler <T, P, Q> compiler,
-            /*Resolver <P, Q> resolver*/ ) {
+                                Resolver <P, Q> resolver ) {
         super(parser);
 
         this.interner = interner;
         this.compiler = compiler;
-        this.resolver = this;//fixme
+        this.resolver = resolver;
         this.compiler.setCompilerObserver(observer);
     }
 
     /**
-     * Resets the engine to its default state. This will typically load any bootstrapping libraries of built-ins that
+     * Resets the engine to its default state. This will typically load any
+     * bootstrapping libraries of built-ins that
      * the engine requires, but otherwise set its domain to empty.
      */
     public void reset () {
-        resolver.reset();//fixme
+
     }
 
     /**
@@ -306,7 +307,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     /**
      * {@inheritDoc}
      */
-    public void setOperator ( String operatorName, int priority, Associativity associativity ) {
+    public void setOperator ( String operatorName, int priority, HlOpSymbol.Associativity associativity ) {
         parser.setOperator(operatorName, priority, associativity);
     }
 
@@ -315,7 +316,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      */
     public void setQuery ( Q query ) throws LinkageException {
 //        currentQuery = query;
-        resolver.setQuery(query);
+//        resolver.setQuery(query);
     }
 
     /**
@@ -328,7 +329,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      *                          resolution, or simply to fail to find a resolution.
      */
     public void addToDomain ( P term ) throws LinkageException {
-        resolver.addToDomain(term);
+        //resolver.addToDomain(term);
     }
 
     /**
@@ -365,7 +366,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
 //    }
 
     public void compile ( Sentence <T> sentence ) throws SourceCodeException {
-        compiler.compile(sentence);
+        compiler.compile(sentence.getT());
     }
 
     public void setCompilerObserver ( LogicCompilerObserver <P, Q> observer ) {

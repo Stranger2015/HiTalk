@@ -44,15 +44,15 @@ import static org.ltc.hitalk.wam.compiler.Tools.COMPILER;
 /**
  *
  */
-public abstract class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P, Q> {
+public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P, Q> {
 
     public static final String DEFAULT_SCRATCH_DIRECTORY = "scratch";
-    private static final HtProperty[] DEFAULT_PROPS = new HtProperty[]{
+    public static final HtProperty[] DEFAULT_PROPS = new HtProperty[]{
 
     };
 
     protected DefaultFileSystemManager fsManager;
-    protected BaseCompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> compiler;
+    protected BaseCompiler <T, P, Q> compiler;
 
     protected Path scratchDirectory = Paths.get(DEFAULT_SCRATCH_DIRECTORY).toAbsolutePath();
     protected CompilationContext compilationContext = new CompilationContext();
@@ -60,7 +60,8 @@ public abstract class PrologCompilerApp<T extends HtClause, P, Q> extends BaseAp
     protected ExecutionContext executionContext = new ExecutionContext();
     protected IProduct product = new HtProduct("Copyright (c) Anton Danilov 2018-2019, All rights reserved",
             language().getName() + " " + tool().getName(),
-            new HtVersion(0, 1, 0, 61, " ", true));
+            new HtVersion(0, 1, 0, 81, " ", true));
+    protected LogicCompilerObserver <P, Q> observer;
 
     /**
      *
@@ -73,11 +74,11 @@ public abstract class PrologCompilerApp<T extends HtClause, P, Q> extends BaseAp
     }
 
     //    @Override
-    public BaseCompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> createWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
-                                                                                                           VariableAndFunctorInterner interner,
-                                                                                                           PlPrologParser parser,
-                                                                                                           ) {
-        return new PrologWAMCompiler(symbolTable, interner, parser, );
+    public BaseCompiler <T, P, Q> createWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
+                                                      VariableAndFunctorInterner interner,
+                                                      PlPrologParser parser,
+                                                      LogicCompilerObserver <P, Q> observer ) {
+        return new PrologWAMCompiler <>(symbolTable, interner, parser, observer);
     }
 
     @Override
@@ -120,7 +121,7 @@ public abstract class PrologCompilerApp<T extends HtClause, P, Q> extends BaseAp
 //        setParser(createParser(getParser()));
 //                PlTokenSource.getTokenSourceForInputStream(null, "stdin"), interner));
 
-        compiler = createWAMCompiler(getSymbolTable(), getInterner(), getParser());
+        compiler = createWAMCompiler(getSymbolTable(), getInterner(), getParser(), getObserver());
 //        bkt = new BookKeepingTables();
         setConfig(new CompilerConfig());
         //scratchDirectory = "./" + DEFAULT_SCRATCH_DIRECTORY;
@@ -159,11 +160,12 @@ public abstract class PrologCompilerApp<T extends HtClause, P, Q> extends BaseAp
      * @param parser
      * @return
      */
-    public abstract BaseCompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>
-    createWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
-                        VariableAndFunctorInterner interner,
-                        LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer,
-                        PlPrologParser parser );
+    public BaseCompiler <T, P, Q> createWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
+                                                      VariableAndFunctorInterner interner,
+                                                      LogicCompilerObserver <P, Q> observer,
+                                                      PlPrologParser parser ) {
+        return new PrologWAMCompiler <>(symbolTable, interner, parser, observer);
+    }
 
     /**
      * @param stream
@@ -250,8 +252,8 @@ public abstract class PrologCompilerApp<T extends HtClause, P, Q> extends BaseAp
                 break;
             }
 //            compiler.compile(sentence);
-            HtClause cl = libParser.convert(sentence.getT());
-            compiler.compile(cl);
+            HtClause clause = libParser.convert(sentence.getT());
+            compiler.compile((T) clause);
         }
         compiler.endScope();
 //         There should not be any errors in the built in library, if there are then the prolog engine just
@@ -301,7 +303,7 @@ public abstract class PrologCompilerApp<T extends HtClause, P, Q> extends BaseAp
         Environment.instance().setInterner(interner);
     }
 
-    private BaseCompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> getCompiler () {
+    private BaseCompiler <T, P, Q> getCompiler () {
         return compiler;
     }
 
@@ -339,5 +341,13 @@ public abstract class PrologCompilerApp<T extends HtClause, P, Q> extends BaseAp
     @Override
     public void shutdown () {
         fsManager.close();
+    }
+
+    public LogicCompilerObserver <P, Q> getObserver () {
+        return observer;
+    }
+
+    public void setObserver ( LogicCompilerObserver <P, Q> observer ) {
+        this.observer = observer;
     }
 }

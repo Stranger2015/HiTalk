@@ -1,8 +1,8 @@
 package org.ltc.hitalk.entities;
 
 
-import com.thesett.aima.logic.fol.Functor;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import static org.ltc.hitalk.entities.HtEntityKind.*;
 
@@ -19,8 +19,7 @@ class HtEntityDirective extends HtClause/* implements Hierarchy */ {
      * @param body       The functors that make up the query body of the program, if any. May be <tt>null</tt>
      * @param entityKind
      */
-    public
-    HtEntityDirective ( Functor[] body, Kind kind, /*HtDirective.DirKind dirKind,*/ HtEntityKind entityKind ) {
+    public HtEntityDirective ( IFunctor[] body, Kind kind, /*HtDirective.DirKind dirKind,*/ HtEntityKind entityKind ) {
         super(null, null, body);
 
         this.kind = kind;

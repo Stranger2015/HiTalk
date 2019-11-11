@@ -1,13 +1,13 @@
 package org.ltc.hitalk.wam.task;
 
-import com.thesett.aima.logic.fol.Clause;
 import org.ltc.hitalk.compiler.bktables.error.StopRequestException;
+import org.ltc.hitalk.parser.HtClause;
 
 import java.util.Collections;
 import java.util.List;
 
 public
-interface IInvokable<T extends Clause> extends Runnable {
+interface IInvokable<T extends HtClause> extends Runnable {
 
     /**
      * When an object implementing interface <code>Runnable</code> is used

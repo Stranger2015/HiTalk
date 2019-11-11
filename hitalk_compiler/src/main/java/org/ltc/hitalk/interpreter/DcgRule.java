@@ -1,7 +1,7 @@
 package org.ltc.hitalk.interpreter;
 
-import com.thesett.aima.logic.fol.Functor;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 
 /**
  *
@@ -13,8 +13,7 @@ class DcgRule extends HtClause {
      * @param head
      * @param body
      */
-    public
-    DcgRule ( Functor head, Functor[] body ) {
+    public DcgRule ( IFunctor head, IFunctor[] body ) {
         super(null, head, body);
     }
 }

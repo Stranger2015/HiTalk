@@ -54,7 +54,8 @@ import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.STR;
  */
 public abstract
 class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
-        implements Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>, HiTalkWAMResolvingMachineDPI {
+        implements Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>,
+        HiTalkWAMResolvingMachineDPI {
     //Used for debugging.
     //private static final Logger log = Logger.getLogger(HiTalkWAMResolvingMachine.class.getName());
 

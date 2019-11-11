@@ -1,7 +1,6 @@
 package org.ltc.hitalk.entities;
 
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
-import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 /**
@@ -12,12 +11,12 @@ interface ISubroutine {
     /**
      * @return
      */
-    HtFunctor getHead ();
+    IFunctor getHead ();
 
     /**
      * @return
      */
-    HtFunctor[] getBody ();
+    IFunctor[] getBody ();
 
     IFunctor getGoal ( int i );
 
@@ -28,4 +27,8 @@ interface ISubroutine {
      * @return
      */
     String toString ( VariableAndFunctorInterner interner, boolean printVarName, boolean printBindings );
+
+    default boolean isQuery () {
+        return getHead() == null;
+    }
 }

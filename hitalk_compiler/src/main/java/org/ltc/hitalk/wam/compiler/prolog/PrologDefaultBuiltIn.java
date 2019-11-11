@@ -10,6 +10,7 @@ import com.thesett.aima.search.util.uninformed.PostFixSearch;
 import com.thesett.common.util.SizeableLinkedList;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.PrologBuiltIn;
 
 import java.util.Collection;
@@ -72,7 +73,7 @@ public class PrologDefaultBuiltIn extends BaseMachine implements PrologBuiltIn {
     /**
      * {@inheritDoc}
      */
-    public SizeableLinkedList <HiTalkWAMInstruction> compileBodyCall ( Functor expression,
+    public SizeableLinkedList <HiTalkWAMInstruction> compileBodyCall ( IFunctor expression,
                                                                        boolean isFirstBody,
                                                                        boolean isLastBody,
                                                                        boolean chainRule,
@@ -103,7 +104,7 @@ public class PrologDefaultBuiltIn extends BaseMachine implements PrologBuiltIn {
      * {@inheritDoc}
      */
     public SizeableLinkedList <HiTalkWAMInstruction> compileBodyArguments (
-            Functor expression,
+            IFunctor expression,
             boolean isFirstBody,
             FunctorName clauseName,
             int bodyNumber ) {
@@ -257,7 +258,7 @@ public class PrologDefaultBuiltIn extends BaseMachine implements PrologBuiltIn {
      *
      * @param expression The clause head functor to allocate argument registers to.
      */
-    public void allocateArgumentRegisters ( Functor expression ) {
+    public void allocateArgumentRegisters ( IFunctor expression ) {
         // Assign argument registers to functors appearing directly in the argument of the outermost functor.
         // Variables are never assigned directly to argument registers.
         int reg = 0;

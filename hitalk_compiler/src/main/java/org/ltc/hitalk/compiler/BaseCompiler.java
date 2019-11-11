@@ -55,7 +55,7 @@ public class BaseCompiler<T extends HtClause, P, Q> extends BaseMachine
         this.observer = observer;
     }
 
-    @Override
+    //    @Override
     public void compile ( Sentence <T> sentence ) throws SourceCodeException {
         logger.debug("compile(Sentence<T> sentence = " + sentence + "): called... ");
 
@@ -64,7 +64,7 @@ public class BaseCompiler<T extends HtClause, P, Q> extends BaseMachine
 
         // Classify the sentence to compile by the different sentence types in the language.
         if (clause.isQuery()) {
-            compileQuery(clause.getT());
+            compileQuery((Q) clause);//FIXME
         } else {
             // Initialize a nested symbol table for the current compilation scope, if it has not already been.
             if (scopeTable == null) {
@@ -130,7 +130,7 @@ public class BaseCompiler<T extends HtClause, P, Q> extends BaseMachine
             if (t == null) {
                 break;
             }
-            T c = parser.convert(t);
+            T c = (T) parser.convert(t);//FIXME
             compile(c, flags);
         }
     }

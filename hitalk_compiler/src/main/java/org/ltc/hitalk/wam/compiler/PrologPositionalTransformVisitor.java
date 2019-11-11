@@ -54,7 +54,7 @@ public class PrologPositionalTransformVisitor extends HtBasePositionalVisitor
         super.leaveTerm(term);
     }
 
-    protected void enterFunctor ( HtFunctor functor ) {
+    protected void enterFunctor ( HtFunctor functor ) throws LinkageException {
         super.enterFunctor(functor);
     }
 
@@ -129,12 +129,12 @@ public class PrologPositionalTransformVisitor extends HtBasePositionalVisitor
             final PackedDottedPair dp = (PackedDottedPair) body.get(i);
             switch (dp.getKind()) {
                 case NOT:
-                    final IFunctor g1 = (IFunctor);
+//                    final IFunctor g1 = (IFunctor);
 
-                    chb0((IFunctor) dp.getHeads()[i], hb);
+//                    chb0((IFunctor) dp.getHeads()[i], hb);
                 case AND:
                 case OR:
-                    chb0(j + 1, body, hb);//FALLING DOWN
+//                    chb0(j + 1, body, hb);//FALLING DOWN
                 case GOAL:
 
                     break;
@@ -149,14 +149,14 @@ public class PrologPositionalTransformVisitor extends HtBasePositionalVisitor
     }
 
     private void chb0 ( PackedDottedPair.Kind kind, IFunctor g1, Map <IFunctor, List <PiCalls>> hb ) {
-        chb(;
+
     }
 
     protected void leavePredicate ( HtPredicate predicate ) {
         super.leavePredicate(predicate);
     }
 
-    protected void enterClause ( HtClause clause ) {
+    protected void enterClause ( HtClause clause ) throws LinkageException {
         super.enterClause(clause);
     }
 

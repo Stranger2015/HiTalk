@@ -16,7 +16,7 @@ import java.util.List;
 public
 class DefaultTransformer<T extends HtClause, TC extends Term> implements ITransformer <T, TC> {
 
-    protected final static Logger logger = LoggerFactory.getLogger(DefaultTransformer.class);
+    protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     protected List <T> target;
 

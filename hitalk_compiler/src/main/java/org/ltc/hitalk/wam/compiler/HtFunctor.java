@@ -48,6 +48,10 @@ public class HtFunctor extends Functor implements IFunctor {
         return super.getArity();
     }
 
+    public boolean isDefined () {
+        return false;
+    }
+
     /**
      * @return
      */

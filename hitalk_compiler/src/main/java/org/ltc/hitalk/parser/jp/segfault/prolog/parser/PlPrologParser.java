@@ -20,6 +20,7 @@ import org.ltc.hitalk.term.PackedDottedPair;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.HtFunctorName;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.Language;
 
 import java.io.IOException;
@@ -303,12 +304,12 @@ public class PlPrologParser implements IParser {
      * @throws IOException
      * @throws ParseException
      */
-    protected Functor compound ( String name ) throws IOException, ParseException {
+    protected IFunctor compound ( String name ) throws IOException, ParseException {
         PackedDottedPair args = readSequence(LPAREN, RPAREN, false);
         return compound(name, args);
     }
 
-    protected Functor compound ( String name, PackedDottedPair args ) throws IOException, ParseException {
+    protected IFunctor compound ( String name, PackedDottedPair args ) throws IOException, ParseException {
         return factory.newFunctor(HiLogParser.hilogApply, name, args);
     }
 

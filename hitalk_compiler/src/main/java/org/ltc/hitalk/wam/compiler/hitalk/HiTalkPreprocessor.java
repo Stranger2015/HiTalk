@@ -4,16 +4,15 @@ package org.ltc.hitalk.wam.compiler.hitalk;
 import com.thesett.aima.logic.fol.*;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.PrologBuiltInTransform;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
-import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
-import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.expander.DefaultTermExpander;
-import org.ltc.hitalk.wam.task.HiLogPreprocessor;
+import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.task.StandardPreprocessor;
 import org.ltc.hitalk.wam.task.TransformTask;
 import org.ltc.hitalk.wam.transformers.DefaultTransformer;
@@ -30,7 +29,7 @@ public class HiTalkPreprocessor<TC extends Term, TT extends TransformTask <HtCla
         extends HiTalkPreCompiler {
 
     protected final DefaultTransformer <HtClause, TC> defaultTransformer;
-    protected final HiTalkDefaultBuiltIn defaultBuiltIn;
+    //    protected final HiTalkDefaultBuiltIn defaultBuiltIn;
     //    protected final HiTalkBuiltInTransform builtInTransform;
     protected final List <TT> components = new ArrayList <>();
     //    protected final Function <TC, List <TC>> defaultAction;
@@ -54,16 +53,15 @@ public class HiTalkPreprocessor<TC extends Term, TT extends TransformTask <HtCla
     public
     HiTalkPreprocessor ( SymbolTable <Integer, String, Object> symbolTable,
                          VariableAndFunctorInterner interner,
-                         HiTalkDefaultBuiltIn defaultBuiltIn,
-                         Resolver <HtClause, HtClause> resolver,
-                         HiTalkWAMCompiler compiler )
+                         PrologBuiltInTransform builtInTransform,
+                         PrologDefaultBuiltIn defaultBuiltIn,
+                         Resolver <HtPredicate, HtClause> resolver,
+                         PlPrologParser parser )
             throws LinkageException {
 
-        super(symbolTable, interner, defaultBuiltIn, resolver, compiler);
+        super(symbolTable, interner, builtInTransform, defaultBuiltIn, resolver, parser);
 
-        this.defaultBuiltIn = defaultBuiltIn;
 //        this.builtInTransform = new HiTalkBuiltInTransform(defaultBuiltIn);
-        this.resolver = resolver;
 
         defaultTransformer = new DefaultTransformer <>((HtClause) null);
 
@@ -85,7 +83,7 @@ public class HiTalkPreprocessor<TC extends Term, TT extends TransformTask <HtCla
         }
 
         components.add((TT) new DefaultTermExpander(preCompiledTarget, defaultTransformer));
-        components.add((TT) new HiLogPreprocessor <>(null, defaultTransformer, interner));
+//        components.add((TT) new HiLogPreprocessor <>(null, defaultTransformer, interner));
         components.add((TT) new StandardPreprocessor(null, preCompiledTarget, defaultTransformer));
     }
 
@@ -121,10 +119,10 @@ public class HiTalkPreprocessor<TC extends Term, TT extends TransformTask <HtCla
 
     }
 
-    @Override
-    public void setCompilerObserver ( HtResolutionEngine.ChainedCompilerObserver observer ) {
-
-    }
+//    @Override
+//    public void setCompilerObserver ( HtResolutionEngine.ChainedCompilerObserver observer ) {
+//
+//    }
 
     @Override
     public
@@ -190,15 +188,6 @@ public class HiTalkPreprocessor<TC extends Term, TT extends TransformTask <HtCla
     @Override
     public
     void compileQuery ( HtClause query ) throws SourceCodeException {
-
-    }
-
-    /**
-     * @param clause
-     */
-    @Override
-    public
-    void compileClause ( HtClause clause ) {
 
     }
 

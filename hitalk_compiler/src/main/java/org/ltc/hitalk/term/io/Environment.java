@@ -156,7 +156,7 @@ class Environment {
         termFactory = new TermFactory(interner);
         optable = new PlDynamicOperatorParser();
         parser = new PlPrologParser(getStream(0), interner, termFactory, optable);
-        resolver = new HtResolutionEngine <>(parser, interner, compiler, )
+        resolver = new HtResolutionEngine <>(parser, interner, compiler, Environment.instance().getResolver());
 
         initOptions("org/ltc/hitalk/wam/compiler/startup.pl");
     }

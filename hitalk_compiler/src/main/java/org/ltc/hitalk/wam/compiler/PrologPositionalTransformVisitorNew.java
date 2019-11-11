@@ -54,7 +54,7 @@ public class PrologPositionalTransformVisitorNew extends HtBasePositionalVisitor
         super.leaveTerm(term);
     }
 
-    protected void enterFunctor ( HtFunctor functor ) {
+    protected void enterFunctor ( HtFunctor functor ) throws LinkageException {
         super.enterFunctor(functor);
     }
 
@@ -129,12 +129,12 @@ public class PrologPositionalTransformVisitorNew extends HtBasePositionalVisitor
             final PackedDottedPair goal = (PackedDottedPair) body.get(i);
             switch (goal.getKind()) {
                 case NOT:
-                    final IFunctor g1 = (IFunctor);
-                    HtBasePositionalVisitor metaint = new HtBasePositionalVisitor()
-                    chb0((IFunctor) goal.get(i), hb);
+//                    final IFunctor g1 = (IFunctor);
+//                    HtBasePositionalVisitor metaint = new HtBasePositionalVisitor()
+//                    chb0((IFunctor) goal.get(i), hb);
                 case AND:
                 case OR:
-                    chb0(j + 1, body, hb);//FALLING DOWN
+//                    chb0(j + 1, body, hb);//FALLING DOWN
                 case GOAL:
 
                     break;
@@ -148,15 +148,15 @@ public class PrologPositionalTransformVisitorNew extends HtBasePositionalVisitor
         }
     }
 
-    private void chb0 ( PackedDottedPair.Kind kind, IFunctor g1, Map <IFunctor, List <PiCalls>> hb ) {
-        chb(;
-    }
+//    private void chb0 ( PackedDottedPair.Kind kind, IFunctor g1, Map <IFunctor, List <PiCalls>> hb ) {
+//        chb(;
+//    }
 
     protected void leavePredicate ( HtPredicate predicate ) {
         super.leavePredicate(predicate);
     }
 
-    protected void enterClause ( HtClause clause ) {
+    protected void enterClause ( HtClause clause ) throws LinkageException {
         super.enterClause(clause);
     }
 

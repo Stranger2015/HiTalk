@@ -1,9 +1,9 @@
+package org.ltc.hitalk.wam.compiler.prolog;
+
 import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.PredicateTable;
-import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
-import org.ltc.hitalk.entities.HtPredicateDefinition;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
 import org.ltc.hitalk.parser.HtClause;
@@ -14,10 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 
 /**
  *
@@ -80,15 +76,6 @@ public class SpecializerTransformer implements ISpecializer {
         return null;
     }
 
-    List <HtClause> clauseList ( HtPredicateDefinition <? extends HtClause, ?
-            extends org.ltc.hitalk.entities.HtPredicate, ? extends HtClause> definition ) {
-        if (definition.isBuiltIn()) {
-            throw new ExecutionError(PERMISSION_ERROR, null);
-        }
-
-        return IntStream.range(0, definition.size()).mapToObj(i -> definition.get(i)).
-                collect(Collectors.toList());
-    }
 
 }
 

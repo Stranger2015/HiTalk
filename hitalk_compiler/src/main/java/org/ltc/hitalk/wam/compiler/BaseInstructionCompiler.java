@@ -375,14 +375,14 @@ public abstract class BaseInstructionCompiler
         result.addInstructions(preFixInstructions);
 
         // Compile the clause head.
-        Functor expression = clause.getHead();
+        IFunctor expression = clause.getHead();
 
         SizeableLinkedList <HiTalkWAMInstruction> instructions = compileHead(expression);
         result.addInstructions(expression, instructions);
 
         // Compile all of the conjunctive parts of the body of the clause, if there are any.
         if (!isFact) {
-            Functor[] expressions = clause.getBody();
+            IFunctor[] expressions = clause.getBody();
 
             for (int i = 0; i < expressions.length; i++) {
                 expression = expressions[i];
@@ -636,7 +636,7 @@ public abstract class BaseInstructionCompiler
      * @param expression The clause head to compile.
      * @return A listing of the instructions for the clause head in the WAM instruction set.
      */
-    private SizeableLinkedList <HiTalkWAMInstruction> compileHead ( Functor expression ) {
+    private SizeableLinkedList <HiTalkWAMInstruction> compileHead ( IFunctor expression ) {
         // Used to build up the results in.
         SizeableLinkedList <HiTalkWAMInstruction> instructions = new SizeableLinkedList <>();
 

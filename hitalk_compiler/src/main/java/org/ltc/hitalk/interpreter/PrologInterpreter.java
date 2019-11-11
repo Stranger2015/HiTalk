@@ -3,6 +3,7 @@ package org.ltc.hitalk.interpreter;
 import com.thesett.aima.logic.fol.*;
 import com.thesett.common.parsing.SourceCodeException;
 import jline.ConsoleReader;
+import org.ltc.hitalk.compiler.PredicateTable;
 import org.ltc.hitalk.compiler.bktables.IConfig;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.parser.HtClause;
@@ -17,14 +18,14 @@ import org.slf4j.LoggerFactory;
 import java.util.Iterator;
 import java.util.Set;
 
-public
-class PrologInterpreter<T extends HtClause, P, Q> implements IInterpreter <T, P, Q>, IParser {
+public class PrologInterpreter<T extends HtClause, P, Q>
+        implements IInterpreter <T, P, Q>, IParser {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     protected final PlPrologParser parser;
+    protected final ICompiler <T, P, Q> compiler;
     protected IConfig config;
     protected ConsoleReader reader;
-    protected final ICompiler <T, P, Q> compiler;
     protected LogicCompilerObserver <P, Q> observer;
     protected Mode mode;
     protected HtResolutionEngine <T, P, Q> engine;
@@ -98,8 +99,7 @@ class PrologInterpreter<T extends HtClause, P, Q> implements IInterpreter <T, P,
     public void evaluate ( T clause ) throws SourceCodeException {
         if (clause.isQuery()) {
             engine.endScope();
-            engine.compileClause(clause);
-//            evaluateQuery();
+            engine.compile(clause);
         } else {
             // Check if the program clause is new, or a continuation of the current predicate.
             int name = clause.getHead().getName();
@@ -116,12 +116,14 @@ class PrologInterpreter<T extends HtClause, P, Q> implements IInterpreter <T, P,
     /**
      * @param clause
      */
-    private void addProgramClause ( HtClause clause ) {
-        //todo
+    protected void addProgramClause ( HtClause clause ) {
+        final PredicateTable predicateTable = Environment.instance().getPredicateTable();
+        /*final HtPredicateDefinition def = */
+        predicateTable.lookup(clause);
     }
 
     /**
-     * @return
+     * @returcn
      */
     @Override
     public ConsoleReader getConsoleReader () {

@@ -18,7 +18,6 @@ package org.ltc.hitalk.wam.compiler;
 
 
 import com.thesett.aima.attribute.impl.IdAttribute;
-import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.logic.fol.FunctorName;
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.Sentence;
@@ -97,7 +96,7 @@ public class HiTalkWAMCompiledQuery extends HtClause implements Sentence <HiTalk
      * recorded, since they only need to be tracked in order to display the results of queries.
      */
     public HiTalkWAMCompiledQuery () {
-        super(null, null, new Functor[0]);
+        super(null, null, new IFunctor[0]);
     }
 
     /**
@@ -107,20 +106,20 @@ public class HiTalkWAMCompiledQuery extends HtClause implements Sentence <HiTalk
      * @param freeVarNames The set of variables in the clause that are free.
      */
     public HiTalkWAMCompiledQuery ( Map <Byte, Integer> varNames, Set <Integer> freeVarNames ) {
-        super(null, null, new Functor[0]);
+        super(null, null, new IFunctor[0]);
         this.varNames = varNames;
         this.nonAnonymousFreeVariables = freeVarNames;
     }
 
-    public HiTalkWAMCompiledQuery ( HtEntityIdentifier identifier, Functor head, Functor[] body ) {
+    public HiTalkWAMCompiledQuery ( HtEntityIdentifier identifier, IFunctor head, IFunctor[] body ) {
         super(identifier, head, body);
     }
 
-    public HiTalkWAMCompiledQuery ( HtEntityIdentifier identifier, Functor head ) {
+    public HiTalkWAMCompiledQuery ( HtEntityIdentifier identifier, IFunctor head ) {
         super(identifier, head);
     }
 
-    public HiTalkWAMCompiledQuery ( Functor head, Functor[] body, HtEntityIdentifier identifier ) {
+    public HiTalkWAMCompiledQuery ( IFunctor head, IFunctor[] body, HtEntityIdentifier identifier ) {
         super(head, body, identifier);
     }
 
@@ -130,7 +129,7 @@ public class HiTalkWAMCompiledQuery extends HtClause implements Sentence <HiTalk
      * @param head         The head of this clause.
      * @param instructions A list of instructions to add to the head.
      */
-    public void setHead ( Functor head, SizeableList <HiTalkWAMInstruction> instructions ) {
+    public void setHead ( IFunctor head, SizeableList <HiTalkWAMInstruction> instructions ) {
         this.head = head;
 
         addInstructions(instructions);
@@ -142,12 +141,12 @@ public class HiTalkWAMCompiledQuery extends HtClause implements Sentence <HiTalk
      * @param body         A conjunctive body functor to add to this clause.
      * @param instructions A list of instructions to add to the body.
      */
-    public void addInstructions ( Functor body, SizeableList <HiTalkWAMInstruction> instructions ) {
+    public void addInstructions ( IFunctor body, SizeableList <HiTalkWAMInstruction> instructions ) {
         int oldLength;
 
         if (this.body == null) {
             oldLength = 0;
-            this.body = new Functor[1];
+            this.body = new IFunctor[1];
         } else {
             oldLength = this.body.length;
             this.body = Arrays.copyOf(this.body, oldLength + 1);

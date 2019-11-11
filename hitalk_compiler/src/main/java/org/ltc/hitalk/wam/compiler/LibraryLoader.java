@@ -24,7 +24,7 @@ public class LibraryLoader<T extends HtClause, P, Q> extends BaseCompiler <T, P,
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     protected final PlPrologParser parser = instance().getParser();
-    protected final ICompiler <T, P, Q> compiler = instance().getCompiler();
+    private final ICompiler <T, P, Q> compiler;
 
     /**
      * @param symbolTable
@@ -34,8 +34,10 @@ public class LibraryLoader<T extends HtClause, P, Q> extends BaseCompiler <T, P,
     public LibraryLoader ( SymbolTable <Integer, String, Object> symbolTable,
                            VariableAndFunctorInterner interner,
                            PlPrologParser parser,
-                           LogicCompilerObserver <P, Q> observer ) {
+                           LogicCompilerObserver <P, Q> observer,
+                           ICompiler <T, P, Q> compiler ) {
         super(symbolTable, interner, parser, observer);
+        this.compiler = compiler;
     }
 
     /**

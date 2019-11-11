@@ -64,8 +64,16 @@ class HiTalkWAMCompiledClause extends HtClause {
 //        this.parent = parent;
 //    }
 
-    public HiTalkWAMCompiledClause ( HtFunctor head,
-                                     HtFunctor[] body,
+    /**
+     * add dotted pair
+     *
+     * @param head
+     * @param body
+     * @param identifier
+     * @param parent
+     */
+    public HiTalkWAMCompiledClause ( IFunctor head,
+                                     IFunctor[] body,
                                      HtEntityIdentifier identifier,
                                      HiTalkWAMCompiledPredicate parent ) {
         super(identifier, head, body);

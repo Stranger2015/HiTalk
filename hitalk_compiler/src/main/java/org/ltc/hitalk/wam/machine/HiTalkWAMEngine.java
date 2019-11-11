@@ -1,7 +1,6 @@
 package org.ltc.hitalk.wam.machine;
 
 import com.thesett.aima.logic.fol.Resolver;
-import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.core.ICompiler;
@@ -9,9 +8,11 @@ import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.parser.HiTalkParser;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.IParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Logger;
 
@@ -38,8 +39,6 @@ class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P
 //Holds the name of the resource on the classpath that contains the built-in library.
     private static final String BUILT_IN_LIB = "wam_builtins.pl";
     private static final String BUILT_IN_LIB_CORE = "core.lgt";
-    //    private static final String BUILT_IN_LIB = "wam_builtins.hlgt";
-//    private static final String BUILT_IN_LIB = "wam_builtins.hlgt";
 
     /**
      * Creates a prolog parser using the specified interner.
@@ -82,17 +81,17 @@ class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P
         // Load the built-ins into the domain.
         try {
             while (true) {
-                Sentence <T> sentence = libParser.parseClause();
+                HtClause sentence = libParser.sentence();
 
                 if (sentence == null) {
                     break;
                 }
 
-                compiler.compile(sentence);
+                compiler.compile((T) sentence);
             }
 
             compiler.endScope();
-        } catch (SourceCodeException e) {
+        } catch (SourceCodeException | ParseException | IOException e) {
             // There should not be any errors in the built in library, if there are then the prolog engine just
             // isn't going to work, so report this as a bug.
             throw new IllegalStateException("Got an exception whilst loading the built-in library.", e);

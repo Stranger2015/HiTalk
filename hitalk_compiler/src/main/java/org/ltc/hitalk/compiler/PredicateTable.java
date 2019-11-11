@@ -1,12 +1,11 @@
 package org.ltc.hitalk.compiler;
 
-import com.thesett.aima.logic.fol.FunctorName;
 import org.jetbrains.annotations.NotNull;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtPredicateDefinition;
+import org.ltc.hitalk.entities.HtPredicateDefinition.UserDefinition;
 import org.ltc.hitalk.entities.ISubroutine;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.wam.compiler.HtFunctor;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -15,8 +14,8 @@ import java.util.Iterator;
  *
  */
 public
-class PredicateTable extends HashMap <FunctorName, HtPredicateDefinition <ISubroutine, HtPredicate, HtClause>>
-        implements Iterable <HtPredicateDefinition <ISubroutine, HtPredicate, HtClause>> {
+class PredicateTable<P extends HtPredicateDefinition <ISubroutine, HtPredicate, HtClause>>
+        extends HashMap <Integer, P> implements Iterable <P> {
 
     /**
      *
@@ -25,13 +24,27 @@ class PredicateTable extends HashMap <FunctorName, HtPredicateDefinition <ISubro
     PredicateTable () {
     }
 
+    /**
+     * @return
+     */
     @NotNull
     @Override
-    public Iterator <HtPredicateDefinition <ISubroutine, HtPredicate, HtClause>> iterator () {
+    public Iterator <P> iterator () {
         return values().iterator();
     }
 
-    public boolean lookup ( HtFunctor functor ) {
-        this.
+    /**
+     * @param clause
+     * @return
+     */
+    public P lookup ( HtClause clause ) {
+        int name = clause.getHead().getName();
+        P value = this.get(name);
+        if (value == null) {
+            value = (P) new UserDefinition(clause);
+            this.put(name, value);
+        }
+
+        return value;
     }
 }

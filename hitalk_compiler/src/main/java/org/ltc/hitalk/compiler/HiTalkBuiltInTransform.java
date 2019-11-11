@@ -53,7 +53,7 @@
   * @author Rupert Smith
   */
  public
- class HiTalkBuiltInTransform<A extends IApplication, T> extends PrologBuiltInTransform <A, T> {
+ class HiTalkBuiltInTransform<A extends IApplication, T extends HtClause> extends PrologBuiltInTransform <A, T> {
 
 //     public static final Pair EXTENDS_OBJECT = Pair.of(EXTENDS, OBJECT);
 //     public static final Pair EXTENDS_CATEGORY = Pair.of(EXTENDS, CATEGORY);
@@ -101,7 +101,7 @@
       */
      public HiTalkBuiltInTransform ( PrologDefaultBuiltIn defaultBuiltIn,
                                      PrologPreCompiler preCompiler,
-                                     Resolver <HtClause, HtClause> resolver ) {
+                                     Resolver <HtPredicate, HtClause> resolver ) {
          super(defaultBuiltIn, defaultBuiltIn.getInterner(), preCompiler, resolver);
 
          defineBuiltIns();
@@ -1024,7 +1024,7 @@
          return protocolCounter;
      }
 
-     public Resolver <HtClause, HtClause> getResolver () {
+     public Resolver <HtPredicate, HtClause> getResolver () {
          return resolver;
      }
 
