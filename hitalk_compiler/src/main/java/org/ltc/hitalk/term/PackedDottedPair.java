@@ -2,6 +2,9 @@ package org.ltc.hitalk.term;
 
 import com.thesett.aima.logic.fol.RecursiveList;
 import com.thesett.aima.logic.fol.Term;
+import com.thesett.aima.search.Operator;
+import com.thesett.aima.search.Traversable;
+import org.ltc.hitalk.compiler.VafInterner;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.util.Iterator;
@@ -11,7 +14,7 @@ import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
 /**
  *
  */
-public class PackedDottedPair extends RecursiveList implements Term, IFunctor {
+public class PackedDottedPair extends RecursiveList implements ITerm, IFunctor {
 
     public static final Term TRUE = new PackedDottedPair(Kind.TRUE);
 
@@ -26,7 +29,7 @@ public class PackedDottedPair extends RecursiveList implements Term, IFunctor {
      * @param kind
      * @param arguments
      */
-    public PackedDottedPair ( Kind kind, Term... arguments ) {
+    public PackedDottedPair ( Kind kind, ITerm... arguments ) {
         super(-kind.ordinal(), arguments);
     }
 
@@ -42,8 +45,8 @@ public class PackedDottedPair extends RecursiveList implements Term, IFunctor {
      *
      * @return
      */
-    public Term newTail () {
-        Term[] args = getArguments();
+    public ITerm newTail () {
+        ITerm[] args = getArguments();
         return args[args.length - 1];
     }
 
@@ -101,11 +104,31 @@ public class PackedDottedPair extends RecursiveList implements Term, IFunctor {
         return false;
     }
 
+    public String toStringArguments () {
+        return null;
+    }
+
+    public void setArguments ( Term[] terms ) {
+
+    }
+
     public int getArityInt () {
         return 0;
     }
 
     public Term getArityTerm () {
+        return null;
+    }
+
+    public String toString ( VafInterner interner, boolean printVarName, boolean printBindings ) {
+        return null;
+    }
+
+    public boolean structuralEquals ( ITerm term ) {
+        return false;
+    }
+
+    public Traversable <ITerm> getChildStateForOperator ( Operator <ITerm> op ) {
         return null;
     }
 

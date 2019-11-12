@@ -1,6 +1,9 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.BasePositionalVisitor;
+import com.thesett.aima.logic.fol.Functor;
+import com.thesett.aima.logic.fol.PositionalTermVisitor;
+import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.compiler.PositionalContext;
 import com.thesett.aima.logic.fol.compiler.PositionalTermTraverser;
 import com.thesett.aima.logic.fol.wam.builtins.Conjunction;
@@ -55,7 +58,7 @@ public class HiTalkTopLevelCheckVisitor extends BasePositionalVisitor implements
      * @param symbolTable The compiler symbol table.
      * @param traverser   The positional context traverser.
      */
-    public HiTalkTopLevelCheckVisitor ( VariableAndFunctorInterner interner,
+    public HiTalkTopLevelCheckVisitor ( IVafInterner interner,
                                         SymbolTable <Integer, String, Object> symbolTable,
                                         PositionalTermTraverser traverser ) {
         super(interner, symbolTable, traverser);

@@ -18,8 +18,9 @@ public class PiCalls extends PackedDottedPair {
      * @param calls
      */
     public PiCalls ( IFunctor sym, PackedDottedPair calls ) {
+        name = sym.getName();
         Term[] t = getArguments();
-        t[0] = (Term) sym;
+        t[0] = sym;
         setCalls(calls);
     }
 
@@ -37,6 +38,10 @@ public class PiCalls extends PackedDottedPair {
     @Override //todo
     public boolean isDefined () {
         return false;
+    }
+
+    public String toStringArguments () {
+        return null;//fixme
     }
 
     /**

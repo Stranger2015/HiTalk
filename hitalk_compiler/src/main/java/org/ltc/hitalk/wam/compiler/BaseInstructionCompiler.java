@@ -1,10 +1,24 @@
+/*
+ * Copyright The Sett Ltd, 2005 to 2014.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.logic.fol.compiler.PositionalTermTraverser;
 import com.thesett.aima.logic.fol.compiler.PositionalTermTraverserImpl;
 import com.thesett.aima.logic.fol.compiler.TermWalker;
-import com.thesett.aima.logic.fol.wam.compiler.PositionAndOccurrenceVisitor;
 import com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys;
 import com.thesett.aima.logic.fol.wam.compiler.WAMLabel;
 import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
@@ -15,6 +29,7 @@ import com.thesett.common.util.SizeableList;
 import com.thesett.common.util.doublemaps.SymbolKey;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.BaseCompiler;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkInstructionCompiler;
@@ -33,6 +48,20 @@ import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.HiTalkWAMInstruct
 import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.REG_ADDR;
 import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.STACK_ADDR;
 
+/**
+ * BaseMachine provides a base for implementing abstract machines components, such as compilers, interpreters, byte code
+ * interpreters and so on, on top of. It encapsulates an extensible symbol table, that allows the mapping of arbitrary
+ * fields against symbols and the ability to nest symbols within the scope of other symbols. The symbols may be the
+ * interned names of functors or variables in the language.
+ *
+ * <pre><p/><table id="crc"><caption>CRC Card</caption>
+ * <tr><th> Responsibilities <th> Collaborations
+ * <tr><td> Provide a symbol table in which arbitrary fields can be held against symbols in the language.
+ * <tr><td> Provide an interner to intern variable and functor names with.
+ * </table></pre>
+ *
+ * @author Rupert Smith
+ */
 public abstract class BaseInstructionCompiler
         extends BaseCompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> {
 
@@ -95,7 +124,7 @@ public abstract class BaseInstructionCompiler
      * @param interner    The interner for the machine.
      */
     public BaseInstructionCompiler ( SymbolTable <Integer, String, Object> symbolTable,
-                                     VariableAndFunctorInterner interner,
+                                     IVafInterner interner,
                                      PrologDefaultBuiltIn defaultBuiltIn,
                                      LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer,
                                      PlPrologParser parser ) {
@@ -171,13 +200,13 @@ public abstract class BaseInstructionCompiler
         result.addInstructions(preFixInstructions);
 
         // Compile all of the conjunctive parts of the body of the clause, if there are any.
-        Functor[] expressions = clause.getT().getBody();
+        IFunctor[] expressions = clause.getT().getBody();
 
         // The current query does not have a name, so invent one for it.
         FunctorName fn = new FunctorName("tq", 0);
 
         for (int i = 0; i < expressions.length; i++) {
-            Functor expression = expressions[i];
+            IFunctor expression = expressions[i];
             boolean isFirstBody = i == 0;
 
             // Select a non-default built-in implementation to compile the functor with, if it is a built-in.
@@ -217,7 +246,8 @@ public abstract class BaseInstructionCompiler
      */
     private void gatherPositionAndOccurrenceInfo ( Term clause ) {
         PositionalTermTraverser positionalTraverser = new PositionalTermTraverserImpl();
-        PositionAndOccurrenceVisitor positionAndOccurrenceVisitor = new PositionAndOccurrenceVisitor(interner, symbolTable, positionalTraverser);
+        HtPositionAndOccurrenceVisitor positionAndOccurrenceVisitor =
+                new HtPositionAndOccurrenceVisitor(interner, symbolTable, positionalTraverser);
         positionalTraverser.setContextChangeVisitor(positionAndOccurrenceVisitor);
 
         TermWalker walker = new TermWalker(new DepthFirstBacktrackingSearch <>(), positionalTraverser, positionAndOccurrenceVisitor);

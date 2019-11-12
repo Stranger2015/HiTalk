@@ -185,14 +185,14 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
     @Override
     public BaseCompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>
     createWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
-                        VariableAndFunctorInterner interner,
+                        IVafInterner interner,
                         LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer,
                         PlPrologParser parser ) {
         return new HiTalkWAMCompiler(symbolTable, interner, parser, observer);
     }
 
     public IParser createParser ( HiTalkStream stream,
-                                  VariableAndFunctorInterner interner,
+                                  IVafInterner interner,
                                   ITermFactory factory,
                                   IOperatorTable opTable ) {
         return new HiTalkParser(stream, interner, factory, opTable,//fixme
@@ -1202,7 +1202,7 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
     @Override
     public void doInit () throws LinkageException, IOException {
 //            setSymbolTable(new SymbolTableImpl <>());
-//            interner = new VariableAndFunctorInternerImpl(namespace("Variable"), namespace("Functor"));
+//            interner = new IVafInternerImpl(namespace("Variable"), namespace("Functor"));
 ////        setParser(createParser(new, interner, new, opTable));
 //            //setParser(new HiTalkParser(interner.internFunctorName(value, 0)interner.internFunctorName(value, 0)etTokenSourceForInputStream(in, "stdin"), interner));
 //

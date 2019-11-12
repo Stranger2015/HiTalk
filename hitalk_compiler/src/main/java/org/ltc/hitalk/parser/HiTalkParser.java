@@ -1,8 +1,8 @@
 package org.ltc.hitalk.parser;
 
+import com.thesett.aima.logic.fol.IVafInterner;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
@@ -61,7 +61,7 @@ public class HiTalkParser implements IParser {
      * @param interner The interner for variable and functor names.
      */
     public HiTalkParser ( HiTalkStream stream,
-                          VariableAndFunctorInterner interner,
+                          IVafInterner interner,
                           ITermFactory factory,
                           IOperatorTable optable,
                           PlPrologParser parser ) {

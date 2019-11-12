@@ -2,15 +2,18 @@ package org.ltc.hitalk.compiler.bktables;
 
 import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.Variable;
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import org.ltc.hitalk.ITermFactory;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.context.Context;
 import org.ltc.hitalk.entities.context.LoadContext;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind;
-import org.ltc.hitalk.term.*;
+import org.ltc.hitalk.term.Atom;
+import org.ltc.hitalk.term.FloatTerm;
+import org.ltc.hitalk.term.IntTerm;
+import org.ltc.hitalk.term.PackedDottedPair;
 import org.ltc.hitalk.term.PackedDottedPair.Kind;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.IFunctor;
@@ -24,12 +27,12 @@ import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
  */
 public class TermFactory implements ITermFactory {
 
-    private VariableAndFunctorInterner interner;
+    private IVafInterner interner;
 
     /**
      * @param interner
      */
-    public TermFactory ( VariableAndFunctorInterner interner ) {
+    public TermFactory ( IVafInterner interner ) {
         this.interner = interner;
     }
 
@@ -107,7 +110,7 @@ public class TermFactory implements ITermFactory {
      * 文字列アトムを生成します。
      */
 //        public abstract Term newAtom ( String value );
-    public IFunctor newAtom ( VariableAndFunctorInterner interner, TokenKind ldelim, TokenKind rdelim ) {
+    public IFunctor newAtom ( IVafInterner interner, TokenKind ldelim, TokenKind rdelim ) {
         String s = String.format("%s%s", ldelim.getImage(), rdelim.getImage());
         return new HtFunctor(interner.internFunctorName(s, 0), EMPTY_TERM_ARRAY);
     }

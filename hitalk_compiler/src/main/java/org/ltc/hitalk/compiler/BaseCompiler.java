@@ -1,7 +1,9 @@
 package org.ltc.hitalk.compiler;
 
-import com.thesett.aima.logic.fol.*;
-import com.thesett.aima.logic.fol.bytecode.BaseMachine;
+import com.thesett.aima.logic.fol.LogicCompilerObserver;
+import com.thesett.aima.logic.fol.Resolver;
+import com.thesett.aima.logic.fol.Sentence;
+import com.thesett.aima.logic.fol.Term;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolKey;
 import com.thesett.common.util.doublemaps.SymbolTable;
@@ -28,7 +30,7 @@ import static com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys.SYMKEY_PRE
  * @param <Q>
  */
 abstract
-public class BaseCompiler<T extends HtClause, P, Q> extends BaseMachine
+public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
         implements ICompiler <T, P, Q> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
@@ -46,7 +48,7 @@ public class BaseCompiler<T extends HtClause, P, Q> extends BaseMachine
      * @param parser
      */
     protected BaseCompiler ( SymbolTable <Integer, String, Object> symbolTable,
-                             VariableAndFunctorInterner interner,
+                             IVafInterner interner,
                              PlPrologParser parser,
                              LogicCompilerObserver <P, Q> observer ) {
 

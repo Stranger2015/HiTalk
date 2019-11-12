@@ -1,7 +1,7 @@
 package org.ltc.hitalk.wam.compiler.prolog;
 
+import com.thesett.aima.logic.fol.IVafInterner;
 import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.PredicateTable;
 import org.ltc.hitalk.entities.context.ExecutionContext;
@@ -22,12 +22,12 @@ public class SpecializerTransformer implements ISpecializer {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     private final SymbolTable <Integer, String, Object> symbolTable;
-    private final VariableAndFunctorInterner interner;
+    private final IVafInterner interner;
     private final PredicateTable predicateTable;
     private final List <PiCalls> piCalls;
 
     public SpecializerTransformer ( SymbolTable <Integer, String, Object> symbolTable,
-                                    VariableAndFunctorInterner interner,
+                                    IVafInterner interner,
                                     PredicateTable predicateTable,
                                     List <PiCalls> piCalls ) {
         this.symbolTable = symbolTable;

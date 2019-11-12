@@ -1,8 +1,8 @@
 package org.ltc.hitalk.wam.compiler;
 
 
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 
 /**
@@ -31,7 +31,7 @@ class HiTalkDefaultBuiltIn extends PrologDefaultBuiltIn {
      * @param interner    The interner for the machine.
      */
     public HiTalkDefaultBuiltIn ( SymbolTable <Integer, String, Object> symbolTable,
-                                  VariableAndFunctorInterner interner ) {
+                                  IVafInterner interner ) {
         super(symbolTable, interner);
     }
 }

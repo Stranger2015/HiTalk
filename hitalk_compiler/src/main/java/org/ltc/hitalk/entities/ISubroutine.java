@@ -1,6 +1,6 @@
 package org.ltc.hitalk.entities;
 
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 /**
@@ -26,7 +26,7 @@ interface ISubroutine {
      * @param printBindings
      * @return
      */
-    String toString ( VariableAndFunctorInterner interner, boolean printVarName, boolean printBindings );
+    String toString ( IVafInterner interner, boolean printVarName, boolean printBindings );
 
     default boolean isQuery () {
         return getHead() == null;

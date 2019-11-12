@@ -1,7 +1,7 @@
 package org.ltc.hitalk.compiler.bktables;
 
+import com.thesett.aima.logic.fol.IVafInterner;
 import com.thesett.aima.logic.fol.LinkageException;
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.common.util.doublemaps.SymbolTableImpl;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
@@ -219,12 +219,12 @@ public interface IApplication extends Runnable, IConfigurable {
     /**
      * @return
      */
-    VariableAndFunctorInterner getInterner ();
+    IVafInterner getInterner ();
 
 //    /**
 //     * @param interner
 //     */
-//    void setInterner ( VariableAndFunctorInterner interner );
+//    void setInterner ( IVafInterner interner );
 
     /**
      * @return

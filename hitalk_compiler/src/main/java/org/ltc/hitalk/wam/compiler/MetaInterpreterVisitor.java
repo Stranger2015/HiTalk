@@ -1,8 +1,12 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.LinkageException;
+import com.thesett.aima.logic.fol.Resolver;
+import com.thesett.aima.logic.fol.Term;
+import com.thesett.aima.logic.fol.Variable;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.ITermFactory;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtPredicateDefinition;
@@ -40,7 +44,7 @@ public abstract class MetaInterpreterVisitor extends HtBasePositionalVisitor
      * @param interner    The name interner.
      */
     protected MetaInterpreterVisitor ( SymbolTable <Integer, String, Object> symbolTable,
-                                       VariableAndFunctorInterner interner,
+                                       IVafInterner interner,
                                        Resolver <HtPredicate, HtClause> resolver ) {
         super(symbolTable, interner);
         this.resolver = resolver;

@@ -3,6 +3,7 @@ package org.ltc.hitalk.entities;
 import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.search.Operator;
 import org.ltc.enumus.Hierarchy;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 
 import java.util.Iterator;
@@ -271,8 +272,7 @@ class HtPredicateIndicator extends BaseTerm {
      * @param printBindings
      */
     @Override
-    public
-    String toString ( VariableAndFunctorInterner interner, boolean printVarName, boolean printBindings ) {
+    public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
         return delegate.toString(interner, printVarName, printBindings);
     }
 

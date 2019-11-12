@@ -1,7 +1,11 @@
 package org.ltc.hitalk.wam.task;
 
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.IntegerType;
+import com.thesett.aima.logic.fol.LiteralType;
+import com.thesett.aima.logic.fol.Term;
+import com.thesett.aima.logic.fol.Variable;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.wam.compiler.IFunctor;
@@ -20,7 +24,7 @@ public class HiLogDecoder extends MetaInterpreterVisitor {
      * @param interner    The name interner.
      */
     public HiLogDecoder ( SymbolTable <Integer, String, Object> symbolTable,
-                          VariableAndFunctorInterner interner ) {
+                          IVafInterner interner ) {
         super(symbolTable, interner);
     }
 

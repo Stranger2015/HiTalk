@@ -44,4 +44,9 @@ public interface IFunctor extends Term, IRangedArity {
 
     boolean isDefined ();
 
+    String toStringArguments ();
+
+    void setArgument ( int i, Term term );
+
+    void setArguments ( Term[] terms );
 }

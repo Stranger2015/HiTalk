@@ -1,9 +1,8 @@
 package org.ltc.hitalk.term;
 
 import com.thesett.aima.logic.fol.FloatLiteral;
-import com.thesett.aima.logic.fol.Term;
 
-public class FloatTerm extends FloatLiteral implements Term {
+public class FloatTerm extends FloatLiteral implements ITerm {
     /**
      * Creates a new number with the specified value.
      *
@@ -14,7 +13,7 @@ public class FloatTerm extends FloatLiteral implements Term {
     }
 
     @Override
-    public Term getValue () {
+    public ITerm getValue () {
         return null;
     }
 

@@ -1,7 +1,6 @@
 package org.ltc.hitalk.entities;
 
 import com.thesett.aima.logic.fol.Term;
-import org.ltc.hitalk.term.ListTerm;
 
 /**
  *

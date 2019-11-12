@@ -2,11 +2,11 @@ package org.ltc.hitalk.term.io;
 
 
 import com.thesett.aima.logic.fol.Resolver;
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
-import com.thesett.aima.logic.fol.VariableAndFunctorInternerImpl;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.ITermFactory;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PredicateTable;
+import org.ltc.hitalk.compiler.VafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.TermFactory;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
@@ -40,7 +40,7 @@ class Environment {
         }
     }
 
-    private VariableAndFunctorInterner interner;
+    private IVafInterner interner;
     private ITermFactory termFactory;
     private PlPrologParser parser;
     private IOperatorTable optable;
@@ -116,7 +116,7 @@ class Environment {
     /**
      * @return
      */
-    public VariableAndFunctorInterner getInterner () {
+    public IVafInterner getInterner () {
         return interner;
     }
 
@@ -149,7 +149,7 @@ class Environment {
         streams.add(new HiTalkStream(FileDescriptor.out, false));// "current_output"
         streams.add(new HiTalkStream(FileDescriptor.err, false));// "current_error"
 
-        interner = new VariableAndFunctorInternerImpl(
+        interner = new VafInterner(
                 "HiTalk_Variable_Namespace",
                 "HiTalk_Functor_Namespace");
 
@@ -175,7 +175,7 @@ class Environment {
     /**
      * @param interner
      */
-    public void setInterner ( VariableAndFunctorInterner interner ) {
+    public void setInterner ( IVafInterner interner ) {
         this.interner = interner;
     }
 

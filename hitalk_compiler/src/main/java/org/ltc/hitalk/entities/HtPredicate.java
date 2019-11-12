@@ -1,6 +1,9 @@
 package org.ltc.hitalk.entities;
 
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.BaseTerm;
+import com.thesett.aima.logic.fol.PredicateVisitor;
+import com.thesett.aima.logic.fol.Term;
+import com.thesett.aima.logic.fol.TermVisitor;
 import com.thesett.aima.search.Operator;
 import com.thesett.common.util.StackQueue;
 import org.ltc.hitalk.compiler.HtPredicateVisitor;
@@ -142,8 +145,7 @@ class HtPredicate extends BaseTerm implements Term, IPropertyOwner {
     /**
      * {@inheritDoc}
      */
-    public
-    String toString ( VariableAndFunctorInterner interner, boolean printVarName, boolean printBindings ) {
+    public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
         StringBuilder result = new StringBuilder();
 
         for (int i = 0; i < definition.size(); i++) {

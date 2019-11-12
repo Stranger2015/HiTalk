@@ -16,8 +16,8 @@
 package org.ltc.hitalk.wam.compiler.hitalk;
 
 import com.thesett.aima.logic.fol.Functor;
+import com.thesett.aima.logic.fol.IVafInterner;
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.util.SizeableLinkedList;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
@@ -147,7 +147,7 @@ public class HiTalkInstructionCompiler extends PrologInstructionCompiler
      * @param parser
      */
     public HiTalkInstructionCompiler ( SymbolTable <Integer, String, Object> symbolTable,
-                                       VariableAndFunctorInterner interner,
+                                       IVafInterner interner,
                                        HiTalkDefaultBuiltIn defaultBuiltIn,
                                        LogicCompilerObserver <
                                                HiTalkWAMCompiledPredicate,

@@ -1,7 +1,7 @@
 package org.ltc.hitalk.parser.jp.segfault.prolog.parser;
 
+import com.thesett.aima.logic.fol.IVafInterner;
 import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.parsing.SourceCodePositionImpl;
 import com.thesett.common.util.Source;
@@ -40,7 +40,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
      */
     public PlLexer lexer;
     protected Source <PlToken> tokenSource;
-    protected VariableAndFunctorInterner interner;
+    protected IVafInterner interner;
     protected IOperatorTable operatorTable;
 
     /**

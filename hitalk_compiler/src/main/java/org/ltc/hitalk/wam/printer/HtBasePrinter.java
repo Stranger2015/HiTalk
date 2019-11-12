@@ -15,10 +15,10 @@
  */
 package org.ltc.hitalk.wam.printer;
 
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.util.TraceIndenter;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.text.api.model.TextTableModel;
+import org.ltc.hitalk.compiler.IVafInterner;
 
 /**
  * BasePrinter is a base class for writing debug pretty printers for compiled clauses.
@@ -74,7 +74,7 @@ class HtBasePrinter extends HtBasePositionalVisitor {
      */
     public
     HtBasePrinter ( SymbolTable <Integer, String, Object> symbolTable,
-                    VariableAndFunctorInterner interner,
+                    IVafInterner interner,
                     HtPositionalTermTraverser traverser,
                     int column, TextTableModel table ) {
         super(symbolTable, interner, traverser);

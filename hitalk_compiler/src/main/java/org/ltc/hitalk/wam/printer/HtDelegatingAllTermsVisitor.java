@@ -116,8 +116,7 @@ class HtDelegatingAllTermsVisitor implements HtAllTermsVisitor {
      * @param clause The clause to visit.
      */
     @Override
-    public
-    void visit ( HtClause clause ) {
+    public void visit ( HtClause clause ) throws LinkageException {
 
     }
 

@@ -1,6 +1,5 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.logic.fol.FunctorName;
 import com.thesett.common.util.SizeableLinkedList;
 
@@ -32,7 +31,10 @@ interface PrologBuiltIn {
      * @param bodyNumber  The body position within the containing clause.
      * @return A listing of the instructions for the clause body in the WAM instruction set.
      */
-    SizeableLinkedList <HiTalkWAMInstruction> compileBodyArguments ( Functor expression, boolean isFirstBody, FunctorName clauseName, int bodyNumber );
+    SizeableLinkedList <HiTalkWAMInstruction> compileBodyArguments ( IFunctor expression,
+                                                                     boolean isFirstBody,
+                                                                     FunctorName clauseName,
+                                                                     int bodyNumber );
 
     /**
      * Compiles a call to a body of a clause into an instruction listing in WAM.
@@ -45,7 +47,7 @@ interface PrologBuiltIn {
      *                          for environment trimming.
      * @return A list of instructions for the body call.
      */
-    SizeableLinkedList <HiTalkWAMInstruction> compileBodyCall ( Functor expression,
+    SizeableLinkedList <HiTalkWAMInstruction> compileBodyCall ( IFunctor expression,
                                                                 boolean isFirstBody,
                                                                 boolean isLastBody,
                                                                 boolean chainRule,

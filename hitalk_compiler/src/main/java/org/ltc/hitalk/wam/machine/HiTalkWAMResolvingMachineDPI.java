@@ -1,6 +1,6 @@
 package org.ltc.hitalk.wam.machine;
 
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
+import com.thesett.aima.logic.fol.IVafInterner;
 import com.thesett.aima.logic.fol.wam.machine.WAMCodeView;
 import com.thesett.aima.logic.fol.wam.machine.WAMInternalRegisters;
 import com.thesett.aima.logic.fol.wam.machine.WAMMemoryLayout;
@@ -43,5 +43,5 @@ interface HiTalkWAMResolvingMachineDPI extends WAMCodeView {
      *
      * @return An interner for translating interned names against the underlying machine.
      */
-    VariableAndFunctorInterner getVariableAndFunctorInterner ();
+    IVafInterner getIVafInterner ();
 }

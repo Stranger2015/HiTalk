@@ -214,7 +214,7 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
     /**
      * {@inheritDoc}
      */
-    public VariableAndFunctorInterner getVariableAndFunctorInterner () {
+    public IVafInterner getIVafInterner () {
         return this;
     }
 

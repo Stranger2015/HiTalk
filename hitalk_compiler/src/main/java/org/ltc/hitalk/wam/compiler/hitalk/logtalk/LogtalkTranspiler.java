@@ -1,7 +1,7 @@
 package org.ltc.hitalk.wam.compiler.hitalk.logtalk;
 
+import com.thesett.aima.logic.fol.IVafInterner;
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.BaseCompiler;
@@ -17,7 +17,7 @@ public class LogtalkTranspiler extends BaseCompiler <HtClause, HtPredicate, HtCl
      * @param parser
      * @param observer
      */
-    protected LogtalkTranspiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner, PlPrologParser parser, LogicCompilerObserver <HtPredicate, HtClause> observer ) {
+    protected LogtalkTranspiler ( SymbolTable <Integer, String, Object> symbolTable, IVafInterner interner, PlPrologParser parser, LogicCompilerObserver <HtPredicate, HtClause> observer ) {
         super(symbolTable, interner, parser, observer);
     }
 

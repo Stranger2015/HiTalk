@@ -1,6 +1,9 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.LinkageException;
+import com.thesett.aima.logic.fol.LogicCompilerObserver;
+import com.thesett.aima.logic.fol.Sentence;
+import com.thesett.aima.logic.fol.Term;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.common.util.doublemaps.SymbolTableImpl;
 import org.apache.commons.vfs2.*;
@@ -75,7 +78,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
 
     //    @Override
     public BaseCompiler <T, P, Q> createWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
-                                                      VariableAndFunctorInterner interner,
+                                                      IVafInterner interner,
                                                       PlPrologParser parser,
                                                       LogicCompilerObserver <P, Q> observer ) {
         return new PrologWAMCompiler <>(symbolTable, interner, parser, observer);
@@ -161,7 +164,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
      * @return
      */
     public BaseCompiler <T, P, Q> createWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
-                                                      VariableAndFunctorInterner interner,
+                                                      IVafInterner interner,
                                                       LogicCompilerObserver <P, Q> observer,
                                                       PlPrologParser parser ) {
         return new PrologWAMCompiler <>(symbolTable, interner, parser, observer);
@@ -175,7 +178,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
      * @return
      */
     public IParser createParser ( HiTalkStream stream,
-                                  VariableAndFunctorInterner interner,
+                                  IVafInterner interner,
                                   ITermFactory factory,
                                   IOperatorTable optable ) {
         return new PlPrologParser(stream, interner, factory, optable);
@@ -299,7 +302,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
     }
 
     //    @Override
-    public void setInterner ( VariableAndFunctorInterner interner ) {
+    public void setInterner ( IVafInterner interner ) {
         Environment.instance().setInterner(interner);
     }
 

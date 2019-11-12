@@ -17,16 +17,19 @@
 package org.ltc.hitalk.wam.printer;
 
 import com.thesett.aima.logic.fol.Functor;
+import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.Variable;
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.text.api.model.TextTableModel;
 import com.thesett.text.impl.model.TextTableImpl;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 
 public abstract
@@ -39,7 +42,7 @@ class HtWAMCompiledTermsPrintingVisitor extends HtDelegatingAllTermsVisitor impl
     /**
      * The name interner.
      */
-    private final VariableAndFunctorInterner interner;
+    private final IVafInterner interner;
 
     /**
      * The symbol table.
@@ -68,9 +71,8 @@ class HtWAMCompiledTermsPrintingVisitor extends HtDelegatingAllTermsVisitor impl
      * @param symbolTable The symbol table for the compilation.
      * @param result      A string buffer to place the results in.
      */
-    public
-    HtWAMCompiledTermsPrintingVisitor ( VariableAndFunctorInterner interner,
-                                        SymbolTable <Integer, String, Object> symbolTable, StringBuilder result ) {
+    public HtWAMCompiledTermsPrintingVisitor ( IVafInterner interner,
+                                               SymbolTable <Integer, String, Object> symbolTable, StringBuilder result ) {
         super(null);
         this.interner = interner;
         this.result = result;
@@ -102,8 +104,7 @@ class HtWAMCompiledTermsPrintingVisitor extends HtDelegatingAllTermsVisitor impl
     /**
      * {@inheritDoc}
      */
-    public
-    void visit ( HtClause clause ) {
+    public void visit ( HtClause clause ) throws LinkageException {
         for (HtAllTermsVisitor printer : printers) {
             printer.visit(clause);
         }
@@ -165,11 +166,8 @@ class HtWAMCompiledTermsPrintingVisitor extends HtDelegatingAllTermsVisitor impl
                 int padding = ((maxColumnSize == null) ? 0 : maxColumnSize) - valueToPrint.length();
                 padding = (padding < 0) ? 0 : padding;
 
-                for (int s = 0; s < padding; s++) {
-                    result.append(" ");
-                }
-
-                result.append(" % ");
+                result.append(IntStream.range(0, padding).mapToObj(s -> " ")
+                        .collect(Collectors.joining("", "", " % ")));
             }
 
             result.append("\n");

@@ -16,7 +16,10 @@ package org.ltc.hitalk.wam.compiler;
  * limitations under the License.
  */
 
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.Functor;
+import com.thesett.aima.logic.fol.FunctorName;
+import com.thesett.aima.logic.fol.LinkageException;
+import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.wam.compiler.WAMCallPoint;
 import com.thesett.aima.logic.fol.wam.compiler.WAMLabel;
 import com.thesett.aima.logic.fol.wam.machine.WAMCodeView;
@@ -584,8 +587,7 @@ class HiTalkWAMInstruction implements Sizeable {
      * @param codeView A view onto the machines code buffer.
      * @return A list of instructions disassembles from the code buffer.
      */
-    public static
-    SizeableList <HiTalkWAMInstruction> disassemble ( int start, int length, ByteBuffer codeBuf, VariableAndFunctorInterner interner, WAMCodeView codeView ) {
+    public static SizeableList <HiTalkWAMInstruction> disassemble ( int start, int length, ByteBuffer codeBuf, IVafInterner interner, WAMCodeView codeView ) {
         SizeableList <HiTalkWAMInstruction> result = new SizeableLinkedList <>();
         int ip = start;
 
@@ -788,8 +790,7 @@ class HiTalkWAMInstruction implements Sizeable {
          */
         PutStruc(PUT_STRUC, "put_struc", 7, 0xb) {
             /** {@inheritDoc} */
-            protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
                 disassembleReg1Fn(codeBuf, ip, instruction, interner);
             }
 
@@ -826,8 +827,7 @@ class HiTalkWAMInstruction implements Sizeable {
          */
         GetStruc(GET_STRUC, "get_struc", 7, 0xb) {
             /** {@inheritDoc} */
-            protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
                 disassembleReg1Fn(codeBuf, ip, instruction, interner);
             }
 
@@ -864,8 +864,7 @@ class HiTalkWAMInstruction implements Sizeable {
          */
         PutVar(PUT_VAR, "put_var", 4, 0x7) {
             /** {@inheritDoc} */
-            protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
                 disassembleReg1Reg2(codeBuf, ip, instruction);
             }
 
@@ -887,8 +886,7 @@ class HiTalkWAMInstruction implements Sizeable {
          */
         PutVal(PUT_VAL, "put_val", 4, 0x7) {
             /** {@inheritDoc} */
-            protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
                 disassembleReg1Reg2(codeBuf, ip, instruction);
             }
 
@@ -927,8 +925,7 @@ class HiTalkWAMInstruction implements Sizeable {
          */
         GetVar(GET_VAR, "get_var", 4, 0x7) {
             /** {@inheritDoc} */
-            protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
                 disassembleReg1Reg2(codeBuf, ip, instruction);
             }
 
@@ -950,8 +947,7 @@ class HiTalkWAMInstruction implements Sizeable {
          */
         GetVal(GET_VAL, "get_val", 4, 0x7) {
             /** {@inheritDoc} */
-            protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
                 disassembleReg1Reg2(codeBuf, ip, instruction);
             }
 
@@ -973,8 +969,7 @@ class HiTalkWAMInstruction implements Sizeable {
          */
         PutConstant(PUT_CONST, "put_const", 7, 0xb) {
             /** {@inheritDoc} */
-            protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
                 disassembleReg1Fn(codeBuf, ip, instruction, interner);
             }
 
@@ -996,8 +991,7 @@ class HiTalkWAMInstruction implements Sizeable {
          */
         GetConstant(GET_CONST, "get_const", 7, 0xb) {
             /** {@inheritDoc} */
-            protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
                 disassembleReg1Fn(codeBuf, ip, instruction, interner);
             }
 
@@ -1019,8 +1013,7 @@ class HiTalkWAMInstruction implements Sizeable {
          */
         SetConstant(SET_CONST, "set_const", 5, 0x8) {
             /** {@inheritDoc} */
-            protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
                 disassembleFn(codeBuf, ip, instruction, interner);
             }
 
@@ -1042,8 +1035,7 @@ class HiTalkWAMInstruction implements Sizeable {
          */
         UnifyConstant(UNIFY_CONST, "unify_const", 5, 0x8) {
             /** {@inheritDoc} */
-            protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
                 disassembleFn(codeBuf, ip, instruction, interner);
             }
 
@@ -1075,8 +1067,7 @@ class HiTalkWAMInstruction implements Sizeable {
          */
         SetVoid(SET_VOID, "set_void", 2, 0x2) {
             /** {@inheritDoc} */
-            protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
                 disassembleReg1NoMode(codeBuf, ip, instruction);
             }
 
@@ -1098,8 +1089,7 @@ class HiTalkWAMInstruction implements Sizeable {
          */
         UnifyVoid(UNIFY_VOID, "unify_void", 2, 0x2) {
             /** {@inheritDoc} */
-            protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
                 disassembleReg1NoMode(codeBuf, ip, instruction);
             }
 
@@ -1121,8 +1111,7 @@ class HiTalkWAMInstruction implements Sizeable {
          */
         Call(CALL, "call", 7, 0xa) {
             /** {@inheritDoc} */
-            protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
                 int entryPoint = codeBuf.getInt(ip + 1);
                 int arity = codeBuf.get(ip + 5);
                 instruction.reg1 = codeBuf.get(ip + 6);
@@ -1160,8 +1149,7 @@ class HiTalkWAMInstruction implements Sizeable {
          */
         Execute(EXECUTE, "execute", 6, 0x8) {
             /** {@inheritDoc} */
-            protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
                 int entryPoint = codeBuf.getInt(ip + 1);
                 int arity = codeBuf.get(ip + 5);
             }
@@ -1197,8 +1185,7 @@ class HiTalkWAMInstruction implements Sizeable {
          */
         Proceed(PROCEED, "proceed", 1, 0x0) {
             /** {@inheritDoc} */
-            protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
                 // Do nothing as this instruction takes no arguments.
             }
 
@@ -1220,8 +1207,7 @@ class HiTalkWAMInstruction implements Sizeable {
          */
         Allocate(ALLOCATE, "allocate", 1, 0x0) {
             /** {@inheritDoc} */
-            protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
                 // Do nothing as this instruction takes no arguments.
             }
 
@@ -1243,8 +1229,7 @@ class HiTalkWAMInstruction implements Sizeable {
          */
         AllocateN(ALLOCATE_N, "allocate_n", 2, 0x2) {
             /** {@inheritDoc} */
-            protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
                 disassembleReg1NoMode(codeBuf, ip, instruction);
             }
 
@@ -1266,8 +1251,7 @@ class HiTalkWAMInstruction implements Sizeable {
          */
         Deallocate(DEALLOCATE, "deallocate", 1, 0x0) {
             /** {@inheritDoc} */
-            protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
                 // Do nothing as this instruction takes no arguments.
             }
 
@@ -1289,8 +1273,7 @@ class HiTalkWAMInstruction implements Sizeable {
          */
         TryMeElse(TRY_ME_ELSE, "try_me_else", 5, 0x10) {
             /** {@inheritDoc} */
-            protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
                 int label = codeBuf.getInt(ip + 1);
             }
 
@@ -1321,8 +1304,7 @@ class HiTalkWAMInstruction implements Sizeable {
          */
         RetryMeElse(RETRY_ME_ELSE, "retry_me_else", 5, 0x10) {
             /** {@inheritDoc} */
-            protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
                 int label = codeBuf.getInt(ip + 1);
             }
 
@@ -1357,8 +1339,7 @@ class HiTalkWAMInstruction implements Sizeable {
          */
         TrustMe(TRUST_ME, "trust_me", 1, 0x0) {
             /** {@inheritDoc} */
-            protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
                 // Do nothing as this instruction takes no arguments.
             }
 
@@ -1386,8 +1367,7 @@ class HiTalkWAMInstruction implements Sizeable {
          */
         Try(TRY, "try", 5, 0x10) {
             /** {@inheritDoc} */
-            protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
                 int label = codeBuf.getInt(ip + 1);
             }
 
@@ -1424,8 +1404,7 @@ class HiTalkWAMInstruction implements Sizeable {
          */
         Retry(RETRY, "retry", 5, 0x10) {
             /** {@inheritDoc} */
-            protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
                 int label = codeBuf.getInt(ip + 1);
             }
 
@@ -1462,8 +1441,7 @@ class HiTalkWAMInstruction implements Sizeable {
          */
         Trust(TRUST, "trust", 5, 0x10) {
             /** {@inheritDoc} */
-            protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
                 int label = codeBuf.getInt(ip + 1);
             }
 
@@ -1597,8 +1575,7 @@ class HiTalkWAMInstruction implements Sizeable {
          */
         NeckCut(NECK_CUT, "neck_cut", 1, 0x0) {
             /** {@inheritDoc} */
-            protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
                 // Do nothing as this instruction takes no arguments.
             }
 
@@ -1621,8 +1598,7 @@ class HiTalkWAMInstruction implements Sizeable {
          */
         GetLevel(GET_LEVEL, "get_level", 2, 0x2) {
             /** {@inheritDoc} */
-            protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
                 disassembleReg1NoMode(codeBuf, ip, instruction);
             }
 
@@ -1644,8 +1620,7 @@ class HiTalkWAMInstruction implements Sizeable {
          */
         Cut(CUT, "cut", 2, 0x2) {
             /** {@inheritDoc} */
-            protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
                 disassembleReg1NoMode(codeBuf, ip, instruction);
             }
 
@@ -1667,8 +1642,7 @@ class HiTalkWAMInstruction implements Sizeable {
          */
         Continue(CONTINUE, "continue", 5, 0x10) {
             /** {@inheritDoc} */
-            protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
                 int label = codeBuf.getInt(ip + 1);
             }
 
@@ -1699,8 +1673,7 @@ class HiTalkWAMInstruction implements Sizeable {
          */
         NoOp(NO_OP, "no_op", 1, 0x0) {
             /** {@inheritDoc} */
-            protected
-            void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
                 // Do nothing as this instruction takes no arguments.
             }
 
@@ -1730,7 +1703,7 @@ class HiTalkWAMInstruction implements Sizeable {
             /** {@inheritDoc} */
             protected
             void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf,
-                                        VariableAndFunctorInterner interner ) {
+                                        IVafInterner interner ) {
                 int entryPoint = codeBuf.getInt(ip + 1);
                 int arity = codeBuf.get(ip + 5);
                 instruction.reg1 = codeBuf.get(ip + 6);
@@ -1770,7 +1743,7 @@ class HiTalkWAMInstruction implements Sizeable {
             /** {@inheritDoc} */
             protected
             void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf,
-                                        VariableAndFunctorInterner interner ) {
+                                        IVafInterner interner ) {
                 // Do nothing as this instruction takes no arguments.
             }
 
@@ -1969,8 +1942,7 @@ class HiTalkWAMInstruction implements Sizeable {
          * @param instruction The instruction, including its arguments.
          * @param interner    The binary machine to write the code into.
          */
-        private static
-        void emitCodeReg1Fn ( ByteBuffer codeBuf, byte code, HiTalkWAMInstruction instruction, VariableAndFunctorInterner interner ) {
+        private static void emitCodeReg1Fn ( ByteBuffer codeBuf, byte code, HiTalkWAMInstruction instruction, IVafInterner interner ) {
             codeBuf.put(code);
             codeBuf.put(instruction.mode1);
             codeBuf.put(instruction.reg1);
@@ -1989,8 +1961,7 @@ class HiTalkWAMInstruction implements Sizeable {
          * @param instruction The instruction, including its arguments.
          * @param interner    The binary machine to write the code into.
          */
-        private static
-        void emitCodeFn ( ByteBuffer codeBuf, byte code, HiTalkWAMInstruction instruction, VariableAndFunctorInterner interner ) {
+        private static void emitCodeFn ( ByteBuffer codeBuf, byte code, HiTalkWAMInstruction instruction, IVafInterner interner ) {
             codeBuf.put(code);
 
             int arity = instruction.fn.getArity() << 24;
@@ -2054,8 +2025,7 @@ class HiTalkWAMInstruction implements Sizeable {
          * @param instruction The instruction to store the disassembles arguments in.
          * @param interner    The interner to look up function and variable names against.
          */
-        private static
-        void disassembleReg1Fn ( ByteBuffer codeBuf, int ip, HiTalkWAMInstruction instruction, VariableAndFunctorInterner interner ) {
+        private static void disassembleReg1Fn ( ByteBuffer codeBuf, int ip, HiTalkWAMInstruction instruction, IVafInterner interner ) {
             instruction.mode1 = codeBuf.get(ip + 1);
             instruction.reg1 = codeBuf.get(ip + 2);
 
@@ -2072,8 +2042,7 @@ class HiTalkWAMInstruction implements Sizeable {
          * @param instruction The instruction to store the disassembles arguments in.
          * @param interner    The interner to look up function and variable names against.
          */
-        private static
-        void disassembleFn ( ByteBuffer codeBuf, int ip, HiTalkWAMInstruction instruction, VariableAndFunctorInterner interner ) {
+        private static void disassembleFn ( ByteBuffer codeBuf, int ip, HiTalkWAMInstruction instruction, IVafInterner interner ) {
             int fn = codeBuf.getInt(ip + 1);
             int f = fn & 0x00ffffff;
             instruction.fn = interner.getDeinternedFunctorName(f);
@@ -2192,8 +2161,7 @@ class HiTalkWAMInstruction implements Sizeable {
          * @param codeBuf     The code buffer.
          * @param interner    The interner to look up function and variable names against.
          */
-        protected
-        void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, VariableAndFunctorInterner interner ) {
+        protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
             disassembleReg1(codeBuf, ip, instruction);
         }
     }

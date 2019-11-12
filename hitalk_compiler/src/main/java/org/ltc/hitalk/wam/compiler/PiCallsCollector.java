@@ -1,8 +1,8 @@
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.Resolver;
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PredicateTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
@@ -25,7 +25,7 @@ class PiCallsCollector implements Collector <PiCalls, List <PiCalls>, PiCalls> {
 
     private final PredicateTable predicateTable;
     private final MetaInterpreterVisitor miv;
-    private final VariableAndFunctorInterner interner;
+    private final IVafInterner interner;
     private final SymbolTable <Integer, String, Object> symbolTable;
 
     private final Supplier <List <PiCalls>> supplier;

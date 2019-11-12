@@ -34,7 +34,7 @@ public class PrologPositionalTransformVisitor extends HtBasePositionalVisitor
      * @param interner    The name interner.
      */
     public PrologPositionalTransformVisitor ( SymbolTable <Integer, String, Object> symbolTable,
-                                              VariableAndFunctorInterner interner ) {
+                                              IVafInterner interner ) {
         super(symbolTable, interner);
     }
 

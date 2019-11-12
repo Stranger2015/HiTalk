@@ -18,9 +18,9 @@ package org.ltc.hitalk.wam.printer;
 
 import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.logic.fol.Variable;
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.text.api.model.TextTableModel;
+import org.ltc.hitalk.compiler.IVafInterner;
 
 /**
  * SourceClausePrinter prints the source of a compiled clause in a vertically spread out way, so that each predicate
@@ -47,7 +47,7 @@ class HtSourceClausePrinter extends HtBasePrinter {
      */
     public
     HtSourceClausePrinter ( SymbolTable <Integer, String, Object> symbolTable,
-                            VariableAndFunctorInterner interner,
+                            IVafInterner interner,
                             HtPositionalTermTraverser traverser, int column, TextTableModel table ) {
         super(symbolTable, interner, traverser, column, table);
     }

@@ -1,7 +1,7 @@
 package org.ltc.hitalk.wam.compiler;
 
+import com.thesett.aima.logic.fol.IVafInterner;
 import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
@@ -21,14 +21,14 @@ public class Inliner implements IInliner <HtClause, Term> {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     private final SymbolTable <Integer, String, Object> symbolTable;
-    private final VariableAndFunctorInterner interner;
+    private final IVafInterner interner;
     private final List <PiCalls> piCalls;
 
     /**
      *
      */
     public Inliner ( SymbolTable <Integer, String, Object> symbolTable,
-                     VariableAndFunctorInterner interner,
+                     IVafInterner interner,
                      List <PiCalls> piCalls ) {
         this.symbolTable = symbolTable;
         this.interner = interner;

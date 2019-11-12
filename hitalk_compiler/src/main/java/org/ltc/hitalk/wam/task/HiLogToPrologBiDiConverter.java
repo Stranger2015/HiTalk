@@ -1,9 +1,12 @@
 package org.ltc.hitalk.wam.task;
 
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.Functor;
+import com.thesett.aima.logic.fol.Term;
+import com.thesett.aima.logic.fol.TermTransformer;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.common.util.doublemaps.SymbolTableImpl;
-import org.ltc.hitalk.term.ListTerm;
+import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.compiler.VafInterner;
 
 /**
  *
@@ -29,7 +32,7 @@ class HiLogToPrologBiDiConverter {
     private int applyF;
 
     SymbolTable <Integer, String, Object> symbolTable = new SymbolTableImpl <>();
-    VariableAndFunctorInterner interner = new VariableAndFunctorInternerImpl("", "");
+    IVafInterner interner = new VafInterner("", "");
 
     private final HiLogDecoder hilog2Prolog = new HiLogDecoder(symbolTable, interner);
     private final HiLogEncoder prolog2Hilog = new HiLogEncoder(symbolTable, interner);
@@ -80,7 +83,7 @@ class HiLogToPrologBiDiConverter {
 //        }
 //    };
 
-    public HiLogToPrologBiDiConverter ( VariableAndFunctorInterner interner ) {
+    public HiLogToPrologBiDiConverter ( IVafInterner interner ) {
 //        transformer = this.hilog2Prolog;
 //        transformer = this.prolog2Hilog;
 

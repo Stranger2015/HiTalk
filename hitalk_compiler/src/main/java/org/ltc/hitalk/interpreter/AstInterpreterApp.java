@@ -1,6 +1,6 @@
 package org.ltc.hitalk.interpreter;
 
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
+import com.thesett.aima.logic.fol.IVafInterner;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.BaseCompiler;
 import org.ltc.hitalk.compiler.bktables.IProduct;
@@ -45,7 +45,7 @@ class AstInterpreterApp<T extends HtClause, P, Q> extends BaseApplication <T, P,
 //    }
 
     //    @Override
-    public BaseCompiler <HtClause, HtPredicate, HtClause> createWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner, PlPrologParser parser ) {
+    public BaseCompiler <HtClause, HtPredicate, HtClause> createWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable, IVafInterner interner, PlPrologParser parser ) {
         return null;
     }
 

@@ -3,6 +3,7 @@ package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.*;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtPredicateDefinition;
@@ -22,6 +23,7 @@ import java.util.stream.IntStream;
 
 import static org.ltc.hitalk.term.PackedDottedPair.Kind.TRUE;
 
+@Deprecated
 public class PrologPositionalTransformVisitorNew extends HtBasePositionalVisitor
         implements HtPositionalTermVisitor {
 
@@ -34,7 +36,7 @@ public class PrologPositionalTransformVisitorNew extends HtBasePositionalVisitor
      * @param interner    The name interner.
      */
     public PrologPositionalTransformVisitorNew ( SymbolTable <Integer, String, Object> symbolTable,
-                                                 VariableAndFunctorInterner interner ) {
+                                                 IVafInterner interner ) {
         super(symbolTable, interner);
     }
 

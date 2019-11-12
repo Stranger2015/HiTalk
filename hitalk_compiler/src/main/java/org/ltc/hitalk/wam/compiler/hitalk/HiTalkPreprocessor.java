@@ -52,7 +52,7 @@ public class HiTalkPreprocessor<TC extends Term, TT extends TransformTask <HtCla
      */
     public
     HiTalkPreprocessor ( SymbolTable <Integer, String, Object> symbolTable,
-                         VariableAndFunctorInterner interner,
+                         IVafInterner interner,
                          PrologBuiltInTransform builtInTransform,
                          PrologDefaultBuiltIn defaultBuiltIn,
                          Resolver <HtPredicate, HtClause> resolver,

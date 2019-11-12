@@ -2,10 +2,10 @@ package org.ltc.hitalk.wam.compiler.prolog;
 
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.aima.logic.fol.Resolver;
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
-import com.thesett.aima.logic.fol.bytecode.BaseMachine;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.AbstractBaseMachine;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PrologBuiltInTransform;
 import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.core.ICompiler;
@@ -24,7 +24,7 @@ import java.io.IOException;
  *
  */
 public
-class PrologPreCompiler extends BaseMachine implements ICompiler <HtClause, HtPredicate, HtClause> {
+class PrologPreCompiler extends AbstractBaseMachine implements ICompiler <HtClause, HtPredicate, HtClause> {
 
     final protected Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
@@ -45,17 +45,17 @@ class PrologPreCompiler extends BaseMachine implements ICompiler <HtClause, HtPr
      * @param resolver
      */
     public PrologPreCompiler ( SymbolTable <Integer, String, Object> symbolTable,
-                               VariableAndFunctorInterner interner,
+                               IVafInterner interner,
                                PrologDefaultBuiltIn defaultBuiltIn,
                                PrologBuiltInTransform <IApplication, HtClause> builtInTransform,
                                Resolver <HtPredicate, HtClause> resolver,
                                PlPrologParser parser ) {
         super(symbolTable, interner);
+
         this.defaultBuiltIn = defaultBuiltIn;
         this.builtInTransform = builtInTransform;
         this.resolver = resolver;
         this.parser = parser;
-//        this.compiler = compiler;
     }
 
     public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException {

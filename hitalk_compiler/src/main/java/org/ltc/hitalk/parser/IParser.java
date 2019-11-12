@@ -1,8 +1,8 @@
 package org.ltc.hitalk.parser;
 
+import com.thesett.aima.logic.fol.IVafInterner;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
@@ -49,11 +49,11 @@ public interface IParser extends TermParser <Term> {
         getParser().setStream(stream);
     }
 
-    default VariableAndFunctorInterner getInterner () {
+    default IVafInterner getInterner () {
         return getParser().getInterner();
     }
 
-    default void setInterner ( VariableAndFunctorInterner interner ) {
+    default void setInterner ( IVafInterner interner ) {
         getParser().setInterner(interner);
     }
 

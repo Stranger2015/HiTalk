@@ -1,6 +1,6 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
+import com.thesett.aima.logic.fol.IVafInterner;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
 import org.ltc.hitalk.wam.printer.HtPositionalTermTraverser;
@@ -17,7 +17,7 @@ public class PiCallsInterpreter extends HtBasePositionalVisitor
      * @param symbolTable The compiler symbol table.
      * @param interner    The name interner.
      */
-    public PiCallsInterpreter ( SymbolTable <Integer, String, Object> symbolTable, VariableAndFunctorInterner interner ) {
+    public PiCallsInterpreter ( SymbolTable <Integer, String, Object> symbolTable, IVafInterner interner ) {
         super(symbolTable, interner);
     }
 

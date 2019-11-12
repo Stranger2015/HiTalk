@@ -16,8 +16,8 @@ package org.ltc.hitalk.wam.printer;
  * limitations under the License.
  */
 
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.parser.HtClause;
 
 /**
@@ -41,7 +41,7 @@ class HtWAMCompiledQueryPrintingVisitor extends HtWAMCompiledTermsPrintingVisito
      */
     public
     HtWAMCompiledQueryPrintingVisitor ( SymbolTable <Integer, String, Object> symbolTable,
-                                        VariableAndFunctorInterner interner,
+                                        IVafInterner interner,
                                         StringBuilder result ) {
         super(interner, symbolTable, result);
     }

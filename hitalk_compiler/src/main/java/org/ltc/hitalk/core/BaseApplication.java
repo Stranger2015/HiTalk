@@ -1,8 +1,8 @@
 package org.ltc.hitalk.core;
 
 
+import com.thesett.aima.logic.fol.IVafInterner;
 import com.thesett.aima.logic.fol.LinkageException;
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.common.util.doublemaps.SymbolTableImpl;
 import org.ltc.hitalk.ITermFactory;
@@ -208,7 +208,7 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
      * @return
      */
     @Override
-    public VariableAndFunctorInterner getInterner () {
+    public IVafInterner getInterner () {
         return Environment.instance().getInterner();
     }
 

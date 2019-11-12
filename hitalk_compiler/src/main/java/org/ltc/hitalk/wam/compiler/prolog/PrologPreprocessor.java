@@ -1,11 +1,26 @@
+/*
+ * Copyright The Sett Ltd, 2005 to 2014.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.ltc.hitalk.wam.compiler.prolog;
 
 import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PrologBuiltInTransform;
 import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.entities.HtProperty;
@@ -33,9 +48,9 @@ public class PrologPreprocessor<TC extends Term, TT extends TransformTask <HtCla
      * @param interner           The interner for the machine.
      */
     public PrologPreprocessor ( SymbolTable <Integer, String, Object> symbolTable,
-                                VariableAndFunctorInterner interner,
+                                IVafInterner interner,
                                 PrologDefaultBuiltIn defaultBuiltIn,
-                                PrologBuiltInTransform <IApplication, Term> builtInTransform,
+                                PrologBuiltInTransform <IApplication, HtClause> builtInTransform,
                                 Resolver <HtClause, HtClause> resolver,
                                 PrologWAMCompiler compiler ) {
 

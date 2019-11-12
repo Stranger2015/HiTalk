@@ -1,6 +1,9 @@
 package org.ltc.hitalk.parser.jp.segfault.prolog.parser;
 
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.Term;
+import com.thesett.aima.logic.fol.TermTransformer;
+import com.thesett.aima.logic.fol.TermTraverser;
+import com.thesett.aima.logic.fol.TermVisitor;
 import com.thesett.aima.search.Operator;
 import com.thesett.aima.search.Successor;
 import com.thesett.aima.search.Traversable;
@@ -129,7 +132,7 @@ public class ErrorTerm implements Term {
     }
 
     @Override
-    public String toString ( VariableAndFunctorInterner interner, boolean printVarName, boolean printBindings ) {
+    public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
         return getClass().getSimpleName();
     }
 

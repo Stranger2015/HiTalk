@@ -1,7 +1,10 @@
 package org.ltc.hitalk.parser.jp.segfault.prolog.parser;
 
 
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.Sentence;
+import com.thesett.aima.logic.fol.SentenceImpl;
+import com.thesett.aima.logic.fol.Term;
+import com.thesett.aima.logic.fol.Variable;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.Source;
 import org.ltc.hitalk.ITermFactory;
@@ -46,7 +49,7 @@ public class PlPrologParser implements IParser {
     protected final ITermFactory factory;
     protected final IOperatorTable operatorTable;// = new HlOperatorTable();
     protected final Deque <PlTokenSource> tokenSourceStack = new ArrayDeque <>();
-    protected final VariableAndFunctorInterner interner;
+    protected final IVafInterner interner;
 
     /**
      * Describes the possible system directives in interactive mode.
@@ -68,7 +71,7 @@ public class PlPrologParser implements IParser {
      * @param optable
      */
     public PlPrologParser ( HiTalkStream stream,
-                            VariableAndFunctorInterner interner,
+                            IVafInterner interner,
                             ITermFactory factory,
                             IOperatorTable optable ) {
         this.stream = stream;

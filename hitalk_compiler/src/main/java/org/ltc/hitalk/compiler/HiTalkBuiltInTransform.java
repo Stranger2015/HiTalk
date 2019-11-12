@@ -15,13 +15,15 @@
   */
  package org.ltc.hitalk.compiler;
 
- import com.thesett.aima.logic.fol.*;
+ import com.thesett.aima.logic.fol.Functor;
+ import com.thesett.aima.logic.fol.FunctorName;
+ import com.thesett.aima.logic.fol.Resolver;
+ import com.thesett.aima.logic.fol.Term;
  import com.thesett.aima.logic.fol.wam.builtins.BuiltInFunctor;
  import org.ltc.hitalk.compiler.bktables.IApplication;
  import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
  import org.ltc.hitalk.entities.*;
  import org.ltc.hitalk.parser.HtClause;
- import org.ltc.hitalk.term.ListTerm;
  import org.ltc.hitalk.term.PackedDottedPair;
  import org.ltc.hitalk.term.io.Environment;
  import org.ltc.hitalk.term.io.HiTalkStream;
@@ -47,7 +49,7 @@
   * <pre><p/><table id="crc"><caption>CRC Card</caption>
   * <tr><th> Responsibilities <th> Collaborations
   * <tr><td> Transform functors to built in functors where appropriate.
-  *     <td> {@link BuiltInFunctor}, {@link VariableAndFunctorInterner}.
+  *     <td> {@link BuiltInFunctor}, {@link IVafInterner}.
   * </table></pre>
   *
   * @author Rupert Smith
@@ -1096,7 +1098,7 @@
 //======================================================
 
      //
-     public VariableAndFunctorInterner getInterner () {
+     public IVafInterner getInterner () {
          return interner;
      }
 

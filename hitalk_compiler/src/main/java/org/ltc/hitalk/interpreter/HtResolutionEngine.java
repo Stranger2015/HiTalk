@@ -36,7 +36,7 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * ResolutionEngine combines together a logic {@link Parser}, a {@link VariableAndFunctorInterner} that acts as a symbol
+ * ResolutionEngine combines together a logic {@link Parser}, a {@link IVafInterner} that acts as a symbol
  * table, a {@link LogicCompiler} and a {@link Resolver}, into a single unit.
  *
  * <pre><p/><table id="crc"><caption>CRC Card</caption>
@@ -47,7 +47,7 @@ import java.util.*;
  */
 public
 class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
-        implements VariableAndFunctorInterner, ICompiler <T, P, Q>, Resolver <P, Q> {
+        implements IVafInterner, ICompiler <T, P, Q>, Resolver <P, Q> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
@@ -59,7 +59,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     /**
      * Holds the variable and functor symbol table.
      */
-    protected VariableAndFunctorInterner interner;
+    protected IVafInterner interner;
 
     /**
      * Holds the compiler.
@@ -82,7 +82,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * @param interner The functor and variable name interner.
      */
     public HtResolutionEngine ( PlPrologParser parser,
-                                VariableAndFunctorInterner interner,
+                                IVafInterner interner,
                                 ICompiler <T, P, Q> compiler,
                                 Resolver <P, Q> resolver ) {
         super(parser);
@@ -107,7 +107,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      *
      * @return The resolution engines interner.
      */
-    public VariableAndFunctorInterner getInterner () {
+    public IVafInterner getInterner () {
         return interner;
     }
 

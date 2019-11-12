@@ -1,6 +1,6 @@
 package org.ltc.hitalk.wam.printer;
 
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
+import com.thesett.aima.logic.fol.IVafInterner;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 
@@ -16,7 +16,7 @@ class HtWAMCompiledPredicatePrintingVisitor extends HtWAMCompiledTermsPrintingVi
     public
     HtWAMCompiledPredicatePrintingVisitor (
             SymbolTable <Integer, String, Object> symbolTable,
-            VariableAndFunctorInterner interner,
+            IVafInterner interner,
             StringBuilder result ) {
         super(interner, symbolTable, result);
     }

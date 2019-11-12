@@ -16,7 +16,10 @@
 package org.ltc.hitalk.wam.compiler.hitalk;
 
 
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.LogicCompilerObserver;
+import com.thesett.aima.logic.fol.Resolver;
+import com.thesett.aima.logic.fol.Sentence;
+import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.compiler.SymbolKeyTraverser;
 import com.thesett.aima.logic.fol.compiler.TermWalker;
 import com.thesett.aima.logic.fol.wam.TermWalkers;
@@ -65,7 +68,7 @@ class HiTalkPreCompiler extends PrologPreCompiler implements ICompiler <HtClause
      * @param resolver
      */
     public HiTalkPreCompiler ( SymbolTable <Integer, String, Object> symbolTable,
-                               VariableAndFunctorInterner interner,
+                               IVafInterner interner,
                                PrologBuiltInTransform <IApplication, HtClause> builtInTransform,
                                PrologDefaultBuiltIn defaultBuiltIn,
                                Resolver <HtPredicate, HtClause> resolver,

@@ -78,7 +78,7 @@ public class HlOpSymbol extends HtFunctor implements Comparable, Cloneable {
         super(name, null);
 
         // Check that there is at least one and at most two arguments.
-        if ((arguments == null) || (arguments.length < 1) || (arguments.length > 2)) {
+        if ((args == null) || (args.length < 1) || (args.length > 2)) {
             throw new IllegalArgumentException("An operator has minimum 1 and maximum 2 arguments.");
         }
 
@@ -111,14 +111,14 @@ public class HlOpSymbol extends HtFunctor implements Comparable, Cloneable {
      *
      * @param arguments The arguments the operator is applied to.
      */
+    @Override
     public void setArguments ( Term[] arguments ) {
         // Check that there is at least one and at most two arguments.
         if ((arguments == null) || (arguments.length < 1) || (arguments.length > 2)) {
             throw new IllegalArgumentException("An operator has minimum 1 and maximum 2 arguments.");
         }
 
-        this.arguments = arguments;
-        this.arity = arguments.length;
+        this.args = arguments;
     }
 
     /**

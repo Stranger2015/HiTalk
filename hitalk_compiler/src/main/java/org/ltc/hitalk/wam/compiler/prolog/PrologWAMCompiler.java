@@ -1,9 +1,9 @@
 package org.ltc.hitalk.wam.compiler.prolog;
 
+import com.thesett.aima.logic.fol.IVafInterner;
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.aima.logic.fol.Sentence;
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.BaseCompiler;
@@ -39,7 +39,7 @@ public class PrologWAMCompiler<T extends HtClause, P, Q>
      * @param interner    The interner for the machine.
      */
     public PrologWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
-                               VariableAndFunctorInterner interner,
+                               IVafInterner interner,
                                PlPrologParser parser,
                                LogicCompilerObserver <P, Q> observer ) {
         super(symbolTable, interner, parser, observer);

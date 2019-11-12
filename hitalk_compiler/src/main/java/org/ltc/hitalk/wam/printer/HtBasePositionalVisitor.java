@@ -18,6 +18,7 @@ package org.ltc.hitalk.wam.printer;
 
 import com.thesett.aima.logic.fol.*;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.PackedDottedPair;
@@ -45,12 +46,10 @@ import static org.ltc.hitalk.term.PackedDottedPair.Kind;
 public
 class HtBasePositionalVisitor implements HtAllTermsVisitor {
 
-//    List <PiCall> piCalls = new ArrayList <>();
-
     /**
      * The name interner.
      */
-    protected VariableAndFunctorInterner interner;
+    protected IVafInterner interner;
 
     /**
      * The symbol table.
@@ -69,7 +68,7 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
      * @param symbolTable The compiler symbol table.
      */
     public HtBasePositionalVisitor ( SymbolTable <Integer, String, Object> symbolTable,
-                                     VariableAndFunctorInterner interner ) {
+                                     IVafInterner interner ) {
 
         this.symbolTable = symbolTable;
         this.interner = interner;

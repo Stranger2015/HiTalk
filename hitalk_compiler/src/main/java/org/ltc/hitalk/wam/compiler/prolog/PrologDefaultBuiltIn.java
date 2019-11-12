@@ -1,6 +1,9 @@
 package org.ltc.hitalk.wam.compiler.prolog;
 
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.Functor;
+import com.thesett.aima.logic.fol.FunctorName;
+import com.thesett.aima.logic.fol.FunctorTermPredicate;
+import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.bytecode.BaseMachine;
 import com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys;
 import com.thesett.aima.search.QueueBasedSearchMethod;
@@ -9,6 +12,7 @@ import com.thesett.aima.search.util.uninformed.BreadthFirstSearch;
 import com.thesett.aima.search.util.uninformed.PostFixSearch;
 import com.thesett.common.util.SizeableLinkedList;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.PrologBuiltIn;
@@ -66,7 +70,7 @@ public class PrologDefaultBuiltIn extends BaseMachine implements PrologBuiltIn {
      * @param interner    The interner for the machine.
      */
     public PrologDefaultBuiltIn ( SymbolTable <Integer, String, Object> symbolTable,
-                                  VariableAndFunctorInterner interner ) {
+                                  IVafInterner interner ) {
         super(symbolTable, interner);
     }
 

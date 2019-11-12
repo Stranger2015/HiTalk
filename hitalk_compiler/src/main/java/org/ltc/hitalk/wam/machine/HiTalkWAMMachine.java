@@ -15,8 +15,8 @@
  */
 package org.ltc.hitalk.wam.machine;
 
+import com.thesett.aima.logic.fol.IVafInterner;
 import com.thesett.aima.logic.fol.LinkageException;
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.aima.logic.fol.wam.compiler.WAMCallPoint;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledPredicate;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledQuery;
@@ -35,7 +35,7 @@ import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledQuery;
  * @author Rupert Smith
  */
 public
-interface HiTalkWAMMachine extends VariableAndFunctorInterner {
+interface HiTalkWAMMachine extends IVafInterner {
     /**
      * Provides a call point for the named functor. This method is primarily for use when storing or linking compiled
      * byte code, into its binary form in a machine. The returned call point provides a binary address to use for calls

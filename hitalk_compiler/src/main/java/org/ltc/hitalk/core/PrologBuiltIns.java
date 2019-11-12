@@ -274,8 +274,8 @@ enum PrologBuiltIns {
     });
 
     //    static {
-//        VariableAndFunctorInterner interner =
-//                new VariableAndFunctorInternerImpl("prolog vars", "prolog builtin foos");}
+//        IVafInterner interner =
+//                new IVafInternerImpl("prolog vars", "prolog builtin foos");}
 //
     private final String name;
     private final Consumer builtInDef;

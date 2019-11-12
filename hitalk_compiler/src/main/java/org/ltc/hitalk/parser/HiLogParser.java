@@ -1,7 +1,7 @@
 package org.ltc.hitalk.parser;
 
 import com.thesett.aima.logic.fol.Functor;
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.TermFactory;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
@@ -42,7 +42,7 @@ public class HiLogParser extends PlPrologParser {
      * @param optable
      */
     public HiLogParser ( HiTalkStream stream,
-                         VariableAndFunctorInterner interner,
+                         IVafInterner interner,
                          TermFactory factory,
                          IOperatorTable optable ) {
         super(stream, interner, factory, optable);
