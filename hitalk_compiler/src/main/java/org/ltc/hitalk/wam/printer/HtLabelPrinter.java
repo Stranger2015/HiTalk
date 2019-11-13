@@ -6,10 +6,10 @@ import org.ltc.hitalk.compiler.IVafInterner;
 
 public
 class HtLabelPrinter extends HtBasePrinter {
-    public
-    HtLabelPrinter ( SymbolTable <Integer, String, Object> symbolTable,
-                     IVafInterner interner,
-                     HtPositionalTermTraverser traverser, int i, TextTableModel printTable ) {
+
+    public HtLabelPrinter ( SymbolTable <Integer, String, Object> symbolTable,
+                            IVafInterner interner,
+                            IPositionalTermTraverser traverser, int i, TextTableModel printTable ) {
         super(symbolTable, interner, traverser, i, printTable);
     }
 }

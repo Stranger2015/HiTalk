@@ -17,10 +17,10 @@
 
 package org.ltc.hitalk.wam.printer;
 
-import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.TermTraverser;
 import com.thesett.aima.search.Operator;
 import org.ltc.hitalk.entities.HtPredicate;
+import org.ltc.hitalk.term.ITerm;
 
 import java.util.Iterator;
 
@@ -35,7 +35,7 @@ import java.util.Iterator;
  * @author Rupert Smith
  */
 public
-interface HtPredicateTraverser extends TermTraverser {
+interface IPredicateTraverser extends TermTraverser {
 
     /**
      * Traverses a predicate.
@@ -45,5 +45,5 @@ interface HtPredicateTraverser extends TermTraverser {
      *                  be a natural, left-to-right ordering.
      * @return An iterator over operators producing the traversed elements of the predicate.
      */
-    Iterator <Operator <Term>> traverse ( HtPredicate predicate, boolean reverse );
+    Iterator <Operator <ITerm>> traverse ( HtPredicate predicate, boolean reverse );
 }

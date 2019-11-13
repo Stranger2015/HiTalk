@@ -3,15 +3,15 @@ package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.*;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtPredicateDefinition;
 import org.ltc.hitalk.entities.ISubroutine;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.term.PackedDottedPair;
+import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
-import org.ltc.hitalk.wam.printer.HtPositionalTermTraverser;
-import org.ltc.hitalk.wam.printer.HtPositionalTermVisitor;
+import org.ltc.hitalk.wam.printer.IPositionalTermVisitor;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,10 +20,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.ltc.hitalk.term.PackedDottedPair.Kind.TRUE;
+import static org.ltc.hitalk.term.ListTerm.Kind.TRUE;
 
 public class PrologPositionalTransformVisitor extends HtBasePositionalVisitor
-        implements HtPositionalTermVisitor {
+        implements IPositionalTermVisitor {
 
     protected HtPositionalTermTraverser positionalTraverser;
 
@@ -88,14 +88,14 @@ public class PrologPositionalTransformVisitor extends HtBasePositionalVisitor
     }
 
     private static class BinFunctor {
-        PackedDottedPair.Kind kind;
+        ListTerm.Kind kind;
         BinFunctor left;
         BinFunctor right;
 
         /**
          * @return
          */
-        public PackedDottedPair.Kind getKind () {
+        public ListTerm.Kind getKind () {
             return kind;
         }
 
@@ -108,10 +108,10 @@ public class PrologPositionalTransformVisitor extends HtBasePositionalVisitor
         }
     }
 
-    private PackedDottedPair asDottedPair ( IFunctor[] body ) {
+    private ListTerm asDottedPair ( IFunctor[] body ) {
         switch (body.length) {
             case 0:
-                PackedDottedPair.Kind kind = TRUE;
+                ListTerm.Kind kind = TRUE;
                 break;
             case 1:
 
@@ -124,9 +124,9 @@ public class PrologPositionalTransformVisitor extends HtBasePositionalVisitor
         return null;
     }
 
-    private void chb ( PackedDottedPair body, Map <IFunctor, List <PiCalls>> hb ) {
+    private void chb ( ListTerm body, Map <IFunctor, List <PiCalls>> hb ) {
         for (int i = 0, bodyLength = body.size(); i < bodyLength; i++) {
-            final PackedDottedPair dp = (PackedDottedPair) body.get(i);
+            final ListTerm dp = (ListTerm) body.get(i);
             switch (dp.getKind()) {
                 case NOT:
 //                    final IFunctor g1 = (IFunctor);
@@ -148,7 +148,7 @@ public class PrologPositionalTransformVisitor extends HtBasePositionalVisitor
         }
     }
 
-    private void chb0 ( PackedDottedPair.Kind kind, IFunctor g1, Map <IFunctor, List <PiCalls>> hb ) {
+    private void chb0 ( ListTerm.Kind kind, IFunctor g1, Map <IFunctor, List <PiCalls>> hb ) {
 
     }
 

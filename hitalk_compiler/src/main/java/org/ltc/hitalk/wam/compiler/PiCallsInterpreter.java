@@ -4,10 +4,10 @@ import com.thesett.aima.logic.fol.IVafInterner;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
 import org.ltc.hitalk.wam.printer.HtPositionalTermTraverser;
-import org.ltc.hitalk.wam.printer.HtPositionalTermVisitor;
+import org.ltc.hitalk.wam.printer.IPositionalTermVisitor;
 
 public class PiCallsInterpreter extends HtBasePositionalVisitor
-        implements HtPositionalTermVisitor {
+        implements IPositionalTermVisitor {
 
     protected HtPositionalTermTraverser positionalTraverser;
 

@@ -19,7 +19,7 @@ import java.util.List;
  * @author Rupert Smith
  */
 public
-interface HiTalkWAMOptimizeableListing {
+interface IWAMOptimizeableListing {
 
 
     /**

@@ -9,10 +9,10 @@ import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtPredicateDefinition;
 import org.ltc.hitalk.entities.ISubroutine;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.term.PackedDottedPair;
+import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
 import org.ltc.hitalk.wam.printer.HtPositionalTermTraverser;
-import org.ltc.hitalk.wam.printer.HtPositionalTermVisitor;
+import org.ltc.hitalk.wam.printer.IPositionalTermVisitor;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,11 +21,11 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.ltc.hitalk.term.PackedDottedPair.Kind.TRUE;
+import static org.ltc.hitalk.term.ListTerm.Kind.TRUE;
 
 @Deprecated
 public class PrologPositionalTransformVisitorNew extends HtBasePositionalVisitor
-        implements HtPositionalTermVisitor {
+        implements IPositionalTermVisitor {
 
     protected HtPositionalTermTraverser positionalTraverser;
 
@@ -90,14 +90,14 @@ public class PrologPositionalTransformVisitorNew extends HtBasePositionalVisitor
     }
 
     private static class BinFunctor {
-        PackedDottedPair.Kind kind;
+        ListTerm.Kind kind;
         BinFunctor left;
         BinFunctor right;
 
         /**
          * @return
          */
-        public PackedDottedPair.Kind getKind () {
+        public ListTerm.Kind getKind () {
             return kind;
         }
 
@@ -110,10 +110,10 @@ public class PrologPositionalTransformVisitorNew extends HtBasePositionalVisitor
         }
     }
 
-    private PackedDottedPair asDottedPair ( IFunctor[] body ) {
+    private ListTerm asDottedPair ( IFunctor[] body ) {
         switch (body.length) {
             case 0:
-                PackedDottedPair.Kind kind = TRUE;
+                ListTerm.Kind kind = TRUE;
                 break;
             case 1:
 
@@ -126,9 +126,9 @@ public class PrologPositionalTransformVisitorNew extends HtBasePositionalVisitor
         return null;
     }
 
-    private void chb ( PackedDottedPair body, Map <IFunctor, List <PiCalls>> hb ) {
+    private void chb ( ListTerm body, Map <IFunctor, List <PiCalls>> hb ) {
         for (int i = 0, bodyLength = body.size(); i < bodyLength; i++) {
-            final PackedDottedPair goal = (PackedDottedPair) body.get(i);
+            final ListTerm goal = (ListTerm) body.get(i);
             switch (goal.getKind()) {
                 case NOT:
 //                    final IFunctor g1 = (IFunctor);

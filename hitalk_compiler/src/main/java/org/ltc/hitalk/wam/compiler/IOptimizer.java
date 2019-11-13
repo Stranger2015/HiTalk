@@ -28,7 +28,7 @@
      */
 
     public
-    interface HiTalkOptimizer {
+    interface IOptimizer {
         /**
          * Applies optimizations to an instruction listing.
          *
@@ -36,5 +36,5 @@
          * @param <T>     The entityKind of the instruction listing.
          * @return An optimized instruction listing.
          */
-        <T extends HiTalkWAMOptimizeableListing> T apply ( T listing );
+        <T extends IWAMOptimizeableListing> T apply ( T listing );
     }

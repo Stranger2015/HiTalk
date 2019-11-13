@@ -15,7 +15,7 @@
      */
     package org.ltc.hitalk.wam.compiler;
 
-    import com.thesett.aima.logic.fol.TermTransformer;
+    import org.ltc.hitalk.term.ITermTransformer;
 
     /**
      * FunctorVisitor implements a transformation from functors to functors.
@@ -27,7 +27,7 @@
      *
      * @author Rupert Smith
      */
-    public interface IFunctorTransformer extends TermTransformer {
+    public interface IFunctorTransformer extends ITermTransformer {
         /**
          * Applies a transformation to the functor.
          *

@@ -1,6 +1,6 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.Term;
+import org.ltc.hitalk.term.ITerm;
 
 public
 interface IRangedArity {
@@ -47,5 +47,5 @@ interface IRangedArity {
     /**
      * @return
      */
-    Term getArityTerm ();
+    ITerm getArityTerm ();
 }

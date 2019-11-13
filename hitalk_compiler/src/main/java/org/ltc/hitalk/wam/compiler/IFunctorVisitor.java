@@ -13,32 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ltc.hitalk.wam.printer;
+package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.search.Operator;
-import org.ltc.hitalk.wam.compiler.IFunctor;
-
-import java.util.Iterator;
+import com.thesett.aima.logic.fol.LinkageException;
+import com.thesett.aima.logic.fol.TermVisitor;
 
 /**
- * FunctorTraverser provides a traversal pattern over functors.
+ * FunctorVisitor provides a visitor pattern over functors.
  *
  * <pre><p/><table id="crc"><caption>CRC Card</caption>
  * <tr><th> Responsibilities <th> Collaborations
- * <tr><td> Provide all reachable child terms of a functor.
+ * <tr><td> Visit a functor.
  * </table></pre>
  *
  * @author Rupert Smith
  */
-public interface HtFunctorTraverser {
+public interface IFunctorVisitor extends TermVisitor {
     /**
      * Visits a functor.
      *
      * @param functor The functor to visit.
-     * @param reverse <tt>true</tt> if the child operators should be presented in reverse order to what is deemed to be
-     *                a natural, left-to-right ordering.
-     * @return An iterator over operators producing the traveresed elements of the functor.
      */
-    Iterator <Operator <Term>> traverse ( IFunctor functor, boolean reverse );
+    void visit ( IFunctor functor ) throws LinkageException;
 }

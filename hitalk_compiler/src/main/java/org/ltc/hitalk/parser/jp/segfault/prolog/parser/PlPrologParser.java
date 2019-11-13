@@ -19,7 +19,7 @@ import org.ltc.hitalk.term.HlOpSymbol;
 import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 import org.ltc.hitalk.term.HlOpSymbol.Fixity;
 import org.ltc.hitalk.term.HlOperatorJoiner;
-import org.ltc.hitalk.term.PackedDottedPair;
+import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.HtFunctorName;
@@ -32,7 +32,7 @@ import java.util.*;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind.*;
 import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
-import static org.ltc.hitalk.term.PackedDottedPair.Kind.*;
+import static org.ltc.hitalk.term.ListTerm.Kind.*;
 import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
 
 /**
@@ -195,7 +195,7 @@ public class PlPrologParser implements IParser {
 //                end-of_term
 //                break;
             case LPAREN:
-                PackedDottedPair dottedPair = readSequence(token.kind, RPAREN, true);//blocked sequence
+                ListTerm dottedPair = readSequence(token.kind, RPAREN, true);//blocked sequence
                 break;
             case LBRACKET:
                 dottedPair = readSequence(token.kind, RBRACKET, false);
@@ -257,10 +257,10 @@ public class PlPrologParser implements IParser {
     }
 
     //PSEUDO COMPOUND == (terms)
-    protected PackedDottedPair readSequence ( TokenKind ldelim, TokenKind rdelim, boolean isBlocked ) throws IOException, ParseException {
+    protected ListTerm readSequence ( TokenKind ldelim, TokenKind rdelim, boolean isBlocked ) throws IOException, ParseException {
         List <Term> elements = new ArrayList <>();
         EnumSet <TokenKind> rdelims = isBlocked ? EnumSet.of(COMMA, rdelim) : EnumSet.of(COMMA, CONS, rdelim);
-        PackedDottedPair.Kind kind = LIST;
+        ListTerm.Kind kind = LIST;
         switch (ldelim) {
             case LPAREN:
                 if (isBlocked) {
@@ -294,7 +294,7 @@ public class PlPrologParser implements IParser {
             return factory.newDottedPair(kind, flatten(elements));
         }
 
-        return (PackedDottedPair) term;
+        return (ListTerm) term;
     }
 
     private Term[] flatten ( List <Term> elements ) {
@@ -308,11 +308,11 @@ public class PlPrologParser implements IParser {
      * @throws ParseException
      */
     protected IFunctor compound ( String name ) throws IOException, ParseException {
-        PackedDottedPair args = readSequence(LPAREN, RPAREN, false);
+        ListTerm args = readSequence(LPAREN, RPAREN, false);
         return compound(name, args);
     }
 
-    protected IFunctor compound ( String name, PackedDottedPair args ) throws IOException, ParseException {
+    protected IFunctor compound ( String name, ListTerm args ) throws IOException, ParseException {
         return factory.newFunctor(HiLogParser.hilogApply, name, args);
     }
 

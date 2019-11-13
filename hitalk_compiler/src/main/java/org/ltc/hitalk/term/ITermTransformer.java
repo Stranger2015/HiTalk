@@ -13,26 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ltc.hitalk.wam.compiler;
+package org.ltc.hitalk.term;
 
-import com.thesett.aima.logic.fol.LinkageException;
-import com.thesett.aima.logic.fol.TermVisitor;
 
 /**
- * FunctorVisitor provides a visitor pattern over functors.
+ * TermVisitor provides the interface for a visitor/transformer over term trees.
  *
  * <pre><p/><table id="crc"><caption>CRC Card</caption>
- * <tr><th> Responsibilities <th> Collaborations
- * <tr><td> Visit a functor.
+ * <tr><th> Responsibilities
+ * <tr><td> Transform a term.
  * </table></pre>
  *
  * @author Rupert Smith
+ * @todo Visitor/transformer pattern over terms: Ability to replace child-terms in place with new terms. Ability to
+ * pass context down to child terms. Ability to iterate over child terms in any queue based search ordering.
+ * Looks like a traversable, operators capture and pass on state, goal checks do the visiting.
  */
-public interface HtFunctorVisitor extends TermVisitor {
+public interface ITermTransformer {
     /**
-     * Visits a functor.
+     * Applies a transformation to the term.
      *
-     * @param functor The functor to visit.
+     * @param term The term to transform.
+     * @return A term which is a transformation of the argument.
      */
-    void visit ( IFunctor functor ) throws LinkageException;
+    ITerm transform ( ITerm term );
 }

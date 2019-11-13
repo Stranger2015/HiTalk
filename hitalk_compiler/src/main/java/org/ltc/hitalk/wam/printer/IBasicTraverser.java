@@ -5,10 +5,12 @@ import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.search.Operator;
 import com.thesett.aima.search.util.backtracking.Reversable;
 import com.thesett.common.util.StackQueue;
-import org.ltc.hitalk.compiler.HtPredicateVisitor;
+import org.ltc.hitalk.compiler.IPredicateVisitor;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtPredicateDefinition;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,11 +19,12 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public abstract
-class HtBasicTraverser implements HtPredicateTraverser,
+class IBasicTraverser implements
+        HtPredicateTraverser,
         HtClauseTraverser,
-        HtFunctorTraverser,
+        IFunctorTraverser,
         HtClauseVisitor,
-        HtPredicateVisitor {
+        IPredicateVisitor {
 
     /** Used for debugging purposes. */
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
@@ -49,8 +52,7 @@ class HtBasicTraverser implements HtPredicateTraverser,
     /**
      * Creates a traverser that uses the normal intuitive left-to-right traversal orderings for clauses and functors.
      */
-    public
-    HtBasicTraverser () {
+    public IBasicTraverser () {
         clauseHeadFirst = true;
         leftToRightClauseBodies = true;
         leftToRightFunctorArgs = true;
@@ -64,8 +66,7 @@ class HtBasicTraverser implements HtPredicateTraverser,
      * @param leftToRightClauseBodies <tt>true</tt> to use the normal ordering, <tt>false</tt> for the reverse.
      * @param leftToRightFunctorArgs  <tt>true</tt> to use the normal ordering, <tt>false</tt> for the reverse.
      */
-    public
-    HtBasicTraverser ( boolean clauseHeadFirst, boolean leftToRightClauseBodies, boolean leftToRightFunctorArgs ) {
+    public IBasicTraverser ( boolean clauseHeadFirst, boolean leftToRightClauseBodies, boolean leftToRightFunctorArgs ) {
         this.clauseHeadFirst = clauseHeadFirst;
         this.leftToRightClauseBodies = leftToRightClauseBodies;
         this.leftToRightFunctorArgs = leftToRightFunctorArgs;
@@ -115,14 +116,13 @@ class HtBasicTraverser implements HtPredicateTraverser,
     /**
      * {@inheritDoc}
      */
-    public
-    Iterator <Operator <Term>> traverse ( HtClause clause, boolean reverse ) {
+    public Iterator <Operator <ITerm>> traverse ( HtClause clause, boolean reverse ) {
         logger.debug("Traversing clause " + clause.toString());
 
-        Functor head = clause.getHead();
-        Functor[] body = clause.getBody();
+        IFunctor head = clause.getHead();
+        IFunctor[] body = clause.getBody();
 
-        Queue <Operator <Term>> queue = (!reverse) ? new StackQueue <>() : new LinkedList <>();
+        Queue <Operator <ITerm>> queue = (!reverse) ? new StackQueue <>() : new LinkedList <>();
 
         // For the head functor, set the top-level flag, set in head context.
         if (head != null) {
@@ -179,8 +179,7 @@ class HtBasicTraverser implements HtPredicateTraverser,
      * @param clause The containing clause.
      * @return A reversable operator.
      */
-    protected abstract
-    HtBasicTraverser.StackableOperator createHeadOperator ( Functor head, HtClause clause );
+    protected abstract IBasicTraverser.StackableOperator createHeadOperator ( Functor head, HtClause clause );
 
     /**
      * When traversing the body functors of a clause, creates a reversible operator to use to transition into each body

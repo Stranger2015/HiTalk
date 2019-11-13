@@ -1,13 +1,12 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.logic.fol.TermTraverser;
-import org.ltc.hitalk.term.PackedDottedPair;
+import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.ListTerm;
 
 /**
  *
  */
-public interface IFunctor extends Term, IRangedArity {
+public interface IFunctor extends ITerm, IRangedArity {
     /**
      * @return
      */
@@ -16,13 +15,13 @@ public interface IFunctor extends Term, IRangedArity {
     /**
      * @return
      */
-    Term[] getArguments ();
+    ITerm[] getArguments ();
 
     /**
      * @param i
      * @return
      */
-    Term getArgument ( int i );
+    ITerm getArgument ( int i );
 
     /**
      * @return
@@ -35,18 +34,18 @@ public interface IFunctor extends Term, IRangedArity {
      * @return
      */
     default boolean isDottedPair () {
-        return this instanceof PackedDottedPair;
+        return this instanceof ListTerm;
     }
 
     boolean isBracketed ();
 
-    void setTermTraverser ( TermTraverser traverser );
+    void setTermTraverser ( ITermTraverser traverser );
 
     boolean isDefined ();
 
     String toStringArguments ();
 
-    void setArgument ( int i, Term term );
+    void setArgument ( int i, ITerm term );
 
-    void setArguments ( Term[] terms );
+    void setArguments ( ITerm[] terms );
 }

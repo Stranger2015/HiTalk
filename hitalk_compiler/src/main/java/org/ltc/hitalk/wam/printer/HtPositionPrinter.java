@@ -44,11 +44,10 @@
          * @param i
          * @param printTable
          */
-        public
-        HtPositionPrinter ( SymbolTable <Integer, String, Object> symbolTable,
-                            IVafInterner interner,
-                            HtPositionalTermTraverser traverser,
-                            int i, TextTableModel printTable ) {
+        public HtPositionPrinter ( SymbolTable <Integer, String, Object> symbolTable,
+                                   IVafInterner interner,
+                                   HtPositionalTermTraverser traverser,
+                                   int i, TextTableModel printTable ) {
             super(symbolTable, interner, traverser, i, printTable);
 
         }

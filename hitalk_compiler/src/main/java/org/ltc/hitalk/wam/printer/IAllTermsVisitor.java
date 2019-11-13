@@ -4,8 +4,8 @@ import com.thesett.aima.logic.fol.IntegerTypeVisitor;
 import com.thesett.aima.logic.fol.LiteralTypeVisitor;
 import com.thesett.aima.logic.fol.TermVisitor;
 import com.thesett.aima.logic.fol.VariableVisitor;
-import org.ltc.hitalk.compiler.HtPredicateVisitor;
-import org.ltc.hitalk.wam.compiler.HtFunctorVisitor;
+import org.ltc.hitalk.compiler.IPredicateVisitor;
+import org.ltc.hitalk.wam.compiler.IFunctorVisitor;
 
 /**
  * AllTermsVisitor defines a composite visitor made up of the visitors over all types of terms.
@@ -24,12 +24,13 @@ import org.ltc.hitalk.wam.compiler.HtFunctorVisitor;
  * @author Rupert Smith
  */
 public
-interface HtAllTermsVisitor extends TermVisitor,
-        HtFunctorVisitor,
+interface IAllTermsVisitor extends
+        TermVisitor,
+        IFunctorVisitor,
         VariableVisitor,
-        HtClauseVisitor,
+        IClauseVisitor,
         IntegerTypeVisitor,
         LiteralTypeVisitor,
-        HtPredicateVisitor,
-        PackedDottedPairVisitor {
+        IPredicateVisitor,
+        IPackedDottedPairVisitor {
 }

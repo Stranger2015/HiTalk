@@ -1,10 +1,10 @@
 package org.ltc.hitalk.term;
 
-import com.thesett.aima.logic.fol.RecursiveList;
 import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.search.Operator;
 import com.thesett.aima.search.Traversable;
 import org.ltc.hitalk.compiler.VafInterner;
+import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.util.Iterator;
@@ -14,14 +14,14 @@ import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
 /**
  *
  */
-public class PackedDottedPair extends RecursiveList implements ITerm, IFunctor {
+public class ListTerm extends HtFunctor implements ITerm, IFunctor {
 
-    public static final Term TRUE = new PackedDottedPair(Kind.TRUE);
+    public static final ITerm TRUE = new ListTerm(Kind.TRUE);
 
     /**
      *
      */
-    public PackedDottedPair () {
+    public ListTerm () {
         super(-1, EMPTY_TERM_ARRAY);
     }
 
@@ -29,7 +29,7 @@ public class PackedDottedPair extends RecursiveList implements ITerm, IFunctor {
      * @param kind
      * @param arguments
      */
-    public PackedDottedPair ( Kind kind, ITerm... arguments ) {
+    public ListTerm ( Kind kind, ITerm... arguments ) {
         super(-kind.ordinal(), arguments);
     }
 
@@ -71,20 +71,18 @@ public class PackedDottedPair extends RecursiveList implements ITerm, IFunctor {
     /**
      * @return
      */
-    @Override
-    public Iterator <Term> iterator () {
-        return new Iterator <Term>() {
+    public Iterator <ITerm> iterator () {
+        return new Iterator <ITerm>() {
             public boolean hasNext () {
                 return false;
             }
 
-            public Term next () {
+            public ITerm next () {
                 return null;
             }
         };
     }
 
-    @Override
     public boolean isNil () {
         return name < 0;
     }
@@ -98,6 +96,10 @@ public class PackedDottedPair extends RecursiveList implements ITerm, IFunctor {
             return TRUE;
         }
         return getHeads()[i];
+    }
+
+    public int getArity () {
+        return 0;
     }
 
     public boolean isDefined () {

@@ -8,8 +8,8 @@ import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.term.Atom;
 import org.ltc.hitalk.term.FloatTerm;
 import org.ltc.hitalk.term.IntTerm;
-import org.ltc.hitalk.term.PackedDottedPair;
-import org.ltc.hitalk.term.PackedDottedPair.Kind;
+import org.ltc.hitalk.term.ListTerm;
+import org.ltc.hitalk.term.ListTerm.Kind;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.nio.file.Path;
@@ -36,9 +36,9 @@ interface ITermFactory {
     /**
      * ひとつ以上の引数を持つ関数子を作成します。
      */
-    IFunctor newFunctor ( int hilogApply, String value, PackedDottedPair args );
+    IFunctor newFunctor ( int hilogApply, String value, ListTerm args );
 
-    IFunctor newFunctor ( int value, PackedDottedPair args );
+    IFunctor newFunctor ( int value, ListTerm args );
 
     /**
      * 変数を作成します。
@@ -72,13 +72,13 @@ interface ITermFactory {
 
 //    /**/Term newFunctor ( Term[] nameHeadTail );
 
-    IFunctor newFunctor ( int hilogApply, Term name, PackedDottedPair args );
+    IFunctor newFunctor ( int hilogApply, Term name, ListTerm args );
 
     IntTerm newAtomic ( int i );
 
     FloatTerm newAtomic ( double f );
 
-    PackedDottedPair newDottedPair ( Kind kind, Term[] terms );
+    ListTerm newDottedPair ( Kind kind, Term[] terms );
 
     HtProperty createFlag ( String scratch_directory, Path scratchDir );
 

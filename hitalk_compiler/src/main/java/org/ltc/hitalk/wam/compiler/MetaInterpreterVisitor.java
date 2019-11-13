@@ -11,11 +11,11 @@ import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtPredicateDefinition;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.term.PackedDottedPair;
+import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.term.io.Environment;
 import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
 import org.ltc.hitalk.wam.printer.HtPositionalTermTraverser;
-import org.ltc.hitalk.wam.printer.HtPositionalTermVisitor;
+import org.ltc.hitalk.wam.printer.IPositionalTermVisitor;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -30,7 +30,7 @@ import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
  *
  */
 public abstract class MetaInterpreterVisitor extends HtBasePositionalVisitor
-        implements HtPositionalTermVisitor {
+        implements IPositionalTermVisitor {
 
     protected final Resolver <HtPredicate, HtClause> resolver;
     protected HtPositionalTermTraverser positionalTraverser;
@@ -90,7 +90,7 @@ public abstract class MetaInterpreterVisitor extends HtBasePositionalVisitor
     }
 
     @Override
-    protected void enterDottedPair ( PackedDottedPair dottedPair ) throws LinkageException {
+    protected void enterDottedPair ( ListTerm dottedPair ) throws LinkageException {
         for (int i = 0, headsSize = dottedPair.size(); i <= headsSize; i++) {
             switch (dottedPair.getKind()) {
                 case NOT:
@@ -142,14 +142,14 @@ public abstract class MetaInterpreterVisitor extends HtBasePositionalVisitor
     }
 
     @Override
-    protected void leaveDottedPair ( PackedDottedPair dottedPair ) {
+    protected void leaveDottedPair ( ListTerm dottedPair ) {
 
     }
 
     @Override
     protected void enterFunctor ( IFunctor functor ) throws LinkageException {
         if (!functor.isBracketed() && functor.isDottedPair()) {
-            enterDottedPair((PackedDottedPair) functor);
+            enterDottedPair((ListTerm) functor);
         } else {
             enterGoal(functor);//fixme redundant
         }

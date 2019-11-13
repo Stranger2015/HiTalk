@@ -45,10 +45,8 @@ class HtSourceClausePrinter extends HtBasePrinter {
      * @param column      The column to print to.
      * @param table       The table to inform of cell sizes and positions.
      */
-    public
-    HtSourceClausePrinter ( SymbolTable <Integer, String, Object> symbolTable,
-                            IVafInterner interner,
-                            HtPositionalTermTraverser traverser, int column, TextTableModel table ) {
+    public HtSourceClausePrinter ( SymbolTable <Integer, String, Object> symbolTable,
+                                   IVafInterner interner, IPositionalTermTraverser traverser, int column, TextTableModel table ) {
         super(symbolTable, interner, traverser, column, table);
     }
 

@@ -1,15 +1,14 @@
 package org.ltc.hitalk.term;
 
-import com.thesett.aima.logic.fol.Functor;
-import com.thesett.aima.logic.fol.Term;
+import org.ltc.hitalk.wam.compiler.HtFunctor;
 
 /**
  *
  */
 public
-class Atom extends Functor {
+class Atom extends HtFunctor {
 
-    public static final Term[] EMPTY_TERM_ARRAY = new Term[0];
+    public static final ITerm[] EMPTY_TERM_ARRAY = new ITerm[0];
 
     /**
      * Creates a new Atom.

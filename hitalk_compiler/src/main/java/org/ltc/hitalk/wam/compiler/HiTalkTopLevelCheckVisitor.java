@@ -1,14 +1,18 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.BasePositionalVisitor;
-import com.thesett.aima.logic.fol.Functor;
-import com.thesett.aima.logic.fol.PositionalTermVisitor;
-import com.thesett.aima.logic.fol.Term;
+import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.compiler.PositionalContext;
-import com.thesett.aima.logic.fol.compiler.PositionalTermTraverser;
 import com.thesett.aima.logic.fol.wam.builtins.Conjunction;
 import com.thesett.aima.logic.fol.wam.builtins.Disjunction;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.entities.HtPredicate;
+import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.ListTerm;
+import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
+import org.ltc.hitalk.wam.printer.IPositionalTermTraverser;
+import org.ltc.hitalk.wam.printer.IPositionalTermVisitor;
 
 import static com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys.SYMKEY_TOP_LEVEL_FUNCTOR;
 
@@ -46,7 +50,7 @@ import static com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys.SYMKEY_TOP
  *
  * @author Rupert Smith
  */
-public class HiTalkTopLevelCheckVisitor extends BasePositionalVisitor implements PositionalTermVisitor {
+public class HiTalkTopLevelCheckVisitor extends HtBasePositionalVisitor implements IPositionalTermVisitor {
 
     // Used for debugging.
     /* private static final Logger log = Logger.getLogger(TopLevelCheckVisitor.class.getName()); */
@@ -60,15 +64,15 @@ public class HiTalkTopLevelCheckVisitor extends BasePositionalVisitor implements
      */
     public HiTalkTopLevelCheckVisitor ( IVafInterner interner,
                                         SymbolTable <Integer, String, Object> symbolTable,
-                                        PositionalTermTraverser traverser ) {
+                                        IPositionalTermTraverser traverser ) {
         super(interner, symbolTable, traverser);
     }
 
     /**
      * {@inheritDoc}
      */
-    public
-    void setPositionalTraverser ( PositionalTermTraverser traverser ) {
+    @Override
+    public void setPositionalTraverser ( IPositionalTermTraverser traverser ) {
         this.traverser = traverser;
     }
 
@@ -77,8 +81,7 @@ public class HiTalkTopLevelCheckVisitor extends BasePositionalVisitor implements
      * <p>
      * <p/>Sets the top-level flag on a functor, if appropriate.
      */
-    protected
-    void enterFunctor ( Functor functor ) {
+    protected void enterFunctor ( IFunctor functor ) {
         if (isTopLevel()) {
             symbolTable.put(functor.getSymbolKey(), SYMKEY_TOP_LEVEL_FUNCTOR, true);
         }
@@ -99,7 +102,7 @@ public class HiTalkTopLevelCheckVisitor extends BasePositionalVisitor implements
             PositionalContext parentContext = traverser.getParentContext();
 
             if (parentContext != null) {
-                Term parentTerm = parentContext.getTerm();
+                ITerm parentTerm = parentContext.getTerm();
 
                 if ((parentTerm instanceof Conjunction) || (parentTerm instanceof Disjunction)) {
                     Boolean isTopLevel = (Boolean) symbolTable.get(parentTerm.getSymbolKey(), SYMKEY_TOP_LEVEL_FUNCTOR);
@@ -110,5 +113,25 @@ public class HiTalkTopLevelCheckVisitor extends BasePositionalVisitor implements
         }
 
         return false;
+    }
+
+    public void setPositionalTraverser ( IPositionalTermTraverser positionalTraverser ) {
+
+    }
+
+    public void visit ( HtPredicate predicate ) {
+
+    }
+
+    public void visit ( IFunctor functor ) throws LinkageException {
+
+    }
+
+    public void visit ( HtClause clause ) throws LinkageException {
+
+    }
+
+    public void visit ( ListTerm dottedPair ) throws LinkageException {
+
     }
 }

@@ -16,7 +16,6 @@ package org.ltc.hitalk.term;
  * limitations under the License.
  */
 
-import com.thesett.aima.logic.fol.TermTransformer;
 import com.thesett.aima.logic.fol.TermTraverser;
 import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.aima.search.GoalState;
@@ -41,7 +40,7 @@ import java.util.LinkedList;
  *
  * @author Rupert Smith
  */
-public abstract class BaseTerm extends TraversableState <ITerm> implements ITerm, GoalState, Cloneable {
+public abstract class HtBaseTerm extends TraversableState <ITerm> implements ITerm, GoalState, Cloneable {
     /** Used for debugging purposes. */
     /* private static final Logger log = Logger.getLogger(BaseTerm.class.getName()); */
 
@@ -221,14 +220,14 @@ public abstract class BaseTerm extends TraversableState <ITerm> implements ITerm
     /**
      * {@inheritDoc}
      */
-    public void accept ( HtTermVisitor visitor ) {
+    public void accept ( ITermVisitor visitor ) {
         visitor.visit(this);
     }
 
     /**
      * {@inheritDoc}
      */
-    public ITerm acceptTransformer ( TermTransformer transformer ) {
+    public ITerm acceptTransformer ( ITermTransformer transformer ) {
         return transformer.transform(this);
     }
 

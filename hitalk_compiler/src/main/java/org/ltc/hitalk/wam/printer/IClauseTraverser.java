@@ -1,10 +1,9 @@
 package org.ltc.hitalk.wam.printer;
 
 
-import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.logic.fol.TermTraverser;
 import com.thesett.aima.search.Operator;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.ITerm;
 
 import java.util.Iterator;
 
@@ -20,7 +19,7 @@ import java.util.Iterator;
  * @author Rupert Smith
  */
 public
-interface HtClauseTraverser extends TermTraverser {
+interface IClauseTraverser {
 
     /**
      * Visits a clause.
@@ -30,5 +29,5 @@ interface HtClauseTraverser extends TermTraverser {
      *                a natural, left-to-right ordering.
      * @return An iterator over operators producing the traversed elements of the clause.
      */
-    Iterator <Operator <Term>> traverse ( HtClause clause, boolean reverse );
+    Iterator <Operator <ITerm>> traverse ( HtClause clause, boolean reverse );
 }

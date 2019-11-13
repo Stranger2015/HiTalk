@@ -21,17 +21,16 @@ import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.term.PackedDottedPair;
-import org.ltc.hitalk.wam.compiler.HtPositionalTermTraverserImpl;
+import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
-import static org.ltc.hitalk.term.PackedDottedPair.Kind;
+import static org.ltc.hitalk.term.ListTerm.Kind;
 
 /**
- * HtBasePositionalVisitor is an {@link HtAllTermsVisitor} that is being driven by a {@link HtPositionalTermTraverser}.
+ * HtBasePositionalVisitor is an {@link IAllTermsVisitor} that is being driven by a {@link HtPositionalTermTraverser}.
  * It is used as a base class for implementing visitors that need to understand the positional context during visitation.
  * <p>
- * <p/>It uses positional context information from a {@link HtPositionalTermTraverser}, to determine whether terms are
+ * <p/>It uses positional context information from a {@link IPositionalTermTraverser}, to determine whether terms are
  * being entered or left, and splits these down into calls on appropriate enter/leave methods. Default no-op
  * implementations of these methods are supplied by this base class and may be extended by specific implementations as
  * needed to figure out the positional context during visitation.
@@ -44,7 +43,7 @@ import static org.ltc.hitalk.term.PackedDottedPair.Kind;
  * @author Rupert Smith
  */
 public
-class HtBasePositionalVisitor implements HtAllTermsVisitor {
+class HtBasePositionalVisitor implements IAllTermsVisitor {
 
     /**
      * The name interner.
@@ -59,7 +58,7 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
     /**
      * The positional context.
      */
-    protected HtPositionalTermTraverser traverser;
+    protected IPositionalTermTraverser traverser;
 
     /**
      * Creates a positional visitor.
@@ -72,7 +71,7 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
 
         this.symbolTable = symbolTable;
         this.interner = interner;
-        this.traverser = new HtPositionalTermTraverserImpl();
+        this.traverser = new HtPositionalTermTraverser();
     }
 
     /**
@@ -145,7 +144,7 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
      * @param dottedPair
      */
     @Override
-    public void visit ( PackedDottedPair dottedPair ) throws LinkageException {
+    public void visit ( ListTerm dottedPair ) throws LinkageException {
         if (traverser.isEnteringContext()) {
             enterDottedPair(dottedPair);
         } else if (traverser.isLeavingContext()) {
@@ -158,7 +157,7 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
     /**
      * @param dottedPair
      */
-    protected void enterDottedPair ( PackedDottedPair dottedPair ) throws LinkageException {
+    protected void enterDottedPair ( ListTerm dottedPair ) throws LinkageException {
         final Kind kind = dottedPair.getKind();
         switch (kind) {
             case NIL:
@@ -184,7 +183,7 @@ class HtBasePositionalVisitor implements HtAllTermsVisitor {
         }
     }
 
-    protected void leaveDottedPair ( PackedDottedPair dottedPair ) {
+    protected void leaveDottedPair ( ListTerm dottedPair ) {
 
 
     }

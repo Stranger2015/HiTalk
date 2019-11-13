@@ -24,8 +24,8 @@ import com.thesett.common.util.StackQueue;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtPredicateDefinition;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.wam.printer.HtBasicTraverser;
-import org.ltc.hitalk.wam.printer.HtPositionalTermTraverser;
+import org.ltc.hitalk.wam.printer.IBasicTraverser;
+import org.ltc.hitalk.wam.printer.IPositionalTermTraverser;
 
 import java.util.Iterator;
 
@@ -47,8 +47,8 @@ import java.util.Iterator;
  * @author Rupert Smith
  */
 public
-class HtPositionalTermTraverserImpl extends HtBasicTraverser
-        implements HtPositionalTermTraverser {
+class HtPositionalTermTraverser extends HtBasicTraverser
+        implements IPositionalTermTraverser {
     /**
      * Flag used to indicate that a term context is being entered.
      */
@@ -77,8 +77,7 @@ class HtPositionalTermTraverserImpl extends HtBasicTraverser
     /**
      * Creates a traverser that uses the normal intuitive left-to-right traversal orderings for clauses and functors.
      */
-    public
-    HtPositionalTermTraverserImpl () {
+    public HtPositionalTermTraverser () {
         clauseHeadFirst = true;
         leftToRightClauseBodies = true;
         leftToRightFunctorArgs = true;
@@ -91,9 +90,8 @@ class HtPositionalTermTraverserImpl extends HtBasicTraverser
      * @param leftToRightClauseBodies <tt>true</tt> to use the normal ordering, <tt>false</tt> for the reverse.
      * @param leftToRightFunctorArgs  <tt>true</tt> to use the normal ordering, <tt>false</tt> for the reverse.
      */
-    public
-    HtPositionalTermTraverserImpl ( boolean clauseHeadFirst, boolean leftToRightClauseBodies,
-                                    boolean leftToRightFunctorArgs ) {
+    public HtPositionalTermTraverser ( boolean clauseHeadFirst, boolean leftToRightClauseBodies,
+                                       boolean leftToRightFunctorArgs ) {
         this.clauseHeadFirst = clauseHeadFirst;
         this.leftToRightClauseBodies = leftToRightClauseBodies;
         this.leftToRightFunctorArgs = leftToRightFunctorArgs;
@@ -129,7 +127,7 @@ class HtPositionalTermTraverserImpl extends HtBasicTraverser
      */
     public
     boolean isTopLevel () {
-        HtPositionalTermTraverserImpl.HtPositionalContextOperator position = contextStack.peek();
+        HtPositionalTermTraverser.HtPositionalContextOperator position = contextStack.peek();
 
         return (position != null) && position.isTopLevel();
     }
@@ -139,7 +137,7 @@ class HtPositionalTermTraverserImpl extends HtBasicTraverser
      */
     public
     boolean isInHead () {
-        HtPositionalTermTraverserImpl.HtPositionalContextOperator position = contextStack.peek();
+        HtPositionalTermTraverser.HtPositionalContextOperator position = contextStack.peek();
 
         return (position != null) && position.isInHead();
     }
@@ -149,7 +147,7 @@ class HtPositionalTermTraverserImpl extends HtBasicTraverser
      */
     public
     boolean isLastBodyFunctor () {
-        HtPositionalTermTraverserImpl.HtPositionalContextOperator position = contextStack.peek();
+        HtPositionalTermTraverser.HtPositionalContextOperator position = contextStack.peek();
 
         return (position != null) && position.isLastBodyFunctor();
     }
@@ -231,9 +229,8 @@ class HtPositionalTermTraverserImpl extends HtBasicTraverser
     /**
      * {@inheritDoc}
      */
-    protected
-    HtBasicTraverser.StackableOperator createHeadOperator ( Functor head, HtClause clause ) {
-        return new HtPositionalTermTraverserImpl.HtPositionalContextOperator(head, -1, true, true, false, null, contextStack.peek());
+    protected IBasicTraverser.StackableOperator createHeadOperator ( Functor head, HtClause clause ) {
+        return new HtPositionalTermTraverser.HtPositionalContextOperator(head, -1, true, true, false, null, contextStack.peek());
     }
 
     /**
@@ -241,7 +238,7 @@ class HtPositionalTermTraverserImpl extends HtBasicTraverser
      */
     protected
     StackableOperator createBodyOperator ( Functor bodyFunctor, int pos, Functor[] body, HtClause clause ) {
-        return new HtPositionalTermTraverserImpl.HtPositionalContextOperator(bodyFunctor, pos, true, false, pos == (body.length - 1), null,
+        return new HtPositionalTermTraverser.HtPositionalContextOperator(bodyFunctor, pos, true, false, pos == (body.length - 1), null,
                 contextStack.peek());
     }
 
@@ -266,7 +263,7 @@ class HtPositionalTermTraverserImpl extends HtBasicTraverser
      */
     protected
     StackableOperator createTermOperator ( Term argument, int pos, Functor functor ) {
-        return new HtPositionalTermTraverserImpl.HtPositionalContextOperator(argument, pos, false, null, false, null, contextStack.peek());
+        return new HtPositionalTermTraverser.HtPositionalContextOperator(argument, pos, false, null, false, null, contextStack.peek());
     }
 
     /**
@@ -274,7 +271,7 @@ class HtPositionalTermTraverserImpl extends HtBasicTraverser
      */
     protected
     StackableOperator createClauseOperator ( HtClause bodyClause, int pos, HtClause[] body, HtPredicate predicate ) {
-        return new HtPositionalTermTraverserImpl.HtPositionalContextOperator(bodyClause, pos, false, false, false, null, contextStack.peek());
+        return new HtPositionalTermTraverser.HtPositionalContextOperator(bodyClause, pos, false, false, false, null, contextStack.peek());
     }
 
     /**
@@ -285,8 +282,8 @@ class HtPositionalTermTraverserImpl extends HtBasicTraverser
     private
     void createInitialContext ( Term term ) {
         if (!initialContextCreated) {
-            HtPositionalTermTraverserImpl.HtPositionalContextOperator initialContext =
-                    new HtPositionalTermTraverserImpl.HtPositionalContextOperator(term, -1, false, false, false, null, contextStack.peek());
+            HtPositionalTermTraverser.HtPositionalContextOperator initialContext =
+                    new HtPositionalTermTraverser.HtPositionalContextOperator(term, -1, false, false, false, null, contextStack.peek());
             contextStack.offer(initialContext);
             term.setReversable(initialContext);
             initialContextCreated = true;
@@ -315,7 +312,7 @@ class HtPositionalTermTraverserImpl extends HtBasicTraverser
      * <pre><p/><table id="crc"><caption>CRC Card</caption>
      * <tr><th> Responsibilities <th> Collaborations
      * <tr><td> Optionally set the top-level, in-head, or last functor flags on the traverser.
-     *     <td> {@link HtPositionalTermTraverserImpl}.
+     *     <td> {@link HtPositionalTermTraverser}.
      * </table></pre>
      */
     private
@@ -362,7 +359,7 @@ class HtPositionalTermTraverserImpl extends HtBasicTraverser
          */
         private
         HtPositionalContextOperator ( Term term, Integer position, Boolean topLevel, Boolean inHead,
-                                      Boolean lastBodyFunctor, StackableOperator delegate, HtPositionalTermTraverserImpl.HtPositionalContextOperator parent ) {
+                                      Boolean lastBodyFunctor, StackableOperator delegate, HtPositionalTermTraverser.HtPositionalContextOperator parent ) {
             super(delegate);
 
             this.term = term;
@@ -378,10 +375,10 @@ class HtPositionalTermTraverserImpl extends HtBasicTraverser
          */
         public
         void applyOperator () {
-            HtPositionalTermTraverserImpl.HtPositionalContextOperator previousContext = contextStack.peek();
+            HtPositionalTermTraverser.HtPositionalContextOperator previousContext = contextStack.peek();
 
             if (previousContext == null) {
-                previousContext = new HtPositionalTermTraverserImpl.HtPositionalContextOperator(null, -1, false, false, false, null, previousContext);
+                previousContext = new HtPositionalTermTraverser.HtPositionalContextOperator(null, -1, false, false, false, null, previousContext);
             }
 
             topLevel = (topLevel == null) ? previousContext.topLevel : topLevel;
@@ -391,10 +388,10 @@ class HtPositionalTermTraverserImpl extends HtBasicTraverser
 
             contextStack.offer(this);
 
-            if (HtPositionalTermTraverserImpl.this.contextChangeVisitor != null) {
-                HtPositionalTermTraverserImpl.this.enteringContext = true;
-                term.accept(HtPositionalTermTraverserImpl.this.contextChangeVisitor);
-                HtPositionalTermTraverserImpl.this.enteringContext = false;
+            if (HtPositionalTermTraverser.this.contextChangeVisitor != null) {
+                HtPositionalTermTraverser.this.enteringContext = true;
+                term.accept(HtPositionalTermTraverser.this.contextChangeVisitor);
+                HtPositionalTermTraverser.this.enteringContext = false;
             }
 
             super.applyOperator();
@@ -407,10 +404,10 @@ class HtPositionalTermTraverserImpl extends HtBasicTraverser
         void undoOperator () {
             super.undoOperator();
 
-            if (HtPositionalTermTraverserImpl.this.contextChangeVisitor != null) {
-                HtPositionalTermTraverserImpl.this.leavingContext = true;
-                term.accept(HtPositionalTermTraverserImpl.this.contextChangeVisitor);
-                HtPositionalTermTraverserImpl.this.leavingContext = false;
+            if (HtPositionalTermTraverser.this.contextChangeVisitor != null) {
+                HtPositionalTermTraverser.this.leavingContext = true;
+                term.accept(HtPositionalTermTraverser.this.contextChangeVisitor);
+                HtPositionalTermTraverser.this.leavingContext = false;
             }
 
             contextStack.poll();

@@ -4,7 +4,7 @@ package org.ltc.hitalk.wam.compiler;
 import org.ltc.hitalk.wam.machine.HiTalkWAMResolvingMachineDPI;
 
 public
-interface HiTalkWAMResolvingMachineDPIMonitor {
+interface IWAMResolvingMachineDPIMonitor {
     /**
      * Accepts notification that the machine has been reset.
      *

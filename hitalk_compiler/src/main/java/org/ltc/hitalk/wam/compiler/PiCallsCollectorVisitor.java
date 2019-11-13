@@ -7,7 +7,7 @@ import com.thesett.aima.logic.fol.Term;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.term.PackedDottedPair;
+import org.ltc.hitalk.term.ListTerm;
 
 /**
  *
@@ -42,11 +42,11 @@ public class PiCallsCollectorVisitor extends MetaInterpreterVisitor {
         super.leaveClause(clause);
     }
 
-    protected void enterDottedPair ( PackedDottedPair dottedPair ) throws LinkageException {
+    protected void enterDottedPair ( ListTerm dottedPair ) throws LinkageException {
         super.enterDottedPair(dottedPair);
     }
 
-    protected void leaveDottedPair ( PackedDottedPair dottedPair ) {
+    protected void leaveDottedPair ( ListTerm dottedPair ) {
         super.leaveDottedPair(dottedPair);
     }
 

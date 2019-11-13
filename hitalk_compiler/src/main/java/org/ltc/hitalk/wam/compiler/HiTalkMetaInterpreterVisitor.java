@@ -1,19 +1,19 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.IVafInterner;
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.Variable;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.term.PackedDottedPair;
+import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
-import org.ltc.hitalk.wam.printer.HtPositionalTermTraverser;
-import org.ltc.hitalk.wam.printer.HtPositionalTermVisitor;
+import org.ltc.hitalk.wam.printer.IPositionalTermTraverser;
+import org.ltc.hitalk.wam.printer.IPositionalTermVisitor;
 
 public class HiTalkMetaInterpreterVisitor extends HtBasePositionalVisitor
-        implements HtPositionalTermVisitor {
-    protected HtPositionalTermTraverser positionalTraverser;
+        implements IPositionalTermVisitor {
+    protected IPositionalTermTraverser positionalTraverser;
 
     /**
      * Creates a positional visitor.
@@ -25,14 +25,6 @@ public class HiTalkMetaInterpreterVisitor extends HtBasePositionalVisitor
         super(symbolTable, interner);
     }
 
-    /**
-     * @param positionalTraverser
-     */
-    @Override
-    public void setPositionalTraverser ( HtPositionalTermTraverser positionalTraverser ) {
-        this.positionalTraverser = positionalTraverser;
-    }
-
     protected void enterPredicate ( HtPredicate predicate ) {
         super.enterPredicate(predicate);
     }
@@ -41,11 +33,11 @@ public class HiTalkMetaInterpreterVisitor extends HtBasePositionalVisitor
         super.leavePredicate(predicate);
     }
 
-    protected void enterDottedPair ( PackedDottedPair dottedPair ) throws LinkageException {
+    protected void enterDottedPair ( ListTerm dottedPair ) throws LinkageException {
         super.enterDottedPair(dottedPair);
     }
 
-    protected void leaveDottedPair ( PackedDottedPair dottedPair ) {
+    protected void leaveDottedPair ( ListTerm dottedPair ) {
         super.leaveDottedPair(dottedPair);
     }
 
@@ -71,5 +63,9 @@ public class HiTalkMetaInterpreterVisitor extends HtBasePositionalVisitor
 
     protected void leaveClause ( HtClause clause ) {
         super.leaveClause(clause);
+    }
+
+    public void setPositionalTraverser ( IPositionalTermTraverser positionalTraverser ) {
+        this.positionalTraverser = positionalTraverser;
     }
 }

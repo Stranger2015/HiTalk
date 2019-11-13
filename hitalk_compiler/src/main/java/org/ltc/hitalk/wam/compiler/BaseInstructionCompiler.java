@@ -35,9 +35,9 @@ import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkInstructionCompiler;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.printer.HtPositionalTermTraverser;
-import org.ltc.hitalk.wam.printer.HtPositionalTermVisitor;
-import org.ltc.hitalk.wam.printer.HtWAMCompiledPredicatePrintingVisitor;
-import org.ltc.hitalk.wam.printer.HtWAMCompiledQueryPrintingVisitor;
+import org.ltc.hitalk.wam.printer.IPositionalTermVisitor;
+import org.ltc.hitalk.wam.printer.IWAMCompiledPredicatePrintingVisitor;
+import org.ltc.hitalk.wam.printer.IWAMCompiledQueryPrintingVisitor;
 import org.ltc.hitalk.wam.task.CompilerTask;
 
 import java.util.*;
@@ -264,7 +264,7 @@ public abstract class BaseInstructionCompiler
         // Pretty print the clause.
         StringBuilder result = new StringBuilder();
 
-        HtPositionalTermVisitor displayVisitor = new HtWAMCompiledQueryPrintingVisitor(symbolTable, interner, result);
+        IPositionalTermVisitor displayVisitor = new IWAMCompiledQueryPrintingVisitor(symbolTable, interner, result);
 
         HtTermWalkers.positionalWalker(displayVisitor).walk(query);
 
@@ -286,7 +286,7 @@ public abstract class BaseInstructionCompiler
         HiTalkInstructionCompiler.QueryRegisterAllocatingVisitor allocatingVisitor;
         allocatingVisitor = new HiTalkInstructionCompiler.QueryRegisterAllocatingVisitor(symbolTable, varNames, null);
 
-        HtPositionalTermTraverser positionalTraverser = new HtPositionalTermTraverserImpl();
+        HtPositionalTermTraverser positionalTraverser = new IPositionalTermTraverserImpl();
         positionalTraverser.setContextChangeVisitor(allocatingVisitor);
 
         TermWalker walker = new TermWalker(new DepthFirstBacktrackingSearch <>(), positionalTraverser, allocatingVisitor);
@@ -624,7 +624,7 @@ public abstract class BaseInstructionCompiler
     private void displayCompiledPredicate ( Term predicate ) {
         // Pretty print the clause.
         StringBuilder result = new StringBuilder();
-        HtPositionalTermVisitor displayVisitor = new HtWAMCompiledPredicatePrintingVisitor(symbolTable, interner, result);
+        IPositionalTermVisitor displayVisitor = new IWAMCompiledPredicatePrintingVisitor(symbolTable, interner, result);
 
         HtTermWalkers.positionalWalker(displayVisitor).walk(predicate);
 

@@ -6,7 +6,7 @@ import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.TermFactory;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
-import org.ltc.hitalk.term.PackedDottedPair;
+import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.Language;
@@ -51,7 +51,7 @@ public class HiLogParser extends PlPrologParser {
     }
 
     //    @Override
-    protected Functor compound ( String name, PackedDottedPair args ) throws IOException, ParseException {
+    protected Functor compound ( String name, ListTerm args ) throws IOException, ParseException {
         Functor result;
         if (hilogFunctors.contains(name)) {
             result = factory.newFunctor(hilogApply, name, args);// :- hilog p, q, pi/N =>

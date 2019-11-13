@@ -9,7 +9,7 @@ import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
 import com.thesett.aima.search.util.uninformed.PostFixSearch;
 import com.thesett.common.util.logic.UnaryPredicate;
 import org.ltc.hitalk.wam.printer.HtPositionalTermTraverser;
-import org.ltc.hitalk.wam.printer.HtPositionalTermVisitor;
+import org.ltc.hitalk.wam.printer.IPositionalTermVisitor;
 
 public
 class HtTermWalkers {
@@ -55,9 +55,8 @@ class HtTermWalkers {
      * @param visitor The visitor to apply to each term, and to notify of positional context changes.
      * @return A positional depth first walk over a term.
      */
-    public static
-    TermWalker positionalWalker ( HtPositionalTermVisitor visitor ) {
-        HtPositionalTermTraverser positionalTraverser = new HtPositionalTermTraverserImpl();
+    public static TermWalker positionalWalker ( IPositionalTermVisitor visitor ) {
+        HtPositionalTermTraverser positionalTraverser = new IPositionalTermTraverserImpl();
         positionalTraverser.setContextChangeVisitor(visitor);
         visitor.setPositionalTraverser(positionalTraverser);
 
@@ -71,8 +70,7 @@ class HtTermWalkers {
      * @param visitor        The visitor to apply to each term.
      * @return A positional depth first walk over a term, visiting only when a goal predicate matches.
      */
-    public static
-    TermWalker positionalGoalWalker ( UnaryPredicate <Term> unaryPredicate, HtPositionalTermVisitor visitor ) {
+    public static TermWalker positionalGoalWalker ( UnaryPredicate <Term> unaryPredicate, IPositionalTermVisitor visitor ) {
         TermWalker walker = positionalWalker(visitor);
         walker.setGoalPredicate(unaryPredicate);
 
@@ -85,9 +83,8 @@ class HtTermWalkers {
      * @param visitor The visitor to apply to each term, and to notify of positional context changes.
      * @return A positional postfix first walk over a term.
      */
-    public static
-    TermWalker positionalPostfixWalker ( HtPositionalTermVisitor visitor ) {
-        HtPositionalTermTraverser positionalTraverser = new HtPositionalTermTraverserImpl();
+    public static TermWalker positionalPostfixWalker ( IPositionalTermVisitor visitor ) {
+        HtPositionalTermTraverser positionalTraverser = new IPositionalTermTraverserImpl();
         positionalTraverser.setContextChangeVisitor(visitor);
         visitor.setPositionalTraverser(positionalTraverser);
 

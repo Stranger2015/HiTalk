@@ -5,9 +5,8 @@ import com.thesett.text.api.model.TextTableModel;
 import org.ltc.hitalk.compiler.IVafInterner;
 
 public
-class HtUnoptimizedLabelPrinter extends HtBasePrinter {
-    public
-    HtUnoptimizedLabelPrinter ( SymbolTable <Integer, String, Object> symbolTable,
+class IUnoptimizedLabelPrinter extends IBasePrinter {
+    public IUnoptimizedLabelPrinter ( SymbolTable <Integer, String, Object> symbolTable,
                                 IVafInterner interner,
                                 HtPositionalTermTraverser traverser,
                                 int i,

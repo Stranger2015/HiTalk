@@ -11,9 +11,8 @@ import org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMOptimizeableListing;
 
 public
-class HtUnoptimizedByteCodePrinter extends HtBasePrinter {
-    public
-    HtUnoptimizedByteCodePrinter ( SymbolTable <Integer, String, Object> symbolTable,
+class IUnoptimizedByteCodePrinter extends IBasePrinter {
+    public IUnoptimizedByteCodePrinter ( SymbolTable <Integer, String, Object> symbolTable,
                                    IVafInterner interner,
                                    HtPositionalTermTraverser traverser, int i, TextTableModel printTable ) {
         super(symbolTable, interner, traverser, i, printTable);

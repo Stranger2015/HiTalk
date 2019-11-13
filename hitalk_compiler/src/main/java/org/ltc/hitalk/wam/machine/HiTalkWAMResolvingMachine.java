@@ -22,7 +22,7 @@ import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledPredicate;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledQuery;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction;
-import org.ltc.hitalk.wam.compiler.HiTalkWAMResolvingMachineDPIMonitor;
+import org.ltc.hitalk.wam.compiler.IWAMResolvingMachineDPIMonitor;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -78,7 +78,7 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
     /**
      * Holds the abstract machine debugging monitor, or <tt>null</tt> if none is attached.
      */
-    protected HiTalkWAMResolvingMachineDPIMonitor monitor;
+    protected IWAMResolvingMachineDPIMonitor monitor;
 
     /**
      * Creates a resolving machine with the specified symbol table.
@@ -195,7 +195,7 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
     /**
      * {@inheritDoc}
      */
-    public void attachMonitor ( HiTalkWAMResolvingMachineDPIMonitor monitor ) {
+    public void attachMonitor ( IWAMResolvingMachineDPIMonitor monitor ) {
         this.monitor = monitor;
     }
 

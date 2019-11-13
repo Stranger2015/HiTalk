@@ -23,7 +23,7 @@ import org.ltc.hitalk.compiler.IVafInterner;
 /**
  * BasePrinter is a base class for writing debug pretty printers for compiled clauses.
  * <p>
- * <p/>It uses positional context information from a {@link HtPositionalTermTraverser}, to determine whether terms are
+ * <p/>It uses positional context information from a {@link }, to determine whether terms are
  * being entered or left, and splits these down into calls on appropriate enter/leave methods. Default no-op
  * implementations of these methods are supplied by this base class and may be extended by specific printers to append
  * data into table cells, using the {@link #addLineToRow(String)} and {@link #nextRow()} methods.
@@ -72,11 +72,10 @@ class HtBasePrinter extends HtBasePositionalVisitor {
      * @param column      The column to print to.
      * @param table       The table to inform of cell sizes and positions.
      */
-    public
-    HtBasePrinter ( SymbolTable <Integer, String, Object> symbolTable,
-                    IVafInterner interner,
-                    HtPositionalTermTraverser traverser,
-                    int column, TextTableModel table ) {
+    public HtBasePrinter ( SymbolTable <Integer, String, Object> symbolTable,
+                           IVafInterner interner,
+                           IPositionalTermTraverser traverser,
+                           int column, TextTableModel table ) {
         super(symbolTable, interner, traverser);
 
         this.currentColumn = column;

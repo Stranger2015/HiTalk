@@ -2,7 +2,7 @@ package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.term.PackedDottedPair;
+import org.ltc.hitalk.term.ListTerm;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ public class BodyCall extends PiCalls {
      * @param sym
      * @param dottedPair
      */
-    public BodyCall ( IFunctor sym, PackedDottedPair dottedPair ) {
+    public BodyCall ( IFunctor sym, ListTerm dottedPair ) {
         super(sym, dottedPair);
     }
 

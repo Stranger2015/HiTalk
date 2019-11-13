@@ -2,7 +2,7 @@ package org.ltc.hitalk.database;
 
 import org.ltc.hitalk.entities.HtPredicateIndicator;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.term.PackedDottedPair;
+import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 /**
@@ -22,7 +22,7 @@ public class Database {
      * @param head
      * @return
      */
-    public PackedDottedPair clause ( IFunctor head ) {
+    public ListTerm clause ( IFunctor head ) {
         return clause(head, -1);
     }
 
@@ -30,7 +30,7 @@ public class Database {
      * @param head
      * @return
      */
-    public PackedDottedPair clause ( IFunctor head, int dbRef ) {
+    public ListTerm clause ( IFunctor head, int dbRef ) {
         return null;
     }
 

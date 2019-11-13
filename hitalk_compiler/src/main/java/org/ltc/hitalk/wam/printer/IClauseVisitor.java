@@ -8,7 +8,7 @@ import org.ltc.hitalk.parser.HtClause;
  *
  */
 public
-interface HtClauseVisitor extends TermVisitor {
+interface IClauseVisitor extends TermVisitor {
     /**
      * Visits a clause.
      *

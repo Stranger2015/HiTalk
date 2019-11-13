@@ -8,7 +8,7 @@ import org.ltc.hitalk.entities.HtPredicate;
  */
 public
 interface
-HtPredicateVisitor extends TermVisitor {
+IPredicateVisitor extends TermVisitor {
 
     /**
      * Visits a predicate.

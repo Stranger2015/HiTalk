@@ -1,11 +1,11 @@
 package org.ltc.hitalk.compiler;
 
-import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.wam.printer.HtClauseVisitor;
+import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.wam.printer.IClauseVisitor;
 
-public class HtPredicateClauseVisitor implements HtPredicateVisitor, HtClauseVisitor {
+public class HtPredicateClauseVisitor implements IPredicateVisitor, IClauseVisitor {
     @Override
     public void visit ( HtPredicate predicate ) {
 
@@ -17,7 +17,7 @@ public class HtPredicateClauseVisitor implements HtPredicateVisitor, HtClauseVis
     }
 
     @Override
-    public void visit ( Term term ) {
+    public void visit ( ITerm term ) {
 
     }
 }

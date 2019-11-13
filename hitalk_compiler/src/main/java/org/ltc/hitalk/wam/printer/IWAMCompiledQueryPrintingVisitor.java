@@ -31,7 +31,7 @@ import org.ltc.hitalk.parser.HtClause;
  * @author Rupert Smith
  */
 public
-class HtWAMCompiledQueryPrintingVisitor extends HtWAMCompiledTermsPrintingVisitor {
+class HtWAMCompiledQueryPrintingVisitor extends IWAMCompiledTermsPrintingVisitor {
     /**
      * Creates a pretty printing visitor for clauses being compiled in WAM.
      *
@@ -39,10 +39,9 @@ class HtWAMCompiledQueryPrintingVisitor extends HtWAMCompiledTermsPrintingVisito
      * @param symbolTable The symbol table for the compilation.
      * @param result      A string buffer to place the results in.
      */
-    public
-    HtWAMCompiledQueryPrintingVisitor ( SymbolTable <Integer, String, Object> symbolTable,
-                                        IVafInterner interner,
-                                        StringBuilder result ) {
+    public HtWAMCompiledQueryPrintingVisitor ( SymbolTable <Integer, String, Object> symbolTable,
+                                               IVafInterner interner,
+                                               StringBuilder result ) {
         super(interner, symbolTable, result);
     }
 

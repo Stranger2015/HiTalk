@@ -3,7 +3,7 @@ package org.ltc.hitalk.wam.printer;
 import com.thesett.aima.logic.fol.*;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.term.PackedDottedPair;
+import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 /*
@@ -39,19 +39,18 @@ import org.ltc.hitalk.wam.compiler.IFunctor;
  * @author Rupert Smith
  */
 public
-class HtDelegatingAllTermsVisitor implements HtAllTermsVisitor {
+class HtDelegatingAllTermsVisitor implements IAllTermsVisitor {
     /**
      * The optional delegate.
      */
-    protected HtAllTermsVisitor delegate;
+    protected IAllTermsVisitor delegate;
 
     /**
      * Creates an AllTermsVisitor that by default delegates all visit operations to the specified delegate.
      *
      * @param delegate The delegate, may be <tt>null</tt> if none is to be used.
      */
-    public
-    HtDelegatingAllTermsVisitor ( HtAllTermsVisitor delegate ) {
+    public HtDelegatingAllTermsVisitor ( IAllTermsVisitor delegate ) {
         this.delegate = delegate;
     }
 
@@ -131,12 +130,12 @@ class HtDelegatingAllTermsVisitor implements HtAllTermsVisitor {
     }
 
     @Override
-    public void visit ( IFunctor functor ) {
+    public void visit ( IFunctor functor ) throws LinkageException {
 
     }
 
     @Override
-    public void visit ( PackedDottedPair dottedPair ) {
+    public void visit ( ListTerm dottedPair ) {
 
     }
 }

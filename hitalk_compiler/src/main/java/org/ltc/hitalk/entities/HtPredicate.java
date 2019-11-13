@@ -6,7 +6,7 @@ import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.TermVisitor;
 import com.thesett.aima.search.Operator;
 import com.thesett.common.util.StackQueue;
-import org.ltc.hitalk.compiler.HtPredicateVisitor;
+import org.ltc.hitalk.compiler.IPredicateVisitor;
 import org.ltc.hitalk.interpreter.IPredicateTraverser;
 import org.ltc.hitalk.term.io.HiTalkStream;
 
@@ -135,7 +135,7 @@ class HtPredicate extends BaseTerm implements Term, IPropertyOwner {
     public
     void accept ( TermVisitor visitor ) {
         if (visitor instanceof PredicateVisitor) {
-            ((HtPredicateVisitor) visitor).visit(this);
+            ((IPredicateVisitor) visitor).visit(this);
         }
         else {
             super.accept(visitor);

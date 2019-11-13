@@ -24,7 +24,7 @@
  import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
  import org.ltc.hitalk.entities.*;
  import org.ltc.hitalk.parser.HtClause;
- import org.ltc.hitalk.term.PackedDottedPair;
+ import org.ltc.hitalk.term.ListTerm;
  import org.ltc.hitalk.term.io.Environment;
  import org.ltc.hitalk.term.io.HiTalkStream;
  import org.ltc.hitalk.wam.compiler.DirectiveClause;
@@ -865,8 +865,8 @@
          for (int i = entityFunctor.getArityMin(); i < arityMax; i++) {
              HtFunctor relationFunctor = (HtFunctor) entityFunctor.getArgument(i);
              Functor subEntityFunctor = (HtFunctor) relationFunctor.getArgument(0);
-             if (subEntityFunctor instanceof PackedDottedPair) {
-                 PackedDottedPair listTerm = (PackedDottedPair) subEntityFunctor;
+             if (subEntityFunctor instanceof ListTerm) {
+                 ListTerm listTerm = (ListTerm) subEntityFunctor;
                  for (; listTerm.isNil(); listTerm.newTail()) {
                      Term[] heads = listTerm.getHeads();
                      for (int j = 1, len = heads.length - 2; j < len; j++) {

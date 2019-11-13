@@ -3,7 +3,9 @@ package org.ltc.hitalk.wam.compiler;
 import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.search.Operator;
 import org.ltc.hitalk.compiler.IVafInterner;
-import org.ltc.hitalk.wam.printer.HtFunctorTraverser;
+import org.ltc.hitalk.term.HtBaseTerm;
+import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.wam.printer.IFunctorTraverser;
 
 import java.util.*;
 import java.util.stream.IntStream;
@@ -14,10 +16,10 @@ import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
 /**
  *
  */
-public class HtFunctor extends BaseTerm implements IFunctor {
+public class HtFunctor extends HtBaseTerm implements IFunctor {
 
     protected final int name;
-    protected Term[] args;
+    protected ITerm[] args;
 
     /**
      * @param name
@@ -35,7 +37,7 @@ public class HtFunctor extends BaseTerm implements IFunctor {
      * @param name
      * @param args
      */
-    public HtFunctor ( int name, Term[] args ) {
+    public HtFunctor ( int name, ITerm[] args ) {
         this(name, args, 0);
     }
 
@@ -44,10 +46,9 @@ public class HtFunctor extends BaseTerm implements IFunctor {
      * @param args
      * @param arityDelta
      */
-    public HtFunctor ( int name, Term[] args, int arityDelta ) {
+    public HtFunctor ( int name, ITerm[] args, int arityDelta ) {
         this.name = name;
         this.args = args;
-//        super(name, args);
         setArityRange(args.length, arityDelta);
     }
 
@@ -55,11 +56,11 @@ public class HtFunctor extends BaseTerm implements IFunctor {
         return name;
     }
 
-    public Term[] getArguments () {
+    public ITerm[] getArguments () {
         return args;
     }
 
-    public Term getArgument ( int i ) {
+    public ITerm getArgument ( int i ) {
         return args[i];
     }
 
@@ -83,7 +84,7 @@ public class HtFunctor extends BaseTerm implements IFunctor {
      * @return
      */
     @Override
-    public Term getArityTerm () {
+    public ITerm getArityTerm () {
         return null;
     }
 
@@ -91,7 +92,7 @@ public class HtFunctor extends BaseTerm implements IFunctor {
      * @return
      */
     @Override
-    public Term getValue () {
+    public ITerm getValue () {
         return this;
     }
 
@@ -102,7 +103,7 @@ public class HtFunctor extends BaseTerm implements IFunctor {
      */
     @Override
     public void free () {
-        for (Term arg : args) {
+        for (ITerm arg : args) {
             arg.free();
         }
     }
@@ -116,8 +117,8 @@ public class HtFunctor extends BaseTerm implements IFunctor {
      * @param term The term to compare with this one for structural equality.
      * @return <tt>true</tt> if the two terms are structurally eqaul, <tt>false</tt> otherwise.
      */
-    public boolean structuralEquals ( Term term ) {
-        Term comparator = term.getValue();
+    public boolean structuralEquals ( ITerm term ) {
+        ITerm comparator = term.getValue();
 
         if (this == comparator) {
             return true;
@@ -135,8 +136,8 @@ public class HtFunctor extends BaseTerm implements IFunctor {
         // Check the arguments of this functor and the comparator for structural equality.
         boolean passedArgCheck = true;
         for (int i = 0; i < args.length; i++) {
-            Term leftArg = args[i];
-            Term rightArg = functor.getArgument(i);
+            ITerm leftArg = args[i];
+            ITerm rightArg = functor.getArgument(i);
             if (!leftArg.structuralEquals(rightArg)) {
                 passedArgCheck = false;
                 break;
@@ -194,16 +195,16 @@ public class HtFunctor extends BaseTerm implements IFunctor {
      * @param reverse Set, if the children should be presented in reverse order.
      * @return The sub-terms of a compound term.
      */
-    public Iterator <Operator <Term>> getChildren ( boolean reverse ) {
-        if ((traverser != null) && (traverser instanceof HtFunctorTraverser)) {
-            return ((HtFunctorTraverser) traverser).traverse(this, reverse);
+    public Iterator <Operator <ITerm>> getChildren ( boolean reverse ) {
+        if ((traverser != null) && (traverser instanceof IFunctorTraverser)) {
+            return ((IFunctorTraverser) traverser).traverse(this, reverse);
         } else {
             if (args == null) {
                 return Collections.emptyIterator();
             } else if (!reverse) {
-                return Arrays.asList((Operator <Term>[]) args).iterator();
+                return Arrays.asList((Operator <ITerm>[]) args).iterator();
             } else {
-                List <Operator <Term>> argList = new LinkedList <>();
+                List <Operator <ITerm>> argList = new LinkedList <>();
 
                 for (int i = args.length - 1; i >= 0; i--) {
                     argList.add(args[i]);
@@ -223,7 +224,7 @@ public class HtFunctor extends BaseTerm implements IFunctor {
         /*log.fine("public Functor queryConversion(): called)");*/
 
         IFunctor copy = (IFunctor) super.queryConversion();
-        copy.setArguments(new Term[args.length]);
+        copy.setArguments(new ITerm[args.length]);
         IntStream.range(0, args.length).forEachOrdered(i ->
                 copy.setArgument(i, queryConversion()));
 
@@ -283,7 +284,7 @@ public class HtFunctor extends BaseTerm implements IFunctor {
             result.append("(");
 
             IntStream.range(0, args.length).forEachOrdered(i -> {
-                Term nextArg = args[i];
+                ITerm nextArg = args[i];
                 result.append(nextArg.toString(interner, printVarName, printBindings));
                 result.append((i < (args.length - 1)) ? ", " : "");
             });
@@ -306,7 +307,7 @@ public class HtFunctor extends BaseTerm implements IFunctor {
             result.append("[ ");
 
             IntStream.range(0, args.length).forEachOrdered(i -> {
-                Term nextArg = args[i];
+                ITerm nextArg = args[i];
                 result.append((nextArg != null) ? nextArg.toString() : "<null>");
                 result.append((i < (args.length - 1)) ? ", " : " ");
             });
@@ -322,7 +323,7 @@ public class HtFunctor extends BaseTerm implements IFunctor {
      * @param term
      */
     @Override
-    public void setArgument ( int i, Term term ) {
+    public void setArgument ( int i, ITerm term ) {
         args[i] = term;
     }
 
@@ -330,7 +331,7 @@ public class HtFunctor extends BaseTerm implements IFunctor {
      * @param terms
      */
     @Override
-    public void setArguments ( Term[] terms ) {
+    public void setArguments ( ITerm[] terms ) {
         args = terms;
     }
 }
