@@ -1,10 +1,9 @@
 package org.ltc.hitalk.parser;
 
-import com.thesett.aima.logic.fol.IVafInterner;
 import com.thesett.aima.logic.fol.Sentence;
-import com.thesett.aima.logic.fol.Term;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.ITermFactory;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
@@ -12,6 +11,7 @@ import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.TermParser;
 import org.ltc.hitalk.term.HlOpSymbol;
 import org.ltc.hitalk.term.HlOpSymbol.Associativity;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.Language;
 
@@ -19,7 +19,10 @@ import java.io.IOException;
 
 import static java.lang.String.format;
 
-public interface IParser extends TermParser <Term> {
+/**
+ *
+ */
+public interface IParser extends TermParser <ITerm> {
     PlPrologParser getParser ();
 
     default void setParser ( PlPrologParser parser ) {
@@ -85,7 +88,7 @@ public interface IParser extends TermParser <Term> {
      * @return
      * @throws SourceCodeException
      */
-    default Sentence <Term> parse () throws SourceCodeException, ParseException, IOException {
+    default Sentence <ITerm> parse () throws SourceCodeException, ParseException, IOException {
         return getParser().parse();
     }
 
@@ -129,7 +132,7 @@ public interface IParser extends TermParser <Term> {
      * @throws IOException
      */
     @Override
-    default Term next () throws IOException {
+    default ITerm next () throws IOException {
         return getParser().next();
     }
 
@@ -149,5 +152,5 @@ public interface IParser extends TermParser <Term> {
      * @param t
      * @return
      */
-    HtClause convert ( Term t );
+    HtClause convert ( ITerm t );
 }

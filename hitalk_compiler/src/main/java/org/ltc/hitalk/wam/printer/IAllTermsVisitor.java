@@ -2,9 +2,9 @@ package org.ltc.hitalk.wam.printer;
 
 import com.thesett.aima.logic.fol.IntegerTypeVisitor;
 import com.thesett.aima.logic.fol.LiteralTypeVisitor;
-import com.thesett.aima.logic.fol.TermVisitor;
 import com.thesett.aima.logic.fol.VariableVisitor;
 import org.ltc.hitalk.compiler.IPredicateVisitor;
+import org.ltc.hitalk.term.ITermVisitor;
 import org.ltc.hitalk.wam.compiler.IFunctorVisitor;
 
 /**
@@ -25,12 +25,12 @@ import org.ltc.hitalk.wam.compiler.IFunctorVisitor;
  */
 public
 interface IAllTermsVisitor extends
-        TermVisitor,
+        ITermVisitor,
         IFunctorVisitor,
         VariableVisitor,
         IClauseVisitor,
         IntegerTypeVisitor,
         LiteralTypeVisitor,
         IPredicateVisitor,
-        IPackedDottedPairVisitor {
+        IListTermVisitor {
 }

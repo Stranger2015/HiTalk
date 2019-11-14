@@ -8,6 +8,7 @@ import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.MetaInterpreterVisitor;
 
@@ -32,7 +33,7 @@ public class HiLogDecoder extends MetaInterpreterVisitor {
      * @param term
      * @return
      */
-    public Term decode ( Term term ) {
+    public ITerm decode ( ITerm term ) {
         visit(term);
         return term;
     }

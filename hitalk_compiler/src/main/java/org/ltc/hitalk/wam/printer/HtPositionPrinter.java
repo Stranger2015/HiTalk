@@ -46,7 +46,7 @@
          */
         public HtPositionPrinter ( SymbolTable <Integer, String, Object> symbolTable,
                                    IVafInterner interner,
-                                   HtPositionalTermTraverser traverser,
+                                   IPositionalTermTraverser traverser,
                                    int i, TextTableModel printTable ) {
             super(symbolTable, interner, traverser, i, printTable);
 

@@ -34,7 +34,6 @@ import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkInstructionCompiler;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
-import org.ltc.hitalk.wam.printer.HtPositionalTermTraverser;
 import org.ltc.hitalk.wam.printer.IPositionalTermVisitor;
 import org.ltc.hitalk.wam.printer.IWAMCompiledPredicatePrintingVisitor;
 import org.ltc.hitalk.wam.printer.IWAMCompiledQueryPrintingVisitor;

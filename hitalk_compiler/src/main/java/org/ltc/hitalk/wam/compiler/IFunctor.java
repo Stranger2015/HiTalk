@@ -1,5 +1,6 @@
 package org.ltc.hitalk.wam.compiler;
 
+import com.thesett.aima.logic.fol.TermTraverser;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
 
@@ -39,7 +40,7 @@ public interface IFunctor extends ITerm, IRangedArity {
 
     boolean isBracketed ();
 
-    void setTermTraverser ( ITermTraverser traverser );
+    void setTermTraverser ( TermTraverser traverser );
 
     boolean isDefined ();
 

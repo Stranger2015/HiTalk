@@ -25,6 +25,7 @@ import com.thesett.aima.logic.fol.wam.compiler.WAMCallPoint;
 import com.thesett.common.util.Sizeable;
 import com.thesett.common.util.SizeableLinkedList;
 import com.thesett.common.util.SizeableList;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
@@ -52,7 +53,8 @@ import java.util.*;
  * @todo For each functor in the head and body, set this as the containing clause. A mapping from variables to
  * registers is maintained in the clause, and the functors need to be able to access this mapping.
  */
-public class HiTalkWAMCompiledQuery extends HtClause implements Sentence <HiTalkWAMCompiledQuery>, Sizeable, HiTalkWAMOptimizeableListing {
+public class HiTalkWAMCompiledQuery extends HtClause implements
+        Sentence <HiTalkWAMCompiledQuery>, Sizeable, IWAMOptimizeableListing {
 
     /* Used for debugging. */
     /* private static final Logger log = Logger.getLogger(WAMCompiledQuery.class.getName()); */
@@ -119,9 +121,9 @@ public class HiTalkWAMCompiledQuery extends HtClause implements Sentence <HiTalk
         super(identifier, head);
     }
 
-    public HiTalkWAMCompiledQuery ( IFunctor head, IFunctor[] body, HtEntityIdentifier identifier ) {
-        super(head, body, identifier);
-    }
+//    public HiTalkWAMCompiledQuery ( IFunctor head, IFunctor[] body, HtEntityIdentifier identifier ) {
+//        super(identifier, head, body);
+//    }
 
     /**
      * Sets a compiled head functor to this clause.
@@ -264,6 +266,10 @@ public class HiTalkWAMCompiledQuery extends HtClause implements Sentence <HiTalk
 
         // Record the fact that the code is now linked into a machine.
         this.status = HiTalkWAMCompiledQuery.LinkStatus.Linked;
+    }
+
+    public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
+        return toString();
     }
 
     /**

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.ltc.hitalk.wam.printer;
 
 import com.thesett.aima.logic.fol.LinkageException;
@@ -28,10 +27,13 @@ import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-
+/**
+ *
+ */
 public abstract
 class HtWAMCompiledTermsPrintingVisitor extends HtDelegatingAllTermsVisitor implements IPositionalTermVisitor {
     /**
@@ -47,12 +49,12 @@ class HtWAMCompiledTermsPrintingVisitor extends HtDelegatingAllTermsVisitor impl
     /**
      * The symbol table.
      */
-    private final SymbolTable <Integer, String, Object> symbolTable;
+    protected final SymbolTable <Integer, String, Object> symbolTable;
 
     /**
      * Holds the string buffer to pretty print the results into.
      */
-    private final StringBuilder result;
+    protected final StringBuilder result;
 
     /**
      * Holds a list of all column printers to apply.
@@ -83,11 +85,19 @@ class HtWAMCompiledTermsPrintingVisitor extends HtDelegatingAllTermsVisitor impl
 
     /**
      * Creates an AllTermsVisitor that by default delegates all visit operations to the specified delegate.
-     *
      * @param delegate The delegate, may be <tt>null</tt> if none is to be used.
+     * @param interner
+     * @param symbolTable
+     * @param result
      */
-    public HtWAMCompiledTermsPrintingVisitor ( IAllTermsVisitor delegate ) {
+    public HtWAMCompiledTermsPrintingVisitor ( IAllTermsVisitor delegate,
+                                               IVafInterner interner,
+                                               SymbolTable <Integer, String, Object> symbolTable,
+                                               StringBuilder result ) {
         super(delegate);
+        this.interner = interner;
+        this.symbolTable = symbolTable;
+        this.result = result;
     }
 
     /**
@@ -166,8 +176,8 @@ class HtWAMCompiledTermsPrintingVisitor extends HtDelegatingAllTermsVisitor impl
                 result.append(valueToPrint);
 
                 Integer maxColumnSize = printTable.getMaxColumnSize(j);
-                int padding = ((maxColumnSize == null) ? 0 : maxColumnSize) - valueToPrint.length();
-                padding = (padding < 0) ? 0 : padding;
+                int padding = (Optional.of(maxColumnSize).orElse(0)) - valueToPrint.length();
+                padding = Math.max(padding, 0);
 
                 result.append(IntStream.range(0, padding).mapToObj(s -> " ")
                         .collect(Collectors.joining("", "", " % ")));

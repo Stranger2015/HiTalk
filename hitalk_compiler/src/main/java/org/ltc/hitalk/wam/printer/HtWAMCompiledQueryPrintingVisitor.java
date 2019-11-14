@@ -16,9 +16,11 @@ package org.ltc.hitalk.wam.printer;
  * limitations under the License.
  */
 
+import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.ITerm;
 
 /**
  * Pretty printer for compiled queries.
@@ -31,7 +33,7 @@ import org.ltc.hitalk.parser.HtClause;
  * @author Rupert Smith
  */
 public
-class HtWAMCompiledQueryPrintingVisitor extends IWAMCompiledTermsPrintingVisitor {
+class HtWAMCompiledQueryPrintingVisitor extends HtWAMCompiledTermsPrintingVisitor {
     /**
      * Creates a pretty printing visitor for clauses being compiled in WAM.
      *
@@ -48,8 +50,7 @@ class HtWAMCompiledQueryPrintingVisitor extends IWAMCompiledTermsPrintingVisitor
     /**
      * {@inheritDoc}
      */
-    public
-    void visit ( HtClause clause ) {
+    public void visit ( HtClause clause ) throws LinkageException {
         if (traverser.isEnteringContext()) {
             initializePrinters();
         }
@@ -58,5 +59,9 @@ class HtWAMCompiledQueryPrintingVisitor extends IWAMCompiledTermsPrintingVisitor
         }
 
         super.visit(clause);
+    }
+
+    public void visit ( ITerm term ) {
+
     }
 }

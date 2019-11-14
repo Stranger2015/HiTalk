@@ -1,18 +1,19 @@
 package org.ltc.hitalk.entities;
 
-import org.ltc.hitalk.core.PrologBuiltIns;
 import org.ltc.hitalk.parser.HtClause;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 
 /**
  *
  */
 public abstract
-class HtPredicateDefinition<T extends ISubroutine, P extends HtPredicate, Q extends HtClause> extends PropertyOwner <HtProperty> {
+class HtPredicateDefinition<T extends ISubroutine, P extends HtPredicate, Q extends HtClause>
+        extends PropertyOwner <HtProperty> {
+
     /**
      *
      */
@@ -33,7 +34,7 @@ class HtPredicateDefinition<T extends ISubroutine, P extends HtPredicate, Q exte
      */
     public HtPredicateDefinition ( T clause, HtProperty... props ) {
         super(props);
-        this.subroutines = new ArrayList <>(asList(clause));
+        this.subroutines = new ArrayList <>(singletonList(clause));
     }
 
     /**
@@ -57,25 +58,18 @@ class HtPredicateDefinition<T extends ISubroutine, P extends HtPredicate, Q exte
     }
 
     /**
+     * @return
+     */
+    public T[] getBody () {
+        return (T[]) subroutines.toArray(new ISubroutine[subroutines.size()]);
+    }
+
+    /**
      * @param definition
      */
     public void merge ( HtPredicateDefinition <T, P, Q> definition ) {
         this.subroutines.addAll(definition.subroutines);
     }
-
-//    /**
-//     * @return
-//     */
-//    public List <HtClause> getClauses () {
-//        if (isBuiltIn()) {
-//            throw new ExecutionError(ExecutionError.Kind.EXISTENCE_ERROR, null);
-//        }
-//        final List <HtClause> clauses = new ArrayList <>((Collection <? extends HtClause>) subroutines);
-//        for (int i = 0; i < subroutines.size(); i++) {
-//
-//        }
-//        return clauses;/*Stream.collect();*/
-//    }
 
     /**
      *
@@ -128,14 +122,11 @@ class HtPredicateDefinition<T extends ISubroutine, P extends HtPredicate, Q exte
     class BuiltInDefinition<T extends ISubroutine, P extends HtPredicate, Q extends HtClause>
             extends HtPredicateDefinition <T, P, Q> {
 
-        private final PrologBuiltIns builtIn;
-
         /**
          * @param props
          */
-        public BuiltInDefinition ( T subroutine, PrologBuiltIns builtIn, HtProperty... props ) {
+        public BuiltInDefinition ( T subroutine, HtProperty... props ) {
             super(subroutine, props);
-            this.builtIn = builtIn;
         }
 
         /**

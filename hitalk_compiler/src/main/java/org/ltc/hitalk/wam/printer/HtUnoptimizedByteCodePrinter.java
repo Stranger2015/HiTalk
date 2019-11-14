@@ -7,17 +7,15 @@ import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledPredicate;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledQuery;
-import org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction;
-import org.ltc.hitalk.wam.compiler.HiTalkWAMOptimizeableListing;
+import org.ltc.hitalk.wam.compiler.IWAMOptimizeableListing;
 
 public
-class IUnoptimizedByteCodePrinter extends IBasePrinter {
-    public IUnoptimizedByteCodePrinter ( SymbolTable <Integer, String, Object> symbolTable,
-                                   IVafInterner interner,
-                                   HtPositionalTermTraverser traverser, int i, TextTableModel printTable ) {
+class HtUnoptimizedByteCodePrinter extends HtBasePrinter {
+    public HtUnoptimizedByteCodePrinter ( SymbolTable <Integer, String, Object> symbolTable,
+                                          IVafInterner interner,
+                                          IPositionalTermTraverser traverser, int i, TextTableModel printTable ) {
         super(symbolTable, interner, traverser, i, printTable);
     }
-
 
     /**
      * {@inheritDoc}
@@ -25,12 +23,12 @@ class IUnoptimizedByteCodePrinter extends IBasePrinter {
     protected
     void enterPredicate ( HtPredicate predicate ) {
         if (predicate instanceof HiTalkWAMCompiledPredicate) {
-            HiTalkWAMOptimizeableListing compiledPredicate = (HiTalkWAMCompiledPredicate) predicate;
+            IWAMOptimizeableListing compiledPredicate = (HiTalkWAMCompiledPredicate) predicate;
 
-            for (HiTalkWAMInstruction instruction : compiledPredicate.getUnoptimizedInstructions()) {
+            compiledPredicate.getUnoptimizedInstructions().forEach(instruction -> {
                 addLineToRow(instruction.toString());
                 nextRow();
-            }
+            });
         }
     }
 
@@ -40,12 +38,12 @@ class IUnoptimizedByteCodePrinter extends IBasePrinter {
     protected
     void enterClause ( HtClause clause ) {
         if (clause instanceof HiTalkWAMCompiledQuery) {
-            HiTalkWAMOptimizeableListing query = (HiTalkWAMCompiledQuery) clause;
+            IWAMOptimizeableListing query = (HiTalkWAMCompiledQuery) clause;
 
-            for (HiTalkWAMInstruction instruction : query.getUnoptimizedInstructions()) {
+            query.getUnoptimizedInstructions().forEach(instruction -> {
                 addLineToRow(instruction.toString());
                 nextRow();
-            }
+            });
         }
     }
 }

@@ -1,21 +1,17 @@
 package org.ltc.hitalk.parser.jp.segfault.prolog.parser;
 
-import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.logic.fol.TermTransformer;
 import com.thesett.aima.logic.fol.TermTraverser;
-import com.thesett.aima.logic.fol.TermVisitor;
 import com.thesett.aima.search.Operator;
-import com.thesett.aima.search.Successor;
-import com.thesett.aima.search.Traversable;
 import com.thesett.aima.search.util.backtracking.Reversable;
-import com.thesett.aima.state.ComponentType;
 import com.thesett.common.parsing.SourceCodePosition;
 import com.thesett.common.util.doublemaps.SymbolKey;
-import com.thesett.common.util.logic.UnaryPredicate;
+import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.term.HtBaseTerm;
+import org.ltc.hitalk.term.ITerm;
 
 import java.util.Iterator;
 
-public class ErrorTerm implements Term {
+public class ErrorTerm extends HtBaseTerm implements ITerm {
     @Override
     public boolean isNumber () {
         return false;
@@ -52,7 +48,7 @@ public class ErrorTerm implements Term {
     }
 
     @Override
-    public Term getValue () {
+    public ITerm getValue () {
         return null;
     }
 
@@ -82,7 +78,7 @@ public class ErrorTerm implements Term {
     }
 
     @Override
-    public Term queryConversion () {
+    public ITerm queryConversion () {
         return null;
     }
 
@@ -97,7 +93,7 @@ public class ErrorTerm implements Term {
     }
 
     @Override
-    public Iterator <Operator <Term>> getChildren ( boolean reverse ) {
+    public Iterator <Operator <ITerm>> getChildren ( boolean reverse ) {
         return null;
     }
 
@@ -122,82 +118,7 @@ public class ErrorTerm implements Term {
     }
 
     @Override
-    public void accept ( TermVisitor visitor ) {
-
-    }
-
-    @Override
-    public Term acceptTransformer ( TermTransformer transformer ) {
-        return null;
-    }
-
-    @Override
     public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
-        return getClass().getSimpleName();
-    }
-
-    @Override
-    public boolean structuralEquals ( Term term ) {
-        return false;
-    }
-
-    @Override
-    public Term getOp () {
-        return null;
-    }
-
-    @Override
-    public Traversable <Term> getChildStateForOperator ( Operator <Term> op ) {
-        return null;
-    }
-
-    @Override
-    public float costOf ( Operator op ) {
-        return 0;
-    }
-
-    @Override
-    public Iterator <Operator <Term>> validOperators ( boolean reverse ) {
-        return null;
-    }
-
-    @Override
-    public Iterator <Successor <Term>> successors ( boolean reverse ) {
-        return null;
-    }
-
-    @Override
-    public UnaryPredicate getDefaultGoalPredicate () {
-        return null;
-    }
-
-    @Override
-    public void applyOperator () {
-
-    }
-
-    @Override
-    public void undoOperator () {
-
-    }
-
-    @Override
-    public Object getProperty ( String property ) {
-        return null;
-    }
-
-    @Override
-    public void setProperty ( String name, Object value ) {
-
-    }
-
-    @Override
-    public boolean hasProperty ( String property ) {
-        return false;
-    }
-
-    @Override
-    public ComponentType getComponentType () {
-        return null;
+        return getClass().getSimpleName();//todo
     }
 }

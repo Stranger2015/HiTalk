@@ -3,11 +3,11 @@ package org.ltc.hitalk.parser.jp.segfault.prolog.parser;
 
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.SentenceImpl;
-import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.Variable;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.Source;
 import org.ltc.hitalk.ITermFactory;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.parser.HiLogParser;
@@ -19,6 +19,7 @@ import org.ltc.hitalk.term.HlOpSymbol;
 import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 import org.ltc.hitalk.term.HlOpSymbol.Fixity;
 import org.ltc.hitalk.term.HlOperatorJoiner;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
@@ -97,7 +98,7 @@ public class PlPrologParser implements IParser {
      * @return
      */
     @Override
-    public Term next () throws IOException {
+    public ITerm next () throws IOException {
         try {
             PlToken token = lexer.next(true);
             if (token == null) {
@@ -117,10 +118,9 @@ public class PlPrologParser implements IParser {
         return null;
     }
 
-    @Override
-    public HtClause convert ( Term t ) {
+    public HtClause convert ( ITerm t ) {
         return null;
-    }
+    }//todo
 
     public PlTokenSource getTokenSource () {
         return tokenSourceStack.peek();
@@ -130,12 +130,12 @@ public class PlPrologParser implements IParser {
         return tokenSourceStack.pop();
     }
 
-    protected Term newTerm ( PlToken token, boolean nullable, EnumSet <TokenKind> terminators )
+    protected ITerm newTerm ( PlToken token, boolean nullable, EnumSet <TokenKind> terminators )
             throws IOException, ParseException {
-        HlOperatorJoiner <Term> joiner = new HlOperatorJoiner <Term>() {
+        HlOperatorJoiner <ITerm> joiner = new HlOperatorJoiner <ITerm>() {
             @Override
-            protected Term join ( int notation, List <Term> args ) {
-                return new HtFunctor(notation, args.toArray(new Term[args.size()]));
+            protected ITerm join ( int notation, List <ITerm> args ) {
+                return new HtFunctor(notation, args.toArray(new ITerm[args.size()]));
             }
         };
         outer:
@@ -167,8 +167,8 @@ public class PlPrologParser implements IParser {
         }
     }
 
-    protected Term literal ( PlToken token ) throws IOException, ParseException {
-        Term term = new ErrorTerm();
+    protected ITerm literal ( PlToken token ) throws IOException, ParseException {
+        ITerm term = new ErrorTerm();
         switch (token.kind) {
             case VAR:
                 term = factory.newVariable(token.image);
@@ -258,7 +258,7 @@ public class PlPrologParser implements IParser {
 
     //PSEUDO COMPOUND == (terms)
     protected ListTerm readSequence ( TokenKind ldelim, TokenKind rdelim, boolean isBlocked ) throws IOException, ParseException {
-        List <Term> elements = new ArrayList <>();
+        List <ITerm> elements = new ArrayList <>();
         EnumSet <TokenKind> rdelims = isBlocked ? EnumSet.of(COMMA, rdelim) : EnumSet.of(COMMA, CONS, rdelim);
         ListTerm.Kind kind = LIST;
         switch (ldelim) {
@@ -278,7 +278,7 @@ public class PlPrologParser implements IParser {
             default:
                 break;
         }
-        Term term = newTerm(lexer.getNextToken(), true, rdelims);//,/2 ????????
+        ITerm term = newTerm(lexer.getNextToken(), true, rdelims);//,/2 ????????
         if (term == null) {
             if (rdelim != lexer.peek().kind) {
                 throw new ParseException("No (more) elements");//要素がありません・・・。
@@ -297,8 +297,8 @@ public class PlPrologParser implements IParser {
         return (ListTerm) term;
     }
 
-    private Term[] flatten ( List <Term> elements ) {
-        return elements.toArray(new Term[elements.size()]);
+    private ITerm[] flatten ( List <ITerm> elements ) {
+        return elements.toArray(new ITerm[elements.size()]);
     }
 
     /**
@@ -335,8 +335,8 @@ public class PlPrologParser implements IParser {
      * @return
      */
     @Override
-    public Sentence <Term> parse () throws ParseException, IOException, SourceCodeException {
-        return new SentenceImpl <>(termSentence());
+    public Sentence <ITerm> parse () throws ParseException, IOException, SourceCodeException {
+        return new SentenceImpl(termSentence());
     }
 
     /**
@@ -348,7 +348,7 @@ public class PlPrologParser implements IParser {
      * @return A term parsed in a fresh variable context.
      * @throws SourceCodeException If the token sequence does not parse into a valid term sentence.
      */
-    public Term termSentence () throws SourceCodeException, IOException, ParseException {
+    public ITerm termSentence () throws SourceCodeException, IOException, ParseException {
         // Each new sentence provides a new scope in which to make variables unique.
         variableContext.clear();
 
@@ -359,21 +359,21 @@ public class PlPrologParser implements IParser {
 //    /**
 //     * Parses multiple sequential terms, and if more than one is encountered then the flat list of terms encountered
 //     * must contain operators in order to be valid Prolog syntax. In that case the flat list of terms is passed to the
-//     * {@link DynamicOperatorParser#parseOperators(Term[])} method for 'deferred decision parsing' of dynamic operators.
+//     * {@link DynamicOperatorParser#parseOperators(ITerm[])} method for 'deferred decision parsing' of dynamic operators.
 //     *
 //     * @return A single first order logic term.
 //     * @throws SourceCodeException If the sequence of tokens does not form a valid syntactical construction as a first
 //     *                             order logic term.
 //     */
-//    public Term term () throws SourceCodeException, IOException, ParseException {
-//        List <Term> terms = literal(lexer.getNextToken());
+//    public ITerm term () throws SourceCodeException, IOException, ParseException {
+//        List <ITerm> terms = literal(lexer.getNextToken());
 //
-//        Term[] flatTerms = terms.toArray(new Term[terms.size()]);
+//        ITerm[] flatTerms = terms.toArray(new ITerm[terms.size()]);
 //
 //        if (flatTerms.length > 1) {
 //            return operatorParser.parseOperators(flatTerms);
 //        } else {
-//            Term result = flatTerms[0];
+//            ITerm result = flatTerms[0];
 //
 //            // If a single candidate op name has been parsed, promote it to a constant.
 //            if (result instanceof CandidateOpSymbol) {
@@ -417,8 +417,8 @@ public class PlPrologParser implements IParser {
 //     * @throws SourceCodeException If the sequence of tokens does not form a valid syntactical construction as a list of
 //     *                             first order logic terms.
 //     */
-//    public List <Term> terms ( List <Term> terms ) throws SourceCodeException {
-//        Term term = null;
+//    public List <ITerm> terms ( List <ITerm> terms ) throws SourceCodeException {
+//        ITerm term = null;
 //        PlToken nextToken = getTokenSource().peek();
 //        switch (nextToken.kind) {
 //            case BOF:

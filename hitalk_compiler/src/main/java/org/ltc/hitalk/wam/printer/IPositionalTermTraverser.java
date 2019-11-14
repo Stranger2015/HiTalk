@@ -1,9 +1,10 @@
 package org.ltc.hitalk.wam.printer;
 
-import com.thesett.aima.logic.fol.TermVisitor;
+import org.ltc.hitalk.term.ITermVisitor;
 
 public
-interface IPositionalTermTraverser extends IClauseTraverser,
+interface IPositionalTermTraverser extends
+        IClauseTraverser,
         IFunctorTraverser,
         IPositionalContext {
 
@@ -33,5 +34,5 @@ interface IPositionalTermTraverser extends IClauseTraverser,
      *
      * @param contextChangeVisitor The visitor to notify on context changes.
      */
-    void setContextChangeVisitor ( TermVisitor contextChangeVisitor );
+    void setContextChangeVisitor ( ITermVisitor contextChangeVisitor );
 }

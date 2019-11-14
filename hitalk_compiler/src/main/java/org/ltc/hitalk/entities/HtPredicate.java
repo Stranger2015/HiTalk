@@ -1,13 +1,17 @@
 package org.ltc.hitalk.entities;
 
-import com.thesett.aima.logic.fol.BaseTerm;
-import com.thesett.aima.logic.fol.PredicateVisitor;
 import com.thesett.aima.logic.fol.Term;
+import com.thesett.aima.logic.fol.TermTransformer;
+import com.thesett.aima.logic.fol.TermTraverser;
 import com.thesett.aima.logic.fol.TermVisitor;
 import com.thesett.aima.search.Operator;
 import com.thesett.common.util.StackQueue;
 import org.ltc.hitalk.compiler.IPredicateVisitor;
+import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.compiler.VafInterner;
 import org.ltc.hitalk.interpreter.IPredicateTraverser;
+import org.ltc.hitalk.term.HtBaseTerm;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HiTalkStream;
 
 import java.beans.PropertyChangeEvent;
@@ -61,7 +65,7 @@ import java.util.stream.IntStream;
  * specified line (if applicable)
  */
 public
-class HtPredicate extends BaseTerm implements Term, IPropertyOwner {
+class HtPredicate extends HtBaseTerm implements ITerm, IPropertyOwner {
     /**
      * The clauses that make up this predicate.
      */
@@ -81,8 +85,7 @@ class HtPredicate extends BaseTerm implements Term, IPropertyOwner {
     /**
      * {@inheritDoc}
      */
-    public
-    Term getValue () {
+    public ITerm getValue () {
         return this;
     }
 
@@ -103,16 +106,19 @@ class HtPredicate extends BaseTerm implements Term, IPropertyOwner {
     void free () {
     }
 
+    public void setTermTraverser ( TermTraverser traverser ) {
+
+    }
+
     /**
      * {@inheritDoc}
      */
-    public
-    Iterator <Operator <Term>> getChildren ( boolean reverse ) {
+    public Iterator <Operator <ITerm>> getChildren ( boolean reverse ) {
         if ((traverser instanceof IPredicateTraverser)) {
             return ((IPredicateTraverser) traverser).traverse(this, reverse);
         }
         else {
-            List <Operator <Term>> resultList = null;
+            List <Operator <ITerm>> resultList = null;
 
             if (!reverse) {
                 resultList = new LinkedList <>();//replace linked
@@ -134,12 +140,20 @@ class HtPredicate extends BaseTerm implements Term, IPropertyOwner {
      */
     public
     void accept ( TermVisitor visitor ) {
-        if (visitor instanceof PredicateVisitor) {
+        if (visitor instanceof IPredicateVisitor) {
             ((IPredicateVisitor) visitor).visit(this);
         }
         else {
-            super.accept(visitor);
+            this.accept(visitor);
         }
+    }
+
+    public ITerm acceptTransformer ( TermTransformer transformer ) {
+        return null;
+    }
+
+    public String toString ( VafInterner interner, boolean printVarName, boolean printBindings ) {
+        return null;
     }
 
     /**

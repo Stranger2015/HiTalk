@@ -3,6 +3,7 @@ package org.ltc.hitalk.wam.printer;
 import com.thesett.aima.logic.fol.*;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
@@ -116,7 +117,10 @@ class HtDelegatingAllTermsVisitor implements IAllTermsVisitor {
      */
     @Override
     public void visit ( HtClause clause ) throws LinkageException {
-
+        if (delegate != null) {
+            //literal.accept(delegate);
+            delegate.visit(clause);
+        }
     }
 
     /**
@@ -126,16 +130,33 @@ class HtDelegatingAllTermsVisitor implements IAllTermsVisitor {
      */
     @Override
     public void visit ( HtPredicate predicate ) {
-
+        if (delegate != null) {
+            //literal.accept(delegate);
+            delegate.visit(predicate);
+        }
     }
 
     @Override
     public void visit ( IFunctor functor ) throws LinkageException {
-
+        if (delegate != null) {
+            //literal.accept(delegate);
+            delegate.visit(functor);
+        }
     }
 
     @Override
-    public void visit ( ListTerm dottedPair ) {
+    public void visit ( ListTerm listTerm ) throws LinkageException {
+        if (delegate != null) {
+            //literal.accept(delegate);
+            delegate.visit(listTerm);
+        }
+    }
 
+    @Override
+    public void visit ( ITerm term ) {
+        if (delegate != null) {
+            //literal.accept(delegate);
+            delegate.visit(term);
+        }
     }
 }

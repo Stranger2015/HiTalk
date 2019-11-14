@@ -19,14 +19,16 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public abstract
-class IBasicTraverser implements
-        HtPredicateTraverser,
-        HtClauseTraverser,
+class HtBasicTraverser implements
+        IPredicateTraverser,
+        IClauseTraverser,
         IFunctorTraverser,
-        HtClauseVisitor,
+        IClauseVisitor,
         IPredicateVisitor {
 
-    /** Used for debugging purposes. */
+    /**
+     * Used for debugging purposes.
+     */
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     /**
@@ -52,7 +54,7 @@ class IBasicTraverser implements
     /**
      * Creates a traverser that uses the normal intuitive left-to-right traversal orderings for clauses and functors.
      */
-    public IBasicTraverser () {
+    public HtBasicTraverser () {
         clauseHeadFirst = true;
         leftToRightClauseBodies = true;
         leftToRightFunctorArgs = true;
@@ -66,7 +68,7 @@ class IBasicTraverser implements
      * @param leftToRightClauseBodies <tt>true</tt> to use the normal ordering, <tt>false</tt> for the reverse.
      * @param leftToRightFunctorArgs  <tt>true</tt> to use the normal ordering, <tt>false</tt> for the reverse.
      */
-    public IBasicTraverser ( boolean clauseHeadFirst, boolean leftToRightClauseBodies, boolean leftToRightFunctorArgs ) {
+    public HtBasicTraverser ( boolean clauseHeadFirst, boolean leftToRightClauseBodies, boolean leftToRightFunctorArgs ) {
         this.clauseHeadFirst = clauseHeadFirst;
         this.leftToRightClauseBodies = leftToRightClauseBodies;
         this.leftToRightFunctorArgs = leftToRightFunctorArgs;
@@ -77,27 +79,24 @@ class IBasicTraverser implements
      * <p>
      * <p/>Can be used to visit a predicate, to set up an initial context for predicate traversals.
      */
-    public abstract
-    void visit ( HtPredicate predicate );
+    public abstract void visit ( HtPredicate predicate );
 
     /**
      * {@inheritDoc}
      * <p>
      * <p/>Can be used to visit a clause, to set up an initial context for clause traversals.
      */
-    public abstract
-    void visit ( HtClause clause );
+    public abstract void visit ( HtClause clause );
 
     /**
      * {@inheritDoc}
      */
-    public
-    Iterator <Operator <Term>> traverse ( HtPredicate predicate, boolean reverse ) {
+    public Iterator <Operator <ITerm>> traverse ( HtPredicate predicate, boolean reverse ) {
         logger.debug("Traversing predicate " + predicate.toString());
 
         HtPredicateDefinition body = predicate.getDefinition();
 
-        Queue <Operator <Term>> queue = (!reverse) ? new StackQueue <>() : new LinkedList <>();
+        Queue <Operator <ITerm>> queue = (!reverse) ? new StackQueue <>() : new LinkedList <>();
 
         // For the predicate bodies.
         for (int i = leftToRightPredicateBodies ? 0 : (body.size() - 1);
@@ -135,7 +134,7 @@ class IBasicTraverser implements
         if (body != null) {
             for (int i = leftToRightClauseBodies ? 0 : (body.length - 1);
                  leftToRightClauseBodies ? (i < body.length) : (i >= 0); i = i + (leftToRightClauseBodies ? 1 : -1)) {
-                Functor bodyFunctor = body[i];
+                IFunctor bodyFunctor = body[i];
 
                 bodyFunctor.setReversable(createBodyOperator(bodyFunctor, i, body, clause));
                 bodyFunctor.setTermTraverser(this);
@@ -149,8 +148,7 @@ class IBasicTraverser implements
     /**
      * {@inheritDoc}
      */
-    public
-    Iterator <Operator <Term>> traverse ( Functor functor, boolean reverse ) {
+    public Iterator <Operator <Term>> traverse ( Functor functor, boolean reverse ) {
         /*log.fine("Traversing functor " + functor.toString());*/
 
         Queue <Operator <Term>> queue = (!reverse) ? new StackQueue <>() : new LinkedList <>();
@@ -179,7 +177,7 @@ class IBasicTraverser implements
      * @param clause The containing clause.
      * @return A reversable operator.
      */
-    protected abstract IBasicTraverser.StackableOperator createHeadOperator ( Functor head, HtClause clause );
+    protected abstract HtBasicTraverser.StackableOperator createHeadOperator ( IFunctor head, HtClause clause );
 
     /**
      * When traversing the body functors of a clause, creates a reversible operator to use to transition into each body
@@ -191,7 +189,7 @@ class IBasicTraverser implements
      * @param clause      The containing clause.
      * @return A reversable operator.
      */
-    protected abstract StackableOperator createBodyOperator ( Functor bodyFunctor, int pos, Functor[] body,
+    protected abstract StackableOperator createBodyOperator ( IFunctor bodyFunctor, int pos, IFunctor[] body,
                                                               HtClause clause );
 
     /**
@@ -216,8 +214,7 @@ class IBasicTraverser implements
      * @param functor  The containing functor.
      * @return A reversable operator.
      */
-    protected abstract
-    StackableOperator createTermOperator ( Term argument, int pos, Functor functor );
+    protected abstract StackableOperator createTermOperator ( ITerm argument, int pos, IFunctor functor );
 
     /**
      * StackableOperator is a {@link Reversable} operator that can also delegates to another stackable operation by
@@ -228,8 +225,7 @@ class IBasicTraverser implements
      * <tr><td> Delegate to a stackable operation.
      * </table></pre>
      */
-    protected
-    class StackableOperator implements Reversable {
+    public static class StackableOperator implements Reversable {
         /**
          * The optional stackable delegate operation.
          */
@@ -240,16 +236,14 @@ class IBasicTraverser implements
          *
          * @param delegate An optional delegate to chain onto, may be <tt>null</tt>.
          */
-        public
-        StackableOperator ( StackableOperator delegate ) {
+        public StackableOperator ( StackableOperator delegate ) {
             this.delegate = delegate;
         }
 
         /**
          * {@inheritDoc}
          */
-        public
-        void applyOperator () {
+        public void applyOperator () {
             if (delegate != null) {
                 delegate.applyOperator();
             }
@@ -258,8 +252,7 @@ class IBasicTraverser implements
         /**
          * {@inheritDoc}
          */
-        public
-        void undoOperator () {
+        public void undoOperator () {
             if (delegate != null) {
                 delegate.undoOperator();
             }

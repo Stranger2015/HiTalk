@@ -11,7 +11,6 @@ import org.ltc.hitalk.entities.ISubroutine;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
-import org.ltc.hitalk.wam.printer.HtPositionalTermTraverser;
 import org.ltc.hitalk.wam.printer.IPositionalTermVisitor;
 
 import java.util.HashMap;

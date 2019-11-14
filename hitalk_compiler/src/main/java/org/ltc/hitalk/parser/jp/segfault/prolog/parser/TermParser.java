@@ -1,13 +1,13 @@
 package org.ltc.hitalk.parser.jp.segfault.prolog.parser;
 
-import com.thesett.aima.logic.fol.Term;
+import org.ltc.hitalk.term.ITerm;
 
 import java.io.IOException;
 
 /**
  *
  */
-public interface TermParser<T extends Term> {
+public interface TermParser<T extends ITerm> {
 
     /**
      *

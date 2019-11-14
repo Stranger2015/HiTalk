@@ -1,6 +1,5 @@
 package org.ltc.hitalk.term;
 
-import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
 import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 
@@ -15,7 +14,7 @@ import static org.ltc.hitalk.term.HlOpSymbol.Associativity.fx;
  *
  * @author shun
  */
-public abstract class HlOperatorJoiner<TERM extends Term> {
+public abstract class HlOperatorJoiner<TERM extends ITerm> {
 
     private final ArrayDeque <HlOpSymbol> operators = new ArrayDeque <>();
     private final ArrayDeque <TERM> operands = new ArrayDeque <>();

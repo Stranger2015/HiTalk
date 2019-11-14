@@ -1,10 +1,10 @@
 package org.ltc.hitalk.parser.jp.segfault.prolog.parser;
 
-import com.thesett.aima.logic.fol.IVafInterner;
 import com.thesett.aima.logic.fol.Term;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.parsing.SourceCodePositionImpl;
 import com.thesett.common.util.Source;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.parser.PrologAtoms;

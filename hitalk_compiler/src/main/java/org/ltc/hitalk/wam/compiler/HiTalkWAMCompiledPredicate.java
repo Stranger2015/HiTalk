@@ -54,7 +54,7 @@ import java.util.*;
  */
 public
 class HiTalkWAMCompiledPredicate extends HtPredicate
-        implements Sentence <HiTalkWAMCompiledPredicate>, Sizeable, HiTalkWAMOptimizeableListing {
+        implements Sentence <HiTalkWAMCompiledPredicate>, Sizeable, IWAMOptimizeableListing {
     //Used for debugging.
     //private static final Logger log = Logger.getLogger(WAMCompiledClause.class.getName());
 

@@ -16,12 +16,17 @@
 package org.ltc.hitalk.wam.printer;
 
 
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.IntegerType;
+import com.thesett.aima.logic.fol.LinkageException;
+import com.thesett.aima.logic.fol.LiteralType;
+import com.thesett.aima.logic.fol.Variable;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
+import org.ltc.hitalk.wam.compiler.HtPositionalTermTraverser;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import static org.ltc.hitalk.term.ListTerm.Kind;
@@ -67,17 +72,18 @@ class HtBasePositionalVisitor implements IAllTermsVisitor {
      * @param symbolTable The compiler symbol table.
      */
     public HtBasePositionalVisitor ( SymbolTable <Integer, String, Object> symbolTable,
-                                     IVafInterner interner ) {
+                                     IVafInterner interner,
+                                     IPositionalTermTraverser traverser ) {
 
         this.symbolTable = symbolTable;
         this.interner = interner;
-        this.traverser = new HtPositionalTermTraverser();
+        this.traverser = traverser;
     }
 
     /**
      * {@inheritDoc}
      */
-    public void visit ( Term term ) {
+    public void visit ( ITerm term ) {
         if (traverser.isEnteringContext()) {
             enterTerm(term);
         } else if (traverser.isLeavingContext()) {
@@ -217,7 +223,7 @@ class HtBasePositionalVisitor implements IAllTermsVisitor {
      *
      * @param term The term being entered.
      */
-    protected void enterTerm ( Term term ) {
+    protected void enterTerm ( ITerm term ) {
     }
 
     /**
@@ -225,7 +231,7 @@ class HtBasePositionalVisitor implements IAllTermsVisitor {
      *
      * @param term The term being left.
      */
-    protected void leaveTerm ( Term term ) {
+    protected void leaveTerm ( ITerm term ) {
     }
 
     /**
@@ -337,5 +343,4 @@ class HtBasePositionalVisitor implements IAllTermsVisitor {
      */
     protected void leaveLiteral ( LiteralType literal ) {
     }
-
 }

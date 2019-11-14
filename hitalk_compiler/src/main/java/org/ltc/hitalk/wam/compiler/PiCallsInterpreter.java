@@ -1,15 +1,16 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.IVafInterner;
+
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
-import org.ltc.hitalk.wam.printer.HtPositionalTermTraverser;
+import org.ltc.hitalk.wam.printer.IPositionalTermTraverser;
 import org.ltc.hitalk.wam.printer.IPositionalTermVisitor;
 
 public class PiCallsInterpreter extends HtBasePositionalVisitor
         implements IPositionalTermVisitor {
 
-    protected HtPositionalTermTraverser positionalTraverser;
+    protected IPositionalTermTraverser positionalTraverser;
 
     /**
      * Creates a positional visitor.

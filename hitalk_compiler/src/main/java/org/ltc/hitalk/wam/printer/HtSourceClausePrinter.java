@@ -16,11 +16,11 @@ package org.ltc.hitalk.wam.printer;
  * limitations under the License.
  */
 
-import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.logic.fol.Variable;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.text.api.model.TextTableModel;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 
 /**
  * SourceClausePrinter prints the source of a compiled clause in a vertically spread out way, so that each predicate
@@ -53,8 +53,7 @@ class HtSourceClausePrinter extends HtBasePrinter {
     /**
      * {@inheritDoc}
      */
-    protected
-    void enterFunctor ( Functor functor ) {
+    protected void enterFunctor ( IFunctor functor ) {
         String showContextAs = interner.getFunctorName(functor) + (functor.isAtom() ? "" : "(");
 
         int delta = showContextAs.length();
@@ -68,8 +67,7 @@ class HtSourceClausePrinter extends HtBasePrinter {
     /**
      * {@inheritDoc}
      */
-    protected
-    void leaveFunctor ( Functor functor ) {
+    protected void leaveFunctor ( IFunctor functor ) {
         String toAppend = indent;
         boolean addData = false;
 

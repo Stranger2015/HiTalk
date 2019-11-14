@@ -14,7 +14,7 @@ import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.term.io.Environment;
 import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
-import org.ltc.hitalk.wam.printer.HtPositionalTermTraverser;
+import org.ltc.hitalk.wam.printer.IPositionalTermTraverser;
 import org.ltc.hitalk.wam.printer.IPositionalTermVisitor;
 
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public abstract class MetaInterpreterVisitor extends HtBasePositionalVisitor
         implements IPositionalTermVisitor {
 
     protected final Resolver <HtPredicate, HtClause> resolver;
-    protected HtPositionalTermTraverser positionalTraverser;
+    protected IPositionalTermTraverser positionalTraverser;
     protected final List <HtClause> clauses = new ArrayList <>();
     protected final Set <Variable> bindings = new HashSet <>();
 
@@ -53,7 +53,7 @@ public abstract class MetaInterpreterVisitor extends HtBasePositionalVisitor
     /**
      * @param positionalTraverser
      */
-    public void setPositionalTraverser ( HtPositionalTermTraverser positionalTraverser ) {
+    public void setPositionalTraverser ( IPositionalTermTraverser positionalTraverser ) {
         this.positionalTraverser = positionalTraverser;
     }
 

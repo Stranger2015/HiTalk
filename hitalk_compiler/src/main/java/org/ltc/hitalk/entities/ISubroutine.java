@@ -28,6 +28,9 @@ interface ISubroutine {
      */
     String toString ( IVafInterner interner, boolean printVarName, boolean printBindings );
 
+    /**
+     * @return
+     */
     default boolean isQuery () {
         return getHead() == null;
     }

@@ -8,13 +8,13 @@ import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledPredicate;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledQuery;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction;
-import org.ltc.hitalk.wam.compiler.HiTalkWAMOptimizeableListing;
+import org.ltc.hitalk.wam.compiler.IWAMOptimizeableListing;
 
 public
-class IByteCodePrinter extends IBasePrinter {
-    public IByteCodePrinter ( SymbolTable <Integer, String, Object> symbolTable,
-                        IVafInterner interner,
-                        HtPositionalTermTraverser traverser, int i, TextTableModel printTable ) {
+class HtByteCodePrinter extends HtBasePrinter {
+    public HtByteCodePrinter ( SymbolTable <Integer, String, Object> symbolTable,
+                               IVafInterner interner,
+                               IPositionalTermTraverser traverser, int i, TextTableModel printTable ) {
         super(symbolTable, interner, traverser, i, printTable);
     }
 
@@ -24,7 +24,7 @@ class IByteCodePrinter extends IBasePrinter {
     protected
     void enterClause ( HtClause clause ) {
         if (clause instanceof HiTalkWAMCompiledQuery) {
-            HiTalkWAMOptimizeableListing query = (HiTalkWAMCompiledQuery) clause;
+            IWAMOptimizeableListing query = (HiTalkWAMCompiledQuery) clause;
 
             for (HiTalkWAMInstruction instruction : query.getInstructions()) {
                 addLineToRow(instruction.toString());
@@ -39,7 +39,7 @@ class IByteCodePrinter extends IBasePrinter {
     protected
     void enterPredicate ( HtPredicate predicate ) {
         if (predicate instanceof HiTalkWAMCompiledPredicate) {
-            HiTalkWAMOptimizeableListing compiledPredicate = (HiTalkWAMCompiledPredicate) predicate;
+            IWAMOptimizeableListing compiledPredicate = (HiTalkWAMCompiledPredicate) predicate;
 
             for (HiTalkWAMInstruction instruction : compiledPredicate.getInstructions()) {
                 addLineToRow(instruction.toString());

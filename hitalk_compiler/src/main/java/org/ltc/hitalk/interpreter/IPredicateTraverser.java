@@ -1,8 +1,8 @@
 package org.ltc.hitalk.interpreter;
 
-import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.search.Operator;
 import org.ltc.hitalk.entities.HtPredicate;
+import org.ltc.hitalk.term.ITerm;
 
 import java.util.Iterator;
 
@@ -16,5 +16,5 @@ interface IPredicateTraverser {
      *                  be a natural, left-to-right ordering.
      * @return An iterator over operators producing the traversed elements of the predicate.
      */
-    Iterator <Operator <Term>> traverse ( HtPredicate predicate, boolean reverse );
+    Iterator <Operator <ITerm>> traverse ( HtPredicate predicate, boolean reverse );
 }

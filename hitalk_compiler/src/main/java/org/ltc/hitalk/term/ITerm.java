@@ -21,7 +21,7 @@ import com.thesett.aima.search.util.backtracking.ReTraversable;
 import com.thesett.aima.search.util.backtracking.Reversable;
 import com.thesett.common.parsing.SourceCodePosition;
 import com.thesett.common.util.doublemaps.SymbolKey;
-import org.ltc.hitalk.compiler.VafInterner;
+import org.ltc.hitalk.compiler.IVafInterner;
 
 import java.util.Iterator;
 
@@ -238,17 +238,17 @@ public interface ITerm extends ReTraversable <ITerm>, Operator <ITerm> {
      *
      * @param visitor The term visitor to accept.
      */
-    void accept ( TermVisitor visitor );
+    void accept ( ITermVisitor visitor );
 
     /**
-     * Applies a term to term transformation function over the term tree, recursively from this point downards. This is
+     * Applies a term to term transformation function over the term tree, recursively from this point downwards. This is
      * a general recursive mapping function over term trees, and is intended to be usefull for transforming term trees
      * for compilation, optimization or other transformational activities.
      *
      * @param transformer The transformation function to apply.
      * @return The transformed term tree.
      */
-    ITerm acceptTransformer ( TermTransformer transformer );
+    ITerm acceptTransformer ( ITermTransformer transformer );
 
     /**
      * Pretty prints a term relative to the symbol namings provided by the specified interner.
@@ -260,7 +260,7 @@ public interface ITerm extends ReTraversable <ITerm>, Operator <ITerm> {
      *                      variables name without any binding should be printed.
      * @return A pretty printed string containing the term.
      */
-    String toString ( VafInterner interner, boolean printVarName, boolean printBindings );
+    String toString ( IVafInterner interner, boolean printVarName, boolean printBindings );
 
     /**
      * Compares this term for structural equality with another. Two terms are structurally equal if they are the same

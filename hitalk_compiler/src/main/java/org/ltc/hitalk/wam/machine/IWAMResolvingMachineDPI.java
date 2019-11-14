@@ -1,15 +1,15 @@
 package org.ltc.hitalk.wam.machine;
 
-import com.thesett.aima.logic.fol.IVafInterner;
 import com.thesett.aima.logic.fol.wam.machine.WAMCodeView;
 import com.thesett.aima.logic.fol.wam.machine.WAMInternalRegisters;
 import com.thesett.aima.logic.fol.wam.machine.WAMMemoryLayout;
 import com.thesett.aima.logic.fol.wam.machine.WAMResolvingMachineDPIMonitor;
+import org.ltc.hitalk.compiler.IVafInterner;
 
 import java.nio.IntBuffer;
 
 public
-interface HiTalkWAMResolvingMachineDPI extends WAMCodeView {
+interface IWAMResolvingMachineDPI extends WAMCodeView {
     /**
      * Attaches a monitor to the abstract machine.
      *

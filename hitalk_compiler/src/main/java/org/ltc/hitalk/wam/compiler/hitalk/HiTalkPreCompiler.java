@@ -20,18 +20,19 @@ import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.logic.fol.compiler.SymbolKeyTraverser;
 import com.thesett.aima.logic.fol.compiler.TermWalker;
 import com.thesett.aima.logic.fol.wam.TermWalkers;
 import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PrologBuiltInTransform;
 import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.HiTalkTopLevelCheckVisitor;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
@@ -55,7 +56,6 @@ class HiTalkPreCompiler extends PrologPreCompiler implements ICompiler <HtClause
      * Holds the compiler output observer.
      */
     protected LogicCompilerObserver <HtPredicate, HtClause> observer;
-    private LogicCompilerObserver <HtClause, HtClause> clauseChainObserver;
 
     /**
      * Creates a new PreCompiler.
@@ -103,13 +103,13 @@ class HiTalkPreCompiler extends PrologPreCompiler implements ICompiler <HtClause
      *
      * @param clause The clause to initialise the symbol keys of.
      */
-    private void initializeSymbolTable ( Term clause ) {
+    private void initializeSymbolTable ( ITerm clause ) {
         // Run the symbol key traverser over the clause, to ensure that all terms have their symbol keys correctly
         // set up.
-        SymbolKeyTraverser symbolKeyTraverser = new SymbolKeyTraverser(interner, symbolTable, null);
+        HtSymbolKeyTraverser symbolKeyTraverser = new HtSymbolKeyTraverser(interner, symbolTable, null);
         symbolKeyTraverser.setContextChangeVisitor(symbolKeyTraverser);
 
-        TermWalker symWalker = new TermWalker(new DepthFirstBacktrackingSearch <>(), symbolKeyTraverser, symbolKeyTraverser);
+        HtTermWalker symWalker = new HtTermWalker(new DepthFirstBacktrackingSearch <>(), symbolKeyTraverser, symbolKeyTraverser);
         symWalker.walk(clause);
     }
 

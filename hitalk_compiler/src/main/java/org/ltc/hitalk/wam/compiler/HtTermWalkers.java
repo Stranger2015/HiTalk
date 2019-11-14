@@ -8,7 +8,6 @@ import com.thesett.aima.logic.fol.compiler.TermWalker;
 import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
 import com.thesett.aima.search.util.uninformed.PostFixSearch;
 import com.thesett.common.util.logic.UnaryPredicate;
-import org.ltc.hitalk.wam.printer.HtPositionalTermTraverser;
 import org.ltc.hitalk.wam.printer.IPositionalTermVisitor;
 
 public
