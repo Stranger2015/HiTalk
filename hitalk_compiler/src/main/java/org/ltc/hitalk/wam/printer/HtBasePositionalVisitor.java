@@ -19,11 +19,11 @@ package org.ltc.hitalk.wam.printer;
 import com.thesett.aima.logic.fol.IntegerType;
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.LiteralType;
-import com.thesett.aima.logic.fol.Variable;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.HtPositionalTermTraverser;
@@ -47,7 +47,7 @@ import static org.ltc.hitalk.term.ListTerm.Kind;
  *
  * @author Rupert Smith
  */
-public
+public abstract
 class HtBasePositionalVisitor implements IAllTermsVisitor {
 
     /**
@@ -108,7 +108,7 @@ class HtBasePositionalVisitor implements IAllTermsVisitor {
     /**
      * {@inheritDoc}
      */
-    public void visit ( Variable variable ) {
+    public void visit ( HtVariable variable ) {
         if (traverser.isEnteringContext()) {
             enterVariable(variable);
         } else if (traverser.isLeavingContext()) {
@@ -158,7 +158,6 @@ class HtBasePositionalVisitor implements IAllTermsVisitor {
             dottedPair.setTermTraverser(null);
         }
     }
-
 
     /**
      * @param dottedPair
@@ -256,7 +255,7 @@ class HtBasePositionalVisitor implements IAllTermsVisitor {
      *
      * @param variable The variable being entered.
      */
-    protected void enterVariable ( Variable variable ) {
+    protected void enterVariable ( HtVariable variable ) {
     }
 
     /**
@@ -264,7 +263,7 @@ class HtBasePositionalVisitor implements IAllTermsVisitor {
      *
      * @param variable The variable being left.
      */
-    protected void leaveVariable ( Variable variable ) {
+    protected void leaveVariable ( HtVariable variable ) {
 
     }
 

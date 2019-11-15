@@ -1,19 +1,20 @@
 package org.ltc.hitalk.wam.transformers;
 
-import com.thesett.aima.logic.fol.Term;
-import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.ITerm;
+
+import java.util.List;
 
 /**
  *
  */
 public
-interface IInliner<T extends HtClause, TC extends Term> extends ITransformer <T, TC> {
+interface IInliner<T extends ITerm> extends ITransformer <T> {
 
     /**
      * @param clause
      * @return
      */
-    T inline ( T clause );
+    List <T> inline ( T clause );
 
     /**
      * Applies a transformation to the clause.
@@ -22,8 +23,7 @@ interface IInliner<T extends HtClause, TC extends Term> extends ITransformer <T,
      * @return A clause which is a transformation of the argument.
      */
     @Override
-    default
-    T transform ( T clause ) {
+    default List <T> transform ( T clause ) {
         return inline(clause);
     }
 }

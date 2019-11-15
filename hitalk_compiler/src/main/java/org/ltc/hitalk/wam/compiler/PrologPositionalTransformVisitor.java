@@ -1,7 +1,10 @@
 package org.ltc.hitalk.wam.compiler;
 
 
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.IntegerType;
+import com.thesett.aima.logic.fol.LinkageException;
+import com.thesett.aima.logic.fol.LiteralType;
+import com.thesett.aima.logic.fol.Term;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
@@ -9,8 +12,10 @@ import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtPredicateDefinition;
 import org.ltc.hitalk.entities.ISubroutine;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
+import org.ltc.hitalk.wam.printer.IPositionalTermTraverser;
 import org.ltc.hitalk.wam.printer.IPositionalTermVisitor;
 
 import java.util.HashMap;
@@ -22,10 +27,11 @@ import java.util.stream.IntStream;
 
 import static org.ltc.hitalk.term.ListTerm.Kind.TRUE;
 
+/**
+ *
+ */
 public class PrologPositionalTransformVisitor extends HtBasePositionalVisitor
         implements IPositionalTermVisitor {
-
-    protected HtPositionalTermTraverser positionalTraverser;
 
     /**
      * Creates a positional visitor.
@@ -34,8 +40,9 @@ public class PrologPositionalTransformVisitor extends HtBasePositionalVisitor
      * @param interner    The name interner.
      */
     public PrologPositionalTransformVisitor ( SymbolTable <Integer, String, Object> symbolTable,
-                                              IVafInterner interner ) {
-        super(symbolTable, interner);
+                                              IVafInterner interner,
+                                              IPositionalTermTraverser positionalTermTraverser ) {
+        super(symbolTable, interner, positionalTermTraverser);
     }
 
     /**
@@ -62,11 +69,11 @@ public class PrologPositionalTransformVisitor extends HtBasePositionalVisitor
         super.leaveFunctor(functor);
     }
 
-    protected void enterVariable ( Variable variable ) {
+    protected void enterVariable ( HtVariable variable ) {
         super.enterVariable(variable);
     }
 
-    protected void leaveVariable ( Variable variable ) {
+    protected void leaveVariable ( HtVariable variable ) {
         super.leaveVariable(variable);
     }
 
@@ -85,6 +92,18 @@ public class PrologPositionalTransformVisitor extends HtBasePositionalVisitor
             IFunctor[] body = clause.getBody();
             chb(Objects.requireNonNull(asDottedPair(body)), hb);
         }
+    }
+
+    public void setPositionalTraverser ( IPositionalTermTraverser positionalTraverser ) {
+
+    }
+
+    public void visit ( Term term ) {
+
+    }
+
+    public void visit ( HtVariable variable ) {
+
     }
 
     private static class BinFunctor {

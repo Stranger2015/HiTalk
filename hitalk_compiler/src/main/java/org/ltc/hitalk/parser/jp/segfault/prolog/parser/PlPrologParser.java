@@ -195,13 +195,13 @@ public class PlPrologParser implements IParser {
 //                end-of_term
 //                break;
             case LPAREN:
-                ListTerm dottedPair = readSequence(token.kind, RPAREN, true);//blocked sequence
+                ListTerm listTerm = readSequence(token.kind, RPAREN, true);//blocked sequence
                 break;
             case LBRACKET:
-                dottedPair = readSequence(token.kind, RBRACKET, false);
+                listTerm = readSequence(token.kind, RBRACKET, false);
                 break;
             case LBRACE:
-                dottedPair = readSequence(token.kind, RBRACE, false);
+                listTerm = readSequence(token.kind, RBRACE, false);
                 break;
 //            case RBRACE:
 //            case RPAREN:

@@ -1,8 +1,8 @@
 package org.ltc.hitalk.interpreter;
 
-import com.thesett.aima.logic.fol.IVafInterner;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.BaseCompiler;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IProduct;
 import org.ltc.hitalk.core.BaseApplication;
 import org.ltc.hitalk.entities.HtPredicate;

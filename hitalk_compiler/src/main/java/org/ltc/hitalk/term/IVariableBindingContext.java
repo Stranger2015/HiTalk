@@ -15,28 +15,23 @@
  */
 package org.ltc.hitalk.term;
 
-
-import java.util.List;
-
 /**
- * TermVisitor provides the interface for a visitor/transformer over term trees.
+ * VariableBindingContext provides a reference to the storage cell in which a {@link Variable} holds its binding.
  *
  * <pre><p/><table id="crc"><caption>CRC Card</caption>
  * <tr><th> Responsibilities
- * <tr><td> Transform a term.
+ * <tr><td> Provide the storage cell for a variable.
  * </table></pre>
  *
  * @author Rupert Smith
- * @todo Visitor/transformer pattern over terms: Ability to replace child-terms in place with new terms. Ability to
- * pass context down to child terms. Ability to iterate over child terms in any queue based search ordering.
- * Looks like a traversable, operators capture and pass on state, goal checks do the visiting.
  */
-public interface ITermTransformer {
+public interface IVariableBindingContext<V extends HtVariable> {
     /**
-     * Applies a transformation to the term.
+     * Provides the storage cell for the specified variable. Some types of variable may defer their storage onto a
+     * storage cell other than themselves, other variable types may simply return themselves as their own storage cells.
      *
-     * @param term The term to transform.
-     * @return A term which is a transformation of the argument.
+     * @param variable The variable to get the storage cell for.
+     * @return The storage cell where the specified variable sets its bindings.
      */
-    List <ITerm> transform ( ITerm term );
+    HtVariable getStorageCell ( V variable );
 }

@@ -1,6 +1,6 @@
 package org.ltc.hitalk.entities;
 
-import com.thesett.aima.logic.fol.Term;
+import org.ltc.hitalk.term.ITerm;
 
 /**
  *
@@ -15,10 +15,10 @@ interface IProperty { //extends INameable {
    /**
     * @return
     */
-   Term getValue ();
+   ITerm getValue ();
 
    /**
     * @param term
     */
-   void setValue ( Term term );
+   void setValue ( ITerm term );
 }

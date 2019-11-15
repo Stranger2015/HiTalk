@@ -25,8 +25,9 @@ import com.thesett.aima.search.util.backtracking.Reversable;
 import com.thesett.common.parsing.SourceCodePosition;
 import com.thesett.common.util.doublemaps.SymbolKey;
 
+import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.List;
 
 /**
  * BaseTerm provides an abstract base implementation of {@link ITerm}. In particular it provides methods to make an
@@ -140,7 +141,7 @@ public abstract class HtBaseTerm extends TraversableState <ITerm> implements ITe
      */
     public Iterator <Operator <ITerm>> getChildren ( boolean reverse ) {
         // Return an empty iterator by default.
-        return new LinkedList <Operator <ITerm>>().iterator();
+        return Collections.emptyIterator();
     }
 
     /**
@@ -227,7 +228,7 @@ public abstract class HtBaseTerm extends TraversableState <ITerm> implements ITe
     /**
      * {@inheritDoc}
      */
-    public ITerm acceptTransformer ( ITermTransformer transformer ) {
+    public List <ITerm> acceptTransformer ( ITermTransformer transformer ) {
         return transformer.transform(this);
     }
 

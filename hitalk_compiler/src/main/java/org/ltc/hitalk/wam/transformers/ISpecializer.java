@@ -1,17 +1,15 @@
 package org.ltc.hitalk.wam.transformers;
 
-import com.thesett.aima.logic.fol.Term;
-import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.ITerm;
 
 import java.util.Collections;
 import java.util.List;
 
 /**
  * @param <T>
- * @param <TC>
  */
 public
-interface ISpecializer<T extends HtClause, TC extends Term> extends ITransformer <T, TC> {
+interface ISpecializer<T extends ITerm> extends ITransformer <T> {
 
     /**
      * @param clause

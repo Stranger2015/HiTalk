@@ -1,11 +1,9 @@
 package org.ltc.hitalk.wam.task;
 
-
-import com.thesett.aima.logic.fol.Term;
 import org.jetbrains.annotations.Contract;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
-import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.transformers.ITransformer;
 import org.ltc.hitalk.wam.transformers.TransformInfo;
 import org.slf4j.Logger;
@@ -15,12 +13,13 @@ import java.util.List;
 import java.util.function.Function;
 
 /**
- * created by Anthony on 31.01.2016.
+ *
+ *
  */
 public
-class TransformTask<T extends HtClause, TC extends Term>
-        extends CompilerTask <T, TC>
-        implements ITransformer <T, TC> {
+class TransformTask<T extends ITerm>
+        extends CompilerTask <T>
+        implements ITransformer <T> {
 
     /**
      * @param action
@@ -32,8 +31,8 @@ class TransformTask<T extends HtClause, TC extends Term>
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
-    protected ITransformer <T, TC> transformer;
-    protected List <TC> target;
+    protected ITransformer <T> transformer;
+    protected List <T> target;
     private IMetrics bestSoFar = initialMetrics();
     private TransformInfo <T> bestSoFarResult;
 
@@ -41,8 +40,7 @@ class TransformTask<T extends HtClause, TC extends Term>
      * @param target
      * @param transformer
      */
-    public
-    TransformTask ( List <TC> target, ITransformer <T, TC> transformer ) {
+    public TransformTask ( List <T> target, ITransformer <T> transformer ) {
         this(null, target);
         this.transformer = transformer;
     }
@@ -51,8 +49,7 @@ class TransformTask<T extends HtClause, TC extends Term>
      * @param action
      * @param target
      */
-    protected
-    TransformTask ( Function <T, List <T>> action, List <TC> target ) {
+    protected TransformTask ( Function <T, List <T>> action, List <T> target ) {
         super(action);
         this.target = target;
         transformer = this;//todo
@@ -63,8 +60,7 @@ class TransformTask<T extends HtClause, TC extends Term>
      * @param target
      * @param transformer
      */
-    public
-    TransformTask ( Function <T, List <T>> action, List <TC> target, ITransformer <T, TC> transformer ) {
+    public TransformTask ( Function <T, List <T>> action, List <T> target, ITransformer <T> transformer ) {
         super(action);
         this.target = target;
         this.transformer = transformer;
@@ -107,25 +103,25 @@ class TransformTask<T extends HtClause, TC extends Term>
             transformer.cancel();
         }
     }
+//
+//    /**
+//     *
+//     */
+//    @Override
+//    public final
+//    void message () {
+//        transformer.message();
+//    }
 
-    /**
-     *
-     */
-    @Override
-    public final
-    void message () {
-        transformer.message();
-    }
-
-    /**
-     *
-     */
-    @Override
-    public final
-    void reset () {
-        transformer.reset();
-    }
-
+//    /**
+//     *
+//     */
+//    @Override
+//    public final
+//    void reset () {
+//        transformer.reset();
+//    }
+//
     /**
      * @return
      */
@@ -134,11 +130,21 @@ class TransformTask<T extends HtClause, TC extends Term>
     ExecutionContext getContext () {
         return transformer.getContext();
     }
+//
+//    /**
+//     * @param context
+//     */
+//    @Override
+//    public final
+//    void setContext ( ExecutionContext context ) {
+//        transformer.setContext(context);
+//    }
+//
 
     /**
      * @param context
      */
-    @Override
+//    @Override
     public final
     void setContext ( ExecutionContext context ) {
         transformer.setContext(context);
@@ -148,29 +154,29 @@ class TransformTask<T extends HtClause, TC extends Term>
      * @param max
      * @return
      */
-    @Override
+//    @Override
     public
     boolean isAcceptable ( IMetrics max ) {
         return transformer.isAcceptable(max);
     }
-
-    /**
-     *
-     */
-    @Override
-    public final
-    void cancel () {
-        transformer.cancel();
-    }
-
-    /**
-     * @return
-     */
-    @Override
-    public final
-    TransformInfo getBestSoFarResult () {
-        return transformer.getBestSoFarResult();
-    }
+//
+//    /**
+//     *
+//     */
+//    @Override
+//    public final
+//    void cancel () {
+//        transformer.cancel();
+//    }
+//
+//    /**
+//     * @return
+//     */
+//    @Override
+//    public final
+//    TransformInfo getBestSoFarResult () {
+//        return transformer.getBestSoFarResult();
+//    }
 
     /**
      * Applies a transformation to the term.
@@ -178,23 +184,11 @@ class TransformTask<T extends HtClause, TC extends Term>
      * @param t The term to transform.
      * @return A term which is a transformation of the argument.
      */
-    public
-    T transform ( T t ) {
-        return (T) transformer.transform(t);
-    }
-
-    /**
-     * @param t
-     * @return
-     */
-    @Override
-    public
-    TC transform ( TC t ) {
+    public List <T> transform ( T t ) {
         return transformer.transform(t);
     }
 
-    public final
-    List <TC> getTarget () {
-        return target;
+    public void cancel () {
+
     }
 }

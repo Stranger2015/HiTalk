@@ -1,14 +1,10 @@
 package org.ltc.hitalk;
 
 import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.logic.fol.Variable;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
 import org.ltc.hitalk.entities.HtProperty;
-import org.ltc.hitalk.term.Atom;
-import org.ltc.hitalk.term.FloatTerm;
-import org.ltc.hitalk.term.IntTerm;
-import org.ltc.hitalk.term.ListTerm;
+import org.ltc.hitalk.term.*;
 import org.ltc.hitalk.term.ListTerm.Kind;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
@@ -43,7 +39,7 @@ interface ITermFactory {
     /**
      * 変数を作成します。
      */
-    Variable newVariable ( String value );
+    HtVariable newVariable ( String value );
 
     /**
      * @param s

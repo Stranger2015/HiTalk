@@ -1,13 +1,13 @@
 package org.ltc.hitalk.wam.compiler;
 
 
-import com.thesett.aima.logic.fol.Term;
+import org.ltc.hitalk.term.ITerm;
 
 /**
  * atom, compound, or var
  */
 public
-interface ICallable extends Term {
+interface ICallable extends ITerm {
     /**
      * Reports whether or not this term is a number.
      *

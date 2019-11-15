@@ -1,7 +1,7 @@
 package org.ltc.hitalk.compiler.bktables;
 
-import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.task.TransformTask;
 
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.List;
  *
  */
 public
-interface IComposite<T extends HtClause, TC extends Term, TT extends TransformTask <T, TC>> {
+interface IComposite<T extends HtClause, TC extends ITerm, TT extends TransformTask <T, TC>> {
     /**
      * @param t
      */

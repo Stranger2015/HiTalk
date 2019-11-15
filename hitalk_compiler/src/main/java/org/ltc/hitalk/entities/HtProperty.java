@@ -1,6 +1,7 @@
 package org.ltc.hitalk.entities;
 
-import com.thesett.aima.logic.fol.Term;
+import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.ListTerm;
 
 /**
  *
@@ -9,7 +10,7 @@ public
 class HtProperty implements IProperty {
     //    protected HtType type;
     protected String name;
-    protected Term value;
+    protected ITerm value;
 
     /**
      * @param name
@@ -42,17 +43,15 @@ class HtProperty implements IProperty {
     /**
      * @return
      */
-    public
-    Term getValue () {
+    public ITerm getValue () {
         return value;
     }
 
     /**
      * @param term
      */
-    @Override
-    public
-    void setValue ( Term term ) {
+//    @Override
+    public void setValue ( ITerm term ) {
         if (!value.equals(term)) {
             value = term;
         }
@@ -62,8 +61,7 @@ class HtProperty implements IProperty {
      * @param name
      * @param value
      */
-    public
-    HtProperty ( String name, Term value ) {
+    public HtProperty ( String name, ITerm value ) {
 //        this.type = type;
         this.name = name;
         this.value = value;

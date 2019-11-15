@@ -24,6 +24,7 @@ import com.thesett.common.util.doublemaps.SymbolKey;
 import org.ltc.hitalk.compiler.IVafInterner;
 
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Term is the root abstract type of all terms in first order logic extended with standard definitions of various
@@ -137,7 +138,9 @@ public interface ITerm extends ReTraversable <ITerm>, Operator <ITerm> {
      *
      * @return The term itself, or the assigned value for variables.
      */
-    ITerm getValue ();
+    default ITerm getValue () {
+        return this;
+    }
 
     /**
      * Gets this terms allocation cell. This is an extra value that may be of use during compilation.
@@ -248,7 +251,7 @@ public interface ITerm extends ReTraversable <ITerm>, Operator <ITerm> {
      * @param transformer The transformation function to apply.
      * @return The transformed term tree.
      */
-    ITerm acceptTransformer ( ITermTransformer transformer );
+    List <ITerm> acceptTransformer ( ITermTransformer transformer );
 
     /**
      * Pretty prints a term relative to the symbol namings provided by the specified interner.

@@ -1,8 +1,8 @@
 package org.ltc.hitalk.wam.task;
 
-import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.compiler.bktables.IComposite;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.transformers.ITransformer;
 
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ import java.util.function.Function;
  * variable_names	A list of `Name = Var' of the last term read. See read_term/2 for details.
  */
 public
-class TermRewriteTask<T extends HtClause, TC extends Term, TT extends TransformTask <T, TC>>
+class TermRewriteTask<T extends HtClause, TC extends ITerm, TT extends TransformTask <T, TC>>
         extends StandardPreprocessor <T, TC>
         implements IComposite <T, TC, TT>, ITransformer <T, TC> {
 
@@ -67,25 +67,5 @@ class TermRewriteTask<T extends HtClause, TC extends Term, TT extends TransformT
     public
     List <TT> getComponents () {
         return rewriteTasks;
-    }
-
-    /**
-     * @param t
-     * @return
-     */
-    @Override
-    public
-    T transform ( T t ) {
-        return null;
-    }
-
-    /**
-     * @param tc
-     * @return
-     */
-    @Override
-    public
-    TC transform ( TC tc ) {
-        return null;
     }
 }

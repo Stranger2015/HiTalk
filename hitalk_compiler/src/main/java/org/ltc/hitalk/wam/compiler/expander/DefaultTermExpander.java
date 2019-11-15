@@ -1,7 +1,7 @@
 package org.ltc.hitalk.wam.compiler.expander;
 
-import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.builtins.Bypass;
 import org.ltc.hitalk.wam.task.TermRewriteTask;
 import org.ltc.hitalk.wam.transformers.ITransformer;
@@ -15,7 +15,7 @@ import java.util.function.Function;
  *
  */
 public
-class DefaultTermExpander<T extends HtClause, TC extends Term, TT extends TermRewriteTask <T, TC, TT>>
+class DefaultTermExpander<T extends HtClause, TC extends ITerm, TT extends TermRewriteTask <T, TC, TT>>
         extends TermRewriteTask <T, TC, TT> {
 
     protected final Function <TC, List <TC>> dcgExpansionAction = this::dcgExpansion;
@@ -67,6 +67,10 @@ class DefaultTermExpander<T extends HtClause, TC extends Term, TT extends TermRe
         List <TC> result = new ArrayList <>();
 
         return result;
+    }
+
+    public void run () {
+
     }
 }
 

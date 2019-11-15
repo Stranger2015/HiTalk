@@ -1,20 +1,21 @@
 package org.ltc.hitalk.parser;
 
-import com.thesett.aima.logic.fol.IVafInterner;
 import com.thesett.aima.logic.fol.Sentence;
-import com.thesett.aima.logic.fol.Term;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.ITermFactory;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.ltc.hitalk.term.HlOpSymbol.Associativity;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.Language;
 
 import java.io.IOException;
 
+import static org.ltc.hitalk.parser.PrologAtoms.*;
 import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
 import static org.ltc.hitalk.wam.compiler.Language.HITALK;
 
@@ -93,28 +94,28 @@ public class HiTalkParser implements IParser {
     public void initializeBuiltIns () {
         parser.initializeBuiltIns();
 //Logtalk operators
-        internOperator(PrologAtoms.COLON_COLON, 600, xfy);
-        internOperator(PrologAtoms.COLON_COLON, 600, fy);// message sending to "self"
-        internOperator(PrologAtoms.UP_UP, 600, fy);// "super" call (calls an inherited or imported method definition)
+        internOperator(COLON_COLON, 600, xfy);
+        internOperator(COLON_COLON, 600, fy);// message sending to "self"
+        internOperator(UP_UP, 600, fy);// "super" call (calls an inherited or imported method definition)
         // mode operator
-        internOperator(PrologAtoms.PLUS, 200, fy);// input argument (instantiated); ISO Prolog standard operator
-        internOperator(PrologAtoms.AT, 200, fy);// input argument (not modified by the call)
-        internOperator(PrologAtoms.QUESTION, 200, fy);// input/output argument
-        internOperator(PrologAtoms.MINUS, 200, fy);// output argument (not instantiated); ISO Prolog standard operator
-        internOperator(PrologAtoms.PLUS_PLUS, 200, fy);// ground argument
-        internOperator(PrologAtoms.MINUS_MINUS, 200, fy);// unbound argument (typically when returning an opaque term)
-        internOperator(PrologAtoms.LSHIFT, 400, yfx);// bitwise left-shift operator (used for context-switching calls)
+        internOperator(PLUS, 200, fy);// input argument (instantiated); ISO Prolog standard operator
+        internOperator(AT, 200, fy);// input argument (not modified by the call)
+        internOperator(QUESTION, 200, fy);// input/output argument
+        internOperator(MINUS, 200, fy);// output argument (not instantiated); ISO Prolog standard operator
+        internOperator(PLUS_PLUS, 200, fy);// ground argument
+        internOperator(MINUS_MINUS, 200, fy);// unbound argument (typically when returning an opaque term)
+        internOperator(LSHIFT, 400, yfx);// bitwise left-shift operator (used for context-switching calls)
         // some backend Prolog compilers don't declare this ISO Prolog standard operator!
-        internOperator(PrologAtoms.RSHIFT, 400, yfx);// bitwise right-shift operator (used for lambda expressions)
+        internOperator(RSHIFT, 400, yfx);// bitwise right-shift operator (used for lambda expressions)
         // some backend Prolog compilers don't declare this ISO Prolog standard operator!
-        internOperator(PrologAtoms.AS, 700, xfx);// predicate alias operator (alternative to the ::/2 or :/2 operators depending on the context)
+        internOperator(AS, 700, xfx);// predicate alias operator (alternative to the ::/2 or :/2 operators depending on the context)
 // first introduced in SWI-Prolog and YAP also for defining aliases to module predicates
 
 // HiTalk operator
-        internOperator(PrologAtoms.PUBLIC, 1150, fx);
-        internOperator(PrologAtoms.PROTECTED, 1150, fx);
-        internOperator(PrologAtoms.PRIVATE, 1150, fx);
-        internOperator(PrologAtoms.ENUMERATION, 1150, fx);
+        internOperator(PUBLIC, 1150, fx);
+        internOperator(PROTECTED, 1150, fx);
+        internOperator(PRIVATE, 1150, fx);
+        internOperator(ENUMERATION, 1150, fx);
     }
 
     @Override
@@ -123,12 +124,12 @@ public class HiTalkParser implements IParser {
     }
 
     @Override
-    public HtClause convert ( Term t ) {
+    public HtClause convert ( ITerm t ) {
         return null;
     }
 
     @Override
-    public Sentence <Term> parse () throws SourceCodeException, IOException, ParseException {
+    public Sentence <ITerm> parse () throws SourceCodeException, IOException, ParseException {
         return parser.parse();
     }
 

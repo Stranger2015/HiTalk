@@ -1,18 +1,17 @@
 package org.ltc.hitalk.wam.machine;
 
-import com.thesett.aima.logic.fol.IVafInterner;
 import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.common.parsing.SourceCodeException;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.parser.HiTalkParser;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.IParser;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
+import org.ltc.hitalk.term.ITerm;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Logger;
 
@@ -91,7 +90,7 @@ class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P
             }
 
             compiler.endScope();
-        } catch (SourceCodeException | ParseException | IOException e) {
+        } catch (SourceCodeException e) {
             // There should not be any errors in the built in library, if there are then the prolog engine just
             // isn't going to work, so report this as a bug.
             throw new IllegalStateException("Got an exception whilst loading the built-in library.", e);
@@ -102,4 +101,7 @@ class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P
 
     }
 
+    public HtClause convert ( ITerm t ) {
+        return null;
+    }
 }

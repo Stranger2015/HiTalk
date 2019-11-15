@@ -1,11 +1,16 @@
 package org.ltc.hitalk.core.utils;
 
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.FreeNonAnonymousVariablePredicate;
+import com.thesett.aima.logic.fol.FreeVariablePredicate;
 import com.thesett.aima.search.QueueBasedSearchMethod;
 import com.thesett.aima.search.util.Searches;
 import com.thesett.aima.search.util.uninformed.DepthFirstSearch;
 import com.thesett.common.parsing.SourceCodeException;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.HlOpSymbol;
+import org.ltc.hitalk.term.HtVariable;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.util.LinkedList;
@@ -34,13 +39,13 @@ public class TermUtilities {
      * @param query The term to calculate the free non-anonymous variable set from.
      * @return A set of variables that are free and non-anonymous in the term.
      */
-    public static Set <Variable> findFreeVariables ( Term query ) {
-        QueueBasedSearchMethod <Term, Term> freeVarSearch = new DepthFirstSearch <>();
+    public static Set <HtVariable> findFreeVariables ( ITerm query ) {
+        QueueBasedSearchMethod <ITerm, ITerm> freeVarSearch = new DepthFirstSearch <>();
         freeVarSearch.reset();
         freeVarSearch.addStartState(query);
-        freeVarSearch.setGoalPredicate(new FreeVariablePredicate());
+        freeVarSearch.setGoalPredicate(new FreeVarPredicate());
 
-        return (Set <Variable>) (Set) Searches.setOf(freeVarSearch);
+        return (Set <HtVariable>) (Set) Searches.setOf(freeVarSearch);
     }
 
     /**
@@ -50,13 +55,13 @@ public class TermUtilities {
      * @param query The term to calculate the free non-anonymous variable set from.
      * @return A set of variables that are free and non-anonymous in the term.
      */
-    public static Set <Variable> findFreeNonAnonymousVariables ( Term query ) {
-        QueueBasedSearchMethod <Term, Term> freeVarSearch = new DepthFirstSearch <Term, Term>();
+    public static Set <HtVariable> findFreeNonAnonVariables ( ITerm query ) {
+        QueueBasedSearchMethod <ITerm, ITerm> freeVarSearch = new DepthFirstSearch <>();
         freeVarSearch.reset();
         freeVarSearch.addStartState(query);
-        freeVarSearch.setGoalPredicate(new FreeNonAnonymousVariablePredicate());
+        freeVarSearch.setGoalPredicate(new FreeNonAnonVarPredicate());
 
-        return (Set <Variable>) (Set) Searches.setOf(freeVarSearch);
+        return (Set <HtVariable>) (Set) Searches.setOf(freeVarSearch);
     }
 
     /**
@@ -76,12 +81,12 @@ public class TermUtilities {
      * @return A sequence of terms parsed as a term, then flattened back into a list seperated on commas.
      * @throws SourceCodeException If any of the extracted terms encountered do not extend the superclass.
      */
-    public static <T extends Term> List <T> flattenTerm ( Term term, Class <T> superClass, String symbolToFlattenOn,
-                                                          IVafInterner interner ) throws SourceCodeException {
-        List <T> terms = new LinkedList <T>();
+    public static <T extends ITerm> List <T> flattenTerm ( ITerm term, Class <T> superClass, String symbolToFlattenOn,
+                                                           IVafInterner interner ) throws SourceCodeException {
+        List <T> terms = new LinkedList <>();
 
         // Used to hold the next term to examine as operators are flattened.
-        Term nextTerm = term;
+        ITerm nextTerm = term;
 
         // Used to indicate when there are no more operators to flatten.
         boolean mayBeMoreCommas = true;
@@ -94,7 +99,7 @@ public class TermUtilities {
             if (!nextTerm.isBracketed() && (nextTerm instanceof IFunctor) &&
                     (symbolName == (((IFunctor) nextTerm).getName()))) {
                 IFunctor op = (IFunctor) nextTerm;
-                Term termToExtract = op.getArgument(0);
+                ITerm termToExtract = op.getArgument(0);
 
                 if (superClass.isInstance(termToExtract)) {
                     terms.add(superClass.cast(termToExtract));
@@ -132,11 +137,11 @@ public class TermUtilities {
      * @param internedName The interned name of the symbol to flatten on.
      * @return A sequence of terms parsed as a term, then flattened back into a list seperated on commas.
      */
-    public static <T extends Term> List <T> flattenTerm ( Term term, Class <T> superClass, int internedName ) {
+    public static <T extends ITerm> List <T> flattenTerm ( ITerm term, Class <T> superClass, int internedName ) {
         List <T> terms = new LinkedList <T>();
 
         // Used to hold the next term to examine as operators are flattened.
-        Term nextTerm = term;
+        ITerm nextTerm = term;
 
         // Used to indicate when there are no more operators to flatten.
         boolean mayBeMore = true;
@@ -146,7 +151,7 @@ public class TermUtilities {
             if (!nextTerm.isBracketed() && (nextTerm instanceof IFunctor) &&
                     (internedName == (((IFunctor) nextTerm).getName()))) {
                 IFunctor op = (IFunctor) nextTerm;
-                Term termToExtract = op.getArgument(0);
+                ITerm termToExtract = op.getArgument(0);
 
                 if (superClass.isInstance(termToExtract)) {
                     terms.add(superClass.cast(termToExtract));
@@ -180,26 +185,26 @@ public class TermUtilities {
      * @return A clause for the term, or <tt>null</tt> if it cannot be converted.
      * @throws SourceCodeException If the term to convert to a clause does not form a valid clause.
      */
-    public static HtClause convertToClause ( Term term, IVafInterner interner ) throws SourceCodeException {
+    public static <T extends ITerm> HtClause convertToClause ( T term, IVafInterner interner ) throws SourceCodeException {
         // Check if the top level term is a query, an implication or neither and reduce the term into a clause
         // accordingly.
-        if (term instanceof OpSymbol) {
-            OpSymbol symbol = (OpSymbol) term;
+        if (term instanceof HlOpSymbol) {
+            HlOpSymbol symbol = (HlOpSymbol) term;
 
             if (":-".equals(symbol.getTextName())) {
-                List <IFunctor> flattenedArgs = flattenTerm(symbol.getArgument(1), IFunctor.class, ",", interner);
+                List <T> flattenedArgs = flattenTerm(symbol.getArgument(1), IFunctor.class, ",", interner);
 
-                return new HtClause((IFunctor) symbol.getArgument(0),
+                return new HtClause((T) symbol.getArgument(0),
                         flattenedArgs.toArray(new IFunctor[flattenedArgs.size()]));
             } else if ("?-".equals(symbol.getTextName())) {
-                List <IFunctor> flattenedArgs = flattenTerm(symbol.getArgument(0), IFunctor.class, ",", interner);
+                List <F> flattenedArgs = flattenTerm(symbol.getArgument(0), IFunctor.class, ",", interner);
 
-                return new HtClause(null, flattenedArgs.toArray(new IFunctor[flattenedArgs.size()]));
+                return new HtClause(null, flattenedArgs.toArray(new F[flattenedArgs.size()]));
             }
         }
 
-        if (term instanceof IFunctor) {
-            return new HtClause(null, (IFunctor) term, null);
+        if (term instanceof F) {
+            return new HtClause(null, (F) term, null);
         } else {
             throw new SourceCodeException("Only functors can for a clause body, not " + term + ".", null, null, null,
                     term.getSourceCodePosition());

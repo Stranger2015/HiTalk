@@ -20,6 +20,7 @@ import com.thesett.aima.logic.fol.*;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.Filterator;
 import com.thesett.common.util.Source;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
@@ -27,13 +28,18 @@ import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
-import org.ltc.hitalk.term.HlOpSymbol;
+import org.ltc.hitalk.term.HtVariable;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HiTalkStream;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static org.ltc.hitalk.term.HlOpSymbol.Associativity;
 
 /**
  * ResolutionEngine combines together a logic {@link Parser}, a {@link IVafInterner} that acts as a symbol
@@ -134,7 +140,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
 
         // Consult the type checking rules and add them to the knowledge base.
         while (true) {
-            Sentence <Term> sentence = getParser().parse();
+            Sentence <ITerm> sentence = getParser().parse();
 
             if (sentence == null) {
                 break;
@@ -150,10 +156,10 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * @param solution An iterable over the variables in the solution.
      * @return All the variables printed as a string, one per line.
      */
-    public String printSolution ( Iterable <Variable> solution ) {
+    public String printSolution ( Iterable <HtVariable> solution ) {
         StringBuilder result = new StringBuilder();
 
-        for (Variable var : solution) {
+        for (HtVariable var : solution) {
             result.append(printVariableBinding(var)).append("\n");
         }
 
@@ -166,14 +172,10 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * @param variables An iterable over the variables in the solution.
      * @return All the variables printed as a string, one per line.
      */
-    public String printSolution ( Map <String, Variable> variables ) {
-        StringBuilder result = new StringBuilder();
+    public String printSolution ( Map <String, HtVariable> variables ) {
 
-        for (Map.Entry <String, Variable> entry : variables.entrySet()) {
-            result.append(printVariableBinding(entry.getValue())).append("\n");
-        }
-
-        return result.toString();
+        return variables.values().stream().map(variable ->
+                printVariableBinding(variable) + "\n").collect(Collectors.joining());
     }
 
     /**
@@ -182,7 +184,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * @param var The variable to print.
      * @return The variable binding in the form 'Var = value'.
      */
-    public String printVariableBinding ( Term var ) {
+    public String printVariableBinding ( ITerm var ) {
         return var.toString(getInterner(), true, false) + " = " + var.getValue().toString(getInterner(), false, true);
     }
 
@@ -270,21 +272,21 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     /**
      * {@inheritDoc}
      */
-    public FunctorName getFunctorFunctorName ( Functor functor ) {
+    public FunctorName getFunctorFunctorName ( IFunctor functor ) {
         return interner.getFunctorFunctorName(functor);
     }
 
     /**
      * {@inheritDoc}
      */
-    public String getFunctorName ( Functor functor ) {
+    public String getFunctorName ( IFunctor functor ) {
         return interner.getFunctorName(functor);
     }
 
     /**
      * {@inheritDoc}
      */
-    public int getFunctorArity ( Functor functor ) {
+    public int getFunctorArity ( IFunctor functor ) {
         return interner.getFunctorArity(functor);
     }
 
@@ -300,14 +302,18 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      *
      * @return
      */
-    public Sentence <Term> parse () throws SourceCodeException, IOException, ParseException {
+    public Sentence <ITerm> parse () throws SourceCodeException, IOException, ParseException {
         return parser.parse();
+    }
+
+    public HtClause convert ( ITerm t ) {
+        return null;
     }
 
     /**
      * {@inheritDoc}
      */
-    public void setOperator ( String operatorName, int priority, HlOpSymbol.Associativity associativity ) {
+    public void setOperator ( String operatorName, int priority, Associativity associativity ) {
         parser.setOperator(operatorName, priority, associativity);
     }
 

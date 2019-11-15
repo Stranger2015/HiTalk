@@ -1,7 +1,10 @@
 package org.ltc.hitalk.wam.compiler.hitalk;
 
 
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.LinkageException;
+import com.thesett.aima.logic.fol.LogicCompilerObserver;
+import com.thesett.aima.logic.fol.Resolver;
+import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
@@ -12,6 +15,7 @@ import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.expander.DefaultTermExpander;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.task.StandardPreprocessor;
@@ -20,16 +24,15 @@ import org.ltc.hitalk.wam.transformers.DefaultTransformer;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
  *
  */
-public class HiTalkPreprocessor<TC extends Term, TT extends TransformTask <HtClause, TC>>
+public class HiTalkPreprocessor<T extends ITerm, TT extends TransformTask <T>>
         extends HiTalkPreCompiler {
 
-    protected final DefaultTransformer <HtClause, TC> defaultTransformer;
+    protected final DefaultTransformer <T> defaultTransformer;
     //    protected final HiTalkDefaultBuiltIn defaultBuiltIn;
     //    protected final HiTalkBuiltInTransform builtInTransform;
     protected final List <TT> components = new ArrayList <>();
@@ -64,7 +67,7 @@ public class HiTalkPreprocessor<TC extends Term, TT extends TransformTask <HtCla
 
 //        this.builtInTransform = new HiTalkBuiltInTransform(defaultBuiltIn);
 
-        defaultTransformer = new DefaultTransformer <>((HtClause) null);
+        defaultTransformer = new DefaultTransformer <>(null);
 
 //        int i = interner.internFunctorName(BEGIN_OF_FILE, 0);
 //        Term target = new Functor(i, Atom.EMPTY_TERM_ARRAY);
@@ -97,16 +100,19 @@ public class HiTalkPreprocessor<TC extends Term, TT extends TransformTask <HtCla
         preCompiledTarget = clauses;
     }
 
+    protected List <HtClause> preprocess ( HtClause t ) {
+        return null;
+    }
+
     /**
      * @param t
      * @return
      */
-    protected List <HtClause> preprocess ( HtClause t ) {
-        List <HtClause> list = new ArrayList <>();
+    protected List <T> preprocess ( T t ) {
+        List <T> list = new ArrayList <>();
 
-        for (TransformTask <HtClause, TC> task : components) {
-            list.addAll(task.invoke(t));
-        }
+        components.stream().map(task -> task.invoke(t)).forEach(list::addAll);
+
         return list;
     }
 
@@ -145,11 +151,17 @@ public class HiTalkPreprocessor<TC extends Term, TT extends TransformTask <HtCla
         return components;
     }
 
-    private
-    List <TC> apply ( TC tc ) {
-        return Collections.singletonList(tc);
-    }
+//    private
+//    List <TC> apply ( TC tc ) {
+//        return Collections.singletonList(tc);
+//    }
 
+    /**
+     * @param tokenSource
+     * @param flags
+     * @throws IOException
+     * @throws SourceCodeException
+     */
     @Override
     public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException {
 

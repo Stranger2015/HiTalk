@@ -16,7 +16,7 @@
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.LinkageException;
-import com.thesett.aima.logic.fol.TermVisitor;
+import org.ltc.hitalk.term.ITermVisitor;
 
 /**
  * FunctorVisitor provides a visitor pattern over functors.
@@ -28,7 +28,7 @@ import com.thesett.aima.logic.fol.TermVisitor;
  *
  * @author Rupert Smith
  */
-public interface IFunctorVisitor extends TermVisitor {
+public interface IFunctorVisitor extends ITermVisitor {
     /**
      * Visits a functor.
      *

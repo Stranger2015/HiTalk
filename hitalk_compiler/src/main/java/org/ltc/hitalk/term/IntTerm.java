@@ -1,12 +1,14 @@
 package org.ltc.hitalk.term;
 
-import com.thesett.aima.logic.fol.IntLiteral;
-import com.thesett.aima.logic.fol.Term;
+import com.thesett.aima.search.Operator;
+import org.ltc.hitalk.compiler.IVafInterner;
+
+import java.util.List;
 
 /**
  *
  */
-public class IntTerm extends IntLiteral implements Term {
+public class IntTerm extends IntegerLiteral implements ITerm {
     /**
      * Creates a new number with the specified value.
      *
@@ -16,14 +18,28 @@ public class IntTerm extends IntLiteral implements Term {
         super(value);
     }
 
-    @Override
-    public Term getValue () {
-        return null;
-    }
-
+    /**
+     *
+     */
     @Override
     public void free () {
 
+    }
+
+    public void accept ( ITermVisitor visitor ) {
+        visitor.visit(this);
+    }
+
+    public List <ITerm> acceptTransformer ( ITermTransformer transformer ) {
+        return transformer.transform(this);
+    }
+
+    public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
+        return toString();
+    }
+
+    public boolean structuralEquals ( ITerm term ) {
+        return false;
     }
 
     @Override
@@ -40,4 +56,8 @@ public class IntTerm extends IntLiteral implements Term {
     public boolean isGround () {
         return true;
     }
+
+    public ITerm getChildStateForOperator ( Operator <ITerm> op ) {
+        return null;
+    }//fixme
 }

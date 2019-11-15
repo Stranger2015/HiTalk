@@ -17,6 +17,8 @@
 
     import org.ltc.hitalk.term.ITermTransformer;
 
+    import java.util.List;
+
     /**
      * FunctorVisitor implements a transformation from functors to functors.
      *
@@ -34,6 +36,6 @@
          * @param functor The functor to transform.
          * @return A functor which is a transformation of the argument.
          */
-        IFunctor transform ( IFunctor functor );
+        List <IFunctor> transform ( IFunctor functor );
     }
 

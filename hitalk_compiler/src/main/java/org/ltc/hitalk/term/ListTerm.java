@@ -1,9 +1,8 @@
 package org.ltc.hitalk.term;
 
-import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.search.Operator;
 import com.thesett.aima.search.Traversable;
-import org.ltc.hitalk.compiler.VafInterner;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
@@ -55,13 +54,13 @@ public class ListTerm extends HtFunctor implements ITerm, IFunctor {
      *
      * @return
      */
-    public Term[] getHeads () {
-        Term[] args = getArguments();
+    public ITerm[] getHeads () {
+        ITerm[] args = getArguments();
         if (args.length <= 1) {
             return EMPTY_TERM_ARRAY;
         } else {
             int headsLen = args.length - 2;
-            Term[] heads = new Term[headsLen];
+            ITerm[] heads = new ITerm[headsLen];
             System.arraycopy(args, 1, heads, 0, headsLen);
 
             return heads;
@@ -91,7 +90,7 @@ public class ListTerm extends HtFunctor implements ITerm, IFunctor {
         return getHeads().length;
     }
 
-    public Term get ( int i ) {
+    public ITerm get ( int i ) {
         if (size() == i) {
             return TRUE;
         }
@@ -110,7 +109,7 @@ public class ListTerm extends HtFunctor implements ITerm, IFunctor {
         return null;
     }
 
-    public void setArguments ( Term[] terms ) {
+    public void setArguments ( ITerm[] terms ) {
 
     }
 
@@ -118,17 +117,10 @@ public class ListTerm extends HtFunctor implements ITerm, IFunctor {
         return 0;
     }
 
-    public Term getArityTerm () {
+    public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
         return null;
     }
 
-    public String toString ( VafInterner interner, boolean printVarName, boolean printBindings ) {
-        return null;
-    }
-
-    public boolean structuralEquals ( ITerm term ) {
-        return false;
-    }
 
     public Traversable <ITerm> getChildStateForOperator ( Operator <ITerm> op ) {
         return null;
@@ -148,6 +140,7 @@ public class ListTerm extends HtFunctor implements ITerm, IFunctor {
         IF,
         TRUE,
         GOAL(),
+        HILOG_APPLY,
         INLINE_GOAL,
         OTHER();
 

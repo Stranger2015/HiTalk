@@ -28,6 +28,7 @@ import com.thesett.common.util.Sizeable;
 import com.thesett.common.util.SizeableLinkedList;
 import com.thesett.common.util.SizeableList;
 import com.thesett.common.util.doublemaps.SymbolKey;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
 
 import java.nio.ByteBuffer;
@@ -797,7 +798,7 @@ class HiTalkWAMInstruction implements Sizeable {
             /** {@inheritDoc} */
             public
             void emitCode ( HiTalkWAMInstruction instruction, ByteBuffer codeBuf, HiTalkWAMMachine machine ) {
-                emitCodeReg1Fn(codeBuf, code, instruction, machine);
+                emitCodeReg1Fn(codeBuf, code, instruction, (IVafInterner) machine);
             }
 
             /** {@inheritDoc} */
@@ -834,7 +835,7 @@ class HiTalkWAMInstruction implements Sizeable {
             /** {@inheritDoc} */
             public
             void emitCode ( HiTalkWAMInstruction instruction, ByteBuffer codeBuf, HiTalkWAMMachine machine ) {
-                emitCodeReg1Fn(codeBuf, code, instruction, machine);
+                emitCodeReg1Fn(codeBuf, code, instruction, (IVafInterner) machine);
             }
 
             /** {@inheritDoc} */

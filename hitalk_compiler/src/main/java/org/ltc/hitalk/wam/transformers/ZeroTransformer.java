@@ -1,9 +1,8 @@
 package org.ltc.hitalk.wam.transformers;
 
 
-import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.entities.context.IMetrics;
-import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.ITerm;
 
 /**
  * Doing-nothing transformer.
@@ -12,7 +11,7 @@ import org.ltc.hitalk.parser.HtClause;
  * Created by Anthony on 28.06.2015.
  */
 public
-class ZeroTransformer<T extends HtClause, TC extends Term> extends DefaultTransformer <T, TC> {
+class ZeroTransformer<T extends ITerm> extends DefaultTransformer <T> {
 //       private static final Logger logger = LoggerFactory.getLogger( ZeroTransformer.class.getName() );
 
     /**
@@ -22,29 +21,23 @@ class ZeroTransformer<T extends HtClause, TC extends Term> extends DefaultTransf
     ZeroTransformer () {
         super();
     }
+//
+//    /**
+//     *
+//     */
+//    @Override
+//    public
+//    void reset () {
+//    }
 
-    /**
-     *
-     */
-    @Override
-    public
-    void reset () {
-    }
-
-    @Override
-    public
-    ITransformer <T, TC> getTransformer () {
-        return this;
-    }
-
-    /**
-     *
-     */
-    @Override
-    public
-    void message () {
-//        logger.info("Default transformation");
-    }
+//    /**
+//     *
+//     */
+//    @Override
+//    public
+//    void message () {
+////        logger.info("Default transformation");
+//    }
 
     /**
      * Always returns true for this transformer.
@@ -61,6 +54,6 @@ class ZeroTransformer<T extends HtClause, TC extends Term> extends DefaultTransf
     @Override
     public
     TransformInfo getBestSoFarResult () {
-        return null;
+        return new TransformInfo();
     }
 }

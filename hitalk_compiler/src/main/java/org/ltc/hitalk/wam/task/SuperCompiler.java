@@ -1,21 +1,22 @@
 package org.ltc.hitalk.wam.task;
 
-import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.core.ptree.ProcessTree;
-import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.transformers.IGeneralizer;
 import org.ltc.hitalk.wam.transformers.IInliner;
 import org.ltc.hitalk.wam.transformers.ISpecializer;
 import org.ltc.hitalk.wam.transformers.ITransformer;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
  *
  */
 public
-class SuperCompiler<T extends HtClause, TC extends Term> extends StandardPreprocessor <T, TC>
-        implements IInliner <T, TC>, ISpecializer <T, TC>, IGeneralizer <T, TC>, ITransformer <T, TC> {
+class SuperCompiler<T extends ITerm>
+        extends StandardPreprocessor <T>
+        implements IInliner <T>, ISpecializer <T>, IGeneralizer <T>, ITransformer <T> {
 
     private ProcessTree pTree;
 
@@ -23,8 +24,7 @@ class SuperCompiler<T extends HtClause, TC extends Term> extends StandardPreproc
      * @param target
      * @param transformer
      */
-    public
-    SuperCompiler ( List <TC> target, ITransformer transformer ) {
+    public SuperCompiler ( List <T> target, ITransformer transformer ) {
         super(null, target, transformer);
     }
 
@@ -165,9 +165,8 @@ class SuperCompiler<T extends HtClause, TC extends Term> extends StandardPreproc
      * @return
      */
     @Override
-    public
-    T generalize ( T clause ) {
-        return clause;
+    public List <T> inline ( T clause ) {
+        return Collections.singletonList(clause);
     }
 
     /**
@@ -175,9 +174,8 @@ class SuperCompiler<T extends HtClause, TC extends Term> extends StandardPreproc
      * @return
      */
     @Override
-    public
-    T inline ( T clause ) {
-        return clause;
+    public List <T> generalize ( T clause ) {
+        return Collections.singletonList(clause);
     }
 
     /**
@@ -186,10 +184,9 @@ class SuperCompiler<T extends HtClause, TC extends Term> extends StandardPreproc
      * @param clause The clause to transform.
      * @return A clause which is a transformation of the argument.
      */
-    @Override
-    public
-    T transform ( T clause ) {
-        T newClause = clause;
+//    @Override
+    public List <T> transform ( T clause ) {
+        List <T> newClause;
         switch (mode) {
             case INLINE_MODE:
                 newClause = inline(clause);
@@ -204,7 +201,6 @@ class SuperCompiler<T extends HtClause, TC extends Term> extends StandardPreproc
                 throw new IllegalStateException("Unexpected value: " + mode);
         }
 
-
         return newClause;
     }
 
@@ -213,14 +209,12 @@ class SuperCompiler<T extends HtClause, TC extends Term> extends StandardPreproc
      * @return
      */
     @Override
-    public List <HtClause> specialize ( T clause ) {
-        return clause;
+    public List <T> specialize ( T clause ) {
+        return Collections.singletonList(clause);
     }
-
 
     public
     void setMode ( TransformMode mode ) {
         this.mode = mode;
     }
-
 }

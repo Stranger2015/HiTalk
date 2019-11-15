@@ -37,7 +37,7 @@ interface IRangedArity {
     default
     int getArityDelta () {
         return (getArityInt() << 8) & 0xfff0;
-    }//
+    }
 
     /**
      * @return

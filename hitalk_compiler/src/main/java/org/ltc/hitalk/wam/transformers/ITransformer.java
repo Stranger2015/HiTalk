@@ -1,9 +1,8 @@
 package org.ltc.hitalk.wam.transformers;
 
-import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
-import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.ITerm;
 
 import java.util.List;
 
@@ -11,21 +10,21 @@ import java.util.List;
  * Created by Anthony on 28.06.2015.
  */
 public
-interface ITransformer<T extends HtClause, TC extends Term> extends IOperation {
+interface ITransformer<T extends ITerm> extends IOperation {
 
-    /**
-     *
-     */
-    default
-    void message () {
-//        getLogger().info(String.format("\n%s is launched\n", getClass().getSimpleName()));
-    }
-
-    /**
-     *
-     */
-    void reset ();
-
+//    /**
+//     *
+//     */
+//    default
+//    void message () {
+////        getLogger().info(String.format("\n%s is launched\n", getClass().getSimpleName()));
+//    }
+//
+//    /**
+//     *
+//     */
+//    void reset ();
+//
     /**
      * @return
      */
@@ -41,11 +40,11 @@ interface ITransformer<T extends HtClause, TC extends Term> extends IOperation {
      * @return
      */
     boolean isAcceptable ( IMetrics max );
-
-    /**
-     * @return
-     */
-    TransformInfo getBestSoFarResult ();
+//
+//    /**
+//     * @return
+//     */
+//    TransformInfo getBestSoFarResult ();
 
     /**
      * @param t
@@ -53,10 +52,4 @@ interface ITransformer<T extends HtClause, TC extends Term> extends IOperation {
      */
     List <T> transform ( T t );
 
-
-    /**
-     * @param t
-     * @return
-     */
-    TC transform ( TC t );
 }

@@ -1,12 +1,11 @@
 package org.ltc.hitalk.wam.compiler.prolog;
 
 import com.thesett.aima.logic.fol.IVafInterner;
-import com.thesett.aima.logic.fol.Term;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.PredicateTable;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
-import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.PiCalls;
 import org.ltc.hitalk.wam.transformers.ISpecializer;
 import org.ltc.hitalk.wam.transformers.TransformInfo;
@@ -56,8 +55,8 @@ public class SpecializerTransformer implements ISpecializer {
         return null;
     }
 
-    public Term transform ( Term t ) {
-        return (Term) specialize((HtClause) t);
+    public ITerm transform ( ITerm t ) {
+        return (ITerm) specialize(t);
     }
 
     public void cancel () {
@@ -67,15 +66,5 @@ public class SpecializerTransformer implements ISpecializer {
     public void run () {
 
     }
-
-    /**
-     * @param clause
-     * @return
-     */
-    public List <HtClause> specialize ( HtClause clause ) {
-        return null;
-    }
-
-
 }
 
