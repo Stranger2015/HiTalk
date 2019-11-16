@@ -152,9 +152,9 @@ class HtBasePositionalVisitor implements IAllTermsVisitor {
     @Override
     public void visit ( ListTerm dottedPair ) throws LinkageException {
         if (traverser.isEnteringContext()) {
-            enterDottedPair(dottedPair);
+            enterListTerm(dottedPair);
         } else if (traverser.isLeavingContext()) {
-            leaveDottedPair(dottedPair);
+            leaveListTerm(dottedPair);
             dottedPair.setTermTraverser(null);
         }
     }
@@ -162,7 +162,7 @@ class HtBasePositionalVisitor implements IAllTermsVisitor {
     /**
      * @param dottedPair
      */
-    protected void enterDottedPair ( ListTerm dottedPair ) throws LinkageException {
+    protected void enterListTerm ( ListTerm dottedPair ) throws LinkageException {
         final Kind kind = dottedPair.getKind();
         switch (kind) {
             case NIL:
@@ -188,7 +188,7 @@ class HtBasePositionalVisitor implements IAllTermsVisitor {
         }
     }
 
-    protected void leaveDottedPair ( ListTerm dottedPair ) {
+    protected void leaveListTerm ( ListTerm dottedPair ) {
 
 
     }

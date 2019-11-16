@@ -36,7 +36,7 @@ import java.util.List;
  * @author Rupert Smith
  */
 public
-class HiTalkWAMOptimizer implements HiTalkOptimizer {
+class HiTalkWAMOptimizer implements IOptimizer {
 
     /**
      * The symbol table.
@@ -65,7 +65,8 @@ class HiTalkWAMOptimizer implements HiTalkOptimizer {
      * <p/>Runs the instruction listing through an optimizer pass, and replaces the original instruction listing with
      * the optimized version.
      */
-    public <T extends HiTalkWAMOptimizeableListing> T apply ( T listing ) {
+    @Override
+    public <T extends IWAMOptimizeableListing> T apply ( T listing ) {
         SizeableList <HiTalkWAMInstruction> optListing = optimize(listing.getInstructions());
         listing.setOptimizedInstructions(optListing);
 

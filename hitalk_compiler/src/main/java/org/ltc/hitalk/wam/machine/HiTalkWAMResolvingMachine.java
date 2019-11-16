@@ -19,6 +19,7 @@ package org.ltc.hitalk.wam.machine;
 import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.logic.fol.wam.compiler.WAMCallPoint;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledPredicate;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledQuery;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction;
@@ -54,8 +55,7 @@ import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.STR;
  */
 public abstract
 class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
-        implements Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>,
-        HiTalkWAMResolvingMachineDPI {
+        implements Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>, IWAMResolvingMachineDPI {
     //Used for debugging.
     //private static final Logger log = Logger.getLogger(HiTalkWAMResolvingMachine.class.getName());
 

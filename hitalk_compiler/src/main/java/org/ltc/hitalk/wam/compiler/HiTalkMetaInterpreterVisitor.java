@@ -49,12 +49,12 @@ public class HiTalkMetaInterpreterVisitor extends HtBasePositionalVisitor
         super.leavePredicate(predicate);
     }
 
-    protected void enterDottedPair ( ListTerm dottedPair ) throws LinkageException {
-        super.enterDottedPair(dottedPair);
+    protected void enterListTerm ( ListTerm dottedPair ) throws LinkageException {
+        super.enterListTerm(dottedPair);
     }
 
-    protected void leaveDottedPair ( ListTerm dottedPair ) {
-        super.leaveDottedPair(dottedPair);
+    protected void leaveListTerm ( ListTerm dottedPair ) {
+        super.leaveListTerm(dottedPair);
     }
 
     protected void enterFunctor ( IFunctor functor ) throws LinkageException {

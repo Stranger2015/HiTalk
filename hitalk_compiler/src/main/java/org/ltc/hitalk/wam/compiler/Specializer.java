@@ -1,20 +1,23 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.IVafInterner;
-import com.thesett.aima.logic.fol.Term;
+import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PredicateTable;
 import org.ltc.hitalk.entities.HtPredicateDefinition;
 import org.ltc.hitalk.entities.HtPredicateIndicator;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.io.Environment;
 import org.ltc.hitalk.wam.transformers.ISpecializer;
 import org.ltc.hitalk.wam.transformers.TransformInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -22,12 +25,14 @@ import java.util.function.Supplier;
  *
  */
 public
-class Specializer implements ISpecializer <HtClause, Term> {
+class Specializer<T extends ITerm> implements ISpecializer <T> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     private final SymbolTable <Integer, String, Object> symbolTable;
     private final IVafInterner interner;
+    private final Resolver resolver = Environment.instance().getResolver();
+    private final HtPositionalTermTraverser traverser = new HtPositionalTermTraverser();
     private final PredicateTable predicateTable;
     private final List <PiCalls> piCalls;
 
@@ -45,18 +50,22 @@ class Specializer implements ISpecializer <HtClause, Term> {
     }
 
     /**
-     * @param clause
+     * @param term
      * @return
      */
     @Override
-    public List <HtClause> specialize ( HtClause clause ) {
+    public List <T> specialize ( T term ) {
         List <HtClause> spClauses = new ArrayList <>();
         List <PiCalls> piCalls = new ArrayList <>();
 
-        return spClauses;
+        return null;//spClauses;
     }
 
+    //visit each pddef
     public List <PiCalls> collect ( HtPredicateDefinition def ) {
+        PiCallsCollector pcv = PiCallsCollector.toPiCallsCollector();
+        final Supplier <List <PiCalls>> s = pcv.supplier();
+        //======================================================================
         final PiCallsCollector collector = PiCallsCollector.toPiCallsCollector();
         final Supplier <List <PiCalls>> supp = collector.supplier();
         final List <PiCalls> pc = supp.get();
@@ -65,8 +74,7 @@ class Specializer implements ISpecializer <HtClause, Term> {
     }
 
     public List <PiCalls> mergeCalls () {
-        List <PiCalls> l = new ArrayList <>();
-        return l;
+        return new ArrayList <>();
     }
 
     /**
@@ -74,7 +82,7 @@ class Specializer implements ISpecializer <HtClause, Term> {
      * <p>
      * interesting_calls([pi_calls(Sym,C)|Cs], Preds, ICL) :-
      * Pred = pred(Sym,_Clauses,_),
-     * (memberchk(Pred, Preds)  % may not be there if dynamic
+     * (memberchk(Pred, Preds)
      * ->	'interesting calls'(C, Pred, IC),
      * ( IC == [] -> ICL = ICs ; ICL = [pi_calls(Sym,IC)|ICs] ),
      * interesting_calls(Cs, Preds, ICs)
@@ -86,11 +94,15 @@ class Specializer implements ISpecializer <HtClause, Term> {
     private void interestingCalls ( final List <PiCalls> piCalls, final PredicateTable predicates ) {
 
         piCalls.forEach(piCall -> {
-            final int sym = piCall.getName();
-            final Term[] calls = piCall.getArguments();
-            if (predicates.lookup(piCall)) {
-                List <PiCalls> icalls = interestingCalls0(calls, predicates);
-            }
+
+//            piCall.accept(pcc); // may not be there if dynamic
+//            final int sym = piCall.getName();
+//            final ITerm[] calls = piCall.getArguments();
+//
+//            final HtPredicateDefinition def = predicates.lookup(piCall);
+//            if (!def.isBuiltIn()) {
+//                List <PiCalls> icalls = interestingCalls0(calls, predicates);
+//            }
         });
     }
 
@@ -99,7 +111,7 @@ class Specializer implements ISpecializer <HtClause, Term> {
      * @param predicates
      * @return
      */
-    private List <PiCalls> interestingCalls0 ( Term[] calls, PredicateTable predicates ) {
+    private List <PiCalls> interestingCalls0 ( ITerm[] calls, PredicateTable predicates ) {
         return piCalls;
     }
 
@@ -289,7 +301,6 @@ filter_goal(Sym, Args) :- sym_prop(defined, Sym), sth_bound(Args).
     /**
      *
      */
-    @Override
     public void reset () {
 
     }
@@ -309,14 +320,13 @@ filter_goal(Sym, Args) :- sym_prop(defined, Sym), sth_bound(Args).
         return false;
     }
 
-    @Override
     public TransformInfo getBestSoFarResult () {
         return null;
     }
 
     @Override
-    public Term transform ( Term t ) {
-        return null;
+    public List <ITerm> transform ( ITerm t ) {
+        return Collections.singletonList(t);
     }
 
     @Override

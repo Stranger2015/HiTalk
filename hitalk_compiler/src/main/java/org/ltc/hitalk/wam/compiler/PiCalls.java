@@ -1,7 +1,7 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.logic.fol.Variable;
+import org.ltc.hitalk.term.HtVariable;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
 
 /**
@@ -18,8 +18,8 @@ public class PiCalls extends ListTerm {
      * @param calls
      */
     public PiCalls ( IFunctor sym, ListTerm calls ) {
-        name = sym.getName();
-        Term[] t = getArguments();
+        super(Kind.LIST, sym.getName(), calls.getHeads());
+        ITerm[] t = getArguments();
         t[0] = sym;
         setCalls(calls);
     }
@@ -30,6 +30,10 @@ public class PiCalls extends ListTerm {
     @Override
     public int getArity () {
         return 2;   // piCalls(symbol, Calls)
+    }
+
+    public boolean isDottedPair () {
+        return false;
     }
 
     /**
@@ -51,7 +55,7 @@ public class PiCalls extends ListTerm {
         return representable;
     }
 
-    public void setMgCalls ( Variable var ) {
+    public void setMgCalls ( HtVariable var ) {
         this.getHeads()[0] = var;
     }
 

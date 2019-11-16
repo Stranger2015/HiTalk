@@ -16,7 +16,6 @@
 package org.ltc.hitalk.term;
 
 
-import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 
 import java.util.EnumSet;
@@ -65,7 +64,7 @@ public class HlOpSymbol extends HtFunctor implements Comparable, Cloneable {
      * Holds the priority of this operator.
      */
     protected int priority;
-    private int name;
+    protected int name;
 
     /**
      * Creates a new operator with the specified name and arguments.
@@ -112,7 +111,7 @@ public class HlOpSymbol extends HtFunctor implements Comparable, Cloneable {
      * @param arguments The arguments the operator is applied to.
      */
     @Override
-    public void setArguments ( Term[] arguments ) {
+    public void setArguments ( ITerm[] arguments ) {
         // Check that there is at least one and at most two arguments.
         if ((arguments == null) || (arguments.length < 1) || (arguments.length > 2)) {
             throw new IllegalArgumentException("An operator has minimum 1 and maximum 2 arguments.");

@@ -101,7 +101,7 @@ class HtBasicTraverser implements
         // For the predicate bodies.
         for (int i = leftToRightPredicateBodies ? 0 : (body.size() - 1);
              leftToRightPredicateBodies ? (i < body.size()) : (i >= 0);
-             i = i + (leftToRightPredicateBodies ? 1 : -1)) {
+             i += (leftToRightPredicateBodies ? 1 : -1)) {
             HtClause bodyClause = (HtClause) body.get(i);
 
             bodyClause.setReversable(createClauseOperator(bodyClause, i, body, predicate));

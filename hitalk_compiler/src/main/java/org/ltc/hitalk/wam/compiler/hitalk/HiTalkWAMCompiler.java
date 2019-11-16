@@ -18,7 +18,6 @@ public class HiTalkWAMCompiler<T extends HtClause, P, Q> extends PrologWAMCompil
         PROLOG_MODELLING,//sicstus
         WAM_EXTENSION,
         ;
-
     }
 
     /**
@@ -32,12 +31,4 @@ public class HiTalkWAMCompiler<T extends HtClause, P, Q> extends PrologWAMCompil
                                LogicCompilerObserver <P, Q> observer ) {
         super(symbolTable, interner, parser, observer);
     }
-
-//    /**
-//     * @param query
-//     */
-//    @Override
-//    public void compileQuery ( HtClause query ) throws SourceCodeException {
-//        super.compileQuery(query);//todo
-//    }
 }

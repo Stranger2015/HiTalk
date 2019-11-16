@@ -1,8 +1,8 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.IVafInterner;
 import com.thesett.aima.logic.fol.Term;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
 import org.ltc.hitalk.parser.HtClause;
@@ -16,7 +16,7 @@ import java.util.List;
 /**
  *
  */
-public class Inliner implements IInliner <HtClause, Term> {
+public class Inliner implements IInliner <Term> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 

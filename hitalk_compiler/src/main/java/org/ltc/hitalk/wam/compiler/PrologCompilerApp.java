@@ -3,7 +3,6 @@ package org.ltc.hitalk.wam.compiler;
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.aima.logic.fol.Sentence;
-import com.thesett.aima.logic.fol.Term;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.common.util.doublemaps.SymbolTableImpl;
 import org.apache.commons.vfs2.*;
@@ -17,6 +16,7 @@ import org.apache.commons.vfs2.provider.url.UrlFileProvider;
 import org.apache.commons.vfs2.provider.zip.ZipFileProvider;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.BaseCompiler;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.IProduct;
@@ -32,6 +32,7 @@ import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.Environment;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
@@ -250,7 +251,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
 
         // Load the built-ins into the domainwhile (true) {
         while (true) {
-            Sentence <Term> sentence = libParser.parse();
+            Sentence <ITerm> sentence = libParser.parse();
             if (sentence == null) {
                 break;
             }

@@ -24,7 +24,7 @@ public
 class PiCallsCollector implements Collector <PiCalls, List <PiCalls>, PiCalls> {
 
     private final PredicateTable predicateTable;
-    private final MetaInterpreterVisitor miv;
+    private final PiCallsCollectorVisitor pccv;
     private final IVafInterner interner;
     private final SymbolTable <Integer, String, Object> symbolTable;
 
@@ -49,7 +49,12 @@ class PiCallsCollector implements Collector <PiCalls, List <PiCalls>, PiCalls> {
         accumulator = accumulator();
         combiner = combiner();
         finisher = finisher();
-        miv = new PiCallsCollectorVisitor(symbolTable, interner, resolver);
+        pccv = new PiCallsCollectorVisitor(symbolTable, interner, resolver, new HtPositionalTermTraverser());
+    }
+
+    private static List <PiCalls> apply ( List <PiCalls> acc, List <PiCalls> ps ) {
+        acc.addAll(ps);
+        return acc;
     }
 
     /**
@@ -65,9 +70,7 @@ class PiCallsCollector implements Collector <PiCalls, List <PiCalls>, PiCalls> {
      */
     @Override
     public BiConsumer <List <PiCalls>, PiCalls> accumulator () {
-        return ( piCalls, e ) -> {
-            piCalls.add(e);
-        };
+        return List::add;
     }
 
     /**
@@ -75,10 +78,7 @@ class PiCallsCollector implements Collector <PiCalls, List <PiCalls>, PiCalls> {
      */
     @Override
     public BinaryOperator <List <PiCalls>> combiner () {
-        return ( acc, ps ) -> {
-            acc.addAll(ps);
-            return acc;
-        };
+        return PiCallsCollector::apply;
     }
 
     /**
@@ -111,7 +111,6 @@ class PiCallsCollector implements Collector <PiCalls, List <PiCalls>, PiCalls> {
      * @return
      */
     public BiConsumer <List <PiCalls>, PiCalls> getAccumulator () {
-
         return accumulator;
     }
 

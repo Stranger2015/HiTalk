@@ -17,6 +17,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * TermUtils provides some convenient static utility methods for working with terms in first order logic.
  *
@@ -65,7 +67,7 @@ public class TermUtilities {
     }
 
     /**
-     * Flattens a sequence of terms as a symbol seperated argument list. Terms that have been parsed as a bracketed
+     * Flattens a sequence of terms as a symbol separated argument list. Terms that have been parsed as a bracketed
      * expressions will not be flattened. All of the terms in the list must sub sub-classes of a specified super class.
      * This is usefull, for example, when parsing a sequence of functors in a clause body, in order to check that all of
      * the body members really are functors and not just terms.
@@ -81,8 +83,8 @@ public class TermUtilities {
      * @return A sequence of terms parsed as a term, then flattened back into a list seperated on commas.
      * @throws SourceCodeException If any of the extracted terms encountered do not extend the superclass.
      */
-    public static <T extends ITerm> List <T> flattenTerm ( ITerm term, Class <T> superClass, String symbolToFlattenOn,
-                                                           IVafInterner interner ) throws SourceCodeException {
+    public static <T extends IFunctor> IFunctor[] flattenTerm ( IFunctor term, Class <T> superClass, String symbolToFlattenOn,
+                                                                IVafInterner interner ) throws SourceCodeException {
         List <T> terms = new LinkedList <>();
 
         // Used to hold the next term to examine as operators are flattened.
@@ -119,13 +121,13 @@ public class TermUtilities {
             }
         }
 
-        return terms;
+        return terms.toArray(new IFunctor[terms.size()]);
     }
 
     /**
-     * Flattens a sequence of terms as a symbol seperated argument list. Terms that have been parsed as a bracketed
+     * Flattens a sequence of terms as a symbol separated argument list. Terms that have been parsed as a bracketed
      * expressions will not be flattened. All of the terms in the list must sub sub-classes of a specified super class.
-     * This is usefull, for example, when parsing a sequence of functors in a clause body, in order to check that all of
+     * This is useful, for example, when parsing a sequence of functors in a clause body, in order to check that all of
      * the body members really are functors and not just terms.
      * <p>
      * <p/>For example, 'a, b, c' is broken into the list { a, b, c } on the symbol ','. The example, 'a, (b, c), d' is
@@ -137,11 +139,11 @@ public class TermUtilities {
      * @param internedName The interned name of the symbol to flatten on.
      * @return A sequence of terms parsed as a term, then flattened back into a list seperated on commas.
      */
-    public static <T extends ITerm> List <T> flattenTerm ( ITerm term, Class <T> superClass, int internedName ) {
-        List <T> terms = new LinkedList <T>();
+    public static <T extends IFunctor> List <T> flattenTerm ( IFunctor term, Class <T> superClass, int internedName ) {
+        List <T> terms = new LinkedList <>();
 
         // Used to hold the next term to examine as operators are flattened.
-        ITerm nextTerm = term;
+        IFunctor nextTerm = term;
 
         // Used to indicate when there are no more operators to flatten.
         boolean mayBeMore = true;
@@ -149,13 +151,13 @@ public class TermUtilities {
         // Walk down the terms matching symbols and flattening them into a list of terms.
         while (mayBeMore) {
             if (!nextTerm.isBracketed() && (nextTerm instanceof IFunctor) &&
-                    (internedName == (((IFunctor) nextTerm).getName()))) {
-                IFunctor op = (IFunctor) nextTerm;
-                ITerm termToExtract = op.getArgument(0);
+                    internedName == nextTerm.getName()) {
+                IFunctor op = nextTerm;
+                IFunctor termToExtract = (IFunctor) op.getArgument(0);
 
                 if (superClass.isInstance(termToExtract)) {
                     terms.add(superClass.cast(termToExtract));
-                    nextTerm = op.getArgument(1);
+                    nextTerm = (IFunctor) op.getArgument(1);
                 } else {
                     throw new IllegalStateException("The term " + termToExtract + " is expected to extend " + superClass +
                             " but does not.");
@@ -185,29 +187,27 @@ public class TermUtilities {
      * @return A clause for the term, or <tt>null</tt> if it cannot be converted.
      * @throws SourceCodeException If the term to convert to a clause does not form a valid clause.
      */
-    public static <T extends ITerm> HtClause convertToClause ( T term, IVafInterner interner ) throws SourceCodeException {
+    public static HtClause convertToClause ( IFunctor term, IVafInterner interner ) throws SourceCodeException {
         // Check if the top level term is a query, an implication or neither and reduce the term into a clause
         // accordingly.
         if (term instanceof HlOpSymbol) {
             HlOpSymbol symbol = (HlOpSymbol) term;
 
             if (":-".equals(symbol.getTextName())) {
-                List <T> flattenedArgs = flattenTerm(symbol.getArgument(1), IFunctor.class, ",", interner);
+                IFunctor[] flattenedArgs = flattenTerm((IFunctor) symbol.getArgument(1), IFunctor.class, ",", interner);
 
-                return new HtClause((T) symbol.getArgument(0),
-                        flattenedArgs.toArray(new IFunctor[flattenedArgs.size()]));
+                return new HtClause(null, (IFunctor) symbol.getArgument(0), flattenedArgs);
             } else if ("?-".equals(symbol.getTextName())) {
-                List <F> flattenedArgs = flattenTerm(symbol.getArgument(0), IFunctor.class, ",", interner);
+                IFunctor[] flattenedArgs = flattenTerm((IFunctor) symbol.getArgument(0), IFunctor.class, ",", interner);
 
-                return new HtClause(null, flattenedArgs.toArray(new F[flattenedArgs.size()]));
+                return new HtClause(null, null, flattenedArgs);
             }
         }
-
-        if (term instanceof F) {
-            return new HtClause(null, (F) term, null);
+        if (term != null) {
+            return new HtClause(null, term, null);
         } else {
             throw new SourceCodeException("Only functors can for a clause body, not " + term + ".", null, null, null,
-                    term.getSourceCodePosition());
+                    requireNonNull(term).getSourceCodePosition());
         }
     }
 }

@@ -1,21 +1,21 @@
 package org.ltc.hitalk.core;
 
 
-import com.thesett.aima.logic.fol.IVafInterner;
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.common.util.doublemaps.SymbolTableImpl;
 import org.ltc.hitalk.ITermFactory;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.compiler.bktables.IConfig;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.IProduct;
-import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.ltc.hitalk.term.io.Environment;
 import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
+import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,28 +37,25 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
     protected final AtomicBoolean shuttingDown = new AtomicBoolean(false);
 
     protected SymbolTable <Integer, String, Object> symbolTable = new SymbolTableImpl <>();
-
-    protected ICompiler <T, P, Q> instructionCompiler;
-
-    protected ICompiler <T, HtPredicate, T> preCompiler;
+    protected PrologWAMCompiler <T, P, Q> compiler = new PrologWAMCompiler <>();
     protected HiTalkDefaultBuiltIn defaultBuiltIn;
     protected Runnable target;
     protected String fileName;
     protected State state;
 
-    /**
-     * @param compiler
-     */
-    public void setInstructionCompiler ( ICompiler <T, P, Q> compiler ) {
-        this.instructionCompiler = compiler;
-    }
-
-    /**
-     * @param preCompiler
-     */
-    public void setPreCompiler ( ICompiler <T, HtPredicate, T> preCompiler ) {
-        this.preCompiler = preCompiler;
-    }
+//    /**
+//     * @param compiler
+//     */
+//    public void setInstructionCompiler ( ICompiler <T, P, Q> compiler ) {
+//        this.instructionCompiler = compiler;
+//    }
+//
+//    /**
+//     * @param preCompiler
+//     */
+//    public void setPreCompiler ( ICompiler <T, HtPredicate, T> preCompiler ) {
+//        this.preCompiler = preCompiler;
+//    }
 
     /**
      * @return
@@ -73,13 +70,13 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
     public void setDefaultBuiltIn ( HiTalkDefaultBuiltIn defaultBuiltIn ) {
         this.defaultBuiltIn = defaultBuiltIn;
     }
-
-    /**
-     * @return
-     */
-    public ICompiler <T, HtPredicate, T> getPreCompiler () {
-        return preCompiler;
-    }
+//
+//    /**
+//     * @return
+//     */
+//    public ICompiler <T, HtPredicate, T> getPreCompiler () {
+//        return preCompiler;
+//    }
 
     @Override
     public final Logger getLogger () {

@@ -1,11 +1,11 @@
 package org.ltc.hitalk.wam.machine;
 
-import com.thesett.aima.logic.fol.IVafInternerImpl;
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.wam.compiler.WAMCallPoint;
 import com.thesett.aima.logic.fol.wam.compiler.WAMReservedLabel;
 import com.thesett.aima.logic.fol.wam.machine.WAMCodeView;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.VafInterner;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledPredicate;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledQuery;
 
@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 public abstract
-class HiTalkWAMBaseMachine extends IVafInternerImpl implements HiTalkWAMMachine, WAMCodeView {
+class HiTalkWAMBaseMachine extends VafInterner implements HiTalkWAMMachine, WAMCodeView {
     /* Used for debugging. */
     protected final Logger log = Logger.getLogger(getClass().getSimpleName());
 

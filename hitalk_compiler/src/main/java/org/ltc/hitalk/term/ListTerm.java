@@ -1,7 +1,6 @@
 package org.ltc.hitalk.term;
 
 import com.thesett.aima.search.Operator;
-import com.thesett.aima.search.Traversable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.IFunctor;
@@ -9,6 +8,8 @@ import org.ltc.hitalk.wam.compiler.IFunctor;
 import java.util.Iterator;
 
 import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
+import static org.ltc.hitalk.term.ListTerm.Kind.NIL;
+import static org.ltc.hitalk.term.ListTerm.Kind.values;
 
 /**
  *
@@ -16,12 +17,13 @@ import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
 public class ListTerm extends HtFunctor implements ITerm, IFunctor {
 
     public static final ITerm TRUE = new ListTerm(Kind.TRUE);
+    protected Kind kind;
 
     /**
      *
      */
     public ListTerm () {
-        super(-1, EMPTY_TERM_ARRAY);
+        this(NIL, EMPTY_TERM_ARRAY);
     }
 
     /**
@@ -32,11 +34,17 @@ public class ListTerm extends HtFunctor implements ITerm, IFunctor {
         super(-kind.ordinal(), arguments);
     }
 
+    //todo name
+    public ListTerm ( Kind kind, int name, ITerm[] heads ) {
+        this(kind, heads);
+        this.kind = kind;
+    }
+
     /**
      * @return
      */
     public Kind getKind () {
-        return Kind.values()[-getName()];
+        return values()[-getName()];
     }
 
     /**
@@ -122,9 +130,9 @@ public class ListTerm extends HtFunctor implements ITerm, IFunctor {
     }
 
 
-    public Traversable <ITerm> getChildStateForOperator ( Operator <ITerm> op ) {
+    public ITerm getChildStateForOperator ( Operator <ITerm> op ) {
         return null;
-    }
+    }//todo
 
     /**
      *

@@ -6,6 +6,7 @@ import org.ltc.hitalk.entities.HtPredicateDefinition;
 import org.ltc.hitalk.entities.HtPredicateDefinition.UserDefinition;
 import org.ltc.hitalk.entities.ISubroutine;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.wam.compiler.PiCalls;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -37,7 +38,7 @@ class PredicateTable<P extends HtPredicateDefinition <ISubroutine, HtPredicate, 
      * @param clause
      * @return
      */
-    public P lookup ( HtClause clause ) {
+    public P lookup ( PiCalls clause ) {
         int name = clause.getHead().getName();
         P value = this.get(name);
         if (value == null) {

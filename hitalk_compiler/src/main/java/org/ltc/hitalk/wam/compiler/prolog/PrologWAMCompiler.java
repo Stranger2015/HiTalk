@@ -55,11 +55,6 @@ public class PrologWAMCompiler<T extends HtClause, P, Q>
         preCompiler.compile(clause, flags);
     }
 
-//    @Override
-//    public void compileQuery ( HtClause query ) throws SourceCodeException {
-//
-//    }
-
     /**
      * @param tokenSource
      * @param flags

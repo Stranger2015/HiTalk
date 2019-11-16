@@ -1,15 +1,17 @@
 package org.ltc.hitalk.parser;
 
-import com.thesett.aima.logic.fol.BaseTerm;
-import com.thesett.aima.logic.fol.Term;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.ISubroutine;
+import org.ltc.hitalk.term.HtBaseTerm;
+import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 /**
  *
  */
-public class HtClause/*<F extends IFunctor>*/ extends BaseTerm implements Term, ISubroutine {
+public class HtClause/*<F extends IFunctor>*/ extends HtBaseTerm implements ITerm, ISubroutine {
     protected final HtEntityIdentifier identifier;
     protected IFunctor head;
     protected IFunctor[] body;
@@ -78,11 +80,19 @@ public class HtClause/*<F extends IFunctor>*/ extends BaseTerm implements Term, 
         return getBody().length;
     }
 
-    public Term getValue () {
+    public ITerm getValue () {
         return null;
-    }
+    }//todo
 
     public void free () {
 
+    }
+
+    public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
+        return toString();
+    }
+
+    public ListTerm getBodyAsListTerm () {
+        return null;
     }
 }

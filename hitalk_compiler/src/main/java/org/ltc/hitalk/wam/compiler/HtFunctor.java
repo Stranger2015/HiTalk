@@ -1,10 +1,14 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.Functor;
+import com.thesett.aima.logic.fol.FunctorTransformer;
+import com.thesett.aima.logic.fol.FunctorVisitor;
+import com.thesett.aima.logic.fol.TermVisitor;
 import com.thesett.aima.search.Operator;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.term.HtBaseTerm;
 import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.ITermTransformer;
 import org.ltc.hitalk.wam.printer.IFunctorTraverser;
 
 import java.util.*;
@@ -255,7 +259,7 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
     /**
      * {@inheritDoc}
      */
-    public IFunctor acceptTransformer ( TermTransformer transformer ) {
+    public IFunctor acceptTransformer ( ITermTransformer transformer ) {
         IFunctor result;
 
         if (transformer instanceof FunctorTransformer) {

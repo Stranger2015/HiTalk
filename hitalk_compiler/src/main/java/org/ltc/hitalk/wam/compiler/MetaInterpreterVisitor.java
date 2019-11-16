@@ -2,8 +2,6 @@ package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.Resolver;
-import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.logic.fol.Variable;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
@@ -11,6 +9,8 @@ import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtPredicateDefinition;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.HtVariable;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.term.io.Environment;
 import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
@@ -32,10 +32,10 @@ import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
 public abstract class MetaInterpreterVisitor extends HtBasePositionalVisitor
         implements IPositionalTermVisitor {
 
-    protected final Resolver <HtPredicate, HtClause> resolver;
+    private final Resolver <HtPredicate, HtClause> resolver;
     protected IPositionalTermTraverser positionalTraverser;
     protected final List <HtClause> clauses = new ArrayList <>();
-    protected final Set <Variable> bindings = new HashSet <>();
+    protected final Set <HtVariable> bindings = new HashSet <>();
 
     /**
      * Creates a positional visitor.
@@ -45,8 +45,9 @@ public abstract class MetaInterpreterVisitor extends HtBasePositionalVisitor
      */
     protected MetaInterpreterVisitor ( SymbolTable <Integer, String, Object> symbolTable,
                                        IVafInterner interner,
-                                       Resolver <HtPredicate, HtClause> resolver ) {
-        super(symbolTable, interner);
+                                       Resolver <HtPredicate, HtClause> resolver,
+                                       IPositionalTermTraverser traverser ) {
+        super(symbolTable, interner, traverser);
         this.resolver = resolver;
     }
 
@@ -90,20 +91,20 @@ public abstract class MetaInterpreterVisitor extends HtBasePositionalVisitor
     }
 
     @Override
-    protected void enterDottedPair ( ListTerm dottedPair ) throws LinkageException {
-        for (int i = 0, headsSize = dottedPair.size(); i <= headsSize; i++) {
-            switch (dottedPair.getKind()) {
+    protected void enterListTerm ( ListTerm listTerm ) throws LinkageException {
+        for (int i = 0, headsSize = listTerm.size(); i <= headsSize; i++) {
+            switch (listTerm.getKind()) {
                 case NOT:
-                    dottedPair.get(i).accept(this);
+                    listTerm.get(i).accept(this);
                     break;
                 case AND://fall down
                 case OR:
                 case IF:
-                    dottedPair.get(i).accept(this);
-                    dottedPair.get(i + 1).accept(this);
+                    listTerm.get(i).accept(this);
+                    listTerm.get(i + 1).accept(this);
                     break;
                 case GOAL:
-                    IFunctor goal = (IFunctor) dottedPair.get(i);
+                    IFunctor goal = (IFunctor) listTerm.get(i);
                     if (goal.isDefined()) {
                         final Set <PiCalls> hbSet = new HashSet <>();
                         lookupGoal((PiCalls) goal, hbSet);
@@ -129,9 +130,9 @@ public abstract class MetaInterpreterVisitor extends HtBasePositionalVisitor
         eqf.setArgument(0, goal);
         for (PiCalls hbEl : hbSet) {
             eqf.setArgument(1, hbEl);//fixme
-            resolver.reset();
-            resolver.setQuery(query);
-            final Set <Variable> bindings = resolver.resolve();
+//            resolver.reset();
+//            resolver.setQuery(query);
+//            final Set <Variable> bindings = resolver.resolve();
             if (bindings != null) {
                 this.bindings.addAll(bindings);
                 return;
@@ -142,14 +143,14 @@ public abstract class MetaInterpreterVisitor extends HtBasePositionalVisitor
     }
 
     @Override
-    protected void leaveDottedPair ( ListTerm dottedPair ) {
+    protected void leaveListTerm ( ListTerm listTerm ) {
 
     }
 
     @Override
     protected void enterFunctor ( IFunctor functor ) throws LinkageException {
-        if (!functor.isBracketed() && functor.isDottedPair()) {
-            enterDottedPair((ListTerm) functor);
+        if (!functor.isBracketed() && functor.isListTerm()) {
+            enterListTerm((ListTerm) functor);
         } else {
             enterGoal(functor);//fixme redundant
         }
@@ -181,7 +182,7 @@ public abstract class MetaInterpreterVisitor extends HtBasePositionalVisitor
      * @param sym
      * @param args
      */
-    protected boolean filterGoal ( IFunctor sym, Term[] args ) {
+    protected boolean filterGoal ( IFunctor sym, ITerm[] args ) {
 //        lookupGoal(sym, args);
         return true;
     }// ->	% partially instantiated (HiLog) call

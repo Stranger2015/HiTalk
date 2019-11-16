@@ -24,7 +24,9 @@ import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.IntTerm;
 import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.HtPositionalTermTraverser;
 import org.ltc.hitalk.wam.compiler.IFunctor;
@@ -370,6 +372,14 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
     }
 
     public void visit ( Term term ) {
+
+    }
+
+    public void visit ( HtVariable variable ) {
+
+    }
+
+    public void visit ( IntTerm term ) {
 
     }
 

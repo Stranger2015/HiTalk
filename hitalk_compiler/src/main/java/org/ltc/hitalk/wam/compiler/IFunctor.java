@@ -34,7 +34,7 @@ public interface IFunctor extends ITerm, IRangedArity {
     /**
      * @return
      */
-    default boolean isDottedPair () {
+    default boolean isListTerm () {
         return this instanceof ListTerm;
     }
 

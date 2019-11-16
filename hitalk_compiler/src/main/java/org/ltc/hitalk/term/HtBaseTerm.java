@@ -17,13 +17,13 @@ package org.ltc.hitalk.term;
  */
 
 import com.thesett.aima.logic.fol.TermTraverser;
-import com.thesett.aima.logic.fol.VariableAndFunctorInterner;
 import com.thesett.aima.search.GoalState;
 import com.thesett.aima.search.Operator;
 import com.thesett.aima.search.TraversableState;
 import com.thesett.aima.search.util.backtracking.Reversable;
 import com.thesett.common.parsing.SourceCodePosition;
 import com.thesett.common.util.doublemaps.SymbolKey;
+import org.ltc.hitalk.compiler.IVafInterner;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -235,7 +235,7 @@ public abstract class HtBaseTerm extends TraversableState <ITerm> implements ITe
     /**
      * {@inheritDoc}
      */
-    public String toString ( VariableAndFunctorInterner interner, boolean printVarName, boolean printBindings ) {
+    public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
         return toString();
     }
 

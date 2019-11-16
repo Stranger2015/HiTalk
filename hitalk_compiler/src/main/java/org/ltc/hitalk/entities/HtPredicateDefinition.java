@@ -102,7 +102,7 @@ class HtPredicateDefinition<T extends ISubroutine, P extends HtPredicate, Q exte
          */
         @Override
         public boolean isBuiltIn () {
-            return false;
+            return true;
         }
 
         public void add ( T clause ) {
@@ -132,8 +132,9 @@ class HtPredicateDefinition<T extends ISubroutine, P extends HtPredicate, Q exte
         /**
          * @return
          */
+        @Override
         public boolean isBuiltIn () {
-            return true;
+            return false;
         }
     }
 }
