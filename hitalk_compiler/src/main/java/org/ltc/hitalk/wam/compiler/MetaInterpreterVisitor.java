@@ -32,7 +32,7 @@ import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
 public abstract class MetaInterpreterVisitor extends HtBasePositionalVisitor
         implements IPositionalTermVisitor {
 
-    private final Resolver <HtPredicate, HtClause> resolver;
+    protected final Resolver <HtPredicate, HtClause> resolver;
     protected IPositionalTermTraverser positionalTraverser;
     protected final List <HtClause> clauses = new ArrayList <>();
     protected final Set <HtVariable> bindings = new HashSet <>();

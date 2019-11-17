@@ -34,5 +34,9 @@ public interface IFunctorVisitor extends ITermVisitor {
      *
      * @param functor The functor to visit.
      */
-    void visit ( IFunctor functor ) throws LinkageException;
+    default void visit ( IFunctor functor ) throws LinkageException {
+
+    }
+
+    void visit ( IFunctor functor1, IFunctor functor2 ) throws LinkageException;
 }

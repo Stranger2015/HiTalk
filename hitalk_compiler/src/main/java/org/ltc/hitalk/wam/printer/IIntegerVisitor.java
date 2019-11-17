@@ -7,5 +7,9 @@ public interface IIntegerVisitor extends ITermVisitor {
     /**
      * @param term
      */
-    void visit ( IntTerm term );
+    default void visit ( IntTerm term ) {
+
+    }
+
+    void visit ( IntTerm term1, IntTerm term2 );
 }

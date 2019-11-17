@@ -186,9 +186,9 @@ public interface ITerm extends ReTraversable <ITerm>, Operator <ITerm> {
      * Allows a reversable operator to be set upon the term, so that context can be established or cleared as terms are
      * traversed.
      *
-     * @param reversable The reversable operator to use on the term.
+     * @param reversible The reversable operator to use on the term.
      */
-    void setReversable ( Reversable reversable );
+    void setReversible ( Reversable reversible );
 
     /**
      * Allows a term traverser to supply search operators over terms to be set.
@@ -242,6 +242,8 @@ public interface ITerm extends ReTraversable <ITerm>, Operator <ITerm> {
      * @param visitor The term visitor to accept.
      */
     void accept ( ITermVisitor visitor );
+
+    void accept ( ITermVisitor visitor, );
 
     /**
      * Applies a term to term transformation function over the term tree, recursively from this point downwards. This is

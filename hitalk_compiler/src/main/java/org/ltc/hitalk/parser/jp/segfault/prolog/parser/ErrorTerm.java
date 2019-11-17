@@ -83,7 +83,7 @@ public class ErrorTerm extends HtBaseTerm implements ITerm {
     }
 
     @Override
-    public void setReversable ( Reversable reversable ) {
+    public void setReversible ( Reversable reversible ) {
 
     }
 

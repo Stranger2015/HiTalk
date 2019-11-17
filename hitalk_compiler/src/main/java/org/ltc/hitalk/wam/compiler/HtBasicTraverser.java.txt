@@ -120,9 +120,9 @@ public abstract class HtBasicTraverser implements
              i += (leftToRightPredicateBodies ? 1 : -1)) {
             HtClause bodyClause = (HtClause) body[i];
 
-            bodyClause.setReversable(createClauseOperator(bodyClause, i, (HtClause[]) body, predicate));
+            bodyClause.setReversible(createClauseOperator(bodyClause, i, (HtClause[]) body, predicate));
             bodyClause.setTermTraverser(this);
-            queue.offer((ITerm) bodyClause);//fixme
+            queue.offer(bodyClause);//fixme
         }
 
         return queue.iterator();
@@ -141,7 +141,7 @@ public abstract class HtBasicTraverser implements
 
         // For the head functor, set the top-level flag, set in head context.
         if (head != null) {
-            head.setReversable(createHeadOperator(head, clause));
+            head.setReversible(createHeadOperator(head, clause));
             head.setTermTraverser(this);
             queue.offer(head);
         }
@@ -152,7 +152,7 @@ public abstract class HtBasicTraverser implements
                  leftToRightClauseBodies ? (i < body.length) : (i >= 0); i = i + (leftToRightClauseBodies ? 1 : -1)) {
                 IFunctor bodyFunctor = body[i];
 
-                bodyFunctor.setReversable(createBodyOperator(bodyFunctor, i, body, clause));
+                bodyFunctor.setReversible(createBodyOperator(bodyFunctor, i, body, clause));
                 bodyFunctor.setTermTraverser(this);
                 queue.offer(bodyFunctor);
             }
@@ -176,7 +176,7 @@ public abstract class HtBasicTraverser implements
              leftToRightFunctorArgs ? (i < arguments.length) : (i >= 0);
              i += (leftToRightFunctorArgs ? 1 : -1)) {
             ITerm argument = arguments[i];
-            argument.setReversable(createTermOperator(argument, i, functor));
+            argument.setReversible(createTermOperator(argument, i, functor));
             argument.setTermTraverser(this);
             queue.offer(argument);
         }

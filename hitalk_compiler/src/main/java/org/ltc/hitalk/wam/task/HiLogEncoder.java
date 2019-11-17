@@ -1,15 +1,18 @@
 package org.ltc.hitalk.wam.task;
 
-import com.thesett.aima.logic.fol.IntegerType;
-import com.thesett.aima.logic.fol.LiteralType;
-import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.logic.fol.Variable;
+import com.thesett.aima.logic.fol.*;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.HtVariable;
+import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.IntTerm;
+import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.MetaInterpreterVisitor;
+import org.ltc.hitalk.wam.printer.HtLiteralType;
+import org.ltc.hitalk.wam.printer.IPositionalTermTraverser;
 
 import static java.lang.String.format;
 
@@ -25,25 +28,28 @@ public class HiLogEncoder extends MetaInterpreterVisitor {
      * @param interner    The name interner.
      */
     public HiLogEncoder ( SymbolTable <Integer, String, Object> symbolTable,
-                          IVafInterner interner ) {
-        super(symbolTable, interner);
+                          IVafInterner interner,
+                          Resolver <HtPredicate, HtClause> resolver,
+                          IPositionalTermTraverser traverser ) {
+
+        super(symbolTable, interner, resolver, traverser);
     }
 
     /**
      * @param term
      * @return
      */
-    public Term encode ( Term term ) {
+    public ITerm encode ( ITerm term ) {
         return term;
     }
 
     //    @Override
-    protected void enterTerm ( Term term ) {
+    protected void enterTerm ( ITerm term ) {
 
     }
 
     //    @Override
-    protected void leaveTerm ( Term term ) {
+    protected void leaveTerm ( ITerm term ) {
 
     }
 
@@ -56,11 +62,11 @@ public class HiLogEncoder extends MetaInterpreterVisitor {
     protected void leaveFunctor ( IFunctor functor ) {
     }
 
-    @Override
+    //    @Override
     protected void enterVariable ( Variable variable ) {
     }
 
-    @Override
+    //    @Override
     protected void leaveVariable ( Variable variable ) {
     }
 
@@ -73,7 +79,7 @@ public class HiLogEncoder extends MetaInterpreterVisitor {
     }
 
     @Override
-    protected void enterClause ( HtClause clause ) {
+    protected void enterClause ( HtClause clause ) throws LinkageException {
         super.enterClause(clause);
     }
 
@@ -106,4 +112,35 @@ public class HiLogEncoder extends MetaInterpreterVisitor {
         return format("%s{traverser=%s", getClass().getSimpleName(), traverser);
     }
 
+    public void visit ( IntTerm term1, IntTerm term2 ) {
+
+    }
+
+    public void visit ( HtLiteralType term1, HtLiteralType term2 ) {
+
+    }
+
+    public void visit ( ITerm term1, ITerm term2 ) {
+
+    }
+
+    public void visit ( HtPredicate predicate1, HtPredicate predicate2 ) {
+
+    }
+
+    public void visit ( HtVariable variable1, HtVariable variable2 ) {
+
+    }
+
+    public void visit ( IFunctor functor1, IFunctor functor2 ) throws LinkageException {
+
+    }
+
+    public void visit ( HtClause clause1, HtClause clause2 ) throws LinkageException {
+
+    }
+
+    public void visit ( ListTerm listTerm1, ListTerm listTerm2 ) throws LinkageException {
+
+    }
 }

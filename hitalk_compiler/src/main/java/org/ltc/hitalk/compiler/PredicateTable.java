@@ -10,6 +10,7 @@ import org.ltc.hitalk.wam.compiler.PiCalls;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  *
@@ -21,8 +22,20 @@ class PredicateTable<P extends HtPredicateDefinition <ISubroutine, HtPredicate, 
     /**
      *
      */
-    public
-    PredicateTable () {
+    public PredicateTable () {
+
+    }
+
+    public PredicateTable ( List <HtPredicate> predicates ) {
+        predicates.stream().map(HtPredicate::getDefinition).
+                filter(def -> !def.isBuiltIn()).
+                forEachOrdered(definition -> accept((P) definition));
+    }
+
+    private void accept ( P definition ) {
+        final int key = definition.get(0).getHead().getName();
+
+        put(key, definition);
     }
 
     /**
@@ -35,14 +48,14 @@ class PredicateTable<P extends HtPredicateDefinition <ISubroutine, HtPredicate, 
     }
 
     /**
-     * @param clause
+     * @param call
      * @return
      */
-    public P lookup ( PiCalls clause ) {
-        int name = clause.getHead().getName();
+    public P lookup ( PiCalls call ) {
+        int name = call.getName();
         P value = this.get(name);
         if (value == null) {
-            value = (P) new UserDefinition(clause);
+            value = (P) new UserDefinition <>();
             this.put(name, value);
         }
 

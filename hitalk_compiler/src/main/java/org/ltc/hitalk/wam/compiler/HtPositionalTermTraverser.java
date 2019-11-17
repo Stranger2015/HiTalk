@@ -268,7 +268,7 @@ class HtPositionalTermTraverser extends HtBasicTraverser
                             contextStack.peek());
 
             contextStack.offer(initialContext);
-            term.setReversable(initialContext);
+            term.setReversible(initialContext);
             initialContextCreated = true;
         }
     }

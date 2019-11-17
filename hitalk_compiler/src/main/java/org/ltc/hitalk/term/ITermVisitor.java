@@ -17,6 +17,10 @@ public interface ITermVisitor {
      *
      * @param term The term to visit.
      */
-    void visit ( ITerm term );
+    default void visit ( ITerm term ) {
+
+    }
+
+    void visit ( ITerm term1, ITerm term2 );
 }
 

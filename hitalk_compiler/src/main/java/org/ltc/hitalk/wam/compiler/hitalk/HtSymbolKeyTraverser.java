@@ -176,7 +176,7 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
 
         // For the head functor, clear the top-level flag, set in head context.
         if (head != null) {
-            head.setReversable(new ContextOperator(clauseScopedSymbolTable, 0, createHeadOperator(head, clause)));
+            head.setReversible(new ContextOperator(clauseScopedSymbolTable, 0, createHeadOperator(head, clause)));
             head.setTermTraverser(this);
             queue.offer(head);
 
@@ -191,7 +191,7 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
                     ("body operator " + (i + 1) + " on " + bodyFunctor.toString(interner, true, false)));*/
         IntStream.range(0, body.length).forEachOrdered(i -> {
             IFunctor bodyFunctor = body[i];
-            bodyFunctor.setReversable(new ContextOperator(clauseScopedSymbolTable, i + 1,
+            bodyFunctor.setReversible(new ContextOperator(clauseScopedSymbolTable, i + 1,
                     createBodyOperator(bodyFunctor, i, body, clause)));
             bodyFunctor.setTermTraverser(this);
             queue.offer(bodyFunctor);
@@ -226,7 +226,7 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
                 contextSymbolTable = clauseScopedSymbolTable.enterScope(CLAUSE_FREEVAR_INDEX);
                 /*log.fine("Enter freevar scope");*/
 
-                argument.setReversable(new ContextOperator(contextSymbolTable,
+                argument.setReversible(new ContextOperator(contextSymbolTable,
                         createTermOperator(argument, i, functor)));
                 argument.setTermTraverser(this);
                 queue.offer(argument);
@@ -236,7 +236,7 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
             } else {
                 contextSymbolTable = null;
 
-                argument.setReversable(new ContextOperator(contextSymbolTable, i,
+                argument.setReversible(new ContextOperator(contextSymbolTable, i,
                         createTermOperator(argument, i, functor)));
                 argument.setTermTraverser(this);
                 queue.offer(argument);

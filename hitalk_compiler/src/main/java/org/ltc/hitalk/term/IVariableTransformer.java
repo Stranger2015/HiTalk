@@ -10,5 +10,5 @@ public interface IVariableTransformer extends ITermTransformer {
      * @param variable
      * @return
      */
-    List <HtVariable> transform ( HtVariable variable );
+    List <ITerm> transform ( HtVariable variable );
 }

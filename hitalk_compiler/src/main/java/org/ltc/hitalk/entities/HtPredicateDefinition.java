@@ -60,8 +60,8 @@ class HtPredicateDefinition<T extends ISubroutine, P extends HtPredicate, Q exte
     /**
      * @return
      */
-    public T[] getBody () {
-        return (T[]) subroutines.toArray(new ISubroutine[subroutines.size()]);
+    public List <T> getBody () {
+        return subroutines;
     }
 
     /**
@@ -89,6 +89,10 @@ class HtPredicateDefinition<T extends ISubroutine, P extends HtPredicate, Q exte
             super(clause);
         }
 
+        public UserDefinition () {
+            this(new ArrayList <>());
+        }
+
         /**
          * @return
          */
@@ -113,6 +117,13 @@ class HtPredicateDefinition<T extends ISubroutine, P extends HtPredicate, Q exte
         private void reIndex ( List <T> subroutines ) {
             //todo
         }
+
+//        public List <HtClause> getClauses () {
+//            for (int i = 0; i < subroutines.size(); i++) {
+//
+//            }
+//            return (List <HtClause>) Arrays.asList(new List[]{subroutines});
+//        }
     }
 
     /**

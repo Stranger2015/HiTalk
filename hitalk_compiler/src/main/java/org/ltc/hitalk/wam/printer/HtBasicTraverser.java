@@ -1,7 +1,5 @@
 package org.ltc.hitalk.wam.printer;
 
-import com.thesett.aima.logic.fol.Functor;
-import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.search.Operator;
 import com.thesett.aima.search.util.backtracking.Reversable;
 import com.thesett.common.util.StackQueue;
@@ -104,7 +102,7 @@ class HtBasicTraverser implements
              i += (leftToRightPredicateBodies ? 1 : -1)) {
             HtClause bodyClause = (HtClause) body.get(i);
 
-            bodyClause.setReversable(createClauseOperator(bodyClause, i, body, predicate));
+            bodyClause.setReversible(createClauseOperator(bodyClause, i, body, predicate));
             bodyClause.setTermTraverser(this);
             queue.offer(bodyClause);
         }
@@ -125,7 +123,7 @@ class HtBasicTraverser implements
 
         // For the head functor, set the top-level flag, set in head context.
         if (head != null) {
-            head.setReversable(createHeadOperator(head, clause));
+            head.setReversible(createHeadOperator(head, clause));
             head.setTermTraverser(this);
             queue.offer(head);
         }
@@ -136,7 +134,7 @@ class HtBasicTraverser implements
                  leftToRightClauseBodies ? (i < body.length) : (i >= 0); i = i + (leftToRightClauseBodies ? 1 : -1)) {
                 IFunctor bodyFunctor = body[i];
 
-                bodyFunctor.setReversable(createBodyOperator(bodyFunctor, i, body, clause));
+                bodyFunctor.setReversible(createBodyOperator(bodyFunctor, i, body, clause));
                 bodyFunctor.setTermTraverser(this);
                 queue.offer(bodyFunctor);
             }
@@ -148,20 +146,20 @@ class HtBasicTraverser implements
     /**
      * {@inheritDoc}
      */
-    public Iterator <Operator <Term>> traverse ( Functor functor, boolean reverse ) {
+    public Iterator <Operator <ITerm>> traverse ( IFunctor functor, boolean reverse ) {
         /*log.fine("Traversing functor " + functor.toString());*/
 
-        Queue <Operator <Term>> queue = (!reverse) ? new StackQueue <>() : new LinkedList <>();
+        Queue <Operator <ITerm>> queue = (!reverse) ? new StackQueue <>() : new LinkedList <>();
 
-        Term[] arguments = functor.getArguments();
+        ITerm[] arguments = functor.getArguments();
 
         // For a top-level functor clear top-level flag, so that child functors are not taken as top-level.
         if (arguments != null) {
             for (int i = leftToRightFunctorArgs ? 0 : (arguments.length - 1);
                  leftToRightFunctorArgs ? (i < arguments.length) : (i >= 0);
                  i = i + (leftToRightFunctorArgs ? 1 : -1)) {
-                Term argument = arguments[i];
-                argument.setReversable(createTermOperator(argument, i, functor));
+                ITerm argument = arguments[i];
+                argument.setReversible(createTermOperator(argument, i, functor));
                 argument.setTermTraverser(this);
                 queue.offer(argument);
             }

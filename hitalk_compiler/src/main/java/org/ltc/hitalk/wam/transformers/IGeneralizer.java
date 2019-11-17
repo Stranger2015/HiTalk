@@ -10,19 +10,19 @@ import java.util.List;
 public
 interface IGeneralizer<T extends ITerm> extends ITransformer <T> {
     /**
-     * @param clause
+     *  @param term
      * @return
      */
-    List <T> generalize ( T clause );
+    List <T> generalize ( T term );
 
     /**
-     * Applies a transformation to the clause.
+     * Applies a transformation to the term.
      *
-     * @param clause The clause to transform.
-     * @return A clause which is a transformation of the argument.
+     * @param term The term to transform.
+     * @return A term which is a transformation of the argument.
      */
     @Override
-    default List <T> transform ( T clause ) {
-        return generalize(clause);
+    default List <T> transform ( T term ) {
+        return generalize(term);
     }
 }

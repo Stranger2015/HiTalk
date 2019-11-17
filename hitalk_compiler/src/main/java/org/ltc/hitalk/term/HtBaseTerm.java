@@ -1,5 +1,3 @@
-package org.ltc.hitalk.term;
-
 /*
  * Copyright The Sett Ltd, 2005 to 2014.
  *
@@ -16,6 +14,8 @@ package org.ltc.hitalk.term;
  * limitations under the License.
  */
 
+package org.ltc.hitalk.term;
+
 import com.thesett.aima.logic.fol.TermTraverser;
 import com.thesett.aima.search.GoalState;
 import com.thesett.aima.search.Operator;
@@ -31,7 +31,7 @@ import java.util.List;
 
 /**
  * BaseTerm provides an abstract base implementation of {@link ITerm}. In particular it provides methods to make an
- * abstract syntax tree expressable as a state space with operations to navigate over it.
+ * abstract syntax tree expressible as a state space with operations to navigate over it.
  *
  * <pre><p/><table id="crc"><caption>CRC Card</caption>
  * <tr><th> Responsibilities <th> Collaborations
@@ -42,12 +42,12 @@ import java.util.List;
  * @author Rupert Smith
  */
 public abstract class HtBaseTerm extends TraversableState <ITerm> implements ITerm, GoalState, Cloneable {
-    /** Used for debugging purposes. */
+
     /* private static final Logger log = Logger.getLogger(BaseTerm.class.getName()); */
 
     /**
      * Used to hold the terms allocation cell reference, can be useful during compilation. This is initialized to -1 to
-     * indicate an unnasigned status.
+     * indicate an unassigned status.
      */
     protected int alloc = -1;
 
@@ -72,9 +72,9 @@ public abstract class HtBaseTerm extends TraversableState <ITerm> implements ITe
     protected SymbolKey symbolKey;
 
     /**
-     * Holds a reversable operator to establish and restore state when traversing this term.
+     * Holds a reversible operator to establish and restore state when traversing this term.
      */
-    private Reversable reversable;
+    private Reversable reversible;
 
     /**
      * {@inheritDoc}
@@ -100,16 +100,16 @@ public abstract class HtBaseTerm extends TraversableState <ITerm> implements ITe
     /**
      * {@inheritDoc}
      */
-    public void setReversable ( Reversable reversable ) {
-        this.reversable = reversable;
+    public void setReversible ( Reversable reversible ) {
+        this.reversible = reversible;
     }
 
     /**
      * {@inheritDoc} If a {@link Reversable} has been set on this term it is applied, otherwise nothing is done.
      */
     public void applyOperator () {
-        if (reversable != null) {
-            reversable.applyOperator();
+        if (reversible != null) {
+            reversible.applyOperator();
         }
     }
 
@@ -117,8 +117,8 @@ public abstract class HtBaseTerm extends TraversableState <ITerm> implements ITe
      * {@inheritDoc} If a {@link Reversable} has been set on this term it is undone, otherwise nothing is done.
      */
     public void undoOperator () {
-        if (reversable != null) {
-            reversable.undoOperator();
+        if (reversible != null) {
+            reversible.undoOperator();
         }
     }
 

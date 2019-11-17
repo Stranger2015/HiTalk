@@ -9,5 +9,9 @@ public interface ILiteralTypeVisitor extends ITermVisitor {
     /**
      * @param term
      */
-    void visit ( HtLiteralType term );
+    default void visit ( HtLiteralType term ) {
+
+    }
+
+    void visit ( HtLiteralType term1, HtLiteralType term2 );
 }

@@ -15,5 +15,9 @@ IPredicateVisitor extends ITermVisitor {
      *
      * @param predicate The predicate to visit.
      */
-    void visit ( HtPredicate predicate );
+    default void visit ( HtPredicate predicate ) {
+
+    }
+
+    void visit ( HtPredicate predicate1, HtPredicate predicate2 );
 }

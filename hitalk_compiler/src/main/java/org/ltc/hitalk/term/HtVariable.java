@@ -17,6 +17,7 @@ package org.ltc.hitalk.term;
 
 import org.ltc.hitalk.compiler.IVafInterner;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -262,11 +263,11 @@ public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingCon
     /**
      * {@inheritDoc}
      */
-    public HtVariable acceptTransformer ( ITermTransformer transformer ) {
+    public List <ITerm> acceptTransformer ( ITermTransformer transformer ) {
         if (transformer instanceof IVariableTransformer) {
             return ((IVariableTransformer) transformer).transform(this);
         } else {
-            return (HtVariable) super.acceptTransformer(transformer);
+            return super.acceptTransformer(transformer);
         }
     }
 

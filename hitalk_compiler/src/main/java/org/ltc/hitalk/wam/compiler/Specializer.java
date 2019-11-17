@@ -4,12 +4,15 @@ import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PredicateTable;
-import org.ltc.hitalk.entities.HtPredicateDefinition;
+import org.ltc.hitalk.entities.HtPredicate;
+import org.ltc.hitalk.entities.HtPredicateDefinition.UserDefinition;
 import org.ltc.hitalk.entities.HtPredicateIndicator;
+import org.ltc.hitalk.entities.ISubroutine;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.term.io.Environment;
 import org.ltc.hitalk.wam.transformers.ISpecializer;
 import org.ltc.hitalk.wam.transformers.TransformInfo;
@@ -19,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Supplier;
 
 /**
  *
@@ -31,22 +33,21 @@ class Specializer<T extends ITerm> implements ISpecializer <T> {
 
     private final SymbolTable <Integer, String, Object> symbolTable;
     private final IVafInterner interner;
-    private final Resolver resolver = Environment.instance().getResolver();
-    private final HtPositionalTermTraverser traverser = new HtPositionalTermTraverser();
-    private final PredicateTable predicateTable;
-    private final List <PiCalls> piCalls;
+    private final List <HtPredicate> predicates;
+    private final Resolver <HtPredicate, HtClause> resolver = Environment.instance().getResolver();
+    //private final HtPositionalTermTraverser traverser = new HtPositionalTermTraverser();
+    private final List <PiCalls> piCalls = new ArrayList <>();
 
     /**
      *
      */
     public Specializer ( SymbolTable <Integer, String, Object> symbolTable,
                          IVafInterner interner,
-                         PredicateTable predicateTable,
-                         List <PiCalls> piCalls ) {
+                         List <HtPredicate> predicates ) {
         this.symbolTable = symbolTable;
         this.interner = interner;
-        this.predicateTable = predicateTable;
-        this.piCalls = piCalls;
+        this.predicates = predicates;
+
     }
 
     /**
@@ -55,26 +56,51 @@ class Specializer<T extends ITerm> implements ISpecializer <T> {
      */
     @Override
     public List <T> specialize ( T term ) {
-        List <HtClause> spClauses = new ArrayList <>();
-        List <PiCalls> piCalls = new ArrayList <>();
+        List <T> spClauses = new ArrayList <>();
+        List <PiCalls> calls = new ArrayList <>();
+        predicates.stream().map(this::collect).forEachOrdered(calls::addAll);
+        calls = getInterestingCalls(calls, predicates);
 
-        return null;//spClauses;
+        return spClauses;
+    }
+
+    private List <PiCalls> getInterestingCalls ( List <PiCalls> calls, List <HtPredicate> predicates ) {
+        PredicateTable <UserDefinition <ISubroutine, HtPredicate, HtClause>> table = new PredicateTable <>(predicates);
+        for (PiCalls piCalls : calls) {
+            if (table.containsKey(piCalls.name)) {
+                final List <ISubroutine> clauses = table.get(piCalls.name).getBody();
+//todo
+            }
+        }
+        return null;
     }
 
     //visit each pddef
-    public List <PiCalls> collect ( HtPredicateDefinition def ) {
-        PiCallsCollector pcv = PiCallsCollector.toPiCallsCollector();
-        final Supplier <List <PiCalls>> s = pcv.supplier();
-        //======================================================================
-        final PiCallsCollector collector = PiCallsCollector.toPiCallsCollector();
-        final Supplier <List <PiCalls>> supp = collector.supplier();
-        final List <PiCalls> pc = supp.get();
+    public List <PiCalls> collect ( HtPredicate predicate ) {
+        PiCallsCollector pc = PiCallsCollector.toPiCallsCollector();
+        final List <PiCalls> calls = pc.supplier().get();
 
         return piCalls;
     }
 
-    public List <PiCalls> mergeCalls () {
-        return new ArrayList <>();
+    public List <PiCalls> mergeCalls ( List <PiCalls> calls ) {
+        final List <PiCalls> mergedCalls = new ArrayList <>();
+        for (int i = 0; i < calls.size(); i++) {
+            final ListTerm piCalls = calls.get(i);
+            final ITerm[] heads = piCalls.getHeads();
+            final int len = heads.length;
+            final ITerm calli = heads[i];
+            for (int j = 1; j < len; j++) {
+                ITerm callj = heads[j];
+                final ITerm headsij = mergeCalls(heads[i], heads[j]);
+            }
+        }
+
+        return mergedCalls;
+    }
+
+    private ITerm mergeCalls ( ITerm head, ITerm head1 ) {
+        return null;
     }
 
     /**
