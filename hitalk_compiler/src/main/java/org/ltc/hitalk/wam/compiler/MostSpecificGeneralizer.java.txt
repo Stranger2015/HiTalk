@@ -1,0 +1,396 @@
+package org.ltc.hitalk.wam.compiler;
+
+import org.apache.commons.lang3.mutable.MutableInt;
+import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.entities.context.ExecutionContext;
+import org.ltc.hitalk.entities.context.IMetrics;
+import org.ltc.hitalk.term.HtVariable;
+import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.ListTerm;
+import org.ltc.hitalk.term.io.Environment;
+
+import java.util.*;
+
+import static org.ltc.hitalk.parser.HiLogParser.hilogApply;
+import static org.ltc.hitalk.wam.compiler.MostSpecificGeneralizer.MsgState.*;
+
+/**
+ *
+ */
+public class MostSpecificGeneralizer {
+
+    protected final Map <HtVariable, ITerm> dict1 = new HashMap <>();
+    protected final Map <HtVariable, ITerm> dict2 = new HashMap <>();
+
+    protected IVafInterner interner = Environment.instance().getInterner();
+
+    protected final Deque <ITerm> term1Stack = new ArrayDeque <>();
+    protected final Deque <ITerm> term2Stack = new ArrayDeque <>();
+    protected final Deque <ITerm> resultStack = new ArrayDeque <>();
+    protected final Deque <MutableInt> indicesStack = new ArrayDeque <>();
+    protected final Deque <MsgState> statesStack = new ArrayDeque <>();
+
+    /**
+     * @param state
+     */
+    public void setState ( MsgState state ) {
+        statesStack.push(state);
+    }
+
+    /**
+     * @return
+     */
+    public MsgState getState () {
+        return statesStack.peek();
+    }
+
+    /**
+     * @return
+     */
+    public MsgState popState () {
+        return statesStack.pop();
+    }
+
+    /**
+     *
+     */
+    public enum MsgState {
+        ENTER_TERM,
+        EXIT_TERM,
+
+        ENTER_FUNCTOR,
+
+        ENTER_NAME,
+        EXIT_NAME,
+
+        ENTER_ARGS,
+        EXIT_ARGS,
+
+        EXIT_FUNCTOR,
+
+        ENTER_LIST,
+
+        ENTER_ELEM,
+        EXIT_ELEM,
+
+        EXIT_LIST,
+
+
+        ;
+
+        MsgState () {
+        }
+    }
+
+    protected int depth = 0;
+    //    protected int index;
+    protected boolean halt;
+
+    /**
+     *
+     */
+    public MostSpecificGeneralizer () {
+
+    }
+
+    /**
+     * HiLog
+     *
+     * @param term1
+     * @param term2
+     * @return
+     */
+    public ITerm msg ( ITerm term1, ITerm term2 ) {
+        for (; !halt; ) {//halt = depth == 0 && results.isEmpty()
+            switch (getState()) {
+                case ENTER_TERM:
+                    resultStack.push(enterTerm(term1, term2));
+                    break;
+                case EXIT_TERM:
+//                    popState();
+                    if (--depth == 0) {
+                        halt = true;
+                    } else {
+                        term1 = term1Stack.pop();
+                        term2 = term2Stack.pop();
+                    }
+                    break;
+                case ENTER_FUNCTOR:
+                    if (isSimilar(term1, term2) && term1.isCompound()) {
+                        resultStack.push(enterFunctor(term1, term2));
+                        term1Stack.push(term1);
+                        term2Stack.push(term2);
+                        setState(ENTER_NAME);
+                    } else {
+                        resultStack.push(updateDictNewVar(term1, term2));
+                        setState(EXIT_FUNCTOR);
+                    }
+                    break;
+                case EXIT_FUNCTOR:
+                    popState();
+                    break;
+                case ENTER_NAME:
+                    resultStack.push(enterName(term1, term2));
+                    setState(ENTER_ARGS);
+                    break;
+                case EXIT_NAME:
+                    setState(ENTER_ARGS);
+                    depth++;//??
+                    break;
+                case ENTER_ARGS:
+                    setState(ENTER_LIST);
+                    break;
+                case EXIT_ARGS:
+                    setState(EXIT_FUNCTOR);
+                    break;
+                case ENTER_LIST:
+                    final IFunctor f1 = (IFunctor) term1;
+                    final IFunctor f2 = (IFunctor) term2;
+                    ListTerm lt1 = f1.getArgsAsListTerm();
+                    ListTerm lt2 = f2.getArgsAsListTerm();
+                    resultStack.push(enterList(lt1, lt2));
+                    setState(ENTER_ELEM);
+                    break;
+                case ENTER_ELEM:
+                    resultStack.push(enterElem(term1, term2));
+                    setState(EXIT_ELEM);
+                    break;
+                case EXIT_ELEM:
+                    popState();
+                    break;
+                case EXIT_LIST://set tail
+                    resultStack.push(exitList(term1, term2));
+                    popState();
+                    break;
+                default:
+                    throw new IllegalStateException("Unknown element " + getState());
+            }
+        }
+
+        return resultStack.pop();
+    }
+
+    /**
+     * @param term1
+     * @param term2
+     * @return
+     */
+    private ITerm enterTerm ( ITerm term1, ITerm term2 ) {
+        ITerm result = resultStack.peek();
+        if (term1.isVar() && (term1 == term2)) {
+            result = updateDict((HtVariable) term1, term1, term2);
+        } else if (term1.isVar() || term2.isVar()) {
+            result = updateDictNewVar(term1, term2);
+        } else if (!term1.isVar() && !term2.isVar() && !isSimilar(term1, term2)) {
+            result = updateDictNewVar(term1, term2);
+        } else if (term1.isConstant() && term2.isConstant()) {
+            if (term1 == term2) {
+                result = term1;
+            } else {// for HiLog this is covered by cmp branch
+                result = updateDictNewVar(term1, term2);
+            }
+        }
+
+        return result;
+    }
+
+    private ITerm exitTerm ( ITerm term1, ITerm term2 ) {
+        popState();
+        return resultStack.pop();
+    }
+
+    /**
+     * @param term1
+     * @param term2
+     * @return
+     */
+    private ITerm updateDictNewVar ( ITerm term1, ITerm term2 ) {
+        return updateDict(new HtVariable(), term1, term2);
+    }
+
+    /**
+     * @param term1
+     * @param term2
+     * @return
+     */
+    private ITerm enterElem ( ITerm term1, ITerm term2 ) {
+        int index = indicesStack.peek().incrementAndGet();
+            if (index++ < len) {
+                term1Stack.push(lt1.get(index));
+                term2Stack.push(lt2.get(index));
+                depth++;
+//                setState(ENTER_ELEM);
+            } else {
+//                resultStack.push( closeList((ListTerm) resultStack.peek(), lt1, lt2));
+                setState(EXIT_LIST);
+            }
+            Objects.requireNonNull(indicesStack.peek()).increment();
+//        term1Stack.push(term1);
+//        term2Stack.push(term2);
+
+//            for (int i = 0, len = Math.min(term1.size(), term2.size()); i < len; i++) {
+//                ITerm newEl = msg(term1.get(i), term2.get(i));
+//                result.setArgument(i, newEl);>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+//            }
+        ITerm elem=resultStack.peek();
+
+        return resultStack.pop();
+    }
+ /**
+     * @param term1
+     * @param term2
+     * @return
+     */
+    private ITerm enterList ( ITerm term1, ITerm term2 ) {
+        int index = indicesStack.peek().intValue();
+        int len = 0;
+//        resultStack.push( NIL);
+        ListTerm lt1 = (ListTerm) term1;
+        ListTerm lt2 = (ListTerm) term2;
+        if (index == 0) {//init without IF
+            len = Math.min(lt1.size(), lt2.size());
+            resultStack.push(new ListTerm(len));
+//            setState(ENTER_ELEM);
+        }
+
+        return resultStack.pop();
+    }
+
+    /**
+     * @param lt1
+     * @param lt2
+     * @return
+     */
+    private ITerm exitElem ( ITerm lt1, ITerm lt2 ) {
+        return closeList((ListTerm) resultStack.peek(), (ListTerm) lt1, (ListTerm) lt2);
+    }
+
+    /**
+     * @param lt1
+     * @param lt2
+     * @return
+     */
+    private ITerm exitList ( ITerm lt1, ITerm lt2 ) {
+//        return closeList((ListTerm) resultStack.peek(), (ListTerm) lt1, (ListTerm) lt2);
+    }
+
+    /**
+     * @param result
+     * @param term1
+     * @param term2
+     * @return
+     */
+    private ListTerm closeList ( ListTerm result, ListTerm term1, ListTerm term2 ) {
+        resultStack.push(result.newTail(term1.size() == term2.size()));
+        return result;
+    }
+
+    /**
+     * @param f1
+     * @param f2
+     * @return
+     */
+    public ITerm exitFunctor ( ITerm f1, ITerm f2 ) {
+        return resultStack.pop();
+    }
+
+    private ITerm enterName ( ITerm term1, ITerm term2 ) {
+        IFunctor f1 = (IFunctor) term1;
+        IFunctor f2 = (IFunctor) term2;
+        if (f1.getName() == f2.getName()) { //f(Xn) f(Yn)
+            resultStack.push(new HtFunctor(f1.getName(), f1.getArity(), 0));
+        } else {  //F(Xn) F(Yn)      //new list functor
+            resultStack.push(new HtFunctor(hilogApply, new ITerm[]{updateDictNewVar(f1, f2), new ListTerm()}));
+        }
+
+        return resultStack.pop();
+    }
+
+
+    public ITerm exitName ( ITerm f1, ITerm f2 ) {
+        return resultStack.pop();
+    }
+
+    public ITerm enterFunctor ( ITerm f1, ITerm f2 ) {
+//        IFunctor result = (IFunctor) resultStack.peek();
+        if (f1.isHiLog()) {
+            term1Stack.push(f1);
+            term2Stack.push(f2);
+//                term1 = f1.getArgument(0);
+//                term2 = f2.getArgument(0);
+            depth++;
+            setState(ENTER_TERM);
+        } else {
+            depth++;
+            setState(ENTER_NAME);
+        }
+//        return (f1.getArgsAsListTerm(),f2.getArgsAsListTerm());
+
+        return resultStack.pop();
+    }
+
+    /**
+     * @param term1
+     * @param term2
+     * @return
+     */
+    private static boolean isSimilar ( ITerm term1, ITerm term2 ) {
+        return (term1.isConstant() && term1 == term2) || (term1.isCompound() && term2.isCompound());
+    }
+
+    private HtVariable updateDict ( HtVariable newVar, ITerm term1, ITerm term2 ) {
+        dict1.put(newVar, term1);
+        dict2.put(newVar, term2);
+        return newVar;
+    }
+//    ============================================================================================
+
+    /**
+     * @return
+     */
+//    @Override
+    public ExecutionContext getContext () {
+        return null;
+    }
+
+    /**
+     * @param context
+     */
+//    @Override
+    public void setContext ( ExecutionContext context ) {
+
+    }
+
+    /**
+     * @param max
+     * @return
+     */
+//    @Override
+    public boolean isAcceptable ( IMetrics max ) {
+        return false;
+    }
+
+    /**
+     *
+     */
+//    @Override
+    public void cancel () {
+
+    }
+
+    /**
+     * When an object implementing interface <code>Runnable</code> is used
+     * to create a thread, starting the thread causes the object's
+     * <code>run</code> method to be called in that separately executing
+     * thread.
+     * <p>
+     * The general contract of the method <code>run</code> is that it may
+     * take any action whatsoever.
+     *
+     * @see Thread#run()
+     */
+//    @Override
+    public void run () {
+
+    }
+}

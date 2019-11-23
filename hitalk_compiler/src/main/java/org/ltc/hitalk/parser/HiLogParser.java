@@ -1,6 +1,5 @@
 package org.ltc.hitalk.parser;
 
-import com.thesett.aima.logic.fol.Functor;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.TermFactory;
@@ -9,6 +8,7 @@ import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.Language;
 
 import java.io.IOException;
@@ -24,7 +24,7 @@ import static org.ltc.hitalk.wam.compiler.Language.HILOG;
 public class HiLogParser extends PlPrologParser {
 
     public static final String HILOG_APPLY = "$hilog_apply";
-    public static int hilogApply = -1;
+    public static int hilogApply = -2;
 
     /**
      * Builds a
@@ -51,8 +51,8 @@ public class HiLogParser extends PlPrologParser {
     }
 
     //    @Override
-    protected Functor compound ( String name, ListTerm args ) throws IOException, ParseException {
-        Functor result;
+    protected IFunctor compound ( String name, ListTerm args ) throws IOException, ParseException {
+        IFunctor result;
         if (hilogFunctors.contains(name)) {
             result = factory.newFunctor(hilogApply, name, args);// :- hilog p, q, pi/N =>
 // hilog p/_ q/_, pi_N/N, pi_1/1, piA1_A2/1-2.

@@ -16,7 +16,7 @@ interface PrologAtoms {
     String IF = "->";
     String IF_STAR = "*-> ";
     String COMMA = ",";
-    String NOT = "\\;";
+    String NOT = "\\+";
     String UNIFIES = "=";
     String NON_UNIFIES = "\\=";
     String IDENTICAL = "==";

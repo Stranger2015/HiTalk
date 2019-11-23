@@ -13,5 +13,5 @@ public interface ILiteralTypeVisitor extends ITermVisitor {
 
     }
 
-    void visit ( HtLiteralType term1, HtLiteralType term2 );
+//    void visit ( HtLiteralType term1, HtLiteralType term2 );
 }

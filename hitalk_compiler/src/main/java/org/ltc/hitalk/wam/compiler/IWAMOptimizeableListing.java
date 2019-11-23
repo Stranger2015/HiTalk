@@ -21,7 +21,6 @@ import java.util.List;
 public
 interface IWAMOptimizeableListing {
 
-
     /**
      * Provides the compiled byte code instructions as an unmodifiable list.
      *

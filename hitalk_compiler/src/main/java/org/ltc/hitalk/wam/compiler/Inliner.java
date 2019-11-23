@@ -1,11 +1,10 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.Term;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
-import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.transformers.IInliner;
 import org.ltc.hitalk.wam.transformers.TransformInfo;
 import org.slf4j.Logger;
@@ -16,7 +15,7 @@ import java.util.List;
 /**
  *
  */
-public class Inliner implements IInliner <Term> {
+public class Inliner implements IInliner <ITerm> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
@@ -36,18 +35,9 @@ public class Inliner implements IInliner <Term> {
     }
 
     /**
-     * @param clause
-     * @return
-     */
-    @Override
-    public HtClause inline ( HtClause clause ) {
-        return clause;
-    }
-
-    /**
      *
      */
-    @Override
+//    @Override
     public void reset () {
 
     }
@@ -73,13 +63,20 @@ public class Inliner implements IInliner <Term> {
         return false;
     }
 
-    @Override
     public TransformInfo getBestSoFarResult () {
         return null;
     }
 
+    /**
+     * @param clause
+     * @return
+     */
+    public List <ITerm> inline ( ITerm clause ) {
+        return null;
+    }
+
     @Override
-    public Term transform ( Term t ) {
+    public List <ITerm> transform ( ITerm t ) {
         return null;
     }
 

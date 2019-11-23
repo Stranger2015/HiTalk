@@ -76,6 +76,11 @@ public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingCon
         this.anonymous = anonymous;
     }
 
+    public HtVariable () {
+        anonymous = true;
+        name = id;
+    }
+
     /**
      * Provides this variables binding context.
      *

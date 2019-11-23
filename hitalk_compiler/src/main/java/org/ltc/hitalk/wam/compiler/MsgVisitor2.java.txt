@@ -1,0 +1,221 @@
+package org.ltc.hitalk.wam.compiler;
+
+import com.thesett.aima.logic.fol.IntegerType;
+import com.thesett.aima.logic.fol.LinkageException;
+import com.thesett.aima.logic.fol.LiteralType;
+import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.HtVariable;
+import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.ListTerm;
+import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
+import org.ltc.hitalk.wam.printer.IListTermVisitor;
+import org.ltc.hitalk.wam.printer.IPositionalTermTraverser;
+
+/**
+ * import java.util.List;
+ * <p>
+ * class Client {
+ * public static void main(String[] args) {
+ * List<Node> nodes = Arrays.asList(new NodeA(), new NodeB());
+ * List<NodeVisitor> visitors = Arrays.asList(new NodeVisitor1(), new NodeVisitor2());
+ * <p>
+ * for (Node node : nodes) {
+ * for (NodeVisitor visitor : visitors) {
+ * node.accept(visitor);
+ * }
+ * }
+ * }
+ * }
+ * <p>
+ * interface Node {
+ * void accept(NodeVisitor visitor);
+ * }
+ * <p>
+ * interface NodeVisitor {
+ * void visit(Node node);
+ * }
+ * <p>
+ * class NodeA implements Node {
+ *
+ * @Override public void accept(NodeVisitor visitor) {
+ * visitor.visit(this);
+ * }
+ * @Override public String toString() {
+ * return "Node A";
+ * }
+ * }
+ * <p>
+ * class NodeB implements Node {
+ * @Override public void accept(NodeVisitor visitor) {
+ * visitor.visit(this);
+ * }
+ * @Override public String toString() {
+ * return "Node B";
+ * }
+ * }
+ * <p>
+ * class NodeVisitor1 implements NodeVisitor {
+ * @Override public void visit(Node node) {
+ * System.out.println("Node visitor 1, node " + node);
+ * }
+ * }
+ * <p>
+ * class NodeVisitor2 implements NodeVisitor {
+ * @Override public void visit(Node node) {
+ * System.out.println("Node visitor 2, node " + node);
+ * }
+ * }
+ */
+public class MsgVisitor2 extends HtBasePositionalVisitor {
+//    private final MsgVisitor2 visitor2;
+
+    /**
+     * @param symbolTable
+     * @param interner
+     * @param traverser
+     */
+    public MsgVisitor2 ( SymbolTable <Integer, String, Object> symbolTable,
+                         IVafInterner interner,
+                         IPositionalTermTraverser traverser ) {
+        super(symbolTable, interner, traverser);
+    }
+
+    public IListTermVisitor getIListTermVisitor () {
+        return null;
+    }
+
+    /**
+     * @param listTerm
+     */
+    @Override
+    protected void enterListTerm ( ListTerm listTerm ) throws LinkageException {
+
+    }
+
+    @Override
+    protected void leaveListTerm ( ListTerm listTerm ) {
+        super.leaveListTerm(listTerm);
+    }
+
+    /**
+     * Called when a clause is entered during the visitation.
+     *
+     * @param clause The clause being entered.
+     */
+    @Override
+    protected void enterClause ( HtClause clause ) throws LinkageException {
+        super.enterClause(clause);
+    }
+
+    /**
+     * Called when a clause is being left during the visitation.
+     *
+     * @param clause The clause being left.
+     */
+    @Override
+    protected void leaveClause ( HtClause clause ) {
+        super.leaveClause(clause);
+    }
+
+    /**
+     * Called when a integer literal is entered during the visitation.
+     *
+     * @param literal The integer literal being entered.
+     */
+    @Override
+    protected void enterIntLiteral ( IntegerType literal ) {
+        super.enterIntLiteral(literal);
+    }
+
+    /**
+     * Called when a integer literal is being left during the visitation.
+     *
+     * @param literal The integer literal being left.
+     */
+    @Override
+    protected void leaveIntLiteral ( IntegerType literal ) {
+        super.leaveIntLiteral(literal);
+    }
+
+    /**
+     * Called when a literal is entered during the visitation.
+     *
+     * @param literal The literal being entered.
+     */
+    @Override
+    protected void enterLiteral ( LiteralType literal ) {
+        super.enterLiteral(literal);
+    }
+
+    /**
+     * Called when a literal is being left during the visitation.
+     *
+     * @param literal The literal being left.
+     */
+    @Override
+    protected void leaveLiteral ( LiteralType literal ) {
+        super.leaveLiteral(literal);
+    }
+
+    /**
+     * Called when a term is entered during the visitation.
+     *
+     * @param term The term being entered.
+     */
+    @Override
+    protected void enterTerm ( ITerm term ) {
+        super.enterTerm(term);
+    }
+
+    /**
+     * Called when a term is being left during the visitation.
+     *
+     * @param term The term being left.
+     */
+    @Override
+    protected void leaveTerm ( ITerm term ) {
+        super.leaveTerm(term);
+    }
+
+    /**
+     * Called when a functor is entered during the visitation.
+     *
+     * @param functor The functor being entered.
+     */
+    @Override
+    protected void enterFunctor ( IFunctor functor ) throws LinkageException {
+        super.enterFunctor(functor);
+    }
+
+    /**
+     * Called when a functor is being left during the visitation.
+     *
+     * @param functor The functor being left.
+     */
+    @Override
+    protected void leaveFunctor ( IFunctor functor ) {
+        super.leaveFunctor(functor);
+    }
+
+    /**
+     * Called when a variable is entered during the visitation.
+     *
+     * @param variable The variable being entered.
+     */
+    @Override
+    protected void enterVariable ( HtVariable variable ) {
+        super.enterVariable(variable);
+    }
+
+    /**
+     * Called when a variable is being left during the visitation.
+     *
+     * @param variable The variable being left.
+     */
+    @Override
+    protected void leaveVariable ( HtVariable variable ) {
+        super.leaveVariable(variable);
+    }
+}

@@ -18,5 +18,5 @@ interface IClauseVisitor extends ITermVisitor {
 
     }
 
-    void visit ( HtClause clause1, HtClause clause2 ) throws LinkageException;
+//    void visit ( HtClause clause1, HtClause clause2 ) throws LinkageException;
 }

@@ -19,5 +19,5 @@ IPredicateVisitor extends ITermVisitor {
 
     }
 
-    void visit ( HtPredicate predicate1, HtPredicate predicate2 );
+//    void visit ( HtPredicate predicate1, HtPredicate predicate2 );
 }

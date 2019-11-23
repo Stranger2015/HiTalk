@@ -1,29 +1,27 @@
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.Functor;
-import com.thesett.aima.logic.fol.FunctorTransformer;
-import com.thesett.aima.logic.fol.FunctorVisitor;
-import com.thesett.aima.logic.fol.TermVisitor;
 import com.thesett.aima.search.Operator;
 import org.ltc.hitalk.compiler.IVafInterner;
-import org.ltc.hitalk.term.HtBaseTerm;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ITermTransformer;
+import org.ltc.hitalk.term.ITermVisitor;
+import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.printer.IFunctorTraverser;
 
 import java.util.*;
 import java.util.stream.IntStream;
 
 import static java.lang.String.format;
-import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
+import static org.ltc.hitalk.term.ListTerm.Kind.LIST;
 
 /**
  *
  */
-public class HtFunctor extends HtBaseTerm implements IFunctor {
+public class HtFunctor extends ListTerm implements IFunctor {
 
-    protected final int name;
-    protected ITerm[] args;
+    //    protected final int name;
+    protected ListTerm args;//nameArgsTail
 
     /**
      * @param name
@@ -31,8 +29,8 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
      * @param arityDelta
      */
     public HtFunctor ( int name, int arityMin, int arityDelta ) {
-        this.name = name;
-        args = EMPTY_TERM_ARRAY;
+//        this.name = name;
+//        args =fixme
 
         setArityRange(arityMin, arityDelta);
     }
@@ -42,7 +40,7 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
      * @param args
      */
     public HtFunctor ( int name, ITerm[] args ) {
-        this(name, args, 0);
+        this.args = new ListTerm(LIST, args);
     }
 
     /**
@@ -51,21 +49,26 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
      * @param arityDelta
      */
     public HtFunctor ( int name, ITerm[] args, int arityDelta ) {
-        this.name = name;
-        this.args = args;
+        this(name, args);
         setArityRange(args.length, arityDelta);
     }
 
-    public int getName () {
-        return name;
+//    public int getName () {
+//        return name;
+//    }
+
+    @Override
+    public ITerm[] getArguments () {
+        return args.getHeads();
     }
 
-    public ITerm[] getArguments () {
+    @Override
+    public ListTerm getArgsAsListTerm () {
         return args;
     }
 
     public ITerm getArgument ( int i ) {
-        return args[i];
+        return args.getHeads()[i];
     }
 
     /**
@@ -107,7 +110,7 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
      */
     @Override
     public void free () {
-        for (ITerm arg : args) {
+        for (ITerm arg : args.getHeads()) {
             arg.free();
         }
     }
@@ -134,13 +137,13 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
 
         IFunctor functor = (IFunctor) comparator;
 
-        if ((args.length != functor.getArity()) || (name != functor.getName())) {
+        if ((args.getHeads().length != functor.getArity())/* || (name != functor.getName())*/) {
             return false;
         }
         // Check the arguments of this functor and the comparator for structural equality.
         boolean passedArgCheck = true;
-        for (int i = 0; i < args.length; i++) {
-            ITerm leftArg = args[i];
+        for (int i = 0; i < args.getHeads().length; i++) {
+            ITerm leftArg = args.getHeads()[i];
             ITerm rightArg = functor.getArgument(i);
             if (!leftArg.structuralEquals(rightArg)) {
                 passedArgCheck = false;
@@ -175,7 +178,7 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
 
         Functor functor = (Functor) comparator;
 
-        return (args.length == functor.getArity() && (name == functor.getName()));
+        return (args.getHeads().length == functor.getArity()/* && (name == functor.getName()*/);
     }
 
     /**
@@ -185,9 +188,9 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
      * @return A hash code based on the name and arity.
      */
     public int hashCode () {
-        int result;
-        result = name;
-        result = (31 * result) + args.length;
+        int result = 0;//fixmwe
+//        result = name;
+        result = (31 * result) + args.getHeads().length;
 
         return result;
     }
@@ -206,12 +209,12 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
             if (args == null) {
                 return Collections.emptyIterator();
             } else if (!reverse) {
-                return Arrays.asList((Operator <ITerm>[]) args).iterator();
+                return Arrays.asList((Operator <ITerm>[]) args.getHeads()).iterator();
             } else {
                 List <Operator <ITerm>> argList = new LinkedList <>();
 
-                for (int i = args.length - 1; i >= 0; i--) {
-                    argList.add(args[i]);
+                for (int i = args.getHeads().length - 1; i >= 0; i--) {
+                    argList.add(args.getHeads()[i]);
                 }
 
                 return argList.iterator();
@@ -228,8 +231,8 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
         /*log.fine("public Functor queryConversion(): called)");*/
 
         IFunctor copy = (IFunctor) super.queryConversion();
-        copy.setArguments(new ITerm[args.length]);
-        IntStream.range(0, args.length).forEachOrdered(i ->
+        copy.setArguments(new ITerm[args.size()]);
+        IntStream.range(0, args.size()).forEachOrdered(i ->
                 copy.setArgument(i, queryConversion()));
 
         return copy;
@@ -242,14 +245,14 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
      */
     public String toString () {
         return format("%s: [ name = %d, arity = %d, arguments = %s ]",
-                getClass().getSimpleName(), name, args.length, toStringArguments());
+                getClass().getSimpleName(), getName(), args.size(), toStringArguments());
     }
 
     /**
      * {@inheritDoc}
      */
-    public void accept ( TermVisitor visitor ) {
-        if (visitor instanceof FunctorVisitor) {
+    public void accept ( ITermVisitor visitor ) {
+        if (visitor instanceof IFunctorVisitor) {
             visitor.visit(this);
         } else {
             super.accept(visitor);
@@ -259,17 +262,17 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
     /**
      * {@inheritDoc}
      */
-    public IFunctor acceptTransformer ( ITermTransformer transformer ) {
-        IFunctor result;
+    public List <ITerm> acceptTransformer ( ITermTransformer transformer ) {
+        List <ITerm> result;
 
-        if (transformer instanceof FunctorTransformer) {
-            result = (IFunctor) transformer.transform(this);
+        if (transformer instanceof IFunctorTransformer) {
+            result = transformer.transform(this);
         } else {
-            result = (IFunctor) super.acceptTransformer(transformer);
+            result = super.acceptTransformer(transformer);
         }
 
-        IntStream.range(0, args.length).forEachOrdered(i ->
-                result.getArguments()[i] = args[i].acceptTransformer(transformer));
+//        IntStream.range(0, args.size()).forEachOrdered(i -> FIXME
+//                result.getArgument(i) = args[i].acceptTransformer(transformer));
 
         return result;
     }
@@ -277,20 +280,21 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
     /**
      * {@inheritDoc}
      */
+    @Override
     public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
-        if (name < 0) {
+        if (getName() < 0) {
             return "internal_built_in";
         }
 
-        StringBuilder result = new StringBuilder(interner.getFunctorName(name));
+        StringBuilder result = new StringBuilder(interner.getFunctorName(getName()));
 
-        if (args.length > 0) {
+        if (args.size() > 0) {
             result.append("(");
 
-            IntStream.range(0, args.length).forEachOrdered(i -> {
-                ITerm nextArg = args[i];
+            IntStream.range(0, args.size()).forEachOrdered(i -> {
+                ITerm nextArg = getArgument(i);
                 result.append(nextArg.toString(interner, printVarName, printBindings));
-                result.append((i < (args.length - 1)) ? ", " : "");
+                result.append((i < (args.size() - 1)) ? ", " : "");
             });
 
             result.append(")");
@@ -304,38 +308,22 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
      *
      * @return A string reprenestation of this functors arguments.
      */
+    @Override
     public String toStringArguments () {
         StringBuilder result = new StringBuilder();
 
-        if (args.length > 0) {
+        if (args.size() > 0) {
             result.append("[ ");
 
-            IntStream.range(0, args.length).forEachOrdered(i -> {
-                ITerm nextArg = args[i];
+            IntStream.range(0, args.size()).forEachOrdered(i -> {
+                ITerm nextArg = getArgument(i);
                 result.append((nextArg != null) ? nextArg.toString() : "<null>");
-                result.append((i < (args.length - 1)) ? ", " : " ");
+                result.append((i < (args.size() - 1)) ? ", " : " ");
             });
 
             result.append(" ]");
         }
 
         return result.toString();
-    }
-
-    /**
-     * @param i
-     * @param term
-     */
-    @Override
-    public void setArgument ( int i, ITerm term ) {
-        args[i] = term;
-    }
-
-    /**
-     * @param terms
-     */
-    @Override
-    public void setArguments ( ITerm[] terms ) {
-        args = terms;
     }
 }

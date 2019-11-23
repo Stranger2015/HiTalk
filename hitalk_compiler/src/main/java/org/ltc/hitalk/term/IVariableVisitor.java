@@ -4,6 +4,7 @@ package org.ltc.hitalk.term;
  *
  */
 public interface IVariableVisitor extends ITermVisitor {
+
     /**
      * @param variable
      */
@@ -11,5 +12,5 @@ public interface IVariableVisitor extends ITermVisitor {
 
     }
 
-    void visit ( HtVariable variable1, HtVariable variable2 );
+//    void visit ( HtVariable variable1, HtVariable variable2 );
 }

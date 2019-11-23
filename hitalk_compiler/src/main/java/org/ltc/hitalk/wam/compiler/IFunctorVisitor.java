@@ -38,5 +38,5 @@ public interface IFunctorVisitor extends ITermVisitor {
 
     }
 
-    void visit ( IFunctor functor1, IFunctor functor2 ) throws LinkageException;
+//    void visit ( IFunctor functor1, IFunctor functor2 ) throws LinkageException;
 }

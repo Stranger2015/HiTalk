@@ -18,6 +18,8 @@ public interface IFunctor extends ITerm, IRangedArity {
      */
     ITerm[] getArguments ();
 
+    ListTerm getArgsAsListTerm ();
+
     /**
      * @param i
      * @return

@@ -57,7 +57,7 @@ class Atom extends HtFunctor {
     /**
      * @return
      */
-//    @Override
+    @Override
     public
     boolean isHiLog () {
         return false;

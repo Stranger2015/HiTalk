@@ -8,6 +8,9 @@ import org.ltc.hitalk.term.ListTerm;
  *
  */
 public interface IListTermVisitor extends ITermVisitor {
+
+    IListTermVisitor getIListTermVisitor ();
+
     /**
      * @param listTerm
      * @throws LinkageException
@@ -16,5 +19,5 @@ public interface IListTermVisitor extends ITermVisitor {
 
     }
 
-    void visit ( ListTerm listTerm1, ListTerm listTerm2 ) throws LinkageException;
+//    void visit ( ListTerm listTerm1, ListTerm listTerm2 ) throws LinkageException;
 }

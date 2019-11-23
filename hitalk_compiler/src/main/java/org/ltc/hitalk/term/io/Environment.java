@@ -1,5 +1,5 @@
-package org.ltc.hitalk.term.io;
 
+package org.ltc.hitalk.term.io;
 
 import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.common.util.doublemaps.SymbolTable;
@@ -13,9 +13,12 @@ import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.interpreter.HtResolutionEngine;
+import org.ltc.hitalk.parser.HiLogParser;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlDynamicOperatorParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.wam.compiler.HtFunctor;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
@@ -39,6 +42,8 @@ class Environment {
             throw new ExecutionError(PERMISSION_ERROR, null);
         }
     }
+
+    public static final IFunctor HILOG_APPLY_FUNCTOR = new HtFunctor(HiLogParser.hilogApply, 1, 0);
 
     private IVafInterner interner;
     private ITermFactory termFactory;

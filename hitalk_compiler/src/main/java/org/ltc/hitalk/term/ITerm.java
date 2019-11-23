@@ -83,6 +83,14 @@ import java.util.List;
  * @author Rupert Smith
  */
 public interface ITerm extends ReTraversable <ITerm>, Operator <ITerm> {
+
+    /**
+     * @return
+     */
+    default boolean isList () {
+        return this instanceof ListTerm;
+    }
+
     /**
      * Reports whether or not this term is a number.
      *
@@ -132,6 +140,7 @@ public interface ITerm extends ReTraversable <ITerm>, Operator <ITerm> {
      */
     boolean isGround ();
 
+    boolean isHiLog ();
     /**
      * Gets the actual value of a term, which is either the term itself, or in the case of variables, the value that is
      * currently assigned to the variable.
@@ -243,7 +252,7 @@ public interface ITerm extends ReTraversable <ITerm>, Operator <ITerm> {
      */
     void accept ( ITermVisitor visitor );
 
-    void accept ( ITermVisitor visitor, );
+//    void accept ( ITermVisitor visitor, );
 
     /**
      * Applies a term to term transformation function over the term tree, recursively from this point downwards. This is
