@@ -1,5 +1,6 @@
 package org.ltc.hitalk.wam.compiler;
 
+import com.sun.org.apache.xalan.internal.xsltc.compiler.sym;
 import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.search.Operator;
 import org.ltc.hitalk.compiler.IVafInterner;
@@ -32,6 +33,7 @@ public class HtFunctor extends ListTerm implements IFunctor {
 //        this.name = name;
 //        args =fixme
 
+        super(Kind.LIST, sym.getName(), calls.getHeads());
         setArityRange(arityMin, arityDelta);
     }
 
@@ -40,6 +42,7 @@ public class HtFunctor extends ListTerm implements IFunctor {
      * @param args
      */
     public HtFunctor ( int name, ITerm[] args ) {
+        super(Kind.LIST, sym.getName(), calls.getHeads());
         this.args = new ListTerm(LIST, args);
     }
 

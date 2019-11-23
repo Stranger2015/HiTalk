@@ -1,6 +1,5 @@
 package org.ltc.hitalk.core;
 
-import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
@@ -93,7 +92,7 @@ public interface ICompiler<T extends HtClause, P, Q> extends ILogicCompiler <T, 
     /**
      * @param resolver
      */
-    void setResolver ( Resolver <P, Q> resolver );
+    void setResolver ( IResolver <P, Q> resolver );
 
     void compile ( String fileName, HtProperty... flags ) throws IOException, SourceCodeException;
 

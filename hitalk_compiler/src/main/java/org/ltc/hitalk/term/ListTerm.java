@@ -25,8 +25,11 @@ public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
 
     /**
      *
+     * @param list
+     * @param name
+     * @param heads
      */
-    public ListTerm () {
+    public ListTerm ( Kind list, int name, ITerm[] heads ) {
         this(Kind.NIL, EMPTY_TERM_ARRAY);
     }
 

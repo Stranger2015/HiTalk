@@ -1,6 +1,16 @@
 package org.ltc.hitalk.core;
 
+import com.thesett.aima.logic.fol.LinkageException;
+import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.entities.HtPredicate;
+import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.ListTerm;
+import org.ltc.hitalk.term.io.Environment;
+import org.ltc.hitalk.wam.compiler.HtFunctor;
+
 import java.util.function.Consumer;
+
+import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
 
 /**
  *
@@ -8,282 +18,301 @@ import java.util.function.Consumer;
 public
 enum PrologBuiltIns {
 
-    PUBLIC("public", o -> {
+    PUBLIC("public", listTerm -> {
+
     }),
 
-    PROTECTED("protected", o -> {
-    }),
-    PRIVATE("private", o -> {
+    PROTECTED("protected", listTerm -> {
     }),
 
-    INCLUDE("include", o -> {
+    PRIVATE("private", listTerm -> {
     }),
 
-    MULTIFILE("multifile", o -> {
-    }),
-    DISCONTIGUOUS("discontiguous", o -> {
-    }),
-    DYNAMIC("dynamic", o -> {
-    }),
-    STATIC("static", o -> {
-    }),
-    HILOG("hilog", o -> {
-    }),
-    ENCODING("encoding", o -> {
-    }),
-    TEXT("text", o -> {
-    }),
-    ISO_LATIN_1("iso_latin_1", o -> {
-    }),
-    UTF8("utf8", o -> {
-    }),
-    EXPAND_TERM("expand_term", o -> {
-    }),
-    EXPAND_GOAL("expand_goal", o -> {
-    }),
-    LOGTALK_LIBRARY_PATH("logtalk_library_path", o -> {
+    INCLUDE("include", listTerm -> {
     }),
 
-    OBJECT_PROPERTY("object_property", o -> {
+    MULTIFILE("multifile", listTerm -> {
     }),
-    CATEGORY_PROPERTY("category_property", o -> {
+    DISCONTIGUOUS("discontiguous", listTerm -> {
     }),
-    PROTOCOL_PROPERTY("protocol_property", o -> {
+    DYNAMIC("dynamic", listTerm -> {
     }),
-
-    COLON_COLON("::", o -> {
+    STATIC("static", listTerm -> {
     }),
-    UP_UP("^^", o -> {
+    HILOG("hilog", listTerm -> {
     }),
-    COMMA(",", o -> {
+    ENCODING("encoding", listTerm -> {
     }),
-    COLON(":", o -> {
+    TEXT("text", listTerm -> {
     }),
-    SEMICOLON(";", o -> {
+    ISO_LATIN_1("iso_latin_1", listTerm -> {
     }),
-    CUT("!", o -> {
+    UTF8("utf8", listTerm -> {
     }),
-    IMPLIES(":-", o -> {
+    EXPAND_TERM("expand_term", listTerm -> {
     }),
-    DCG_IMPLIES("-->", o -> {
+    EXPAND_GOAL("expand_goal", listTerm -> {
     }),
-    IF("->", o -> {
-    }),
-    IF_STAR("*->", o -> {
-    }),
-    PLUS("+", o -> {
-    }),
-    MINUS("-", o -> {
-    }),
-    MULT("*", o -> {
-    }),
-    DIV("/", o -> {
-    }),
-    AT("@", o -> {
-    }),
-    PLUS_PLUS("++", o -> {
-    }),
-    MINUS_MINUS("--", o -> {
-    }),
-    QUESTION("?", o -> {
-    }),
-    QUERY("?-", o -> {
-    }),
-    L_SHIFT("<<", o -> {
-    }),
-    R_SHIFT(">>", o -> {
-    }),
-    AS("as", o -> {
+    LOGTALK_LIBRARY_PATH("logtalk_library_path", listTerm -> {
     }),
 
-
-    BYPASS("{}", o -> {
+    OBJECT_PROPERTY("object_property", listTerm -> {
+    }),
+    CATEGORY_PROPERTY("category_property", listTerm -> {
+    }),
+    PROTOCOL_PROPERTY("protocol_property", listTerm -> {
     }),
 
-    INITIALIZATION("initialization", o -> {
+    COLON_COLON("::", listTerm -> {
+    }),
+    UP_UP("^^", listTerm -> {
+    }),
+    COMMA(",", listTerm -> {
+    }),
+    COLON(":", listTerm -> {
+    }),
+    SEMICOLON(";", listTerm -> {
+    }),
+    CUT("!", listTerm -> {
+    }),
+    IMPLIES(":-", listTerm -> {
+    }),
+    DCG_IMPLIES("-->", listTerm -> {
+    }),
+    IF("->", listTerm -> {
+    }),
+    IF_STAR("*->", listTerm -> {
+    }),
+    PLUS("+", listTerm -> {
+    }),
+    MINUS("-", listTerm -> {
+    }),
+    MULT("*", listTerm -> {
+    }),
+    DIV("/", listTerm -> {
+    }),
+    AT("@", listTerm -> {
+    }),
+    PLUS_PLUS("++", listTerm -> {
+    }),
+    MINUS_MINUS("--", listTerm -> {
+    }),
+    QUESTION("?", listTerm -> {
+    }),
+    QUERY("?-", listTerm -> {
+    }),
+    L_SHIFT("<<", listTerm -> {
+    }),
+    R_SHIFT(">>", listTerm -> {
+    }),
+    AS("as", listTerm -> {
     }),
 
-    OP("op", o -> {
-    }),
-    CURRENT_OP("current_op", o -> {
+
+    BYPASS("{}", listTerm -> {
     }),
 
-    TRUE("true", o -> {
-    }),
-    FAIL("fail", o -> {
-    }),
-    FALSE("false", o -> {
-    }),
-    NOT("\\+", o -> {
-    }),
-    UNIFIES("=", o -> {
-    }),
-    UNIV("=..", o -> {
-    }),
-    IS("is", o -> {
-    }),
-    NON_UNIFIES("\\=", o -> {
-    }),
-    ASSIGN(":=", o -> {
-    }),
-    CALL("call", o -> {
-    }),
-    OBJECT("object", o -> {
-    }),
-    NIL("nil", o -> {
-    }),
-    CONS("cons", o -> {
-    }),
-    PROTOCOL("protocol", o -> {
-    }),
-    CATEGORY("category", o -> {
-    }),
-    ENUMERATION("enumeration", o -> {
-    }),
-    IDENTICAL("==", o -> {
-    }),
-    NON_IDENTICAL("\\==", o -> {
-    }),
-    CLASS("class", o -> {
+    INITIALIZATION("initialization", listTerm -> {
     }),
 
-    END_OBJECT("end_object", o -> {
+    OP("op", listTerm -> {
     }),
-    END_PROTOCOL("end_protocol", o -> {
-    }),
-    END_CATEGORY("end_category", o -> {
+    CURRENT_OP("current_op", listTerm -> {
     }),
 
-    CURRENT_OBJECT("create_object", o -> {
+    TRUE("true", listTerm -> {
     }),
-    CURRENT_CATEGORY("create_category", o -> {
+    FAIL("fail", listTerm -> {
     }),
-    CURRENT_PROTOCOL("create_protocol", o -> {
+    FALSE("false", listTerm -> {
+    }),
+    NOT("\\+", listTerm -> {
+    }),
+    UNIFIES("=", listTerm -> {
+        final IResolver <HtPredicate, HtClause> resolver = Environment.instance().getResolver();
+        final IVafInterner interner = Environment.instance().getInterner();
+        final HtFunctor eqf = new HtFunctor(interner.internFunctorName("=", 2), EMPTY_TERM_ARRAY);// fixme
+        final HtClause query = new HtClause(null, null, new HtFunctor[]{eqf});
+        eqf.setArgument(0, listTerm.get(0));
+        eqf.setArgument(1, listTerm.get(1));
+
+        resolver.reset();
+        try {
+            resolver.setQuery(query);
+        } catch (LinkageException e) {
+            e.printStackTrace();
+        }
+        final boolean result = resolver.resolve() != null;
+    }),
+    UNIV("=..", listTerm -> {
+    }),
+    IS("is", listTerm -> {
+    }),
+    NON_UNIFIES("\\=", listTerm -> {
+    }),
+    ASSIGN(":=", listTerm -> {
+    }),
+    CALL("call", listTerm -> {
+    }),
+    OBJECT("object", listTerm -> {
+    }),
+    NIL("nil", listTerm -> {
+    }),
+    CONS("cons", listTerm -> {
+    }),
+    PROTOCOL("protocol", listTerm -> {
+    }),
+    CATEGORY("category", listTerm -> {
+    }),
+    ENUMERATION("enumeration", listTerm -> {
+    }),
+    IDENTICAL("==", listTerm -> {
+    }),
+    NON_IDENTICAL("\\==", listTerm -> {
+    }),
+    CLASS("class", listTerm -> {
     }),
 
-    CREATE_OBJECT("create_object", o -> {
+    END_OBJECT("end_object", listTerm -> {
     }),
-    CREATE_CATEGORY("create_category", o -> {
+    END_PROTOCOL("end_protocol", listTerm -> {
     }),
-    CREATE_PROTOCOL("create_protocol", o -> {
-    }),
-
-    ABOLISH_OBJECT("abolish_object", o -> {
-    }),
-    ABOLISH_CATEGORY("abolish_category", o -> {
-    }),
-    ABOLISH_PROTOCOL("abolish_protocol", o -> {
+    END_CATEGORY("end_category", listTerm -> {
     }),
 
-    IMPLEMENTS_PROTOCOL("implements_protocol", o -> {
+    CURRENT_OBJECT("create_object", listTerm -> {
     }),
-    IMPORTS_CATEGORY("imports_category", o -> {
+    CURRENT_CATEGORY("create_category", listTerm -> {
     }),
-    INSTANTIATES_CLASS("instantiates_class", o -> {
-    }),
-    SPECIALIZES_CLASS("specializes_class", o -> {
-    }),
-    EXTENDS_PROTOCOL("extends_protocol", o -> {
-    }),
-    EXTENDS_OBJECT("extends_object", o -> {
-    }),
-    EXTENDS_CATEGORY("extends_category", o -> {
+    CURRENT_PROTOCOL("create_protocol", listTerm -> {
     }),
 
-    COMPLEMENTS_OBJECT("complements_object", o -> {
+    CREATE_OBJECT("create_object", listTerm -> {
+    }),
+    CREATE_CATEGORY("create_category", listTerm -> {
+    }),
+    CREATE_PROTOCOL("create_protocol", listTerm -> {
     }),
 
-    CONFORMS_TO_PROTOCOL("conforms_to_protocol", o -> {
+    ABOLISH_OBJECT("abolish_object", listTerm -> {
+    }),
+    ABOLISH_CATEGORY("abolish_category", listTerm -> {
+    }),
+    ABOLISH_PROTOCOL("abolish_protocol", listTerm -> {
     }),
 
-    ABOLISH_EVENTS("abolish_events", o -> {
+    IMPLEMENTS_PROTOCOL("implements_protocol", listTerm -> {
     }),
-    DEFINE_EVENTS("define_events", o -> {
+    IMPORTS_CATEGORY("imports_category", listTerm -> {
     }),
-    CURRENT_EVENT("current_event", o -> {
+    INSTANTIATES_CLASS("instantiates_class", listTerm -> {
     }),
-
-    CURRENT_LOGTALK_FLAG("current_logtalk_flag", o -> {
+    SPECIALIZES_CLASS("specializes_class", listTerm -> {
     }),
-    SET_LOGTALK_FLAG("set_logtalk_flag", o -> {
+    EXTENDS_PROTOCOL("extends_protocol", listTerm -> {
     }),
-    CREATE_LOGTALK_FLAG("create_logtalk_flag", o -> {
+    EXTENDS_OBJECT("extends_object", listTerm -> {
     }),
-
-    READ("read", o -> {
+    EXTENDS_CATEGORY("extends_category", listTerm -> {
     }),
 
-    CURRENT_INPUT("current_input", o -> {
-    }),
-    CURRENT_OUTPUT("current_output", o -> {
+    COMPLEMENTS_OBJECT("complements_object", listTerm -> {
     }),
 
-    USER_INPUT("user_input", o -> {
+    CONFORMS_TO_PROTOCOL("conforms_to_protocol", listTerm -> {
     }),
-    USER_OUTPUT("user_output", o -> {
+
+    ABOLISH_EVENTS("abolish_events", listTerm -> {
+    }),
+    DEFINE_EVENTS("define_events", listTerm -> {
+    }),
+    CURRENT_EVENT("current_event", listTerm -> {
+    }),
+
+    CURRENT_LOGTALK_FLAG("current_logtalk_flag", listTerm -> {
+    }),
+    SET_LOGTALK_FLAG("set_logtalk_flag", listTerm -> {
+    }),
+    CREATE_LOGTALK_FLAG("create_logtalk_flag", listTerm -> {
+    }),
+
+    READ("read", listTerm -> {
+    }),
+
+    CURRENT_INPUT("current_input", listTerm -> {
+    }),
+    CURRENT_OUTPUT("current_output", listTerm -> {
+    }),
+
+    USER_INPUT("user_input", listTerm -> {
+    }),
+    USER_OUTPUT("user_output", listTerm -> {
     }),
 //
 //        Input and output
 //
 //    Edinburgh-style I/O
 
-    TELL("tell", o -> {
+    TELL("tell", listTerm -> {
     }),
-    TELLING("telling", o -> {
+    TELLING("telling", listTerm -> {
     }),
-    TOLD("told", o -> {
-    }),
-
-    SEE("see", o -> {
-    }),
-    SEEING("seeing", o -> {
-    }),
-    SEEN("seen", o -> {
-    }),
-    APPEND("append", o -> {
+    TOLD("told", listTerm -> {
     }),
 
-    NL("nl", o -> {
+    SEE("see", listTerm -> {
     }),
-    TTYFLUSH("ttyflush", o -> {
+    SEEING("seeing", listTerm -> {
     }),
-    FUNCTOR("functor", o -> {
+    SEEN("seen", listTerm -> {
     }),
-    NAME("name", o -> {
-    }),
-    SUB_ATOM_ICASECHK("sub_atom_icasechk", o -> {
-    }),
-    SUB_ATOM("sub_atom", o -> {
+    APPEND("append", listTerm -> {
     }),
 
-    ATOM_PREFIX("atom_prefix", o -> {
+    NL("nl", listTerm -> {
     }),
-    ATOM_LENGTH("atom_length", o -> {
+    TTYFLUSH("ttyflush", listTerm -> {
     }),
-    ATOMIC_LIST_CONCAT("atomic_list_concat", o -> {
+    FUNCTOR("functor", listTerm -> {
     }),
-    TERM_TO_ATOM("term_to_atom", o -> {
+    NAME("name", listTerm -> {
     }),
-    ATOM_CONCAT("atom_concat", o -> {
+    SUB_ATOM_ICASECHK("sub_atom_icasechk", listTerm -> {
     }),
-    ATOMIC_CONCAT("atomic_concat", o -> {
+    SUB_ATOM("sub_atom", listTerm -> {
     }),
-    ATOM_TO_TERM("atom_to_term", o -> {
-    }),
-    ATOM_NUMBER("atom_number", o -> {
-    });
 
-    //    static {
-//        IVafInterner interner =
-//                new IVafInternerImpl("prolog vars", "prolog builtin foos");}
-//
+    ATOM_PREFIX("atom_prefix", listTerm -> {
+    }),
+    ATOM_LENGTH("atom_length", listTerm -> {
+    }),
+    ATOMIC_LIST_CONCAT("atomic_list_concat", listTerm -> {
+    }),
+    TERM_TO_ATOM("term_to_atom", listTerm -> {
+    }),
+    ATOM_CONCAT("atom_concat", listTerm -> {
+    }),
+    ATOMIC_CONCAT("atomic_concat", listTerm -> {
+    }),
+    ATOM_TO_TERM("atom_to_term", listTerm -> {
+    }),
+    ATOM_NUMBER("atom_number", listTerm -> {
+    }),
+    ;
+
+    private static boolean booleanResult;
     private final String name;
-    private final Consumer builtInDef;
+    private final Consumer <ListTerm> builtInDef;
+
+    public static boolean getBooleanResult () {
+        return booleanResult;
+    }
+
 
     /**
      * @param name
      */
-    PrologBuiltIns ( String name, Consumer impl ) {
+    PrologBuiltIns ( String name, Consumer <ListTerm> impl ) {
         this.name = name;
         this.builtInDef = impl;
     }
@@ -298,7 +327,7 @@ enum PrologBuiltIns {
     /**
      * @return
      */
-    public Consumer getBuiltInDef () {
+    public Consumer <ListTerm> getBuiltInDef () {
         return builtInDef;
     }
 }

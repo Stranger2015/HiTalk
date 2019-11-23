@@ -7,7 +7,7 @@ import org.ltc.hitalk.term.ListTerm;
 /**
  *
  */
-public class PiCalls extends ListTerm {
+public class PiCalls extends HtFunctor {
     /**
      *
      */
@@ -18,10 +18,37 @@ public class PiCalls extends ListTerm {
      * @param calls
      */
     public PiCalls ( IFunctor sym, ListTerm calls ) {
-        super(Kind.LIST, sym.getName(), calls.getHeads());
+//        super(Kind.LIST, sym.getName(), calls.getHeads());
+        this(sym.getName(), calls.getHeads());
         ITerm[] t = getArguments();
         t[0] = sym;
         setCalls(calls);
+    }
+
+    /**
+     * @param name
+     * @param arityMin
+     * @param arityDelta
+     */
+    public PiCalls ( int name, int arityMin, int arityDelta ) {
+        super(name, arityMin, arityDelta);
+    }
+
+    /**
+     * @param name
+     * @param args
+     */
+    public PiCalls ( int name, ITerm[] args ) {
+        super(name, args);
+    }
+
+    /**
+     * @param name
+     * @param args
+     * @param arityDelta
+     */
+    public PiCalls ( int name, ITerm[] args, int arityDelta ) {
+        super(name, args, arityDelta);
     }
 
     /**
@@ -32,7 +59,7 @@ public class PiCalls extends ListTerm {
         return 2;   // piCalls(symbol, Calls)
     }
 
-    public boolean isDottedPair () {
+    public boolean isList () {
         return false;
     }
 
@@ -44,9 +71,12 @@ public class PiCalls extends ListTerm {
         return false;
     }
 
+    /**
+     * @return
+     */
     @Override
     public String toStringArguments () {
-        return null;//fixme
+        return toString();//fixme
     }
 
     /**

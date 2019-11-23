@@ -1,7 +1,6 @@
 
 package org.ltc.hitalk.term.io;
 
-import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
@@ -11,7 +10,10 @@ import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.TermFactory;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.ICompiler;
+import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtPredicate;
+import org.ltc.hitalk.entities.HtPredicateDefinition;
+import org.ltc.hitalk.entities.ISubroutine;
 import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.parser.HiLogParser;
 import org.ltc.hitalk.parser.HtClause;
@@ -50,9 +52,9 @@ class Environment {
     private PlPrologParser parser;
     private IOperatorTable optable;
     private ICompiler <HtClause, HtPredicate, HtClause> compiler;
-    private PredicateTable predicateTable;
+    private PredicateTable <? extends org.ltc.hitalk.entities.HtPredicateDefinition <org.ltc.hitalk.entities.ISubroutine, HtPredicate, HtClause>> predicateTable;
     private SymbolTable <Integer, String, Object> symbolTable;
-    private Resolver <HtPredicate, HtClause> resolver;
+    private IResolver <HtPredicate, HtClause> resolver;
 
     /**
      * @return
@@ -192,11 +194,11 @@ class Environment {
         this.compiler = compiler;
     }
 
-    public PredicateTable getPredicateTable () {
+    public PredicateTable <? extends HtPredicateDefinition <ISubroutine, HtPredicate, HtClause>> getPredicateTable () {
         return predicateTable;
     }
 
-    public void setPredicateTable ( PredicateTable predicateTable ) {
+    public void setPredicateTable ( PredicateTable <? extends HtPredicateDefinition <ISubroutine, HtPredicate, HtClause>> predicateTable ) {
         this.predicateTable = predicateTable;
     }
 
@@ -204,11 +206,11 @@ class Environment {
         return symbolTable;
     }
 
-    public Resolver <HtPredicate, HtClause> getResolver () {
+    public IResolver <HtPredicate, HtClause> getResolver () {
         return resolver;
     }
 
-    public void setResolver ( Resolver <HtPredicate, HtClause> resolver ) {
+    public void setResolver ( IResolver <HtPredicate, HtClause> resolver ) {
         this.resolver = resolver;
     }
 }

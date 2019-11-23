@@ -17,7 +17,7 @@ package org.ltc.hitalk.compiler;
 
 import com.thesett.aima.attribute.impl.IdAttribute;
 import com.thesett.aima.logic.fol.FunctorName;
-import com.thesett.aima.logic.fol.Variable;
+import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 public class VafInterner implements IVafInterner {
@@ -93,7 +93,7 @@ public class VafInterner implements IVafInterner {
     /**
      * {@inheritDoc}
      */
-    public String getVariableName ( Variable variable ) {
+    public String getVariableName ( HtVariable variable ) {
         return getVariableName(variable.getName());
     }
 

@@ -125,7 +125,7 @@ public class TermFactory implements ITermFactory {
         this.headTail = headTail;
         ListTerm t;
         if (headTail.length == 0) {
-            t = new ListTerm();
+            t = new ListTerm(Kind.LIST, sym.getName(), calls.getHeads());
         } else { //if (headTail.length ==1){ //[|VarOrList] []
             t = new ListTerm(kind, headTail);
         }

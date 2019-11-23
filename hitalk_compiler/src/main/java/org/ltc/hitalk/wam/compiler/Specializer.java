@@ -1,9 +1,11 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.jetbrains.annotations.NotNull;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PredicateTable;
+import org.ltc.hitalk.core.IResolver;
+import org.ltc.hitalk.core.utils.TermUtilities;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtPredicateDefinition.UserDefinition;
 import org.ltc.hitalk.entities.HtPredicateIndicator;
@@ -22,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -34,8 +37,7 @@ class Specializer<T extends ITerm> implements ISpecializer <T> {
     private final SymbolTable <Integer, String, Object> symbolTable;
     private final IVafInterner interner;
     private final List <HtPredicate> predicates;
-    private final Resolver <HtPredicate, HtClause> resolver = Environment.instance().getResolver();
-    //private final HtPositionalTermTraverser traverser = new HtPositionalTermTraverser();
+    private final IResolver <HtPredicate, HtClause> resolver = Environment.instance().getResolver();
     private final List <PiCalls> piCalls = new ArrayList <>();
 
     /**
@@ -67,14 +69,52 @@ class Specializer<T extends ITerm> implements ISpecializer <T> {
     private List <PiCalls> getInterestingCalls ( List <PiCalls> calls, List <HtPredicate> predicates ) {
         PredicateTable <UserDefinition <ISubroutine, HtPredicate, HtClause>> table = new PredicateTable <>(predicates);
         for (PiCalls piCalls : calls) {
-            if (table.containsKey(piCalls.name)) {
-                final List <ISubroutine> clauses = table.get(piCalls.name).getBody();
+            if (table.containsKey(piCalls.getName())) {
+                final List <ISubroutine> clauses = table.get(piCalls.getName()).getBody();
 //todo
             }
         }
         return null;
     }
 
+    private List <PiCalls> getInterestingIndeedCalls ( List <PiCalls> calls, List <HtPredicate> predicates ) {
+        PredicateTable <UserDefinition <ISubroutine, HtPredicate, HtClause>> table = new PredicateTable <>(predicates);
+        for (PiCalls piCalls : calls) {
+            if (table.containsKey(piCalls.getName())) {
+                final List <ISubroutine> clauses = table.get(piCalls.getName()).getBody();
+//todo
+            }
+        }
+
+        return null;
+    }
+
+    protected List <HtClause> findSelectedClauses ( ListTerm args, List <HtClause> clauses ) {
+        return clauses.stream().filter(clause -> unifiesMnl(args, clause.getHead().getArgsAsListTerm())).collect(Collectors.toList());
+    }
+
+    private boolean unifiesMnl ( ListTerm args, ListTerm headsArgs ) {
+//        resolver.reset();
+//        resolver.setQuery(new HtClause(null, null, new IFunctor[]
+//                {new HtFunctor("=", new ITerm[]{args, headsArgs})}));
+//        return resolver.resolve() != null;
+        return TermUtilities.unify(args, headsArgs);
+    }
+
+    //    find_msg(+Args, +SelectedClauses, -Msg)				*/
+//    /*	Given the arguments of a body call and a list of clauses with	*/
+//    /*	which the call is known to unify (modulo nonlinearity), this	*/
+//    /*	predicate incrementally computes the arguments of the most	*/
+//    /*	specific generalisation of these terms.  Variables in the Msg	*/
+//    /*	are not numbered.						*/
+//    /*----------------------------------------------------------------------*/
+//
+//    find_msg( Args, [Clause|Clauses], Msg ) :-
+//    Clause = clause(HeadArgs,_,_),
+//    msg(Args, HeadArgs, M),
+//	( Clauses == [] -> Msg = M ; find_msg(M, Clauses, Msg) ).
+//
+//
     //visit each pddef
     public List <PiCalls> collect ( HtPredicate predicate ) {
         PiCallsCollector pc = PiCallsCollector.toPiCallsCollector();
@@ -99,9 +139,50 @@ class Specializer<T extends ITerm> implements ISpecializer <T> {
         return mergedCalls;
     }
 
+    /**
+     * @param bodyCalls
+     * @param clauses
+     * @return
+     */
+    public @NotNull ListTerm findMsg ( ListTerm bodyCalls, List <HtClause> clauses ) {
+        final Msg m = new Msg();
+        for (final HtClause clause : clauses) {
+            bodyCalls = (ListTerm) m.msg(bodyCalls, clause.getHead().getArgsAsListTerm());
+        }
+
+        return bodyCalls;
+    }
+
     private ITerm mergeCalls ( ITerm head, ITerm head1 ) {
         return null;
     }
+
+    /*----------------------------------------------------------------------*/
+    /* 'give a second chance'(+CallArgs, +SelectedClauses)			*/
+    /*	Gives a second chance to a partially instantiated call, (that	*/
+    /*	does not select a subset of the predicate's clauses), by	*/
+    /*	examining whether the call will benefit by the factoring of	*/
+    /*	common subexpressions property of the specialisation algorithm.	*/
+    /*	This is done by finding the most specific generalisation of	*/
+    /*	the call and the heads of the selected clauses, and checking	*/
+    /*	whether it contains any partially instantiated arguments.	*/
+    /*----------------------------------------------------------------------*/
+
+    public boolean isGivenSecondChance ( ListTerm callArgs, List <HtClause> selectedClauses ) {
+        final @NotNull ListTerm msg = findMsg(callArgs, selectedClauses);
+        return sthBound(msg);
+    }
+
+    private boolean sthBound ( ListTerm msg ) {
+        final ITerm[] heads = msg.getHeads();
+        for (final ITerm head : heads) {
+            if (!head.isVar()) {//value??
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     /**
      * interesting_calls([], _, []).

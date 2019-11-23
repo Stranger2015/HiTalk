@@ -22,6 +22,7 @@ import com.thesett.common.util.Filterator;
 import com.thesett.common.util.Source;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.ICompiler;
+import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
@@ -53,7 +54,7 @@ import static org.ltc.hitalk.term.HlOpSymbol.Associativity;
  */
 public
 class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
-        implements IVafInterner, ICompiler <T, P, Q>, Resolver <P, Q> {
+        implements IVafInterner, ICompiler <T, P, Q>, IResolver <P, Q> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
@@ -78,8 +79,8 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     protected LogicCompilerObserver <P, Q> observer = new ChainedCompilerObserver <>();
 
     protected Q currentQuery;
-    protected final List <Set <Variable>> vars = new ArrayList <>();
-    protected Resolver <P, Q> resolver;
+    protected final List <Set <HtVariable>> vars = new ArrayList <>();
+    protected IResolver <P, Q> resolver;
 
     /**
      * Creates a prolog parser using the specified interner.
@@ -90,7 +91,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     public HtResolutionEngine ( PlPrologParser parser,
                                 IVafInterner interner,
                                 ICompiler <T, P, Q> compiler,
-                                Resolver <P, Q> resolver ) {
+                                IResolver <P, Q> resolver ) {
         super(parser);
 
         this.interner = interner;
@@ -195,7 +196,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * @param solutions The resolution solutions to convert to map form.
      * @return An iterator over a map from the string name of variables to their bindings, for the solutions.
      */
-    public Iterable <Map <String, Variable>> expandResultSetToMap ( Iterator <Set <Variable>> solutions ) {
+    public Iterable <Map <String, HtVariable>> expandResultSetToMap ( Iterator <Set <HtVariable>> solutions ) {
         return new Filterator <>(solutions, this::apply);
     }
 
@@ -244,7 +245,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     /**
      * {@inheritDoc}
      */
-    public String getVariableName ( Variable variable ) {
+    public String getVariableName ( HtVariable variable ) {
         return interner.getVariableName(variable);
     }
 
@@ -341,7 +342,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     /**
      * {@inheritDoc}
      */
-    public Set <Variable> resolve () {
+    public Set <HtVariable> resolve () {
         // Check that a query has been set to resolve.
         if (currentQuery == null) {
             throw new IllegalStateException("No query set to resolve.");
@@ -351,14 +352,14 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
         return executeAndExtractBindings(currentQuery);
     }
 
-    private Set <Variable> executeAndExtractBindings ( Q query ) {
+    private Set <HtVariable> executeAndExtractBindings ( Q query ) {
         return null;
-    }
+    }//todo
 
     /**
      * {@inheritDoc}
      */
-    public Iterator <Set <Variable>> iterator () {
+    public Iterator <Set <HtVariable>> iterator () {
         return vars.iterator();
     }
 
@@ -386,10 +387,10 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
         compiler.endScope();
     }
 
-    private Map <String, Variable> apply ( Set <Variable> variables ) {
-        Map <String, Variable> results = new HashMap <>();
+    private Map <String, HtVariable> apply ( Set <HtVariable> variables ) {
+        Map <String, HtVariable> results = new HashMap <>();
 
-        for (Variable var : variables) {
+        for (HtVariable var : variables) {
             String varName = getInterner().getVariableName(var.getName());
             results.put(varName, var);
         }
@@ -436,8 +437,9 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
         compiler.compileQuery(query);
     }
 
+
     @Override
-    public void setResolver ( Resolver <P, Q> resolver ) {
+    public void setResolver ( IResolver <P, Q> resolver ) {
         this.resolver = resolver;
     }
 

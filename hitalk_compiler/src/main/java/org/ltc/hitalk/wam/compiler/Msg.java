@@ -55,7 +55,7 @@ public class Msg {
                 final ListTerm lt = msgList(f1.getArgsAsListTerm(), f2.getArgsAsListTerm());
                 result = new HtFunctor(hilogApply, new ITerm[]{name, lt});
             } else {
-                result = new HtFunctor(hilogApply, new ITerm[]{updateDictNewVar(f1, f2), new ListTerm()});
+                result = new HtFunctor(hilogApply, new ITerm[]{updateDictNewVar(f1, f2), new ListTerm(Kind.LIST, sym.getName(), calls.getHeads())});
             }
 
         } else if (term1.isList() && term2.isList()) {

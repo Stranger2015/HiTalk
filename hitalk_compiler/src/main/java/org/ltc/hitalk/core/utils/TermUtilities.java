@@ -7,10 +7,12 @@ import com.thesett.aima.search.util.Searches;
 import com.thesett.aima.search.util.uninformed.DepthFirstSearch;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.core.PrologBuiltIns;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.HlOpSymbol;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.util.LinkedList;
@@ -150,7 +152,7 @@ public class TermUtilities {
 
         // Walk down the terms matching symbols and flattening them into a list of terms.
         while (mayBeMore) {
-            if (!nextTerm.isBracketed() && (nextTerm instanceof IFunctor) &&
+            if (!nextTerm.isBracketed() && nextTerm instanceof IFunctor &&
                     internedName == nextTerm.getName()) {
                 IFunctor op = nextTerm;
                 IFunctor termToExtract = (IFunctor) op.getArgument(0);
@@ -209,6 +211,15 @@ public class TermUtilities {
             throw new SourceCodeException("Only functors can for a clause body, not " + term + ".", null, null, null,
                     requireNonNull(term).getSourceCodePosition());
         }
+    }
+
+    public static boolean unify ( ITerm term1, ITerm term2 ) {
+        final ListTerm lt = new ListTerm(2);
+        lt.setArgument(0, term1);
+        lt.setArgument(1, term2);
+
+        PrologBuiltIns.UNIFIES.getBuiltInDef().accept(lt);
+        return PrologBuiltIns.getBooleanResult();
     }
 }
 

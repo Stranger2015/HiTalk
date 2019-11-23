@@ -18,6 +18,7 @@ package org.ltc.hitalk.compiler;
 import com.thesett.aima.attribute.impl.IdAttribute;
 import com.thesett.aima.logic.fol.FunctorName;
 import com.thesett.aima.logic.fol.Variable;
+import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 /**
@@ -89,7 +90,7 @@ public interface IVafInterner {
      * @param variable The variable to get the string name of.
      * @return The variable name as a string.
      */
-    String getVariableName ( Variable variable );
+    String getVariableName ( HtVariable variable );
 
     /**
      * De-interns a functor name from its interned form.

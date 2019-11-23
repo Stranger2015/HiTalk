@@ -1,23 +1,38 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
+/**
+ *
+ */
 public class BodyCall extends PiCalls {
-    List <Term> args = new ArrayList <>();
-    List <HtClause> selectedClauses = new ArrayList <>();
 
     /**
      * @param sym
-     * @param dottedPair
+     * @param calls
+     * @param args
+     * @param selectedClauses
      */
-    public BodyCall ( IFunctor sym, ListTerm dottedPair ) {
-        super(sym, dottedPair);
+    public BodyCall ( IFunctor sym, ListTerm calls, List <ITerm> args, List <HtClause> selectedClauses ) {
+        super(sym, calls);
+        this.args = args;
+        this.selectedClauses = selectedClauses;
+    }
+
+    protected List <ITerm> args = new ArrayList <>();
+    protected List <HtClause> selectedClauses = new ArrayList <>();
+
+    /**
+     * @param sym
+     * @param listTerm
+     */
+    public BodyCall ( IFunctor sym, ListTerm listTerm ) {
+        super(sym, listTerm);
     }
 
     @Override
@@ -25,7 +40,7 @@ public class BodyCall extends PiCalls {
         return super.toStringArguments();//fixme
     }
 
-    public void forEach ( Consumer <? super Term> action ) {
-
-    }
+//    public void forEach ( Consumer <? super ITerm> action ) {
+//
+//    }
 }
