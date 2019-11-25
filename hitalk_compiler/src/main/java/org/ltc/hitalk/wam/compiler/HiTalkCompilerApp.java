@@ -1,6 +1,9 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.LinkageException;
+import com.thesett.aima.logic.fol.LogicCompilerObserver;
+import com.thesett.aima.logic.fol.Sentence;
+import com.thesett.aima.logic.fol.Term;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.apache.commons.vfs2.FileObject;
@@ -9,6 +12,7 @@ import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.BaseCompiler;
 import org.ltc.hitalk.compiler.HiTalkBuiltInTransform;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.*;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.ICompiler;
@@ -38,6 +42,7 @@ import static java.lang.System.in;
 import static org.ltc.hitalk.compiler.bktables.BkTableKind.LOADED_ENTITIES;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource.getTokenSourceForIoFile;
+import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
 import static org.ltc.hitalk.wam.compiler.Language.HITALK;
 
 /**
@@ -179,16 +184,16 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
     /**
      * @param symbolTable
      * @param interner
+     * @param observer
      * @param parser
      * @return
      */
-    @Override
-    public BaseCompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>
+    public BaseCompiler <T, P, Q>
     createWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
                         IVafInterner interner,
-                        LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer,
+                        LogicCompilerObserver <P, Q> observer,
                         PlPrologParser parser ) {
-        return new HiTalkWAMCompiler(symbolTable, interner, parser, observer);
+        return new HiTalkWAMCompiler <>(symbolTable, interner, parser, observer);
     }
 
     public IParser createParser ( HiTalkStream stream,
@@ -202,13 +207,13 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
     public HtEntityIdentifier LOGTALK;
     public HtEntityIdentifier CORE_MESSAGES;
     //
-    public Functor OBJECT;
-    public Functor PROTOCOL;
-    public Functor CATEGORY;
+    public IFunctor OBJECT;
+    public IFunctor PROTOCOL;
+    public IFunctor CATEGORY;
 
-    public Functor END_OBJECT;
-    public Functor END_CATEGORY;
-    public Functor END_PROTOCOL;
+    public IFunctor END_OBJECT;
+    public IFunctor END_CATEGORY;
+    public IFunctor END_PROTOCOL;
 
     /**
      * Used for logging to the console.
@@ -298,7 +303,7 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
         HtProperty[] flags = new HtProperty[]{///todo flags
                 getTermFactory().createFlag("basename", fileName),//FIXME PARSE
                 getTermFactory().createFlag("directory", fileName),//FIXME PARSE
-                getTermFactory().createFlag("entity_identifier", new Functor(-1, null)),//FIXME PARSE
+                getTermFactory().createFlag("entity_identifier", new HtFunctor(-1, EMPTY_TERM_ARRAY)),//FIXME PARSE
                 getTermFactory().createFlag("file", fileName),//FIXME PARSE
                 getTermFactory().createFlag("basename", fileName),//FIXME PARSE
         };
@@ -492,7 +497,7 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
 
     //messages to the pseudo-object "user"
 
-    protected void compileMessageToObject ( Term pred, HtEntityIdentifier obj, ICallable call, Functor atom, Context ctx ) {
+    protected void compileMessageToObject ( Term pred, HtEntityIdentifier obj, ICallable call, IFunctor atom, Context ctx ) {
         if (obj.equals(USER) && pred.isVar() || pred.isFunctor()) {
 
         }
@@ -526,7 +531,7 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
 //        //entity_property_(Entity, Property)
 //        :- multifile(entity_property_'/2).
 //        :- dynamic(entity_property_'/2).
-//        //predicate_property_(Entity, Functor/Arity, Property)
+//        //predicate_property_(Entity, IFunctor/Arity, Property)
 //        :- multifile(predicate_property_'/3).
 //        :- dynamic(predicate_property_'/3).
 //
@@ -665,17 +670,17 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
 //        :- dynamic(ppDiscontiguous_'/1).
 //        //pp_mode_(Mode, Determinism, File, Lines)
 //        :- dynamic(pp_mode_'/4).
-//        //pp_public_(Functor, Arity)
+//        //pp_public_(IFunctor, Arity)
 //        :- dynamic(pp_public_'/2).
-//        //pp_protected_(Functor, Arity)
+//        //pp_protected_(IFunctor, Arity)
 //        :- dynamic(pp_protected_'/2).
-//        //pp_private_(Functor, Arity)
+//        //pp_private_(IFunctor, Arity)
 //        :- dynamic(pp_private_'/2).
 //        //pp_meta_predicate_(PredTemplate, MetaTemplate)
 //        :- dynamic(pp_meta_predicate_'/2).
 //        //pp_predicateAlias_(Entity, Pred, Alias, NonTerminalFlag, File, Lines)
 //        :- dynamic(pp_predicateAlias_'/6).
-//        //pp_non_terminal_(Functor, Arity, ExtArity)
+//        //pp_non_terminal_(IFunctor, Arity, ExtArity)
 //        :- dynamic(pp_non_terminal_'/3).
 //        //pp_multifile_(Head, File, Lines)
 //        :- dynamic(pp_multifile_'/3).
@@ -755,28 +760,28 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
 //        //ppFinal_entityAuxClause_(T)
 //        :- dynamic(ppFinal_entityAuxClause_'/1).
 //
-//        //pp_number_ofClausesRules_(Functor, Arity, NumberOfClauses, NumberOfRules)
+//        //pp_number_ofClausesRules_(IFunctor, Arity, NumberOfClauses, NumberOfRules)
 //        :- dynamic(pp_number_ofClausesRules_'/4).
-//        //pp_number_ofClausesRules_(Other, Functor, Arity, NumberOfClauses, NumberOfRules)
+//        //pp_number_ofClausesRules_(Other, IFunctor, Arity, NumberOfClauses, NumberOfRules)
 //        :- dynamic(pp_number_ofClausesRules_'/5).
 //
-//        //pp_predicateDeclarationLocation_(Functor, Arity, File, Line)
+//        //pp_predicateDeclarationLocation_(IFunctor, Arity, File, Line)
 //        :- dynamic(pp_predicateDeclarationLocation_'/4).
-//        //pp_predicateDefinitionLocation_(Functor, Arity, File, Line)
+//        //pp_predicateDefinitionLocation_(IFunctor, Arity, File, Line)
 //        :- dynamic(pp_predicateDefinitionLocation_'/4).
-//        //ppDefines_predicate_(Head, Functor/Arity, ExCtx, THead, Mode, Origin)
+//        //ppDefines_predicate_(Head, IFunctor/Arity, ExCtx, THead, Mode, Origin)
 //        :- dynamic(ppDefines_predicate_'/6).
-//        //ppInline_predicate_(Functor/Arity)
+//        //ppInline_predicate_(IFunctor/Arity)
 //        :- dynamic(ppInline_predicate_'/1).
 //
-//        //pp_predicateDefinitionLocation_(Other, Functor, Arity, File, Line)
+//        //pp_predicateDefinitionLocation_(Other, IFunctor, Arity, File, Line)
 //        :- dynamic(pp_predicateDefinitionLocation_'/5).
 //
-//        //ppCalls_predicate_(Functor/Arity, TFunctor/TArity, HeadFunctor/HeadArity, File, Lines)
+//        //ppCalls_predicate_(IFunctor/Arity, TFunctor/TArity, HeadFunctor/HeadArity, File, Lines)
 //        :- dynamic(ppCalls_predicate_'/5).
-//        //ppCallsSelf_predicate_(Functor/Arity, HeadFunctor/HeadArity, File, Lines)
+//        //ppCallsSelf_predicate_(IFunctor/Arity, HeadFunctor/HeadArity, File, Lines)
 //        :- dynamic(ppCallsSelf_predicate_'/4).
-//        //ppCallsSuper_predicate_(Functor/Arity, HeadFunctor/HeadArity, File, Lines)
+//        //ppCallsSuper_predicate_(IFunctor/Arity, HeadFunctor/HeadArity, File, Lines)
 //        :- dynamic(ppCallsSuper_predicate_'/4).
 //
 //        //pp_updates_predicate_(Dynamic, HeadFunctor/HeadArity, File, Lines)
@@ -797,9 +802,9 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
 //        //pp_previous_predicate_(Head, Mode)
 //        :- dynamic(pp_previous_predicate_'/2).
 //
-//        //ppDefines_non_terminal_(Functor, Arity)
+//        //ppDefines_non_terminal_(IFunctor, Arity)
 //        :- dynamic(ppDefines_non_terminal_'/2).
-//        //ppCalls_non_terminal_(Functor, Arity, Lines)
+//        //ppCalls_non_terminal_(IFunctor, Arity, Lines)
 //        :- dynamic(ppCalls_non_terminal_'/3).
 //
 //        //ppReferenced_object_(Object, File, Lines)
@@ -811,9 +816,9 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
 //        //ppReferenced_module_(Module, File, Lines)
 //        :- dynamic(ppReferenced_module_'/3).
 //
-//        //ppReferenced_object_message_(Object, Functor/Arity, AliasFunctor/Arity, HeadFunctor/HeadArity, File, Lines)
+//        //ppReferenced_object_message_(Object, IFunctor/Arity, AliasFunctor/Arity, HeadFunctor/HeadArity, File, Lines)
 //        :- dynamic(ppReferenced_object_message_'/6).
-//        //ppReferenced_module_predicate_(Module, Functor/Arity, AliasFunctor/Arity, HeadFunctor/HeadArity, File, Lines)
+//        //ppReferenced_module_predicate_(Module, IFunctor/Arity, AliasFunctor/Arity, HeadFunctor/HeadArity, File, Lines)
 //        :- dynamic(ppReferenced_module_predicate_'/6).
 //
 //        //pp_global_operator_(Priority, Specifier, Operator)
@@ -1145,7 +1150,7 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
      * @return
      */
 //    protected
-//    void printMessage ( Functor kind, Atom component, Atom message ){
+//    void printMessage ( IFunctor kind, Atom component, Atom message ){
 //if (getCompilerFlag(FlagKey.REPORTS) != FlagValue.OFF) {
 ////
 ////
@@ -1202,7 +1207,7 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
     @Override
     public void doInit () throws LinkageException, IOException {
 //            setSymbolTable(new SymbolTableImpl <>());
-//            interner = new IVafInternerImpl(namespace("Variable"), namespace("Functor"));
+//            interner = new IVafInternerImpl(namespace("Variable"), namespace("IFunctor"));
 ////        setParser(createParser(new, interner, new, opTable));
 //            //setParser(new HiTalkParser(interner.internFunctorName(value, 0)interner.internFunctorName(value, 0)etTokenSourceForInputStream(in, "stdin"), interner));
 //

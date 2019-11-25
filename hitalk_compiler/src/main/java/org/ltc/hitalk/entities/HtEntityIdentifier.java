@@ -1,8 +1,9 @@
 package org.ltc.hitalk.entities;
 
-import com.thesett.aima.logic.fol.Functor;
-import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
+import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.wam.compiler.HtFunctor;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 
@@ -10,7 +11,7 @@ import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISS
  *
  */
 public
-class HtEntityIdentifier extends Functor {
+class HtEntityIdentifier extends HtFunctor {
 
     private final HtEntityKind kind;
 
@@ -19,8 +20,7 @@ class HtEntityIdentifier extends Functor {
      * @param arguments
      * @param kind
      */
-    public
-    HtEntityIdentifier ( int name, Term[] arguments, HtEntityKind kind ) {
+    public HtEntityIdentifier ( int name, ITerm[] arguments, HtEntityKind kind ) {
         super(name, arguments);
         if ((kind == HtEntityKind.PROTOCOL) && (arguments.length != 0)) {
             throw new ExecutionError(PERMISSION_ERROR, null/*"Protocol name must be an atom."*/);
@@ -32,8 +32,7 @@ class HtEntityIdentifier extends Functor {
      * @param functor
      * @param kind
      */
-    public
-    HtEntityIdentifier ( Functor functor, HtEntityKind kind ) {
+    public HtEntityIdentifier ( IFunctor functor, HtEntityKind kind ) {
         this(functor.getName(), functor.getArguments(), kind);
     }
 

@@ -1,18 +1,18 @@
 package org.ltc.hitalk.compiler;
 
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
-import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.aima.logic.fol.Sentence;
-import com.thesett.aima.logic.fol.Term;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolKey;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.core.ICompiler;
+import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
+import org.ltc.hitalk.term.ITerm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +39,7 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
     protected int scope;
     protected Deque <SymbolKey> predicatesInScope = new ArrayDeque <>();
     protected PlPrologParser parser;
-    protected Resolver <T, Q> resolver;
+    protected IResolver <T, Q> resolver;
     protected LogicCompilerObserver <P, Q> observer;
 
     /**
@@ -98,7 +98,7 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
         this.observer = observer;
     }
 
-    public Resolver <T, Q> getResolver () {
+    public IResolver <T, Q> getResolver () {
         return resolver;
     }
 
@@ -128,7 +128,7 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
         getConsole().info("Compiling " + tokenSource.getPath() + "... ");
         parser.setTokenSource(tokenSource);
         while (true) {
-            Term t = parser.next();
+            ITerm t = parser.next();
             if (t == null) {
                 break;
             }

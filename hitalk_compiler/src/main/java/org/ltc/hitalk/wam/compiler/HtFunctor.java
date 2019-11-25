@@ -56,6 +56,9 @@ public class HtFunctor extends ListTerm implements IFunctor {
         setArityRange(args.length, arityDelta);
     }
 
+    public HtFunctor () {
+    }
+
 //    public int getName () {
 //        return name;
 //    }

@@ -1,6 +1,7 @@
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PredicateTable;
@@ -13,6 +14,7 @@ import org.ltc.hitalk.entities.ISubroutine;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.term.io.Environment;
@@ -21,10 +23,11 @@ import org.ltc.hitalk.wam.transformers.TransformInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.ltc.hitalk.core.algebra.Msg.msg;
+import static org.ltc.hitalk.wam.compiler.BodyCall.BodyCalls;
 
 /**
  *
@@ -49,7 +52,6 @@ class Specializer<T extends ITerm> implements ISpecializer <T> {
         this.symbolTable = symbolTable;
         this.interner = interner;
         this.predicates = predicates;
-
     }
 
     /**
@@ -66,22 +68,28 @@ class Specializer<T extends ITerm> implements ISpecializer <T> {
         return spClauses;
     }
 
+    /**
+     * @param calls
+     * @param predicates
+     * @return
+     */
     private List <PiCalls> getInterestingCalls ( List <PiCalls> calls, List <HtPredicate> predicates ) {
-        PredicateTable <UserDefinition <ISubroutine, HtPredicate, HtClause>> table = new PredicateTable <>(predicates);
+        PredicateTable <UserDefinition <ISubroutine <? extends IFunctor>, HtPredicate, HtClause <? extends IFunctor>>> table = new PredicateTable <UserDefinition <ISubroutine <? extends IFunctor>, HtPredicate, HtClause <? extends IFunctor>>>(predicates);
         for (PiCalls piCalls : calls) {
             if (table.containsKey(piCalls.getName())) {
-                final List <ISubroutine> clauses = table.get(piCalls.getName()).getBody();
+                final List <HtClause> clauses = table.get(piCalls.getName()).getBody();
 //todo
             }
         }
+
         return null;
     }
 
     private List <PiCalls> getInterestingIndeedCalls ( List <PiCalls> calls, List <HtPredicate> predicates ) {
-        PredicateTable <UserDefinition <ISubroutine, HtPredicate, HtClause>> table = new PredicateTable <>(predicates);
+        PredicateTable <UserDefinition <ISubroutine <? extends IFunctor>, HtPredicate, HtClause <? extends IFunctor>>> table = new PredicateTable <UserDefinition <ISubroutine <? extends IFunctor>, HtPredicate, HtClause <? extends IFunctor>>>(predicates);
         for (PiCalls piCalls : calls) {
             if (table.containsKey(piCalls.getName())) {
-                final List <ISubroutine> clauses = table.get(piCalls.getName()).getBody();
+                final List <HtClause> clauses = table.get(piCalls.getName()).getBody();
 //todo
             }
         }
@@ -90,16 +98,15 @@ class Specializer<T extends ITerm> implements ISpecializer <T> {
     }
 
     protected List <HtClause> findSelectedClauses ( ListTerm args, List <HtClause> clauses ) {
-        return clauses.stream().filter(clause -> unifiesMnl(args, clause.getHead().getArgsAsListTerm())).collect(Collectors.toList());
+        return clauses.stream().filter(clause -> unifiesMnl(args, clause.getHead().getArgsAsListTerm()))
+                .collect(Collectors.toList());
     }
 
     private boolean unifiesMnl ( ListTerm args, ListTerm headsArgs ) {
-//        resolver.reset();
-//        resolver.setQuery(new HtClause(null, null, new IFunctor[]
-//                {new HtFunctor("=", new ITerm[]{args, headsArgs})}));
-//        return resolver.resolve() != null;
         return TermUtilities.unify(args, headsArgs);
     }
+//    proper_subset([], [_|_]).
+//    proper_subset([_|SubTail], [_|SetTail]) :- proper_subset(SubTail, SetTail).
 
     //    find_msg(+Args, +SelectedClauses, -Msg)				*/
 //    /*	Given the arguments of a body call and a list of clauses with	*/
@@ -108,13 +115,7 @@ class Specializer<T extends ITerm> implements ISpecializer <T> {
 //    /*	specific generalisation of these terms.  Variables in the Msg	*/
 //    /*	are not numbered.						*/
 //    /*----------------------------------------------------------------------*/
-//
-//    find_msg( Args, [Clause|Clauses], Msg ) :-
-//    Clause = clause(HeadArgs,_,_),
-//    msg(Args, HeadArgs, M),
-//	( Clauses == [] -> Msg = M ; find_msg(M, Clauses, Msg) ).
-//
-//
+
     //visit each pddef
     public List <PiCalls> collect ( HtPredicate predicate ) {
         PiCallsCollector pc = PiCallsCollector.toPiCallsCollector();
@@ -125,14 +126,14 @@ class Specializer<T extends ITerm> implements ISpecializer <T> {
 
     public List <PiCalls> mergeCalls ( List <PiCalls> calls ) {
         final List <PiCalls> mergedCalls = new ArrayList <>();
-        for (int i = 0; i < calls.size(); i++) {
+        for (int i = 0, len = calls.size(); i < len; i++) {
             final ListTerm piCalls = calls.get(i);
             final ITerm[] heads = piCalls.getHeads();
-            final int len = heads.length;
-            final ITerm calli = heads[i];
-            for (int j = 1; j < len; j++) {
-                ITerm callj = heads[j];
-                final ITerm headsij = mergeCalls(heads[i], heads[j]);
+            final int hlen = heads.length;
+            final BodyCall calli = (BodyCall) heads[i];
+            for (int j = 1; j < hlen; j++) {
+                BodyCall callj = (BodyCall) heads[j];
+                final ITerm headsij = mergeCalls(calli, callj);
             }
         }
 
@@ -144,17 +145,80 @@ class Specializer<T extends ITerm> implements ISpecializer <T> {
      * @param clauses
      * @return
      */
-    public @NotNull ListTerm findMsg ( ListTerm bodyCalls, List <HtClause> clauses ) {
-        final Msg m = new Msg();
-        for (final HtClause clause : clauses) {
-            bodyCalls = (ListTerm) m.msg(bodyCalls, clause.getHead().getArgsAsListTerm());
+    public static @NotNull ListTerm findMsg ( ListTerm bodyCalls, List <HtClause <? extends IFunctor>> clauses ) {
+        final Map <HtVariable, Pair <ITerm, ITerm>> dict = new HashMap <>();
+        for (final HtClause <? extends IFunctor> clause : clauses) {
+            bodyCalls = (ListTerm) msg(bodyCalls, clause.getHead().getArgsAsListTerm(), dict);
         }
 
         return bodyCalls;
     }
 
-    private ITerm mergeCalls ( ITerm head, ITerm head1 ) {
-        return null;
+//*======================================================================*/
+//    /* merge_calls(+CallList, -/*	MergedList is a simplified version of CallList, where all calls	*/
+//    /*	that select the same clauses are merged together.  This is done	*/
+//    /*	since all these calls can use the same specialisation of the	*/
+//    /*	predicate and the same representative.				*/
+//    /*======================================================================*/
+//
+//  %:- mode 'merge calls'(+,+,-).
+//
+//'merge calls'(body_call(Args,SelClauses), Calls, [body_calls(CallMsg,SelClauses,[Args|SameSelect],_,_)|Merged]) :-
+//	'find all delete'(Calls, SelClauses, SameSelect, Rest),
+//	'find msg of calls'(Args, SameSelect, CallMsg),
+//	( Rest == [] -> Merged = []
+//	; Rest = [One|Rest1], 'merge calls'(One, Rest1, Merged)
+//	).
+
+    protected List <BodyCalls> mergeCalls ( BodyCall call, List <BodyCall> calls ) {
+        final List <BodyCalls> merged = new ArrayList <>();
+        for (int i = 0; i < calls.size(); i++) {
+            BodyCall call1 = calls.get(i);//todo
+            List <ListTerm> sameSelect = new ArrayList <>();
+            calls = findAllDelete(calls, call.selectedClauses, sameSelect);
+            final ITerm msg = findMsgOfCalls(call.args, sameSelect);
+            sameSelect.add(calls.get(0));
+            BodyCalls bc = new BodyCalls(msg, call.selectedClauses, sameSelect);
+        }
+
+        return merged;
+    }
+
+    /**
+     * 'find all delete'([], _, [], []).
+     * 'find all delete'([Call|Calls], SelectedClauses, SS, Other) :-
+     * Call = body_call(Args,SC),
+     * ( SelectedClauses == SC -> SS = [Args|SS1], Other = Other1
+     * ;  SS = SS1, Other = [Call|Other1]
+     * ),
+     * 'find all delete'(Calls, SelectedClauses, SS1, Other1).
+     *
+     * @param calls
+     * @param selectedClauses
+     * @param ss
+     * @return
+     */
+    private List <BodyCall> findAllDelete ( List <BodyCall> calls, List <HtClause> selectedClauses, List <ListTerm> ss ) {
+        List <BodyCall> other = new ArrayList <>();
+        calls.forEach(call -> {
+            final List <HtClause> sc = (List <HtClause>) call.get(1);
+            if (selectedClauses == sc) {
+                ss.add((ListTerm) call.get(0));
+            } else {
+                other.add(call);
+            }
+        });
+
+        return other;
+    }
+
+    private ListTerm findMsgOfCalls ( ListTerm args, List <ListTerm> calls ) {
+        final Map <HtVariable, Pair <ITerm, ITerm>> dict = new HashMap <>();
+        for (final ListTerm call : calls) {
+            args = (ListTerm) msg(args, call, dict);
+        }
+
+        return ListTerm.NIL;
     }
 
     /*----------------------------------------------------------------------*/
@@ -168,21 +232,24 @@ class Specializer<T extends ITerm> implements ISpecializer <T> {
     /*	whether it contains any partially instantiated arguments.	*/
     /*----------------------------------------------------------------------*/
 
-    public boolean isGivenSecondChance ( ListTerm callArgs, List <HtClause> selectedClauses ) {
+    public boolean isGivenTheSecondChance ( ListTerm callArgs, List <HtClause <? extends IFunctor>> selectedClauses ) {
         final @NotNull ListTerm msg = findMsg(callArgs, selectedClauses);
         return sthBound(msg);
     }
 
+    /**
+     * @param msg
+     * @return
+     */
     private boolean sthBound ( ListTerm msg ) {
         final ITerm[] heads = msg.getHeads();
         for (final ITerm head : heads) {
-            if (!head.isVar()) {//value??
+            if (!head.isVar()) {//chk value??
                 return true;
             }
         }
         return false;
     }
-
 
     /**
      * interesting_calls([], _, []).
@@ -198,8 +265,7 @@ class Specializer<T extends ITerm> implements ISpecializer <T> {
      *
      * @param piCalls
      */
-    private void interestingCalls ( final List <PiCalls> piCalls, final PredicateTable predicates ) {
-
+    private void interestingCalls ( final List <PiCalls> piCalls, final PredicateTable <? extends org.ltc.hitalk.entities.HtPredicateDefinition <ISubroutine, HtPredicate, HtClause>> predicates ) {
         piCalls.forEach(piCall -> {
 
 //            piCall.accept(pcc); // may not be there if dynamic
@@ -218,7 +284,7 @@ class Specializer<T extends ITerm> implements ISpecializer <T> {
      * @param predicates
      * @return
      */
-    private List <PiCalls> interestingCalls0 ( ITerm[] calls, PredicateTable predicates ) {
+    private List <PiCalls> interestingCalls0 ( ITerm[] calls, PredicateTable <? extends org.ltc.hitalk.entities.HtPredicateDefinition <ISubroutine, HtPredicate, HtClause>> predicates ) {
         return piCalls;
     }
 
@@ -253,8 +319,8 @@ class Specializer<T extends ITerm> implements ISpecializer <T> {
 	'specialise pred'(BCs, N, A, Tabled, SymTab, CLmid, CLout).
 */
 
-    private List <HtClause> specializePred ( PiCalls piCall ) {
-        List <HtClause> spClauses = new ArrayList <>();
+    private List <HtClause <? extends IFunctor>> specializePred ( PiCalls piCall ) {
+        List <HtClause <? extends IFunctor>> spClauses = new ArrayList <HtClause <? extends IFunctor>>();
         HtPredicateIndicator symbol = new HtPredicateIndicator(piCall);
 //noinspection PlaceholderCountMatchesArgumentCount
         logger.info("Specializing partially instantiated calls to %s... ", symbol);
@@ -427,7 +493,7 @@ filter_goal(Sym, Args) :- sym_prop(defined, Sym), sth_bound(Args).
         return false;
     }
 
-    public TransformInfo getBestSoFarResult () {
+    public TransformInfo <? extends ITerm> getBestSoFarResult () {
         return null;
     }
 

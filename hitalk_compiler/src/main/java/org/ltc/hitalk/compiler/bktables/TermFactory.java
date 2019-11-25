@@ -1,7 +1,6 @@
 package org.ltc.hitalk.compiler.bktables;
 
-import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.logic.fol.Variable;
+import com.sun.org.apache.xalan.internal.xsltc.compiler.sym;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
@@ -10,10 +9,7 @@ import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.context.Context;
 import org.ltc.hitalk.entities.context.LoadContext;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind;
-import org.ltc.hitalk.term.Atom;
-import org.ltc.hitalk.term.FloatTerm;
-import org.ltc.hitalk.term.IntTerm;
-import org.ltc.hitalk.term.ListTerm;
+import org.ltc.hitalk.term.*;
 import org.ltc.hitalk.term.ListTerm.Kind;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.IFunctor;
@@ -69,9 +65,9 @@ public class TermFactory implements ITermFactory {
      * @return
      */
     @Override
-    public IFunctor newFunctor ( int hilogApply, String name, ListTerm dottedPair ) {
-        int arity = dottedPair.getArguments().length - 1;
-        return newFunctor(interner.internFunctorName(name, arity), dottedPair);
+    public IFunctor newFunctor ( int hilogApply, String name, ListTerm listTerm ) {
+        int arity = listTerm.getArguments().length - 1;
+        return newFunctor(interner.internFunctorName(name, arity), listTerm);
     }
 
     /**
@@ -89,8 +85,8 @@ public class TermFactory implements ITermFactory {
      * @return
      */
     @Override
-    public Variable newVariable ( String value ) {
-        return new Variable(
+    public HtVariable newVariable ( String value ) {
+        return new HtVariable(
                 interner.internVariableName(value),
                 null,
                 false
@@ -104,7 +100,7 @@ public class TermFactory implements ITermFactory {
      */
 
     private Kind kind;
-    private Term[] headTail;
+    private ITerm[] headTail;
 
     /**
      * 文字列アトムを生成します。
@@ -120,7 +116,7 @@ public class TermFactory implements ITermFactory {
      * @param headTail
      * @return
      */
-    public ListTerm newDottedPair ( Kind kind, Term[] headTail ) {
+    public ListTerm newListTerm ( Kind kind, ITerm[] headTail ) {
         this.kind = kind;
         this.headTail = headTail;
         ListTerm t;
@@ -129,6 +125,7 @@ public class TermFactory implements ITermFactory {
         } else { //if (headTail.length ==1){ //[|VarOrList] []
             t = new ListTerm(kind, headTail);
         }
+
         return t;
     }
 
@@ -138,7 +135,7 @@ public class TermFactory implements ITermFactory {
     }
 
     public IFunctor createMostGeneral ( IFunctor functor ) {
-//        List <Term> l = new ArrayList <>();
+//        List <ITerm> l = new ArrayList <>();
 //        for (int i = 0; i < functor.getArity(); i++) {
 //            l.add(createVariable(String.format("$VAR%d", i)));
 //        }
@@ -146,8 +143,8 @@ public class TermFactory implements ITermFactory {
         return createMostGeneral(functor.getName());
     }
 
-    public Variable createVariable ( String vname ) {
-        return new Variable(interner.internVariableName(vname), null, false);
+    public HtVariable createVariable ( String vname ) {
+        return new HtVariable(interner.internVariableName(vname), null, false);
     }
 
     /**
@@ -180,7 +177,7 @@ public class TermFactory implements ITermFactory {
      * @return
      */
     @Override
-    public HtEntityIdentifier createIdentifier ( HtEntityKind kind, String name, Term... args ) {
+    public HtEntityIdentifier createIdentifier ( HtEntityKind kind, String name, ITerm... args ) {
         int n = interner.internFunctorName(name, args.length);
 
         return new HtEntityIdentifier(n, args, kind);
@@ -192,14 +189,14 @@ public class TermFactory implements ITermFactory {
      * @return
      */
     @Override
-    public HtProperty createFlag ( String name, Term... args ) {
+    public HtProperty createFlag ( String name, ITerm... args ) {
         return createFlag(name, new ListTerm(args));
     }
 
     @Override
-    public IFunctor newFunctor ( int hilogApply, Term name, ListTerm args ) {
-        Term[] headTail = args.getArguments();
-        Term[] nameHeadTail = new Term[headTail.length + 1];
+    public IFunctor newFunctor ( int hilogApply, ITerm name, ListTerm args ) {
+        ITerm[] headTail = args.getArguments();
+        ITerm[] nameHeadTail = new ITerm[headTail.length + 1];
         System.arraycopy(headTail, 0, nameHeadTail, 1, headTail.length);
         nameHeadTail[0] = name;
         return new HtFunctor(hilogApply, nameHeadTail);
@@ -227,13 +224,13 @@ public class TermFactory implements ITermFactory {
      */
     public HtProperty createFlag ( String name, ListTerm args ) {
         int n = -1;
-        interner.internFunctorName(name, args.length());
+        interner.internFunctorName(name, args.size());
 
         return null; //new Flag(n, args);
     }
 
     //    @Override
-    public HtProperty createProperty ( String name, Term... args ) {
+    public HtProperty createProperty ( String name, ITerm... args ) {
         int n = interner.internFunctorName(name, 0);
 
 //        return new HtProperty(n, new ListTerm(args));
@@ -279,9 +276,9 @@ public class TermFactory implements ITermFactory {
      * @return
      */
     public IFunctor createMostGeneral ( int name ) {
-        Term[] args = new Term[interner.getFunctorArity(name)];
+        ITerm[] args = new ITerm[interner.getFunctorArity(name)];
         for (int i = 0, argsLength = args.length; i < argsLength; i++) {
-            args[i] = new Variable(i, null, false);
+            args[i] = new HtVariable(i, null, false);
         }
         return new HtFunctor(name, args);
     }

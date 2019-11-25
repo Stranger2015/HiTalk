@@ -1,24 +1,25 @@
 package org.ltc.hitalk.entities;
 
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 /**
  *
  */
 public
-interface ISubroutine {
+interface ISubroutine<F extends IFunctor> {
     /**
      * @return
      */
-    IFunctor getHead ();
+    F getHead ();
 
     /**
      * @return
      */
-    IFunctor[] getBody ();
+    ListTerm getBody ();
 
-    IFunctor getGoal ( int i );
+    F getGoal ( int i );
 
     /**
      * @param interner

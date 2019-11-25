@@ -11,12 +11,10 @@ import org.ltc.hitalk.wam.compiler.IFunctor;
 /**
  *
  */
-public class HtClause/*<F extends IFunctor>*/ extends HtBaseTerm implements ITerm, ISubroutine {
+public class HtClause<F extends IFunctor> extends HtBaseTerm implements ITerm, ISubroutine {
     protected final HtEntityIdentifier identifier;
-    protected IFunctor head;
-    protected IFunctor[] body;
-
-
+    protected F head;
+    protected ListTerm body;
 
     /**
      * Creates a program sentence in L2.
@@ -24,7 +22,7 @@ public class HtClause/*<F extends IFunctor>*/ extends HtBaseTerm implements ITer
      * @param head The head of the program.
      * @param body The functors that make up the query body of the program, if any. May be <tt>null</tt>
      */
-    public HtClause ( HtEntityIdentifier identifier, IFunctor head, IFunctor[] body ) {
+    public HtClause ( HtEntityIdentifier identifier, F head, ListTerm body ) {
 //        super(head, body);
         this.identifier = identifier;
         this.head = head;
@@ -35,7 +33,7 @@ public class HtClause/*<F extends IFunctor>*/ extends HtBaseTerm implements ITer
      * @param identifier
      * @param head
      */
-    public HtClause ( HtEntityIdentifier identifier, IFunctor head ) {
+    public HtClause ( HtEntityIdentifier identifier, F head ) {
         this(identifier, head, null);
     }
 
@@ -45,7 +43,7 @@ public class HtClause/*<F extends IFunctor>*/ extends HtBaseTerm implements ITer
      * @return The wrapped sentence in the logical language.
      */
 //    @Override
-    public HtClause getT () {
+    public HtClause <F> getT () {
         return this;
     }
 
@@ -56,12 +54,17 @@ public class HtClause/*<F extends IFunctor>*/ extends HtBaseTerm implements ITer
         return false;
     }
 
-    public IFunctor getHead () {
-        return null;
+    @Override
+    public F getHead () {
+        return head;
     }
 
-    public IFunctor[] getBody () {
-        return new IFunctor[0];
+    /**
+     * @return
+     */
+    @Override
+    public ListTerm getBody () {
+        return body;
     }
 
     /**
@@ -69,20 +72,20 @@ public class HtClause/*<F extends IFunctor>*/ extends HtBaseTerm implements ITer
      * @return
      */
     @Override
-    public IFunctor getGoal ( int i ) {
-        return getBody()[i];
+    public F getGoal ( int i ) {
+        return (F) getBody().get(i);
     }
 
     /**
      * @return
      */
     public int bodyLength () {
-        return getBody().length;
+        return getBody().size();
     }
 
-    public ITerm getValue () {
-        return null;
-    }//todo
+    public boolean isHiLog () {
+        return false;
+    }
 
     public void free () {
 
@@ -93,6 +96,6 @@ public class HtClause/*<F extends IFunctor>*/ extends HtBaseTerm implements ITer
     }
 
     public ListTerm getBodyAsListTerm () {
-        return null;
+        return body;
     }
 }

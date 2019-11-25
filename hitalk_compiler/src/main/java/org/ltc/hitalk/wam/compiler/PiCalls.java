@@ -4,6 +4,8 @@ import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
 
+import java.util.List;
+
 /**
  *
  */
@@ -12,6 +14,7 @@ public class PiCalls extends HtFunctor {
      *
      */
     protected boolean representable;
+    protected List <BodyCall> calls;
 
     /**
      * @param sym
@@ -19,7 +22,7 @@ public class PiCalls extends HtFunctor {
      */
     public PiCalls ( IFunctor sym, ListTerm calls ) {
 //        super(Kind.LIST, sym.getName(), calls.getHeads());
-        this(sym.getName(), calls.getHeads());
+//        this(sym.getName(), calls);
         ITerm[] t = getArguments();
         t[0] = sym;
         setCalls(calls);
@@ -93,15 +96,7 @@ public class PiCalls extends HtFunctor {
     /**
      * @param calls
      */
-    public void setCalls ( ListTerm calls ) {
-        this.getHeads()[0] = calls;
-    }
-
-
-    /**
-     * @return
-     */
-    public ListTerm getCalls () {
-        return (ListTerm) this.getHeads()[0];
+    public void setCalls ( List <BodyCall> calls ) {
+        this.calls = calls;
     }
 }

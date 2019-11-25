@@ -1,6 +1,5 @@
 package org.ltc.hitalk;
 
-import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
 import org.ltc.hitalk.entities.HtProperty;
@@ -57,24 +56,24 @@ interface ITermFactory {
      * @param kind
      * @return
      */
-    HtEntityIdentifier createIdentifier ( HtEntityKind kind, String name, Term... args );
+    HtEntityIdentifier createIdentifier ( HtEntityKind kind, String name, ITerm... args );
 
     /**
      * @param name
      * @param args
      * @return
      */
-    HtProperty createFlag ( String name, Term... args );
+    HtProperty createFlag ( String name, ITerm... args );
 
 //    /**/Term newFunctor ( Term[] nameHeadTail );
 
-    IFunctor newFunctor ( int hilogApply, Term name, ListTerm args );
+    IFunctor newFunctor ( int hilogApply, ITerm name, ListTerm args );
 
     IntTerm newAtomic ( int i );
 
     FloatTerm newAtomic ( double f );
 
-    ListTerm newDottedPair ( Kind kind, Term[] terms );
+    ListTerm newDottedPair ( Kind kind, ITerm[] terms );
 
     HtProperty createFlag ( String scratch_directory, Path scratchDir );
 

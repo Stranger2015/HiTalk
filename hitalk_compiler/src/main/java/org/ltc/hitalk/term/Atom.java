@@ -29,7 +29,7 @@ class Atom extends HtFunctor {
     @Override
     public
     boolean isFunctor () {
-        return false;
+        return true;
     }
 
     /**

@@ -49,7 +49,7 @@ public class MetaInterpreterVisitor2 implements IAllTermsVisitor {
 //private boolean isSimilar(ITerm term1, ITerm term2){
 //        term1.accept(this);
 //
-}
+//}
 
     public void visit ( IFunctor functor1, IFunctor functor2 ) throws LinkageException {
 

@@ -11,6 +11,36 @@ import java.util.List;
  *
  */
 public class BodyCall extends PiCalls {
+    /**
+     *
+     */
+    public static class BodyCalls extends BodyCall {
+
+        /**
+         * @param sym
+         * @param calls
+         * @param args
+         * @param selectedClauses
+         */
+        public BodyCalls ( IFunctor sym,
+                           ListTerm calls,
+                           ListTerm args,//./????????
+                           List <HtClause> selectedClauses ) {
+            super(sym, calls, args, selectedClauses);
+        }
+
+        /**
+         * @param sym
+         * @param listTerm
+         */
+        public BodyCalls ( IFunctor sym, ListTerm listTerm ) {
+            super(sym, listTerm);
+        }
+
+        public BodyCalls ( ITerm msg, List <HtClause> selectedClauses, List <ListTerm> sameSelect ) {
+            super(msg, selectedClauses, sameSelect);
+        }
+    }
 
     /**
      * @param sym
@@ -18,13 +48,16 @@ public class BodyCall extends PiCalls {
      * @param args
      * @param selectedClauses
      */
-    public BodyCall ( IFunctor sym, ListTerm calls, List <ITerm> args, List <HtClause> selectedClauses ) {
+    public BodyCall ( IFunctor sym,
+                      ListTerm calls,
+                      ListTerm args,//fixme listterm
+                      List <HtClause> selectedClauses ) {
         super(sym, calls);
         this.args = args;
         this.selectedClauses = selectedClauses;
     }
 
-    protected List <ITerm> args = new ArrayList <>();
+    protected ListTerm args = new ListTerm(0);
     protected List <HtClause> selectedClauses = new ArrayList <>();
 
     /**
@@ -39,8 +72,4 @@ public class BodyCall extends PiCalls {
     public String toStringArguments () {
         return super.toStringArguments();//fixme
     }
-
-//    public void forEach ( Consumer <? super ITerm> action ) {
-//
-//    }
 }
