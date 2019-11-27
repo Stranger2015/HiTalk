@@ -10,7 +10,7 @@ solve(Ctx,U>>G):- !,
 
 solve(Ctx,G):-
     member(U,Ctx), %C4
-    rule(U,G,Body),
+    method(U,G,Body),
     solve(Ctx,Body).
 
 solve(_, G):-

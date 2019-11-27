@@ -8,9 +8,8 @@ import org.ltc.hitalk.compiler.PredicateTable;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.TermUtilities;
 import org.ltc.hitalk.entities.HtPredicate;
-import org.ltc.hitalk.entities.HtPredicateDefinition.UserDefinition;
+import org.ltc.hitalk.entities.HtPredicateDefinition;
 import org.ltc.hitalk.entities.HtPredicateIndicator;
-import org.ltc.hitalk.entities.ISubroutine;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
 import org.ltc.hitalk.parser.HtClause;
@@ -18,6 +17,7 @@ import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.term.io.Environment;
+import org.ltc.hitalk.wam.compiler.PiCalls.XPiCalls;
 import org.ltc.hitalk.wam.transformers.ISpecializer;
 import org.ltc.hitalk.wam.transformers.TransformInfo;
 import org.slf4j.Logger;
@@ -33,7 +33,7 @@ import static org.ltc.hitalk.wam.compiler.BodyCall.BodyCalls;
  *
  */
 public
-class Specializer<T extends ITerm> implements ISpecializer <T> {
+class Specializer<T extends ITerm, C extends BodyCalls <C>> implements ISpecializer <T> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
@@ -41,7 +41,7 @@ class Specializer<T extends ITerm> implements ISpecializer <T> {
     private final IVafInterner interner;
     private final List <HtPredicate> predicates;
     private final IResolver <HtPredicate, HtClause> resolver = Environment.instance().getResolver();
-    private final List <PiCalls> piCalls = new ArrayList <>();
+    private final List <PiCalls <?>> piCalls = new ArrayList <>();
 
     /**
      *
@@ -61,9 +61,9 @@ class Specializer<T extends ITerm> implements ISpecializer <T> {
     @Override
     public List <T> specialize ( T term ) {
         List <T> spClauses = new ArrayList <>();
-        List <PiCalls> calls = new ArrayList <>();
+        List <PiCalls <C>> calls = new ArrayList <>();
         predicates.stream().map(this::collect).forEachOrdered(calls::addAll);
-        calls = getInterestingCalls(calls, predicates);
+        final List <XPiCalls <C>> merged = getInterestingCalls(calls, predicates);
 
         return spClauses;
     }
@@ -73,28 +73,30 @@ class Specializer<T extends ITerm> implements ISpecializer <T> {
      * @param predicates
      * @return
      */
-    private List <PiCalls> getInterestingCalls ( List <PiCalls> calls, List <HtPredicate> predicates ) {
-        PredicateTable <UserDefinition <ISubroutine <? extends IFunctor>, HtPredicate, HtClause <? extends IFunctor>>> table = new PredicateTable <UserDefinition <ISubroutine <? extends IFunctor>, HtPredicate, HtClause <? extends IFunctor>>>(predicates);
-        for (PiCalls piCalls : calls) {
+    private List <XPiCalls <C>> getInterestingCalls ( List <PiCalls <C>> calls, List <HtPredicate> predicates ) {
+        PredicateTable <?> table = new PredicateTable();
+        List <XPiCalls <C>> result = new ArrayList <>();
+        for (PiCalls <C> piCalls : calls) {
             if (table.containsKey(piCalls.getName())) {
                 final List <HtClause> clauses = table.get(piCalls.getName()).getBody();
 //todo
             }
         }
 
-        return null;
+        return result;
     }
 
-    private List <PiCalls> getInterestingIndeedCalls ( List <PiCalls> calls, List <HtPredicate> predicates ) {
-        PredicateTable <UserDefinition <ISubroutine <? extends IFunctor>, HtPredicate, HtClause <? extends IFunctor>>> table = new PredicateTable <UserDefinition <ISubroutine <? extends IFunctor>, HtPredicate, HtClause <? extends IFunctor>>>(predicates);
-        for (PiCalls piCalls : calls) {
+    private List <XPiCalls <C>> getInterestingIndeedCalls ( List <PiCalls <C>> calls, List <HtPredicate> predicates ) {
+        PredicateTable <?> table = new PredicateTable <>(predicates);
+        List <XPiCalls <C>> result = new ArrayList <>();
+        for (PiCalls <C> piCalls : calls) {
             if (table.containsKey(piCalls.getName())) {
                 final List <HtClause> clauses = table.get(piCalls.getName()).getBody();
 //todo
             }
         }
 
-        return null;
+        return result;
     }
 
     protected List <HtClause> findSelectedClauses ( ListTerm args, List <HtClause> clauses ) {
@@ -117,24 +119,17 @@ class Specializer<T extends ITerm> implements ISpecializer <T> {
 //    /*----------------------------------------------------------------------*/
 
     //visit each pddef
-    public List <PiCalls> collect ( HtPredicate predicate ) {
+    public List <XPiCalls <?>> collect ( HtPredicate predicate ) {
         PiCallsCollector pc = PiCallsCollector.toPiCallsCollector();
-        final List <PiCalls> calls = pc.supplier().get();
+        final List <XPiCalls <?>> calls = pc.supplier().get();
 
         return piCalls;
     }
 
-    public List <PiCalls> mergeCalls ( List <PiCalls> calls ) {
-        final List <PiCalls> mergedCalls = new ArrayList <>();
-        for (int i = 0, len = calls.size(); i < len; i++) {
-            final ListTerm piCalls = calls.get(i);
-            final ITerm[] heads = piCalls.getHeads();
-            final int hlen = heads.length;
-            final BodyCall calli = (BodyCall) heads[i];
-            for (int j = 1; j < hlen; j++) {
-                BodyCall callj = (BodyCall) heads[j];
-                final ITerm headsij = mergeCalls(calli, callj);
-            }
+    public List <XPiCalls <C>> mergeCalls ( List <BodyCall <C>> calls ) {
+        final List <XPiCalls <C>> mergedCalls = new ArrayList <>();
+        for (final PiCalls <C> piCalls : calls) {
+
         }
 
         return mergedCalls;
@@ -170,15 +165,22 @@ class Specializer<T extends ITerm> implements ISpecializer <T> {
 //	; Rest = [One|Rest1], 'merge calls'(One, Rest1, Merged)
 //	).
 
-    protected List <BodyCalls> mergeCalls ( BodyCall call, List <BodyCall> calls ) {
-        final List <BodyCalls> merged = new ArrayList <>();
+    /**
+     * @param calls
+     * @return
+     */
+    protected List <BodyCalls <C>> mergeCalls0 ( List <BodyCall <C>> calls ) {
+        final List <BodyCalls <C>> merged = new ArrayList <>();
         for (int i = 0; i < calls.size(); i++) {
-            BodyCall call1 = calls.get(i);//todo
+            BodyCall <C> call = calls.get(i);
             List <ListTerm> sameSelect = new ArrayList <>();
-            calls = findAllDelete(calls, call.selectedClauses, sameSelect);
+            final List <BodyCall <C>> rest = findAllDelete(calls, call.selectedClauses, sameSelect);
+            if (!rest.isEmpty()) {
+                call = rest.get(0);
+            }
             final ITerm msg = findMsgOfCalls(call.args, sameSelect);
-            sameSelect.add(calls.get(0));
-            BodyCalls bc = new BodyCalls(msg, call.selectedClauses, sameSelect);
+            sameSelect.add((ListTerm) call.get(i));
+            merged.add(new BodyCalls <>(msg, call.selectedClauses, sameSelect));
         }
 
         return merged;
@@ -198,8 +200,8 @@ class Specializer<T extends ITerm> implements ISpecializer <T> {
      * @param ss
      * @return
      */
-    private List <BodyCall> findAllDelete ( List <BodyCall> calls, List <HtClause> selectedClauses, List <ListTerm> ss ) {
-        List <BodyCall> other = new ArrayList <>();
+    private List <BodyCall <C>> findAllDelete ( List <BodyCall <C>> calls, List <HtClause> selectedClauses, List <ListTerm> ss ) {
+        List <BodyCall <C>> other = new ArrayList <>();
         calls.forEach(call -> {
             final List <HtClause> sc = (List <HtClause>) call.get(1);
             if (selectedClauses == sc) {
@@ -265,17 +267,18 @@ class Specializer<T extends ITerm> implements ISpecializer <T> {
      *
      * @param piCalls
      */
-    private void interestingCalls ( final List <PiCalls> piCalls, final PredicateTable <? extends org.ltc.hitalk.entities.HtPredicateDefinition <ISubroutine, HtPredicate, HtClause>> predicates ) {
+    private void interestingCalls ( final List <PiCalls <C>> piCalls,
+                                    final PredicateTable <?> predicates ) {
         piCalls.forEach(piCall -> {
 
 //            piCall.accept(pcc); // may not be there if dynamic
 //            final int sym = piCall.getName();
 //            final ITerm[] calls = piCall.getArguments();
 //
-//            final HtPredicateDefinition def = predicates.lookup(piCall);
-//            if (!def.isBuiltIn()) {
-//                List <PiCalls> icalls = interestingCalls0(calls, predicates);
-//            }
+            final HtPredicateDefinition def = predicates.lookup(piCall);
+            if (!def.isBuiltIn()) {
+                List <PiCalls> icalls = interestingCalls0(calls, predicates);
+            }
         });
     }
 
@@ -284,7 +287,7 @@ class Specializer<T extends ITerm> implements ISpecializer <T> {
      * @param predicates
      * @return
      */
-    private List <PiCalls> interestingCalls0 ( ITerm[] calls, PredicateTable <? extends org.ltc.hitalk.entities.HtPredicateDefinition <ISubroutine, HtPredicate, HtClause>> predicates ) {
+    private List <PiCalls <C>> interestingCalls0 ( ITerm[] calls, PredicateTable predicates ) {
         return piCalls;
     }
 
@@ -319,8 +322,8 @@ class Specializer<T extends ITerm> implements ISpecializer <T> {
 	'specialise pred'(BCs, N, A, Tabled, SymTab, CLmid, CLout).
 */
 
-    private List <HtClause <? extends IFunctor>> specializePred ( PiCalls piCall ) {
-        List <HtClause <? extends IFunctor>> spClauses = new ArrayList <HtClause <? extends IFunctor>>();
+    private List <HtClause <IFunctor>> specializePred ( PiCalls <?> piCall ) {
+        List <HtClause <IFunctor>> spClauses = new ArrayList <>();
         HtPredicateIndicator symbol = new HtPredicateIndicator(piCall);
 //noinspection PlaceholderCountMatchesArgumentCount
         logger.info("Specializing partially instantiated calls to %s... ", symbol);

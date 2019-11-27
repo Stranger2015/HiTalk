@@ -1,9 +1,9 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PredicateTable;
+import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.io.Environment;
@@ -21,20 +21,20 @@ import static java.util.stream.Collector.Characteristics.UNORDERED;
  *
  */
 public
-class PiCallsCollector implements Collector <PiCalls, List <PiCalls>, PiCalls> {
+class PiCallsCollector implements Collector <PiCalls <?>, List <PiCalls <?>>, PiCalls <?>> {
 
     private final PredicateTable predicateTable;
     private final PiCallsCollectorVisitor pccv;
     private final IVafInterner interner;
     private final SymbolTable <Integer, String, Object> symbolTable;
 
-    private final Supplier <List <PiCalls>> supplier;
-    private final BiConsumer <List <PiCalls>, PiCalls> accumulator;
-    private final BinaryOperator <List <PiCalls>> combiner;
-    private final Function <List <PiCalls>, PiCalls> finisher;
+    private final Supplier <List <PiCalls.XPiCalls <?>>> supplier;
+    private final BiConsumer <List <PiCalls <?>>, PiCalls <?>> accumulator;
+    private final BinaryOperator <List <PiCalls <?>>> combiner;
+    private final Function <List <PiCalls <?>>, PiCalls <?>> finisher;
 
-    private final List <PiCalls> piCallsList = new ArrayList <>();
-    private final Resolver <HtPredicate, HtClause> resolver;
+    private final List <PiCalls <?>> piCallsList = new ArrayList <>();
+    private final IResolver <HtPredicate, HtClause> resolver;
 
     /**
      *
@@ -61,7 +61,7 @@ class PiCallsCollector implements Collector <PiCalls, List <PiCalls>, PiCalls> {
      * @return
      */
     @Override
-    public Supplier <List <PiCalls>> supplier () {
+    public Supplier <List <PiCalls <>>> supplier () {
         return ArrayList::new;
     }
 

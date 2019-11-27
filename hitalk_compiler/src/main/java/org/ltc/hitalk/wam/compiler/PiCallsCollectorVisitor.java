@@ -58,6 +58,7 @@ public class PiCallsCollectorVisitor extends MetaInterpreterVisitor {
         }
     }
 
+    @Override
     protected void leavePredicate ( HtPredicate predicate ) {
         super.leavePredicate(predicate);
     }
@@ -108,10 +109,12 @@ public class PiCallsCollectorVisitor extends MetaInterpreterVisitor {
         super.enterClause(clause);
     }
 
+    @Override
     protected void leaveClause ( HtClause clause ) {
         super.leaveClause(clause);
     }
 
+    @Override
     protected void enterListTerm ( ListTerm listTerm ) throws LinkageException {
         super.enterListTerm(listTerm);
     }

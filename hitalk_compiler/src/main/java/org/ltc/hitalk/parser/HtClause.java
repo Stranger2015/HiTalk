@@ -1,7 +1,6 @@
 package org.ltc.hitalk.parser;
 
 import org.ltc.hitalk.compiler.IVafInterner;
-import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.ISubroutine;
 import org.ltc.hitalk.term.HtBaseTerm;
 import org.ltc.hitalk.term.ITerm;
@@ -12,7 +11,6 @@ import org.ltc.hitalk.wam.compiler.IFunctor;
  *
  */
 public class HtClause<F extends IFunctor> extends HtBaseTerm implements ITerm, ISubroutine {
-    protected final HtEntityIdentifier identifier;
     protected F head;
     protected ListTerm body;
 
@@ -22,19 +20,16 @@ public class HtClause<F extends IFunctor> extends HtBaseTerm implements ITerm, I
      * @param head The head of the program.
      * @param body The functors that make up the query body of the program, if any. May be <tt>null</tt>
      */
-    public HtClause ( HtEntityIdentifier identifier, F head, ListTerm body ) {
-//        super(head, body);
-        this.identifier = identifier;
+    public HtClause ( F head, ListTerm body ) {
         this.head = head;
         this.body = body;
     }
 
     /**
-     * @param identifier
      * @param head
      */
-    public HtClause ( HtEntityIdentifier identifier, F head ) {
-        this(identifier, head, null);
+    public HtClause ( F head ) {
+        this(head, null);
     }
 
     /**

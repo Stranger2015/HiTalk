@@ -2,27 +2,46 @@ package org.ltc.hitalk.wam.compiler;
 
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.term.ListTerm;
 
 import java.util.List;
 
 /**
  *
  */
-public class PiCalls extends HtFunctor {
+public class PiCalls<C extends BodyCall.BodyCalls <C>> extends HtFunctor {
     /**
      *
      */
     protected boolean representable;
-    protected List <BodyCall> calls;
+
+    /**
+     * @param <C>
+     */
+    public static class XPiCalls<C extends BodyCall.BodyCalls <C>> extends PiCalls <C> {
+
+        /**
+         * @param sym
+         * @param calls
+         */
+        public XPiCalls ( IFunctor sym, List <BodyCall.BodyCalls <C>> calls ) {
+            super(sym, calls);
+        }
+    }
+
+    /**
+     * @return
+     */
+    public List <BodyCall.BodyCalls <C>> getCalls () {
+        return calls;
+    }
+
+    protected List <BodyCall.BodyCalls <C>> calls;
 
     /**
      * @param sym
      * @param calls
      */
-    public PiCalls ( IFunctor sym, ListTerm calls ) {
-//        super(Kind.LIST, sym.getName(), calls.getHeads());
-//        this(sym.getName(), calls);
+    public PiCalls ( IFunctor sym, List <BodyCall.BodyCalls <C>> calls ) {
         ITerm[] t = getArguments();
         t[0] = sym;
         setCalls(calls);
@@ -96,7 +115,7 @@ public class PiCalls extends HtFunctor {
     /**
      * @param calls
      */
-    public void setCalls ( List <BodyCall> calls ) {
+    public void setCalls ( List <BodyCall.BodyCalls <C>> calls ) {
         this.calls = calls;
     }
 }

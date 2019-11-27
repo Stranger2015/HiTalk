@@ -1,9 +1,9 @@
 package org.ltc.hitalk.wam.machine;
 
-import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.ICompiler;
+import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.parser.HiTalkParser;
 import org.ltc.hitalk.parser.HtClause;
@@ -49,7 +49,7 @@ class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P
     public HiTalkWAMEngine ( PlPrologParser parser,
                              IVafInterner interner,
                              ICompiler <T, P, Q> compiler,
-                             Resolver <P, Q> resolver ) {
+                             IResolver <P, Q> resolver ) {
         super(parser, interner, compiler, resolver);
     }
 

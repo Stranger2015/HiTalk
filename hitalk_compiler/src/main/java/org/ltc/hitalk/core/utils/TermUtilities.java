@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import static java.util.Objects.requireNonNull;
+import static org.ltc.hitalk.term.ListTerm.Kind.LIST;
 
 /**
  * TermUtils provides some convenient static utility methods for working with terms in first order logic.
@@ -189,7 +190,7 @@ public class TermUtilities {
      * @return A clause for the term, or <tt>null</tt> if it cannot be converted.
      * @throws SourceCodeException If the term to convert to a clause does not form a valid clause.
      */
-    public static HtClause convertToClause ( IFunctor term, IVafInterner interner ) throws SourceCodeException {
+    public static HtClause <IFunctor> convertToClause ( IFunctor term, IVafInterner interner ) throws SourceCodeException {
         // Check if the top level term is a query, an implication or neither and reduce the term into a clause
         // accordingly.
         if (term instanceof HlOpSymbol) {
@@ -198,15 +199,15 @@ public class TermUtilities {
             if (":-".equals(symbol.getTextName())) {
                 IFunctor[] flattenedArgs = flattenTerm((IFunctor) symbol.getArgument(1), IFunctor.class, ",", interner);
 
-                return new HtClause(null, (IFunctor) symbol.getArgument(0), flattenedArgs);
+                return new HtClause((IFunctor) symbol.getArgument(0), new ListTerm(LIST, flattenedArgs));
             } else if ("?-".equals(symbol.getTextName())) {
                 IFunctor[] flattenedArgs = flattenTerm((IFunctor) symbol.getArgument(0), IFunctor.class, ",", interner);
 
-                return new HtClause(null, null, flattenedArgs);
+                return new HtClause(null, new ListTerm(LIST, flattenedArgs));
             }
         }
         if (term != null) {
-            return new HtClause(null, term, null);
+            return new HtClause <>(term, null);
         } else {
             throw new SourceCodeException("Only functors can for a clause body, not " + term + ".", null, null, null,
                     requireNonNull(term).getSourceCodePosition());

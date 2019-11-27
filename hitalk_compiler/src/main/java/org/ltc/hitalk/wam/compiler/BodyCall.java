@@ -10,11 +10,16 @@ import java.util.List;
 /**
  *
  */
-public class BodyCall extends PiCalls {
+public class BodyCall<C extends BodyCall.BodyCalls <C>> extends PiCalls <C> {
+    public BodyCall ( ITerm msg, List <HtClause> selectedClauses, List <ListTerm> sameSelect ) {
+        this(msg, selectedClauses, sameSelect);
+//        super(msg, selectedClauses, sameSelect);
+    }
+
     /**
      *
      */
-    public static class BodyCalls extends BodyCall {
+    public static class BodyCalls<C extends BodyCalls <C>> extends BodyCall <C> {
 
         /**
          * @param sym
@@ -23,7 +28,7 @@ public class BodyCall extends PiCalls {
          * @param selectedClauses
          */
         public BodyCalls ( IFunctor sym,
-                           ListTerm calls,
+                           List <BodyCall <C>> calls,
                            ListTerm args,//./????????
                            List <HtClause> selectedClauses ) {
             super(sym, calls, args, selectedClauses);
@@ -33,7 +38,7 @@ public class BodyCall extends PiCalls {
          * @param sym
          * @param listTerm
          */
-        public BodyCalls ( IFunctor sym, ListTerm listTerm ) {
+        public BodyCalls ( IFunctor sym, List <BodyCall <C>> listTerm ) {
             super(sym, listTerm);
         }
 
@@ -49,7 +54,7 @@ public class BodyCall extends PiCalls {
      * @param selectedClauses
      */
     public BodyCall ( IFunctor sym,
-                      ListTerm calls,
+                      List <BodyCall <C>> calls,
                       ListTerm args,//fixme listterm
                       List <HtClause> selectedClauses ) {
         super(sym, calls);
@@ -64,10 +69,13 @@ public class BodyCall extends PiCalls {
      * @param sym
      * @param listTerm
      */
-    public BodyCall ( IFunctor sym, ListTerm listTerm ) {
+    public BodyCall ( IFunctor sym, List <BodyCall <C>> listTerm ) {
         super(sym, listTerm);
     }
 
+    /**
+     * @return
+     */
     @Override
     public String toStringArguments () {
         return super.toStringArguments();//fixme
