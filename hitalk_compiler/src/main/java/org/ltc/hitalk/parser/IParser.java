@@ -5,6 +5,7 @@ import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
+import org.ltc.hitalk.core.utils.TermUtilities;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
@@ -13,6 +14,7 @@ import org.ltc.hitalk.term.HlOpSymbol;
 import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HiTalkStream;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.Language;
 
 import java.io.IOException;
@@ -152,5 +154,7 @@ public interface IParser extends TermParser <ITerm> {
      * @param t
      * @return
      */
-    HtClause convert ( ITerm t );
+    default HtClause convert ( ITerm t ) throws SourceCodeException {
+        return TermUtilities.convertToClause((IFunctor) t, getInterner());
+    }
 }

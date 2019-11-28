@@ -2,7 +2,6 @@ package org.ltc.hitalk.parser.jp.segfault.prolog.parser;
 
 
 import com.thesett.aima.logic.fol.Sentence;
-import com.thesett.aima.logic.fol.SentenceImpl;
 import com.thesett.aima.logic.fol.Variable;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.Source;
@@ -118,18 +117,29 @@ public class PlPrologParser implements IParser {
         return null;
     }
 
-    public HtClause convert ( ITerm t ) {
-        return null;
-    }//todo
-
+    /**
+     * @return
+     */
+    @Override
     public PlTokenSource getTokenSource () {
         return tokenSourceStack.peek();
     }
 
+    /**
+     * @return
+     */
     public PlTokenSource popTokenSource () {
         return tokenSourceStack.pop();
     }
 
+    /**
+     * @param token
+     * @param nullable
+     * @param terminators
+     * @return
+     * @throws IOException
+     * @throws ParseException
+     */
     protected ITerm newTerm ( PlToken token, boolean nullable, EnumSet <TokenKind> terminators )
             throws IOException, ParseException {
         HlOperatorJoiner <ITerm> joiner = new HlOperatorJoiner <ITerm>() {
@@ -336,7 +346,7 @@ public class PlPrologParser implements IParser {
      */
     @Override
     public Sentence <ITerm> parse () throws ParseException, IOException, SourceCodeException {
-        return new SentenceImpl(termSentence());
+        return new PlSentenceImpl(termSentence());
     }
 
     /**
@@ -346,9 +356,8 @@ public class PlPrologParser implements IParser {
      * convenience to languages over terms, rather than clauses.
      *
      * @return A term parsed in a fresh variable context.
-     * @throws SourceCodeException If the token sequence does not parse into a valid term sentence.
      */
-    public ITerm termSentence () throws SourceCodeException, IOException, ParseException {
+    public ITerm termSentence () throws IOException, ParseException {
         // Each new sentence provides a new scope in which to make variables unique.
         variableContext.clear();
 

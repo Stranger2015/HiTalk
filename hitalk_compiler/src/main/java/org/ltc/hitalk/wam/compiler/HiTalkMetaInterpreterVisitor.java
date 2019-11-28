@@ -27,23 +27,26 @@ import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ListTerm;
-import org.ltc.hitalk.wam.machine.HiTalkWAMEngine;
 import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
 import org.ltc.hitalk.wam.printer.IAllTermsVisitor;
 import org.ltc.hitalk.wam.printer.IPositionalTermTraverser;
 
 import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Set;
+
+import static org.ltc.hitalk.interpreter.IInterpreter.SEMICOLON;
 
 /**
  *
  */
-public class HiTalkMetaInterpreterVisitor extends HtBasePositionalVisitor
+public class HiTalkMetaInterpreterVisitor<T extends HtMethod, P, Q> extends HtBasePositionalVisitor
         implements IAllTermsVisitor {
 
-    protected final HiTalkWAMEngine <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> engine;
+    protected final HiTalkInterpreter <T, P, Q> engine;
+    protected int currentPredicateName;
 
     /**
      * Creates a positional visitor.
@@ -55,7 +58,7 @@ public class HiTalkMetaInterpreterVisitor extends HtBasePositionalVisitor
     public HiTalkMetaInterpreterVisitor ( SymbolTable <Integer, String, Object> symbolTable,
                                           IVafInterner interner,
                                           IPositionalTermTraverser positionalTraverser,
-                                          HiTalkWAMEngine <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> engine ) {
+                                          HiTalkInterpreter <T, P, Q> engine ) {
         super(symbolTable, interner, positionalTraverser);
         this.engine = engine;
     }
@@ -144,18 +147,18 @@ public class HiTalkMetaInterpreterVisitor extends HtBasePositionalVisitor
      * @param sentence The clausal sentence to run as a query or as a clause to add to the domain.
      * @throws SourceCodeException If the query or domain clause fails to compile or link into the resolver.
      */
-    private void evaluate ( Sentence <HtClause> sentence ) throws SourceCodeException {
+    private void evaluate ( Sentence <T> sentence ) throws SourceCodeException {
         HtClause clause = sentence.getT();
 
         if (clause.isQuery()) {
             engine.endScope();
-            engine.compile(sentence);
+            engine.getCompiler().compile(sentence);
             evaluateQuery();
         } else {
             // Check if the program clause is new, or a continuation of the current predicate.
             int name = clause.getHead().getName();
 
-            if ((currentPredicateName == null) || (currentPredicateName != name)) {
+            if (/*(currentPredicateName == null) || */currentPredicateName != name) {
                 engine.endScope();
                 currentPredicateName = name;
             }
@@ -169,8 +172,7 @@ public class HiTalkMetaInterpreterVisitor extends HtBasePositionalVisitor
      * variable bindings. The user is queried through the parser to if more than one solution is required.
      */
     private void evaluateQuery () {
-        /*log.fine("Read query from input.");*/
-
+        logger.debug("Read query from input.");
         // Create an iterator to generate all solutions on demand with. Iteration will stop if the request to
         // the parser for the more ';' token fails.
         Iterator <Set <HtVariable>> i = engine.iterator();
@@ -187,12 +189,12 @@ public class HiTalkMetaInterpreterVisitor extends HtBasePositionalVisitor
             if (solution.isEmpty()) {
                 System.out.print("true");
             } else {
-                for (Iterator <Variable> j = solution.iterator(); j.hasNext(); ) {
-                    Variable nextVar = j.next();
+                for (Iterator <HtVariable> j = solution.iterator(); j.hasNext(); ) {
+                    HtVariable nextVar = j.next();
 
-                    String varName = engine.getVariableName(nextVar.getName());
+                    String varName = engine.getInterner().getVariableName(nextVar.getName());
 
-                    System.out.print(varName + " = " + nextVar.getValue().toString(engine, true, false));
+                    System.out.print(varName + " = " + nextVar.getValue().toString(engine.getInterner(), true, false));
 
                     if (j.hasNext()) {
                         System.out.println();
@@ -209,13 +211,12 @@ public class HiTalkMetaInterpreterVisitor extends HtBasePositionalVisitor
 
             // Check if the user wants more solutions.
             try {
-                int key = consoleReader.readVirtualKey();
+                int key = engine.getConsoleReader().readVirtualKey();
 
                 if (key == SEMICOLON) {
                     System.out.println(" ;");
                 } else {
                     System.out.println();
-
                     break;
                 }
             } catch (IOException e) {
@@ -233,17 +234,17 @@ public class HiTalkMetaInterpreterVisitor extends HtBasePositionalVisitor
      *
      * @param sentence The clause to add to the domain.
      */
-    private void addProgramClause ( Sentence <HtClause> sentence ) throws SourceCodeException {
-        /*log.fine("Read program clause from input.");*/
+    private void addProgramClause ( Sentence <T> sentence ) throws SourceCodeException {
+        logger.debug("Read program clause from input.");
 
-        engine.compile(sentence);
+        engine.getCompiler().compile(sentence);
     }
 
     /**
      * Used to buffer tokens.
      */
-    private class TokenBuffer implements Source <PlToken>, Sink <PlToken> {
-        LinkedList <PlToken> tokens = new LinkedList <PlToken>();
+    private static class TokenBuffer implements Source <PlToken>, Sink <PlToken> {
+        Deque <PlToken> tokens = new ArrayDeque <>();
 
         public boolean offer ( PlToken o ) {
             return tokens.offer(o);
@@ -266,7 +267,7 @@ public class HiTalkMetaInterpreterVisitor extends HtBasePositionalVisitor
      * OffsettingTokenSource is a token source that automatically adds in line offsets to all tokens, to assist the
      * parser when operating interactively line-at-a-time.
      */
-    private class OffsettingTokenSource implements Source <PlToken> {
+    private static class OffsettingTokenSource implements Source <PlToken> {
         /**
          * Holds the underlying token source.
          */

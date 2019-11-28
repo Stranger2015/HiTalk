@@ -16,10 +16,8 @@ package org.ltc.hitalk.wam.compiler;
  * limitations under the License.
  */
 
-import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.logic.fol.FunctorName;
 import com.thesett.aima.logic.fol.LinkageException;
-import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.wam.compiler.WAMCallPoint;
 import com.thesett.aima.logic.fol.wam.compiler.WAMLabel;
 import com.thesett.aima.logic.fol.wam.machine.WAMCodeView;
@@ -29,6 +27,7 @@ import com.thesett.common.util.SizeableLinkedList;
 import com.thesett.common.util.SizeableList;
 import com.thesett.common.util.doublemaps.SymbolKey;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
 
 import java.nio.ByteBuffer;
@@ -432,8 +431,7 @@ class HiTalkWAMInstruction implements Sizeable {
      * @param fn       The functor argument.
      * @param reg1Term The term that is assigned or associated with reg1.
      */
-    public
-    HiTalkWAMInstruction ( HiTalkWAMInstructionSet mnemonic, byte mode1, byte reg1, FunctorName fn, Term reg1Term ) {
+    public HiTalkWAMInstruction ( HiTalkWAMInstructionSet mnemonic, byte mode1, byte reg1, FunctorName fn, ITerm reg1Term ) {
         this.mnemonic = mnemonic;
         this.mode1 = mode1;
         this.reg1 = reg1;
@@ -442,7 +440,7 @@ class HiTalkWAMInstruction implements Sizeable {
         // Record the symbol keys of the term that resulted in the creation of the instruction, and are associated
         // with reg1 of the instruction.
         symbolKeyReg1 = reg1Term.getSymbolKey();
-        functorNameReg1 = reg1Term.isFunctor() ? ((Functor) reg1Term).getName() : null;
+        functorNameReg1 = reg1Term.isFunctor() ? ((IFunctor) reg1Term).getName() : null;
     }
 
     /**
@@ -485,8 +483,7 @@ class HiTalkWAMInstruction implements Sizeable {
      * @param reg1     The single register argument.
      * @param reg1Term The term that is assigned or associated with reg1.
      */
-    public
-    HiTalkWAMInstruction ( HiTalkWAMInstructionSet mnemonic, byte mode1, byte reg1, Term reg1Term ) {
+    public HiTalkWAMInstruction ( HiTalkWAMInstructionSet mnemonic, byte mode1, byte reg1, ITerm reg1Term ) {
         this.mnemonic = mnemonic;
         this.mode1 = mode1;
         this.reg1 = reg1;
@@ -494,7 +491,7 @@ class HiTalkWAMInstruction implements Sizeable {
         // Record the symbol keys of the term that resulted in the creation of the instruction, and are associated
         // with reg1 of the instruction.
         symbolKeyReg1 = reg1Term.getSymbolKey();
-        functorNameReg1 = reg1Term.isFunctor() ? ((Functor) reg1Term).getName() : null;
+        functorNameReg1 = reg1Term.isFunctor() ? ((IFunctor) reg1Term).getName() : null;
     }
 
     /**
@@ -588,7 +585,9 @@ class HiTalkWAMInstruction implements Sizeable {
      * @param codeView A view onto the machines code buffer.
      * @return A list of instructions disassembles from the code buffer.
      */
-    public static SizeableList <HiTalkWAMInstruction> disassemble ( int start, int length, ByteBuffer codeBuf, IVafInterner interner, WAMCodeView codeView ) {
+    public static SizeableList <HiTalkWAMInstruction> disassemble ( int start, int length, ByteBuffer codeBuf,
+                                                                    IVafInterner interner,
+                                                                    WAMCodeView codeView ) {
         SizeableList <HiTalkWAMInstruction> result = new SizeableLinkedList <>();
         int ip = start;
 

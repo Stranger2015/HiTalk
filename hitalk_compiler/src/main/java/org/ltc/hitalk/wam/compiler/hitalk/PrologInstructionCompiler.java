@@ -1,10 +1,10 @@
 package org.ltc.hitalk.wam.compiler.hitalk;
 
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
-import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
@@ -48,7 +48,10 @@ public class PrologInstructionCompiler extends BaseInstructionCompiler {
 
     }
 
-    public void setResolver ( Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> resolver ) {
+    /**
+     * @param resolver
+     */
+    public void setResolver ( IResolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> resolver ) {
 
     }
 

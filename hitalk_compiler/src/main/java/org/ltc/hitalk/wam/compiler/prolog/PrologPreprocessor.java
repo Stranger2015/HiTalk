@@ -15,22 +15,22 @@
  */
 package org.ltc.hitalk.wam.compiler.prolog;
 
-import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.aima.logic.fol.Sentence;
-import com.thesett.aima.logic.fol.Term;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PrologBuiltInTransform;
 import org.ltc.hitalk.compiler.bktables.IApplication;
+import org.ltc.hitalk.core.IResolver;
+import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
-import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.task.TransformTask;
 
-import javax.naming.OperationNotSupportedException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,8 @@ import java.util.List;
 /**
  *
  */
-public class PrologPreprocessor<TC extends Term, TT extends TransformTask <HtClause, TC>> extends PrologPreCompiler {
+public class PrologPreprocessor<TC extends ITerm, TT extends TransformTask <TC>> extends PrologPreCompiler {
+
     protected final List <TT> components = new ArrayList <>();
 
     /**
@@ -51,10 +52,10 @@ public class PrologPreprocessor<TC extends Term, TT extends TransformTask <HtCla
                                 IVafInterner interner,
                                 PrologDefaultBuiltIn defaultBuiltIn,
                                 PrologBuiltInTransform <IApplication, HtClause> builtInTransform,
-                                Resolver <HtClause, HtClause> resolver,
-                                PrologWAMCompiler compiler ) {
+                                IResolver <HtPredicate, HtClause> resolver,
+                                PlPrologParser parser ) {
 
-        super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, compiler);
+        super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, parser);
     }
 
     @Override
@@ -68,22 +69,12 @@ public class PrologPreprocessor<TC extends Term, TT extends TransformTask <HtCla
     }
 
     @Override
-    public void compileDcgRule ( DcgRule rule ) throws SourceCodeException, OperationNotSupportedException {
+    public void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
 
     }
 
     @Override
     public void compileQuery ( HtClause query ) throws SourceCodeException {
-
-    }
-
-    @Override
-    public void compileClause ( HtClause clause ) {
-
-    }
-
-    @Override
-    public void setResolver ( Resolver <HtClause, HtClause> resolver ) {
 
     }
 
@@ -94,11 +85,6 @@ public class PrologPreprocessor<TC extends Term, TT extends TransformTask <HtCla
 
     @Override
     public void compile ( Sentence <HtClause> sentence ) throws SourceCodeException {
-
-    }
-
-    @Override
-    public void setCompilerObserver ( HtResolutionEngine.ChainedCompilerObserver observer ) {
 
     }
 

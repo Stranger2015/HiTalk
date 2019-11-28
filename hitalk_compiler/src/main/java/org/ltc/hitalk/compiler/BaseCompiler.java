@@ -26,6 +26,8 @@ import java.util.List;
 import static com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys.SYMKEY_PREDICATES;
 
 /**
+ *
+ *
  * @param <P>
  * @param <Q>
  */
@@ -59,7 +61,7 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
 
     //    @Override
     public void compile ( Sentence <T> sentence ) throws SourceCodeException {
-        logger.debug("compile(Sentence<T> sentence = " + sentence + "): called... ");
+        logger.debug("compile(PlSentence<T> sentence = " + sentence + "): called... ");
 
         // Extract the clause to compile from the parsed sentence.
         HtClause clause = sentence.getT();

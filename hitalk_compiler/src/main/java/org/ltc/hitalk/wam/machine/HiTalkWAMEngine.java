@@ -10,7 +10,6 @@ import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
-import org.ltc.hitalk.term.ITerm;
 
 import java.io.InputStream;
 import java.util.logging.Logger;
@@ -99,9 +98,5 @@ class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P
 
     protected void cleanupDomain () {
 
-    }
-
-    public HtClause convert ( ITerm t ) {
-        return null;
     }
 }

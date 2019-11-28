@@ -37,9 +37,9 @@ import java.util.function.Function;
  * variable_names	A list of `Name = Var' of the last term read. See read_term/2 for details.
  */
 public
-class TermRewriteTask<T extends HtClause, TC extends ITerm, TT extends TransformTask <T, TC>>
-        extends StandardPreprocessor <T, TC>
-        implements IComposite <T, TC, TT>, ITransformer <T, TC> {
+class TermRewriteTask<T extends HtClause, TC extends ITerm, TT extends TransformTask <TC>>
+        extends StandardPreprocessor <TC>
+        implements IComposite <TC>, ITransformer <TC> {
 
     protected List <TT> rewriteTasks = new ArrayList <>();
 

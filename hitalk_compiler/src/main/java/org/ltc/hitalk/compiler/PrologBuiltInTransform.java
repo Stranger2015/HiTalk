@@ -1,8 +1,8 @@
 package org.ltc.hitalk.compiler;
 
-import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.common.util.Function;
 import org.ltc.hitalk.compiler.bktables.IApplication;
+import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.io.Environment;
@@ -15,7 +15,7 @@ public class PrologBuiltInTransform<A extends IApplication, T extends HtClause>
 
     protected final IVafInterner interner;
     protected final PrologPreCompiler preCompiler;
-    protected final Resolver <HtPredicate, HtClause> resolver;
+    protected final IResolver <HtPredicate, HtClause> resolver;
     protected final PredicateTable predicateTable = Environment.instance().getPredicateTable();
 
     /**
@@ -32,7 +32,7 @@ public class PrologBuiltInTransform<A extends IApplication, T extends HtClause>
     public PrologBuiltInTransform ( PrologDefaultBuiltIn defaultBuiltIn,
                                     IVafInterner interner,
                                     PrologPreCompiler preCompiler,
-                                    Resolver <HtPredicate, HtClause> resolver ) {
+                                    IResolver <HtPredicate, HtClause> resolver ) {
         this.defaultBuiltIn = defaultBuiltIn;
         this.interner = interner;
         this.preCompiler = preCompiler;

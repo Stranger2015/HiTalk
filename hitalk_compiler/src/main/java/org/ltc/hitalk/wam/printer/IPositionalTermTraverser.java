@@ -1,12 +1,14 @@
 package org.ltc.hitalk.wam.printer;
 
+import com.thesett.aima.logic.fol.TermTraverser;
 import org.ltc.hitalk.term.ITermVisitor;
 
 public
 interface IPositionalTermTraverser extends
         IClauseTraverser,
         IFunctorTraverser,
-        IPositionalContext {
+        IPositionalContext,
+        TermTraverser {
 
     /**
      * Indicates that a call is being made to a term visitor because its context is being established.

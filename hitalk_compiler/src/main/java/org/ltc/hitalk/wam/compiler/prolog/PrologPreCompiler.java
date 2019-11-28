@@ -1,7 +1,7 @@
 package org.ltc.hitalk.wam.compiler.prolog;
 
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
-import com.thesett.aima.logic.fol.Resolver;
+import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.AbstractBaseMachine;
@@ -9,6 +9,7 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PrologBuiltInTransform;
 import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.core.ICompiler;
+import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
@@ -16,7 +17,6 @@ import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -26,16 +26,13 @@ import java.io.IOException;
 public
 class PrologPreCompiler extends AbstractBaseMachine implements ICompiler <HtClause, HtPredicate, HtClause> {
 
-    final protected Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
-
     final protected PlPrologParser parser;
     final protected PrologDefaultBuiltIn defaultBuiltIn;
     /**
      * Holds the built in transformation.
      */
     protected final PrologBuiltInTransform <IApplication, HtClause> builtInTransform;
-    final protected Resolver <HtPredicate, HtClause> resolver;
-//    protected final PrologWAMCompiler compiler;
+    final protected IResolver <HtPredicate, HtClause> resolver;
 
     /**
      * @param symbolTable
@@ -48,7 +45,7 @@ class PrologPreCompiler extends AbstractBaseMachine implements ICompiler <HtClau
                                IVafInterner interner,
                                PrologDefaultBuiltIn defaultBuiltIn,
                                PrologBuiltInTransform <IApplication, HtClause> builtInTransform,
-                               Resolver <HtPredicate, HtClause> resolver,
+                               IResolver <HtPredicate, HtClause> resolver,
                                PlPrologParser parser ) {
         super(symbolTable, interner);
 
@@ -84,7 +81,10 @@ class PrologPreCompiler extends AbstractBaseMachine implements ICompiler <HtClau
 
     }
 
-    public void setResolver ( Resolver <HtPredicate, HtClause> resolver ) {
+    /**
+     * @param resolver
+     */
+    public void setResolver ( IResolver <HtPredicate, HtClause> resolver ) {
 
     }
 
@@ -93,6 +93,16 @@ class PrologPreCompiler extends AbstractBaseMachine implements ICompiler <HtClau
     }
 
     public void compile ( HtClause clause ) {
+
+    }
+
+    /**
+     * Compiles a sentence into a (presumably binary) form, that provides a Java interface into the compiled structure.
+     *
+     * @param sentence The sentence to compile.
+     * @throws SourceCodeException If there is an error in the source to be compiled that prevents its compilation.
+     */
+    public void compile ( Sentence <HtClause> sentence ) throws SourceCodeException {
 
     }
 

@@ -1,21 +1,3 @@
-package org.ltc.hitalk.wam.compiler;
-
-import com.thesett.aima.logic.fol.LinkageException;
-import com.thesett.aima.logic.fol.compiler.PositionalContext;
-import com.thesett.aima.logic.fol.wam.builtins.Conjunction;
-import com.thesett.aima.logic.fol.wam.builtins.Disjunction;
-import com.thesett.common.util.doublemaps.SymbolTable;
-import org.ltc.hitalk.compiler.IVafInterner;
-import org.ltc.hitalk.entities.HtPredicate;
-import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.term.ListTerm;
-import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
-import org.ltc.hitalk.wam.printer.IPositionalTermTraverser;
-import org.ltc.hitalk.wam.printer.IPositionalTermVisitor;
-
-import static com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys.SYMKEY_TOP_LEVEL_FUNCTOR;
-
 /*
  * Copyright The Sett Ltd, 2005 to 2014.
  *
@@ -30,6 +12,23 @@ import static com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys.SYMKEY_TOP
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.ltc.hitalk.wam.compiler;
+
+import com.thesett.aima.logic.fol.LinkageException;
+import com.thesett.aima.logic.fol.wam.builtins.Conjunction;
+import com.thesett.aima.logic.fol.wam.builtins.Disjunction;
+import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.entities.HtPredicate;
+import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.ListTerm;
+import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
+import org.ltc.hitalk.wam.printer.IPositionalContext;
+import org.ltc.hitalk.wam.printer.IPositionalTermTraverser;
+import org.ltc.hitalk.wam.printer.IPositionalTermVisitor;
+
+import static com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys.SYMKEY_TOP_LEVEL_FUNCTOR;
 
 /**
  * Conjunctions and disjunctions are treated specially by this transform. The conjunction and disjunction operators may
@@ -62,10 +61,12 @@ public class HiTalkTopLevelCheckVisitor extends HtBasePositionalVisitor implemen
      * @param symbolTable The compiler symbol table.
      * @param traverser   The positional context traverser.
      */
-    public HiTalkTopLevelCheckVisitor ( IVafInterner interner,
-                                        SymbolTable <Integer, String, Object> symbolTable,
-                                        IPositionalTermTraverser traverser ) {
-        super(interner, symbolTable, traverser);
+    public HiTalkTopLevelCheckVisitor (
+            SymbolTable <Integer, String, Object> symbolTable,
+            IVafInterner interner,
+            IPositionalTermTraverser traverser ) {
+
+        super(symbolTable, interner, traverser);
     }
 
     /**
@@ -93,13 +94,11 @@ public class HiTalkTopLevelCheckVisitor extends HtBasePositionalVisitor implemen
      *
      * @return <tt>true</tt> iff the current position is considered to be top-level.
      */
-    private
-    boolean isTopLevel () {
+    private boolean isTopLevel () {
         if (traverser.isTopLevel()) {
             return true;
-        }
-        else {
-            PositionalContext parentContext = traverser.getParentContext();
+        } else {
+            IPositionalContext parentContext = traverser.getParentContext();
 
             if (parentContext != null) {
                 ITerm parentTerm = parentContext.getTerm();
@@ -113,10 +112,6 @@ public class HiTalkTopLevelCheckVisitor extends HtBasePositionalVisitor implemen
         }
 
         return false;
-    }
-
-    public void setPositionalTraverser ( IPositionalTermTraverser positionalTraverser ) {
-
     }
 
     public void visit ( HtPredicate predicate ) {

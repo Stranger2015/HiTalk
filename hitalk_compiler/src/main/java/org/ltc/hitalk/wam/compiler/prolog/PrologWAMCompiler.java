@@ -1,19 +1,16 @@
 package org.ltc.hitalk.wam.compiler.prolog;
 
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
-import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.BaseCompiler;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.ltc.hitalk.wam.compiler.hitalk.PrologInstructionCompiler;
-
-import java.io.IOException;
 
 /**
  * WAMCompiler implements the {@link } interface for the complete WAM compilation chain. It is a
@@ -55,22 +52,25 @@ public class PrologWAMCompiler<T extends HtClause, P, Q>
         preCompiler.compile(clause, flags);
     }
 
+//    /**
+//     * @param tokenSource
+//     * @param flags
+//     * @throws IOException
+//     * @throws SourceCodeException
+//     */
+//    @Override
+//    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException {
+//        preCompiler.compile(tokenSource, flags);
+//    }
+
+    public void compileQuery ( Q query ) {
+
+    }
+
     /**
-     * @param tokenSource
-     * @param flags
-     * @throws IOException
-     * @throws SourceCodeException
+     * @param resolver
      */
-    @Override
-    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException {
-        preCompiler.compile(tokenSource, flags);
-    }
-
-    public void compileQuery ( Q query ) throws SourceCodeException {
-
-    }
-
-    public void setResolver ( Resolver <P, Q> resolver ) {
+    public void setResolver ( IResolver <P, Q> resolver ) {
 
     }
 

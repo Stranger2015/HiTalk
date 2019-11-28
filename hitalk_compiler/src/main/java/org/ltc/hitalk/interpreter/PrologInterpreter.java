@@ -1,15 +1,22 @@
 package org.ltc.hitalk.interpreter;
 
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.LinkageException;
+import com.thesett.aima.logic.fol.LogicCompilerObserver;
+import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.common.parsing.SourceCodeException;
 import jline.ConsoleReader;
 import org.ltc.hitalk.compiler.PredicateTable;
 import org.ltc.hitalk.compiler.bktables.IConfig;
 import org.ltc.hitalk.core.ICompiler;
+import org.ltc.hitalk.core.IResolver;
+import org.ltc.hitalk.core.utils.TermUtilities;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.term.HtVariable;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.Environment;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.Language;
 import org.ltc.hitalk.wam.compiler.prolog.ChainedCompilerObserver;
 import org.slf4j.Logger;
@@ -20,9 +27,15 @@ import java.util.Set;
 
 public class PrologInterpreter<T extends HtClause, P, Q>
         implements IInterpreter <T, P, Q>, IParser {
+
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     protected final PlPrologParser parser;
+
+    public ICompiler <T, P, Q> getCompiler () {
+        return compiler;
+    }
+
     protected final ICompiler <T, P, Q> compiler;
     protected IConfig config;
     protected ConsoleReader reader;
@@ -31,12 +44,11 @@ public class PrologInterpreter<T extends HtClause, P, Q>
     protected HtResolutionEngine <T, P, Q> engine;
     protected int currentPredicateName;
 
-
     /**
      * @param parser
      * @param compiler
      */
-    public PrologInterpreter ( PlPrologParser parser, ICompiler <T, P, Q> compiler, Resolver <P, Q> resolver ) {
+    public PrologInterpreter ( PlPrologParser parser, ICompiler <T, P, Q> compiler, IResolver <P, Q> resolver ) {
         this.parser = parser;
         this.compiler = compiler;
         engine = new HtResolutionEngine <>(parser,
@@ -86,9 +98,12 @@ public class PrologInterpreter<T extends HtClause, P, Q>
         return parser.parseClause();
     }
 
-    @Override
-    public HtClause convert ( Term t ) {
-        return null;
+    /**
+     * @param t
+     * @return
+     */
+    public HtClause convert ( ITerm t ) throws SourceCodeException {
+        return TermUtilities.convertToClause((IFunctor) t, getInterner());
     }
 
     /**
@@ -191,9 +206,9 @@ public class PrologInterpreter<T extends HtClause, P, Q>
      * @return A list of variable bindings, if the query can be satisfied, or <tt>null</tt> otherwise.
      */
     @Override
-    public Set <Variable> resolve () {
-        return null;
-    }//todo
+    public Set <HtVariable> resolve () {
+        return engine.resolve();
+    }
 
     /**
      * Resets the resolver. This should clear any start and goal states, and leave the resolver in a state in which it
@@ -210,7 +225,7 @@ public class PrologInterpreter<T extends HtClause, P, Q>
      * @return An iterator that generates all solutions on demand as a sequence of variable bindings.
      */
     @Override
-    public Iterator <Set <Variable>> iterator () {
+    public Iterator <Set <HtVariable>> iterator () {
         return null;
     }//todo
 

@@ -1,12 +1,3 @@
-package org.ltc.hitalk.wam.compiler;
-
-import com.thesett.common.util.SizeableList;
-import org.ltc.hitalk.entities.HtEntityIdentifier;
-import org.ltc.hitalk.entities.HtPredicateDefinition.UserDefinition;
-import org.ltc.hitalk.parser.HtClause;
-
-import java.util.Arrays;
-
 /*
  * Copyright The Sett Ltd, 2005 to 2014.
  *
@@ -22,6 +13,12 @@ import java.util.Arrays;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.ltc.hitalk.wam.compiler;
+
+import com.thesett.common.util.SizeableList;
+import org.ltc.hitalk.entities.HtPredicateDefinition.UserDefinition;
+import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.ListTerm;
 
 /**
  * HiTalkWAMCompiledClause is a clause, that belongs to an {@link HiTalkWAMCompiledPredicate}.
@@ -39,6 +36,7 @@ import java.util.Arrays;
  */
 public
 class HiTalkWAMCompiledClause extends HtClause {
+//    private final HtEntityIdentifier identifier;
     /**
      * The parent predicate to which this compiled clause belongs.
      */
@@ -54,29 +52,19 @@ class HiTalkWAMCompiledClause extends HtClause {
      */
     private boolean addedToParent;
 
-//    /**?????
-//     * Creates a clause within a parent predicate.
-//     *
-//     * @param parent The parent predicate.
-//     */
-//    public HiTalkWAMCompiledClause ( HiTalkWAMCompiledPredicate parent ) {
-//        super(null, null, new Functor[0]);
-//        this.parent = parent;
-//    }
-
     /**
      * add dotted pair
      *
      * @param head
      * @param body
-     * @param identifier
      * @param parent
      */
     public HiTalkWAMCompiledClause ( IFunctor head,
-                                     IFunctor[] body,
-                                     HtEntityIdentifier identifier,
+                                     ListTerm body,
+//                                     HtEntityIdentifier identifier,
                                      HiTalkWAMCompiledPredicate parent ) {
-        super(identifier, head, body);
+        super(/*identifier, */head, body);
+//        this.identifier = identifier;
         this.parent = parent;
     }
 
@@ -86,19 +74,20 @@ class HiTalkWAMCompiledClause extends HtClause {
      * @param body         A conjunctive body functor to add to this clause.
      * @param instructions A list of instructions to add to the body.
      */
-    public void addInstructions ( HtFunctor body, SizeableList <HiTalkWAMInstruction> instructions ) {
+    public void addInstructions ( IFunctor body, SizeableList <HiTalkWAMInstruction> instructions ) {
         int oldLength;
-
         if (this.body == null) {
             oldLength = 0;
-            this.body = new HtFunctor[1];
+            this.body = new ListTerm(1);
         } else {
-            oldLength = this.body.length;
-            this.body = Arrays.copyOf(this.body, oldLength + 1);
+            oldLength = this.body.size();
+            this.body = new ListTerm(oldLength + 1);
+            for (int i = 0, len = this.body.size(); i < len; i++) {
+                this.body.setArgument(i, body.getArgument(i));
+            }
         }
 
-        this.body[oldLength] = body;
-
+        this.body.setArgument(oldLength, body);
         addInstructionsAndThisToParent(instructions);
     }
 
@@ -126,4 +115,3 @@ class HiTalkWAMCompiledClause extends HtClause {
         }
     }
 }
-

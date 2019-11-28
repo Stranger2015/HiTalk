@@ -19,13 +19,18 @@ import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.search.Operator;
 import com.thesett.common.util.StackQueue;
 import org.ltc.hitalk.entities.HtPredicate;
+import org.ltc.hitalk.entities.HtPredicateDefinition;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ITermVisitor;
+import org.ltc.hitalk.term.ListTerm;
+import org.ltc.hitalk.wam.printer.HtBasicTraverser;
 import org.ltc.hitalk.wam.printer.IPositionalContext;
 import org.ltc.hitalk.wam.printer.IPositionalTermTraverser;
 
 import java.util.Iterator;
+
+import static java.lang.String.format;
 
 /**
  * PositionalTermTraverserImpl provides contextual traversal of a term with additional information about the current
@@ -211,9 +216,8 @@ class HtPositionalTermTraverser extends HtBasicTraverser
      * @return The position of this traverser, mainly for debugging purposes.
      */
     public String toString () {
-        return "BasicTraverser: [ topLevel = " + isTopLevel() + ", inHead = " + isInHead() + ", lastBodyfunctor = " +
-                isLastBodyFunctor() + ", enteringContext = " + enteringContext + ", leavingContext = " + leavingContext +
-                " ]";
+        return format("%s: [ topLevel = %b, inHead = %b, lastBodyfunctor = %b, enteringContext = %s, leavingContext = %s ]",
+                getClass(), isTopLevel(), isInHead(), isLastBodyFunctor(), enteringContext, leavingContext);
     }
 
     /**
@@ -223,6 +227,34 @@ class HtPositionalTermTraverser extends HtBasicTraverser
         return new HtPositionalContextOperator(
                 head,
                 -1, true, true, false, null, contextStack.peek());
+    }
+
+    /**
+     * When traversing the body functors of a clause, creates a reversible operator to use to transition into each body
+     * functor.
+     *
+     * @param bodyFunctor The body functor to transition into.
+     * @param pos         The position of the body functor within the body.
+     * @param body        The containing body.
+     * @param clause      The containing clause.
+     * @return A reversable operator.
+     */
+    protected StackableOperator createBodyOperator ( IFunctor bodyFunctor, int pos, ListTerm body, HtClause clause ) {
+        return null;
+    }
+
+    /**
+     * When traversing the body clauses of a predicate, creates a reversible operator to use to transition into each
+     * body clause.
+     *
+     * @param bodyClause The body clause to transition into.
+     * @param pos        The position of the body clause within the body.
+     * @param body       The containing body.
+     * @param predicate  The containing predicate.
+     * @return A reversable operator.
+     */
+    protected StackableOperator createClauseOperator ( HtClause bodyClause, int pos, HtPredicateDefinition body, HtPredicate predicate ) {
+        return null;
     }
 
     /**

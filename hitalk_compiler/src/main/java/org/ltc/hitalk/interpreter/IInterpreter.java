@@ -1,23 +1,28 @@
 package org.ltc.hitalk.interpreter;
 
 
-import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.common.parsing.SourceCodeException;
 import jline.ConsoleReader;
+import org.ltc.hitalk.compiler.PredicateTable;
 import org.ltc.hitalk.core.IConfigurable;
+import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken;
+import org.ltc.hitalk.term.HtVariable;
+import org.ltc.hitalk.term.io.Environment;
+import org.ltc.hitalk.wam.compiler.HtFunctor;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
  */
 public interface IInterpreter<T extends HtClause, P, Q> extends IConfigurable/*, ICompiler <HtClause,P, Q>*/,
-        Resolver <P, Q> {
+        IResolver <P, Q> {
     /**
      *
      */
@@ -178,4 +183,9 @@ public interface IInterpreter<T extends HtClause, P, Q> extends IConfigurable/*,
      * @throws IOException
      */
     ConsoleReader initializeCommandLineReader () throws IOException;
+
+    default Set <HtVariable> solve ( HtFunctor goal ) {
+        PredicateTable predicateTable = Environment.instance().getPredicateTable();
+        HtClause clause = predicateTable.lookup(goal);
+    }
 }

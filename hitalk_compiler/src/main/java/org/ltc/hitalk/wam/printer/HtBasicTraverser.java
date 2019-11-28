@@ -1,5 +1,6 @@
 package org.ltc.hitalk.wam.printer;
 
+import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.search.Operator;
 import com.thesett.aima.search.util.backtracking.Reversable;
 import com.thesett.common.util.StackQueue;
@@ -8,6 +9,7 @@ import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtPredicateDefinition;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +86,7 @@ class HtBasicTraverser implements
      * <p>
      * <p/>Can be used to visit a clause, to set up an initial context for clause traversals.
      */
-    public abstract void visit ( HtClause clause );
+    public abstract void visit ( HtClause clause ) throws LinkageException;
 
     /**
      * {@inheritDoc}
@@ -117,7 +119,7 @@ class HtBasicTraverser implements
         logger.debug("Traversing clause " + clause.toString());
 
         IFunctor head = clause.getHead();
-        IFunctor[] body = clause.getBody();
+        ListTerm body = clause.getBody();
 
         Queue <Operator <ITerm>> queue = (!reverse) ? new StackQueue <>() : new LinkedList <>();
 
@@ -130,9 +132,9 @@ class HtBasicTraverser implements
 
         // For the body functors, set the top-level flag, clear in head context.
         if (body != null) {
-            for (int i = leftToRightClauseBodies ? 0 : (body.length - 1);
-                 leftToRightClauseBodies ? (i < body.length) : (i >= 0); i = i + (leftToRightClauseBodies ? 1 : -1)) {
-                IFunctor bodyFunctor = body[i];
+            for (int i = leftToRightClauseBodies ? 0 : (body.size() - 1);
+                 leftToRightClauseBodies ? (i < body.size()) : (i >= 0); i += (leftToRightClauseBodies ? 1 : -1)) {
+                IFunctor bodyFunctor = (IFunctor) body.get(i);
 
                 bodyFunctor.setReversible(createBodyOperator(bodyFunctor, i, body, clause));
                 bodyFunctor.setTermTraverser(this);
@@ -187,7 +189,7 @@ class HtBasicTraverser implements
      * @param clause      The containing clause.
      * @return A reversable operator.
      */
-    protected abstract StackableOperator createBodyOperator ( IFunctor bodyFunctor, int pos, IFunctor[] body,
+    protected abstract StackableOperator createBodyOperator ( IFunctor bodyFunctor, int pos, ListTerm body,
                                                               HtClause clause );
 
     /**

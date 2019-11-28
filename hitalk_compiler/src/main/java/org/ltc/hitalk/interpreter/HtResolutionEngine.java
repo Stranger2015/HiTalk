@@ -44,7 +44,7 @@ import static org.ltc.hitalk.term.HlOpSymbol.Associativity;
 
 /**
  * ResolutionEngine combines together a logic {@link Parser}, a {@link IVafInterner} that acts as a symbol
- * table, a {@link LogicCompiler} and a {@link Resolver}, into a single unit.
+ * table, a {@link ICompiler} and a {@link IResolver}, into a single unit.
  *
  * <pre><p/><table id="crc"><caption>CRC Card</caption>
  * <tr><th> Responsibilities <th> Collaborations
@@ -252,6 +252,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     /**
      * {@inheritDoc}
      */
+    @Override
     public FunctorName getDeinternedFunctorName ( int name ) {
         return interner.getDeinternedFunctorName(name);
     }
@@ -259,6 +260,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getFunctorName ( int name ) {
         return interner.getFunctorName(name);
     }
@@ -266,6 +268,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getFunctorArity ( int name ) {
         return interner.getFunctorArity(name);
     }
@@ -273,6 +276,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     /**
      * {@inheritDoc}
      */
+    @Override
     public FunctorName getFunctorFunctorName ( IFunctor functor ) {
         return interner.getFunctorFunctorName(functor);
     }
@@ -280,6 +284,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getFunctorName ( IFunctor functor ) {
         return interner.getFunctorName(functor);
     }
@@ -287,6 +292,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getFunctorArity ( IFunctor functor ) {
         return interner.getFunctorArity(functor);
     }
@@ -303,12 +309,9 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      *
      * @return
      */
+    @Override
     public Sentence <ITerm> parse () throws SourceCodeException, IOException, ParseException {
         return parser.parse();
-    }
-
-    public HtClause convert ( ITerm t ) {
-        return null;
     }
 
     /**

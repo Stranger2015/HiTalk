@@ -1,12 +1,11 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.Clause;
-import com.thesett.aima.logic.fol.Functor;
-import com.thesett.aima.logic.fol.Variable;
 import com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys;
 import com.thesett.common.util.doublemaps.SymbolKey;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
 import org.ltc.hitalk.wam.printer.IPositionalContext;
@@ -34,7 +33,7 @@ public class HtPositionAndOccurrenceVisitor extends HtBasePositionalVisitor {
     /**
      * Holds the current top-level body functor. <tt>null</tt> when traversing the head.
      */
-    private Functor topLevelBodyFunctor;
+    private IFunctor topLevelBodyFunctor;
 
     /**
      * Holds a set of all constants encountered.
@@ -65,7 +64,7 @@ public class HtPositionAndOccurrenceVisitor extends HtBasePositionalVisitor {
      * <p>
      * <p/>Counts variable occurrences and detects if the variable ever appears in an argument position.
      */
-    protected void enterVariable ( Variable variable ) {
+    protected void enterVariable ( HtVariable variable ) {
         // Initialize the count to one or add one to an existing count.
         Integer count = (Integer) symbolTable.get(variable.getSymbolKey(), SymbolTableKeys.SYMKEY_VAR_OCCURRENCE_COUNT);
         count = (count == null) ? 1 : (count + 1);
@@ -104,7 +103,7 @@ public class HtPositionAndOccurrenceVisitor extends HtBasePositionalVisitor {
      * This is set at the end, so that subsequent calls to this will pick up the state of this flag at the point
      * immediately below a top-level functor.
      */
-    protected void enterFunctor ( Functor functor ) {
+    protected void enterFunctor ( IFunctor functor ) {
         /*log.fine("Functor: " + functor.getName() + " <- " + symbolTable.getSymbolKey(functor.getName()));*/
 
         // Only check position of occurrence for constants.
@@ -113,7 +112,7 @@ public class HtPositionAndOccurrenceVisitor extends HtBasePositionalVisitor {
             List <SymbolKey> constantSymKeys = constants.get(functor.getName());
 
             if (constantSymKeys == null) {
-                constantSymKeys = new LinkedList <SymbolKey>();
+                constantSymKeys = new LinkedList <>();
                 constants.put(functor.getName(), constantSymKeys);
             }
 
@@ -136,7 +135,7 @@ public class HtPositionAndOccurrenceVisitor extends HtBasePositionalVisitor {
      *
      * @param clause The clause being left.
      */
-    protected void leaveClause ( Clause clause ) {
+    protected void leaveClause ( HtClause clause ) {
         // Remove the set of constants appearing in argument positions, from the set of all constants, to derive
         // the set of constants that appear in non-argument positions only.
         constants.keySet().removeAll(argumentConstants);

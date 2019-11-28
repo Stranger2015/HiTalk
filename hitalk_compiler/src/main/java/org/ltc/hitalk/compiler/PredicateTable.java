@@ -6,6 +6,7 @@ import org.ltc.hitalk.entities.HtPredicateDefinition;
 import org.ltc.hitalk.entities.HtPredicateDefinition.UserDefinition;
 import org.ltc.hitalk.entities.ISubroutine;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.PiCalls;
 
 import java.util.HashMap;
@@ -51,14 +52,22 @@ class PredicateTable<P extends HtPredicateDefinition <ISubroutine, HtPredicate, 
      * @param call
      * @return
      */
-    public P lookup ( PiCalls call ) {
+    public UserDefinition <?, ?, ?> lookup ( PiCalls <?> call ) {
         int name = call.getName();
-        P value = this.get(name);
+        UserDefinition <?, ?, ?> value = this.get(name);
         if (value == null) {
-            value = (P) new UserDefinition <>();
+            value = new UserDefinition();
             this.put(name, value);
         }
 
         return value;
+    }
+
+    public P lookup ( HtClause clause ) {
+        return null;
+    }
+
+    public HtClause lookup ( HtFunctor goal, boolean redo ) {
+        return null;
     }
 }

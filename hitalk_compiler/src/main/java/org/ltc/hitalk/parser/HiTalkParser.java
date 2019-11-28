@@ -124,11 +124,6 @@ public class HiTalkParser implements IParser {
     }
 
     @Override
-    public HtClause convert ( ITerm t ) {
-        return null;
-    }
-
-    @Override
     public Sentence <ITerm> parse () throws SourceCodeException, IOException, ParseException {
         return parser.parse();
     }

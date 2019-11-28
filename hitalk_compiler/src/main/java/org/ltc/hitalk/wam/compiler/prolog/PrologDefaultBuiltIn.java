@@ -1,10 +1,6 @@
 package org.ltc.hitalk.wam.compiler.prolog;
 
-import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.logic.fol.FunctorName;
-import com.thesett.aima.logic.fol.FunctorTermPredicate;
-import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.logic.fol.bytecode.BaseMachine;
 import com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys;
 import com.thesett.aima.search.QueueBasedSearchMethod;
 import com.thesett.aima.search.SearchMethod;
@@ -12,7 +8,9 @@ import com.thesett.aima.search.util.uninformed.BreadthFirstSearch;
 import com.thesett.aima.search.util.uninformed.PostFixSearch;
 import com.thesett.common.util.SizeableLinkedList;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.HtBaseMachine;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.PrologBuiltIn;
@@ -26,7 +24,7 @@ import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.HiTalkWAMInstruct
 import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.REG_ADDR;
 import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.STACK_ADDR;
 
-public class PrologDefaultBuiltIn extends BaseMachine implements PrologBuiltIn {
+public class PrologDefaultBuiltIn extends HtBaseMachine implements PrologBuiltIn {
 
     /**
      * Enumerates the possible ways in which a variable can be introduced to a clause.
@@ -129,7 +127,7 @@ public class PrologDefaultBuiltIn extends BaseMachine implements PrologBuiltIn {
         int numOutermostArgs = expression.getArity();
 
         for (int j = 0; j < numOutermostArgs; j++) {
-            Term nextOutermostArg = expression.getArgument(j);
+            ITerm nextOutermostArg = expression.getArgument(j);
             int allocation = (Integer) symbolTable.get(nextOutermostArg.getSymbolKey(), SymbolTableKeys.SYMKEY_ALLOCATION);
 
             byte addrMode = (byte) ((allocation & 0xff00) >> 8);
@@ -177,16 +175,16 @@ public class PrologDefaultBuiltIn extends BaseMachine implements PrologBuiltIn {
                 // refers to. A postfix traversal of the functors in the term to compile is used to achieve this, as
                 // child functors in a head will be visited first.
                 // Walk over the query term in post-fix order, picking out just the functors.
-                QueueBasedSearchMethod <Term, Term> postfixSearch = new PostFixSearch <>();
+                QueueBasedSearchMethod <ITerm, ITerm> postfixSearch = new PostFixSearch <>();
                 postfixSearch.reset();
                 postfixSearch.addStartState(nextOutermostArg);
-                postfixSearch.setGoalPredicate(new FunctorTermPredicate());
+                postfixSearch.setGoalPredicate(new HtFunctorTermPredicate());
 
-                Iterator <Term> treeWalker = allSolutions(postfixSearch);
+                Iterator <ITerm> treeWalker = allSolutions(postfixSearch);
 
                 // For each functor encountered: put_struc.
                 while (treeWalker.hasNext()) {
-                    Functor nextFunctor = (Functor) treeWalker.next();
+                    IFunctor nextFunctor = (IFunctor) treeWalker.next();
                     allocation = (Integer) symbolTable.get(nextFunctor.getSymbolKey(), SymbolTableKeys.SYMKEY_ALLOCATION);
                     addrMode = (byte) ((allocation & 0xff00) >> 8);
                     address = (byte) (allocation & 0xff);
@@ -204,7 +202,7 @@ public class PrologDefaultBuiltIn extends BaseMachine implements PrologBuiltIn {
                     int numArgs = nextFunctor.getArity();
 
                     for (int i = 0; i < numArgs; i++) {
-                        Term nextArg = nextFunctor.getArgument(i);
+                        ITerm nextArg = nextFunctor.getArgument(i);
                         allocation = (Integer) symbolTable.get(nextArg.getSymbolKey(), SymbolTableKeys.SYMKEY_ALLOCATION);
                         addrMode = (byte) ((allocation & 0xff00) >> 8);
                         address = (byte) (allocation & 0xff);
@@ -268,9 +266,9 @@ public class PrologDefaultBuiltIn extends BaseMachine implements PrologBuiltIn {
         int reg = 0;
 
         for (; reg < expression.getArity(); reg++) {
-            Term term = expression.getArgument(reg);
+            ITerm term = expression.getArgument(reg);
 
-            if (term instanceof Functor) {
+            if (term instanceof IFunctor) {
                 /*log.fine("X" + lastAllocatedTempReg + " = " + interner.getFunctorFunctorName((Functor) term));*/
 
                 int allocation = (reg & 0xff) | (REG_ADDR << 8);
@@ -286,22 +284,22 @@ public class PrologDefaultBuiltIn extends BaseMachine implements PrologBuiltIn {
      *
      * @param expression The expression to walk over.
      */
-    public void allocateTemporaryRegisters ( Term expression ) {
+    public void allocateTemporaryRegisters ( ITerm expression ) {
         // Need to assign registers to the whole syntax tree, working in from the outermost functor. The outermost
         // functor itself is not assigned to a register in l3 (only in l0). Functors already directly assigned to
         // argument registers will not be re-assigned by this, variables as arguments will be assigned.
-        SearchMethod <Term> outInSearch = new BreadthFirstSearch <>();
+        SearchMethod <ITerm> outInSearch = new BreadthFirstSearch <>();
         outInSearch.reset();
         outInSearch.addStartState(expression);
 
-        Iterator <Term> treeWalker = allSolutions(outInSearch);
+        Iterator <ITerm> treeWalker = allSolutions(outInSearch);
 
         // Discard the outermost functor from the variable allocation.
         treeWalker.next();
 
         // For each term encountered: set X++ = term.
         while (treeWalker.hasNext()) {
-            Term term = treeWalker.next();
+            ITerm term = treeWalker.next();
 
             if (symbolTable.get(term.getSymbolKey(), SymbolTableKeys.SYMKEY_ALLOCATION) == null) {
                 int allocation = (lastAllocatedTempReg++ & 0xff) | (REG_ADDR << 8);
@@ -345,7 +343,7 @@ public class PrologDefaultBuiltIn extends BaseMachine implements PrologBuiltIn {
      * @return <tt>true</tt> iff this is the last body functor that the variable appears in and does so only in argument
      * position.
      */
-    private boolean isLastBodyTermInArgPositionOnly ( Term var, Functor body ) {
+    private boolean isLastBodyTermInArgPositionOnly ( ITerm var, IFunctor body ) {
         return body == symbolTable.get(var.getSymbolKey(), SymbolTableKeys.SYMKEY_VAR_LAST_ARG_FUNCTOR);
     }
 }

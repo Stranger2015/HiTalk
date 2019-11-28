@@ -20,6 +20,7 @@ import com.thesett.aima.logic.fol.IntegerType;
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.LiteralType;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.compiler.AbstractBaseMachine;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
@@ -48,17 +49,7 @@ import static org.ltc.hitalk.term.ListTerm.Kind;
  * @author Rupert Smith
  */
 public abstract
-class HtBasePositionalVisitor implements IAllTermsVisitor {
-
-    /**
-     * The name interner.
-     */
-    protected IVafInterner interner;
-
-    /**
-     * The symbol table.
-     */
-    protected SymbolTable <Integer, String, Object> symbolTable;
+class HtBasePositionalVisitor extends AbstractBaseMachine implements IAllTermsVisitor {
 
     /**
      * The positional context.
@@ -74,9 +65,7 @@ class HtBasePositionalVisitor implements IAllTermsVisitor {
     public HtBasePositionalVisitor ( SymbolTable <Integer, String, Object> symbolTable,
                                      IVafInterner interner,
                                      IPositionalTermTraverser traverser ) {
-
-        this.symbolTable = symbolTable;
-        this.interner = interner;
+        super(symbolTable, interner);
         this.traverser = traverser;
     }
 
@@ -94,6 +83,7 @@ class HtBasePositionalVisitor implements IAllTermsVisitor {
 
     /**
      * {@inheritDoc}
+     *
      * @param functor
      */
     public void visit ( IFunctor functor ) throws LinkageException {

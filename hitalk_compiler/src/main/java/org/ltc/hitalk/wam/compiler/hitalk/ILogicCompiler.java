@@ -16,6 +16,7 @@
 package org.ltc.hitalk.wam.compiler.hitalk;
 
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
+import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.common.parsing.SourceCodeException;
 
 /**
@@ -44,7 +45,7 @@ public interface ILogicCompiler<T, P, Q> {
      * @param sentence The sentence to compile.
      * @throws SourceCodeException If there is an error in the source to be compiled that prevents its compilation.
      */
-//    void compile ( Sentence <T> sentence ) throws SourceCodeException;
+    void compile ( Sentence <T> sentence ) throws SourceCodeException;
 
     /**
      * Establishes an observer on the compiled forms that the compiler outputs.

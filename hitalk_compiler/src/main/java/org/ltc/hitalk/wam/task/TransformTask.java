@@ -103,25 +103,7 @@ class TransformTask<T extends ITerm>
             transformer.cancel();
         }
     }
-//
-//    /**
-//     *
-//     */
-//    @Override
-//    public final
-//    void message () {
-//        transformer.message();
-//    }
 
-//    /**
-//     *
-//     */
-//    @Override
-//    public final
-//    void reset () {
-//        transformer.reset();
-//    }
-//
     /**
      * @return
      */
@@ -130,21 +112,10 @@ class TransformTask<T extends ITerm>
     ExecutionContext getContext () {
         return transformer.getContext();
     }
-//
-//    /**
-//     * @param context
-//     */
-//    @Override
-//    public final
-//    void setContext ( ExecutionContext context ) {
-//        transformer.setContext(context);
-//    }
-//
 
     /**
      * @param context
      */
-//    @Override
     public final
     void setContext ( ExecutionContext context ) {
         transformer.setContext(context);
@@ -154,29 +125,10 @@ class TransformTask<T extends ITerm>
      * @param max
      * @return
      */
-//    @Override
     public
     boolean isAcceptable ( IMetrics max ) {
         return transformer.isAcceptable(max);
     }
-//
-//    /**
-//     *
-//     */
-//    @Override
-//    public final
-//    void cancel () {
-//        transformer.cancel();
-//    }
-//
-//    /**
-//     * @return
-//     */
-//    @Override
-//    public final
-//    TransformInfo getBestSoFarResult () {
-//        return transformer.getBestSoFarResult();
-//    }
 
     /**
      * Applies a transformation to the term.

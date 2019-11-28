@@ -61,7 +61,7 @@ class HtPredicateDefinition<T extends ISubroutine, P extends HtPredicate, Q exte
      * @return
      */
     public List <HtClause> getBody () {
-        return subroutines;
+        return (List <HtClause>) subroutines;
     }
 
     /**

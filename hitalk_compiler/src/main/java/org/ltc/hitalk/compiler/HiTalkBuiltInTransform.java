@@ -15,15 +15,15 @@
   */
  package org.ltc.hitalk.compiler;
 
- import com.thesett.aima.logic.fol.Functor;
  import com.thesett.aima.logic.fol.FunctorName;
- import com.thesett.aima.logic.fol.Resolver;
  import com.thesett.aima.logic.fol.Term;
  import com.thesett.aima.logic.fol.wam.builtins.BuiltInFunctor;
  import org.ltc.hitalk.compiler.bktables.IApplication;
  import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
+ import org.ltc.hitalk.core.IResolver;
  import org.ltc.hitalk.entities.*;
  import org.ltc.hitalk.parser.HtClause;
+ import org.ltc.hitalk.term.ITerm;
  import org.ltc.hitalk.term.ListTerm;
  import org.ltc.hitalk.term.io.Environment;
  import org.ltc.hitalk.term.io.HiTalkStream;
@@ -40,7 +40,6 @@
 
  import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.*;
  import static org.ltc.hitalk.entities.IRelation.*;
- import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser.BEGIN_OF_FILE;
 
  /**
   * BuiltInTransform implements a compilation transformation over term syntax trees, that substitutes for functors that
@@ -103,7 +102,7 @@
       */
      public HiTalkBuiltInTransform ( PrologDefaultBuiltIn defaultBuiltIn,
                                      PrologPreCompiler preCompiler,
-                                     Resolver <HtPredicate, HtClause> resolver ) {
+                                     IResolver <HtPredicate, HtClause> resolver ) {
          super(defaultBuiltIn, defaultBuiltIn.getInterner(), preCompiler, resolver);
 
          defineBuiltIns();
@@ -598,12 +597,12 @@
 //         Token token = /**/app.getParser().lastToken();
 //         app.getParser().getTokenSource().setOffset(token.endLine, token.endColumn);
 //         app.getParser().getTokenSource().setFileBeginPos(app.getParser().);
-         lastTerm = new HtFunctor(interner.internFunctorName(BEGIN_OF_FILE, 0), null);
+//         lastTerm = new HtFunctor(interner.internFunctorName(BEGIN_OF_FILE, 0), null);
          HiTalkStream in = Environment.instance().currentInput();
          HtFunctor encoding = (HtFunctor) functor.getArgument(0);
 //         Objects.requireNonNull(in).getProps()[HiTalkStream.Properties.encoding.ordinal()].setValue(encoding);
 //         String propName = interner.getFunctorName(encoding);
-         in.setValue(HiTalkStream.Properties.encoding, encoding);
+//         in.setValue(HiTalkStream.Properties.encoding, encoding);
 
          return true;
      }
@@ -864,11 +863,11 @@
          List <Set <IRelation>> relations = new ArrayList <>();
          for (int i = entityFunctor.getArityMin(); i < arityMax; i++) {
              HtFunctor relationFunctor = (HtFunctor) entityFunctor.getArgument(i);
-             Functor subEntityFunctor = (HtFunctor) relationFunctor.getArgument(0);
+             HtFunctor subEntityFunctor = (HtFunctor) relationFunctor.getArgument(0);
              if (subEntityFunctor instanceof ListTerm) {
-                 ListTerm listTerm = (ListTerm) subEntityFunctor;
-                 for (; listTerm.isNil(); listTerm.newTail()) {
-                     Term[] heads = listTerm.getHeads();
+                 ListTerm listTerm = subEntityFunctor;
+                 for (; !listTerm.isNil(); listTerm = (ListTerm) listTerm.newTail(false)) {
+                     ITerm[] heads = listTerm.getHeads();
                      for (int j = 1, len = heads.length - 2; j < len; j++) {
                          handleNormalizedRelations((HtFunctor) heads[j], kinds, relations, dynamic);
                      }
@@ -1026,7 +1025,7 @@
          return protocolCounter;
      }
 
-     public Resolver <HtPredicate, HtClause> getResolver () {
+     public IResolver <HtPredicate, HtClause> getResolver () {
          return resolver;
      }
 

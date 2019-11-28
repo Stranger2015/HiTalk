@@ -7,6 +7,11 @@ import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 
+/**
+ * @param <T>
+ * @param <P>
+ * @param <Q>
+ */
 public class HiTalkWAMCompiler<T extends HtClause, P, Q> extends PrologWAMCompiler <T, P, Q> {
     /**
      *

@@ -1,12 +1,12 @@
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
-import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.BaseCompiler;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.ICompiler;
+import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
@@ -70,7 +70,7 @@ public class LibraryLoader<T extends HtClause, P, Q> extends BaseCompiler <T, P,
      * @param resolver
      */
     @Override
-    public void setResolver ( Resolver <P, Q> resolver ) {
+    public void setResolver ( IResolver <P, Q> resolver ) {
         compiler.setResolver(resolver);
     }
 

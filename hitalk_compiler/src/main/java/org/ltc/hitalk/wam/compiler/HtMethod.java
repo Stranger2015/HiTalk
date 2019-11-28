@@ -7,7 +7,7 @@ import org.ltc.hitalk.term.ListTerm;
 /**
  * @param <F>
  */
-public class HtMethod<F extends HtFunctor> extends HtClause <F> {
+public class HtMethod<F extends IFunctor> extends HtClause <F> {
     /**
      * Creates a program sentence in L2.
      *

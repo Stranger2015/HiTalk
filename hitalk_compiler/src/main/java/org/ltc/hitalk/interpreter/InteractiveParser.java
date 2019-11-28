@@ -1,7 +1,6 @@
 package org.ltc.hitalk.interpreter;
 
 import com.thesett.aima.logic.fol.Sentence;
-import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
@@ -49,15 +48,6 @@ public class InteractiveParser implements IParser {
     @Override
     public Sentence <HtClause> parseClause () {
         return parser.parseClause();
-    }
-
-    /**
-     * @param t
-     * @return
-     */
-    @Override
-    public HtClause convert ( Term t ) {
-        return null;//todo
     }
 
     /**
