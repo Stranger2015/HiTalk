@@ -3,12 +3,11 @@ package org.ltc.hitalk.entities;
 
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.ListTerm;
-import org.ltc.hitalk.wam.compiler.HtFunctor;
 
 import static org.ltc.hitalk.entities.HtEntityKind.*;
 
 public
-class HtEntityDirective extends HtClause <HtFunctor>/* implements Hierarchy */ {
+class HtEntityDirective extends HtClause/* implements Hierarchy */ {
     private final Kind kind;
     //    private final HtPredicateDirective.DirKind dirKind;
     private final HtEntityKind entityKind;
@@ -21,7 +20,7 @@ class HtEntityDirective extends HtClause <HtFunctor>/* implements Hierarchy */ {
      * @param entityKind
      */
     public HtEntityDirective ( ListTerm body, Kind kind, /*HtDirective.DirKind dirKind,*/ HtEntityKind entityKind ) {
-        super(null, null, body);
+        super(null, body);
 
         this.kind = kind;
 //        this.dirKind = dirKind;

@@ -184,8 +184,10 @@ public interface IInterpreter<T extends HtClause, P, Q> extends IConfigurable/*,
      */
     ConsoleReader initializeCommandLineReader () throws IOException;
 
-    default Set <HtVariable> solve ( HtFunctor goal ) {
+    default Set <HtVariable> solve ( HtFunctor goal, HtClause clause ) {
         PredicateTable predicateTable = Environment.instance().getPredicateTable();
-        HtClause clause = predicateTable.lookup(goal);
+        HtClause clause1 = predicateTable.lookup(goal, clause);
+
+        return null;
     }
 }

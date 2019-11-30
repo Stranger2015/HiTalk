@@ -1,19 +1,25 @@
 package org.ltc.hitalk.entities;
 
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.search.Operator;
 import org.ltc.enumus.Hierarchy;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.term.HtBaseTerm;
+import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.ITermTransformer;
+import org.ltc.hitalk.term.ITermVisitor;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.function.Function;
 
 /**
  *
  */
 public
-class HtPredicateIndicator extends BaseTerm {
+class HtPredicateIndicator extends HtBaseTerm {
     //private final HtFunctor functor;
     protected HtFunctor delegate;
 
@@ -22,11 +28,11 @@ class HtPredicateIndicator extends BaseTerm {
      * @param arg1
      * @param arg2
      */
-    public HtPredicateIndicator ( HtFunctor name, Term arg1, Term arg2 ) {
-        delegate = new HtFunctor(name.getName(), new Term[]{name, arg1, arg2});
+    public HtPredicateIndicator ( IFunctor name, ITerm arg1, ITerm arg2 ) {
+        delegate = new HtFunctor(name.getName(), new ITerm[]{name, arg1, arg2});
     }
 
-    public HtPredicateIndicator ( HtFunctor functor ) {
+    public HtPredicateIndicator ( IFunctor functor ) {
         this(functor, functor.getArgument(0), functor.getArgument(1));
     }
 
@@ -81,9 +87,12 @@ class HtPredicateIndicator extends BaseTerm {
      * @return <tt>true</tt> if this functor is a ground term, <tt>false</tt> othewise.
      */
     @Override
-    public
-    boolean isGround () {
+    public boolean isGround () {
         return delegate.isGround();
+    }
+
+    public boolean isHiLog () {
+        return false;
     }
 
     /**
@@ -92,8 +101,7 @@ class HtPredicateIndicator extends BaseTerm {
      * in leaf positions of the term.
      */
     @Override
-    public
-    void free () {
+    public void free () {
         delegate.free();
     }
 
@@ -104,8 +112,7 @@ class HtPredicateIndicator extends BaseTerm {
      * @return The functor itself.
      */
     @Override
-    public
-    Term getValue () {
+    public ITerm getValue () {
         return delegate.getValue();
     }
 
@@ -115,8 +122,7 @@ class HtPredicateIndicator extends BaseTerm {
      * @param index The index to get the argument for.
      * @return The argument.
      */
-    public
-    Term getArgument ( int index ) {
+    public ITerm getArgument ( int index ) {
         return delegate.getArgument(index);
     }
 
@@ -125,8 +131,7 @@ class HtPredicateIndicator extends BaseTerm {
      *
      * @return All of this functors arguments, possibly <tt>null</tt>.
      */
-    public
-    Term[] getArguments () {
+    public ITerm[] getArguments () {
         return delegate.getArguments();
     }
 
@@ -136,8 +141,7 @@ class HtPredicateIndicator extends BaseTerm {
      * @param index The index to set the argument for.
      * @param value The argument.
      */
-    public
-    void setArgument ( int index, Term value ) {
+    public void setArgument ( int index, ITerm value ) {
         delegate.setArgument(index, value);
     }
 
@@ -171,8 +175,7 @@ class HtPredicateIndicator extends BaseTerm {
      * @return <tt>true</tt> if the two terms are structurally eqaul, <tt>false</tt> otherwise.
      */
     @Override
-    public
-    boolean structuralEquals ( Term term ) {
+    public boolean structuralEquals ( ITerm term ) {
         return delegate.structuralEquals(term);
     }
 
@@ -215,8 +218,7 @@ class HtPredicateIndicator extends BaseTerm {
      * @return The sub-terms of a compound term.
      */
     @Override
-    public
-    Iterator <Operator <Term>> getChildren ( boolean reverse ) {
+    public Iterator <Operator <ITerm>> getChildren ( boolean reverse ) {
         return delegate.getChildren(reverse);
     }
 
@@ -226,8 +228,7 @@ class HtPredicateIndicator extends BaseTerm {
      * @return A copy of this term, with entirely independent variables to the term it was copied from.
      */
     @Override
-    public
-    Functor queryConversion () {
+    public IFunctor queryConversion () {
         return delegate.queryConversion();
     }
 
@@ -248,8 +249,7 @@ class HtPredicateIndicator extends BaseTerm {
      * @param visitor
      */
     @Override
-    public
-    void accept ( TermVisitor visitor ) {
+    public void accept ( ITermVisitor visitor ) {
         delegate.accept(visitor);
     }
 
@@ -258,9 +258,8 @@ class HtPredicateIndicator extends BaseTerm {
      *
      * @param transformer
      */
-    @Override
-    public
-    Functor acceptTransformer ( TermTransformer transformer ) {
+//    @Override
+    public List <ITerm> acceptTransformer ( ITermTransformer transformer ) {
         return delegate.acceptTransformer(transformer);
     }
 
@@ -271,7 +270,7 @@ class HtPredicateIndicator extends BaseTerm {
      * @param printVarName
      * @param printBindings
      */
-    @Override
+//    @Override
     public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
         return delegate.toString(interner, printVarName, printBindings);
     }

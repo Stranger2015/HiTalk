@@ -4,10 +4,7 @@ import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.ListTerm;
 
-/**
- * @param <F>
- */
-public class HtMethod<F extends IFunctor> extends HtClause <F> {
+public class HtMethod extends HtClause {
     /**
      * Creates a program sentence in L2.
      *
@@ -15,7 +12,7 @@ public class HtMethod<F extends IFunctor> extends HtClause <F> {
      * @param head       The head of the program.
      * @param body       The functors that make up the query body of the program, if any. May be <tt>null</tt>
      */
-    public HtMethod ( HtEntityIdentifier identifier, F head, ListTerm body ) {
+    public HtMethod ( HtEntityIdentifier identifier, IFunctor head, ListTerm body ) {
         super(head, body);
     }
 
@@ -23,7 +20,7 @@ public class HtMethod<F extends IFunctor> extends HtClause <F> {
      * @param identifier
      * @param head
      */
-    public HtMethod ( HtEntityIdentifier identifier, F head ) {
+    public HtMethod ( HtEntityIdentifier identifier, IFunctor head ) {
         this(identifier, head, null);
     }
 }

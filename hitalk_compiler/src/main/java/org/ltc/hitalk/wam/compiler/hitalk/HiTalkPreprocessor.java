@@ -4,17 +4,12 @@ package org.ltc.hitalk.wam.compiler.hitalk;
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.aima.logic.fol.Resolver;
-import com.thesett.aima.logic.fol.Sentence;
-import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PrologBuiltInTransform;
 import org.ltc.hitalk.entities.HtPredicate;
-import org.ltc.hitalk.entities.HtProperty;
-import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.expander.DefaultTermExpander;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
@@ -22,7 +17,6 @@ import org.ltc.hitalk.wam.task.StandardPreprocessor;
 import org.ltc.hitalk.wam.task.TransformTask;
 import org.ltc.hitalk.wam.transformers.DefaultTransformer;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -121,21 +115,6 @@ public class HiTalkPreprocessor<T extends ITerm, TT extends TransformTask <T>>
 
     }
 
-    @Override
-    public void compile ( Sentence sentence ) throws SourceCodeException {
-
-    }
-
-//    @Override
-//    public void setCompilerObserver ( HtResolutionEngine.ChainedCompilerObserver observer ) {
-//
-//    }
-
-    @Override
-    public
-    void endScope () {
-    }
-
     /**
      * @param t
      */
@@ -149,63 +128,5 @@ public class HiTalkPreprocessor<T extends ITerm, TT extends TransformTask <T>>
     public
     List <TT> getComponents () {
         return components;
-    }
-
-//    private
-//    List <TC> apply ( TC tc ) {
-//        return Collections.singletonList(tc);
-//    }
-
-    /**
-     * @param tokenSource
-     * @param flags
-     * @throws IOException
-     * @throws SourceCodeException
-     */
-    @Override
-    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException {
-
-    }
-
-//    /**
-//     * @return
-//     */
-//    @Override
-//    public PlPrologParser getParser () {
-//        return parser;
-//    }
-
-    /**
-     * @param clause
-     * @param flags
-     * @throws SourceCodeException
-     */
-    @Override
-    public
-    void compile ( HtClause clause, HtProperty... flags ) throws SourceCodeException {
-
-    }
-
-    /**
-     * @param rule
-     */
-    @Override
-    public
-    void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
-
-    }
-
-    /**
-     * @param query
-     */
-    @Override
-    public
-    void compileQuery ( HtClause query ) throws SourceCodeException {
-
-    }
-
-    @Override
-    public void compile ( String fileName, HtProperty[] flags ) {
-
     }
 }

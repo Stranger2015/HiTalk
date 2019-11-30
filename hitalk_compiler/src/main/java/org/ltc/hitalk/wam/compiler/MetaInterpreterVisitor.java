@@ -30,12 +30,12 @@ import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
 /**
  *
  */
-public abstract class MetaInterpreterVisitor extends HtBasePositionalVisitor
+public abstract class MetaInterpreterVisitor<T extends HtClause, P, Q> extends HtBasePositionalVisitor
         implements IPositionalTermVisitor {
 
-    protected final IResolver <HtPredicate, HtClause> resolver;
+    protected final IResolver <P, Q> resolver;
     protected IPositionalTermTraverser positionalTraverser;
-    protected final List <HtClause> clauses = new ArrayList <>();
+    protected final List <T> clauses = new ArrayList <>();
     protected final Set <HtVariable> bindings = new HashSet <>();
 
     /**
@@ -46,7 +46,7 @@ public abstract class MetaInterpreterVisitor extends HtBasePositionalVisitor
      */
     protected MetaInterpreterVisitor ( SymbolTable <Integer, String, Object> symbolTable,
                                        IVafInterner interner,
-                                       IResolver <HtPredicate, HtClause> resolver,
+                                       IResolver <P, Q> resolver,
                                        IPositionalTermTraverser traverser ) {
         super(symbolTable, interner, traverser);
         this.resolver = resolver;

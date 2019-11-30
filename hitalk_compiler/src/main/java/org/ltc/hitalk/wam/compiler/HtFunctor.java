@@ -1,6 +1,5 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.sun.org.apache.xalan.internal.xsltc.compiler.sym;
 import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.search.Operator;
 import org.ltc.hitalk.compiler.IVafInterner;
@@ -33,7 +32,7 @@ public class HtFunctor extends ListTerm implements IFunctor {
 //        this.name = name;
 //        args =fixme
 
-        super(Kind.LIST, sym.getName(), calls.getHeads());
+        super(name);
         setArityRange(arityMin, arityDelta);
     }
 
@@ -42,7 +41,7 @@ public class HtFunctor extends ListTerm implements IFunctor {
      * @param args
      */
     public HtFunctor ( int name, ITerm[] args ) {
-        super(Kind.LIST, sym.getName(), calls.getHeads());
+        super(Kind.LIST, name, args);
         this.args = new ListTerm(LIST, args);
     }
 
@@ -56,13 +55,6 @@ public class HtFunctor extends ListTerm implements IFunctor {
         setArityRange(args.length, arityDelta);
     }
 
-    public HtFunctor () {
-    }
-
-//    public int getName () {
-//        return name;
-//    }
-
     @Override
     public ITerm[] getArguments () {
         return args.getHeads();
@@ -73,6 +65,7 @@ public class HtFunctor extends ListTerm implements IFunctor {
         return args;
     }
 
+    @Override
     public ITerm getArgument ( int i ) {
         return args.getHeads()[i];
     }
@@ -269,15 +262,10 @@ public class HtFunctor extends ListTerm implements IFunctor {
      * {@inheritDoc}
      */
     public List <ITerm> acceptTransformer ( ITermTransformer transformer ) {
-        List <ITerm> result;
+        List <ITerm> result = transformer instanceof IFunctorTransformer ? transformer.transform(this) :
+                super.acceptTransformer(transformer);
 
-        if (transformer instanceof IFunctorTransformer) {
-            result = transformer.transform(this);
-        } else {
-            result = super.acceptTransformer(transformer);
-        }
-
-//        IntStream.range(0, args.size()).forEachOrdered(i -> FIXME
+        //        IntStream.range(0, args.size()).forEachOrdered(i -> FIXME
 //                result.getArgument(i) = args[i].acceptTransformer(transformer));
 
         return result;

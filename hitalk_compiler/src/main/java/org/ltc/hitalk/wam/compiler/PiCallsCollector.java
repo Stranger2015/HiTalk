@@ -28,7 +28,7 @@ class PiCallsCollector implements Collector <PiCalls <?>, List <PiCalls <?>>, Pi
     private final IVafInterner interner;
     private final SymbolTable <Integer, String, Object> symbolTable;
 
-    private final Supplier <List <PiCalls.XPiCalls <?>>> supplier;
+    private final Supplier <List <PiCalls <?>>> supplier;
     private final BiConsumer <List <PiCalls <?>>, PiCalls <?>> accumulator;
     private final BinaryOperator <List <PiCalls <?>>> combiner;
     private final Function <List <PiCalls <?>>, PiCalls <?>> finisher;
@@ -52,7 +52,7 @@ class PiCallsCollector implements Collector <PiCalls <?>, List <PiCalls <?>>, Pi
         pccv = new PiCallsCollectorVisitor(symbolTable, interner, resolver, new HtPositionalTermTraverser());
     }
 
-    private static List <PiCalls> apply ( List <PiCalls> acc, List <PiCalls> ps ) {
+    private static List <PiCalls <?>> apply ( List <PiCalls <?>> acc, List <PiCalls <?>> ps ) {
         acc.addAll(ps);
         return acc;
     }
@@ -61,7 +61,7 @@ class PiCallsCollector implements Collector <PiCalls <?>, List <PiCalls <?>>, Pi
      * @return
      */
     @Override
-    public Supplier <List <PiCalls <>>> supplier () {
+    public Supplier <List <PiCalls <?>>> supplier () {
         return ArrayList::new;
     }
 
@@ -69,7 +69,7 @@ class PiCallsCollector implements Collector <PiCalls <?>, List <PiCalls <?>>, Pi
      * @return
      */
     @Override
-    public BiConsumer <List <PiCalls>, PiCalls> accumulator () {
+    public BiConsumer <List <PiCalls <?>>, PiCalls <?>> accumulator () {
         return List::add;
     }
 
@@ -77,7 +77,7 @@ class PiCallsCollector implements Collector <PiCalls <?>, List <PiCalls <?>>, Pi
      * @return
      */
     @Override
-    public BinaryOperator <List <PiCalls>> combiner () {
+    public BinaryOperator <List <PiCalls <?>>> combiner () {
         return PiCallsCollector::apply;
     }
 
@@ -85,7 +85,7 @@ class PiCallsCollector implements Collector <PiCalls <?>, List <PiCalls <?>>, Pi
      * @return
      */
     @Override
-    public Function <List <PiCalls>, PiCalls> finisher () {
+    public Function <List <PiCalls <?>>, PiCalls <?>> finisher () {
         return ( piCalls ) -> {
 
             return null;
@@ -110,7 +110,7 @@ class PiCallsCollector implements Collector <PiCalls <?>, List <PiCalls <?>>, Pi
     /**
      * @return
      */
-    public BiConsumer <List <PiCalls>, PiCalls> getAccumulator () {
+    public BiConsumer <List <PiCalls <?>>, PiCalls <?>> getAccumulator () {
         return accumulator;
     }
 
@@ -119,5 +119,17 @@ class PiCallsCollector implements Collector <PiCalls <?>, List <PiCalls <?>>, Pi
      */
     public PredicateTable getPredicateTable () {
         return predicateTable;
+    }
+
+    public Supplier <List <PiCalls <?>>> getSupplier () {
+        return supplier;
+    }
+
+    public BinaryOperator <List <PiCalls <?>>> getCombiner () {
+        return combiner;
+    }
+
+    public Function <List <PiCalls <?>>, PiCalls <?>> getFinisher () {
+        return finisher;
     }
 }

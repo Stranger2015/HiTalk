@@ -63,7 +63,7 @@ class PredicateTable<P extends HtPredicateDefinition <ISubroutine, HtPredicate, 
         return value;
     }
 
-    public P lookup ( HtClause clause ) {
+    public HtClause lookup ( HtFunctor goal, HtClause clause ) {
         return null;
     }
 

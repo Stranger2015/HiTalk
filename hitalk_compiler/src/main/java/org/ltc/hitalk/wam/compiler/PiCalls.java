@@ -2,6 +2,7 @@ package org.ltc.hitalk.wam.compiler;
 
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.ListTerm;
 
 import java.util.List;
 
@@ -13,6 +14,9 @@ public class PiCalls<C extends BodyCall.BodyCalls <C>> extends HtFunctor {
      *
      */
     protected boolean representable;
+
+    public PiCalls () {
+    }
 
     /**
      * @param <C>
@@ -60,8 +64,8 @@ public class PiCalls<C extends BodyCall.BodyCalls <C>> extends HtFunctor {
      * @param name
      * @param args
      */
-    public PiCalls ( int name, ITerm[] args ) {
-        super(name, args);
+    public PiCalls ( int name, ListTerm args ) {
+        this(name, args, 0);
     }
 
     /**
@@ -69,8 +73,8 @@ public class PiCalls<C extends BodyCall.BodyCalls <C>> extends HtFunctor {
      * @param args
      * @param arityDelta
      */
-    public PiCalls ( int name, ITerm[] args, int arityDelta ) {
-        super(name, args, arityDelta);
+    public PiCalls ( int name, ListTerm args, int arityDelta ) {
+//        this(name, args, arityDelta);
     }
 
     /**

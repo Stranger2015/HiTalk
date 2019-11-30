@@ -7,6 +7,8 @@ import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.common.util.doublemaps.SymbolTableImpl;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.VafInterner;
+import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.ListTerm;
 
 /**
  *
@@ -123,12 +125,12 @@ class HiLogToPrologBiDiConverter {
         boolean mustExit = false;
         while (!isNil(termList) || !mustExit) {
 
-            Term listHead;
-            Term listTail = termList;
-            Term outList;
-            Term outListHead;
-            Term outListTail;///=outList;
-            Term temp_term;
+            ITerm listHead;
+            ITerm listTail = termList;
+            ITerm outList;
+            ITerm outListHead;
+            ITerm outListTail;///=outList;
+            ITerm temp_term;
         }
         return null;
     }
@@ -138,19 +140,19 @@ class HiLogToPrologBiDiConverter {
         return false;
     }
 
-    private boolean isFormula ( Term term ) {
+    private boolean isFormula ( ITerm term ) {
         return false;
     }
 
-    private boolean isList ( Term term ) {
+    private boolean isList ( ITerm term ) {
         return false;
     }
 
-    private boolean isProtected ( Term term ) {
+    private boolean isProtected ( ITerm term ) {
         return false;
     }
 
-    public Term convert ( Term term ) {
+    public ITerm convert ( ITerm term ) {
         return null;// transformer.transform(term);
     }
 
@@ -159,12 +161,12 @@ class HiLogToPrologBiDiConverter {
         return null;
     }
 
-    private Term mapSpecialForm ( TermTransformer transformer, Term term ) {
+    private ITerm mapSpecialForm ( TermTransformer transformer, ITerm term ) {
 
         return null;
     }
 
-    private boolean isSpecialForm ( Term term ) {
+    private boolean isSpecialForm ( ITerm term ) {
         return false;
     }
 

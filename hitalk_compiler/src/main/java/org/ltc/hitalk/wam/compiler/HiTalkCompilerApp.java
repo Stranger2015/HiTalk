@@ -257,13 +257,13 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
 
 //    protected String fileName;
 //    protected HiTalkDefaultBuiltIn defaultBuiltIn;
-    protected HiTalkBuiltInTransform <HiTalkCompilerApp, T> builtInTransform;
+    protected HiTalkBuiltInTransform <HiTalkCompilerApp <T, P, Q>, T> builtInTransform;
 
     /**
      * @param fileName
      */
     public HiTalkCompilerApp ( String fileName ) {
-        setFileName(fileName);
+        super(fileName);
     }
 
     /**
@@ -1281,18 +1281,13 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
 //        return defaultBuiltIn;
 //    }
 
-    public void setBuiltInTransform ( HiTalkBuiltInTransform <HiTalkCompilerApp, T> builtInTransform ) {
+    public void setBuiltInTransform ( HiTalkBuiltInTransform <HiTalkCompilerApp <T, P, Q>, T> builtInTransform ) {
         this.builtInTransform = builtInTransform;
     }
 
-    public HiTalkBuiltInTransform <HiTalkCompilerApp, T> getBuiltInTransform () {
+    public HiTalkBuiltInTransform <HiTalkCompilerApp <T, P, Q>, T> getBuiltInTransform () {
         return builtInTransform;
     }
-
-    public LogicCompilerObserver <T, Q> getObserver () {
-        return observer;
-    }
-
     /**
      * public
      */

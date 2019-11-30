@@ -9,14 +9,11 @@ import org.ltc.hitalk.compiler.PredicateTable;
 import org.ltc.hitalk.compiler.bktables.IConfig;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
-import org.ltc.hitalk.core.utils.TermUtilities;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.term.HtVariable;
-import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.Environment;
-import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.Language;
 import org.ltc.hitalk.wam.compiler.prolog.ChainedCompilerObserver;
 import org.slf4j.Logger;
@@ -25,12 +22,34 @@ import org.slf4j.LoggerFactory;
 import java.util.Iterator;
 import java.util.Set;
 
+/**
+ * @param <T>
+ * @param <P>
+ * @param <Q>
+ */
 public class PrologInterpreter<T extends HtClause, P, Q>
         implements IInterpreter <T, P, Q>, IParser {
+
+    private final static String meta =
+            "solve((G1,G2)):-\n" +
+                    "    !, solve(G1),\n" +
+                    "       solve(G2).\n" +
+
+                    "solve(G):-\n" +
+                    " clause(G,Body),\n" +
+                    "    solveBody).\n" +
+
+                    "solve(G):-\n" +
+                    "    predicate_property(G, built_in),\n" +
+                    "    call(G).\n";
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     protected final PlPrologParser parser;
+
+    public String getMeta () {
+        return meta;
+    }
 
     public ICompiler <T, P, Q> getCompiler () {
         return compiler;
@@ -99,14 +118,6 @@ public class PrologInterpreter<T extends HtClause, P, Q>
     }
 
     /**
-     * @param t
-     * @return
-     */
-    public HtClause convert ( ITerm t ) throws SourceCodeException {
-        return TermUtilities.convertToClause((IFunctor) t, getInterner());
-    }
-
-    /**
      * @param clause
      * @throws SourceCodeException
      */
@@ -134,7 +145,7 @@ public class PrologInterpreter<T extends HtClause, P, Q>
     protected void addProgramClause ( HtClause clause ) {
         final PredicateTable predicateTable = Environment.instance().getPredicateTable();
         /*final HtPredicateDefinition def = */
-        predicateTable.lookup(clause);
+//        predicateTable.lookup(clause);
     }
 
     /**

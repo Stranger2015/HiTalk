@@ -34,8 +34,8 @@ class DefaultTermExpander<T extends HtClause, TC extends ITerm, TT extends TermR
      * @param target
      * @param transformer
      */
-    public
-    DefaultTermExpander ( List <TC> target, ITransformer <T, TC> transformer, TermRewriteTask... trt ) {
+    @SafeVarargs
+    public DefaultTermExpander ( List <TC> target, ITransformer <TC> transformer, TermRewriteTask <HtClause, TC, ?>... trt ) {
         super(null, target, transformer);
         this.trt = trt;
 //        add(ruleExpander);

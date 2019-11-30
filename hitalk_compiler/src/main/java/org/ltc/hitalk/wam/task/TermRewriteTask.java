@@ -39,16 +39,16 @@ import java.util.function.Function;
 public
 class TermRewriteTask<T extends HtClause, TC extends ITerm, TT extends TransformTask <TC>>
         extends StandardPreprocessor <TC>
-        implements IComposite <TC>, ITransformer <TC> {
+        implements IComposite <TC, TT>, ITransformer <TC> {
 
     protected List <TT> rewriteTasks = new ArrayList <>();
 
     /**
+     * @param action
      * @param target
      * @param transformer
      */
-    public
-    TermRewriteTask ( Function <T, List <T>> action, List <TC> target, ITransformer <T, TC> transformer ) {
+    public TermRewriteTask ( Function <TC, List <TC>> action, List <TC> target, ITransformer <TC> transformer ) {
         super(action, target, transformer);
     }
 

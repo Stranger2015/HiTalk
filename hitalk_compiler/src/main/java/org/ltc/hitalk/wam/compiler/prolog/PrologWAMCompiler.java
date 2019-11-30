@@ -10,7 +10,10 @@ import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.ltc.hitalk.wam.compiler.hitalk.PrologInstructionCompiler;
+
+import java.io.IOException;
 
 /**
  * WAMCompiler implements the {@link } interface for the complete WAM compilation chain. It is a
@@ -52,16 +55,16 @@ public class PrologWAMCompiler<T extends HtClause, P, Q>
         preCompiler.compile(clause, flags);
     }
 
-//    /**
-//     * @param tokenSource
-//     * @param flags
-//     * @throws IOException
-//     * @throws SourceCodeException
-//     */
-//    @Override
-//    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException {
-//        preCompiler.compile(tokenSource, flags);
-//    }
+    /**
+     * @param tokenSource
+     * @param flags
+     * @throws IOException
+     * @throws SourceCodeException
+     */
+    @Override
+    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException {
+        preCompiler.compile(tokenSource, flags);
+    }
 
     public void compileQuery ( Q query ) {
 

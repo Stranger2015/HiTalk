@@ -10,7 +10,6 @@ import org.ltc.hitalk.compiler.PrologBuiltInTransform;
 import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
-import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
@@ -24,7 +23,7 @@ import java.io.IOException;
  *
  */
 public
-class PrologPreCompiler extends AbstractBaseMachine implements ICompiler <HtClause, HtPredicate, HtClause> {
+class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine implements ICompiler <T, P, Q> {
 
     final protected PlPrologParser parser;
     final protected PrologDefaultBuiltIn defaultBuiltIn;
@@ -32,7 +31,7 @@ class PrologPreCompiler extends AbstractBaseMachine implements ICompiler <HtClau
      * Holds the built in transformation.
      */
     protected final PrologBuiltInTransform <IApplication, HtClause> builtInTransform;
-    final protected IResolver <HtPredicate, HtClause> resolver;
+    final protected IResolver <P, Q> resolver;
 
     /**
      * @param symbolTable
@@ -45,7 +44,7 @@ class PrologPreCompiler extends AbstractBaseMachine implements ICompiler <HtClau
                                IVafInterner interner,
                                PrologDefaultBuiltIn defaultBuiltIn,
                                PrologBuiltInTransform <IApplication, HtClause> builtInTransform,
-                               IResolver <HtPredicate, HtClause> resolver,
+                               IResolver <P, Q> resolver,
                                PlPrologParser parser ) {
         super(symbolTable, interner);
 
@@ -53,6 +52,10 @@ class PrologPreCompiler extends AbstractBaseMachine implements ICompiler <HtClau
         this.builtInTransform = builtInTransform;
         this.resolver = resolver;
         this.parser = parser;
+    }
+
+    public void compileString ( String string, HtProperty... flags ) throws Exception {
+        ICompiler.super.compileString(string, flags);
     }
 
     public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException {
@@ -69,7 +72,7 @@ class PrologPreCompiler extends AbstractBaseMachine implements ICompiler <HtClau
         return parser;
     }
 
-    public void compile ( HtClause clause, HtProperty... flags ) throws SourceCodeException {
+    public void compile ( T clause, HtProperty... flags ) throws SourceCodeException {
 
     }
 
@@ -77,14 +80,17 @@ class PrologPreCompiler extends AbstractBaseMachine implements ICompiler <HtClau
 
     }
 
-    public void compileQuery ( HtClause query ) throws SourceCodeException {
+    /**
+     * @param query
+     */
+    public void compileQuery ( Q query ) throws SourceCodeException {
 
     }
 
     /**
      * @param resolver
      */
-    public void setResolver ( IResolver <HtPredicate, HtClause> resolver ) {
+    public void setResolver ( IResolver <P, Q> resolver ) {
 
     }
 
@@ -92,7 +98,7 @@ class PrologPreCompiler extends AbstractBaseMachine implements ICompiler <HtClau
 
     }
 
-    public void compile ( HtClause clause ) {
+    public void compile ( T clause ) {
 
     }
 
@@ -102,11 +108,11 @@ class PrologPreCompiler extends AbstractBaseMachine implements ICompiler <HtClau
      * @param sentence The sentence to compile.
      * @throws SourceCodeException If there is an error in the source to be compiled that prevents its compilation.
      */
-    public void compile ( Sentence <HtClause> sentence ) throws SourceCodeException {
+    public void compile ( Sentence <T> sentence ) throws SourceCodeException {
 
     }
 
-    public void setCompilerObserver ( LogicCompilerObserver <HtPredicate, HtClause> observer ) {
+    public void setCompilerObserver ( LogicCompilerObserver <P, Q> observer ) {
 
     }
 

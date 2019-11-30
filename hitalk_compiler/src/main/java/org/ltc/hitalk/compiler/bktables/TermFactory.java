@@ -1,6 +1,5 @@
 package org.ltc.hitalk.compiler.bktables;
 
-import com.sun.org.apache.xalan.internal.xsltc.compiler.sym;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
@@ -121,7 +120,7 @@ public class TermFactory implements ITermFactory {
         this.headTail = headTail;
         ListTerm t;
         if (headTail.length == 0) {
-            t = new ListTerm(Kind.LIST, sym.getName(), calls.getHeads());
+            t = new ListTerm(Kind.LIST, headTail);
         } else { //if (headTail.length ==1){ //[|VarOrList] []
             t = new ListTerm(kind, headTail);
         }
@@ -190,7 +189,7 @@ public class TermFactory implements ITermFactory {
      */
     @Override
     public HtProperty createFlag ( String name, ITerm... args ) {
-        return createFlag(name, new ListTerm(args));
+        return createFlag(name, new ListTerm(Kind.LIST, args));
     }
 
     @Override
@@ -209,6 +208,10 @@ public class TermFactory implements ITermFactory {
 
     @Override
     public FloatTerm newAtomic ( double f ) {
+        return null;
+    }
+
+    public ListTerm newDottedPair ( Kind kind, ITerm[] terms ) {
         return null;
     }
 
@@ -234,7 +237,7 @@ public class TermFactory implements ITermFactory {
         int n = interner.internFunctorName(name, 0);
 
 //        return new HtProperty(n, new ListTerm(args));
-        return new HtProperty(new ListTerm(args));
+        return new HtProperty(new ListTerm(Kind.LIST, args));
     }
 
     /**

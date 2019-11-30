@@ -77,9 +77,12 @@ class HtPredicate extends HtBaseTerm implements ITerm, IPropertyOwner {
      *
      * @param definition The clauses that make up the getDefinition()  of the predicate.
      */
-    public
-    HtPredicate ( HtPredicateDefinition definition ) {
+    public HtPredicate ( HtPredicateDefinition definition ) {
         this.definition = definition;
+    }
+
+    public boolean isHiLog () {
+        return false;
     }
 
     /**

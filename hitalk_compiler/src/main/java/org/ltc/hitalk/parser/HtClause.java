@@ -10,8 +10,8 @@ import org.ltc.hitalk.wam.compiler.IFunctor;
 /**
  *
  */
-public class HtClause<F extends IFunctor> extends HtBaseTerm implements ITerm, ISubroutine {
-    protected F head;
+public class HtClause extends HtBaseTerm implements ITerm, ISubroutine {
+    protected IFunctor head;
     protected ListTerm body;
 
     /**
@@ -20,7 +20,7 @@ public class HtClause<F extends IFunctor> extends HtBaseTerm implements ITerm, I
      * @param head The head of the program.
      * @param body The functors that make up the query body of the program, if any. May be <tt>null</tt>
      */
-    public HtClause ( F head, ListTerm body ) {
+    public HtClause ( IFunctor head, ListTerm body ) {
         this.head = head;
         this.body = body;
     }
@@ -28,7 +28,7 @@ public class HtClause<F extends IFunctor> extends HtBaseTerm implements ITerm, I
     /**
      * @param head
      */
-    public HtClause ( F head ) {
+    public HtClause ( IFunctor head ) {
         this(head, null);
     }
 
@@ -38,7 +38,7 @@ public class HtClause<F extends IFunctor> extends HtBaseTerm implements ITerm, I
      * @return The wrapped sentence in the logical language.
      */
 //    @Override
-    public HtClause <F> getT () {
+    public HtClause getT () {
         return this;
     }
 
@@ -50,7 +50,7 @@ public class HtClause<F extends IFunctor> extends HtBaseTerm implements ITerm, I
     }
 
     @Override
-    public F getHead () {
+    public IFunctor getHead () {
         return head;
     }
 
@@ -67,8 +67,8 @@ public class HtClause<F extends IFunctor> extends HtBaseTerm implements ITerm, I
      * @return
      */
     @Override
-    public F getGoal ( int i ) {
-        return (F) getBody().get(i);
+    public IFunctor getGoal ( int i ) {
+        return (IFunctor) getBody().get(i);
     }
 
     /**

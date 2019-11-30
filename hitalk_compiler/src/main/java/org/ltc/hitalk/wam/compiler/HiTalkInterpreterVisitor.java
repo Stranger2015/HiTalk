@@ -22,12 +22,12 @@ import com.thesett.common.util.Sink;
 import com.thesett.common.util.Source;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ListTerm;
-import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
 import org.ltc.hitalk.wam.printer.IAllTermsVisitor;
 import org.ltc.hitalk.wam.printer.IPositionalTermTraverser;
 
@@ -42,7 +42,7 @@ import static org.ltc.hitalk.interpreter.IInterpreter.SEMICOLON;
 /**
  *
  */
-public class HiTalkMetaInterpreterVisitor<T extends HtMethod, P, Q> extends HtBasePositionalVisitor
+public class HiTalkInterpreterVisitor<T extends HtMethod, P, Q> extends PrologInterpreterVisitor <T, P, Q>
         implements IAllTermsVisitor {
 
     protected final HiTalkInterpreter <T, P, Q> engine;
@@ -50,17 +50,18 @@ public class HiTalkMetaInterpreterVisitor<T extends HtMethod, P, Q> extends HtBa
 
     /**
      * Creates a positional visitor.
-     *  @param symbolTable         The compiler symbol table.
+     *
+     * @param symbolTable         The compiler symbol table.
      * @param interner            The name interner.
      * @param positionalTraverser
-     * @param engine
      */
-    public HiTalkMetaInterpreterVisitor ( SymbolTable <Integer, String, Object> symbolTable,
-                                          IVafInterner interner,
-                                          IPositionalTermTraverser positionalTraverser,
-                                          HiTalkInterpreter <T, P, Q> engine ) {
-        super(symbolTable, interner, positionalTraverser);
-        this.engine = engine;
+    public HiTalkInterpreterVisitor ( SymbolTable <Integer, String, Object> symbolTable,
+                                      IVafInterner interner,
+                                      IResolver <P, Q> resolver,
+                                      IPositionalTermTraverser positionalTraverser
+    ) {
+        super(symbolTable, interner, resolver, positionalTraverser);
+        engine = new HiTalkInterpreter <T, P, Q>();
     }
 
     /**
@@ -148,7 +149,7 @@ public class HiTalkMetaInterpreterVisitor<T extends HtMethod, P, Q> extends HtBa
      * @throws SourceCodeException If the query or domain clause fails to compile or link into the resolver.
      */
     private void evaluate ( Sentence <T> sentence ) throws SourceCodeException {
-        HtClause clause = sentence.getT();
+        HtMethod clause = sentence.getT();
 
         if (clause.isQuery()) {
             engine.endScope();

@@ -48,7 +48,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
      *
      * @param lexer The token manager to use to feed this source.
      */
-    protected PlTokenSource ( PlLexer lexer ) {
+    public PlTokenSource ( PlLexer lexer ) {
         this.lexer = lexer;
 
         // The first token is initialized to be empty, so that the first call to poll returns the first token.

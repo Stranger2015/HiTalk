@@ -1,10 +1,10 @@
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.LinkageException;
-import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
+import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtPredicateDefinition;
 import org.ltc.hitalk.entities.ISubroutine;
@@ -36,7 +36,7 @@ public class PiCallsCollectorVisitor extends MetaInterpreterVisitor {
      */
     protected PiCallsCollectorVisitor ( SymbolTable <Integer, String, Object> symbolTable,
                                         IVafInterner interner,
-                                        Resolver <HtPredicate, HtClause> resolver,
+                                        IResolver <HtPredicate, HtClause> resolver,
                                         IPositionalTermTraverser traverser ) {
         super(symbolTable, interner, resolver, traverser);
     }

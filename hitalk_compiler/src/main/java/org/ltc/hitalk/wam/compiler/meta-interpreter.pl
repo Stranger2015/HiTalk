@@ -16,3 +16,7 @@ solve(Ctx,G):-
 solve(_, G):-
     predicate_property(G, built_in),
     call(G).
+
+method(U, Head, Body) :-
+%    current_entity(U),
+    clause( U::Head, Body ).

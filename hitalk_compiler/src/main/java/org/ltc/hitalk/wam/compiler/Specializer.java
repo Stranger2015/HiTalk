@@ -61,9 +61,9 @@ class Specializer<T extends ITerm, C extends BodyCalls <C>> implements ISpeciali
     @Override
     public List <T> specialize ( T term ) {
         List <T> spClauses = new ArrayList <>();
-        List <PiCalls <C>> calls = new ArrayList <>();
+        List <PiCalls <?>> calls = new ArrayList <>();
         predicates.stream().map(this::collect).forEachOrdered(calls::addAll);
-        final List <XPiCalls <C>> merged = getInterestingCalls(calls, predicates);
+        final List <PiCalls <?>> merged = getInterestingCalls(calls, predicates);
 
         return spClauses;
     }
@@ -73,10 +73,10 @@ class Specializer<T extends ITerm, C extends BodyCalls <C>> implements ISpeciali
      * @param predicates
      * @return
      */
-    private List <XPiCalls <C>> getInterestingCalls ( List <PiCalls <C>> calls, List <HtPredicate> predicates ) {
+    private List <PiCalls <?>> getInterestingCalls ( List <PiCalls <?>> calls, List <HtPredicate> predicates ) {
         PredicateTable <?> table = new PredicateTable();
-        List <XPiCalls <C>> result = new ArrayList <>();
-        for (PiCalls <C> piCalls : calls) {
+        List <PiCalls <?>> result = new ArrayList <>();
+        for (PiCalls <?> piCalls : calls) {
             if (table.containsKey(piCalls.getName())) {
                 final List <HtClause> clauses = table.get(piCalls.getName()).getBody();
 //todo
@@ -119,16 +119,16 @@ class Specializer<T extends ITerm, C extends BodyCalls <C>> implements ISpeciali
 //    /*----------------------------------------------------------------------*/
 
     //visit each pddef
-    public List <XPiCalls <?>> collect ( HtPredicate predicate ) {
+    public List <PiCalls <?>> collect ( HtPredicate predicate ) {
         PiCallsCollector pc = PiCallsCollector.toPiCallsCollector();
-        final List <XPiCalls <?>> calls = pc.supplier().get();
+        final List <PiCalls <?>> calls = pc.supplier().get();
 
         return piCalls;
     }
 
-    public List <XPiCalls <C>> mergeCalls ( List <BodyCall <C>> calls ) {
-        final List <XPiCalls <C>> mergedCalls = new ArrayList <>();
-        for (final PiCalls <C> piCalls : calls) {
+    public List <PiCalls <?>> mergeCalls ( List <BodyCall <C>> calls ) {
+        final List <PiCalls <?>> mergedCalls = new ArrayList <>();
+        for (final PiCalls <?> piCalls : calls) {
 
         }
 
@@ -140,9 +140,9 @@ class Specializer<T extends ITerm, C extends BodyCalls <C>> implements ISpeciali
      * @param clauses
      * @return
      */
-    public static @NotNull ListTerm findMsg ( ListTerm bodyCalls, List <HtClause <? extends IFunctor>> clauses ) {
+    public static @NotNull ListTerm findMsg ( ListTerm bodyCalls, List <HtClause> clauses ) {
         final Map <HtVariable, Pair <ITerm, ITerm>> dict = new HashMap <>();
-        for (final HtClause <? extends IFunctor> clause : clauses) {
+        for (final HtClause clause : clauses) {
             bodyCalls = (ListTerm) msg(bodyCalls, clause.getHead().getArgsAsListTerm(), dict);
         }
 
@@ -234,7 +234,7 @@ class Specializer<T extends ITerm, C extends BodyCalls <C>> implements ISpeciali
     /*	whether it contains any partially instantiated arguments.	*/
     /*----------------------------------------------------------------------*/
 
-    public boolean isGivenTheSecondChance ( ListTerm callArgs, List <HtClause <? extends IFunctor>> selectedClauses ) {
+    public boolean isGivenTheSecondChance ( ListTerm callArgs, List <HtClause> selectedClauses ) {
         final @NotNull ListTerm msg = findMsg(callArgs, selectedClauses);
         return sthBound(msg);
     }
@@ -275,9 +275,9 @@ class Specializer<T extends ITerm, C extends BodyCalls <C>> implements ISpeciali
 //            final int sym = piCall.getName();
 //            final ITerm[] calls = piCall.getArguments();
 //
-            final HtPredicateDefinition def = predicates.lookup(piCall);
+            final HtPredicateDefinition <?, ?, ?> def = predicates.lookup(piCall);
             if (!def.isBuiltIn()) {
-                List <PiCalls> icalls = interestingCalls0(calls, predicates);
+                final List <PiCalls <?>> piCalls1;
             }
         });
     }
@@ -287,7 +287,7 @@ class Specializer<T extends ITerm, C extends BodyCalls <C>> implements ISpeciali
      * @param predicates
      * @return
      */
-    private List <PiCalls <C>> interestingCalls0 ( ITerm[] calls, PredicateTable predicates ) {
+    private List <PiCalls <?>> interestingCalls0 ( ITerm[] calls, PredicateTable <?> predicates ) {
         return piCalls;
     }
 
@@ -322,8 +322,8 @@ class Specializer<T extends ITerm, C extends BodyCalls <C>> implements ISpeciali
 	'specialise pred'(BCs, N, A, Tabled, SymTab, CLmid, CLout).
 */
 
-    private List <HtClause <IFunctor>> specializePred ( PiCalls <?> piCall ) {
-        List <HtClause <IFunctor>> spClauses = new ArrayList <>();
+    private List <HtClause> specializePred ( PiCalls <?> piCall ) {
+        List <HtClause> spClauses = new ArrayList <>();
         HtPredicateIndicator symbol = new HtPredicateIndicator(piCall);
 //noinspection PlaceholderCountMatchesArgumentCount
         logger.info("Specializing partially instantiated calls to %s... ", symbol);
