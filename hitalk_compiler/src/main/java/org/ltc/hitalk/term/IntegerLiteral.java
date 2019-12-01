@@ -12,7 +12,7 @@ public class IntegerLiteral extends HtBaseTerm {
     /**
      * Holds the value of the number.
      */
-    private final int value;
+    protected final int value;
 
     /**
      * Creates a new number with the specified value.
@@ -104,6 +104,10 @@ public class IntegerLiteral extends HtBaseTerm {
      */
     public String toString () {
         return "IntLiteral: [ value = " + value + "]";
+    }
+
+    public boolean isHiLog () {
+        return false;
     }
 
     public void free () {

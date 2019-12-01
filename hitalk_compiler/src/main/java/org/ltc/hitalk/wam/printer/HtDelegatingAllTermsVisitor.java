@@ -1,9 +1,12 @@
 package org.ltc.hitalk.wam.printer;
 
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.AllTermsVisitor;
+import com.thesett.aima.logic.fol.LinkageException;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.IntegerLiteral;
 import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
@@ -42,7 +45,7 @@ import org.ltc.hitalk.wam.compiler.IFunctor;
 public
 class HtDelegatingAllTermsVisitor implements IAllTermsVisitor {
     /**
-     * The optional delegate.
+     * The option Teal delegate.
      */
     protected IAllTermsVisitor delegate;
 
@@ -58,30 +61,7 @@ class HtDelegatingAllTermsVisitor implements IAllTermsVisitor {
     /**
      * {@inheritDoc}
      */
-    public
-    void visit ( Term term ) {
-        if (delegate != null) {
-            //term.accept(delegate);
-            delegate.visit(term);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public
-    void visit ( Functor functor ) {
-        if (delegate != null) {
-            //functor.accept(delegate);
-            delegate.visit(functor);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public
-    void visit ( Variable variable ) {
+    public void visit ( HtVariable variable ) {
         if (delegate != null) {
             //variable.accept(delegate);
             delegate.visit(variable);
@@ -91,8 +71,7 @@ class HtDelegatingAllTermsVisitor implements IAllTermsVisitor {
     /**
      * {@inheritDoc}
      */
-    public
-    void visit ( IntegerType literal ) {
+    public void visit ( IntegerLiteral literal ) {
         if (delegate != null) {
             //literal.accept(delegate);
             delegate.visit(literal);
@@ -102,8 +81,7 @@ class HtDelegatingAllTermsVisitor implements IAllTermsVisitor {
     /**
      * {@inheritDoc}
      */
-    public
-    void visit ( LiteralType literal ) {
+    public void visit ( HtLiteralType literal ) {
         if (delegate != null) {
             //literal.accept(delegate);
             delegate.visit(literal);

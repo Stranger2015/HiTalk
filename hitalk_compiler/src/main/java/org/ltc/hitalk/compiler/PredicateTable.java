@@ -3,11 +3,9 @@ package org.ltc.hitalk.compiler;
 import org.jetbrains.annotations.NotNull;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtPredicateDefinition;
-import org.ltc.hitalk.entities.HtPredicateDefinition.UserDefinition;
 import org.ltc.hitalk.entities.ISubroutine;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
-import org.ltc.hitalk.wam.compiler.PiCalls;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,9 +26,12 @@ class PredicateTable<P extends HtPredicateDefinition <ISubroutine, HtPredicate, 
     }
 
     public PredicateTable ( List <HtPredicate> predicates ) {
-        predicates.stream().map(HtPredicate::getDefinition).
-                filter(def -> !def.isBuiltIn()).
-                forEachOrdered(definition -> accept((P) definition));
+        for (HtPredicate predicate : predicates) {
+            List <HtClause> def = predicate.getClauses();
+            if (!predicate.isBuiltIn()) {
+                accept((P) def);
+            }
+        }
     }
 
     private void accept ( P definition ) {
@@ -48,26 +49,31 @@ class PredicateTable<P extends HtPredicateDefinition <ISubroutine, HtPredicate, 
         return values().iterator();
     }
 
-    /**
-     * @param call
-     * @return
-     */
-    public UserDefinition <?, ?, ?> lookup ( PiCalls <?> call ) {
-        int name = call.getName();
-        UserDefinition <?, ?, ?> value = this.get(name);
-        if (value == null) {
-            value = new UserDefinition();
-            this.put(name, value);
-        }
-
-        return value;
-    }
-
     public HtClause lookup ( HtFunctor goal, HtClause clause ) {
         return null;
     }
-
-    public HtClause lookup ( HtFunctor goal, boolean redo ) {
-        return null;
-    }
 }
+
+//    /**
+//     * @param call
+//     * @return
+//     */
+//    public UserDefinition <?, ?, ?> lookup ( PiCalls <?> call ) {
+//        int name = call.getName();
+////        UserDefinition <?, ?, ?> value = this.get(name);
+//        if (value == null) {
+//            value = new UserDefinition();
+//            this.put(name, value);
+//        }
+//
+//        return value;
+//    }
+//
+//    public HtClause lookup ( HtFunctor goal, HtClause clause ) {
+//        return null;
+//    }
+//
+//    public HtClause lookup ( HtFunctor goal, boolean redo ) {
+//        return null;
+//    }
+//}

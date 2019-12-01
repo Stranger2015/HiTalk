@@ -37,7 +37,7 @@ class HiLogToPrologBiDiConverter {
     IVafInterner interner = new VafInterner("", "");
 
     private final HiLogDecoder hilog2Prolog = new HiLogDecoder(symbolTable, interner);
-    private final HiLogEncoder prolog2Hilog = new HiLogEncoder(symbolTable, interner);
+//    private final HiLogEncoder prolog2Hilog = new HiLogEncoder(symbolTable, interner);
 
 //    private final HiLogEncoder transformer;
 //        = new TermTransformer() {

@@ -51,7 +51,7 @@ class ZeroTransformer<T extends ITerm> extends DefaultTransformer <T> {
         return true;
     }
 
-    @Override
+//    @Override
     public
     TransformInfo getBestSoFarResult () {
         return new TransformInfo();

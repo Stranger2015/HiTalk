@@ -47,6 +47,10 @@ public class ErrorTerm extends HtBaseTerm implements ITerm {
         return false;
     }
 
+    public boolean isHiLog () {
+        return false;
+    }
+
     @Override
     public ITerm getValue () {
         return null;

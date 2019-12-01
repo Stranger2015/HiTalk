@@ -1,7 +1,7 @@
 package org.ltc.hitalk.compiler;
 
-import com.thesett.aima.logic.fol.Resolver;
 import org.ltc.hitalk.core.ICompiler;
+import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
@@ -26,7 +26,7 @@ class HiTalkEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P, Q
     public HiTalkEngine ( PlPrologParser parser,
                           IVafInterner interner,
                           ICompiler <T, P, Q> compiler,
-                          Resolver <P, Q> resolver ) {
+                          IResolver <P, Q> resolver ) {
         super(parser, interner, compiler, resolver);
     }
 

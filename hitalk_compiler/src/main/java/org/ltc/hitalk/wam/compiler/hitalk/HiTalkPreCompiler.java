@@ -29,7 +29,6 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PrologBuiltInTransform;
 import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.core.ICompiler;
-import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
@@ -51,19 +50,19 @@ import java.util.List;
  * @author Rupert Smith
  */
 abstract public
-class HiTalkPreCompiler extends PrologPreCompiler implements ICompiler <HtClause, HtPredicate, HtClause> {
+class HiTalkPreCompiler<T extends HtClause, P, Q> extends PrologPreCompiler <T, P, Q> implements ICompiler <T, P, Q> {
     /**
      * Holds the compiler output observer.
      */
-    protected LogicCompilerObserver <HtPredicate, HtClause> observer;
+    protected LogicCompilerObserver <P, Q> observer;
 
     /**
      * Creates a new PreCompiler.
      *
-     * @param symbolTable    The symbol table.
-     * @param interner       The machine to translate functor and variable names.
+     * @param symbolTable      The symbol table.
+     * @param interner         The machine to translate functor and variable names.
      * @param builtInTransform
-     * @param defaultBuiltIn The default built in, for standard compilation and interners and symbol tables.
+     * @param defaultBuiltIn   The default built in, for standard compilation and interners and symbol tables.
      * @param parser
      * @param resolver
      */
@@ -71,7 +70,7 @@ class HiTalkPreCompiler extends PrologPreCompiler implements ICompiler <HtClause
                                IVafInterner interner,
                                PrologBuiltInTransform <IApplication, HtClause> builtInTransform,
                                PrologDefaultBuiltIn defaultBuiltIn,
-                               Resolver <HtPredicate, HtClause> resolver,
+                               Resolver <P, Q> resolver,
                                PlPrologParser parser ) {
         super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, parser);
 
@@ -123,7 +122,7 @@ class HiTalkPreCompiler extends PrologPreCompiler implements ICompiler <HtClause
         walk.walk(clause);
     }
 
-    public LogicCompilerObserver <HtPredicate, HtClause> getObserver () {
+    public LogicCompilerObserver <P, Q> getObserver () {
         return observer;
     }
 

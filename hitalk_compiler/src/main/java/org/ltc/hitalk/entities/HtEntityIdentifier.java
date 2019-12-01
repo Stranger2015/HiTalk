@@ -39,8 +39,7 @@ class HtEntityIdentifier extends HtFunctor {
     /**
      * @return
      */
-    public final
-    HtEntityKind getKind () {
+    public final HtEntityKind getEntityKind () {
         return kind;
     }
 
@@ -50,6 +49,6 @@ class HtEntityIdentifier extends HtFunctor {
     @Override
     public final
     String toString () {
-        return getClass().getSimpleName() + "{" + "name=" + name + ", kind=" + kind + "}";
+        return getClass().getSimpleName() + "{" + "name=" + getName() + ", kind=" + kind + "}";
     }
 }

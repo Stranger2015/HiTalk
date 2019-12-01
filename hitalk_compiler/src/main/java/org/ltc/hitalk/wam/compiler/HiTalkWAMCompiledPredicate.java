@@ -25,8 +25,6 @@ import com.thesett.common.util.Sizeable;
 import com.thesett.common.util.SizeableLinkedList;
 import com.thesett.common.util.SizeableList;
 import org.ltc.hitalk.entities.HtPredicate;
-import org.ltc.hitalk.entities.HtPredicateDefinition;
-import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
 import org.ltc.hitalk.wam.machine.HiTalkWAMResolvingMachine;
 
@@ -55,6 +53,10 @@ import java.util.*;
 public
 class HiTalkWAMCompiledPredicate extends HtPredicate
         implements Sentence <HiTalkWAMCompiledPredicate>, Sizeable, IWAMOptimizeableListing {
+    /**
+     * @return
+     */
+    @Override
     public boolean isHiLog () {
         return false;
     }
@@ -148,15 +150,18 @@ class HiTalkWAMCompiledPredicate extends HtPredicate
      * @param definition   A definition clause to add to this predicate.
      * @param instructions A list of instructions to add to the definition.
      */
-    public
-    void addInstructions ( HtPredicateDefinition <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledClause> definition,
-                           SizeableList <HiTalkWAMInstruction> instructions ) {
+    public void addInstructions ( HtPredicate definition,
+                                  SizeableList <HiTalkWAMInstruction> instructions ) {
 //        int oldLength=0;
 
-        this.definition.merge(definition);
+        merge(definition);
 
 
         addInstructions(instructions);
+    }
+
+    private void merge ( HtPredicate predicate ) {
+        //todo
     }
 
     /**
@@ -164,8 +169,7 @@ class HiTalkWAMCompiledPredicate extends HtPredicate
      *
      * @param instructions The instructions to add to the clause.
      */
-    public
-    void addInstructions ( Collection <HiTalkWAMInstruction> instructions ) {
+    public void addInstructions ( Collection <HiTalkWAMInstruction> instructions ) {
         this.instructions.addAll(instructions);
     }
 

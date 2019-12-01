@@ -16,10 +16,10 @@ package org.ltc.hitalk.wam.printer;
  * limitations under the License.
  */
 
-import com.thesett.aima.logic.fol.Variable;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.text.api.model.TextTableModel;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 /**
@@ -46,7 +46,10 @@ class HtSourceClausePrinter extends HtBasePrinter {
      * @param table       The table to inform of cell sizes and positions.
      */
     public HtSourceClausePrinter ( SymbolTable <Integer, String, Object> symbolTable,
-                                   IVafInterner interner, IPositionalTermTraverser traverser, int column, TextTableModel table ) {
+                                   IVafInterner interner,
+                                   IPositionalTermTraverser traverser,
+                                   int column,
+                                   TextTableModel table ) {
         super(symbolTable, interner, traverser, column, table);
     }
 
@@ -97,8 +100,7 @@ class HtSourceClausePrinter extends HtBasePrinter {
     /**
      * {@inheritDoc}
      */
-    protected
-    void enterVariable ( Variable variable ) {
+    protected void enterVariable ( HtVariable variable ) {
         String showContextAs = interner.getVariableName(variable);
 
         int delta = showContextAs.length();

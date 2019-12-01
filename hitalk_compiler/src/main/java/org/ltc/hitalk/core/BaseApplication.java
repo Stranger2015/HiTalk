@@ -15,7 +15,6 @@ import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.ltc.hitalk.term.io.Environment;
 import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
-import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +36,7 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
     protected final AtomicBoolean shuttingDown = new AtomicBoolean(false);
 
     protected SymbolTable <Integer, String, Object> symbolTable = new SymbolTableImpl <>();
-    protected PrologWAMCompiler <T, P, Q> compiler = new PrologWAMCompiler <>();
+//    protected PrologWAMCompiler <T, P, Q> compiler; = new PrologWAMCompiler <>(symbolTable, getInterner(), getParser(), LogicCompilerObserver <P, Q> observer  );
     protected HiTalkDefaultBuiltIn defaultBuiltIn;
     protected Runnable target;
     protected String fileName;

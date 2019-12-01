@@ -1,6 +1,5 @@
 package org.ltc.hitalk.core.algebra;
 
-import com.sun.org.apache.xalan.internal.xsltc.compiler.sym;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.entities.context.ExecutionContext;
@@ -59,7 +58,7 @@ public class Msg {
                 result = new HtFunctor(hilogApply, new ITerm[]{name, lt});
             } else {
                 result = new HtFunctor(hilogApply, new ITerm[]{updateDictNewVar(f1, f2, dict),
-                        new ListTerm(ListTerm.Kind.LIST, sym.getName(), calls.getHeads())});
+                        /* new ListTerm(LIST, calls.getHeads())*/});
             }
 
         } else if (term1.isList() && term2.isList()) {

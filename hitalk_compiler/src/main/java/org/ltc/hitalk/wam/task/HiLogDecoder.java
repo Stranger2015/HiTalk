@@ -1,23 +1,25 @@
 package org.ltc.hitalk.wam.task;
 
 import com.thesett.aima.logic.fol.IntegerType;
+import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.LiteralType;
-import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.logic.fol.Variable;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.MetaInterpreterVisitor;
+import org.ltc.hitalk.wam.printer.IPositionalTermTraverser;
 
 import static java.lang.String.format;
 
 /**
  *
  */
-public class HiLogDecoder extends MetaInterpreterVisitor {
+public class HiLogDecoder<T extends HtClause, P, Q> extends MetaInterpreterVisitor <T, P, Q> {
     /**
      * Creates a positional visitor.
      *
@@ -25,8 +27,9 @@ public class HiLogDecoder extends MetaInterpreterVisitor {
      * @param interner    The name interner.
      */
     public HiLogDecoder ( SymbolTable <Integer, String, Object> symbolTable,
-                          IVafInterner interner ) {
-        super(symbolTable, interner);
+                          IVafInterner interner, IResolver <P, Q> resolver,
+                          IPositionalTermTraverser traverser ) {
+        super(symbolTable, interner, resolver, traverser);
     }
 
     /**
@@ -41,22 +44,22 @@ public class HiLogDecoder extends MetaInterpreterVisitor {
     /**
      * @param term The term being entered.
      */
-    @Override
-    protected void enterTerm ( Term term ) {
+//    @Override
+    protected void enterTerm ( ITerm term ) {
     }
 
     /**
      * @param term The term being left.
      */
     @Override
-    protected void leaveTerm ( Term term ) {
+    protected void leaveTerm ( ITerm term ) {
     }
 
     /**
      * @param functor The functor being entered.
      */
     @Override
-    protected void enterFunctor ( IFunctor functor ) {
+    protected void enterFunctor ( IFunctor functor ) throws LinkageException {
         super.enterFunctor(functor);
     }
 
@@ -72,15 +75,15 @@ public class HiLogDecoder extends MetaInterpreterVisitor {
      * @param variable The variable being entered.
      */
     @Override
-    protected void enterVariable ( Variable variable ) {
+    protected void enterVariable ( HtVariable variable ) {
         super.enterVariable(variable);
     }
 
     /**
      * @param variable The variable being left.
      */
-    @Override
-    protected void leaveVariable ( Variable variable ) {
+//    @Override
+    protected void leaveVariable ( HtVariable variable ) {
 
     }
 
@@ -104,7 +107,7 @@ public class HiLogDecoder extends MetaInterpreterVisitor {
      * @param clause The clause being entered.
      */
     @Override
-    protected void enterClause ( HtClause clause ) {
+    protected void enterClause ( HtClause clause ) throws LinkageException {
         super.enterClause(clause);
     }
 

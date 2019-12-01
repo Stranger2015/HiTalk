@@ -920,7 +920,7 @@
          } else {
              subEntName = (HtFunctor) subEntityFunctor.getArgument(0);
          }
-         HtEntityKind subEntityKind = detectSubEntityKind(relationKind, entityCompiling.getKind());
+         HtEntityKind subEntityKind = detectSubEntityKind(relationKind, entityCompiling.getEntityKind());
 
          return new HtRelation(entityCompiling, scope, new HtEntityIdentifier(subEntName, subEntityKind), relationKind);
      }
@@ -929,7 +929,7 @@
          return null;
      }
 
-     private boolean isList ( Term relationTerm ) {
+     private boolean isList ( ITerm relationTerm ) {
          return relationTerm instanceof ListTerm;
      }
 
@@ -1052,7 +1052,7 @@
 
      boolean endEntity ( HtEntityKind entityKind ) {
          try {
-             if (entityCompiling == null || entityCompiling.getKind() != entityKind) {
+             if ((entityCompiling == null) || (entityCompiling.getEntityKind() != entityKind)) {
                  throw new ExecutionError(PERMISSION_ERROR, null);
              }
          } finally {

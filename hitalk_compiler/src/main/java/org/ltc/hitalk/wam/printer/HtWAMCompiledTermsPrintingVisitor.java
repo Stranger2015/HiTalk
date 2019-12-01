@@ -16,13 +16,13 @@
 package org.ltc.hitalk.wam.printer;
 
 import com.thesett.aima.logic.fol.LinkageException;
-import com.thesett.aima.logic.fol.Variable;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.text.api.model.TextTableModel;
 import com.thesett.text.impl.model.TextTableImpl;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.util.ArrayList;
@@ -142,8 +142,7 @@ class HtWAMCompiledTermsPrintingVisitor extends HtDelegatingAllTermsVisitor impl
     /**
      * {@inheritDoc}
      */
-    public
-    void visit ( Variable variable ) {
+    public void visit ( HtVariable variable ) {
         printers.forEach(printer -> printer.visit(variable));
 
         super.visit(variable);

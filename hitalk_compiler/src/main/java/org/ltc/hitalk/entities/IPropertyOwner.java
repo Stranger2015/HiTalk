@@ -1,7 +1,7 @@
 package org.ltc.hitalk.entities;
 
 
-import com.thesett.aima.logic.fol.Term;
+import org.ltc.hitalk.term.ITerm;
 
 import java.beans.PropertyChangeListener;
 
@@ -30,14 +30,14 @@ interface IPropertyOwner {
 
     void removeListener ( PropertyChangeListener listener );
 
-    void fireEvent ( IProperty property, Term value );
+    void fireEvent ( IProperty property, ITerm value );
 
-    Term getValue ( Properties property );
+    ITerm getValue ( Properties property );
 
     /**
      * @param property
      * @param value
      */
-    void setValue ( Properties property, Term value );
+    void setValue ( Properties property, ITerm value );
 
 }

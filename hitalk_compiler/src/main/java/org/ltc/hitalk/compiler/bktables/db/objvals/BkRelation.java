@@ -1,6 +1,5 @@
 package org.ltc.hitalk.compiler.bktables.db.objvals;
 
-import com.thesett.aima.logic.fol.Functor;
 import org.ltc.hitalk.compiler.bktables.BkTableKind;
 import org.ltc.hitalk.compiler.bktables.IIdentifiable;
 import org.ltc.hitalk.compiler.bktables.db.Record;
@@ -8,6 +7,7 @@ import org.ltc.hitalk.entities.HtEntityHierarchyKind;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtRelationKind;
 import org.ltc.hitalk.entities.HtScope;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 
 /**
  *
@@ -82,8 +82,7 @@ class BkRelation extends Record {
     /**
      * @return
      */
-    public
-    Functor getName () {
+    public IFunctor getName () {
         return entity1;
     }
 

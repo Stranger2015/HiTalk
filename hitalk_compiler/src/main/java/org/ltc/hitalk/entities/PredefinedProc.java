@@ -1,5 +1,6 @@
 package org.ltc.hitalk.entities;
 
+import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledPredicate;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 
@@ -51,14 +52,14 @@ class PredefinedProc implements ISubroutine {
          * @param functor
          */
         protected static void acceptProlog ( HtFunctor functor, HtPredicate proc ) {
-            final ISubroutine clause = proc.getDefinition().get(0);
+            final ISubroutine clause = proc.get(0);
         }
 
         /**
          * @param functor
          */
         private static void acceptWAM ( HtFunctor functor, HiTalkWAMCompiledPredicate proc ) {
-            proc.getDefinition();//todo
+//            proc.getDefinition();//todo
         }
 
         /**
@@ -111,5 +112,5 @@ class PredefinedProc implements ISubroutine {
      * @return
      */
     @Override
-    public abstract HtFunctor[] getBody ();
+    public abstract ListTerm getBody ();
 }

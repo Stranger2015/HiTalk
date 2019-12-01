@@ -1,10 +1,10 @@
 package org.ltc.hitalk.entities;
 
-import com.thesett.aima.logic.fol.Functor;
 import org.ltc.hitalk.compiler.bktables.BkTable;
 import org.ltc.hitalk.compiler.bktables.BkTableKind;
 import org.ltc.hitalk.compiler.bktables.BookKeepingTables;
 import org.ltc.hitalk.compiler.bktables.db.Record;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -221,8 +221,7 @@ class HtEntity extends PropertyOwner {
     /**
      * @param kind
      */
-    protected
-    HtEntity ( Functor functor, HtEntityKind kind, HtProperty... props ) {
+    protected HtEntity ( IFunctor functor, HtEntityKind kind, HtProperty... props ) {
         super(props);
 
         this.identifier = new HtEntityIdentifier(functor, kind);
@@ -234,8 +233,7 @@ class HtEntity extends PropertyOwner {
     /**
      * @return
      */
-    public
-    Functor getName () {
+    public IFunctor getName () {
         return identifier;
     }
 

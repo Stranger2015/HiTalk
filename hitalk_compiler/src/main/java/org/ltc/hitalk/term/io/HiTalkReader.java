@@ -1,9 +1,10 @@
 package org.ltc.hitalk.term.io;
 
-import com.thesett.aima.logic.fol.Term;
 import org.jetbrains.annotations.NotNull;
 import org.ltc.hitalk.entities.IProperty;
 import org.ltc.hitalk.entities.IPropertyOwner;
+import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.io.HiTalkStream.Properties;
 
 import java.beans.PropertyChangeListener;
 import java.io.InputStream;
@@ -47,15 +48,12 @@ class HiTalkReader extends InputStreamReader implements IPropertyOwner {
 
     }
 
-    @Override
-    public
-    void fireEvent ( IProperty property, Term value ) {
+    public void fireEvent ( IProperty property, ITerm value ) {
 
     }
 
     @Override
-    public
-    Term getValue ( HiTalkStream.Properties property ) {
+    public ITerm getValue ( Properties property ) {
         return null;
     }
 
@@ -64,8 +62,7 @@ class HiTalkReader extends InputStreamReader implements IPropertyOwner {
      * @param value
      */
     @Override
-    public
-    void setValue ( HiTalkStream.Properties property, Term value ) {
+    public void setValue ( Properties property, ITerm value ) {
 
     }
 }

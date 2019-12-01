@@ -1,7 +1,7 @@
 package org.ltc.hitalk.entities;
 
-import com.thesett.aima.logic.fol.Term;
-import org.ltc.hitalk.term.io.HiTalkStream;
+import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.io.HiTalkStream.Properties;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -38,8 +38,7 @@ class PropertyOwner<T extends IProperty> implements IPropertyOwner {
     }
 
     @Override
-    public
-    void fireEvent ( IProperty property, Term newValue ) {
+    public void fireEvent ( IProperty property, ITerm newValue ) {
         for (PropertyChangeListener listener : listeners) {
             listener.propertyChange(
                     new PropertyChangeEvent(
@@ -52,8 +51,7 @@ class PropertyOwner<T extends IProperty> implements IPropertyOwner {
     }
 
     @Override
-    public
-    Term getValue ( HiTalkStream.Properties property ) {
+    public ITerm getValue ( Properties property ) {
         return null;
     }
 
@@ -62,8 +60,7 @@ class PropertyOwner<T extends IProperty> implements IPropertyOwner {
      * @param value
      */
     @Override
-    public
-    void setValue ( HiTalkStream.Properties property, Term value ) {
+    public void setValue ( Properties property, ITerm value ) {
 
     }
 

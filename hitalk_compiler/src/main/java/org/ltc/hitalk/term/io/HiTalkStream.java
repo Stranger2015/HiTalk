@@ -1,12 +1,12 @@
 package org.ltc.hitalk.term.io;
 
-import com.thesett.aima.logic.fol.Term;
 import org.jetbrains.annotations.NotNull;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.IProperty;
 import org.ltc.hitalk.entities.IPropertyOwner;
 import org.ltc.hitalk.entities.PropertyOwner;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
+import org.ltc.hitalk.term.ITerm;
 import sun.nio.cs.StreamDecoder;
 import sun.nio.cs.StreamEncoder;
 
@@ -279,7 +279,7 @@ class HiTalkStream implements IInputStream, IOutputStream, IPropertyOwner, Prope
      * @param newValue
      */
     @Override
-    public void fireEvent ( IProperty property, Term newValue ) {
+    public void fireEvent ( IProperty property, ITerm newValue ) {
         owner.fireEvent(property, newValue);
     }
 
@@ -287,7 +287,7 @@ class HiTalkStream implements IInputStream, IOutputStream, IPropertyOwner, Prope
      * @param property
      * @return
      */
-    public Term getValue ( Properties property ) {
+    public ITerm getValue ( Properties property ) {
         return owner.getValue(property);
     }
 
@@ -295,7 +295,7 @@ class HiTalkStream implements IInputStream, IOutputStream, IPropertyOwner, Prope
      * @param property
      * @param value
      */
-    public void setValue ( Properties property, Term value ) {
+    public void setValue ( Properties property, ITerm value ) {
         if (!value.equals(getValue(property))) {//todo redundant
             owner.setValue(property, value);
         }

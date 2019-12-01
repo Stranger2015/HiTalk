@@ -1,6 +1,5 @@
 package org.ltc.hitalk.entities;
 
-import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.search.Operator;
 import org.ltc.enumus.Hierarchy;
 import org.ltc.hitalk.compiler.IVafInterner;
@@ -160,9 +159,8 @@ class HtPredicateIndicator extends HtBaseTerm {
      *
      * @return This functors name.
      */
-    public
-    Functor getName () {
-        return (Functor) getArgument(0);
+    public IFunctor getName () {
+        return (IFunctor) getArgument(0);
     }
 
     /**

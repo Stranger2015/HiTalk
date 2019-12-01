@@ -18,11 +18,16 @@ public class PiCallsInterpreter extends HtBasePositionalVisitor
      * @param symbolTable The compiler symbol table.
      * @param interner    The name interner.
      */
-    public PiCallsInterpreter ( SymbolTable <Integer, String, Object> symbolTable, IVafInterner interner ) {
-        super(symbolTable, interner);
+    public PiCallsInterpreter ( SymbolTable <Integer, String, Object> symbolTable,
+                                IVafInterner interner,
+                                IPositionalTermTraverser traverser ) {
+        super(symbolTable, interner, traverser);
     }
 
-    public void setPositionalTraverser ( HtPositionalTermTraverser positionalTraverser ) {
-
+    /**
+     * @param positionalTraverser
+     */
+    public void setPositionalTraverser ( IPositionalTermTraverser positionalTraverser ) {
+        this.positionalTraverser = positionalTraverser;
     }
 }

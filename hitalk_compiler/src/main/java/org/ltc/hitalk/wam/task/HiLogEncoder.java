@@ -38,7 +38,7 @@ public class HiLogEncoder extends MetaInterpreterVisitor {
                           IPositionalTermTraverser traverser ) {
 
         super(symbolTable, interner, resolver, traverser);
-    }
+}
 
     /**
      * @param term

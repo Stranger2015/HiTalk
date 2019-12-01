@@ -25,6 +25,7 @@ import org.ltc.hitalk.term.CandidateOperator;
 import org.ltc.hitalk.term.HlOpSymbol;
 import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 import org.ltc.hitalk.term.HlOpSymbol.Fixity;
+import org.ltc.hitalk.term.ITerm;
 
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -330,12 +331,12 @@ public class PlDynamicOperatorParser implements IOperatorTable {
     /**
      * Holds the output stack onto which terms are placed pending their consumption by rule reductions.
      */
-    private final Queue <Term> outputStack = new StackQueue <Term>();
+    private final Queue <ITerm> outputStack = new StackQueue <>();
 
     /**
      * Holds the current next term on the input sequence.
      */
-    private Term nextTerm;
+    private ITerm nextTerm;
 
     /**
      * Holds the table of defined operators by name and fixity.
@@ -351,7 +352,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
      * @throws SourceCodeException If the list of terms does not form a valid syntactical construction under the current
      *                             set of defined operators.
      */
-    public Term parseOperators ( Term[] terms ) throws SourceCodeException {
+    public ITerm parseOperators ( ITerm[] terms ) throws SourceCodeException {
         // Initialize the parsers state.
         stack.offer(0);
         state = 0;
@@ -627,7 +628,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
             CandidateOperator lastCandidate = null;
             int pos = 0;
 
-            for (Term nextTerm : outputStack) {
+            for (ITerm nextTerm : outputStack) {
                 boolean isHlOperator = (nextTerm instanceof CandidateOperator);
 
                 if ((pos == 0) && !isHlOperator) {
@@ -786,7 +787,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
             }
 
             // Attempt to consume a term and an operator in prefix order from the output stack.
-            Term t = outputStack.poll();
+            ITerm t = outputStack.poll();
             CandidateOperator candidate = (CandidateOperator) outputStack.poll();
 
             HlOpSymbol op = checkAndResolveToFixity(candidate, Pre);
@@ -795,7 +796,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
             // argument for this symbol instance.
             op = op.copySymbol();
             op.setSourceCodePosition(candidate.getSourceCodePosition());
-            op.setArguments(new Term[]{t});
+            op.setArguments(new ITerm[]{t});
 
             // Place the fully parsed, promoted operator back onto the output stack.
             outputStack.offer(op);
@@ -827,7 +828,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
 
             // Attempt to consume an operator and a term in postfix order from the output stack.
             CandidateOperator candidate = (CandidateOperator) outputStack.poll();
-            Term t = outputStack.poll();
+            ITerm t = outputStack.poll();
 
             HlOpSymbol op = checkAndResolveToFixity(candidate, Post);
 
@@ -835,7 +836,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
             // argument for this symbol instance.
             op = op.copySymbol();
             op.setSourceCodePosition(candidate.getSourceCodePosition());
-            op.setArguments(new Term[]{t});
+            op.setArguments(new ITerm[]{t});
 
             outputStack.offer(op);
         }
@@ -863,9 +864,9 @@ public class PlDynamicOperatorParser implements IOperatorTable {
             IntStream.range(0, NUM_SYMBOLS_RHS).forEach(i -> stack.poll());
 
             // Attempt to consume a term, ann operator and a term in infix order from the output stack.
-            Term t1 = outputStack.poll();
+            ITerm t1 = outputStack.poll();
             CandidateOperator candidate = (CandidateOperator) outputStack.poll();
-            Term t2 = outputStack.poll();
+            ITerm t2 = outputStack.poll();
 
             HlOpSymbol op = checkAndResolveToFixity(candidate, In);
 
@@ -874,7 +875,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
             // Note that the order of the arguments is swapped here, because they come off the stack backwards.
             op = op.copySymbol();
             op.setSourceCodePosition(candidate.getSourceCodePosition());
-            op.setArguments(new Term[]{t2, t1});
+            op.setArguments(new ITerm[]{t2, t1});
 
             outputStack.offer(op);
         }

@@ -28,6 +28,7 @@ import com.thesett.common.util.SizeableList;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
 import org.ltc.hitalk.wam.machine.HiTalkWAMResolvingMachine;
 
@@ -98,7 +99,7 @@ public class HiTalkWAMCompiledQuery extends HtClause implements
      * recorded, since they only need to be tracked in order to display the results of queries.
      */
     public HiTalkWAMCompiledQuery () {
-        super(null, null, new IFunctor[0]);
+        super(null, new ListTerm(0));///TODO
     }
 
     /**
@@ -108,18 +109,18 @@ public class HiTalkWAMCompiledQuery extends HtClause implements
      * @param freeVarNames The set of variables in the clause that are free.
      */
     public HiTalkWAMCompiledQuery ( Map <Byte, Integer> varNames, Set <Integer> freeVarNames ) {
-        super(null, null, new IFunctor[0]);
+        super(null, new ListTerm(0));
         this.varNames = varNames;
         this.nonAnonymousFreeVariables = freeVarNames;
     }
 
-    public HiTalkWAMCompiledQuery ( HtEntityIdentifier identifier, IFunctor head, IFunctor[] body ) {
-        super(identifier, head, body);
+    public HiTalkWAMCompiledQuery ( HtEntityIdentifier identifier, ListTerm body ) {
+        super(identifier, body);
     }
 
-    public HiTalkWAMCompiledQuery ( HtEntityIdentifier identifier, IFunctor head ) {
-        super(identifier, head);
-    }
+//    public HiTalkWAMCompiledQuery ( HtEntityIdentifier identifier, IFunctor head ) {
+//        this(identifier, head, );
+//    }
 
 //    public HiTalkWAMCompiledQuery ( IFunctor head, IFunctor[] body, HtEntityIdentifier identifier ) {
 //        super(identifier, head, body);
@@ -143,18 +144,16 @@ public class HiTalkWAMCompiledQuery extends HtClause implements
      * @param body         A conjunctive body functor to add to this clause.
      * @param instructions A list of instructions to add to the body.
      */
-    public void addInstructions ( IFunctor body, SizeableList <HiTalkWAMInstruction> instructions ) {
+    public void addInstructions ( ListTerm body, SizeableList <HiTalkWAMInstruction> instructions ) {
         int oldLength;
 
         if (this.body == null) {
             oldLength = 0;
-            this.body = new IFunctor[1];
+            this.body = new ListTerm(1);
         } else {
-            oldLength = this.body.length;
-            this.body = Arrays.copyOf(this.body, oldLength + 1);
+            oldLength = this.body.size();
+            this.body = new ListTerm(oldLength + 1);
         }
-
-        this.body[oldLength] = body;
 
         addInstructions(instructions);
     }

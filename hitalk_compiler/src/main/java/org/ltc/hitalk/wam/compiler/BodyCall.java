@@ -11,10 +11,29 @@ import java.util.List;
  *
  */
 public class BodyCall<C extends BodyCall.BodyCalls <C>> extends PiCalls <C> {
-    public BodyCall ( ITerm msg, List <HtClause> selectedClauses, List <ListTerm> sameSelect ) {
-//        this(msg, selectedClauses, sameSelect);
-//        super(msg, selectedClauses, sameSelect);
+    public BodyCall () {
     }
+
+    /**
+     * @param name
+     * @param arityMin
+     * @param arityDelta
+     */
+    public BodyCall ( int name, int arityMin, int arityDelta ) {
+        super(name, arityMin, arityDelta);
+    }
+
+    /**
+     * @param name
+     * @param args
+     */
+    public BodyCall ( int name, ListTerm args ) {
+        super(name, args);
+    }
+//    public BodyCall ( ITerm msg, List <HtClause> selectedClauses, List <ListTerm> sameSelect ) {
+////        this(msg, selectedClauses, sameSelect);
+////        super(msg, selectedClauses, sameSelect);
+//    }
 
     /**
      *
@@ -43,7 +62,7 @@ public class BodyCall<C extends BodyCall.BodyCalls <C>> extends PiCalls <C> {
         }
 
         public BodyCalls ( ITerm msg, List <HtClause> selectedClauses, List <ListTerm> sameSelect ) {
-            super(msg, selectedClauses, sameSelect);
+//            super(msg, selectedClauses, sameSelect);
         }
     }
 
@@ -70,7 +89,7 @@ public class BodyCall<C extends BodyCall.BodyCalls <C>> extends PiCalls <C> {
      * @param listTerm
      */
     public BodyCall ( IFunctor sym, List <BodyCall <C>> listTerm ) {
-        super(sym, listTerm);
+        super(sym.getName(), listTerm);
     }
 
     /**

@@ -15,7 +15,9 @@
  */
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.FunctorName;
+import com.thesett.aima.logic.fol.LogicCompilerObserver;
+import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys;
 import com.thesett.aima.logic.fol.wam.compiler.WAMLabel;
 import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
@@ -36,10 +38,7 @@ import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkInstructionCompiler;
 import org.ltc.hitalk.wam.compiler.hitalk.HtTermWalker;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
-import org.ltc.hitalk.wam.printer.HtWAMCompiledQueryPrintingVisitor;
-import org.ltc.hitalk.wam.printer.IAllTermsVisitor;
-import org.ltc.hitalk.wam.printer.IPositionalTermTraverser;
-import org.ltc.hitalk.wam.printer.IPositionalTermVisitor;
+import org.ltc.hitalk.wam.printer.*;
 import org.ltc.hitalk.wam.task.CompilerTask;
 
 import java.util.*;
@@ -208,21 +207,21 @@ public abstract class BaseInstructionCompiler
         FunctorName fn = new FunctorName("tq", 0);
 
         for (int i = 0; i < expressions.size(); i++) {
-            IFunctor expression = (IFunctor) expressions.get(i);
+            ListTerm goal = (ListTerm) expressions.get(i);
             boolean isFirstBody = i == 0;
 
             // Select a non-default built-in implementation to compile the functor with, if it is a built-in.
-            PrologBuiltIn builtIn = expression instanceof PrologBuiltIn ? (PrologBuiltIn) expression : defaultBuiltIn;
+            PrologBuiltIn builtIn = goal instanceof PrologBuiltIn ? (PrologBuiltIn) goal : defaultBuiltIn;
 
             // The 'isFirstBody' parameter is only set to true, when this is the first functor of a rule, which it
             // never is for a query.
-            SizeableLinkedList <HiTalkWAMInstruction> instructions = builtIn.compileBodyArguments(expression, false, fn, i);
-            result.addInstructions(expression, instructions);
+            SizeableLinkedList <HiTalkWAMInstruction> instructions = builtIn.compileBodyArguments(goal, false, fn, i);
+            result.addInstructions(goal, instructions);
 
             // Queries are never chain rules, and as all permanent variables are preserved, bodies are never called
             // as last calls.
-            instructions = builtIn.compileBodyCall(expression, isFirstBody, false, false, numPermanentVars);
-            result.addInstructions(expression, instructions);
+            instructions = builtIn.compileBodyCall(goal, isFirstBody, false, false, numPermanentVars);
+            result.addInstructions(goal, instructions);
         }
 
         // Generate the postfix code for the clause.
@@ -252,7 +251,8 @@ public abstract class BaseInstructionCompiler
                 new HtPositionAndOccurrenceVisitor(symbolTable, interner, positionalTraverser);
         positionalTraverser.setContextChangeVisitor(positionAndOccurrenceVisitor);
 
-        HtTermWalker walker = new HtTermWalker(new DepthFirstBacktrackingSearch <>(), positionalTraverser, positionAndOccurrenceVisitor);
+        HtTermWalker walker = new HtTermWalker(new DepthFirstBacktrackingSearch <>(), positionalTraverser,
+                positionAndOccurrenceVisitor);
 
         walker.walk(clause);
     }
@@ -323,7 +323,7 @@ public abstract class BaseInstructionCompiler
                                    boolean multipleClauses,
                                    int clauseNumber ) {
         // Used to build up the compiled clause in.
-        HiTalkWAMCompiledClause result = new HiTalkWAMCompiledClause(compiledPredicate);
+        HiTalkWAMCompiledClause result = new HiTalkWAMCompiledClause(clause.getHead(), clause.getBody(), compiledPredicate);
 
         // Check if the clause to compile is a fact (no body).
         boolean isFact = clause.getBody() == null;
@@ -407,39 +407,39 @@ public abstract class BaseInstructionCompiler
         result.addInstructions(preFixInstructions);
 
         // Compile the clause head.
-        IFunctor expression = clause.getHead();
+        IFunctor goal = clause.getHead();
 
-        SizeableLinkedList <HiTalkWAMInstruction> instructions = compileHead(expression);
-        result.addInstructions(expression, instructions);
+        SizeableLinkedList <HiTalkWAMInstruction> instructions = compileHead(goal);
+        result.addInstructions(goal, instructions);
 
         // Compile all of the conjunctive parts of the body of the clause, if there are any.
         if (!isFact) {
-            IFunctor[] expressions = clause.getBody();
+            ListTerm expressions = clause.getBody();
 
-            for (int i = 0; i < expressions.length; i++) {
-                expression = expressions[i];
+            for (int i = 0; i < expressions.size(); i++) {
+                goal = (IFunctor) expressions.get(i);
 
-                boolean isLastBody = i == (expressions.length - 1);
+                boolean isLastBody = i == (expressions.size() - 1);
                 boolean isFirstBody = i == 0;
 
-                Integer permVarsRemaining = (Integer) symbolTable.get(expression.getSymbolKey(), SYMKEY_PERM_VARS_REMAINING);
+                Integer permVarsRemaining = (Integer) symbolTable.get(goal.getSymbolKey(), SYMKEY_PERM_VARS_REMAINING);
 
                 // Select a non-default built-in implementation to compile the functor with, if it is a built-in.
                 PrologBuiltIn builtIn;
 
-                if (expression instanceof PrologBuiltIn) {
-                    builtIn = (PrologBuiltIn) expression;
+                if (goal instanceof PrologBuiltIn) {
+                    builtIn = (PrologBuiltIn) goal;
                 } else {
                     builtIn = defaultBuiltIn;
                 }
 
                 // The 'isFirstBody' parameter is only set to true, when this is the first functor of a rule.
-                instructions = builtIn.compileBodyArguments(expression, i == 0, fn, i);
-                result.addInstructions(expression, instructions);
+                instructions = builtIn.compileBodyArguments(goal, i == 0, fn, i);
+                result.addInstructions(goal, instructions);
 
                 // Call the body. The number of permanent variables remaining is specified for environment trimming.
-                instructions = builtIn.compileBodyCall(expression, isFirstBody, isLastBody, isChainRule, permVarsRemaining);
-                result.addInstructions(expression, instructions);
+                instructions = builtIn.compileBodyCall(goal, isFirstBody, isLastBody, isChainRule, permVarsRemaining);
+                result.addInstructions(goal, instructions);
             }
         }
 
@@ -472,22 +472,22 @@ public abstract class BaseInstructionCompiler
      */
     private void allocatePermanentProgramRegisters ( HtClause clause ) {
         // A bag to hold variable occurrence counts in.
-        Map <Variable, Integer> variableCountBag = new HashMap <>();
+        Map <HtVariable, Integer> variableCountBag = new HashMap <>();
 
         // A mapping from variables to the body number in which they appear last.
-        Map <Variable, Integer> lastBodyMap = new HashMap <>();
+        Map <HtVariable, Integer> lastBodyMap = new HashMap <>();
 
         // Holds the variable that are in the head and first clause body argument.
-        Collection <Variable> firstGroupVariables = new HashSet <>();
+        Collection <HtVariable> firstGroupVariables = new HashSet <>();
 
         // Get the occurrence counts of variables in all clauses after the initial head and first body grouping.
         // In the same pass, pick out which body variables last occur in.
         if ((clause.getBody() != null)) {
-            for (int i = clause.getBody().length - 1; i >= 1; i--) {
-                Set <Variable> groupVariables = TermUtils.findFreeVariables(clause.getBody()[i]);
+            for (int i = clause.getBody().size() - 1; i >= 1; i--) {
+                Set <HtVariable> groupVariables = TermUtilities.findFreeVariables(clause.getBody().get(i));
 
                 // Add all their counts to the bag and update their last occurrence positions.
-                for (Variable variable : groupVariables) {
+                for (HtVariable variable : groupVariables) {
                     Integer count = variableCountBag.get(variable);
                     variableCountBag.put(variable, (count == null) ? 1 : (count + 1));
 
@@ -507,17 +507,17 @@ public abstract class BaseInstructionCompiler
 
         // Get the set of variables in the head and first clause body argument.
         if (clause.getHead() != null) {
-            Set <Variable> headVariables = TermUtils.findFreeVariables(clause.getHead());
+            Set <HtVariable> headVariables = TermUtilities.findFreeVariables(clause.getHead());
             firstGroupVariables.addAll(headVariables);
         }
 
-        if ((clause.getBody() != null) && (clause.getBody().length > 0)) {
-            Set <Variable> firstArgVariables = TermUtils.findFreeVariables(clause.getBody()[0]);
+        if ((clause.getBody() != null) && (clause.getBody().size() > 0)) {
+            Set <HtVariable> firstArgVariables = TermUtilities.findFreeVariables(clause.getBody().get(0));
             firstGroupVariables.addAll(firstArgVariables);
         }
 
         // Add their counts to the bag, and set their last positions of occurrence as required.
-        for (Variable variable : firstGroupVariables) {
+        for (HtVariable variable : firstGroupVariables) {
             Integer count = variableCountBag.get(variable);
             variableCountBag.put(variable, (count == null) ? 1 : (count + 1));
 
@@ -527,22 +527,22 @@ public abstract class BaseInstructionCompiler
         }
 
         // Sort the variables by reverse position of last occurrence.
-        List <Map.Entry <Variable, Integer>> lastBodyList = new ArrayList <>(lastBodyMap.entrySet());
+        List <Map.Entry <HtVariable, Integer>> lastBodyList = new ArrayList <>(lastBodyMap.entrySet());
         lastBodyList.sort(( o1, o2 ) -> o2.getValue().compareTo(o1.getValue()));
 
         // Holds counts of permanent variable last appearances against the body in which they last occur.
-        int[] permVarsRemainingCount = new int[(clause.getBody() != null) ? clause.getBody().length : 0];
+        int[] permVarsRemainingCount = new int[(clause.getBody() != null) ? clause.getBody().size() : 0];
 
         // Search the count bag for all variable occurrences greater than one, and assign them to stack slots.
         // The variables are examined by reverse position of last occurrence, to ensure that later variables
         // are assigned to lower permanent allocation slots for environment trimming purposes.
-        for (Map.Entry <Variable, Integer> entry : lastBodyList) {
-            Variable variable = entry.getKey();
+        for (Map.Entry <HtVariable, Integer> entry : lastBodyList) {
+            HtVariable variable = entry.getKey();
             Integer count = variableCountBag.get(variable);
             int body = entry.getValue();
 
             if ((count != null) && (count > 1)) {
-                /*log.fine("Variable " + variable + " is permanent, count = " + count);*/
+                /*log.fine("HtVariable " + variable + " is permanent, count = " + count);*/
 
                 int allocation = (numPermanentVars++ & (0xff)) | (STACK_ADDR << 8);
                 symbolTable.put(variable.getSymbolKey(), SYMKEY_ALLOCATION, allocation);
@@ -564,12 +564,12 @@ public abstract class BaseInstructionCompiler
         int permVarsRemaining = 0;
 
         for (int i = permVarsRemainingCount.length - 1; i >= 0; i--) {
-            symbolTable.put(clause.getBody()[i].getSymbolKey(), SYMKEY_PERM_VARS_REMAINING, permVarsRemaining);
+            symbolTable.put(clause.getBody().get(i).getSymbolKey(), SYMKEY_PERM_VARS_REMAINING, permVarsRemaining);
             permVarsRemaining += permVarsRemainingCount[i];
         }
     }
 
-    private boolean isCutLevelVariable ( Variable variable ) {
+    private boolean isCutLevelVariable ( HtVariable variable ) {
 
         return false;
     }
@@ -626,7 +626,7 @@ public abstract class BaseInstructionCompiler
     private void displayCompiledPredicate ( ITerm predicate ) {
         // Pretty print the clause.
         StringBuilder result = new StringBuilder();
-        IPositionalTermVisitor displayVisitor = new IWAMCompiledPredicatePrintingVisitor(symbolTable, interner, result);
+        IPositionalTermVisitor displayVisitor = new HtWAMCompiledPredicatePrintingVisitor(symbolTable, interner, result);
 
         HtTermWalkers.positionalWalker(displayVisitor).walk(predicate);
 
@@ -644,17 +644,17 @@ public abstract class BaseInstructionCompiler
     private int findMaxArgumentsInClause ( HtClause clause ) {
         int result = 0;
 
-        Functor head = clause.getHead();
+        IFunctor head = clause.getHead();
 
         if (head != null) {
             result = head.getArity();
         }
 
-        Functor[] body = clause.getBody();
+        ListTerm body = clause.getBody();
 
         if (body != null) {
-            for (Functor functor : body) {
-                int arity = functor.getArity();
+            for (ITerm functor : body.getArguments()) {
+                int arity = ((IFunctor) functor).getArity();
                 result = Math.max(arity, result);
             }
         }
@@ -665,23 +665,23 @@ public abstract class BaseInstructionCompiler
     /**
      * Compiles the head of a clause into an instruction listing in WAM.
      *
-     * @param expression The clause head to compile.
+     * @param goal The clause head to compile.
      * @return A listing of the instructions for the clause head in the WAM instruction set.
      */
-    private SizeableLinkedList <HiTalkWAMInstruction> compileHead ( IFunctor expression ) {
+    private SizeableLinkedList <HiTalkWAMInstruction> compileHead ( IFunctor goal ) {
         // Used to build up the results in.
         SizeableLinkedList <HiTalkWAMInstruction> instructions = new SizeableLinkedList <>();
 
         // Allocate argument registers on the body, to all functors as outermost arguments.
         // Allocate temporary registers on the body, to all terms not already allocated.
-        defaultBuiltIn.allocateArgumentRegisters(expression);
-        defaultBuiltIn.allocateTemporaryRegisters(expression);
+        defaultBuiltIn.allocateArgumentRegisters(goal);
+        defaultBuiltIn.allocateTemporaryRegisters(goal);
 
         // Program instructions are generated in the same order as the registers are assigned, the postfix
         // ordering used for queries is not needed.
         BreadthFirstSearch <ITerm, ITerm> outInSearch = new BreadthFirstSearch <>();
         outInSearch.reset();
-        outInSearch.addStartState(expression);
+        outInSearch.addStartState(goal);
 
         Iterator <ITerm> treeWalker = allSolutions(outInSearch);
 
@@ -693,7 +693,7 @@ public abstract class BaseInstructionCompiler
 
         // Keep track of processing of the arguments to the outermost functor as get_val and get_var instructions
         // need to be output for variables encountered in the arguments only.
-        int numOutermostArgs = expression.getArity();
+        int numOutermostArgs = goal.getArity();
 
         for (int j = 0; treeWalker.hasNext(); j++) {
             ITerm nextTerm = treeWalker.next();
@@ -702,7 +702,7 @@ public abstract class BaseInstructionCompiler
 
             // For each functor encountered: get_struc.
             if (nextTerm.isFunctor()) {
-                Functor nextFunctor = (Functor) nextTerm;
+                IFunctor nextFunctor = (IFunctor) nextTerm;
                 int allocation = (Integer) symbolTable.get(nextFunctor.getSymbolKey(), SYMKEY_ALLOCATION);
 
                 byte addrMode = (byte) ((allocation & 0xff00) >> 8);
@@ -796,18 +796,18 @@ public abstract class BaseInstructionCompiler
      * arguments, mainly so that these coordinates can be used to help make any labels generated within the generated
      * code unique.
      *
-     * @param expression  The clause body to compile.
+     * @param goal        The clause body to compile.
      * @param isFirstBody <tt>true</tt> iff this is the first body of a program clause.
      * @param clauseName  The name of the clause within which this body appears.
      * @param bodyNumber  The body position within the containing clause.
      * @return A listing of the instructions for the clause body in the WAM instruction set.
      */
     public SizeableLinkedList <HiTalkWAMInstruction> compileBodyArguments (
-            Functor expression,
+            IFunctor goal,
             boolean isFirstBody,
             FunctorName clauseName,
             int bodyNumber ) {
-        return defaultBuiltIn.compileBodyArguments(expression, isFirstBody, clauseName, bodyNumber);
+        return defaultBuiltIn.compileBodyArguments(goal, isFirstBody, clauseName, bodyNumber);
     }
 
     /**

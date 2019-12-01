@@ -1,8 +1,9 @@
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.FunctorName;
-import com.thesett.aima.logic.fol.Term;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
+import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.IntTerm;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 
@@ -70,8 +71,7 @@ class HtFunctorName extends FunctorName implements IRangedArity {
      * @return
      */
     @Override
-    public
-    Term getArityTerm () {
+    public ITerm getArityTerm () {
         new HtFunctorName(getName(), getArityMin(), getArityDelta());
         int i = getArityInt();
         return hash(i);
@@ -81,9 +81,8 @@ class HtFunctorName extends FunctorName implements IRangedArity {
      * @param i
      * @return
      */
-    private
-    Term hash ( int i ) {
-        return null;
+    private ITerm hash ( int i ) {
+        return new IntTerm(i);
     }
 
 

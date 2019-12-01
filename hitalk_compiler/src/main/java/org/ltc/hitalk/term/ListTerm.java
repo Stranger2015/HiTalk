@@ -50,6 +50,13 @@ public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
         this.arguments = arguments;
     }
 
+    /**
+     *
+     */
+    public ListTerm () {
+        this(0);
+    }
+
 //    //todo name
 //    public ListTerm ( Kind kind, ITerm[] heads ) {
 ////        this(kind, heads);

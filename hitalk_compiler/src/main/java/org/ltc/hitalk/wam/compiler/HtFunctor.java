@@ -55,6 +55,33 @@ public class HtFunctor extends ListTerm implements IFunctor {
         setArityRange(args.length, arityDelta);
     }
 
+    public HtFunctor () {
+    }
+
+    /**
+     * @param list
+     * @param name
+     * @param heads
+     */
+    public HtFunctor ( Kind list, int name, ITerm[] heads ) {
+        super(list, name, heads);
+    }
+
+    /**
+     * @param length
+     */
+    public HtFunctor ( int length ) {
+        super(length);
+    }
+
+    /**
+     * @param kind
+     * @param arguments
+     */
+    public HtFunctor ( Kind kind, ITerm... arguments ) {
+        super(kind, arguments);
+    }
+
     @Override
     public ITerm[] getArguments () {
         return args.getHeads();

@@ -19,6 +19,23 @@ public class PiCalls<C extends BodyCall.BodyCalls <C>> extends HtFunctor {
     }
 
     /**
+     * @param name
+     * @param args
+     */
+    public PiCalls ( int name, ITerm[] args ) {
+        super(name, args);
+    }
+
+    /**
+     * @param name
+     * @param args
+     * @param arityDelta
+     */
+    public PiCalls ( int name, ITerm[] args, int arityDelta ) {
+        super(name, args, arityDelta);
+    }
+
+    /**
      * @param <C>
      */
     public static class XPiCalls<C extends BodyCall.BodyCalls <C>> extends PiCalls <C> {
@@ -28,7 +45,7 @@ public class PiCalls<C extends BodyCall.BodyCalls <C>> extends HtFunctor {
          * @param calls
          */
         public XPiCalls ( IFunctor sym, List <BodyCall.BodyCalls <C>> calls ) {
-            super(sym, calls);
+            super(sym.getName(), 0, 0);
         }
     }
 
@@ -40,16 +57,6 @@ public class PiCalls<C extends BodyCall.BodyCalls <C>> extends HtFunctor {
     }
 
     protected List <BodyCall.BodyCalls <C>> calls;
-
-    /**
-     * @param sym
-     * @param calls
-     */
-    public PiCalls ( IFunctor sym, List <BodyCall.BodyCalls <C>> calls ) {
-        ITerm[] t = getArguments();
-        t[0] = sym;
-        setCalls(calls);
-    }
 
     /**
      * @param name
@@ -65,7 +72,7 @@ public class PiCalls<C extends BodyCall.BodyCalls <C>> extends HtFunctor {
      * @param args
      */
     public PiCalls ( int name, ListTerm args ) {
-        this(name, args, 0);
+        this(name, args.getArity(), 0);//fixme
     }
 
     /**
@@ -73,9 +80,9 @@ public class PiCalls<C extends BodyCall.BodyCalls <C>> extends HtFunctor {
      * @param args
      * @param arityDelta
      */
-    public PiCalls ( int name, ListTerm args, int arityDelta ) {
-//        this(name, args, arityDelta);
-    }
+//    public PiCalls ( int name, ListTerm args, int arityDelta ) {
+////        this(name, args, arityDelta);
+//    }
 
     /**
      * @return

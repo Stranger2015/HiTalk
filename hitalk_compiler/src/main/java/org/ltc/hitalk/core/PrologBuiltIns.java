@@ -133,7 +133,7 @@ enum PrologBuiltIns {
         final IResolver <HtPredicate, HtClause> resolver = Environment.instance().getResolver();
         final IVafInterner interner = Environment.instance().getInterner();
         final HtFunctor eqf = new HtFunctor(interner.internFunctorName("=", 2), EMPTY_TERM_ARRAY);// fixme
-        final HtClause query = new HtClause <>(null, new ListTerm(LIST, eqf));
+        final HtClause query = new HtClause(null, new ListTerm(LIST, eqf));
         eqf.setArgument(0, listTerm.get(0));
         eqf.setArgument(1, listTerm.get(1));
 

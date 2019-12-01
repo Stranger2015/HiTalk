@@ -10,7 +10,7 @@ import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
  * @param <P>
  * @param <Q>
  */
-public class HiTalkInterpreter<T extends HtMethod <IFunctor>, P, Q> extends PrologInterpreter <T, P, Q> {
+public class HiTalkInterpreter<T extends HtMethod, P, Q> extends PrologInterpreter <T, P, Q> {
     /**
      * @param parser
      * @param compiler
