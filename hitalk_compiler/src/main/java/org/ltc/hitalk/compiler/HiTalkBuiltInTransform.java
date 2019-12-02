@@ -18,7 +18,6 @@
  import com.thesett.aima.logic.fol.FunctorName;
  import com.thesett.aima.logic.fol.Term;
  import com.thesett.aima.logic.fol.wam.builtins.BuiltInFunctor;
- import org.ltc.hitalk.compiler.bktables.IApplication;
  import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
  import org.ltc.hitalk.core.IResolver;
  import org.ltc.hitalk.entities.*;
@@ -29,6 +28,7 @@
  import org.ltc.hitalk.term.io.HiTalkStream;
  import org.ltc.hitalk.wam.compiler.DirectiveClause;
  import org.ltc.hitalk.wam.compiler.HtFunctor;
+ import org.ltc.hitalk.wam.compiler.HtMethod;
  import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
  import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
 
@@ -54,7 +54,7 @@
   * @author Rupert Smith
   */
  public
- class HiTalkBuiltInTransform<A extends IApplication, T extends HtClause> extends PrologBuiltInTransform <A, T> {
+ class HiTalkBuiltInTransform<T extends HtMethod, P, Q> extends PrologBuiltInTransform <T, P, Q> {
 
 //     public static final Pair EXTENDS_OBJECT = Pair.of(EXTENDS, OBJECT);
 //     public static final Pair EXTENDS_CATEGORY = Pair.of(EXTENDS, CATEGORY);
@@ -101,8 +101,8 @@
       * @param resolver
       */
      public HiTalkBuiltInTransform ( PrologDefaultBuiltIn defaultBuiltIn,
-                                     PrologPreCompiler preCompiler,
-                                     IResolver <HtPredicate, HtClause> resolver ) {
+                                     PrologPreCompiler <T, P, Q> preCompiler,
+                                     IResolver <P, Q> resolver ) {
          super(defaultBuiltIn, defaultBuiltIn.getInterner(), preCompiler, resolver);
 
          defineBuiltIns();
@@ -1025,7 +1025,7 @@
          return protocolCounter;
      }
 
-     public IResolver <HtPredicate, HtClause> getResolver () {
+     public IResolver <P, Q> getResolver () {
          return resolver;
      }
 

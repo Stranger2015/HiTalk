@@ -14,5 +14,4 @@ public interface IIntegerVisitor extends ITermVisitor {
 
     }
 
-//    void visit ( IntTerm term1, IntTerm term2 );
 }

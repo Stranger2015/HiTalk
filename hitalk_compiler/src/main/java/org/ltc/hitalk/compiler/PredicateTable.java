@@ -2,10 +2,10 @@ package org.ltc.hitalk.compiler;
 
 import org.jetbrains.annotations.NotNull;
 import org.ltc.hitalk.entities.HtPredicate;
-import org.ltc.hitalk.entities.HtPredicateDefinition;
-import org.ltc.hitalk.entities.ISubroutine;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.wam.compiler.BodyCall;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
+import org.ltc.hitalk.wam.compiler.PiCalls;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -15,8 +15,7 @@ import java.util.List;
  *
  */
 public
-class PredicateTable<P extends HtPredicateDefinition <ISubroutine, HtPredicate, HtClause>>
-        extends HashMap <Integer, P> implements Iterable <P> {
+class PredicateTable<P extends HtPredicate> extends HashMap <Integer, P> implements Iterable <P> {
 
     /**
      *
@@ -50,6 +49,10 @@ class PredicateTable<P extends HtPredicateDefinition <ISubroutine, HtPredicate, 
     }
 
     public HtClause lookup ( HtFunctor goal, HtClause clause ) {
+        return null;
+    }
+
+    public <C extends BodyCall.BodyCalls <C>> P lookup ( PiCalls <C> piCall ) {
         return null;
     }
 }

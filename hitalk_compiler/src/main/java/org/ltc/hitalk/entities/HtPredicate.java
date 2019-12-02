@@ -15,10 +15,7 @@ import org.ltc.hitalk.term.io.HiTalkStream.Properties;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -188,6 +185,10 @@ class HtPredicate extends HtBaseTerm implements ITerm, IPropertyOwner {
 
     //    private final static int PROPS_LENGTH = 29;
     private HtProperty[] props;
+
+    public HtPredicate ( HtClause clause ) {
+        this(Collections.singletonList(clause));
+    }
 
     /**
      * Creates a predicate formed from a set of clauses.

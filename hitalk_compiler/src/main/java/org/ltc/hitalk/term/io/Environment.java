@@ -12,8 +12,6 @@ import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtPredicate;
-import org.ltc.hitalk.entities.HtPredicateDefinition;
-import org.ltc.hitalk.entities.ISubroutine;
 import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.parser.HiLogParser;
 import org.ltc.hitalk.parser.HtClause;
@@ -52,7 +50,7 @@ class Environment {
     private PlPrologParser parser;
     private IOperatorTable optable;
     private ICompiler <HtClause, HtPredicate, HtClause> compiler;
-    private PredicateTable <? extends org.ltc.hitalk.entities.HtPredicateDefinition <org.ltc.hitalk.entities.ISubroutine, HtPredicate, HtClause>> predicateTable;
+    private PredicateTable <HtPredicate> predicateTable;
     private SymbolTable <Integer, String, Object> symbolTable;
     private IResolver <HtPredicate, HtClause> resolver;
 
@@ -194,11 +192,11 @@ class Environment {
         this.compiler = compiler;
     }
 
-    public PredicateTable <? extends HtPredicateDefinition <ISubroutine, HtPredicate, HtClause>> getPredicateTable () {
+    public PredicateTable <HtPredicate> getPredicateTable () {
         return predicateTable;
     }
 
-    public void setPredicateTable ( PredicateTable <? extends HtPredicateDefinition <ISubroutine, HtPredicate, HtClause>> predicateTable ) {
+    public void setPredicateTable ( PredicateTable <HtPredicate> predicateTable ) {
         this.predicateTable = predicateTable;
     }
 

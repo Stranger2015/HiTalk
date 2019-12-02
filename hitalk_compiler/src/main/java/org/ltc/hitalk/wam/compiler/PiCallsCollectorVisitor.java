@@ -6,8 +6,6 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtPredicate;
-import org.ltc.hitalk.entities.HtPredicateDefinition;
-import org.ltc.hitalk.entities.ISubroutine;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.IntTerm;
@@ -42,16 +40,15 @@ public class PiCallsCollectorVisitor extends MetaInterpreterVisitor {
     }
 
     /**
-     * @param predicate The predicate being entered.
+     *
      */
     @Override
-    protected void enterPredicate ( HtPredicate predicate ) {
-        HtPredicateDefinition <ISubroutine, HtPredicate, HtClause> def = predicate.getDefinition();
+    protected void enterPredicate ( HtPredicate def ) {
         final List <HtClause> clauses;
         int bound = def.size();
-        clauses = IntStream.range(0, bound).mapToObj(i -> (HtClause) def.get(i))
+        clauses = IntStream.range(0, bound).mapToObj(i -> def.get(i))
                 .filter(clause -> def.isBuiltIn()).collect(Collectors.toList());
-        Map <IFunctor, List <PiCalls>> hb = new HashMap <>();
+        Map <IFunctor, List <PiCalls <?>>> hb = new HashMap <>();
         for (HtClause clause : clauses) {
             ListTerm body = clause.getBodyAsListTerm();
             chb(body, hb);
@@ -79,7 +76,7 @@ public class PiCallsCollectorVisitor extends MetaInterpreterVisitor {
         return null;
     }
 
-    private void chb ( ListTerm body, Map <IFunctor, List <PiCalls>> hb ) {
+    private void chb ( ListTerm body, Map <IFunctor, List <PiCalls <?>>> hb ) {
         for (int i = 0, bodyLength = body.size(); i < bodyLength; i++) {
             final ListTerm goal = (ListTerm) body.get(i);
             switch (goal.getKind()) {

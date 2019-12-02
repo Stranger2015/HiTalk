@@ -80,10 +80,10 @@ class DefaultTransformer<T extends ITerm> implements ITransformer <T> {
             executionInfo = null;// todo????
         }
         if (!isAcceptable(context.getMaxMetrics())) {
-            result = new TransformInfo <>(context, executionInfo, null, targetOut); //todo
+            result = new TransformInfo(context, executionInfo, delta, term, targetOut); //todo
             cancel();
         } else {
-            result = new TransformInfo <>(contextBefore, executionInfo, delta, targetOut);//todo
+            result = new TransformInfo(contextBefore, executionInfo, delta, term, targetOut);//todo
         }
 
         return targetOut;//todo
@@ -101,8 +101,21 @@ class DefaultTransformer<T extends ITerm> implements ITransformer <T> {
 //        this.context = context;
 //    }
 
-    public
-    boolean isAcceptable ( IMetrics max ) {
+    /**
+     * @return
+     */
+    public ExecutionContext getContext () {
+        return null;
+    }
+
+    /**
+     * @param context
+     */
+    public void setContext ( ExecutionContext context ) {
+
+    }
+
+    public boolean isAcceptable ( IMetrics max ) {
         return false;
     }
 

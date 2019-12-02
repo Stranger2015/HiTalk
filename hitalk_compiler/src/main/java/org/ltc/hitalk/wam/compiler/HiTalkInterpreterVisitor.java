@@ -45,7 +45,7 @@ import static org.ltc.hitalk.interpreter.IInterpreter.SEMICOLON;
 public class HiTalkInterpreterVisitor<T extends HtMethod, P, Q> extends PrologInterpreterVisitor <T, P, Q>
         implements IAllTermsVisitor {
 
-    protected final HiTalkInterpreter <T, P, Q> engine;
+
     protected int currentPredicateName;
 
     /**
@@ -58,10 +58,10 @@ public class HiTalkInterpreterVisitor<T extends HtMethod, P, Q> extends PrologIn
     public HiTalkInterpreterVisitor ( SymbolTable <Integer, String, Object> symbolTable,
                                       IVafInterner interner,
                                       IResolver <P, Q> resolver,
-                                      IPositionalTermTraverser positionalTraverser
-    ) {
-        super(symbolTable, interner, resolver, positionalTraverser);
-        engine = new HiTalkInterpreter <T, P, Q>();
+                                      IPositionalTermTraverser positionalTraverser,
+                                      HiTalkInterpreter <T, P, Q> engine
+    ) throws IOException {
+        super(symbolTable, interner, resolver, positionalTraverser, engine);
     }
 
     /**

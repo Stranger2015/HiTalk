@@ -28,7 +28,8 @@ class TransformInfo<T extends ITerm> extends Triple <ExecutionContext, Execution
     public TransformInfo ( ExecutionContext context,
                            ExecutionInfo executionInfo,
                            IMetrics delta,
-                           T target ) {
+                           T target,
+                           List <T> targetOut ) {
 
         this.context = context;
         info = executionInfo;

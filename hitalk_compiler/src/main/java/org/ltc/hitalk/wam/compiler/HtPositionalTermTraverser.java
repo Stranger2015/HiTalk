@@ -19,7 +19,6 @@ import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.search.Operator;
 import com.thesett.common.util.StackQueue;
 import org.ltc.hitalk.entities.HtPredicate;
-import org.ltc.hitalk.entities.HtPredicateDefinition;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ITermVisitor;
@@ -249,11 +248,24 @@ class HtPositionalTermTraverser extends HtBasicTraverser
      *
      * @param bodyClause The body clause to transition into.
      * @param pos        The position of the body clause within the body.
+     * @param predicate  The containing predicate.
+     * @return A reversable operator.
+     */
+    protected StackableOperator createClauseOperator ( HtClause bodyClause, int pos, HtPredicate predicate ) {
+        return null;
+    }
+
+    /**
+     * When traversing the body clauses of a predicate, creates a reversible operator to use to transition into each
+     * body clause.
+     *
+     * @param bodyClause The body clause to transition into.
+     * @param pos        The position of the body clause within the body.
      * @param body       The containing body.
      * @param predicate  The containing predicate.
      * @return A reversable operator.
      */
-    protected StackableOperator createClauseOperator ( HtClause bodyClause, int pos, HtPredicateDefinition body, HtPredicate predicate ) {
+    protected StackableOperator createClauseOperator ( HtClause bodyClause, int pos, HtPredicate body, HtPredicate predicate ) {
         return null;
     }
 

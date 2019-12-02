@@ -7,7 +7,6 @@ import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.AbstractBaseMachine;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PrologBuiltInTransform;
-import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtProperty;
@@ -30,7 +29,7 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
     /**
      * Holds the built in transformation.
      */
-    protected final PrologBuiltInTransform <IApplication, HtClause> builtInTransform;
+    protected final PrologBuiltInTransform <T, P, Q> builtInTransform;
     final protected IResolver <P, Q> resolver;
 
     /**
@@ -43,7 +42,7 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
     public PrologPreCompiler ( SymbolTable <Integer, String, Object> symbolTable,
                                IVafInterner interner,
                                PrologDefaultBuiltIn defaultBuiltIn,
-                               PrologBuiltInTransform <IApplication, HtClause> builtInTransform,
+                               PrologBuiltInTransform <T, P, Q> builtInTransform,
                                IResolver <P, Q> resolver,
                                PlPrologParser parser ) {
         super(symbolTable, interner);

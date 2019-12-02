@@ -8,7 +8,6 @@ import org.ltc.hitalk.compiler.PredicateTable;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.TermUtilities;
 import org.ltc.hitalk.entities.HtPredicate;
-import org.ltc.hitalk.entities.HtPredicateDefinition;
 import org.ltc.hitalk.entities.HtPredicateIndicator;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
@@ -78,7 +77,7 @@ class Specializer<T extends ITerm, C extends BodyCalls <C>> implements ISpeciali
         List <PiCalls <?>> result = new ArrayList <>();
         for (PiCalls <?> piCalls : calls) {
             if (table.containsKey(piCalls.getName())) {
-                final List <HtClause> clauses = table.get(piCalls.getName()).getBody();
+                final List <HtClause> clauses = table.get(piCalls.getName()).getClauses();
 //todo
             }
         }
@@ -91,7 +90,7 @@ class Specializer<T extends ITerm, C extends BodyCalls <C>> implements ISpeciali
         List <XPiCalls <C>> result = new ArrayList <>();
         for (PiCalls <C> piCalls : calls) {
             if (table.containsKey(piCalls.getName())) {
-                final List <HtClause> clauses = table.get(piCalls.getName()).getBody();
+                final List <HtClause> clauses = table.get(piCalls.getName()).getClauses();
 //todo
             }
         }
@@ -275,7 +274,7 @@ class Specializer<T extends ITerm, C extends BodyCalls <C>> implements ISpeciali
 //            final int sym = piCall.getName();
 //            final ITerm[] calls = piCall.getArguments();
 //
-            final HtPredicateDefinition <?, ?, ?> def = predicates.lookup(piCall);
+            final HtPredicate def = predicates.lookup(piCall);
             if (!def.isBuiltIn()) {
                 final List <PiCalls <?>> piCalls1;
             }

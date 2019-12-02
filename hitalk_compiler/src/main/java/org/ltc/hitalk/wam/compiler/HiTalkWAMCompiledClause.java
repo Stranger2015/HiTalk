@@ -16,7 +16,7 @@
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.common.util.SizeableList;
-import org.ltc.hitalk.entities.HtPredicateDefinition.UserDefinition;
+import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.ListTerm;
 
@@ -108,7 +108,7 @@ class HiTalkWAMCompiledClause extends HtClause {
      */
     private void addInstructionsAndThisToParent ( SizeableList <HiTalkWAMInstruction> instructions ) {
         if (!addedToParent) {
-            parent.addInstructions(new UserDefinition <>(this), instructions);
+            parent.addInstructions(new HtPredicate(this), instructions);
             addedToParent = true;
         } else {
             parent.addInstructions(instructions);

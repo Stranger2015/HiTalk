@@ -17,22 +17,19 @@ package org.ltc.hitalk.wam.compiler.hitalk;
 
 
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
-import com.thesett.aima.logic.fol.Resolver;
 import com.thesett.aima.logic.fol.Sentence;
-import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.logic.fol.compiler.TermWalker;
-import com.thesett.aima.logic.fol.wam.TermWalkers;
 import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PrologBuiltInTransform;
-import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.core.ICompiler;
-import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.HiTalkTopLevelCheckVisitor;
+import org.ltc.hitalk.wam.compiler.HtMethod;
+import org.ltc.hitalk.wam.compiler.HtTermWalkers;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
 
@@ -50,7 +47,7 @@ import java.util.List;
  * @author Rupert Smith
  */
 abstract public
-class HiTalkPreCompiler<T extends HtClause, P, Q> extends PrologPreCompiler <T, P, Q> implements ICompiler <T, P, Q> {
+class HiTalkPreCompiler<T extends HtMethod, P, Q> extends PrologPreCompiler <T, P, Q> implements ICompiler <T, P, Q> {
     /**
      * Holds the compiler output observer.
      */
@@ -68,9 +65,9 @@ class HiTalkPreCompiler<T extends HtClause, P, Q> extends PrologPreCompiler <T, 
      */
     public HiTalkPreCompiler ( SymbolTable <Integer, String, Object> symbolTable,
                                IVafInterner interner,
-                               PrologBuiltInTransform <IApplication, HtClause> builtInTransform,
+                               PrologBuiltInTransform <T, P, Q> builtInTransform,
                                PrologDefaultBuiltIn defaultBuiltIn,
-                               Resolver <P, Q> resolver,
+                               IResolver <P, Q> resolver,
                                PlPrologParser parser ) {
         super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, parser);
 
@@ -80,20 +77,22 @@ class HiTalkPreCompiler<T extends HtClause, P, Q> extends PrologPreCompiler <T, 
 
     /**
      * {@inheritDoc}
+     *
+     * @param sentence
      */
-    public abstract void compile ( Sentence <HtClause> sentence ) throws SourceCodeException;
+    public abstract void compile ( Sentence <T> sentence ) throws SourceCodeException;
 
 
     /**
      * @param clauses
      */
-    protected abstract void saveResult ( List <HtClause> clauses );
+    protected abstract void saveResult ( List <T> clauses );
 
     /**
      * @param t
      * @return
      */
-    protected abstract List <HtClause> preprocess ( HtClause t );
+    protected abstract List <T> preprocess ( T t );
 
 
     /**
@@ -117,17 +116,13 @@ class HiTalkPreCompiler<T extends HtClause, P, Q> extends PrologPreCompiler <T, 
      *
      * @param clause The clause to top-level check.
      */
-    private void topLevelCheck ( Term clause ) {
-        TermWalker walk = TermWalkers.positionalWalker(new HiTalkTopLevelCheckVisitor(interner, symbolTable, null));
+    private void topLevelCheck ( ITerm clause ) {
+        HtTermWalker walk = HtTermWalkers.positionalWalker(new HiTalkTopLevelCheckVisitor(symbolTable, interner, null));
         walk.walk(clause);
     }
 
     public LogicCompilerObserver <P, Q> getObserver () {
         return observer;
-    }
-
-    public LogicCompilerObserver <HtClause, HtClause> getCompilerObserver ( /*ClauseChainObserver clauseChainObserver */ ) {
-        return clauseChainObserver;
     }
 }
 

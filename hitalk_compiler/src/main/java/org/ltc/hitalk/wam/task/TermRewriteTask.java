@@ -1,7 +1,6 @@
 package org.ltc.hitalk.wam.task;
 
 import org.ltc.hitalk.compiler.bktables.IComposite;
-import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.transformers.ITransformer;
 
@@ -37,7 +36,7 @@ import java.util.function.Function;
  * variable_names	A list of `Name = Var' of the last term read. See read_term/2 for details.
  */
 public
-class TermRewriteTask<T extends HtClause, TC extends ITerm, TT extends TransformTask <TC>>
+class TermRewriteTask<TC extends ITerm, TT extends TransformTask <TC>>
         extends StandardPreprocessor <TC>
         implements IComposite <TC, TT>, ITransformer <TC> {
 

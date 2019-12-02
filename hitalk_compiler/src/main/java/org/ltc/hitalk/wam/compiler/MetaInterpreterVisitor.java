@@ -8,7 +8,6 @@ import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.TermUtilities;
 import org.ltc.hitalk.entities.HtPredicate;
-import org.ltc.hitalk.entities.HtPredicateDefinition;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
@@ -64,10 +63,9 @@ public abstract class MetaInterpreterVisitor<T extends HtClause, P, Q> extends H
      */
     @Override
     protected void enterPredicate ( HtPredicate predicate ) {
-        final HtPredicateDefinition def = predicate.getDefinition();
         //todo op stack ==> term.accept(this);
-        int bound = def.size();
-        IntStream.range(0, bound).mapToObj(i -> (HtClause) def.get(i)).forEachOrdered(clause ->
+        int bound = predicate.size();
+        IntStream.range(0, bound).mapToObj(predicate::get).forEachOrdered(clause ->
                 clause.accept(this));
 
     }

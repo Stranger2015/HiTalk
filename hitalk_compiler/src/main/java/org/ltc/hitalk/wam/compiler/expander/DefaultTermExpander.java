@@ -15,18 +15,18 @@ import java.util.function.Function;
  *
  */
 public
-class DefaultTermExpander<T extends HtClause, TC extends ITerm, TT extends TermRewriteTask <T, TC, TT>>
-        extends TermRewriteTask <T, TC, TT> {
+class DefaultTermExpander<T extends HtClause, TC extends ITerm, TT extends TermRewriteTask <TC, TT>>
+        extends TermRewriteTask <TC, TT> {
 
     protected final Function <TC, List <TC>> dcgExpansionAction = this::dcgExpansion;
     protected final Function <TC, List <TC>> defaultExpansionAction = this::defaultExpansion;
-    protected final TermRewriteTask[] trt;
+    protected final TermRewriteTask <TC, TT> trt;
+
 
     /**
      * @param t
      */
-    public
-    void add ( TT t ) {
+    public void add ( TT t ) {
         getComponents().add(t);
     }
 
@@ -34,8 +34,7 @@ class DefaultTermExpander<T extends HtClause, TC extends ITerm, TT extends TermR
      * @param target
      * @param transformer
      */
-    @SafeVarargs
-    public DefaultTermExpander ( List <TC> target, ITransformer <TC> transformer, TermRewriteTask <HtClause, TC, ?>... trt ) {
+    public DefaultTermExpander ( List <TC> target, ITransformer <TC> transformer, TermRewriteTask <TC, TT> trt ) {
         super(null, target, transformer);
         this.trt = trt;
 //        add(ruleExpander);
@@ -48,8 +47,7 @@ class DefaultTermExpander<T extends HtClause, TC extends ITerm, TT extends TermR
      * @param tc
      * @return
      */
-    protected
-    List <TC> defaultExpansion ( TC tc ) {
+    protected List <TC> defaultExpansion ( TC tc ) {
         List <TC> result = new ArrayList <>();
         if (tc instanceof Bypass) {
             result = Collections.singletonList(tc);
@@ -62,8 +60,7 @@ class DefaultTermExpander<T extends HtClause, TC extends ITerm, TT extends TermR
      * @param tc
      * @return
      */
-    protected
-    List <TC> dcgExpansion ( TC tc ) {
+    protected List <TC> dcgExpansion ( TC tc ) {
         List <TC> result = new ArrayList <>();
 
         return result;

@@ -146,7 +146,7 @@ import static org.ltc.hitalk.wam.compiler.Language.HITALK;
  * The current implementation does not detect such cases and the involved threads will freeze.
  * This problem can be avoided if a mutually dependent collection of files is always loaded from the same start file.
  */
-public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerApp <T, P, Q> {
+public class HiTalkCompilerApp<T extends HtMethod, P, Q> extends PrologCompilerApp <T, P, Q> {
     /**
      * <code>access(Access)</code>,  where <code>Access</code> can be either <code>read_write (the default) or
      * <code>read_only;
@@ -257,7 +257,7 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
 
 //    protected String fileName;
 //    protected HiTalkDefaultBuiltIn defaultBuiltIn;
-    protected HiTalkBuiltInTransform <HiTalkCompilerApp <T, P, Q>, T> builtInTransform;
+    protected HiTalkBuiltInTransform <T, P, Q> builtInTransform;
 
     /**
      * @param fileName
@@ -1281,11 +1281,11 @@ public class HiTalkCompilerApp<T extends HtClause, P, Q> extends PrologCompilerA
 //        return defaultBuiltIn;
 //    }
 
-    public void setBuiltInTransform ( HiTalkBuiltInTransform <HiTalkCompilerApp <T, P, Q>, T> builtInTransform ) {
+    public void setBuiltInTransform ( HiTalkBuiltInTransform <T, P, Q> builtInTransform ) {
         this.builtInTransform = builtInTransform;
     }
 
-    public HiTalkBuiltInTransform <HiTalkCompilerApp <T, P, Q>, T> getBuiltInTransform () {
+    public HiTalkBuiltInTransform <T, P, Q> getBuiltInTransform () {
         return builtInTransform;
     }
     /**

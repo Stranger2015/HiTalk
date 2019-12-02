@@ -6,7 +6,6 @@ import com.thesett.aima.search.util.backtracking.Reversable;
 import com.thesett.common.util.StackQueue;
 import org.ltc.hitalk.compiler.IPredicateVisitor;
 import org.ltc.hitalk.entities.HtPredicate;
-import org.ltc.hitalk.entities.HtPredicateDefinition;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
@@ -94,17 +93,15 @@ class HtBasicTraverser implements
     public Iterator <Operator <ITerm>> traverse ( HtPredicate predicate, boolean reverse ) {
         logger.debug("Traversing predicate " + predicate.toString());
 
-        HtPredicateDefinition body = predicate.getDefinition();
-
         Queue <Operator <ITerm>> queue = (!reverse) ? new StackQueue <>() : new LinkedList <>();
 
         // For the predicate bodies.
-        for (int i = leftToRightPredicateBodies ? 0 : (body.size() - 1);
-             leftToRightPredicateBodies ? (i < body.size()) : (i >= 0);
+        for (int i = leftToRightPredicateBodies ? 0 : (predicate.size() - 1);
+             leftToRightPredicateBodies ? (i < predicate.size()) : (i >= 0);
              i += (leftToRightPredicateBodies ? 1 : -1)) {
-            HtClause bodyClause = (HtClause) body.get(i);
+            HtClause bodyClause = (HtClause) predicate.get(i);
 
-            bodyClause.setReversible(createClauseOperator(bodyClause, i, body, predicate));
+            bodyClause.setReversible(createClauseOperator(bodyClause, i, predicate));
             bodyClause.setTermTraverser(this);
             queue.offer(bodyClause);
         }
@@ -198,11 +195,10 @@ class HtBasicTraverser implements
      *
      * @param bodyClause The body clause to transition into.
      * @param pos        The position of the body clause within the body.
-     * @param body       The containing body.
      * @param predicate  The containing predicate.
      * @return A reversable operator.
      */
-    protected abstract StackableOperator createClauseOperator ( HtClause bodyClause, int pos, HtPredicateDefinition body,
+    protected abstract StackableOperator createClauseOperator ( HtClause bodyClause, int pos,
                                                                 HtPredicate predicate );
 
     /**

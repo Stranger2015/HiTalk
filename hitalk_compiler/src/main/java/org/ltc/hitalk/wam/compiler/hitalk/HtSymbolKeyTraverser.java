@@ -15,7 +15,7 @@
  */
 package org.ltc.hitalk.wam.compiler.hitalk;
 
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.search.Operator;
 import com.thesett.common.util.StackQueue;
 import com.thesett.common.util.TraceIndenter;
@@ -31,6 +31,7 @@ import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.HtPositionalTermTraverser;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.printer.HtDelegatingAllTermsVisitor;
+import org.ltc.hitalk.wam.printer.HtLiteralType;
 import org.ltc.hitalk.wam.printer.IAllTermsVisitor;
 import org.ltc.hitalk.wam.printer.IPositionalTermTraverser;
 
@@ -144,7 +145,7 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
         /*log.fine("Traversing clause " + clause.toString(interner, true, false));*/
 
         IFunctor head = clause.getHead();
-        IFunctor[] body = clause.getBody();
+        ListTerm body = clause.getBody();
 
         Queue <Operator <ITerm>> queue = (!reverse) ? new StackQueue <>() : new LinkedList <>();
 
@@ -189,8 +190,8 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
         /*log.fine("Set SKT as traverser on " + bodyFunctor.toString(interner, true, false));*/
             /*log.fine("Created: " +
                     ("body operator " + (i + 1) + " on " + bodyFunctor.toString(interner, true, false)));*/
-        IntStream.range(0, body.length).forEachOrdered(i -> {
-            IFunctor bodyFunctor = body[i];
+        IntStream.range(0, body.size()).forEachOrdered(i -> {
+            IFunctor bodyFunctor = (IFunctor) body.get(i);
             bodyFunctor.setReversible(new ContextOperator(clauseScopedSymbolTable, i + 1,
                     createBodyOperator(bodyFunctor, i, body, clause)));
             bodyFunctor.setTermTraverser(this);
@@ -244,7 +245,6 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
                     /*log.fine("Created: " +
                         ("argument operator " + i + " on " + argument.toString(interner, true, false)));*/
             }
-
         }
 
         return queue.iterator();
@@ -272,7 +272,7 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
      * <p>
      * <p/>Assigns symbol keys to variables, based on the variables id.
      */
-    public void visit ( Variable variable ) {
+    public void visit ( HtVariable variable ) {
         if (isEnteringContext()) {
             SymbolKey key = currentSymbolTable.getSymbolKey(variable.getId());
             variable.setSymbolKey(key);
@@ -338,7 +338,7 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
     /**
      * {@inheritDoc}
      */
-    public void visit ( IntegerType literal ) {
+    public void visit ( IntTerm literal ) {
         if (isEnteringContext()) {
             SymbolKey key = currentSymbolTable.getSymbolKey(currentPosition);
             literal.setSymbolKey(key);
@@ -354,7 +354,7 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
     /**
      * {@inheritDoc}
      */
-    public void visit ( LiteralType literal ) {
+    public void visit ( HtLiteralType literal ) {
         if (isEnteringContext()) {
             SymbolKey key = currentSymbolTable.getSymbolKey(currentPosition);
             literal.setSymbolKey(key);
@@ -368,18 +368,6 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
     }
 
     public void visit ( ListTerm listTerm ) throws LinkageException {
-
-    }
-
-    public void visit ( Term term ) {
-
-    }
-
-    public void visit ( HtVariable variable ) {
-
-    }
-
-    public void visit ( IntTerm term ) {
 
     }
 

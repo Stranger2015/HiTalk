@@ -3,14 +3,14 @@ package org.ltc.hitalk.wam.compiler.hitalk;
 
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
-import com.thesett.aima.logic.fol.Resolver;
+import com.thesett.aima.logic.fol.Sentence;
+import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PrologBuiltInTransform;
-import org.ltc.hitalk.entities.HtPredicate;
-import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
-import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.wam.compiler.HtMethod;
 import org.ltc.hitalk.wam.compiler.expander.DefaultTermExpander;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.task.StandardPreprocessor;
@@ -23,8 +23,8 @@ import java.util.List;
 /**
  *
  */
-public class HiTalkPreprocessor<T extends ITerm, TT extends TransformTask <T>>
-        extends HiTalkPreCompiler {
+public class HiTalkPreprocessor<T extends HtMethod, P, Q, TT extends TransformTask <T>>
+        extends HiTalkPreCompiler <T, P, Q> {
 
     protected final DefaultTransformer <T> defaultTransformer;
     //    protected final HiTalkDefaultBuiltIn defaultBuiltIn;
@@ -33,12 +33,12 @@ public class HiTalkPreprocessor<T extends ITerm, TT extends TransformTask <T>>
     //    protected final Function <TC, List <TC>> defaultAction;
 
     @Override
-    public LogicCompilerObserver <HtPredicate, HtClause> getObserver () {
+    public LogicCompilerObserver <P, Q> getObserver () {
         return observer;
     }
 
-    protected LogicCompilerObserver <HtPredicate, HtClause> observer;
-    protected List <HtClause> preCompiledTarget;
+    protected LogicCompilerObserver <P, Q> observer;
+    protected List <T> preCompiledTarget;
     protected PlPrologParser parser;
 
     /**
@@ -48,34 +48,21 @@ public class HiTalkPreprocessor<T extends ITerm, TT extends TransformTask <T>>
      * @param interner    The interner for the machine.
      * @param resolver
      */
-    public
-    HiTalkPreprocessor ( SymbolTable <Integer, String, Object> symbolTable,
-                         IVafInterner interner,
-                         PrologBuiltInTransform builtInTransform,
-                         PrologDefaultBuiltIn defaultBuiltIn,
-                         Resolver <HtPredicate, HtClause> resolver,
-                         PlPrologParser parser )
+    public HiTalkPreprocessor ( SymbolTable <Integer, String, Object> symbolTable,
+                                IVafInterner interner,
+                                PrologBuiltInTransform <T, P, Q> builtInTransform,
+                                PrologDefaultBuiltIn defaultBuiltIn,
+                                IResolver <P, Q> resolver,
+                                PlPrologParser parser )
             throws LinkageException {
 
         super(symbolTable, interner, builtInTransform, defaultBuiltIn, resolver, parser);
 
-//        this.builtInTransform = new HiTalkBuiltInTransform(defaultBuiltIn);
-
         defaultTransformer = new DefaultTransformer <>(null);
 
-//        int i = interner.internFunctorName(BEGIN_OF_FILE, 0);
-//        Term target = new Functor(i, Atom.EMPTY_TERM_ARRAY);
-//        defaultAction = new Function <TC, List <TC>>() {
-//            DcgRuleExpander ruleExpander
-//            @Override
-//            public
-//            List <TC> apply ( TC tc ) {
-//                return null;
-//            }
-//        };
         if (preCompiledTarget != null) {
-            for (HtClause t : preCompiledTarget) {
-                resolver.setQuery(t);
+            for (final T t : preCompiledTarget) {
+                resolver.setQuery((Q) t);
                 resolver.resolve();
             }
         }
@@ -86,16 +73,21 @@ public class HiTalkPreprocessor<T extends ITerm, TT extends TransformTask <T>>
     }
 
     /**
+     * {@inheritDoc}
+     *
+     * @param sentence
+     */
+    @Override
+    public void compile ( Sentence <T> sentence ) throws SourceCodeException {
+
+    }
+
+    /**
      * @param clauses
      */
     @Override
-    protected
-    void saveResult ( List <HtClause> clauses ) {
+    protected void saveResult ( List <T> clauses ) {
         preCompiledTarget = clauses;
-    }
-
-    protected List <HtClause> preprocess ( HtClause t ) {
-        return null;
     }
 
     /**
@@ -110,8 +102,7 @@ public class HiTalkPreprocessor<T extends ITerm, TT extends TransformTask <T>>
         return list;
     }
 
-    private
-    void initialize () {
+    private void initialize () {
 
     }
 
@@ -119,14 +110,12 @@ public class HiTalkPreprocessor<T extends ITerm, TT extends TransformTask <T>>
      * @param t
      */
 //    @Override
-    public
-    void add ( TT t ) {
+    public void add ( TT t ) {
         components.add(t);
     }
 
     //    @Override
-    public
-    List <TT> getComponents () {
+    public List <TT> getComponents () {
         return components;
     }
 }

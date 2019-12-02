@@ -1,9 +1,6 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.logic.fol.TermVisitor;
 import com.thesett.aima.logic.fol.compiler.DefaultTraverser;
-import com.thesett.aima.logic.fol.compiler.TermWalker;
 import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
 import com.thesett.aima.search.util.uninformed.PostFixSearch;
 import com.thesett.common.util.logic.UnaryPredicate;
@@ -31,7 +28,7 @@ class HtTermWalkers {
      * @return A simple depth first walk over a term.
      */
     public static HtTermWalker simpleWalker ( ITermVisitor visitor ) {
-        DepthFirstBacktrackingSearch <ITerm, ITerm> search = new DepthFirstBacktrackingSearch <Term, Term>();
+        DepthFirstBacktrackingSearch <ITerm, ITerm> search = new DepthFirstBacktrackingSearch <>();
 
         return new HtTermWalker(search, new DefaultTraverser(), visitor);
     }
@@ -85,12 +82,12 @@ class HtTermWalkers {
      * @param visitor The visitor to apply to each term, and to notify of positional context changes.
      * @return A positional postfix first walk over a term.
      */
-    public static TermWalker positionalPostfixWalker ( IPositionalTermVisitor visitor ) {
-        HtPositionalTermTraverser positionalTraverser = new IPositionalTermTraverserImpl();
+    public static HtTermWalker positionalPostfixWalker ( IPositionalTermVisitor visitor ) {
+        HtPositionalTermTraverser positionalTraverser = new HtPositionalTermTraverser();
         positionalTraverser.setContextChangeVisitor(visitor);
         visitor.setPositionalTraverser(positionalTraverser);
 
-        return new TermWalker(new PostFixSearch <>(), positionalTraverser, visitor);
+        return new HtTermWalker(new PostFixSearch <>(), positionalTraverser, visitor);
     }
 
     /**
@@ -99,8 +96,7 @@ class HtTermWalkers {
      * @param visitor The visitor to apply to each term.
      * @return A walk over a term, that finds all conjunction and disjunction operators.
      */
-    public static
-    TermWalker conjunctionAndDisjunctionOpSymbolWalker ( TermVisitor visitor ) {
+    public static HtTermWalker conjunctionAndDisjunctionOpSymbolWalker ( ITermVisitor visitor ) {
         //return positionalGoalWalker(CONJ_DISJ_OP_SYMBOL_PREDICATE, visitor);
         return goalWalker(CONJ_DISJ_OP_SYMBOL_PREDICATE, visitor);
     }

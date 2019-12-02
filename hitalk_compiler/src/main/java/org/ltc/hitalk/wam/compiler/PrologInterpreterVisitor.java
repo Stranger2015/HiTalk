@@ -2,15 +2,18 @@ package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.common.util.doublemaps.SymbolTable;
+import jline.ConsoleReader;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PredicateTable;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtPredicate;
+import org.ltc.hitalk.interpreter.PrologInterpreter;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.term.io.Environment;
 import org.ltc.hitalk.wam.printer.IPositionalTermTraverser;
 
+import java.io.IOException;
 import java.util.Set;
 
 /**
@@ -40,6 +43,9 @@ import java.util.Set;
  */
 public class PrologInterpreterVisitor<T extends HtClause, P, Q> extends MetaInterpreterVisitor <T, P, Q> {
 
+    protected final PrologInterpreter <T, P, Q> engine;
+    protected final ConsoleReader consoleReader = new ConsoleReader();
+
     /**
      * Creates a positional visitor.
      *
@@ -47,13 +53,16 @@ public class PrologInterpreterVisitor<T extends HtClause, P, Q> extends MetaInte
      * @param interner    The name interner.
      * @param resolver
      * @param traverser
+     * @param engine
      */
     protected PrologInterpreterVisitor ( SymbolTable <Integer, String, Object> symbolTable,
                                          IVafInterner interner,
                                          IResolver <P, Q> resolver,
-                                         IPositionalTermTraverser traverser ) {
+                                         IPositionalTermTraverser traverser,
+                                         PrologInterpreter <T, P, Q> engine ) throws IOException {
 
         super(symbolTable, interner, resolver, traverser);
+        this.engine = engine;
     }
 
     /**

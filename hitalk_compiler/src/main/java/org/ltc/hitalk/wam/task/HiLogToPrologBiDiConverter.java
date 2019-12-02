@@ -1,20 +1,20 @@
 package org.ltc.hitalk.wam.task;
 
-import com.thesett.aima.logic.fol.Functor;
-import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.TermTransformer;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.common.util.doublemaps.SymbolTableImpl;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.VafInterner;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 
 /**
  *
  */
 public
-class HiLogToPrologBiDiConverter {
+class HiLogToPrologBiDiConverter<T extends HtClause, P, Q> {
 
 //    private final Map <Term, Term> hiLogTerms = new HashMap <>();
 
@@ -36,7 +36,8 @@ class HiLogToPrologBiDiConverter {
     SymbolTable <Integer, String, Object> symbolTable = new SymbolTableImpl <>();
     IVafInterner interner = new VafInterner("", "");
 
-    private final HiLogDecoder hilog2Prolog = new HiLogDecoder(symbolTable, interner);
+
+    private final HiLogDecoder <T, P, Q> hilog2Prolog;//= new HiLogDecoder<>(symbolTable, interner,);
 //    private final HiLogEncoder prolog2Hilog = new HiLogEncoder(symbolTable, interner);
 
 //    private final HiLogEncoder transformer;
@@ -85,12 +86,14 @@ class HiLogToPrologBiDiConverter {
 //        }
 //    };
 
-    public HiLogToPrologBiDiConverter ( IVafInterner interner ) {
+    public HiLogToPrologBiDiConverter ( IVafInterner interner,
+                                        HiLogDecoder <T, P, Q> hilog2Prolog ) {
 //        transformer = this.hilog2Prolog;
 //        transformer = this.prolog2Hilog;
 
         HILOG_APPLY = interner.internFunctorName("$hilog_apply", 2);
 //        HILOG_APPLY2 = interner.internFunctorName("$hilog_apply2", 2);
+        this.hilog2Prolog = hilog2Prolog;
     }
 
     public boolean isUnify () {
@@ -117,11 +120,11 @@ class HiLogToPrologBiDiConverter {
 //        this.transformer = transformer;
 //    }
 
-    private boolean hasHiLogApplyFunctorName ( Term term, int applyF ) {
-        return ((Functor) term).getName() == applyF;
+    private boolean hasHiLogApplyFunctorName ( ITerm term, int applyF ) {
+        return ((IFunctor) term).getName() == applyF;
     }
 
-    private Term mapList ( TermTransformer transformer, ListTerm termList ) {
+    private ITerm mapList ( TermTransformer transformer, ListTerm termList ) {
         boolean mustExit = false;
         while (!isNil(termList) || !mustExit) {
 
@@ -132,6 +135,7 @@ class HiLogToPrologBiDiConverter {
             ITerm outListTail;///=outList;
             ITerm temp_term;
         }
+
         return null;
     }
 
@@ -156,7 +160,7 @@ class HiLogToPrologBiDiConverter {
         return null;// transformer.transform(term);
     }
 
-    private Functor createFunctor ( int name, int arity ) {
+    private IFunctor createFunctor ( int name, int arity ) {
 //            final Functor functor = new Functor(name, arity);
         return null;
     }

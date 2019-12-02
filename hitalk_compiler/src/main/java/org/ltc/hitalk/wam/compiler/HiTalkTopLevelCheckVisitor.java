@@ -126,7 +126,7 @@ public class HiTalkTopLevelCheckVisitor extends HtBasePositionalVisitor implemen
 
     }
 
-    public void visit ( ListTerm dottedPair ) throws LinkageException {
+    public void visit ( ListTerm listTerm ) throws LinkageException {
 
     }
 }

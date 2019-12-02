@@ -18,9 +18,7 @@ package org.ltc.hitalk.wam.compiler.prolog;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PrologBuiltInTransform;
-import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.core.IResolver;
-import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
@@ -32,7 +30,7 @@ import java.util.List;
 /**
  *
  */
-public class PrologPreprocessor<TC extends ITerm, TT extends TransformTask <TC>> extends PrologPreCompiler {
+public class PrologPreprocessor<T extends HtClause, P, Q, TC extends ITerm, TT extends TransformTask <TC>> extends PrologPreCompiler <T, P, Q> {
 
     protected final List <TT> components = new ArrayList <>();
 
@@ -45,8 +43,8 @@ public class PrologPreprocessor<TC extends ITerm, TT extends TransformTask <TC>>
     public PrologPreprocessor ( SymbolTable <Integer, String, Object> symbolTable,
                                 IVafInterner interner,
                                 PrologDefaultBuiltIn defaultBuiltIn,
-                                PrologBuiltInTransform <IApplication, HtClause> builtInTransform,
-                                IResolver <HtPredicate, HtClause> resolver,
+                                PrologBuiltInTransform <T, P, Q> builtInTransform,
+                                IResolver <P, Q> resolver,
                                 PlPrologParser parser ) {
 
         super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, parser);

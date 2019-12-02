@@ -5,6 +5,7 @@ import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -86,10 +87,10 @@ public class BodyCall<C extends BodyCall.BodyCalls <C>> extends PiCalls <C> {
 
     /**
      * @param sym
-     * @param listTerm
+     * @param list
      */
-    public BodyCall ( IFunctor sym, List <BodyCall <C>> listTerm ) {
-        super(sym.getName(), listTerm);
+    public BodyCall ( IFunctor sym, List <BodyCall <C>> list ) {
+        this(sym, list, new ListTerm(0), Collections.emptyList());
     }
 
     /**
