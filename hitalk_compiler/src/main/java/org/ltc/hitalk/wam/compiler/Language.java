@@ -4,7 +4,7 @@ public enum Language {
     PROLOG("Prolog"),
     HILOG("HiLog"),
     HITALK("HiTalk"),
-    ;
+    LOGTALK("Logtalk");
 
     private final String name;
 

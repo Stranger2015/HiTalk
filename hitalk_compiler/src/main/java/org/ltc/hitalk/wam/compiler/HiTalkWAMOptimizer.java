@@ -89,9 +89,10 @@ class HiTalkWAMOptimizer implements IOptimizer {
      * @return An list of optimized instructions.
      */
     private SizeableList <HiTalkWAMInstruction> optimize ( List <HiTalkWAMInstruction> instructions ) {
-        StateMachine optimizeConstants = new HtOptimizeInstructions(symbolTable, interner);
+        StateMachine <HiTalkWAMInstruction, HiTalkWAMInstruction> optimizeConstants =
+                new HtOptimizeInstructions(symbolTable, interner);
         Iterable <HiTalkWAMInstruction> matcher =
-                new Matcher <HiTalkWAMInstruction, HiTalkWAMInstruction>(instructions.iterator(), optimizeConstants);
+                new Matcher <>(instructions.iterator(), optimizeConstants);
 
         SizeableList <HiTalkWAMInstruction> result = new SizeableLinkedList <>();
 
@@ -99,6 +100,10 @@ class HiTalkWAMOptimizer implements IOptimizer {
             result.add(instruction);
         }
 
+        return result;
+    }
+
+    public <P> P apply ( P result ) {
         return result;
     }
 }

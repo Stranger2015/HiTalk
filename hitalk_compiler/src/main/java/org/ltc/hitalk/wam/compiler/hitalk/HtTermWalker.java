@@ -16,7 +16,6 @@
 package org.ltc.hitalk.wam.compiler.hitalk;
 
 import com.thesett.aima.logic.fol.TermTraverser;
-import com.thesett.aima.logic.fol.TermVisitor;
 import com.thesett.aima.search.QueueBasedSearchMethod;
 import com.thesett.aima.search.util.Searches;
 import com.thesett.common.util.logic.UnaryPredicate;
@@ -90,7 +89,7 @@ public class HtTermWalker {
 
         // If the traverser is a term visitor, allow it to visit the top-level term in the walk to establish
         // an initial context.
-        if (traverser instanceof TermVisitor) {
+        if (traverser instanceof ITermVisitor) {
             term.accept((ITermVisitor) traverser);
         }
 

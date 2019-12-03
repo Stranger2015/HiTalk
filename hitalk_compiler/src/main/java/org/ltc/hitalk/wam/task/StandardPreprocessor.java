@@ -29,4 +29,5 @@ class StandardPreprocessor<T extends ITerm> extends TransformTask <T> {
     boolean isAcceptable ( IMetrics max ) {
         return true;
     }
+
 }

@@ -10,8 +10,8 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PrologBuiltInTransform;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.HtMethod;
-import org.ltc.hitalk.wam.compiler.expander.DefaultTermExpander;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.task.StandardPreprocessor;
 import org.ltc.hitalk.wam.task.TransformTask;
@@ -23,14 +23,15 @@ import java.util.List;
 /**
  *
  */
-public class HiTalkPreprocessor<T extends HtMethod, P, Q, TT extends TransformTask <T>>
+public class HiTalkPreprocessor<T extends HtMethod, P, Q, TT extends TransformTask <T>, TC extends ITerm>
         extends HiTalkPreCompiler <T, P, Q> {
 
     protected final DefaultTransformer <T> defaultTransformer;
-    //    protected final HiTalkDefaultBuiltIn defaultBuiltIn;
-    //    protected final HiTalkBuiltInTransform builtInTransform;
     protected final List <TT> components = new ArrayList <>();
-    //    protected final Function <TC, List <TC>> defaultAction;
+
+    private static Object apply ( Object o ) {
+        return o;
+    }
 
     @Override
     public LogicCompilerObserver <P, Q> getObserver () {
@@ -66,10 +67,9 @@ public class HiTalkPreprocessor<T extends HtMethod, P, Q, TT extends TransformTa
                 resolver.resolve();
             }
         }
-
-        components.add((TT) new DefaultTermExpander(preCompiledTarget, defaultTransformer));
+//        TermRewriteTask<TC,TransformTask<TC>>trt=new TermRewriteTask(new Action(preCompiledTarget, defaultTransformer,trt));
 //        components.add((TT) new HiLogPreprocessor <>(null, defaultTransformer, interner));
-        components.add((TT) new StandardPreprocessor(null, preCompiledTarget, defaultTransformer));
+        components.add((TT) new StandardPreprocessor <>(null, preCompiledTarget, defaultTransformer));
     }
 
     /**

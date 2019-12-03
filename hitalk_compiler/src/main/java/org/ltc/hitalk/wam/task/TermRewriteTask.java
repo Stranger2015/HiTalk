@@ -6,7 +6,6 @@ import org.ltc.hitalk.wam.transformers.ITransformer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * Availability:built-in
@@ -47,7 +46,7 @@ class TermRewriteTask<TC extends ITerm, TT extends TransformTask <TC>>
      * @param target
      * @param transformer
      */
-    public TermRewriteTask ( Function <TC, List <TC>> action, List <TC> target, ITransformer <TC> transformer ) {
+    public TermRewriteTask ( Action <TC> action, List <TC> target, ITransformer <TC> transformer ) {
         super(action, target, transformer);
     }
 

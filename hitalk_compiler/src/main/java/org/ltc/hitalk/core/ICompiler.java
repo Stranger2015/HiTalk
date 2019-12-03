@@ -96,5 +96,5 @@ public interface ICompiler<T extends HtClause, P, Q> extends ILogicCompiler <T, 
 
     void compile ( String fileName, HtProperty... flags ) throws IOException, SourceCodeException;
 
-    void compile ( T clause );
+    void compile ( T clause ) throws SourceCodeException;
 }

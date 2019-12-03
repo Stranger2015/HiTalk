@@ -3,11 +3,11 @@ package org.ltc.hitalk.term.io;
 
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.ITermFactory;
+import org.ltc.hitalk.compiler.BaseCompiler;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PredicateTable;
 import org.ltc.hitalk.compiler.VafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
-import org.ltc.hitalk.compiler.bktables.TermFactory;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
@@ -15,10 +15,12 @@ import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.parser.HiLogParser;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlDynamicOperatorParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.IFunctor;
+import org.ltc.hitalk.wam.compiler.Language;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiler;
+import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
@@ -53,6 +55,7 @@ class Environment {
     private PredicateTable <HtPredicate> predicateTable;
     private SymbolTable <Integer, String, Object> symbolTable;
     private IResolver <HtPredicate, HtClause> resolver;
+    private Language language;
 
     /**
      * @return
@@ -121,7 +124,13 @@ class Environment {
     /**
      * @return
      */
-    public IVafInterner getInterner () {
+    public synchronized IVafInterner getInterner () {
+        if (interner == null) {
+            interner = interner = new VafInterner(
+                    "HiTalk_Variable_Namespace",
+                    "HiTalk_Functor_Namespace");
+        }
+
         return interner;
     }
 
@@ -153,15 +162,12 @@ class Environment {
         streams.add(new HiTalkStream(FileDescriptor.in, true));//  "current_input"
         streams.add(new HiTalkStream(FileDescriptor.out, false));// "current_output"
         streams.add(new HiTalkStream(FileDescriptor.err, false));// "current_error"
-
-        interner = new VafInterner(
-                "HiTalk_Variable_Namespace",
-                "HiTalk_Functor_Namespace");
-
-        termFactory = new TermFactory(interner);
-        optable = new PlDynamicOperatorParser();
-        parser = new PlPrologParser(getStream(0), interner, termFactory, optable);
-        resolver = new HtResolutionEngine <>(parser, interner, compiler, Environment.instance().getResolver());
+        interner = getInterner();
+        termFactory = getTermFactory();
+        optable = getOptable();
+        parser = getParser();
+        BaseCompiler <?, ?, ?> compiler = (BaseCompiler <?, ?, ?>) getCompiler(Language.HILOG);
+        resolver = getResolver();
 
         initOptions("org/ltc/hitalk/wam/compiler/startup.pl");
     }
@@ -184,8 +190,22 @@ class Environment {
         this.interner = interner;
     }
 
-    public ICompiler <HtClause, HtPredicate, HtClause> getCompiler () {
-        return compiler;
+    public ICompiler <HtClause, HtPredicate, HtClause> getCompiler ( Language language ) {
+        return compiler == null ? createWAMCompiler(language) : compiler;
+    }
+
+    private ICompiler <HtClause, HtPredicate, HtClause> createWAMCompiler ( Language language ) {
+        switch (language) {
+            case PROLOG:
+                return PrologWAMCompiler.create();
+            case HILOG:
+                return HiLogWAMCompiler.create();
+            case LOGTALK:
+                return LogtalkWAMCompiler.create();
+            case HITALK:
+                return HiTalkWAMCompiler.create();
+        }
+        return null;
     }
 
     public void setCompiler ( ICompiler <HtClause, HtPredicate, HtClause> compiler ) {
@@ -205,10 +225,19 @@ class Environment {
     }
 
     public IResolver <HtPredicate, HtClause> getResolver () {
-        return resolver;
+        return resolver == null ?
+                new HtResolutionEngine <>(getParser(), getInterner(), getCompiler(Language.HILOG)) : resolver;
     }
 
     public void setResolver ( IResolver <HtPredicate, HtClause> resolver ) {
         this.resolver = resolver;
+    }
+
+    public Language getLanguage () {
+        return language;
+    }
+
+    public void setLanguage ( Language language ) {
+        this.language = language;
     }
 }

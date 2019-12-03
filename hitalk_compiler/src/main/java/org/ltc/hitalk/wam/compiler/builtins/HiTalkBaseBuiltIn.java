@@ -16,7 +16,6 @@
 
 package org.ltc.hitalk.wam.compiler.builtins;
 
-import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.logic.fol.FunctorName;
 import com.thesett.common.util.SizeableLinkedList;
 import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
@@ -54,7 +53,7 @@ class HiTalkBaseBuiltIn extends PrologBuiltInFunctor {
     /**
      * {@inheritDoc}
      */
-    public SizeableLinkedList <HiTalkWAMInstruction> compileBodyArguments ( Functor expression, boolean isFirstBody,
+    public SizeableLinkedList <HiTalkWAMInstruction> compileBodyArguments ( IFunctor expression, boolean isFirstBody,
                                                                             FunctorName clauseName, int bodyNumber ) {
         return null;
     }
@@ -62,7 +61,7 @@ class HiTalkBaseBuiltIn extends PrologBuiltInFunctor {
     /**
      * {@inheritDoc}
      */
-    public SizeableLinkedList <HiTalkWAMInstruction> compileBodyCall ( Functor expression, boolean isFirstBody,
+    public SizeableLinkedList <HiTalkWAMInstruction> compileBodyCall ( IFunctor expression, boolean isFirstBody,
                                                                        boolean isLastBody, boolean chainRule,
                                                                        int permVarsRemaining ) {
         return null;

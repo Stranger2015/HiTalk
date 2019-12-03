@@ -63,14 +63,14 @@ import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.STACK_ADDR;
  *
  * @author Rupert Smith
  */
-public abstract class BaseInstructionCompiler
-        extends BaseCompiler <HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> {
+public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
+        extends BaseCompiler <T, P, Q> {
 
     public PrologDefaultBuiltIn getDefaultBuiltIn () {
         return defaultBuiltIn;
     }
 
-    protected LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer;
+    protected LogicCompilerObserver <P, Q> observer;
     protected final PrologDefaultBuiltIn defaultBuiltIn;
 
     /**
@@ -127,7 +127,7 @@ public abstract class BaseInstructionCompiler
     public BaseInstructionCompiler ( SymbolTable <Integer, String, Object> symbolTable,
                                      IVafInterner interner,
                                      PrologDefaultBuiltIn defaultBuiltIn,
-                                     LogicCompilerObserver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> observer,
+                                     LogicCompilerObserver <P, Q> observer,
                                      PlPrologParser parser ) {
         super(symbolTable, interner, parser, observer);
         optimizer = new HiTalkWAMOptimizer(symbolTable, interner);
@@ -236,7 +236,7 @@ public abstract class BaseInstructionCompiler
 
         displayCompiledQuery(result);
 
-        observer.onQueryCompilation(result);
+        observer.onQueryCompilation((Sentence <Q>) result);
     }
 
 
@@ -285,7 +285,7 @@ public abstract class BaseInstructionCompiler
      */
     private void allocatePermanentQueryRegisters ( ITerm clause, Map <Byte, Integer> varNames ) {
         // Allocate local variable slots for all variables in a query.
-        HiTalkInstructionCompiler.QueryRegisterAllocatingVisitor allocatingVisitor;
+        QueryRegisterAllocatingVisitor allocatingVisitor;
         allocatingVisitor = new HiTalkInstructionCompiler.QueryRegisterAllocatingVisitor(symbolTable, varNames, null);
 
         HtPositionalTermTraverser positionalTraverser = new HtPositionalTermTraverser();
@@ -316,14 +316,15 @@ public abstract class BaseInstructionCompiler
      * @param multipleClauses   <tt>true</tt> iff the predicate contains >1 clause.
      * @param clauseNumber      The position of the clause within the predicate.
      */
-    protected void compileClause ( HtClause clause,
-                                   HiTalkWAMCompiledPredicate compiledPredicate,
+    protected void compileClause ( T clause,
+                                   P compiledPredicate,
                                    boolean isFirst,
                                    boolean isLast,
                                    boolean multipleClauses,
                                    int clauseNumber ) {
         // Used to build up the compiled clause in.
-        HiTalkWAMCompiledClause result = new HiTalkWAMCompiledClause(clause.getHead(), clause.getBody(), compiledPredicate);
+        HiTalkWAMCompiledClause result = new HiTalkWAMCompiledClause(clause.getHead(), clause.getBody(),
+                (HiTalkWAMCompiledPredicate) compiledPredicate);
 
         // Check if the clause to compile is a fact (no body).
         boolean isFact = clause.getBody() == null;
@@ -580,7 +581,7 @@ public abstract class BaseInstructionCompiler
     public void endScope () throws SourceCodeException {
         // Loop over all predicates in the current scope, found in the symbol table, and consume and compile them.
         for (SymbolKey predicateKey = predicatesInScope.poll(); predicateKey != null; predicateKey = predicatesInScope.poll()) {
-            List <HtClause> clauses = (List <HtClause>) scopeTable.get(predicateKey, SYMKEY_PREDICATES);
+            List <T> clauses = (List <T>) scopeTable.get(predicateKey, SYMKEY_PREDICATES);
 
             // Used to keep track of where within the predicate the current clause is.
             int size = clauses.size();
@@ -588,13 +589,13 @@ public abstract class BaseInstructionCompiler
             boolean multipleClauses = size > 1;
 
             // Used to build up the compiled predicate in.
-            HiTalkWAMCompiledPredicate result = null;
+            P result = null;
 
-            for (Iterator <HtClause> iterator = clauses.iterator(); iterator.hasNext(); iterator.remove()) {
-                HtClause clause = iterator.next();
+            for (Iterator <T> iterator = clauses.iterator(); iterator.hasNext(); iterator.remove()) {
+                T clause = iterator.next();
 
                 if (result == null) {
-                    result = new HiTalkWAMCompiledPredicate(clause.getHead().getName());
+                    result = createResult(clause.getHead().getName());
                 }
 
                 // Compile the single clause, adding it to the parent compiled predicate.
@@ -603,10 +604,10 @@ public abstract class BaseInstructionCompiler
             }
 
             // Run the optimizer on the output.
-            result = optimizer.apply(result);
+            result = (P) optimizer.apply(result);
 
             displayCompiledPredicate(result);
-            observer.onCompilation(result);
+            observer.onCompilation((Sentence <P>) result);
 
             // Move up the low water mark on the predicates table.
             symbolTable.setLowMark(predicateKey, SYMKEY_PREDICATES);
@@ -618,17 +619,21 @@ public abstract class BaseInstructionCompiler
         scope++;
     }
 
+    private P createResult ( int name ) {
+        return (P) new HiTalkWAMCompiledPredicate(name);
+    }
+
     /**
      * Pretty prints a compiled predicate.
      *
      * @param predicate The compiled predicate to pretty print.
      */
-    private void displayCompiledPredicate ( ITerm predicate ) {
+    private void displayCompiledPredicate ( P predicate ) {
         // Pretty print the clause.
         StringBuilder result = new StringBuilder();
         IPositionalTermVisitor displayVisitor = new HtWAMCompiledPredicatePrintingVisitor(symbolTable, interner, result);
 
-        HtTermWalkers.positionalWalker(displayVisitor).walk(predicate);
+        HtTermWalkers.positionalWalker(displayVisitor).walk((ITerm) predicate);
 
         /*log.fine(result.toString());*/
     }

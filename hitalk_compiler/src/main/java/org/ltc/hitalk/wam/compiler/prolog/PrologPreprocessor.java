@@ -30,7 +30,8 @@ import java.util.List;
 /**
  *
  */
-public class PrologPreprocessor<T extends HtClause, P, Q, TC extends ITerm, TT extends TransformTask <TC>> extends PrologPreCompiler <T, P, Q> {
+public class PrologPreprocessor<T extends HtClause, P, Q, TC extends ITerm, TT extends TransformTask <TC>>
+        extends PrologPreCompiler <T, P, Q> {
 
     protected final List <TT> components = new ArrayList <>();
 

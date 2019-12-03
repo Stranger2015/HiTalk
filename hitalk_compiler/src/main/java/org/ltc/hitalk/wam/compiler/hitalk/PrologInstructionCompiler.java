@@ -9,22 +9,20 @@ import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.BaseInstructionCompiler;
-import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledPredicate;
-import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledQuery;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 
 /**
  *
  */
-public class PrologInstructionCompiler extends BaseInstructionCompiler {
+public abstract class PrologInstructionCompiler<T extends HtClause, PC, QC> extends BaseInstructionCompiler <T, PC, QC> {
 
     protected PrologDefaultBuiltIn defaultBuiltIn;
 
     /**
      * Creates a base machine over the specified symbol table.
      *
-     * @param symbolTable The symbol table for the machine.
-     * @param interner    The interner for the machine.
+     * @param symbolTable    The symbol table for the machine.
+     * @param interner       The interner for the machine.
      * @param parser
      * @param defaultBuiltIn
      * @param observer
@@ -32,34 +30,28 @@ public class PrologInstructionCompiler extends BaseInstructionCompiler {
     public PrologInstructionCompiler ( SymbolTable <Integer, String, Object> symbolTable,
                                        IVafInterner interner,
                                        PrologDefaultBuiltIn defaultBuiltIn,
-                                       LogicCompilerObserver <
-                                               HiTalkWAMCompiledPredicate,
-                                               HiTalkWAMCompiledQuery> observer,
+                                       LogicCompilerObserver <PC, QC> observer,
                                        PlPrologParser parser ) {
         super(symbolTable, interner, defaultBuiltIn, observer, parser);
     }
 
     @Override
-    public void compile ( HtClause clause, HtProperty... flags ) throws SourceCodeException {
-
-    }
-
-    public void compileQuery ( HiTalkWAMCompiledQuery query ) throws SourceCodeException {
+    public void compile ( T clause, HtProperty... flags ) throws SourceCodeException {
 
     }
 
     /**
      * @param resolver
      */
-    public void setResolver ( IResolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> resolver ) {
+    public void setResolver ( IResolver <PC, QC> resolver ) {
 
     }
 
-    public void compile ( HtClause clause ) {
-
+    public void compile ( T clause ) throws SourceCodeException {
+        compile(clause, new HtProperty[0]);
     }
 
-    public void compileQuery ( HtClause query ) throws SourceCodeException {
+    public void compileQuery ( QC query ) throws SourceCodeException {
 
     }
 }

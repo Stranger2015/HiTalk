@@ -90,13 +90,12 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      */
     public HtResolutionEngine ( PlPrologParser parser,
                                 IVafInterner interner,
-                                ICompiler <T, P, Q> compiler,
-                                IResolver <P, Q> resolver ) {
+                                ICompiler <T, P, Q> compiler ) {
         super(parser);
 
         this.interner = interner;
         this.compiler = compiler;
-        this.resolver = resolver;
+        this.resolver = this;
         this.compiler.setCompilerObserver(observer);
     }
 

@@ -6,7 +6,9 @@ import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.BaseCompiler;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
+import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
@@ -26,11 +28,11 @@ import java.io.IOException;
  *
  * @author Rupert Smith
  */
-public class PrologWAMCompiler<T extends HtClause, P, Q>
+public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
         extends BaseCompiler <T, P, Q> {
 
-    protected PrologPreCompiler preCompiler;
-    protected PrologInstructionCompiler instructionCompiler;
+    protected PrologPreCompiler <T, P, Q> preCompiler;
+    protected PrologInstructionCompiler <T, PC, QC> instructionCompiler;
 
     /**
      * Creates a base machine over the specified symbol table.
@@ -45,13 +47,17 @@ public class PrologWAMCompiler<T extends HtClause, P, Q>
         super(symbolTable, interner, parser, observer);
     }
 
+    public static ICompiler <HtClause, HtPredicate, HtClause> create () {
+        return null;
+    }
+
     @Override
     public void endScope () throws SourceCodeException {
 
     }
 
     @Override
-    public void compile ( HtClause clause, HtProperty... flags ) throws SourceCodeException {
+    public void compile ( T clause, HtProperty... flags ) throws SourceCodeException {
         preCompiler.compile(clause, flags);
     }
 
@@ -84,19 +90,19 @@ public class PrologWAMCompiler<T extends HtClause, P, Q>
     /**
      * Chains compilation completion events onto the instruction compiler.
      */
-    public class ClauseChainObserver implements LogicCompilerObserver <HtClause, HtClause> {
+    public class ClauseChainObserver implements LogicCompilerObserver <T, Q> {
         /**
          * {@inheritDoc}
          */
-        public void onCompilation ( Sentence <HtClause> sentence ) throws SourceCodeException {
+        public void onCompilation ( Sentence <T> sentence ) throws SourceCodeException {
             PrologWAMCompiler.this.instructionCompiler.compile(sentence);
         }
 
         /**
          * {@inheritDoc}
          */
-        public void onQueryCompilation ( Sentence <HtClause> sentence ) throws SourceCodeException {
-            PrologWAMCompiler.this.instructionCompiler.compileQuery(sentence);
+        public void onQueryCompilation ( Sentence <Q> sentence ) throws SourceCodeException {
+            PrologWAMCompiler.this.instructionCompiler.compileQuery((QC) sentence);
         }
     }
 }

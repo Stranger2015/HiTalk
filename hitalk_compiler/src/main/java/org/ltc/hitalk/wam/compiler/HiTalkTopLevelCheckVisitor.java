@@ -15,14 +15,14 @@
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.LinkageException;
-import com.thesett.aima.logic.fol.wam.builtins.Conjunction;
-import com.thesett.aima.logic.fol.wam.builtins.Disjunction;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
+import org.ltc.hitalk.wam.compiler.builtins.HtConjunction;
+import org.ltc.hitalk.wam.compiler.builtins.HtDisjunction;
 import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
 import org.ltc.hitalk.wam.printer.IPositionalContext;
 import org.ltc.hitalk.wam.printer.IPositionalTermTraverser;
@@ -103,7 +103,7 @@ public class HiTalkTopLevelCheckVisitor extends HtBasePositionalVisitor implemen
             if (parentContext != null) {
                 ITerm parentTerm = parentContext.getTerm();
 
-                if ((parentTerm instanceof Conjunction) || (parentTerm instanceof Disjunction)) {
+                if ((parentTerm instanceof HtConjunction) || (parentTerm instanceof HtDisjunction)) {
                     Boolean isTopLevel = (Boolean) symbolTable.get(parentTerm.getSymbolKey(), SYMKEY_TOP_LEVEL_FUNCTOR);
 
                     return (isTopLevel == null) ? false : isTopLevel;
