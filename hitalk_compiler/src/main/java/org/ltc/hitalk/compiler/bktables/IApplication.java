@@ -54,6 +54,11 @@ public interface IApplication extends Runnable, IConfigurable {
     }
 
     /**
+     * @return
+     */
+    Language getLanguage ();
+
+    /**
      * @param varOrFunctor
      * @return
      */

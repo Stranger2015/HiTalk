@@ -47,7 +47,7 @@ public class PlPrologParser implements IParser {
     protected final HiTalkStream stream;
     protected final PlLexer lexer;
     protected final ITermFactory factory;
-    protected final IOperatorTable operatorTable;// = new HlOperatorTable();
+    protected final IOperatorTable operatorTable;
     protected final Deque <PlTokenSource> tokenSourceStack = new ArrayDeque <>();
     protected final IVafInterner interner;
 

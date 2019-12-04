@@ -12,6 +12,7 @@ import org.ltc.hitalk.wam.compiler.Tools;
 import java.io.IOException;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
+import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
 
 /**
  *
@@ -42,6 +43,14 @@ public class PrologInterpreterApp<T extends HtClause, P, Q> extends BaseApplicat
             throw new ExecutionError(PERMISSION_ERROR, null);
         }
     }
+
+    /**
+     * @return
+     */
+    public Language getLanguage () {
+        return PROLOG;
+    }
+
     /**
      * @param varOrFunctor
      * @return

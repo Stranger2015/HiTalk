@@ -20,7 +20,6 @@ import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.common.util.SizeableLinkedList;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
-import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.*;
 import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
@@ -190,14 +189,10 @@ public class HiTalkInstructionCompiler extends PrologInstructionCompiler
      * @param bodyNumber  The body position within the containing clause.
      * @return A listing of the instructions for the clause body in the WAM instruction set.
      */
-    public SizeableLinkedList <HiTalkWAMInstruction> compileBodyArguments ( IFunctor expression, boolean isFirstBody, FunctorName clauseName, int bodyNumber ) {
+    public SizeableLinkedList <HiTalkWAMInstruction> compileBodyArguments ( IFunctor expression,
+                                                                            boolean isFirstBody,
+                                                                            FunctorName clauseName,
+                                                                            int bodyNumber ) {
         return null;
-    }
-
-    /**
-     * @param resolver
-     */
-    public void setResolver ( IResolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> resolver ) {
-
     }
 }

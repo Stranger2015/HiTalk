@@ -147,6 +147,9 @@ import static org.ltc.hitalk.wam.compiler.Language.HITALK;
  * This problem can be avoided if a mutually dependent collection of files is always loaded from the same start file.
  */
 public class HiTalkCompilerApp<T extends HtMethod, P, Q> extends PrologCompilerApp <T, P, Q> {
+
+    private final static Language language = HITALK;
+
     /**
      * <code>access(Access)</code>,  where <code>Access</code> can be either <code>read_write (the default) or
      * <code>read_only;
@@ -238,6 +241,13 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q> extends PrologCompilerA
      */
 //    protected Path scratchDirectory;
     private LogicCompilerObserver <T, Q> observer;
+
+    /**
+     * @return
+     */
+    public Language getLanguage () {
+        return language;
+    }
 
     /**
      * @return
@@ -1288,6 +1298,7 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q> extends PrologCompilerA
     public HiTalkBuiltInTransform <T, P, Q> getBuiltInTransform () {
         return builtInTransform;
     }
+
     /**
      * public
      */

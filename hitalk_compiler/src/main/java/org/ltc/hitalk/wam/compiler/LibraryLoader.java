@@ -78,7 +78,7 @@ public class LibraryLoader<T extends HtClause, P, Q> extends BaseCompiler <T, P,
      * @param clause
      */
     @Override
-    public void compile ( T clause ) {
+    public void compile ( T clause ) throws SourceCodeException {
         compiler.compile(clause);
     }
 

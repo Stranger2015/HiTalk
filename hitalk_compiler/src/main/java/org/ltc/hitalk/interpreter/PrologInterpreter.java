@@ -70,10 +70,7 @@ public class PrologInterpreter<T extends HtClause, P, Q>
     public PrologInterpreter ( PlPrologParser parser, ICompiler <T, P, Q> compiler, IResolver <P, Q> resolver ) {
         this.parser = parser;
         this.compiler = compiler;
-        engine = new HtResolutionEngine <>(parser,
-                Environment.instance().getInterner(),
-                compiler, resolver
-        );
+        engine = new HtResolutionEngine <>(parser, Environment.instance().getInterner(), compiler);
     }
 
     /**

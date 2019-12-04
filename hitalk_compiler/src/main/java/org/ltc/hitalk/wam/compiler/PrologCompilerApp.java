@@ -50,6 +50,8 @@ import static org.ltc.hitalk.wam.compiler.Tools.COMPILER;
  */
 public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P, Q> {
 
+    private final static Language language = PROLOG;
+
     public static final String DEFAULT_SCRATCH_DIRECTORY = "scratch";
     public static final HtProperty[] DEFAULT_PROPS = new HtProperty[]{
 
@@ -64,25 +66,35 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
     protected ExecutionContext executionContext = new ExecutionContext();
     protected IProduct product = new HtProduct("Copyright (c) Anton Danilov 2018-2019, All rights reserved",
             language().getName() + " " + tool().getName(),
-            new HtVersion(0, 1, 0, 81, " ", true));
+            new HtVersion(0, 1, 0, 99, " ", true));
     protected LogicCompilerObserver <P, Q> observer;
 
     /**
-     *
+     * @param fn
      */
-    public PrologCompilerApp () {
-    }
-
     public PrologCompilerApp ( String fn ) {
         fileName = fn;
     }
 
-    //    @Override
+    /**
+     * @param symbolTable
+     * @param interner
+     * @param parser
+     * @param observer
+     * @return
+     */
     public BaseCompiler <T, P, Q> createWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
                                                       IVafInterner interner,
                                                       PlPrologParser parser,
                                                       LogicCompilerObserver <P, Q> observer ) {
         return new PrologWAMCompiler <>(symbolTable, interner, parser, observer);
+    }
+
+    /**
+     * @return
+     */
+    public Language getLanguage () {
+        return language;
     }
 
     @Override
@@ -222,7 +234,6 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
      *
      */
     public void initialize () throws Exception {
-//        initBookKeepingTables();
         initDirectives();
         cacheCompilerFlags();
         Path scratchDirectory = loadBuiltIns();

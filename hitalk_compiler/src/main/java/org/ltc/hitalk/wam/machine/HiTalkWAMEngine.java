@@ -37,6 +37,7 @@ class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P
 //Holds the name of the resource on the classpath that contains the built-in library.
     private static final String BUILT_IN_LIB = "wam_builtins.pl";
     private static final String BUILT_IN_LIB_CORE = "core.lgt";
+    private final IResolver <P, Q> resolver;
 
     /**
      * Creates a prolog parser using the specified interner.
@@ -49,7 +50,8 @@ class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P
                              IVafInterner interner,
                              ICompiler <T, P, Q> compiler,
                              IResolver <P, Q> resolver ) {
-        super(parser, interner, compiler, resolver);
+        super(parser, interner, compiler);
+        this.resolver = resolver;
     }
 
     public void setCompiler ( ICompiler <T, P, Q> compiler ) {

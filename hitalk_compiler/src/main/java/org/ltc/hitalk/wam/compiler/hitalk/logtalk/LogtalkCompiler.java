@@ -12,13 +12,13 @@ import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledQuery;
 import org.ltc.hitalk.wam.compiler.HtMethod;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 
-public class LogtalkCompiler<T extends HtMethod, P, Q> extends BaseCompiler <T, P, Q> {
+public class LogtalkCompiler<T extends HtMethod, P, Q, PC, QC> extends BaseCompiler <T, P, Q> {
 
     /**
      *
      */
-    protected final LogtalkTranspiler transpiler;
-    protected final PrologWAMCompiler prologWAMCompiler;
+    protected final LogtalkTranspiler <T, P, Q> transpiler;
+    protected final PrologWAMCompiler <T, P, Q, PC, QC> prologWAMCompiler;
 
     /**
      * @param symbolTable
@@ -32,7 +32,7 @@ public class LogtalkCompiler<T extends HtMethod, P, Q> extends BaseCompiler <T, 
                                 IVafInterner interner,
                                 PlPrologParser parser,
                                 LogicCompilerObserver <P, Q> observer,
-                                LogtalkTranspiler <T, P, Q> transpiler, PrologWAMCompiler <T, P, Q> prologWAMCompiler ) {
+                                LogtalkTranspiler <T, P, Q> transpiler, PrologWAMCompiler <T, P, Q, PC, QC> prologWAMCompiler ) {
         super(symbolTable, interner, parser, observer);
         this.transpiler = transpiler;
         this.prologWAMCompiler = prologWAMCompiler;

@@ -450,7 +450,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
         compiler.compile(fileName, flags);
     }
 
-    public void compile ( T clause ) {
+    public void compile ( T clause ) throws SourceCodeException {
         compiler.compile(clause);
     }
 
