@@ -1,4 +1,4 @@
-package org.ltc.hitalk.wam.compiler.hitalk.logtalk;
+package org.ltc.hitalk.wam.compiler.logtalk;
 
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.common.parsing.SourceCodeException;

@@ -22,29 +22,10 @@ import static org.ltc.hitalk.wam.compiler.Language.HITALK;
 /**
  *
  */
-public class HiTalkParser implements IParser {
-    private PlPrologParser parser;
+public class HiTalkParser extends PlPrologParser {
 
-    /**
-     * @param parser
-     */
-    public HiTalkParser ( PlPrologParser parser ) {
-        this.parser = parser;
-    }
+    public HiTalkParser () {
 
-    /**
-     * @param parser
-     */
-    public void setParser ( PlPrologParser parser ) {
-//        if (parser.getClass() == this.parser.getClass()) {
-//            throw new IllegalStateException("INTERNAL ERROR: HiTalkParser#setParser");
-//        }
-        this.parser = parser;
-    }
-
-    @Override
-    public PlPrologParser getParser () {
-        return parser;
     }
 
     /**
@@ -64,13 +45,11 @@ public class HiTalkParser implements IParser {
     public HiTalkParser ( HiTalkStream stream,
                           IVafInterner interner,
                           ITermFactory factory,
-                          IOperatorTable optable,
-                          PlPrologParser parser ) {
+                          IOperatorTable optable ) {
         setStream(stream);
         setInterner(interner);
         setTermFactory(factory);
         setOptable(optable);
-        setParser(parser);
     }
 
 //    /**
@@ -92,7 +71,7 @@ public class HiTalkParser implements IParser {
      * Interns and inserts into the operator table all of the built in operators and functors in Prolog.
      */
     public void initializeBuiltIns () {
-        parser.initializeBuiltIns();
+        super.initializeBuiltIns();
 //Logtalk operators
         internOperator(COLON_COLON, 600, xfy);
         internOperator(COLON_COLON, 600, fy);// message sending to "self"
@@ -120,17 +99,17 @@ public class HiTalkParser implements IParser {
 
     @Override
     public Sentence <HtClause> parseClause () {
-        return parser.parseClause();
+        return super.parseClause();
     }
 
     @Override
     public Sentence <ITerm> parse () throws SourceCodeException, IOException, ParseException {
-        return parser.parse();
+        return super.parse();
     }
 
     @Override
     public void setTokenSource ( PlTokenSource source ) {
-        parser.setTokenSource(source);
+        super.setTokenSource(source);
     }
 
     /**
@@ -138,7 +117,7 @@ public class HiTalkParser implements IParser {
      */
     @Override
     public PlTokenSource getTokenSource () {
-        return parser.getTokenSource();
+        return super.getTokenSource();
     }
 
     /**
@@ -148,6 +127,6 @@ public class HiTalkParser implements IParser {
      */
     @Override
     public void internOperator ( String name, int priority, Associativity associativity ) {
-        parser.internOperator(name, priority, associativity);
+        super.internOperator(name, priority, associativity);
     }
 }

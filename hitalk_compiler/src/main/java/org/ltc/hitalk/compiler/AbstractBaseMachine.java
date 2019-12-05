@@ -58,6 +58,10 @@ public abstract class AbstractBaseMachine {
         this.interner = interner;
     }
 
+    public AbstractBaseMachine () {
+
+    }
+
     /**
      * Provides the symbol table.
      *

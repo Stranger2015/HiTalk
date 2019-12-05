@@ -1,9 +1,8 @@
-package org.ltc.hitalk.wam.compiler.hitalk.logtalk;
+package org.ltc.hitalk.wam.compiler.logtalk;
 
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
-import org.ltc.hitalk.compiler.BaseCompiler;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtProperty;
@@ -12,13 +11,14 @@ import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledQuery;
 import org.ltc.hitalk.wam.compiler.HtMethod;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 
-public class LogtalkCompiler<T extends HtMethod, P, Q, PC, QC> extends BaseCompiler <T, P, Q> {
+public class LogtalkWAMCompiler<T extends HtMethod, P, Q, PC, QC> extends PrologWAMCompiler <T, P, Q, PC, QC> {
 
     /**
      *
      */
-    protected final LogtalkTranspiler <T, P, Q> transpiler;
-    protected final PrologWAMCompiler <T, P, Q, PC, QC> prologWAMCompiler;
+    protected /*final */ LogtalkTranspiler <T, P, Q> transpiler;
+    protected LogtalkPreCompiler <T, P, Q> preCompiler;
+    protected LogtalkInstructionCompiler <T, PC, QC> instructionCompiler;
 
     /**
      * @param symbolTable
@@ -26,16 +26,18 @@ public class LogtalkCompiler<T extends HtMethod, P, Q, PC, QC> extends BaseCompi
      * @param parser
      * @param observer
      * @param transpiler
-     * @param prologWAMCompiler
      */
-    protected LogtalkCompiler ( SymbolTable <Integer, String, Object> symbolTable,
+    public LogtalkWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
                                 IVafInterner interner,
                                 PlPrologParser parser,
                                 LogicCompilerObserver <P, Q> observer,
-                                LogtalkTranspiler <T, P, Q> transpiler, PrologWAMCompiler <T, P, Q, PC, QC> prologWAMCompiler ) {
+                                LogtalkTranspiler <T, P, Q> transpiler ) {
         super(symbolTable, interner, parser, observer);
         this.transpiler = transpiler;
-        this.prologWAMCompiler = prologWAMCompiler;
+    }
+
+    public LogtalkWAMCompiler () {
+
     }
 
     /**
@@ -70,7 +72,7 @@ public class LogtalkCompiler<T extends HtMethod, P, Q, PC, QC> extends BaseCompi
     /**
      * @param query
      */
-    public void compileQuery ( Q query ) throws SourceCodeException {
+    public void compileQuery ( Q query ) {
 
     }
 

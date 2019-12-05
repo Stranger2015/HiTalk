@@ -40,6 +40,7 @@
       <w>multifile</w>
       <w>nlink</w>
       <w>nonvar</w>
+      <w>optable</w>
       <w>optimizeable</w>
       <w>pred</w>
       <w>preds</w>

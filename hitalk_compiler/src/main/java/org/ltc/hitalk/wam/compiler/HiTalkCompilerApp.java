@@ -203,8 +203,7 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q> extends PrologCompilerA
                                   IVafInterner interner,
                                   ITermFactory factory,
                                   IOperatorTable opTable ) {
-        return new HiTalkParser(stream, interner, factory, opTable,//fixme
-                new PlPrologParser(stream, interner, factory, opTable));
+        return new HiTalkParser(stream, interner, factory, opTable);
     }
 
     public HtEntityIdentifier LOGTALK;
@@ -1216,6 +1215,7 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q> extends PrologCompilerA
      */
     @Override
     public void doInit () throws LinkageException, IOException {
+        super.doInit();
 //            setSymbolTable(new SymbolTableImpl <>());
 //            interner = new IVafInternerImpl(namespace("Variable"), namespace("IFunctor"));
 ////        setParser(createParser(new, interner, new, opTable));

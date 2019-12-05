@@ -50,6 +50,10 @@ public class HiLogParser extends PlPrologParser {
         hilogApply = interner.internFunctorName(HILOG_APPLY, 0);
     }
 
+    public HiLogParser () {
+
+    }
+
     //    @Override
     protected IFunctor compound ( String name, ListTerm args ) throws IOException, ParseException {
         IFunctor result;

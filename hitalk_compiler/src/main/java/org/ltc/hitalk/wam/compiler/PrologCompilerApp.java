@@ -116,6 +116,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
      * @param args
      */
     public static void main ( String[] args ) {
+        Environment.instance().setLanguage(PROLOG);
         try {
             IApplication application = new PrologCompilerApp <>(args[0]);
             application.init();
@@ -132,6 +133,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
     @Override
     public void doInit () throws LinkageException, IOException {
         super.doInit();
+
         setSymbolTable(new SymbolTableImpl <>());
 
 //        setParser(createParser(getParser()));

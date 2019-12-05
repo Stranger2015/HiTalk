@@ -1,4 +1,4 @@
-package org.ltc.hitalk.term.io;
+package org.ltc.hitalk.wam.compiler.hilog;
 
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.common.util.doublemaps.SymbolTable;
@@ -28,5 +28,9 @@ public class HiLogWAMCompiler<T extends HtClause, P, Q, PC, QC> extends PrologWA
                               PlPrologParser parser,
                               LogicCompilerObserver <P, Q> observer ) {
         super(symbolTable, interner, parser, observer);
+    }
+
+    public HiLogWAMCompiler () {
+
     }
 }

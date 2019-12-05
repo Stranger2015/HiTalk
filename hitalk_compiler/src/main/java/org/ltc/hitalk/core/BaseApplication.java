@@ -229,7 +229,7 @@ class BaseApplication<T extends HtClause, P, Q> implements IApplication {
      */
     @Override
     public PlPrologParser getParser () {
-        return Environment.instance().getParser();
+        return Environment.instance().getParser(getLanguage());
     }
 
     /**

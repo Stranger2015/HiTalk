@@ -75,7 +75,7 @@ class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P
         //            tokenSource = PlTokenSource.getTokenSourceForInputStream(Objects.requireNonNull(input), "");
 
         // Set up a parser on the token source.
-        IParser libParser = new HiTalkParser(getParser());
+        IParser libParser = new HiTalkParser();
         libParser.setTokenSource(tokenSource);
 
         // Load the built-ins into the domain.

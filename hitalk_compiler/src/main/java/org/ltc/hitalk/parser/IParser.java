@@ -25,8 +25,14 @@ import static java.lang.String.format;
  *
  */
 public interface IParser extends TermParser <ITerm> {
+    /**
+     * @return
+     */
     PlPrologParser getParser ();
 
+    /**
+     * @param parser
+     */
     default void setParser ( PlPrologParser parser ) {
         if (parser.getClass() == getParser().getClass()) {
             throw new IllegalStateException(
@@ -105,6 +111,7 @@ public interface IParser extends TermParser <ITerm> {
      * @param source
      */
     default void setTokenSource ( PlTokenSource source ) {
+
         getParser().setTokenSource(source);
     }
 

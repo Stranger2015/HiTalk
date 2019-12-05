@@ -7,7 +7,6 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PredicateTable;
 import org.ltc.hitalk.compiler.VafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
-import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtPredicate;
@@ -15,17 +14,13 @@ import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlDynamicOperatorParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
-import org.ltc.hitalk.wam.compiler.HtFunctor;
-import org.ltc.hitalk.wam.compiler.IFunctor;
-import org.ltc.hitalk.wam.compiler.Language;
-import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiler;
+import org.ltc.hitalk.wam.compiler.*;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 
 import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.REPRESENTATION_ERROR;
 import static org.ltc.hitalk.parser.HiLogParser.hilogApply;
 
 /**
@@ -34,7 +29,7 @@ import static org.ltc.hitalk.parser.HiLogParser.hilogApply;
 @SuppressWarnings("ALL")
 public
 class Environment {
-    private static final Environment instance = new Environment();
+    private static Environment instance;// = new Environment();
 
     public static final IFunctor HILOG_APPLY_FUNCTOR = new HtFunctor(hilogApply, 1, 0);
 
@@ -51,7 +46,7 @@ class Environment {
     /**
      * @return
      */
-    public static Environment instance () {
+    public Environment instance () {
         return instance;
     }
 
@@ -135,14 +130,24 @@ class Environment {
     /**
      * @return
      */
-    public PlPrologParser getParser () {
-        try {
-            return (PlPrologParser) getLanguage().getParserClass().getConstructor().newInstance(
-                    getStream(0), getInterner(), getTermFactory(), getOptable());
-        } catch (ReflectiveOperationException e) {
-            e.printStackTrace();
-            throw new ExecutionError(REPRESENTATION_ERROR, null);
-        }
+    public PlPrologParser getParser ( Language language ) {
+
+//
+//        try {
+//            return (PlPrologParser) getLanguage().getParserClass().getConstructor(
+//                    HiTalkStream.class,
+//                    VafInterner.class,
+//                    TermFactory.class,
+//                    PlDynamicOperatorParser.class).newInstance(
+//                    getStream(0),
+//                    getInterner(),
+//                    getTermFactory(),
+//                    getOptable());
+//        } catch (ReflectiveOperationException e) {
+//            e.printStackTrace();
+//            throw new ExecutionError(REPRESENTATION_ERROR, null);
+//        }
+        return null;
     }
 
     /**
@@ -157,23 +162,22 @@ class Environment {
      */
     private Environment () {
         try {
+            instance == this;
             streams.add(new HiTalkStream(FileDescriptor.in, true));//  "current_input"
             streams.add(new HiTalkStream(FileDescriptor.out, false));// "current_output"
             streams.add(new HiTalkStream(FileDescriptor.err, false));// "current_error"
-            interner = getInterner();
-            termFactory = getTermFactory();
-            optable = getOptable();
-            parser = getParser();
-            compiler = getCompiler();
-            resolver = getResolver();
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         initOptions("org/ltc/hitalk/wam/compiler/startup.pl");
     }
 
+    void initComponents () {
+    }
+
     public IResolver <HtPredicate, HtClause> getResolver () {
-        return resolver == null ? new HtResolutionEngine <>(getParser(), getInterner(), getCompiler()) : resolver;//todo
+        return resolver == null ? new HtResolutionEngine <>(getParser(getLanguage()), getInterner(), getCompiler()) : resolver;//todo
     }
 
     private void initOptions ( String fn ) {
@@ -195,24 +199,11 @@ class Environment {
     }
 
     public ICompiler <HtClause, HtPredicate, HtClause> getCompiler () {
-        return compiler == null ? createWAMCompiler(language) : compiler;
+        return compiler == null ? (ICompiler <HtClause, HtPredicate, HtClause>) getLanguage().getCompiler() : compiler;
     }
 
-    private ICompiler <HtClause, HtPredicate, HtClause> createWAMCompiler ( Language language ) {
-        switch (language) {
-            case PROLOG:
-                return PrologWAMCompiler.create();
-            case HILOG:
-                return HiLogWAMCompiler.create();
-            case LOGTALK:
-                return LogtalkWAMCompiler.create();
-            case HITALK:
-                return HiTalkWAMCompiler.create();
-        }
-        return null;
-    }
-
-    public void setCompiler ( ICompiler <HtClause, HtPredicate, HtClause> compiler ) {
+    public void setCompiler ( PrologWAMCompiler <HtClause, HtPredicate, HtClause,
+            HiTalkWAMCompiledPredicate, HiTalkWAMCompiledClause> compiler ) {
         this.compiler = compiler;
     }
 
@@ -227,11 +218,6 @@ class Environment {
     public SymbolTable <Integer, String, Object> getSymbolTable () {
         return symbolTable;
     }
-
-//    public IResolver <HtPredicate, HtClause> getResolver () {
-//        return resolver == null ?
-//                new HtResolutionEngine <>(getParser(), getInterner(), getCompiler(Language.HILOG)) : resolver;
-//    }
 
     public void setResolver ( IResolver <HtPredicate, HtClause> resolver ) {
         this.resolver = resolver;

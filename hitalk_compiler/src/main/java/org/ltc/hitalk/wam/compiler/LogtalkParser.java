@@ -19,4 +19,8 @@ public class LogtalkParser extends PlPrologParser {
     public LogtalkParser ( HiTalkStream stream, IVafInterner interner, ITermFactory factory, IOperatorTable optable ) {
         super(stream, interner, factory, optable);
     }
+
+    public LogtalkParser () {
+
+    }
 }

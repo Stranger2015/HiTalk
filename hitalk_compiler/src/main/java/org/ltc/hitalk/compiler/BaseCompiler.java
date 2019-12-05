@@ -59,6 +59,10 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
         this.observer = observer;
     }
 
+    public BaseCompiler () {
+        super();
+    }
+
     //    @Override
     public void compile ( Sentence <T> sentence ) throws SourceCodeException {
         logger.debug("compile(PlSentence<T> sentence = " + sentence + "): called... ");

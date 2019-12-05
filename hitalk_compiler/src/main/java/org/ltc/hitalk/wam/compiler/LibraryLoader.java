@@ -14,8 +14,6 @@ import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.ltc.hitalk.term.io.Environment.instance;
-
 /**
  *
  */
@@ -23,7 +21,7 @@ public class LibraryLoader<T extends HtClause, P, Q> extends BaseCompiler <T, P,
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
-    protected final PlPrologParser parser = instance().getParser();
+    protected final PlPrologParser parser = instance().getParser(instance().getLanguage());
     private final ICompiler <T, P, Q> compiler;
 
     /**

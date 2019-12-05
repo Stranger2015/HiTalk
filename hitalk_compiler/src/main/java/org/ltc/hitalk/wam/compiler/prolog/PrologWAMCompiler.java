@@ -47,6 +47,13 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
         super(symbolTable, interner, parser, observer);
     }
 
+    public PrologWAMCompiler () {
+        super();
+    }
+
+    /**
+     * @return
+     */
     public static ICompiler <HtClause, HtPredicate, HtClause> create () {
         return null;
     }

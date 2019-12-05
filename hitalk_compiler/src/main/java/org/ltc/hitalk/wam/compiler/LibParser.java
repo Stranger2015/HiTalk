@@ -4,10 +4,9 @@ import com.thesett.aima.logic.fol.Sentence;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
-import org.ltc.hitalk.term.io.Environment;
 
 public class LibParser implements IParser {
-    protected PlPrologParser parser = Environment.instance().getParser();
+    protected PlPrologParser parser = instance().getParser(instance().getLanguage());
 
     @Override
     public PlPrologParser getParser () {

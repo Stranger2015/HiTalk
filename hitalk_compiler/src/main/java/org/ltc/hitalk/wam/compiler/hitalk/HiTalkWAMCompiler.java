@@ -19,8 +19,9 @@ import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
  * @param <Q>
  */
 public class HiTalkWAMCompiler<T extends HtMethod, P, Q, PC, QC> extends PrologWAMCompiler <T, P, Q, PC, QC> {
+    public HiTalkWAMCompiler () {
 
-    //  ICompiler <T, P, Q> hiLogWAMCompiler = instance().getCompiler(Language.HILOG);
+    }
 
     /**
      *

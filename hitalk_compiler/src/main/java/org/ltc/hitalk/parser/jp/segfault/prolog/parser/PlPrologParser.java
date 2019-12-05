@@ -1,6 +1,5 @@
 package org.ltc.hitalk.parser.jp.segfault.prolog.parser;
 
-
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.Variable;
 import com.thesett.common.parsing.SourceCodeException;
@@ -36,7 +35,6 @@ import static org.ltc.hitalk.term.ListTerm.Kind.*;
 import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
 
 /**
- *
  * @author shun
  */
 public class PlPrologParser implements IParser {
@@ -44,12 +42,19 @@ public class PlPrologParser implements IParser {
     public static final String BEGIN_OF_FILE = "begin_of_file";
     public static final String END_OF_FILE = "end_of_file";
 
-    protected final HiTalkStream stream;
-    protected final PlLexer lexer;
+    protected HiTalkStream stream;
+    protected PlLexer lexer;
     protected final ITermFactory factory;
     protected final IOperatorTable operatorTable;
     protected final Deque <PlTokenSource> tokenSourceStack = new ArrayDeque <>();
     protected final IVafInterner interner;
+
+    public PlPrologParser () {
+        stream = instance().getStream(0);
+        interner = instance().getInterner();
+        factory = instance().getTermFactory();
+        operatorTable = instance().getOptable();
+    }
 
     /**
      * Describes the possible system directives in interactive mode.
@@ -57,7 +62,6 @@ public class PlPrologParser implements IParser {
     public enum Directive {
         Trace, Info, User, File
     }
-
 
     /**
      * Holds the variable scoping context for the current sentence.
@@ -330,6 +334,7 @@ public class PlPrologParser implements IParser {
      * @param source
      */
     public void setTokenSource ( PlTokenSource source ) {
+
         tokenSourceStack.push(source);
     }
 
