@@ -42,9 +42,9 @@ interface PrologBuiltIn {
      * @param expression        The body functor to call.
      * @param isFirstBody       Iff this is the first body in a clause.
      * @param isLastBody        Iff this is the last body in a clause.
-     * @param chainRule         Iff the clause is a chain rule, so has no environment frame.
+     * @param chainRule         Iff the clause is a chain rule, so has no BaseApp frame.
      * @param permVarsRemaining The number of permanent variables remaining at this point in the calling clause. Used
-     *                          for environment trimming.
+     *                          for BaseApp trimming.
      * @return A list of instructions for the body call.
      */
     SizeableLinkedList <HiTalkWAMInstruction> compileBodyCall ( IFunctor expression,

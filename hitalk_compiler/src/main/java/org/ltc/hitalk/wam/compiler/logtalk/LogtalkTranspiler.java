@@ -7,7 +7,7 @@ import org.ltc.hitalk.compiler.BaseCompiler;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtProperty;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.HtMethod;
 
 public class LogtalkTranspiler<M extends HtMethod, P, Q> extends BaseCompiler <M, P, Q> {

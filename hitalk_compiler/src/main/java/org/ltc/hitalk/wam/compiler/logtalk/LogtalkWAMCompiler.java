@@ -6,7 +6,7 @@ import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtProperty;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledQuery;
 import org.ltc.hitalk.wam.compiler.HtMethod;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
@@ -16,7 +16,7 @@ public class LogtalkWAMCompiler<T extends HtMethod, P, Q, PC, QC> extends Prolog
     /**
      *
      */
-    protected /*final */ LogtalkTranspiler <T, P, Q> transpiler;
+    protected LogtalkTranspiler <T, P, Q> transpiler;
     protected LogtalkPreCompiler <T, P, Q> preCompiler;
     protected LogtalkInstructionCompiler <T, PC, QC> instructionCompiler;
 

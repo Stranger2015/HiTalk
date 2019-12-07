@@ -4,13 +4,14 @@ package org.ltc.hitalk.interpreter;
 import com.thesett.common.parsing.SourceCodeException;
 import jline.ConsoleReader;
 import org.ltc.hitalk.compiler.PredicateTable;
+import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.core.IConfigurable;
 import org.ltc.hitalk.core.IResolver;
+import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken;
+import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.parser.PlToken;
 import org.ltc.hitalk.term.HtVariable;
-import org.ltc.hitalk.term.io.Environment;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 
 import java.io.IOException;
@@ -185,7 +186,7 @@ public interface IInterpreter<T extends HtClause, P, Q> extends IConfigurable/*,
     ConsoleReader initializeCommandLineReader () throws IOException;
 
     default Set <HtVariable> solve ( HtFunctor goal, HtClause clause ) {
-        PredicateTable predicateTable = Environment.instance().getPredicateTable();
+        PredicateTable <HtPredicate> predicateTable = BaseApp.getAppContext().getPredicateTable();
         HtClause clause1 = predicateTable.lookup(goal, clause);
 
         return null;

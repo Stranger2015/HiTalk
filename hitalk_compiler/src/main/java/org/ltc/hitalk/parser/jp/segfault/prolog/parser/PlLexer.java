@@ -1,16 +1,18 @@
 package org.ltc.hitalk.parser.jp.segfault.prolog.parser;
 
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind;
+import org.ltc.hitalk.parser.PlToken;
+import org.ltc.hitalk.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.io.HiTalkStream;
 
 import java.io.EOFException;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Optional;
 
 import static java.lang.Character.*;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
-import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind.*;
+import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
 
 /**
  * 入力ストリームをPrologテキストとみなし、トークン列に分解します。
@@ -64,13 +66,7 @@ public class PlLexer {
     }
 
     private TokenKind calcTokenKind ( int c ) {
-        for (int i = 0; i < values().length; i++) {
-            TokenKind value = values()[i];
-            if (value.getChar() == c) {
-                return value;
-            }
-        }
-        return null;
+        return Arrays.stream(values()).filter(value -> value.getChar() == c).findFirst().orElse(null);
     }
 
     private PlToken getToken ( boolean valued ) throws IOException, ParseException {

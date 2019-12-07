@@ -25,7 +25,7 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PrologBuiltInTransform;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.HiTalkTopLevelCheckVisitor;
 import org.ltc.hitalk.wam.compiler.HtMethod;

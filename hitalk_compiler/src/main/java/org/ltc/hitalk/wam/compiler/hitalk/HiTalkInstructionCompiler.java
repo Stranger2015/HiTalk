@@ -20,7 +20,7 @@ import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.common.util.SizeableLinkedList;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.*;
 import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
 
@@ -128,7 +128,7 @@ import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
  *
  * @author Rupert Smith
  */
-public class HiTalkInstructionCompiler extends PrologInstructionCompiler
+public class HiTalkInstructionCompiler<T extends HtMethod, PC, QC> extends PrologInstructionCompiler <T, PC, QC>
         implements PrologBuiltIn {
 
 //public final static FunctorName OBJECT = new FunctorName("object", 2);
@@ -149,9 +149,7 @@ public class HiTalkInstructionCompiler extends PrologInstructionCompiler
     public HiTalkInstructionCompiler ( SymbolTable <Integer, String, Object> symbolTable,
                                        IVafInterner interner,
                                        HiTalkDefaultBuiltIn defaultBuiltIn,
-                                       LogicCompilerObserver <
-                                               HiTalkWAMCompiledPredicate,
-                                               HiTalkWAMCompiledQuery> observer,
+                                       LogicCompilerObserver <PC, QC> observer,
                                        PlPrologParser parser ) {
         super(symbolTable, interner, defaultBuiltIn, observer, parser);
     }
@@ -162,9 +160,9 @@ public class HiTalkInstructionCompiler extends PrologInstructionCompiler
      * @param expression        The body functor to call.
      * @param isFirstBody       Iff this is the first body in a clause.
      * @param isLastBody        Iff this is the last body in a clause.
-     * @param chainRule         Iff the clause is a chain rule, so has no environment frame.
+     * @param chainRule         Iff the clause is a chain rule, so has no BaseApp frame.
      * @param permVarsRemaining The number of permanent variables remaining at this point in the calling clause. Used
-     *                          for environment trimming.
+     *                          for BaseApp trimming.
      * @return A list of instructions for the body call.
      */
     @Override

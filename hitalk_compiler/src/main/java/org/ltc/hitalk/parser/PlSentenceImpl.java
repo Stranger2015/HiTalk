@@ -1,6 +1,7 @@
-package org.ltc.hitalk.parser.jp.segfault.prolog.parser;
+package org.ltc.hitalk.parser;
 
 import com.thesett.aima.logic.fol.Sentence;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ISentence;
 import org.ltc.hitalk.term.ITerm;
 
 /**
@@ -14,7 +15,7 @@ import org.ltc.hitalk.term.ITerm;
  *
  * @author Rupert Smith
  */
-public class PlSentenceImpl implements Sentence <ITerm> {
+public class PlSentenceImpl implements ISentence <ITerm> {
 
     /**
      * The term to present as a sentence.

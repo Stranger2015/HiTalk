@@ -1,11 +1,12 @@
 package org.ltc.hitalk.term.io;
 
 import org.jetbrains.annotations.NotNull;
+import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.IProperty;
 import org.ltc.hitalk.entities.IPropertyOwner;
 import org.ltc.hitalk.entities.PropertyOwner;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
+import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.term.ITerm;
 import sun.nio.cs.StreamDecoder;
 import sun.nio.cs.StreamEncoder;
@@ -67,8 +68,13 @@ class HiTalkStream implements IInputStream, IOutputStream, IPropertyOwner, Prope
      * @param fn
      * @param isReading s
      */
-    public static HiTalkStream createHiTalkStream ( String fn, boolean isReading ) throws IOException {
-        return new HiTalkStream(Paths.get(fn), isReading ? READ : WRITE);
+    public static HiTalkStream createHiTalkStream ( String fn, boolean isReading ) {
+        try {
+            return new HiTalkStream(Paths.get(fn), isReading ? READ : WRITE);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new ExecutionError(ExecutionError.Kind.EXISTENCE_ERROR, null);
+        }
     }
 
     /**

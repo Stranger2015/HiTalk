@@ -3,7 +3,7 @@ package org.ltc.hitalk.wam.compiler.hitalk;
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.HtMethod;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 

@@ -4,13 +4,11 @@ import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import jline.ConsoleReader;
 import org.ltc.hitalk.compiler.IVafInterner;
-import org.ltc.hitalk.compiler.PredicateTable;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.interpreter.PrologInterpreter;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.ListTerm;
-import org.ltc.hitalk.term.io.Environment;
 import org.ltc.hitalk.wam.printer.IPositionalTermTraverser;
 
 import java.io.IOException;
@@ -70,7 +68,7 @@ public class PrologInterpreterVisitor<T extends HtClause, P, Q> extends MetaInte
      */
     @Override
     protected void enterPredicate ( HtPredicate predicate ) {
-        PredicateTable <?> predicateTable = Environment.instance().getPredicateTable();
+//        PredicateTable <?> predicateTable = BaseApp.instance().getPredicateTable();
 
     }
 

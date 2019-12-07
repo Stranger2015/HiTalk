@@ -6,7 +6,6 @@ import org.ltc.hitalk.compiler.PredicateTable;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.term.io.Environment;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -16,6 +15,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 
 import static java.util.stream.Collector.Characteristics.UNORDERED;
+import static org.ltc.hitalk.core.BaseApp.getAppContext;
 
 /**
  *
@@ -41,10 +41,10 @@ class PiCallsCollector implements Collector <PiCalls <?>, List <PiCalls <?>>, Pi
      *
      */
     public PiCallsCollector () {
-        predicateTable = Environment.instance().getPredicateTable();
-        symbolTable = Environment.instance().getSymbolTable();
-        interner = Environment.instance().getInterner();
-        resolver = Environment.instance().getResolver();
+        predicateTable = getAppContext().getPredicateTable();
+        symbolTable = getAppContext().getSymbolTable();
+        interner = getAppContext().getInterner();
+        resolver = getAppContext().getResolverPre();
         supplier = supplier();
         accumulator = accumulator();
         combiner = combiner();

@@ -1,18 +1,16 @@
 package org.ltc.hitalk.wam.machine;
 
+
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.interpreter.HtResolutionEngine;
-import org.ltc.hitalk.parser.HiTalkParser;
-import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.IParser;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
+import org.ltc.hitalk.parser.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
-import java.util.logging.Logger;
 
 /**
  *
@@ -20,7 +18,7 @@ import java.util.logging.Logger;
 public
 class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P, Q> {
 
-    protected final Logger log = Logger.getLogger(getClass().getSimpleName());
+    protected final Logger log = LoggerFactory.getLogger(getClass().getSimpleName());
 
     /**
      * HiTalkWAMEngine implements a {@link HtResolutionEngine} for an WAM-based Prolog with built-ins. This engine loads its
@@ -72,7 +70,6 @@ class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P
         // Create a token source to load the model rules from.
         InputStream input = getClass().getClassLoader().getResourceAsStream(BUILT_IN_LIB);
         PlTokenSource tokenSource = null;
-        //            tokenSource = PlTokenSource.getTokenSourceForInputStream(Objects.requireNonNull(input), "");
 
         // Set up a parser on the token source.
         IParser libParser = new HiTalkParser();
@@ -98,7 +95,17 @@ class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P
         }
     }
 
+    /**
+     *
+     */
     protected void cleanupDomain () {
 
+    }
+
+    /**
+     * @return
+     */
+    public IResolver <P, Q> getResolver () {
+        return resolver;
     }
 }

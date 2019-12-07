@@ -6,31 +6,40 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Set;
 
-public enum Tools implements Tool {
-    COMPILER("compiler"),
-    INTERPRETER("interpreter"),
-    ;
+public class Tools implements Tool {
+    public enum Kind {
+        COMPILER("compiler"),
+        INTERPRETER("interpreter"),
+        ;
 
-    private final String name;
+        private final String name;
 
-    Tools ( String name ) {
-        this.name = name;
+        Kind ( String name ) {
+            this.name = name;
+        }
+
+        public String getName () {
+            return name;
+        }
     }
 
+    /**
+     * @param in
+     * @param out
+     * @param err
+     * @param arguments
+     * @return
+     */
     @Override
     public int run ( InputStream in, OutputStream out, OutputStream err, String... arguments ) {
         return 0;
     }
 
-    @Override
-    public Set <SourceVersion> getSourceVersions () {
-        return null;
-    }
-
     /**
      * @return
      */
-    public String getName () {
-        return name;
+    @Override
+    public Set <SourceVersion> getSourceVersions () {
+        return null;
     }
 }

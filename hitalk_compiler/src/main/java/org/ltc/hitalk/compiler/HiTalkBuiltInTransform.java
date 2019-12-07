@@ -24,11 +24,11 @@
  import org.ltc.hitalk.parser.HtClause;
  import org.ltc.hitalk.term.ITerm;
  import org.ltc.hitalk.term.ListTerm;
- import org.ltc.hitalk.term.io.Environment;
  import org.ltc.hitalk.term.io.HiTalkStream;
  import org.ltc.hitalk.wam.compiler.DirectiveClause;
  import org.ltc.hitalk.wam.compiler.HtFunctor;
  import org.ltc.hitalk.wam.compiler.HtMethod;
+ import org.ltc.hitalk.wam.compiler.IFunctor;
  import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
  import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
 
@@ -39,6 +39,7 @@
  import java.util.concurrent.atomic.AtomicInteger;
 
  import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.*;
+ import static org.ltc.hitalk.core.BaseApp.getAppContext;
  import static org.ltc.hitalk.entities.IRelation.*;
 
  /**
@@ -598,8 +599,8 @@
 //         app.getParser().getTokenSource().setOffset(token.endLine, token.endColumn);
 //         app.getParser().getTokenSource().setFileBeginPos(app.getParser().);
 //         lastTerm = new HtFunctor(interner.internFunctorName(BEGIN_OF_FILE, 0), null);
-         HiTalkStream in = Environment.instance().currentInput();
-         HtFunctor encoding = (HtFunctor) functor.getArgument(0);
+         HiTalkStream in = getAppContext().currentInput();
+         IFunctor encoding = (HtFunctor) functor.getArgument(0);
 //         Objects.requireNonNull(in).getProps()[HiTalkStream.Properties.encoding.ordinal()].setValue(encoding);
 //         String propName = interner.getFunctorName(encoding);
 //         in.setValue(HiTalkStream.Properties.encoding, encoding);

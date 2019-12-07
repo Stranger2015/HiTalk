@@ -228,11 +228,11 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
     protected abstract void codeAdded ( ByteBuffer codeBuffer, int codeOffset, int length );
 
     /**
-     * Dereferences an offset from the current environment frame on the stack. Storage slots in the current environment
-     * may point to other environment frames, but should not contain unbound variables, so ultimately this dereferencing
+     * Dereferences an offset from the current BaseApp frame on the stack. Storage slots in the current BaseApp
+     * may point to other BaseApp frames, but should not contain unbound variables, so ultimately this dereferencing
      * should resolve onto a structure or variable on the heap.
      *
-     * @param a The offset into the current environment stack frame to dereference.
+     * @param a The offset into the current BaseApp stack frame to dereference.
      * @return The dereferences structure or variable.
      */
     protected abstract int derefStack ( int a );

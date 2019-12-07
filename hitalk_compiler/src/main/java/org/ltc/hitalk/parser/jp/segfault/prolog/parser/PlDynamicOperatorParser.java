@@ -213,8 +213,8 @@ import static org.ltc.hitalk.term.HlOpSymbol.Fixity.*;
  * @author Rupert Smith
  */
 public class PlDynamicOperatorParser implements IOperatorTable {
-    /** Used for debugging purposes. */
-    /* private static final Logger log = Logger.getLogger(DynamicOperatorParser.class.getName()); */
+    /* Used for debugging purposes. */
+    /* private final Logger log = Logger.getLogger(DynamicOperatorParser.class.getName()); */
 
     /**
      * Encodes the possible symbols that this parser accepts.

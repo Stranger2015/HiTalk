@@ -3,7 +3,7 @@ package org.ltc.hitalk.wam.compiler;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.interpreter.PrologInterpreter;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.parser.PlPrologParser;
 
 /**
  * @param <T>

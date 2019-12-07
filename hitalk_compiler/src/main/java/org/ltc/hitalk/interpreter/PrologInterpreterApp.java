@@ -3,21 +3,22 @@ package org.ltc.hitalk.interpreter;
 import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.compiler.bktables.IProduct;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
-import org.ltc.hitalk.core.BaseApplication;
+import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
+import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.wam.compiler.Language;
-import org.ltc.hitalk.wam.compiler.Tools;
+import org.ltc.hitalk.wam.compiler.Tools.Kind;
 
 import java.io.IOException;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
+import static org.ltc.hitalk.wam.compiler.Tools.Kind.INTERPRETER;
 
 /**
  *
  */
-public class PrologInterpreterApp<T extends HtClause, P, Q> extends BaseApplication <T, P, Q> {
+public class PrologInterpreterApp<T extends HtClause, P, Q> extends BaseApp <T, P, Q> {
     /**
      * @param fn
      */
@@ -82,7 +83,12 @@ public class PrologInterpreterApp<T extends HtClause, P, Q> extends BaseApplicat
         return getParser().language();
     }
 
-    public Tools tool () {
-        return Tools.INTERPRETER;
+    public Kind tool () {
+        return INTERPRETER;
+    }
+
+    @Override
+    protected void initComponents () {
+
     }
 }

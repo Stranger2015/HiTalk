@@ -4,10 +4,8 @@ import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
-import static org.ltc.hitalk.wam.compiler.Language.LOGTALK;
 
 public class LogtalkCompilerApp<T extends HtMethod, P, Q> extends PrologCompilerApp <T, P, Q> {
-    private final static Language language = LOGTALK;
 
     /**
      * @param fn
@@ -16,6 +14,10 @@ public class LogtalkCompilerApp<T extends HtMethod, P, Q> extends PrologCompiler
         super(fn);
     }
 
+    /**
+     * @return
+     */
+    @Override
     public Language getLanguage () {
         return language;
     }

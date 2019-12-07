@@ -7,7 +7,7 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.BaseInstructionCompiler;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 

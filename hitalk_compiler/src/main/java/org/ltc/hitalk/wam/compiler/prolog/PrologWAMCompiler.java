@@ -6,13 +6,12 @@ import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.BaseCompiler;
 import org.ltc.hitalk.compiler.IVafInterner;
-import org.ltc.hitalk.core.ICompiler;
+import org.ltc.hitalk.core.IHitalkObject;
 import org.ltc.hitalk.core.IResolver;
-import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
+import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.wam.compiler.hitalk.PrologInstructionCompiler;
 
 import java.io.IOException;
@@ -29,7 +28,7 @@ import java.io.IOException;
  * @author Rupert Smith
  */
 public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
-        extends BaseCompiler <T, P, Q> {
+        extends BaseCompiler <T, P, Q> implements IHitalkObject {
 
     protected PrologPreCompiler <T, P, Q> preCompiler;
     protected PrologInstructionCompiler <T, PC, QC> instructionCompiler;
@@ -51,13 +50,14 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
         super();
     }
 
-    /**
-     * @return
-     */
-    public static ICompiler <HtClause, HtPredicate, HtClause> create () {
-        return null;
-    }
-
+    //
+//    /**
+//     * @return
+//     */
+//    public static ICompiler <HtClause, HtPredicate, HtClause> create () {
+//        return null;
+//    }
+//
     @Override
     public void endScope () throws SourceCodeException {
 

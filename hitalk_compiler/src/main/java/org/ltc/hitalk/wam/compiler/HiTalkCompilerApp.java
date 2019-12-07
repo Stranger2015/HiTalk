@@ -10,7 +10,6 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
 import org.ltc.hitalk.ITermFactory;
-import org.ltc.hitalk.compiler.BaseCompiler;
 import org.ltc.hitalk.compiler.HiTalkBuiltInTransform;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.*;
@@ -24,11 +23,12 @@ import org.ltc.hitalk.entities.context.Context;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.LoadContext;
 import org.ltc.hitalk.parser.HiTalkParser;
-import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.IParser;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiler;
+import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,15 +41,15 @@ import java.util.List;
 import static java.lang.System.in;
 import static org.ltc.hitalk.compiler.bktables.BkTableKind.LOADED_ENTITIES;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
-import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource.getTokenSourceForIoFile;
+import static org.ltc.hitalk.parser.PlTokenSource.getTokenSourceForIoFile;
 import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
 import static org.ltc.hitalk.wam.compiler.Language.HITALK;
 
 /**
  * Reloading files, active code and threads
  * <p>
- * Traditionally, Prolog environments allow for reloading files holding currently active code.
- * In particular, the following sequence is a valid use of the development environment:
+ * Traditionally, Prolog BaseApps allow for reloading files holding currently active code.
+ * In particular, the following sequence is a valid use of the development BaseApp:
  * <p>
  * Trace a goal
  * Find unexpected behaviour of a predicate
@@ -146,7 +146,8 @@ import static org.ltc.hitalk.wam.compiler.Language.HITALK;
  * The current implementation does not detect such cases and the involved threads will freeze.
  * This problem can be avoided if a mutually dependent collection of files is always loaded from the same start file.
  */
-public class HiTalkCompilerApp<T extends HtMethod, P, Q> extends PrologCompilerApp <T, P, Q> {
+public class HiTalkCompilerApp<T extends HtMethod, P, Q>
+        extends HiLogCompilerApp <T, P, Q> {
 
     private final static Language language = HITALK;
 
@@ -185,13 +186,20 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q> extends PrologCompilerA
     }
 
     /**
+     *
+     */
+    public void init () throws LinkageException, IOException {
+
+    }
+
+    /**
      * @param symbolTable
      * @param interner
      * @param observer
      * @param parser
      * @return
      */
-    public BaseCompiler <T, P, Q>
+    public PrologWAMCompiler <T, P, Q, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>
     createWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
                         IVafInterner interner,
                         LogicCompilerObserver <P, Q> observer,
@@ -238,7 +246,6 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q> extends PrologCompilerA
     /**
      * Holds the instruction generating compiler.
      */
-//    protected Path scratchDirectory;
     private LogicCompilerObserver <T, Q> observer;
 
     /**
@@ -256,16 +263,11 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q> extends PrologCompilerA
     }
 
     protected BookKeepingTables bkt = new BookKeepingTables();
-//    protected CompilationContext compilationContext;
-//    protected LoadContext loadContext;
-//    protected ExecutionContext executionContext;
 
     /**
      * Holds the pre-compiler, for analyzing and transforming terms prior to compilation proper.
      */
 
-//    protected String fileName;
-//    protected HiTalkDefaultBuiltIn defaultBuiltIn;
     protected HiTalkBuiltInTransform <T, P, Q> builtInTransform;
 
     /**
@@ -920,7 +922,6 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q> extends PrologCompilerA
     }
 
     public void compile ( String fileName, HtProperty[] flags ) throws IOException, SourceCodeException {
-//        compiler.compile(getTokenSourceForVfsFileObject(fsManager.resolveFile(fileName)));
         compiler.compile(getTokenSourceForIoFile(new File(fileName)));
 
     }
@@ -1191,57 +1192,11 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q> extends PrologCompilerA
 
     }
 
-//    /**
-//     * @return
-//     */
-//    //    @Override
-//    public
-//    ICompiler <T, HtPredicate, T> getPreCompiler () throws LinkageException {
-//        if (preCompiler == null) {
-//            preCompiler = new HiTalkPreprocessor(
-//                    getSymbolTable(),
-//                    getInterner(),
-//                    getDefaultBuiltIn(),
-//                    getResolver2(),
-//                    this);                                                                  OBJEt
-//        }
-//
-//        return preCompiler;
-//    }
-
-
     /**
      *
      */
     @Override
     public void doInit () throws LinkageException, IOException {
-        super.doInit();
-//            setSymbolTable(new SymbolTableImpl <>());
-//            interner = new IVafInternerImpl(namespace("Variable"), namespace("IFunctor"));
-////        setParser(createParser(new, interner, new, opTable));
-//            //setParser(new HiTalkParser(interner.internFunctorName(value, 0)interner.internFunctorName(value, 0)etTokenSourceForInputStream(in, "stdin"), interner));
-//
-//            compiler = createWAMCompiler(getSymbolTable(), getInterner(), getParser());
-//            bkt = new BookKeepingTables();
-//            setConfig(new CompilerConfig());
-//            scratchDirectory = "./" + DEFAULT_SCRATCH_DIRECTORY;
-//
-//            getTermFactory() = new TermFactory(interner);
-//
-//
-////        ENUM = getTermFactory().createIdentifier(HtEntityKind.OBJECT, "enum");
-////
-////        DEFAULT_FLAGS = new HtProperty[]{
-////                getTermFactory().createFlag("access", "read_write"),//read_only
-////                getTermFactory().createFlag("keep", "false"),
-////                //
-////                getTermFactory().createFlag("type", "false"),
-////
-////                };
-//
-//
-//
-//            initVfs();
         super.doInit();
         EXPANDING = getTermFactory().createIdentifier(HtEntityKind.PROTOCOL, "expanding");
         MONITORING = getTermFactory().createIdentifier(HtEntityKind.PROTOCOL, "monitoring");
@@ -1261,6 +1216,13 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q> extends PrologCompilerA
 
     public Language language () {
         return HITALK;
+    }
+
+    /**
+     * @param tokenSource
+     */
+    public void setTokenSource ( PlTokenSource tokenSource ) {
+
     }
 
 //    public Tools tool () {
@@ -1283,14 +1245,6 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q> extends PrologCompilerA
         return executionContext;
     }
 
-//    public void setDefaultBuiltIn ( HiTalkDefaultBuiltIn defaultBuiltIn ) {
-//        this.defaultBuiltIn = defaultBuiltIn;
-//    }
-//
-//    public HiTalkDefaultBuiltIn getDefaultBuiltIn () {
-//        return defaultBuiltIn;
-//    }
-
     public void setBuiltInTransform ( HiTalkBuiltInTransform <T, P, Q> builtInTransform ) {
         this.builtInTransform = builtInTransform;
     }
@@ -1302,7 +1256,7 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q> extends PrologCompilerA
     /**
      * public
      */
-    public static class ClauseChainObserver<T extends HtClause, P, Q> implements LogicCompilerObserver <T, Q> {
+    public static class ClauseChainObserver<T extends HtMethod, P, Q> implements LogicCompilerObserver <T, Q> {
         protected ICompiler <T, P, Q> instructionCompiler;
 
         /**

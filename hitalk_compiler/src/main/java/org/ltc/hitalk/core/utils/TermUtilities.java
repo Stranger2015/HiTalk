@@ -190,7 +190,7 @@ public class TermUtilities {
      * @return A clause for the term, or <tt>null</tt> if it cannot be converted.
      * @throws SourceCodeException If the term to convert to a clause does not form a valid clause.
      */
-    public static HtClause convertToClause ( IFunctor term, IVafInterner interner ) throws SourceCodeException {
+    public static HtClause convertToClause ( ITerm term, IVafInterner interner ) throws SourceCodeException {
         // Check if the top level term is a query, an implication or neither and reduce the term into a clause
         // accordingly.
         if (term instanceof HlOpSymbol) {
@@ -208,7 +208,7 @@ public class TermUtilities {
             }
         }
         if (term != null) {
-            return new HtClause(term, null);
+            return new HtClause((IFunctor) term, null);
         } else {
             throw new SourceCodeException("Only functors can for a clause body, not " + term + ".", null, null, null,
                     requireNonNull(term).getSourceCodePosition());

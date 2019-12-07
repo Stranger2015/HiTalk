@@ -4,10 +4,11 @@ import com.thesett.common.util.Function;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.term.io.Environment;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
+
+import static org.ltc.hitalk.core.BaseApp.getAppContext;
 
 public class PrologBuiltInTransform<T extends HtClause, P, Q>
         implements Function <HtFunctor, HtFunctor> {
@@ -15,7 +16,7 @@ public class PrologBuiltInTransform<T extends HtClause, P, Q>
     protected final IVafInterner interner;
     protected final PrologPreCompiler <T, P, Q> preCompiler;
     protected final IResolver <P, Q> resolver;
-    protected final PredicateTable <HtPredicate> predicateTable = Environment.instance().getPredicateTable();
+    protected final PredicateTable <HtPredicate> predicateTable = getAppContext().getPredicateTable();
 
     /**
      * Holds the default built-in, for standard compilation and interners and symbol tables.

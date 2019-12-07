@@ -2,12 +2,12 @@ package org.ltc.hitalk.core.algebra;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
-import org.ltc.hitalk.term.io.Environment;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
@@ -23,7 +23,7 @@ public class Msg {
 //    protected final Map <HtVariable, ITerm> dict1 = new HashMap <>();
 //    protected final Map <HtVariable, ITerm> dict2 = new HashMap <>();
 
-    protected IVafInterner interner = Environment.instance().getInterner();
+    protected IVafInterner interner = BaseApp.getAppContext().getInterner();
 
     /**
      * @param term1

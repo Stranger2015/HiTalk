@@ -2,23 +2,22 @@ package org.ltc.hitalk.interpreter;
 
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
-import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.common.parsing.SourceCodeException;
 import jline.ConsoleReader;
-import org.ltc.hitalk.compiler.PredicateTable;
 import org.ltc.hitalk.compiler.bktables.IConfig;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.IParser;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
 import org.ltc.hitalk.term.HtVariable;
-import org.ltc.hitalk.term.io.Environment;
 import org.ltc.hitalk.wam.compiler.Language;
 import org.ltc.hitalk.wam.compiler.prolog.ChainedCompilerObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -70,7 +69,7 @@ public class PrologInterpreter<T extends HtClause, P, Q>
     public PrologInterpreter ( PlPrologParser parser, ICompiler <T, P, Q> compiler, IResolver <P, Q> resolver ) {
         this.parser = parser;
         this.compiler = compiler;
-        engine = new HtResolutionEngine <>(parser, Environment.instance().getInterner(), compiler);
+        engine = new HtResolutionEngine <>(parser, getInterner(), compiler);
     }
 
     /**
@@ -110,7 +109,7 @@ public class PrologInterpreter<T extends HtClause, P, Q>
     }
 
     @Override
-    public Sentence <HtClause> parseClause () {
+    public HtClause parseClause () throws ParseException, IOException, SourceCodeException {
         return parser.parseClause();
     }
 
@@ -140,7 +139,7 @@ public class PrologInterpreter<T extends HtClause, P, Q>
      * @param clause
      */
     protected void addProgramClause ( HtClause clause ) {
-        final PredicateTable predicateTable = Environment.instance().getPredicateTable();
+//        final PredicateTable predicateTable = getPredicateTable();
         /*final HtPredicateDefinition def = */
 //        predicateTable.lookup(clause);
     }

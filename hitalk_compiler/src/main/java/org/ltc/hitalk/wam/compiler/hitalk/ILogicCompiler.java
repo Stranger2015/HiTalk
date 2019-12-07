@@ -18,6 +18,7 @@ package org.ltc.hitalk.wam.compiler.hitalk;
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.common.parsing.SourceCodeException;
+import org.ltc.hitalk.core.IHitalkObject;
 
 /**
  * A compiler over any language that has a one-to-one mapping from some input form, to some output form. Compiles from
@@ -38,7 +39,7 @@ import com.thesett.common.parsing.SourceCodeException;
  *
  * @author Rupert Smith
  */
-public interface ILogicCompiler<T, P, Q> {
+public interface ILogicCompiler<T, P, Q> extends IHitalkObject {
     /**
      * Compiles a sentence into a (presumably binary) form, that provides a Java interface into the compiled structure.
      *

@@ -1,0 +1,21 @@
+package org.ltc.hitalk.core;
+
+public enum Components {
+    LANGUAGE,
+    TOOL,
+    WAM_COMPILER,
+    PRECOMPILER,
+    INSTRUCTION_COMPILER,
+    INTERNER,
+    SYMBOL_TABLE,
+    RESOLVER_PRE,
+    RESOLVER_IC,
+    OBSERVER_PRE,
+    OBSERVER_IC,
+    PRED_TABLE,
+    OP_TABLE,
+    TERM_FACTORY,
+    PREPROC,
+    TRANSFORMER,
+    PARSER, STREAM,
+}

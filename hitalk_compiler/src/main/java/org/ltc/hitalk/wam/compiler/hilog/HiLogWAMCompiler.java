@@ -4,12 +4,13 @@ import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 
 /**
  * @param <T>
  * @param <P>
+ *
  * @param <Q>
  * @param <PC>
  * @param <QC>

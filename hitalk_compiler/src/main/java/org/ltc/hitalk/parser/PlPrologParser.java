@@ -1,24 +1,20 @@
-package org.ltc.hitalk.parser.jp.segfault.prolog.parser;
+package org.ltc.hitalk.parser;
 
-import com.thesett.aima.logic.fol.Sentence;
-import com.thesett.aima.logic.fol.Variable;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.Source;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
-import org.ltc.hitalk.parser.HiLogParser;
-import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.IParser;
-import org.ltc.hitalk.parser.PrologAtoms;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind;
-import org.ltc.hitalk.term.HlOpSymbol;
+import org.ltc.hitalk.core.BaseApp;
+import org.ltc.hitalk.core.utils.TermUtilities;
+import org.ltc.hitalk.parser.PlToken.TokenKind;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ErrorTerm;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlLexer;
+import org.ltc.hitalk.term.*;
 import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 import org.ltc.hitalk.term.HlOpSymbol.Fixity;
-import org.ltc.hitalk.term.HlOperatorJoiner;
-import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.HtFunctorName;
@@ -28,8 +24,10 @@ import org.ltc.hitalk.wam.compiler.Language;
 import java.io.IOException;
 import java.util.*;
 
+import static java.util.EnumSet.of;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
-import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind.*;
+import static org.ltc.hitalk.core.BaseApp.getAppContext;
+import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
 import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
 import static org.ltc.hitalk.term.ListTerm.Kind.*;
 import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
@@ -49,25 +47,6 @@ public class PlPrologParser implements IParser {
     protected final Deque <PlTokenSource> tokenSourceStack = new ArrayDeque <>();
     protected final IVafInterner interner;
 
-    public PlPrologParser () {
-        stream = instance().getStream(0);
-        interner = instance().getInterner();
-        factory = instance().getTermFactory();
-        operatorTable = instance().getOptable();
-    }
-
-    /**
-     * Describes the possible system directives in interactive mode.
-     */
-    public enum Directive {
-        Trace, Info, User, File
-    }
-
-    /**
-     * Holds the variable scoping context for the current sentence.
-     */
-    protected Map <Integer, Variable> variableContext = new HashMap <>();
-    protected HlOpSymbol operator;
 
     /**
      * @param stream
@@ -84,6 +63,29 @@ public class PlPrologParser implements IParser {
         this.factory = factory;
         this.operatorTable = optable;
     }
+
+    /**
+     *
+     */
+    public PlPrologParser () {
+        this(getAppContext().getStream(),
+                getAppContext().getInterner(),
+                getAppContext().getTermFactory(),
+                getAppContext().getOpTable());
+    }
+
+    /**
+     * Describes the possible system directives in interactive mode.
+     */
+    public enum Directive {
+        Trace, Info, User, File
+    }
+
+    /**
+     * Holds the variable scoping context for the current sentence.
+     */
+    protected Map <Integer, HtVariable> variableContext = new HashMap <>();
+    protected HlOpSymbol operator;
 
     @Override
     public PlPrologParser getParser () {
@@ -116,10 +118,13 @@ public class PlPrologParser implements IParser {
         }
     }
 
-    @Override
-    public Sentence <HtClause> parseClause () {
-        return null;
+    /**
+     * @return
+     */
+    public HtClause parseClause () throws ParseException, SourceCodeException, IOException {
+        return TermUtilities.convertToClause(termSentence(), BaseApp.getAppContext().getInterner());
     }
+
 
     /**
      * @return
@@ -273,7 +278,7 @@ public class PlPrologParser implements IParser {
     //PSEUDO COMPOUND == (terms)
     protected ListTerm readSequence ( TokenKind ldelim, TokenKind rdelim, boolean isBlocked ) throws IOException, ParseException {
         List <ITerm> elements = new ArrayList <>();
-        EnumSet <TokenKind> rdelims = isBlocked ? EnumSet.of(COMMA, rdelim) : EnumSet.of(COMMA, CONS, rdelim);
+        EnumSet <TokenKind> rdelims = isBlocked ? of(COMMA, rdelim) : of(COMMA, CONS, rdelim);
         ListTerm.Kind kind = LIST;
         switch (ldelim) {
             case LPAREN:
@@ -334,7 +339,6 @@ public class PlPrologParser implements IParser {
      * @param source
      */
     public void setTokenSource ( PlTokenSource source ) {
-
         tokenSourceStack.push(source);
     }
 
@@ -344,14 +348,6 @@ public class PlPrologParser implements IParser {
 //    @Override?
     public void setTokenSource ( Source <PlToken> source ) {
         setTokenSource((PlTokenSource) source);
-    }
-
-    /**
-     * @return
-     */
-    @Override
-    public Sentence <ITerm> parse () throws ParseException, IOException, SourceCodeException {
-        return new PlSentenceImpl(termSentence());
     }
 
     /**
@@ -369,37 +365,6 @@ public class PlPrologParser implements IParser {
         return literal(lexer.getNextToken());
 
     }
-
-//    /**
-//     * Parses multiple sequential terms, and if more than one is encountered then the flat list of terms encountered
-//     * must contain operators in order to be valid Prolog syntax. In that case the flat list of terms is passed to the
-//     * {@link DynamicOperatorParser#parseOperators(ITerm[])} method for 'deferred decision parsing' of dynamic operators.
-//     *
-//     * @return A single first order logic term.
-//     * @throws SourceCodeException If the sequence of tokens does not form a valid syntactical construction as a first
-//     *                             order logic term.
-//     */
-//    public ITerm term () throws SourceCodeException, IOException, ParseException {
-//        List <ITerm> terms = literal(lexer.getNextToken());
-//
-//        ITerm[] flatTerms = terms.toArray(new ITerm[terms.size()]);
-//
-//        if (flatTerms.length > 1) {
-//            return operatorParser.parseOperators(flatTerms);
-//        } else {
-//            ITerm result = flatTerms[0];
-//
-//            // If a single candidate op name has been parsed, promote it to a constant.
-//            if (result instanceof CandidateOpSymbol) {
-//                CandidateOpSymbol candidate = (CandidateOpSymbol) result;
-//
-//                int nameId = interner.internFunctorName(candidate.getTextName(), 0);
-//                result = new name(nameId, null);
-//            }
-//
-//            return result;
-//        }
-//    }
 
     /**
      * Sets up a custom operator symbol on the parser.
@@ -421,104 +386,6 @@ public class PlPrologParser implements IParser {
     private int calcArity ( Associativity associativity ) {
         return associativity.arity;
     }
-//
-//    /**
-//     * Recursively parses terms, which may be names, atoms, variables, literals or operators, into a flat list in the
-//     * order in which they are encountered.
-//     *
-//     * @param terms A list of terms to accumulate in.
-//     * @return The list of terms encountered in order.
-//     * @throws SourceCodeException If the sequence of tokens does not form a valid syntactical construction as a list of
-//     *                             first order logic terms.
-//     */
-//    public List <ITerm> terms ( List <ITerm> terms ) throws SourceCodeException {
-//        ITerm term = null;
-//        PlToken nextToken = getTokenSource().peek();
-//        switch (nextToken.kind) {
-//            case BOF:
-//                if (getTokenSource().isBofGenerated()) {
-//                    throw new IllegalStateException("The term begin_of_file is reserved.");
-//                }
-////                consumeToken(BOF);
-//                term = new name(interner.internFunctorName(BEGIN_OF_FILE, 0), null);
-//                break;
-//            case EOF:
-////                consumeToken(EOF);
-//                term = new name(interner.internFunctorName(END_OF_FILE, 0), null);
-//                break;
-//            case name:
-//                term = name();
-//                break;
-//            case LBRACKET:
-////                term = listname(consumeToken(LBRACKET));//ConsType.DOT_PAIR_CONS);
-//                // Mark the term as bracketed to ensure that this is its final parsed form. In particular the
-//                // #arglist method will not break it up if it contains commas.
-//                term.setBracketed(true);
-////                consumeToken(RBRACKET);
-////                break;
-//            case LBRACE:
-////                term = listname(consumeToken(LBRACE), ConsType.BYPASS_CONS);
-//                // Mark the term as bracketed to ensure that this is its final parsed form. In particular the
-//                // #arglist method will not break it up if it contains commas.
-//                term.setBracketed(true);
-////                consumeToken(RBRACE);
-////                break;
-//            case VAR:
-//                term = variable();
-//                break;
-//            case INTEGER_LITERAL:
-//                term = intLiteral();
-//                break;
-//            case FLOATING_POINT_LITERAL:
-//                term = doubleLiteral();
-//                break;
-//            case STRING_LITERAL:
-//                term = stringLiteral();
-//                break;
-//            case ATOM:
-//                term = atom();
-//                break;
-//            case LPAREN:
-//                consumeToken(LPAREN);
-//                term = term();
-//                // Mark the term as bracketed to ensure that this is its final parsed form. In particular the
-//                // #arglist method will not break it up if it contains commas.
-//                term.setBracketed(true);
-//                consumeToken(RPAREN);
-//                break;
-//            default:
-//                throw new SourceCodeException("Expected one of " + BEGIN_TERM_TOKENS + " but got " + tokenImage[nextToken.kind.ordinal()] + ".", null, null, null,
-//                        new SourceCodePositionImpl(nextToken.beginLine, nextToken.beginColumn, nextToken.endLine, nextToken.endColumn));
-//        }
-//
-//        terms.add(term);
-//
-//        switch (getTokenSource().peek().kind) {
-//            case LPAREN:
-//            case LBRACKET:
-//            case LBRACE:
-//            case INTEGER_LITERAL:
-//            case FLOATING_POINT_LITERAL:
-//            case STRING_LITERAL:
-//            case VAR:
-//            case name:
-//            case ATOM:
-//                terms(terms);
-//                break;
-//            default:
-//        }
-//
-//        return terms;
-//    }
-//    /**
-//     * @param operatorName
-//     * @param priority
-//     * @param associativity
-//     */
-//    public void setOperator ( String operatorName, int priority, Associativity associativity ) {
-////        new HlOperator(operatorName,priority,associativity);
-//     operatorTable.setOperator(operatorName,priority,associativity);
-//    }
 
     /**
      * Interns an operators name as a name of appropriate arity for the operators fixity, and sets the operator in

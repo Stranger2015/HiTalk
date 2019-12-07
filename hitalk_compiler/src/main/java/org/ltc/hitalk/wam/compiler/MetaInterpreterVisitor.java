@@ -5,6 +5,7 @@ import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
+import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.TermUtilities;
 import org.ltc.hitalk.entities.HtPredicate;
@@ -12,7 +13,6 @@ import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
-import org.ltc.hitalk.term.io.Environment;
 import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
 import org.ltc.hitalk.wam.printer.IPositionalTermTraverser;
 import org.ltc.hitalk.wam.printer.IPositionalTermVisitor;
@@ -134,7 +134,7 @@ public abstract class MetaInterpreterVisitor<T extends HtClause, P, Q> extends H
     }
 
     public void lookupGoal ( PiCalls <?> goal, Set <PiCalls <?>> hbSet ) throws LinkageException {
-        ITermFactory factory = Environment.instance().getTermFactory();
+        ITermFactory factory = BaseApp.getAppContext().getTermFactory();
         goal.setMgCalls(factory.newVariable("Calls"));
         final HtFunctor eqf = new HtFunctor(interner.internFunctorName("=", 2), EMPTY_TERM_ARRAY);// fixme
 //        final HtClause<IFunctor> query = new HtClause<>(null, new ListTerm( LIST,eqf));?

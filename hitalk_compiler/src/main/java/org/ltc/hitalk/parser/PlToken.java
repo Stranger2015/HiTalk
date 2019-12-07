@@ -1,4 +1,4 @@
-package org.ltc.hitalk.parser.jp.segfault.prolog.parser;
+package org.ltc.hitalk.parser;
 
 /**
  * Describes the input token stream.
@@ -41,9 +41,42 @@ public class PlToken {
      *
      */
     public enum TokenKind {
-        BOF(""), EOF(""), DOT("."), LPAREN("("), RPAREN(")"), LBRACKET("["), RBRACKET("]"), LBRACE("{"), RBRACE("}"),
+        BOF(""),
+        EOF(""),
+        DOT("."),
+        LPAREN("("),
+        RPAREN(")"),
+        LBRACKET("["),
+        RBRACKET("]"),
+        LBRACE("{"),
+        RBRACE("}"),
 
-        D_QUOTE(""), S_QUOTE("\""), B_QUOTE("\""), CONS("|"), INTEGER_LITERAL("*"), DECIMAL_LITERAL("*"), HEX_LITERAL("*"), FLOATING_POINT_LITERAL("*"), DECIMAL_FLOATING_POINT_LITERAL("*"), DECIMAL_EXPONENT("*"), CHARACTER_LITERAL("*"), STRING_LITERAL("*"), VAR("*"), FUNCTOR_BEGIN("*"), ATOM("*"), NAME("*"), SYMBOLIC_NAME("*"), DIGIT("*"), ANY_CHAR("*"), LOWERCASE("*"), UPPERCASE("*"), SYMBOL("*"), INFO("*"), TRACE("*"), USER("*"), COMMA(",");
+        D_QUOTE(""),
+        S_QUOTE("\""),
+        B_QUOTE("\""),
+        CONS("|"),
+        INTEGER_LITERAL("*"),
+        DECIMAL_LITERAL("*"),
+        HEX_LITERAL("*"),
+        FLOATING_POINT_LITERAL("*"),
+        DECIMAL_FLOATING_POINT_LITERAL("*"),
+        DECIMAL_EXPONENT("*"),
+        CHARACTER_LITERAL("*"),
+        STRING_LITERAL("*"),
+        VAR("*"),
+        FUNCTOR_BEGIN("*"),
+        ATOM("*"),
+        NAME("*"),
+        SYMBOLIC_NAME("*"),
+        DIGIT("*"),
+        ANY_CHAR("*"),
+        LOWERCASE("*"),
+        UPPERCASE("*"),
+        SYMBOL("*"),
+        INFO("*"),
+        TRACE("*"),
+        USER("*"),
+        COMMA(",");
 
         private int chr;
         private String s;

@@ -5,7 +5,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PredicateTable;
-import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.TermUtilities;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtPredicateIndicator;
@@ -15,7 +14,6 @@ import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
-import org.ltc.hitalk.term.io.Environment;
 import org.ltc.hitalk.wam.compiler.PiCalls.XPiCalls;
 import org.ltc.hitalk.wam.transformers.ISpecializer;
 import org.ltc.hitalk.wam.transformers.TransformInfo;
@@ -39,7 +37,7 @@ class Specializer<T extends ITerm, C extends BodyCalls <C>> implements ISpeciali
     private final SymbolTable <Integer, String, Object> symbolTable;
     private final IVafInterner interner;
     private final List <HtPredicate> predicates;
-    private final IResolver <HtPredicate, HtClause> resolver = Environment.instance().getResolver();
+//    private final IResolver <HtPredicate, HtClause> resolver = getResolver();
     private final List <PiCalls <?>> piCalls = new ArrayList <>();
 
     /**

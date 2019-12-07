@@ -4,7 +4,6 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.TermFactory;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
 import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
@@ -50,8 +49,10 @@ public class HiLogParser extends PlPrologParser {
         hilogApply = interner.internFunctorName(HILOG_APPLY, 0);
     }
 
+    /**
+     *
+     */
     public HiLogParser () {
-
     }
 
     //    @Override

@@ -5,7 +5,6 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.ListTerm;
-import org.ltc.hitalk.term.io.Environment;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 
 import java.util.function.Consumer;
@@ -130,8 +129,8 @@ enum PrologBuiltIns {
     NOT("\\+", listTerm -> {
     }),
     UNIFIES("=", listTerm -> {
-        final IResolver <HtPredicate, HtClause> resolver = Environment.instance().getResolver();
-        final IVafInterner interner = Environment.instance().getInterner();
+        final IResolver <HtPredicate, HtClause> resolver = null;//
+        final IVafInterner interner = null;// BaseApp.instance().getInterner();
         final HtFunctor eqf = new HtFunctor(interner.internFunctorName("=", 2), EMPTY_TERM_ARRAY);// fixme
         final HtClause query = new HtClause(null, new ListTerm(LIST, eqf));
         eqf.setArgument(0, listTerm.get(0));

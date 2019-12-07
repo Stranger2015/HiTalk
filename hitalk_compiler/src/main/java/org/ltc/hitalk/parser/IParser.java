@@ -1,17 +1,16 @@
 package org.ltc.hitalk.parser;
 
+
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
+import org.ltc.hitalk.core.IHitalkObject;
 import org.ltc.hitalk.core.utils.TermUtilities;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.TermParser;
 import org.ltc.hitalk.term.HlOpSymbol;
-import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.IFunctor;
@@ -19,12 +18,10 @@ import org.ltc.hitalk.wam.compiler.Language;
 
 import java.io.IOException;
 
-import static java.lang.String.format;
-
 /**
  *
  */
-public interface IParser extends TermParser <ITerm> {
+public interface IParser extends TermParser <ITerm>, IHitalkObject {
     /**
      * @return
      */
@@ -36,7 +33,7 @@ public interface IParser extends TermParser <ITerm> {
     default void setParser ( PlPrologParser parser ) {
         if (parser.getClass() == getParser().getClass()) {
             throw new IllegalStateException(
-                    format("INTERNAL ERROR:%s#setParser()", parser.getClass().getSimpleName()));
+                    String.format("INTERNAL ERROR:%s#setParser()", parser.getClass().getSimpleName()));
         }
 
         doSetParser(parser);
@@ -96,9 +93,7 @@ public interface IParser extends TermParser <ITerm> {
      * @return
      * @throws SourceCodeException
      */
-    default Sentence <ITerm> parse () throws SourceCodeException, ParseException, IOException {
-        return getParser().parse();
-    }
+    Sentence <ITerm> parse () throws SourceCodeException, ParseException, IOException;
 
     /**
      * @return
@@ -111,7 +106,6 @@ public interface IParser extends TermParser <ITerm> {
      * @param source
      */
     default void setTokenSource ( PlTokenSource source ) {
-
         getParser().setTokenSource(source);
     }
 
@@ -120,7 +114,7 @@ public interface IParser extends TermParser <ITerm> {
      * @param priority
      * @param associativity
      */
-    default void internOperator ( String name, int priority, Associativity associativity ) {
+    default void internOperator ( String name, int priority, HlOpSymbol.Associativity associativity ) {
         getParser().internOperator(name, priority, associativity);
     }
 
@@ -148,7 +142,7 @@ public interface IParser extends TermParser <ITerm> {
     /**
      * @return
      */
-    Sentence <HtClause> parseClause ();
+    HtClause parseClause () throws ParseException, SourceCodeException, IOException;
 
     /**
      * @return

@@ -1,16 +1,17 @@
-package org.ltc.hitalk.parser.jp.segfault.prolog.parser;
+package org.ltc.hitalk.parser;
 
-import com.thesett.aima.logic.fol.Term;
+
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.parsing.SourceCodePositionImpl;
 import com.thesett.common.util.Source;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
-import org.ltc.hitalk.parser.PrologAtoms;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind;
-import org.ltc.hitalk.term.HlOpSymbol.Associativity;
-import org.ltc.hitalk.term.io.Environment;
+import org.ltc.hitalk.core.BaseApp;
+import org.ltc.hitalk.parser.PlToken.TokenKind;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlLexer;
+import org.ltc.hitalk.term.HlOpSymbol;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.HtFunctorName;
 
@@ -24,8 +25,8 @@ import java.nio.file.StandardOpenOption;
 
 import static java.nio.file.StandardOpenOption.READ;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
-import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind.BOF;
-import static org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind.DOT;
+import static org.ltc.hitalk.parser.PlToken.TokenKind.BOF;
+import static org.ltc.hitalk.parser.PlToken.TokenKind.DOT;
 import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
 
 public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
@@ -75,7 +76,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     }
 
     private static PlTokenSource getPlTokenSourceForStdin ( InputStream inputStream ) throws IOException, CloneNotSupportedException {
-        HiTalkStream stream = Environment.instance().currentInput().copy();
+        HiTalkStream stream = BaseApp.appContext.currentInput();
         stream.setInputStream(inputStream);
         PlLexer lexer = new PlLexer(stream);
         return new PlTokenSource(lexer);
@@ -186,7 +187,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
      * @throws IOException
      */
     public static HiTalkStream createHiTalkStream ( String path, StandardOpenOption... options ) throws IOException {
-        return Environment.instance().addStream(HiTalkStream.createHiTalkStream(path, true));
+        return null;//BaseApp.instance().addStream(HiTalkStream.createHiTalkStream(path, true));
     }
 
 //    /**
@@ -226,7 +227,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     @Override
     public void propertyChange ( PropertyChangeEvent event ) {
         if (PrologAtoms.ENCODING.equals(event.getPropertyName())) {
-            Term value = (Term) event.getNewValue();
+            ITerm value = (ITerm) event.getNewValue();
         }
     }
 
@@ -305,7 +306,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
      * @param priority      The priority of the operator, zero unsets it.
      * @param associativity The operators associativity.
      */
-    public void internOperator ( String operatorName, int priority, Associativity associativity ) {
+    public void internOperator ( String operatorName, int priority, HlOpSymbol.Associativity associativity ) {
         int arity;
 
         if ((associativity == xfy) | (associativity == yfx) | (associativity == xfx)) {

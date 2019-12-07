@@ -1,4 +1,6 @@
 package org.ltc.hitalk.parser.jp.segfault.prolog.parser;
 
-public interface ISentence {
+import org.ltc.hitalk.term.ITerm;
+
+public interface ISentence<T extends ITerm> {
 }

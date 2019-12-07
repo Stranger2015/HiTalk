@@ -4,7 +4,6 @@ import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.common.util.doublemaps.SymbolTable;
-import com.thesett.common.util.doublemaps.SymbolTableImpl;
 import org.apache.commons.vfs2.*;
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
 import org.apache.commons.vfs2.provider.jar.JarFileProvider;
@@ -17,12 +16,15 @@ import org.apache.commons.vfs2.provider.zip.ZipFileProvider;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.BaseCompiler;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.compiler.VafInterner;
 import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.IProduct;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
-import org.ltc.hitalk.core.BaseApplication;
+import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.core.HtVersion;
+import org.ltc.hitalk.core.utils.HtSymbolTable;
+import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.context.CompilationContext;
 import org.ltc.hitalk.entities.context.ExecutionContext;
@@ -30,11 +32,11 @@ import org.ltc.hitalk.entities.context.LoadContext;
 import org.ltc.hitalk.interpreter.HtProduct;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.IParser;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
+import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.term.io.Environment;
 import org.ltc.hitalk.term.io.HiTalkStream;
+import org.ltc.hitalk.wam.compiler.Tools.Kind;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 
 import java.io.IOException;
@@ -42,15 +44,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
+import static org.ltc.hitalk.core.Components.WAM_COMPILER;
 import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
-import static org.ltc.hitalk.wam.compiler.Tools.COMPILER;
+import static org.ltc.hitalk.wam.compiler.Tools.Kind.COMPILER;
 
 /**
  *
  */
-public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication <T, P, Q> {
-
-    private final static Language language = PROLOG;
+public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApp <T, P, Q> {
 
     public static final String DEFAULT_SCRATCH_DIRECTORY = "scratch";
     public static final HtProperty[] DEFAULT_PROPS = new HtProperty[]{
@@ -58,7 +59,8 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
     };
 
     protected DefaultFileSystemManager fsManager;
-    protected BaseCompiler <T, P, Q> compiler;
+    protected PrologWAMCompiler <HtClause, HtPredicate, HtClause,
+            HiTalkWAMCompiledPredicate, HiTalkWAMCompiledClause> compiler;
 
     protected Path scratchDirectory = Paths.get(DEFAULT_SCRATCH_DIRECTORY).toAbsolutePath();
     protected CompilationContext compilationContext = new CompilationContext();
@@ -68,6 +70,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
             language().getName() + " " + tool().getName(),
             new HtVersion(0, 1, 0, 99, " ", true));
     protected LogicCompilerObserver <P, Q> observer;
+    protected IVafInterner interner;
 
     /**
      * @param fn
@@ -77,16 +80,32 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
     }
 
     /**
+     * @param args
+     */
+    public static void main ( String[] args ) {
+        try {
+            IApplication application = new PrologCompilerApp <>(args[0]);
+            application.init();
+            application.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ExecutionError(PERMISSION_ERROR, null);
+        }
+    }
+
+    /**
      * @param symbolTable
      * @param interner
      * @param parser
      * @param observer
      * @return
      */
-    public BaseCompiler <T, P, Q> createWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
-                                                      IVafInterner interner,
-                                                      PlPrologParser parser,
-                                                      LogicCompilerObserver <P, Q> observer ) {
+    public PrologWAMCompiler <T, P, Q, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>
+
+    createWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
+                        IVafInterner interner,
+                        PlPrologParser parser,
+                        LogicCompilerObserver <P, Q> observer ) {
         return new PrologWAMCompiler <>(symbolTable, interner, parser, observer);
     }
 
@@ -113,53 +132,27 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
     }
 
     /**
-     * @param args
-     */
-    public static void main ( String[] args ) {
-        Environment.instance().setLanguage(PROLOG);
-        try {
-            IApplication application = new PrologCompilerApp <>(args[0]);
-            application.init();
-            application.start();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new ExecutionError(PERMISSION_ERROR, null);
-        }
-    }
-
-    /**
      *
      */
     @Override
     public void doInit () throws LinkageException, IOException {
         super.doInit();
 
-        setSymbolTable(new SymbolTableImpl <>());
-
-//        setParser(createParser(getParser()));
-//                PlTokenSource.getTokenSourceForInputStream(null, "stdin"), interner));
-
-        compiler = createWAMCompiler(getSymbolTable(), getInterner(), getParser(), getObserver());
-//        bkt = new BookKeepingTables();
-        setConfig(new CompilerConfig());
-        //scratchDirectory = "./" + DEFAULT_SCRATCH_DIRECTORY;
-
-//            termFactory = new TermFactory(interner);
-
-//        DEFAULT_FLAGS = new HtProperty[]{
-//                tf.createFlag("access", "read_write"),//read_only
-//                tf.createFlag("keep", "false"),
-//                //
-//                tf.createFlag("type", "false"),
-//
-//                };
-
         compilationContext = new CompilationContext();
         loadContext = new LoadContext(DEFAULT_PROPS);
         executionContext = new ExecutionContext();
 
         initVfs();
-//=============================
+    }
+
+    @Override
+    protected void initComponents () {
+        setSymbolTable(new HtSymbolTable <>());
+        setInterner(new VafInterner(
+                language().getName() + "_Variable_Namespace",//todo language
+                language().getName() + "_Functor_Namespace"));
+        setParser(language().getParser());
+        setWAMCompiler(language().getCompiler());
     }
 
     /**
@@ -178,10 +171,11 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
      * @param parser
      * @return
      */
-    public BaseCompiler <T, P, Q> createWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
-                                                      IVafInterner interner,
-                                                      LogicCompilerObserver <P, Q> observer,
-                                                      PlPrologParser parser ) {
+    public BaseCompiler <T, P, Q>
+    createWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
+                        IVafInterner interner,
+                        LogicCompilerObserver <P, Q> observer,
+                        PlPrologParser parser ) {
         return new PrologWAMCompiler <>(symbolTable, interner, parser, observer);
     }
 
@@ -257,12 +251,13 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
     protected Object loadSettingsFile ( Path path ) throws Exception {
         // Create a token source to load the model rules from.
 //        InputStream input = getClass().getClassLoader().getResourceAsStream(BUILT_IN_LIB);
+        logger.debug("Loading settings...");
         PlTokenSource tokenSource = PlTokenSource.getTokenSourceForIoFile(path.toFile());
         // Set up a parser on the token source.
-        LibParser libParser = new LibParser();//TermIO.instance().getParser();
+        LibParser libParser = new LibParser();
         libParser.setTokenSource(tokenSource);
 
-        // Load the built-ins into the domainwhile (true) {
+        // Load the built-ins into the domain
         while (true) {
             Sentence <ITerm> sentence = libParser.parse();
             if (sentence == null) {
@@ -270,7 +265,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
             }
 //            compiler.compile(sentence);
             HtClause clause = libParser.convert(sentence.getT());
-            compiler.compile((T) clause);
+            compiler.compile(clause);
         }
         compiler.endScope();
 //         There should not be any errors in the built in library, if there are then the prolog engine just
@@ -292,8 +287,6 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
     }
 
     private void initDirectives () {
-
-
     }
 
     /**
@@ -305,7 +298,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
         setTarget(() -> {
             try {
                 this.initialize();
-                getCompiler().compile(fileName, loadContext.getFlags());
+                getWAMCompiler().compile(fileName, loadContext.getFlags());
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new ExecutionError(PERMISSION_ERROR, null);
@@ -315,13 +308,20 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
         getTarget().run();
     }
 
-    //    @Override
     public void setInterner ( IVafInterner interner ) {
-        Environment.instance().setInterner(interner);
+        this.interner = interner;
+
     }
 
-    private BaseCompiler <T, P, Q> getCompiler () {
+    protected PrologWAMCompiler <HtClause, HtPredicate, HtClause,
+            HiTalkWAMCompiledPredicate, HiTalkWAMCompiledClause> getWAMCompiler () {
         return compiler;
+    }
+
+    private void setWAMCompiler ( PrologWAMCompiler <HtClause, HtPredicate, HtClause,
+            HiTalkWAMCompiledPredicate, HiTalkWAMCompiledClause> compiler ) {
+        this.compiler = compiler;
+        BaseApp.getAppContext().putIfAbsent(WAM_COMPILER, compiler);
     }
 
     @Override
@@ -335,7 +335,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApplication
     }
 
     @Override
-    public Tools tool () {
+    public Kind tool () {
         return COMPILER;
     }
 

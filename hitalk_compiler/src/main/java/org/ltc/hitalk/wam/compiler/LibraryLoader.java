@@ -10,9 +10,11 @@ import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.parser.PlPrologParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.ltc.hitalk.core.BaseApp.getAppContext;
 
 /**
  *
@@ -21,7 +23,7 @@ public class LibraryLoader<T extends HtClause, P, Q> extends BaseCompiler <T, P,
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
-    protected final PlPrologParser parser = instance().getParser(instance().getLanguage());
+    protected final PlPrologParser parser = getAppContext().getParser();
     private final ICompiler <T, P, Q> compiler;
 
     /**

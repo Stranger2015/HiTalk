@@ -50,7 +50,7 @@ public class HtConjunction extends HiTalkBaseBuiltIn {
             instructions = builtIn.compileBodyArguments(expression, false, clauseName, bodyNumber);
             result.addAll(instructions);
 
-            // Call the body. The number of permanent variables remaining is specified for environment trimming.
+            // Call the body. The number of permanent variables remaining is specified for BaseApp trimming.
             instructions = builtIn.compileBodyCall(expression, false, false, false,
                     0 /*permVarsRemaining*/);
             result.addAll(instructions);

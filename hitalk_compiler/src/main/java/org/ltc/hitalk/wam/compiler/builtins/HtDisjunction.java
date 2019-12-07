@@ -50,8 +50,10 @@
         /**
          * {@inheritDoc}
          */
-        public SizeableLinkedList <HiTalkWAMInstruction> compileBodyArguments ( IFunctor functor, boolean isFirstBody,
-                                                                                FunctorName clauseName, int bodyNumber ) {
+        public SizeableLinkedList <HiTalkWAMInstruction> compileBodyArguments ( IFunctor functor,
+                                                                                boolean isFirstBody,
+                                                                                FunctorName clauseName,
+                                                                                int bodyNumber ) {
             SizeableLinkedList <HiTalkWAMInstruction> result = new SizeableLinkedList <>();
             SizeableLinkedList <HiTalkWAMInstruction> instructions;
 
@@ -109,7 +111,7 @@
                 instructions = builtIn.compileBodyArguments(expression, false, clauseName, i);
                 result.addAll(instructions);
 
-                // Call the body. The number of permanent variables remaining is specified for environment trimming.
+                // Call the body. The number of permanent variables remaining is specified for BaseApp trimming.
                 instructions = builtIn.compileBodyCall(expression, false, false, false, 0 /*permVarsRemaining*/);
                 result.addAll(instructions);
 

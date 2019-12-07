@@ -31,7 +31,7 @@ import org.ltc.hitalk.compiler.BaseCompiler;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.utils.TermUtilities;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlPrologParser;
+import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
@@ -187,12 +187,12 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
 
         result = new HiTalkWAMCompiledQuery(varNames, freeVarNames);
 
-        // Generate the prefix code for the clause. Queries require a stack frames to hold their environment.
+        // Generate the prefix code for the clause. Queries require a stack frames to hold their BaseApp.
         /*log.fine("ALLOCATE " + numPermanentVars);*/
         preFixInstructions.add(new HiTalkWAMInstruction(AllocateN, REG_ADDR, (byte) (numPermanentVars & 0xff)));
 
         // Deep cuts require the current choice point to be kept in a permanent variable, so that it can be recovered
-        // once deeper choice points or environments have been reached.
+        // once deeper choice points or BaseApps have been reached.
         if (cutLevelVarSlot >= 0) {
             /*log.fine("GET_LEVEL "+ cutLevelVarSlot);*/
             preFixInstructions.add(new HiTalkWAMInstruction(GetLevel, STACK_ADDR, (byte) cutLevelVarSlot));
@@ -399,7 +399,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
         }
 
         // Deep cuts require the current choice point to be kept in a permanent variable, so that it can be recovered
-        // once deeper choice points or environments have been reached.
+        // once deeper choice points or BaseApps have been reached.
         if (cutLevelVarSlot >= 0) {
             /*log.fine("GET_LEVEL "+ cutLevelVarSlot);*/
             preFixInstructions.add(new HiTalkWAMInstruction(GetLevel, (byte) cutLevelVarSlot));
@@ -438,7 +438,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
                 instructions = builtIn.compileBodyArguments(goal, i == 0, fn, i);
                 result.addInstructions(goal, instructions);
 
-                // Call the body. The number of permanent variables remaining is specified for environment trimming.
+                // Call the body. The number of permanent variables remaining is specified for BaseApp trimming.
                 instructions = builtIn.compileBodyCall(goal, isFirstBody, isLastBody, isChainRule, permVarsRemaining);
                 result.addInstructions(goal, instructions);
             }
@@ -467,7 +467,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
      * of last body of occurrence, and assigned to allocation slots in this order. The number of permanent variables
      * remaining at each body call is also calculated and recorded against the body functor in the symbol table using
      * column {@link SymbolTableKeys#SYMKEY_PERM_VARS_REMAINING}. This allocation ordering of the variables and the
-     * count of the number remaining are used to implement environment trimming.
+     * count of the number remaining are used to implement BaseApp trimming.
      *
      * @param clause The clause to allocate registers for.
      */
@@ -536,7 +536,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
 
         // Search the count bag for all variable occurrences greater than one, and assign them to stack slots.
         // The variables are examined by reverse position of last occurrence, to ensure that later variables
-        // are assigned to lower permanent allocation slots for environment trimming purposes.
+        // are assigned to lower permanent allocation slots for BaseApp trimming purposes.
         for (Map.Entry <HtVariable, Integer> entry : lastBodyList) {
             HtVariable variable = entry.getKey();
             Integer count = variableCountBag.get(variable);
