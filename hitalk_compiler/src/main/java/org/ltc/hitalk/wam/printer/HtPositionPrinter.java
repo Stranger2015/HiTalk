@@ -17,9 +17,9 @@
 
     import com.thesett.aima.logic.fol.Functor;
     import com.thesett.aima.logic.fol.Variable;
-    import com.thesett.common.util.doublemaps.SymbolTable;
     import com.thesett.text.api.model.TextTableModel;
     import org.ltc.hitalk.compiler.IVafInterner;
+    import org.ltc.hitalk.core.utils.ISymbolTable;
 
     import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.STACK_ADDR;
 
@@ -44,7 +44,7 @@
          * @param i
          * @param printTable
          */
-        public HtPositionPrinter ( SymbolTable <Integer, String, Object> symbolTable,
+        public HtPositionPrinter ( ISymbolTable <Integer, String, Object> symbolTable,
                                    IVafInterner interner,
                                    IPositionalTermTraverser traverser,
                                    int i, TextTableModel printTable ) {

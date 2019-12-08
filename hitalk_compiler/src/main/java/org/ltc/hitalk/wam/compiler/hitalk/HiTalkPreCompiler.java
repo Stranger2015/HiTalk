@@ -20,11 +20,13 @@ import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
 import com.thesett.common.parsing.SourceCodeException;
-import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PrologBuiltInTransform;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
+import org.ltc.hitalk.core.utils.ISymbolTable;
+import org.ltc.hitalk.entities.HtPredicate;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.HiTalkTopLevelCheckVisitor;
@@ -63,11 +65,11 @@ class HiTalkPreCompiler<T extends HtMethod, P, Q> extends PrologPreCompiler <T, 
      * @param parser
      * @param resolver
      */
-    public HiTalkPreCompiler ( SymbolTable <Integer, String, Object> symbolTable,
+    public HiTalkPreCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
                                IVafInterner interner,
                                PrologBuiltInTransform <T, P, Q> builtInTransform,
                                PrologDefaultBuiltIn defaultBuiltIn,
-                               IResolver <P, Q> resolver,
+                               IResolver <HtPredicate, HtClause> resolver,
                                PlPrologParser parser ) {
         super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, parser);
 

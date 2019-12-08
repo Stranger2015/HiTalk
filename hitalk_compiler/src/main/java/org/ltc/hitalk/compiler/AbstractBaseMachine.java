@@ -15,9 +15,16 @@
  */
 package org.ltc.hitalk.compiler;
 
-import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.core.Components;
+import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
+
+import static org.ltc.hitalk.core.BaseApp.getAppContext;
+import static org.ltc.hitalk.core.Components.INTERNER;
+import static org.ltc.hitalk.core.Components.SYMBOL_TABLE;
 
 /**
  * BaseMachine provides a base for implementing abstract machines components, such as compilers, interpreters, byte code
@@ -40,7 +47,7 @@ public abstract class AbstractBaseMachine {
     /**
      * Holds the machines symbol table.
      */
-    protected SymbolTable <Integer, String, Object> symbolTable;
+    protected ISymbolTable <Integer, String, Object> symbolTable;
 
     /**
      * Holds the machines symbol name interner.
@@ -53,7 +60,11 @@ public abstract class AbstractBaseMachine {
      * @param symbolTable The symbol table for the machine.
      * @param interner    The interner for the machine.
      */
-    public AbstractBaseMachine ( SymbolTable <Integer, String, Object> symbolTable, IVafInterner interner ) {
+    public AbstractBaseMachine ( ISymbolTable <Integer, String, Object> symbolTable,
+                                 IVafInterner interner ) {
+        getAppContext().putIfAbsent(SYMBOL_TABLE, symbolTable);
+        getAppContext().putIfAbsent(Components.INTERNER, symbolTable);
+
         this.symbolTable = symbolTable;
         this.interner = interner;
     }
@@ -62,13 +73,17 @@ public abstract class AbstractBaseMachine {
 
     }
 
+    private static ISymbolTable <Integer, String, Object> get () {
+        return (ISymbolTable <Integer, String, Object>) getAppContext().get(SYMBOL_TABLE);
+    }
+
     /**
      * Provides the symbol table.
      *
      * @return The symbol table.
      */
-    public SymbolTable <Integer, String, Object> getSymbolTable () {
-        return symbolTable;
+    public ISymbolTable <Integer, String, Object> getSymbolTable () {
+        return Optional.ofNullable(symbolTable).orElseGet(AbstractBaseMachine::get);
     }
 
     /**
@@ -77,7 +92,7 @@ public abstract class AbstractBaseMachine {
      * @return The interner.
      */
     public IVafInterner getInterner () {
-        return interner;
+        return interner == null ? (IVafInterner) getAppContext().get(INTERNER) : interner;
     }
 }
 

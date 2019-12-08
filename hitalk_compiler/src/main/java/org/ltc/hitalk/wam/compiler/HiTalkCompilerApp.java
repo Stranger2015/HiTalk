@@ -5,7 +5,6 @@ import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.Term;
 import com.thesett.common.parsing.SourceCodeException;
-import com.thesett.common.util.doublemaps.SymbolTable;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
@@ -15,6 +14,7 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.*;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.ICompiler;
+import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
 import org.ltc.hitalk.entities.HtPredicate;
@@ -200,7 +200,7 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q>
      * @return
      */
     public PrologWAMCompiler <T, P, Q, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>
-    createWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
+    createWAMCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
                         IVafInterner interner,
                         LogicCompilerObserver <P, Q> observer,
                         PlPrologParser parser ) {
@@ -917,12 +917,12 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q>
      * @param fileName
      */
     public void logtalkCompile ( String fileName ) throws IOException, SourceCodeException {
-        compiler.compileFile(fileName, executionContext.getFlags());
+        wamCompiler.compileFile(fileName, executionContext.getFlags());
 //         user, user, user, user, [], []
     }
 
     public void compile ( String fileName, HtProperty[] flags ) throws IOException, SourceCodeException {
-        compiler.compile(getTokenSourceForIoFile(new File(fileName)));
+        wamCompiler.compile(getTokenSourceForIoFile(new File(fileName)));
 
     }
     //logtalkCompile(@list(sourceFile_name))

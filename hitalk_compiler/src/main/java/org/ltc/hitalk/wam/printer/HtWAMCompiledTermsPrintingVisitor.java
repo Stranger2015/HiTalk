@@ -16,10 +16,10 @@
 package org.ltc.hitalk.wam.printer;
 
 import com.thesett.aima.logic.fol.LinkageException;
-import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.text.api.model.TextTableModel;
 import com.thesett.text.impl.model.TextTableImpl;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.HtVariable;
@@ -49,7 +49,7 @@ class HtWAMCompiledTermsPrintingVisitor extends HtDelegatingAllTermsVisitor impl
     /**
      * The symbol table.
      */
-    protected final SymbolTable <Integer, String, Object> symbolTable;
+    protected final ISymbolTable <Integer, String, Object> symbolTable;
 
     /**
      * Holds the string buffer to pretty print the results into.
@@ -74,7 +74,7 @@ class HtWAMCompiledTermsPrintingVisitor extends HtDelegatingAllTermsVisitor impl
      * @param result      A string buffer to place the results in.
      */
     public HtWAMCompiledTermsPrintingVisitor ( IVafInterner interner,
-                                               SymbolTable <Integer, String, Object> symbolTable,
+                                               ISymbolTable <Integer, String, Object> symbolTable,
                                                StringBuilder result ) {
         super(null);
         this.interner = interner;
@@ -92,7 +92,7 @@ class HtWAMCompiledTermsPrintingVisitor extends HtDelegatingAllTermsVisitor impl
      */
     public HtWAMCompiledTermsPrintingVisitor ( IAllTermsVisitor delegate,
                                                IVafInterner interner,
-                                               SymbolTable <Integer, String, Object> symbolTable,
+                                               ISymbolTable <Integer, String, Object> symbolTable,
                                                StringBuilder result ) {
         super(delegate);
         this.interner = interner;

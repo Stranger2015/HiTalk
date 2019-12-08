@@ -1,7 +1,7 @@
 
 package org.ltc.hitalk.compiler;
 
-import com.thesett.common.util.doublemaps.SymbolTable;
+import org.ltc.hitalk.core.utils.ISymbolTable;
 
 /**
  * BaseMachine provides a base for implementing abstract machines components, such as compilers, interpreters, byte code
@@ -22,7 +22,7 @@ public abstract class HtBaseMachine {
     /**
      * Holds the machines symbol table.
      */
-    protected SymbolTable <Integer, String, Object> symbolTable;
+    protected ISymbolTable <Integer, String, Object> symbolTable;
 
     /**
      * Holds the machines symbol name interner.
@@ -35,7 +35,7 @@ public abstract class HtBaseMachine {
      * @param symbolTable The symbol table for the machine.
      * @param interner    The interner for the machine.
      */
-    public HtBaseMachine ( SymbolTable <Integer, String, Object> symbolTable, IVafInterner interner ) {
+    public HtBaseMachine ( ISymbolTable <Integer, String, Object> symbolTable, IVafInterner interner ) {
         this.symbolTable = symbolTable;
         this.interner = interner;
     }
@@ -45,7 +45,7 @@ public abstract class HtBaseMachine {
      *
      * @return The symbol table.
      */
-    public SymbolTable <Integer, String, Object> getSymbolTable () {
+    public ISymbolTable <Integer, String, Object> getSymbolTable () {
         return symbolTable;
     }
 

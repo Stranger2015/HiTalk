@@ -4,9 +4,9 @@ import com.thesett.aima.logic.fol.IntegerType;
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.LiteralType;
 import com.thesett.aima.logic.fol.Variable;
-import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.IResolver;
+import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.HtVariable;
@@ -32,13 +32,13 @@ public class HiLogEncoder extends MetaInterpreterVisitor {
      * @param symbolTable The compiler symbol table.
      * @param interner    The name interner.
      */
-    public HiLogEncoder ( SymbolTable <Integer, String, Object> symbolTable,
+    public HiLogEncoder ( ISymbolTable <Integer, String, Object> symbolTable,
                           IVafInterner interner,
                           IResolver <HtPredicate, HtClause> resolver,
                           IPositionalTermTraverser traverser ) {
 
         super(symbolTable, interner, resolver, traverser);
-}
+    }
 
     /**
      * @param term

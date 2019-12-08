@@ -84,7 +84,7 @@ public class HiTalkParser extends PlPrologParser {
 
     @Override
     public Sentence <ITerm> parse () throws SourceCodeException, IOException, ParseException {
-        return super.parse();
+        return null;//fixme
     }
 
     @Override

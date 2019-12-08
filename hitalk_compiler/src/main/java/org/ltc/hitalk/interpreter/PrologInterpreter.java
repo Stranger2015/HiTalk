@@ -2,6 +2,7 @@ package org.ltc.hitalk.interpreter;
 
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
+import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.common.parsing.SourceCodeException;
 import jline.ConsoleReader;
 import org.ltc.hitalk.compiler.bktables.IConfig;
@@ -12,6 +13,7 @@ import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
 import org.ltc.hitalk.term.HtVariable;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.Language;
 import org.ltc.hitalk.wam.compiler.prolog.ChainedCompilerObserver;
 import org.slf4j.Logger;
@@ -101,6 +103,14 @@ public class PrologInterpreter<T extends HtClause, P, Q>
     @Override
     public Language language () {
         return parser.language();
+    }
+
+    /**
+     * @return
+     * @throws SourceCodeException
+     */
+    public Sentence <ITerm> parse () throws SourceCodeException, ParseException, IOException {
+        return null;
     }
 
     @Override

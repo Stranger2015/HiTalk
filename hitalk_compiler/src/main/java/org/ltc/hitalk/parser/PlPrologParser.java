@@ -1,5 +1,6 @@
 package org.ltc.hitalk.parser;
 
+import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.Source;
 import org.ltc.hitalk.ITermFactory;
@@ -97,6 +98,14 @@ public class PlPrologParser implements IParser {
      */
     public Language language () {
         return PROLOG;
+    }
+
+    /**
+     * @return
+     * @throws SourceCodeException
+     */
+    public Sentence <ITerm> parse () throws SourceCodeException, ParseException, IOException {
+        return null;
     }
 
     /**

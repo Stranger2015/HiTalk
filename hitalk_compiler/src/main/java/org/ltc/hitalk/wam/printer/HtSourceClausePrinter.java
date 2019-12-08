@@ -16,9 +16,9 @@ package org.ltc.hitalk.wam.printer;
  * limitations under the License.
  */
 
-import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.text.api.model.TextTableModel;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
@@ -45,7 +45,7 @@ class HtSourceClausePrinter extends HtBasePrinter {
      * @param column      The column to print to.
      * @param table       The table to inform of cell sizes and positions.
      */
-    public HtSourceClausePrinter ( SymbolTable <Integer, String, Object> symbolTable,
+    public HtSourceClausePrinter ( ISymbolTable <Integer, String, Object> symbolTable,
                                    IVafInterner interner,
                                    IPositionalTermTraverser traverser,
                                    int column,

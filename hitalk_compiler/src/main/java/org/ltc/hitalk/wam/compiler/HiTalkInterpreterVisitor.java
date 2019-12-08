@@ -20,12 +20,12 @@ import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.Sink;
 import com.thesett.common.util.Source;
-import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.IResolver;
+import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken;
+import org.ltc.hitalk.parser.PlToken;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.printer.IAllTermsVisitor;
@@ -55,7 +55,7 @@ public class HiTalkInterpreterVisitor<T extends HtMethod, P, Q> extends PrologIn
      * @param interner            The name interner.
      * @param positionalTraverser
      */
-    public HiTalkInterpreterVisitor ( SymbolTable <Integer, String, Object> symbolTable,
+    public HiTalkInterpreterVisitor ( ISymbolTable <Integer, String, Object> symbolTable,
                                       IVafInterner interner,
                                       IResolver <P, Q> resolver,
                                       IPositionalTermTraverser positionalTraverser,

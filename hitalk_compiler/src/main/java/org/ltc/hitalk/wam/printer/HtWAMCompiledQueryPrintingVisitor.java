@@ -17,8 +17,8 @@ package org.ltc.hitalk.wam.printer;
  */
 
 import com.thesett.aima.logic.fol.LinkageException;
-import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.ITerm;
 
@@ -41,7 +41,7 @@ class HtWAMCompiledQueryPrintingVisitor extends HtWAMCompiledTermsPrintingVisito
      * @param symbolTable The symbol table for the compilation.
      * @param result      A string buffer to place the results in.
      */
-    public HtWAMCompiledQueryPrintingVisitor ( SymbolTable <Integer, String, Object> symbolTable,
+    public HtWAMCompiledQueryPrintingVisitor ( ISymbolTable <Integer, String, Object> symbolTable,
                                                IVafInterner interner,
                                                StringBuilder result ) {
         super(interner, symbolTable, result);

@@ -15,8 +15,8 @@
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.LinkageException;
-import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.ITerm;
@@ -62,7 +62,7 @@ public class HiTalkTopLevelCheckVisitor extends HtBasePositionalVisitor implemen
      * @param traverser   The positional context traverser.
      */
     public HiTalkTopLevelCheckVisitor (
-            SymbolTable <Integer, String, Object> symbolTable,
+            ISymbolTable <Integer, String, Object> symbolTable,
             IVafInterner interner,
             IPositionalTermTraverser traverser ) {
 

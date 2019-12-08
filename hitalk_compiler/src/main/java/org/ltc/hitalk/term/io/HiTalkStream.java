@@ -32,6 +32,7 @@ import java.util.EnumSet;
 import static java.nio.charset.Charset.*;
 import static java.nio.file.StandardOpenOption.READ;
 import static java.nio.file.StandardOpenOption.WRITE;
+import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.EXISTENCE_ERROR;
 
 /**
  * open(+SrcDest, +Mode, --Stream)
@@ -70,10 +71,10 @@ class HiTalkStream implements IInputStream, IOutputStream, IPropertyOwner, Prope
      */
     public static HiTalkStream createHiTalkStream ( String fn, boolean isReading ) {
         try {
-            return new HiTalkStream(Paths.get(fn), isReading ? READ : WRITE);
+            return new HiTalkStream(Paths.get(fn).toAbsolutePath(), isReading ? READ : WRITE);
         } catch (IOException e) {
             e.printStackTrace();
-            throw new ExecutionError(ExecutionError.Kind.EXISTENCE_ERROR, null);
+            throw new ExecutionError(EXISTENCE_ERROR, null);
         }
     }
 

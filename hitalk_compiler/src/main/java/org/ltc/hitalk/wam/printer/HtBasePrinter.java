@@ -16,9 +16,9 @@
 package org.ltc.hitalk.wam.printer;
 
 import com.thesett.common.util.TraceIndenter;
-import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.text.api.model.TextTableModel;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.core.utils.ISymbolTable;
 
 /**
  * BasePrinter is a base class for writing debug pretty printers for compiled clauses.
@@ -72,7 +72,7 @@ class HtBasePrinter extends HtBasePositionalVisitor {
      * @param column      The column to print to.
      * @param table       The table to inform of cell sizes and positions.
      */
-    public HtBasePrinter ( SymbolTable <Integer, String, Object> symbolTable,
+    public HtBasePrinter ( ISymbolTable <Integer, String, Object> symbolTable,
                            IVafInterner interner,
                            IPositionalTermTraverser traverser,
                            int column, TextTableModel table ) {

@@ -1,10 +1,10 @@
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.LinkageException;
-import com.thesett.common.util.doublemaps.SymbolTable;
 import jline.ConsoleReader;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.IResolver;
+import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.interpreter.PrologInterpreter;
 import org.ltc.hitalk.parser.HtClause;
@@ -53,7 +53,7 @@ public class PrologInterpreterVisitor<T extends HtClause, P, Q> extends MetaInte
      * @param traverser
      * @param engine
      */
-    protected PrologInterpreterVisitor ( SymbolTable <Integer, String, Object> symbolTable,
+    protected PrologInterpreterVisitor ( ISymbolTable <Integer, String, Object> symbolTable,
                                          IVafInterner interner,
                                          IResolver <P, Q> resolver,
                                          IPositionalTermTraverser traverser,

@@ -15,10 +15,11 @@
  */
 package org.ltc.hitalk.wam.compiler.prolog;
 
-import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PrologBuiltInTransform;
 import org.ltc.hitalk.core.IResolver;
+import org.ltc.hitalk.core.utils.ISymbolTable;
+import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
@@ -41,11 +42,11 @@ public class PrologPreprocessor<T extends HtClause, P, Q, TC extends ITerm, TT e
      * @param symbolTable The symbol table for the machine.
      * @param interner    The interner for the machine.
      */
-    public PrologPreprocessor ( SymbolTable <Integer, String, Object> symbolTable,
+    public PrologPreprocessor ( ISymbolTable <Integer, String, Object> symbolTable,
                                 IVafInterner interner,
                                 PrologDefaultBuiltIn defaultBuiltIn,
                                 PrologBuiltInTransform <T, P, Q> builtInTransform,
-                                IResolver <P, Q> resolver,
+                                IResolver <HtPredicate, HtClause> resolver,
                                 PlPrologParser parser ) {
 
         super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, parser);

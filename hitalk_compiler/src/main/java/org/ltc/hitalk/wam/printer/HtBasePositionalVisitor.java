@@ -19,9 +19,9 @@ package org.ltc.hitalk.wam.printer;
 import com.thesett.aima.logic.fol.IntegerType;
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.LiteralType;
-import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.AbstractBaseMachine;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.HtVariable;
@@ -62,7 +62,7 @@ class HtBasePositionalVisitor extends AbstractBaseMachine implements IAllTermsVi
      * @param interner    The name interner.
      * @param symbolTable The compiler symbol table.
      */
-    public HtBasePositionalVisitor ( SymbolTable <Integer, String, Object> symbolTable,
+    public HtBasePositionalVisitor ( ISymbolTable <Integer, String, Object> symbolTable,
                                      IVafInterner interner,
                                      IPositionalTermTraverser traverser ) {
         super(symbolTable, interner);

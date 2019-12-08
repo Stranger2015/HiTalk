@@ -4,9 +4,9 @@ import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolKey;
-import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
+import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
@@ -37,19 +37,19 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
-    protected SymbolTable <Integer, String, Object> scopeTable;
+    protected ISymbolTable <Integer, String, Object> scopeTable;
     protected int scope;
     protected Deque <SymbolKey> predicatesInScope = new ArrayDeque <>();
     protected PlPrologParser parser;
     protected IResolver <T, Q> resolver;
-    protected LogicCompilerObserver <P, Q> observer;
+    protected LogicCompilerObserver <P, Q> observer;//todo is that really to be here
 
     /**
      * @param symbolTable
      * @param interner
      * @param parser
      */
-    protected BaseCompiler ( SymbolTable <Integer, String, Object> symbolTable,
+    protected BaseCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
                              IVafInterner interner,
                              PlPrologParser parser,
                              LogicCompilerObserver <P, Q> observer ) {

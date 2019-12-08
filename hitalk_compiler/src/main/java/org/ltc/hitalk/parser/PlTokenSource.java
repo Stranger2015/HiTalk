@@ -21,9 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.StandardOpenOption;
 
-import static java.nio.file.StandardOpenOption.READ;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.BOF;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.DOT;
@@ -153,8 +151,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
      * @throws IOException
      */
     public static PlTokenSource getTokenSourceForIoFile ( File file ) throws IOException {
-        PlLexer lexer = new PlLexer(createHiTalkStream(file.getAbsolutePath(), READ));
-//        FileInputStream in = new FileInputStream(file);
+        PlLexer lexer = new PlLexer(HiTalkStream.createHiTalkStream(file.getAbsolutePath(), true));
         return new PlTokenSource(lexer);
     }
 
@@ -180,15 +177,6 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
 //
 //        return getTokenSourceForVfsFileObject(file);
 //    }
-
-    /**
-     * @param path
-     * @return
-     * @throws IOException
-     */
-    public static HiTalkStream createHiTalkStream ( String path, StandardOpenOption... options ) throws IOException {
-        return null;//BaseApp.instance().addStream(HiTalkStream.createHiTalkStream(path, true));
-    }
 
 //    /**
 //     *

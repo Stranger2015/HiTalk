@@ -18,6 +18,7 @@ package org.ltc.hitalk.compiler;
 import com.thesett.aima.attribute.impl.IdAttribute;
 import com.thesett.aima.logic.fol.FunctorName;
 import com.thesett.aima.logic.fol.Variable;
+import org.ltc.hitalk.core.IHitalkObject;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
@@ -33,7 +34,7 @@ import org.ltc.hitalk.wam.compiler.IFunctor;
  *
  * @author Rupert Smith
  */
-public interface IVafInterner {
+public interface IVafInterner extends IHitalkObject {
 
     /**
      * Gets the interning factory for variables in the machine.

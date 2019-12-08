@@ -2,9 +2,9 @@ package org.ltc.hitalk.wam.compiler.logtalk;
 
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.common.parsing.SourceCodeException;
-import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.IResolver;
+import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledQuery;
@@ -27,7 +27,7 @@ public class LogtalkWAMCompiler<T extends HtMethod, P, Q, PC, QC> extends Prolog
      * @param observer
      * @param transpiler
      */
-    public LogtalkWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
+    public LogtalkWAMCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
                                 IVafInterner interner,
                                 PlPrologParser parser,
                                 LogicCompilerObserver <P, Q> observer,

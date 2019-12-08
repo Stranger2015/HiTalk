@@ -22,6 +22,7 @@ import com.thesett.common.util.TraceIndenter;
 import com.thesett.common.util.doublemaps.SymbolKey;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.HtVariable;
@@ -99,17 +100,17 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
     /**
      * Holds the root symbol table.
      */
-    protected SymbolTable <Integer, String, Object> rootSymbolTable;
+    protected ISymbolTable <Integer, String, Object> rootSymbolTable;
 
     /**
      * Holds the current symbol table for the position within the term.
      */
-    protected SymbolTable <Integer, String, Object> currentSymbolTable;
+    protected ISymbolTable <Integer, String, Object> currentSymbolTable;
 
     /**
      * Holds the symbol table for the current clause.
      */
-    private SymbolTable <Integer, String, Object> clauseScopedSymbolTable;
+    private ISymbolTable <Integer, String, Object> clauseScopedSymbolTable;
 
     /**
      * Holds the current positional context within a surrounding term that has child elements. The elements are always
@@ -130,7 +131,7 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
      * @param symbolTable The root symbol table for the term to be traversed.
      * @param delegate    An optional AllTermsVisitor to delegate to.
      */
-    public HtSymbolKeyTraverser ( IVafInterner interner, SymbolTable <Integer, String, Object> symbolTable,
+    public HtSymbolKeyTraverser ( IVafInterner interner, ISymbolTable <Integer, String, Object> symbolTable,
                                   IAllTermsVisitor delegate ) {
         this.delegate = delegate;
         this.rootSymbolTable = symbolTable;
@@ -169,7 +170,7 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
 
         clauseIndex = numberOfClauses;
 
-        SymbolTable <Integer, String, Object> predicateScopedSymbolTable = rootSymbolTable.enterScope(predicateName);
+        ISymbolTable <Integer, String, Object> predicateScopedSymbolTable = rootSymbolTable.enterScope(predicateName);
         /*log.fine(indenter.generateTraceIndent(2) + "Enter predicate scope " + predicateName);*/
 
         clauseScopedSymbolTable = predicateScopedSymbolTable.enterScope(clauseIndex);
@@ -221,7 +222,7 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
             // within it. Therefore it always uses its unique id relative to the root symbol table for the
             // clause as its contextual position. Other terms use their position path and are relative to the
             // the current positions symbol table.
-            SymbolTable <Integer, String, Object> contextSymbolTable;
+            ISymbolTable <Integer, String, Object> contextSymbolTable;
 
             if (argument.isVar()) {
                 contextSymbolTable = clauseScopedSymbolTable.enterScope(CLAUSE_FREEVAR_INDEX);
@@ -386,12 +387,12 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
         /**
          * The root symbol table that contains the new context to be established.
          */
-        private final SymbolTable <Integer, String, Object> contextSymbolTable;
+        private final ISymbolTable <Integer, String, Object> contextSymbolTable;
 
         /**
          * Used to retain the previous symbol table if overwritten by a new one.
          */
-        private SymbolTable <Integer, String, Object> previousSymbolTable;
+        private ISymbolTable <Integer, String, Object> previousSymbolTable;
 
         /**
          * The new positional context to establish.
@@ -416,7 +417,7 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
          * @param position    The new positional context to establish.
          * @param delegate    A stackable operator to chain onto this one.
          */
-        private ContextOperator ( SymbolTable <Integer, String, Object> symbolTable, int position,
+        private ContextOperator ( ISymbolTable <Integer, String, Object> symbolTable, int position,
                                   StackableOperator delegate ) {
             super(delegate);
 
@@ -432,7 +433,7 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
          *                    symbol table should be used (default).
          * @param delegate    A stackable operator to chain onto this one.
          */
-        private ContextOperator ( SymbolTable <Integer, String, Object> symbolTable, StackableOperator delegate ) {
+        private ContextOperator ( ISymbolTable <Integer, String, Object> symbolTable, StackableOperator delegate ) {
             super(delegate);
 
             contextSymbolTable = symbolTable;

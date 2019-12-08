@@ -1,9 +1,9 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PredicateTable;
 import org.ltc.hitalk.core.IResolver;
+import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 
@@ -23,10 +23,10 @@ import static org.ltc.hitalk.core.BaseApp.getAppContext;
 public
 class PiCallsCollector implements Collector <PiCalls <?>, List <PiCalls <?>>, PiCalls <?>> {
 
-    private final PredicateTable predicateTable;
+    private final PredicateTable <HtPredicate> predicateTable;
     private final PiCallsCollectorVisitor pccv;
     private final IVafInterner interner;
-    private final SymbolTable <Integer, String, Object> symbolTable;
+    private final ISymbolTable <Integer, String, Object> symbolTable;
 
     private final Supplier <List <PiCalls <?>>> supplier;
     private final BiConsumer <List <PiCalls <?>>, PiCalls <?>> accumulator;

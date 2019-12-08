@@ -20,8 +20,8 @@ import com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys;
 import com.thesett.aima.logic.fol.wam.optimizer.Matcher;
 import com.thesett.aima.logic.fol.wam.optimizer.StateMachine;
 import com.thesett.common.util.doublemaps.SymbolKey;
-import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.core.utils.ISymbolTable;
 
 import java.util.Deque;
 import java.util.LinkedList;
@@ -47,7 +47,7 @@ public class HtOptimizeInstructions implements StateMachine <HiTalkWAMInstructio
      * @param symbolTable The symbol table to get instruction analysis from.
      * @param interner    The functor and variable name interner.
      */
-    public HtOptimizeInstructions ( SymbolTable <Integer, String, Object> symbolTable,
+    public HtOptimizeInstructions ( ISymbolTable <Integer, String, Object> symbolTable,
                                     IVafInterner interner ) {
         this.symbolTable = symbolTable;
         this.interner = interner;
@@ -91,7 +91,7 @@ public class HtOptimizeInstructions implements StateMachine <HiTalkWAMInstructio
     /**
      * The symbol table.
      */
-    protected final SymbolTable <Integer, String, Object> symbolTable;
+    protected final ISymbolTable <Integer, String, Object> symbolTable;
 
     /**
      * Holds the variable and functor name interner for the machine.

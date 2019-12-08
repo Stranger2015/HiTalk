@@ -1,8 +1,8 @@
 package org.ltc.hitalk.wam.compiler.logtalk;
 
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
-import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.HtMethod;
 import org.ltc.hitalk.wam.compiler.hitalk.PrologInstructionCompiler;
@@ -18,7 +18,7 @@ public class LogtalkInstructionCompiler<T extends HtMethod, P, Q> extends Prolog
      * @param observer
      * @param parser
      */
-    public LogtalkInstructionCompiler ( SymbolTable <Integer, String, Object> symbolTable,
+    public LogtalkInstructionCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
                                         IVafInterner interner,
                                         PrologDefaultBuiltIn defaultBuiltIn,
                                         LogicCompilerObserver <P, Q> observer,

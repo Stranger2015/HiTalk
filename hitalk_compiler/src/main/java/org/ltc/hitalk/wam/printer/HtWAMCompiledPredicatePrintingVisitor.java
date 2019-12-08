@@ -1,7 +1,7 @@
 package org.ltc.hitalk.wam.printer;
 
-import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 
 public
@@ -14,7 +14,7 @@ class HtWAMCompiledPredicatePrintingVisitor extends HtWAMCompiledTermsPrintingVi
      * @param result      A string buffer to place the results in.
      */
     public HtWAMCompiledPredicatePrintingVisitor (
-            SymbolTable <Integer, String, Object> symbolTable,
+            ISymbolTable <Integer, String, Object> symbolTable,
             IVafInterner interner,
             StringBuilder result ) {
         super(interner, symbolTable, result);

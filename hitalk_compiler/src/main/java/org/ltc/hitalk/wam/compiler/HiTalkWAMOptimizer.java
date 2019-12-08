@@ -19,8 +19,8 @@ import com.thesett.aima.logic.fol.wam.optimizer.Matcher;
 import com.thesett.aima.logic.fol.wam.optimizer.StateMachine;
 import com.thesett.common.util.SizeableLinkedList;
 import com.thesett.common.util.SizeableList;
-import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.core.utils.ISymbolTable;
 
 import java.util.List;
 
@@ -41,7 +41,7 @@ class HiTalkWAMOptimizer implements IOptimizer {
     /**
      * The symbol table.
      */
-    protected final SymbolTable <Integer, String, Object> symbolTable;
+    protected final ISymbolTable <Integer, String, Object> symbolTable;
 
     /**
      * Holds the variable and functor name interner for the machine.
@@ -54,7 +54,7 @@ class HiTalkWAMOptimizer implements IOptimizer {
      * @param symbolTable The symbol table to get instruction analysis information from.
      * @param interner    The variable and functor name interner for the machine.
      */
-    public HiTalkWAMOptimizer ( SymbolTable <Integer, String, Object> symbolTable, IVafInterner interner ) {
+    public HiTalkWAMOptimizer ( ISymbolTable <Integer, String, Object> symbolTable, IVafInterner interner ) {
         this.symbolTable = symbolTable;
         this.interner = interner;
     }

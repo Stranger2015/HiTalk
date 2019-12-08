@@ -3,12 +3,13 @@ package org.ltc.hitalk.wam.compiler.prolog;
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.common.parsing.SourceCodeException;
-import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.AbstractBaseMachine;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PrologBuiltInTransform;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
+import org.ltc.hitalk.core.utils.ISymbolTable;
+import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
@@ -26,37 +27,52 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
 
     final protected PlPrologParser parser;
     final protected PrologDefaultBuiltIn defaultBuiltIn;
+
     /**
      * Holds the built in transformation.
      */
     protected final PrologBuiltInTransform <T, P, Q> builtInTransform;
-    final protected IResolver <P, Q> resolver;
+    final protected IResolver <HtPredicate, HtClause> resolver;
+    protected LogicCompilerObserver <P, Q> observer;
 
     /**
      * @param symbolTable
      * @param interner
-     * @param defaultBuiltIn
      * @param builtInTransform
      * @param resolver
      */
-    public PrologPreCompiler ( SymbolTable <Integer, String, Object> symbolTable,
+    public PrologPreCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
                                IVafInterner interner,
                                PrologDefaultBuiltIn defaultBuiltIn,
                                PrologBuiltInTransform <T, P, Q> builtInTransform,
-                               IResolver <P, Q> resolver,
-                               PlPrologParser parser ) {
+                               IResolver <HtPredicate, HtClause> resolver,
+                               PlPrologParser parser
+    ) {
         super(symbolTable, interner);
 
-        this.defaultBuiltIn = defaultBuiltIn;
+        this.defaultBuiltIn = defaultBuiltIn;//instructionCompiler.getDefaultBuiltIn();
         this.builtInTransform = builtInTransform;
         this.resolver = resolver;
         this.parser = parser;
     }
 
+    /**
+     * @param string
+     * @param flags
+     * @throws Exception
+     */
+    @Override
     public void compileString ( String string, HtProperty... flags ) throws Exception {
         ICompiler.super.compileString(string, flags);
     }
 
+    /**
+     * @param tokenSource
+     * @param flags
+     * @throws IOException
+     * @throws SourceCodeException
+     */
+    @Override
     public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException {
 
     }
@@ -72,7 +88,7 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
     }
 
     public void compile ( T clause, HtProperty... flags ) throws SourceCodeException {
-
+        logger.debug("Compiling " + clause);
     }
 
     public void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
@@ -112,7 +128,7 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
     }
 
     public void setCompilerObserver ( LogicCompilerObserver <P, Q> observer ) {
-
+        this.observer = observer;
     }
 
     public void endScope () throws SourceCodeException {

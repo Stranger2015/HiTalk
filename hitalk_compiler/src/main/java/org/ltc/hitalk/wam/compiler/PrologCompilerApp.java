@@ -3,7 +3,6 @@ package org.ltc.hitalk.wam.compiler;
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.aima.logic.fol.Sentence;
-import com.thesett.common.util.doublemaps.SymbolTable;
 import org.apache.commons.vfs2.*;
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
 import org.apache.commons.vfs2.provider.jar.JarFileProvider;
@@ -24,6 +23,7 @@ import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.core.HtVersion;
 import org.ltc.hitalk.core.utils.HtSymbolTable;
+import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.context.CompilationContext;
@@ -44,6 +44,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
+import static org.ltc.hitalk.core.Components.INTERNER;
 import static org.ltc.hitalk.core.Components.WAM_COMPILER;
 import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
 import static org.ltc.hitalk.wam.compiler.Tools.Kind.COMPILER;
@@ -60,7 +61,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApp <T, P, 
 
     protected DefaultFileSystemManager fsManager;
     protected PrologWAMCompiler <HtClause, HtPredicate, HtClause,
-            HiTalkWAMCompiledPredicate, HiTalkWAMCompiledClause> compiler;
+            HiTalkWAMCompiledPredicate, HiTalkWAMCompiledClause> wamCompiler;
 
     protected Path scratchDirectory = Paths.get(DEFAULT_SCRATCH_DIRECTORY).toAbsolutePath();
     protected CompilationContext compilationContext = new CompilationContext();
@@ -102,11 +103,11 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApp <T, P, 
      */
     public PrologWAMCompiler <T, P, Q, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>
 
-    createWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
+    createWAMCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
                         IVafInterner interner,
                         PlPrologParser parser,
                         LogicCompilerObserver <P, Q> observer ) {
-        return new PrologWAMCompiler <>(symbolTable, interner, parser, observer);
+        return new PrologWAMCompiler(symbolTable, interner, parser, observer);
     }
 
     /**
@@ -147,6 +148,8 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApp <T, P, 
 
     @Override
     protected void initComponents () {
+//        final AppContext appCtx = BaseApp.getAppContext();
+
         setSymbolTable(new HtSymbolTable <>());
         setInterner(new VafInterner(
                 language().getName() + "_Variable_Namespace",//todo language
@@ -172,11 +175,11 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApp <T, P, 
      * @return
      */
     public BaseCompiler <T, P, Q>
-    createWAMCompiler ( SymbolTable <Integer, String, Object> symbolTable,
+    createWAMCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
                         IVafInterner interner,
                         LogicCompilerObserver <P, Q> observer,
                         PlPrologParser parser ) {
-        return new PrologWAMCompiler <>(symbolTable, interner, parser, observer);
+        return new PrologWAMCompiler(symbolTable, interner, parser, observer);
     }
 
     /**
@@ -265,9 +268,9 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApp <T, P, 
             }
 //            compiler.compile(sentence);
             HtClause clause = libParser.convert(sentence.getT());
-            compiler.compile(clause);
+            wamCompiler.compile(clause);
         }
-        compiler.endScope();
+        wamCompiler.endScope();
 //         There should not be any errors in the built in library, if there are then the prolog engine just
 //         isn't going to work, so report this as a bug.
 //        throw new IllegalStateException("Got an exception whilst loading the built-in library.", e);
@@ -310,18 +313,19 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApp <T, P, 
 
     public void setInterner ( IVafInterner interner ) {
         this.interner = interner;
-
+        appContext.putIfAbsent(INTERNER, interner);
     }
 
     protected PrologWAMCompiler <HtClause, HtPredicate, HtClause,
             HiTalkWAMCompiledPredicate, HiTalkWAMCompiledClause> getWAMCompiler () {
-        return compiler;
+        return wamCompiler;
     }
 
-    private void setWAMCompiler ( PrologWAMCompiler <HtClause, HtPredicate, HtClause,
+    protected void setWAMCompiler ( PrologWAMCompiler <HtClause, HtPredicate, HtClause,
             HiTalkWAMCompiledPredicate, HiTalkWAMCompiledClause> compiler ) {
-        this.compiler = compiler;
+        this.wamCompiler = compiler;
         BaseApp.getAppContext().putIfAbsent(WAM_COMPILER, compiler);
+//        setPreCompiler();
     }
 
     @Override

@@ -5,10 +5,12 @@ import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.common.parsing.SourceCodeException;
-import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PrologBuiltInTransform;
 import org.ltc.hitalk.core.IResolver;
+import org.ltc.hitalk.core.utils.ISymbolTable;
+import org.ltc.hitalk.entities.HtPredicate;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.HtMethod;
@@ -49,11 +51,11 @@ public class HiTalkPreprocessor<T extends HtMethod, P, Q, TT extends TransformTa
      * @param interner    The interner for the machine.
      * @param resolver
      */
-    public HiTalkPreprocessor ( SymbolTable <Integer, String, Object> symbolTable,
+    public HiTalkPreprocessor ( ISymbolTable <Integer, String, Object> symbolTable,
                                 IVafInterner interner,
                                 PrologBuiltInTransform <T, P, Q> builtInTransform,
                                 PrologDefaultBuiltIn defaultBuiltIn,
-                                IResolver <P, Q> resolver,
+                                IResolver <HtPredicate, HtClause> resolver,
                                 PlPrologParser parser )
             throws LinkageException {
 
@@ -63,7 +65,7 @@ public class HiTalkPreprocessor<T extends HtMethod, P, Q, TT extends TransformTa
 
         if (preCompiledTarget != null) {
             for (final T t : preCompiledTarget) {
-                resolver.setQuery((Q) t);
+                resolver.setQuery(t);
                 resolver.resolve();
             }
         }

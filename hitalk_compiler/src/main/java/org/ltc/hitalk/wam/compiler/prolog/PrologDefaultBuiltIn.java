@@ -7,9 +7,9 @@ import com.thesett.aima.search.SearchMethod;
 import com.thesett.aima.search.util.uninformed.BreadthFirstSearch;
 import com.thesett.aima.search.util.uninformed.PostFixSearch;
 import com.thesett.common.util.SizeableLinkedList;
-import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.HtBaseMachine;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction;
 import org.ltc.hitalk.wam.compiler.IFunctor;
@@ -67,7 +67,7 @@ public class PrologDefaultBuiltIn extends HtBaseMachine implements PrologBuiltIn
      * @param symbolTable The symbol table for the machine.
      * @param interner    The interner for the machine.
      */
-    public PrologDefaultBuiltIn ( SymbolTable <Integer, String, Object> symbolTable,
+    public PrologDefaultBuiltIn ( ISymbolTable <Integer, String, Object> symbolTable,
                                   IVafInterner interner ) {
         super(symbolTable, interner);
     }

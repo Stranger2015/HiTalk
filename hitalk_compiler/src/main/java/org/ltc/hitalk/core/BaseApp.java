@@ -2,10 +2,11 @@ package org.ltc.hitalk.core;
 
 
 import com.thesett.aima.logic.fol.LinkageException;
-import com.thesett.common.util.doublemaps.SymbolTable;
+import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PredicateTable;
+import org.ltc.hitalk.compiler.PrologBuiltInTransform;
 import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.compiler.bktables.IConfig;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
@@ -18,6 +19,7 @@ import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.*;
+import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -441,8 +443,8 @@ class BaseApp<T extends HtClause, P, Q> implements IApplication {
             return (HiTalkStream) get(STREAM);
         }
 
-        public SymbolTable <Integer, String, Object> getSymbolTable () {
-            return (SymbolTable <Integer, String, Object>) get(SYMBOL_TABLE);
+        public ISymbolTable <Integer, String, Object> getSymbolTable () {
+            return (ISymbolTable <Integer, String, Object>) get(SYMBOL_TABLE);
         }
 
         public ITermFactory getTermFactory () {
@@ -451,6 +453,22 @@ class BaseApp<T extends HtClause, P, Q> implements IApplication {
 
         public IOperatorTable getOpTable () {
             return (IOperatorTable) get(OP_TABLE);
+        }
+
+        public PrologDefaultBuiltIn getDefaultBuiltIn () {
+            return (PrologDefaultBuiltIn) get(DEFAULT_BUILTIN);
+        }
+
+        public PrologBuiltInTransform getBuiltInTransform () {
+            return (PrologBuiltInTransform) get(BUILTIN_TRANSFORM);
+        }
+
+        public <PC, QC> LogicCompilerObserver <PC, QC> getObserverIC () {
+            return (LogicCompilerObserver <PC, QC>) get(OBSERVER_IC);
+        }
+
+        public <P, Q, T extends HtClause> void setCompilerFactory ( ICompilerFactory <T, P, Q, HtPredicate, HtClause> cf ) {
+            putIfAbsent(COMPILER_FACTORY, cf);
         }
     }
 }
