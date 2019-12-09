@@ -1,17 +1,10 @@
 package org.ltc.hitalk.parser;
 
-import com.thesett.aima.logic.fol.Sentence;
-import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
-import org.ltc.hitalk.term.HlOpSymbol.Associativity;
-import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.Language;
-
-import java.io.IOException;
 
 import static org.ltc.hitalk.parser.PrologAtoms.*;
 import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
@@ -75,38 +68,5 @@ public class HiTalkParser extends PlPrologParser {
         internOperator(PROTECTED, 1150, fx);
         internOperator(PRIVATE, 1150, fx);
         internOperator(ENUMERATION, 1150, fx);
-    }
-
-    @Override
-    public HtClause parseClause () throws ParseException, IOException, SourceCodeException {
-        return super.parseClause();
-    }
-
-    @Override
-    public Sentence <ITerm> parse () throws SourceCodeException, IOException, ParseException {
-        return null;//fixme
-    }
-
-    @Override
-    public void setTokenSource ( PlTokenSource source ) {
-        super.setTokenSource(source);
-    }
-
-    /**
-     * @return
-     */
-    @Override
-    public PlTokenSource getTokenSource () {
-        return super.getTokenSource();
-    }
-
-    /**
-     * @param name
-     * @param priority
-     * @param associativity
-     */
-    @Override
-    public void internOperator ( String name, int priority, Associativity associativity ) {
-        super.internOperator(name, priority, associativity);
     }
 }

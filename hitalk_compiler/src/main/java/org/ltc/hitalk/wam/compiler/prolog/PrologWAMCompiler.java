@@ -34,6 +34,7 @@ import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
  *
  * @author Rupert Smith
  */
+@SuppressWarnings("rawtypes")
 public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
         extends BaseCompiler <T, P, Q> implements IHitalkObject {
 
@@ -46,7 +47,7 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
 //        this.observer2 = new ChainedCompilerObserver();
     }
 
-    protected PrologPreCompiler <T, P, Q> preCompiler;
+    protected ICompiler <T, P, Q> preCompiler;
     //    protected LogicCompilerObserver <P, Q> observer1;
 //    protected LogicCompilerObserver <PC, QC> observer2;
     protected ICompiler <T, HtPredicate, HtClause> instructionCompiler;
@@ -67,7 +68,7 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
 
         ICompilerFactory <T, P, Q, HtPredicate, HtClause> cf = new CompilerFactory <>();
 //        final PrologDefaultBuiltIn defaultBuiltIn = new PrologDefaultBuiltIn(symbolTable, interner);
-        this.preCompiler = (PrologPreCompiler <T, P, Q>) cf.createPreCompiler(PROLOG);
+        this.preCompiler = cf.createPreCompiler(PROLOG);
         this.instructionCompiler = cf.createInstrCompiler(PROLOG);
         this.preCompiler.setCompilerObserver(new PrologWAMCompiler.ClauseChainObserver());
 
@@ -78,10 +79,8 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
         final BaseApp.AppContext appCtx = BaseApp.getAppContext();
 
         ICompilerFactory <T, P, Q, HtPredicate, HtClause> cf = new CompilerFactory <>();
-
         appCtx.setCompilerFactory(cf);
-        //        final PrologDefaultBuiltIn defaultBuiltIn = new PrologDefaultBuiltIn(symbolTable, interner);
-        this.preCompiler = (PrologPreCompiler <T, P, Q>) cf.createPreCompiler(PROLOG);
+        this.preCompiler = cf.createPreCompiler(PROLOG);
         this.instructionCompiler = cf.createInstrCompiler(PROLOG);
         this.preCompiler.setCompilerObserver(new PrologWAMCompiler.ClauseChainObserver());
     }
@@ -108,7 +107,7 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
         getPreCompiler().compile(tokenSource, flags);
     }
 
-    private PrologPreCompiler <T, P, Q> getPreCompiler () {
+    private ICompiler <T, P, Q> getPreCompiler () {
         return preCompiler;
     }
 

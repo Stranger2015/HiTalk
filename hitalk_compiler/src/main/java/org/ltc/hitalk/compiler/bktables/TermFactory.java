@@ -7,7 +7,7 @@ import org.ltc.hitalk.entities.HtEntityKind;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.context.Context;
 import org.ltc.hitalk.entities.context.LoadContext;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken.TokenKind;
+import org.ltc.hitalk.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.*;
 import org.ltc.hitalk.term.ListTerm.Kind;
 import org.ltc.hitalk.wam.compiler.HtFunctor;

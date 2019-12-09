@@ -7,10 +7,7 @@ import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PredicateTable;
 import org.ltc.hitalk.compiler.PrologBuiltInTransform;
-import org.ltc.hitalk.compiler.bktables.IApplication;
-import org.ltc.hitalk.compiler.bktables.IConfig;
-import org.ltc.hitalk.compiler.bktables.IOperatorTable;
-import org.ltc.hitalk.compiler.bktables.IProduct;
+import org.ltc.hitalk.compiler.bktables.*;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
@@ -41,7 +38,6 @@ import static org.ltc.hitalk.parser.HiLogParser.hilogApply;
 @SuppressWarnings("ALL")
 public abstract
 class BaseApp<T extends HtClause, P, Q> implements IApplication {
-
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     public static final IFunctor HILOG_APPLY_FUNCTOR = new HtFunctor(hilogApply, 1, 0);
@@ -350,6 +346,7 @@ class BaseApp<T extends HtClause, P, Q> implements IApplication {
     @Override
     public void setFileName ( String fileName ) {
         this.fileName = fileName;
+//        BaseApp.getAppContext().putIfAbsent(FILE_NAME, fileName);
     }
 
     /**
@@ -410,6 +407,7 @@ class BaseApp<T extends HtClause, P, Q> implements IApplication {
          * Creates an empty enum map with the specified key type.
          *
          * @param keyType the class object of the key type for this enum map
+         * @param streams
          * @throws NullPointerException if <tt>keyType</tt> is null
          */
         public AppContext () {
@@ -469,6 +467,14 @@ class BaseApp<T extends HtClause, P, Q> implements IApplication {
 
         public <P, Q, T extends HtClause> void setCompilerFactory ( ICompilerFactory <T, P, Q, HtPredicate, HtClause> cf ) {
             putIfAbsent(COMPILER_FACTORY, cf);
+        }
+
+        public void setStream ( HiTalkStream stream ) {
+            putIfAbsent(STREAM, stream);
+        }
+
+        public void setTermFactory ( IVafInterner interner ) {
+            putIfAbsent(TERM_FACTORY, (IHitalkObject) new TermFactory(interner));
         }
     }
 }

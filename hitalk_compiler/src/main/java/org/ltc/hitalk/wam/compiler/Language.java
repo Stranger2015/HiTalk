@@ -1,44 +1,61 @@
 package org.ltc.hitalk.wam.compiler;
 
-import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HiLogParser;
 import org.ltc.hitalk.parser.HiTalkParser;
-import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.hilog.HiLogWAMCompiler;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkInstructionCompiler;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkPreCompiler;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiler;
+import org.ltc.hitalk.wam.compiler.hitalk.PrologInstructionCompiler;
+import org.ltc.hitalk.wam.compiler.logtalk.LogtalkInstructionCompiler;
+import org.ltc.hitalk.wam.compiler.logtalk.LogtalkPreCompiler;
 import org.ltc.hitalk.wam.compiler.logtalk.LogtalkWAMCompiler;
+import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 
 public enum Language {
     PROLOG("Prolog",
-            new PlPrologParser(),
-            new PrologWAMCompiler <>()),
+            PlPrologParser.class,
+            PrologWAMCompiler.class,
+            PrologPreCompiler.class,
+            PrologInstructionCompiler.class),
     HITALK("HiTalk",
-            new HiTalkParser(),
-            new HiTalkWAMCompiler()),
+            HiTalkParser.class,
+            HiTalkWAMCompiler.class,
+            HiTalkPreCompiler.class,
+            HiTalkInstructionCompiler.class),
     HILOG("HiLog",
-            new HiLogParser(),
-            new HiLogWAMCompiler <>()),
+            HiLogParser.class,
+            HiLogWAMCompiler.class,
+            HiLogPreCompiler.class,
+            HiLogInstructionCompiler.class),
     LOGTALK("Logtalk",
-            new LogtalkParser(),
-            new LogtalkWAMCompiler());
+            LogtalkParser.class,
+            LogtalkWAMCompiler.class,
+            LogtalkPreCompiler.class,
+            LogtalkInstructionCompiler.class);;
 
     private final String name;
-    public final PlPrologParser parser;
-    public final PrologWAMCompiler <HtClause, HtPredicate, HtClause,
-            HiTalkWAMCompiledPredicate, HiTalkWAMCompiledClause> compiler;
+    //    public final PlPrologParser parser;
+    private Class <?> parserClass;
+    private Class <?> wamCompilerClass;
+    private Class <?> preCompilerClass;
+    private Class <?> instrCompilerClass;
 
     /**
      * @param name
+     * @param parserClass
+     * @param wamCompilerClass
+     * @param preCompilerClass
+     * @param instrCompilerClass
      */
-    Language ( String name,
-               PlPrologParser parser,
-               PrologWAMCompiler <HtClause, HtPredicate, HtClause,
-                       HiTalkWAMCompiledPredicate, HiTalkWAMCompiledClause> compiler ) {
+    Language ( String name, Class <?> parserClass, Class <?> wamCompilerClass, Class <?> preCompilerClass, Class <?> instrCompilerClass ) {
         this.name = name;
-        this.parser = parser;
-        this.compiler = compiler;
+        this.parserClass = parserClass;
+        this.wamCompilerClass = wamCompilerClass;
+        this.preCompilerClass = preCompilerClass;
+        this.instrCompilerClass = instrCompilerClass;
     }
 
     /**
@@ -48,13 +65,19 @@ public enum Language {
         return name;
     }
 
-    public PlPrologParser getParser () {
-        return parser;
+    public Class <?> getParserClass () {
+        return parserClass;
     }
 
-    public PrologWAMCompiler <HtClause, HtPredicate, HtClause,
-            HiTalkWAMCompiledPredicate, HiTalkWAMCompiledClause> getCompiler () {
+    public Class <?> getWamCompilerClass () {
+        return wamCompilerClass;
+    }
 
-        return compiler;
+    public Class <?> getPreCompilerClass () {
+        return preCompilerClass;
+    }
+
+    public Class <?> getInstrCompilerClass () {
+        return instrCompilerClass;
     }
 }

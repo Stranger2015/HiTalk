@@ -2,6 +2,7 @@ package org.ltc.hitalk.term.io;
 
 import org.jetbrains.annotations.NotNull;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
+import org.ltc.hitalk.core.IHitalkObject;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.IProperty;
 import org.ltc.hitalk.entities.IPropertyOwner;
@@ -44,7 +45,8 @@ import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.EXISTEN
  * ByteBuffer newbb = charset.encode(cb);
  */
 public
-class HiTalkStream implements IInputStream, IOutputStream, IPropertyOwner, PropertyChangeListener, Cloneable {
+class HiTalkStream implements IInputStream,
+        IOutputStream, IPropertyOwner, PropertyChangeListener, Cloneable, IHitalkObject {
 
     public static final int BB_ALLOC_SIZE = 32768;
 

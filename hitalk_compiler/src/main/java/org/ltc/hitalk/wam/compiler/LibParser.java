@@ -1,11 +1,13 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.common.parsing.SourceCodeException;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.parser.PlSentenceImpl;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ISentence;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
 import org.ltc.hitalk.term.ITerm;
 
@@ -28,6 +30,14 @@ public class LibParser implements IParser {
         return parser;
     }
 
+    public IVafInterner getInterner () {
+        return parser.getInterner();
+    }
+
+    public void setInterner ( IVafInterner interner ) {
+        parser.setInterner(interner);
+    }
+
     @Override
     public Language language () {
         return parser.language();
@@ -37,8 +47,10 @@ public class LibParser implements IParser {
      * @return
      * @throws SourceCodeException
      */
-    public Sentence <ITerm> parse () throws SourceCodeException, ParseException, IOException {
-        return null;
+    public ISentence <ITerm> parse () throws SourceCodeException, ParseException, IOException {
+        return new PlSentenceImpl(getParser().termSentence());
+
+
     }
 
     @Override

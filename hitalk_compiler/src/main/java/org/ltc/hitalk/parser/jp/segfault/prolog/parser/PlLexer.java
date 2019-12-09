@@ -52,6 +52,9 @@ public class PlLexer {
     public PlToken next ( boolean value ) {
         try {
             return (token = getToken(value));
+        } catch (EOFException e) {
+            token = PlToken.newToken(EOF);
+            return token;
         } catch (IOException | ParseException e) {
             e.printStackTrace();
             throw new ExecutionError(PERMISSION_ERROR, null);

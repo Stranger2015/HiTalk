@@ -2,6 +2,7 @@ package org.ltc.hitalk.wam.compiler;
 
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IHitalkObject;
+import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
@@ -16,7 +17,7 @@ public interface ICompilerFactory<T extends HtClause, P, Q, PC, QC> extends IHit
      * @param language
      * @return
      */
-    PrologWAMCompiler <T, P, Q, PC, QC> createWAMCompiler ( Language language );
+    PrologWAMCompiler <HtClause, HtPredicate, HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledClause> createWAMCompiler ( Language language );
 
     /**
      * @param language

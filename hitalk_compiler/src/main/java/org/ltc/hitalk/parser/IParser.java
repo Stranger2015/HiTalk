@@ -1,13 +1,13 @@
 package org.ltc.hitalk.parser;
 
 
-import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.core.IHitalkObject;
 import org.ltc.hitalk.core.utils.TermUtilities;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ISentence;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.TermParser;
 import org.ltc.hitalk.term.HlOpSymbol;
@@ -57,21 +57,17 @@ public interface IParser extends TermParser <ITerm>, IHitalkObject {
         getParser().setStream(stream);
     }
 
-    default IVafInterner getInterner () {
-        return getParser().getInterner();
-    }
+    IVafInterner getInterner ();
 
-    default void setInterner ( IVafInterner interner ) {
-        getParser().setInterner(interner);
-    }
+    void setInterner ( IVafInterner interner );
 
     default ITermFactory getFactory () {
         return getParser().getFactory();
-    }
+    }//fixme
 
     default IOperatorTable getOptable () {
         return getParser().getOptable();
-    }
+    }//fixme
 
     default void setOptable ( IOperatorTable optable ) {
         getParser().setOptable(optable);
@@ -93,7 +89,7 @@ public interface IParser extends TermParser <ITerm>, IHitalkObject {
      * @return
      * @throws SourceCodeException
      */
-    Sentence <ITerm> parse () throws SourceCodeException, ParseException, IOException;
+    ISentence <ITerm> parse () throws SourceCodeException, ParseException, IOException;
 
     /**
      * @return

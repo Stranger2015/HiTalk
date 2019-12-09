@@ -2,7 +2,6 @@ package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
-import com.thesett.aima.logic.fol.Sentence;
 import org.apache.commons.vfs2.*;
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
 import org.apache.commons.vfs2.provider.jar.JarFileProvider;
@@ -34,6 +33,7 @@ import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.parser.PlTokenSource;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ISentence;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.Tools.Kind;
@@ -46,6 +46,7 @@ import java.nio.file.Paths;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.core.Components.INTERNER;
 import static org.ltc.hitalk.core.Components.WAM_COMPILER;
+import static org.ltc.hitalk.term.io.HiTalkStream.createHiTalkStream;
 import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
 import static org.ltc.hitalk.wam.compiler.Tools.Kind.COMPILER;
 
@@ -148,14 +149,17 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApp <T, P, 
 
     @Override
     protected void initComponents () {
-//        final AppContext appCtx = BaseApp.getAppContext();
-
+        final AppContext appCtx = BaseApp.getAppContext();
+        final ICompilerFactory <HtClause, Object, Object, Object, Object> cf = new CompilerFactory <>();
         setSymbolTable(new HtSymbolTable <>());
         setInterner(new VafInterner(
                 language().getName() + "_Variable_Namespace",//todo language
                 language().getName() + "_Functor_Namespace"));
-        setParser(language().getParser());
-        setWAMCompiler(language().getCompiler());
+        appCtx.setStream(createHiTalkStream(fileName, true));
+        appCtx.setTermFactory(appCtx.getInterner());
+        setParser((PlPrologParser) cf.createParser(language()));
+        setWAMCompiler(cf.createWAMCompiler(language()));
+
     }
 
     /**
@@ -262,7 +266,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApp <T, P, 
 
         // Load the built-ins into the domain
         while (true) {
-            Sentence <ITerm> sentence = libParser.parse();
+            ISentence <ITerm> sentence = libParser.parse();
             if (sentence == null) {
                 break;
             }

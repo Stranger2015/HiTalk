@@ -1,5 +1,6 @@
 package org.ltc.hitalk;
 
+import org.ltc.hitalk.core.IHitalkObject;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
 import org.ltc.hitalk.entities.HtProperty;
@@ -13,7 +14,7 @@ import java.nio.file.Path;
  *
  */
 public
-interface ITermFactory {
+interface ITermFactory extends IHitalkObject {
 
     /**
      * 整数値アトムを生成します。

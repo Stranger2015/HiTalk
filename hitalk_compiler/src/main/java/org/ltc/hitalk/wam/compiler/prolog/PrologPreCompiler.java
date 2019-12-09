@@ -19,6 +19,8 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 
+import static org.ltc.hitalk.core.BaseApp.getAppContext;
+
 /**
  *
  */
@@ -54,6 +56,15 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
         this.builtInTransform = builtInTransform;
         this.resolver = resolver;
         this.parser = parser;
+    }
+
+    public PrologPreCompiler () {
+        this(getAppContext().getSymbolTable(),
+                getAppContext().getInterner(),
+                getAppContext().getDefaultBuiltIn(),
+                getAppContext().getBuiltInTransform(),
+                getAppContext().getResolverPre(),
+                getAppContext().getParser());
     }
 
     /**

@@ -1,6 +1,5 @@
 package org.ltc.hitalk.parser;
 
-import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.Source;
 import org.ltc.hitalk.ITermFactory;
@@ -11,6 +10,7 @@ import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.core.utils.TermUtilities;
 import org.ltc.hitalk.parser.PlToken.TokenKind;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ErrorTerm;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ISentence;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlLexer;
 import org.ltc.hitalk.term.*;
@@ -28,6 +28,7 @@ import java.util.*;
 import static java.util.EnumSet.of;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
+import static org.ltc.hitalk.parser.HiLogParser.hilogApply;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
 import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
 import static org.ltc.hitalk.term.ListTerm.Kind.*;
@@ -46,7 +47,7 @@ public class PlPrologParser implements IParser {
     protected final ITermFactory factory;
     protected final IOperatorTable operatorTable;
     protected final Deque <PlTokenSource> tokenSourceStack = new ArrayDeque <>();
-    protected final IVafInterner interner;
+    protected IVafInterner interner;
 
 
     /**
@@ -69,7 +70,8 @@ public class PlPrologParser implements IParser {
      *
      */
     public PlPrologParser () {
-        this(getAppContext().getStream(),
+        this(
+                getAppContext().getStream(),
                 getAppContext().getInterner(),
                 getAppContext().getTermFactory(),
                 getAppContext().getOpTable());
@@ -93,6 +95,14 @@ public class PlPrologParser implements IParser {
         return this;
     }
 
+    public IVafInterner getInterner () {
+        return interner;
+    }
+
+    public void setInterner ( IVafInterner interner ) {
+        this.interner = interner;
+    }
+
     /**
      * @return
      */
@@ -104,8 +114,8 @@ public class PlPrologParser implements IParser {
      * @return
      * @throws SourceCodeException
      */
-    public Sentence <ITerm> parse () throws SourceCodeException, ParseException, IOException {
-        return null;
+    public ISentence <ITerm> parse () throws SourceCodeException, ParseException, IOException {
+        return new PlSentenceImpl(termSentence());
     }
 
     /**
@@ -341,7 +351,7 @@ public class PlPrologParser implements IParser {
     }
 
     protected IFunctor compound ( String name, ListTerm args ) throws IOException, ParseException {
-        return factory.newFunctor(HiLogParser.hilogApply, name, args);
+        return factory.newFunctor(hilogApply, name, args);
     }
 
     /**

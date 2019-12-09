@@ -28,6 +28,7 @@ import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.parser.PlToken;
 import org.ltc.hitalk.parser.PlTokenSource;
+import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ISentence;
 import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
@@ -140,7 +141,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
 
         // Consult the type checking rules and add them to the knowledge base.
         while (true) {
-            Sentence <ITerm> sentence = getParser().parse();
+            ISentence <ITerm> sentence = getParser().parse();
 
             if (sentence == null) {
                 break;
@@ -309,7 +310,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * @return
      */
     @Override
-    public Sentence <ITerm> parse () throws SourceCodeException, IOException, ParseException {
+    public ISentence <ITerm> parse () throws SourceCodeException, IOException, ParseException {
         return parser.parse();
     }
 

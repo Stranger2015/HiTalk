@@ -11,6 +11,8 @@ import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.BaseInstructionCompiler;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 
+import static org.ltc.hitalk.core.BaseApp.getAppContext;
+
 /**
  *
  */
@@ -37,6 +39,14 @@ public class PrologInstructionCompiler<T extends HtClause, PC, QC> extends BaseI
                                        LogicCompilerObserver <PC, QC> observer,
                                        PlPrologParser parser ) {
         super(symbolTable, interner, defaultBuiltIn, observer, parser);
+    }
+
+    public PrologInstructionCompiler () {
+        this(getAppContext().getSymbolTable(),
+                getAppContext().getInterner(),
+                getAppContext().getDefaultBuiltIn(),
+                getAppContext().getObserverIC(),
+                getAppContext().getParser());
     }
 
     @Override
