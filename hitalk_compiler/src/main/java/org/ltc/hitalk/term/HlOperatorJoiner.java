@@ -1,6 +1,6 @@
 package org.ltc.hitalk.term;
 
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
+import org.ltc.hitalk.parser.ParseException;
 import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 
 import java.util.ArrayDeque;
@@ -14,10 +14,10 @@ import static org.ltc.hitalk.term.HlOpSymbol.Associativity.fx;
  *
  * @author shun
  */
-public abstract class HlOperatorJoiner<TERM extends ITerm> {
+public abstract class HlOperatorJoiner<T extends ITerm> {
 
     private final ArrayDeque <HlOpSymbol> operators = new ArrayDeque <>();
-    private final ArrayDeque <TERM> operands = new ArrayDeque <>();
+    private final ArrayDeque <T> operands = new ArrayDeque <>();
 
     // 最後に追加された演算子のタイプ
     private Associativity associativity = fx;
@@ -41,7 +41,7 @@ public abstract class HlOperatorJoiner<TERM extends ITerm> {
     /**
      * 式の構成要素となる次の値(オペランド)を追加します。
      */
-    public void push ( TERM operand ) {
+    public void push ( T operand ) {
         operands.push(operand);
         associativity = Associativity.x;
     }
@@ -49,7 +49,7 @@ public abstract class HlOperatorJoiner<TERM extends ITerm> {
     /**
      * 式の要素の追加を終了し、設定された式の構成要素から構文木を生成します。
      */
-    public TERM complete () throws ParseException {
+    public T complete () throws ParseException {
         resolve(Integer.MAX_VALUE);
         if (operands.size() != 1) {
             throw new IllegalStateException("operands.size() != 1");
@@ -62,7 +62,7 @@ public abstract class HlOperatorJoiner<TERM extends ITerm> {
             if (operators.peek().rprio == priority) {
                 throw new ParseException("演算子の優先順位が衝突しました: " + operators.peek());
             }
-            ArrayList <TERM> args = new ArrayList <>(2);
+            ArrayList <T> args = new ArrayList <>(2);
             for (int i = operators.peek().getAssociativity().arity; i > 0; --i) {
                 args.add(0, operands.pop());
             }
@@ -73,5 +73,5 @@ public abstract class HlOperatorJoiner<TERM extends ITerm> {
     /**
      * 構文木のノードを生成します。
      */
-    protected abstract TERM join ( int notation, List <TERM> args );
+    protected abstract T join ( int notation, List <T> args );
 }

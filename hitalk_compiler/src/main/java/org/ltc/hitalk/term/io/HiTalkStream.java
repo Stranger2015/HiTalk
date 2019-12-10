@@ -896,7 +896,6 @@ class HiTalkStream implements IInputStream,
      */
     @Override
     public char readChar () throws IOException {
-
         return dis.readChar();
     }
 

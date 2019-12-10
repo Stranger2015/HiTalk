@@ -168,7 +168,6 @@ public class TermFactory implements ITermFactory {
         return null;//new Flag(ffn, new Functor(ffv, EMPTY_TERM_ARRAY));
     }
 
-
     /**
      * @param kind
      * @param name
@@ -208,11 +207,7 @@ public class TermFactory implements ITermFactory {
 
     @Override
     public FloatTerm newAtomic ( double f ) {
-        return null;
-    }
-
-    public ListTerm newDottedPair ( Kind kind, ITerm[] terms ) {
-        return null;
+        return new FloatTerm((float) f);
     }
 
     //    @Override

@@ -3,9 +3,9 @@ package org.ltc.hitalk.interpreter;
 
 import com.thesett.common.util.Sink;
 import com.thesett.common.util.Source;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlLexer;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlToken;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlTokenSource;
+import org.ltc.hitalk.parser.PlLexer;
+import org.ltc.hitalk.parser.PlToken;
+import org.ltc.hitalk.parser.PlTokenSource;
 
 import java.util.ArrayList;
 import java.util.List;

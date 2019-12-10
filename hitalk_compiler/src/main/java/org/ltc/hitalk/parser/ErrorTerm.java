@@ -1,4 +1,4 @@
-package org.ltc.hitalk.parser.jp.segfault.prolog.parser;
+package org.ltc.hitalk.parser;
 
 import com.thesett.aima.logic.fol.TermTraverser;
 import com.thesett.aima.search.Operator;

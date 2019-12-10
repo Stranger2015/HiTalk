@@ -74,7 +74,7 @@ interface ITermFactory extends IHitalkObject {
 
     FloatTerm newAtomic ( double f );
 
-    ListTerm newDottedPair ( Kind kind, ITerm[] terms );
+    ListTerm newListTerm ( Kind kind, ITerm[] terms );
 
     HtProperty createFlag ( String scratch_directory, Path scratchDir );
 

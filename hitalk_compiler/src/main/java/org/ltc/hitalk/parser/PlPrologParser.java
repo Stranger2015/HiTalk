@@ -5,14 +5,9 @@ import com.thesett.common.util.Source;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
-import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.core.utils.TermUtilities;
 import org.ltc.hitalk.parser.PlToken.TokenKind;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ErrorTerm;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ISentence;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlLexer;
 import org.ltc.hitalk.term.*;
 import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 import org.ltc.hitalk.term.HlOpSymbol.Fixity;
@@ -26,7 +21,6 @@ import java.io.IOException;
 import java.util.*;
 
 import static java.util.EnumSet.of;
-import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
 import static org.ltc.hitalk.parser.HiLogParser.hilogApply;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
@@ -48,7 +42,7 @@ public class PlPrologParser implements IParser {
     protected final IOperatorTable operatorTable;
     protected final Deque <PlTokenSource> tokenSourceStack = new ArrayDeque <>();
     protected IVafInterner interner;
-
+    protected ITermFactory termFactory;
 
     /**
      * @param stream
@@ -103,6 +97,18 @@ public class PlPrologParser implements IParser {
         this.interner = interner;
     }
 
+    public ITermFactory getFactory () {
+        return termFactory;
+    }
+
+    public IOperatorTable getOptable () {
+        return null;
+    }
+
+    public void setOptable ( IOperatorTable optable ) {
+
+    }
+
     /**
      * @return
      */
@@ -112,9 +118,8 @@ public class PlPrologParser implements IParser {
 
     /**
      * @return
-     * @throws SourceCodeException
      */
-    public ISentence <ITerm> parse () throws SourceCodeException, ParseException, IOException {
+    public ISentence <ITerm> parse () throws ParseException, IOException {
         return new PlSentenceImpl(termSentence());
     }
 
@@ -122,19 +127,12 @@ public class PlPrologParser implements IParser {
      * @return
      */
     @Override
-    public ITerm next () throws IOException {
-        try {
-            PlToken token = lexer.next(true);
-            if (token == null) {
-                token = PlToken.newToken(EOF);
-            }
-            return newTerm(token, false, EnumSet.of(DOT));//fixme EOF
-        } catch (ParseException e) {
-//            int row = ;
-//            int col = reader.getCol();
-//            throw new ParseException(e.getMessage(); + " [" + row + ":" + col + "]", e, row, col);
-            throw new ExecutionError(PERMISSION_ERROR, null);//e.getMessage(); + " [" + row + ":" + col + "]", e, row, col);
+    public ITerm next () throws IOException, ParseException {
+        PlToken token = lexer.next(true);
+        if (token == null) {
+            token = PlToken.newToken(EOF);
         }
+        return newTerm(token, false, EnumSet.of(DOT));
     }
 
     /**
@@ -143,7 +141,6 @@ public class PlPrologParser implements IParser {
     public HtClause parseClause () throws ParseException, SourceCodeException, IOException {
         return TermUtilities.convertToClause(termSentence(), BaseApp.getAppContext().getInterner());
     }
-
 
     /**
      * @return
@@ -205,6 +202,12 @@ public class PlPrologParser implements IParser {
         }
     }
 
+    /**
+     * @param token
+     * @return
+     * @throws IOException
+     * @throws ParseException
+     */
     protected ITerm literal ( PlToken token ) throws IOException, ParseException {
         ITerm term = new ErrorTerm();
         switch (token.kind) {
@@ -224,14 +227,19 @@ public class PlPrologParser implements IParser {
                 term = factory.newAtomic(Double.parseDouble(token.image));
                 break;
             case BOF:
-                term = factory.newAtom(BEGIN_OF_FILE);
+                if (!getTokenSource().isBofGenerated()) {
+                    term = factory.newAtom(BEGIN_OF_FILE);
+                    getTokenSource().setBofGenerated(true);
+                    getTokenSource().setEncodingPermitted(true);
+                }
                 break;
             case EOF:
-                term = factory.newAtom(END_OF_FILE);
+                if (!getTokenSource().isEofGenerated()) {
+                    term = factory.newAtom(END_OF_FILE);
+                    getTokenSource().setEofGenerated(true);
+                    popTokenSource();
+                }
                 break;
-//            case DOT:
-//                end-of_term
-//                break;
             case LPAREN:
                 ListTerm listTerm = readSequence(token.kind, RPAREN, true);//blocked sequence
                 break;
@@ -316,7 +324,7 @@ public class PlPrologParser implements IParser {
             default:
                 break;
         }
-        ITerm term = newTerm(lexer.getNextToken(), true, rdelims);//,/2 ????????
+        ITerm term = newTerm(lexer.getNextToken(), true, rdelims);
         if (term == null) {
             if (rdelim != lexer.peek().kind) {
                 throw new ParseException("No (more) elements");//要素がありません・・・。
@@ -329,7 +337,7 @@ public class PlPrologParser implements IParser {
                 newTerm(lexer.getNextToken(), true, rdelims);
             }
 
-            return factory.newDottedPair(kind, flatten(elements));
+            return factory.newListTerm(kind, flatten(elements));
         }
 
         return (ListTerm) term;
@@ -381,18 +389,13 @@ public class PlPrologParser implements IParser {
         // Each new sentence provides a new scope in which to make variables unique.
         variableContext.clear();
 
-        return literal(lexer.getNextToken());
-
+        if (tokenSourceStack.size() > 0) {
+            return literal(lexer.getNextToken());
+        }
+        return null;
     }
 
-    /**
-     * Sets up a custom operator symbol on the parser.
-     *
-     * @param operatorName  The name of the operator to create.
-     * @param priority      The priority of the operator, zero unsets it.
-     * @param associativity The operators associativity.
-     */
-//    @Override
+    //    @Override
     public void setOperator ( String operatorName, int priority, Associativity associativity ) {
         EnumMap <Fixity, HlOpSymbol> ops = operatorTable.getOperatorsMatchingNameByFixity(operatorName);
         if (ops == null || ops.isEmpty()) {

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ltc.hitalk.parser.jp.segfault.prolog.parser;
+package org.ltc.hitalk.parser;
 
 import com.thesett.aima.logic.fol.Term;
 import com.thesett.aima.logic.fol.isoprologparser.OperatorTable;

@@ -22,10 +22,7 @@ import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.context.Context;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.LoadContext;
-import org.ltc.hitalk.parser.HiTalkParser;
-import org.ltc.hitalk.parser.IParser;
-import org.ltc.hitalk.parser.PlPrologParser;
-import org.ltc.hitalk.parser.PlTokenSource;
+import org.ltc.hitalk.parser.*;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiler;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
@@ -916,12 +913,12 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q>
     /**
      * @param fileName
      */
-    public void logtalkCompile ( String fileName ) throws IOException, SourceCodeException {
+    public void logtalkCompile ( String fileName ) throws IOException, SourceCodeException, ParseException {
         wamCompiler.compileFile(fileName, executionContext.getFlags());
 //         user, user, user, user, [], []
     }
 
-    public void compile ( String fileName, HtProperty[] flags ) throws IOException, SourceCodeException {
+    public void compile ( String fileName, HtProperty[] flags ) throws IOException, SourceCodeException, ParseException {
         wamCompiler.compile(getTokenSourceForIoFile(new File(fileName)));
 
     }

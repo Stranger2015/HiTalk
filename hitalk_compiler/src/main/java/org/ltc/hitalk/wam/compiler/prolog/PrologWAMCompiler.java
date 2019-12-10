@@ -13,6 +13,7 @@ import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.ParseException;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.wam.compiler.CompilerFactory;
@@ -103,7 +104,7 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
      * @throws SourceCodeException
      */
     @Override
-    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException {
+    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException, ParseException {
         getPreCompiler().compile(tokenSource, flags);
     }
 

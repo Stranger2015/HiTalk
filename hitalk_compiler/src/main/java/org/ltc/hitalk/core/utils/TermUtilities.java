@@ -19,7 +19,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import static java.util.Objects.requireNonNull;
 import static org.ltc.hitalk.term.ListTerm.Kind.LIST;
 
 /**
@@ -38,6 +37,30 @@ import static org.ltc.hitalk.term.ListTerm.Kind.LIST;
  * @author Rupert Smith
  */
 public class TermUtilities {
+
+    /**
+     * @param original
+     * @return
+     */
+    public static ITerm[] copyOf ( ITerm[] original ) {
+        int newLength = original.length + 1;
+        final ITerm[] copy = new ITerm[newLength];
+        System.arraycopy(original, 0, copy, 1, original.length);
+        return copy;
+    }
+
+    /**
+     * @param original
+     * @param elem
+     * @return
+     */
+    public static ITerm[] prepend ( ITerm[] original, ITerm elem ) {
+        final ITerm[] copy = copyOf(original);
+        copy[0] = elem;
+
+        return copy;
+    }
+
     /**
      * Calculates the set of free variables in a term.
      *
@@ -210,8 +233,8 @@ public class TermUtilities {
         if (term != null) {
             return new HtClause((IFunctor) term, null);
         } else {
-            throw new SourceCodeException("Only functors can for a clause body, not " + term + ".", null, null, null,
-                    requireNonNull(term).getSourceCodePosition());
+            throw new SourceCodeException("Only functor can be as a clause head", null, null, null, null
+                    /*  requireNonNull(term).getSourceCodePosition()*/);
         }
     }
 

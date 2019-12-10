@@ -1,4 +1,4 @@
-package org.ltc.hitalk.parser.jp.segfault.prolog.parser;
+package org.ltc.hitalk.parser;
 
 import org.ltc.hitalk.term.ITerm;
 

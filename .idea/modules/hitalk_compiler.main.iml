@@ -13,8 +13,10 @@
       <excludeFolder url="file://$MODULE_DIR$/../../hitalk_compiler/src/main/java/org/ltc/hitalk/parser/jp/code" />
       <excludeFolder url="file://$MODULE_DIR$/../../hitalk_compiler/src/main/java/org/ltc/hitalk/parser/jp/procedure" />
       <excludeFolder url="file://$MODULE_DIR$/../../hitalk_compiler/src/main/java/org/ltc/hitalk/parser/jp/script" />
+      <excludeFolder url="file://$MODULE_DIR$/../../hitalk_compiler/src/main/java/org/ltc/hitalk/parser/jp/segfault/prolog" />
       <excludeFolder url="file://$MODULE_DIR$/../../hitalk_compiler/src/main/java/org/ltc/hitalk/parser/jp/segfault/prolog/term" />
       <excludeFolder url="file://$MODULE_DIR$/../../hitalk_compiler/src/main/java/org/ltc/hitalk/parser/jp/term" />
+      <excludeFolder url="file://$MODULE_DIR$/../../hitalk_compiler/src/main/java/org/ltc/hitalk/parser/jp/util" />
       <excludeFolder url="file://$MODULE_DIR$/../../hitalk_compiler/src/main/org/ltc/hitalk/parser/jp/segfault/prolog/term" />
     </content>
     <orderEntry type="inheritedJdk" />

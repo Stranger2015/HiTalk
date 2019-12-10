@@ -45,4 +45,8 @@ class HiTalkEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P, Q
     public void forEach ( Consumer action ) {
 
     }
+
+    public IResolver <P, Q> getResolver () {
+        return resolver;
+    }
 }

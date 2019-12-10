@@ -4,6 +4,7 @@ import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.ParseException;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.wam.compiler.hitalk.ILogicCompiler;
@@ -27,11 +28,11 @@ public interface ICompiler<T extends HtClause, P, Q> extends ILogicCompiler <T, 
      * @throws IOException
      * @throws SourceCodeException
      */
-    default void compileFiles ( List <String> fnl ) throws IOException, SourceCodeException {
+    default void compileFiles ( List <String> fnl ) throws IOException, SourceCodeException, ParseException {
         compileFiles(fnl, EMPTY_FLAG_ARRAY);
     }
 
-    default void compileFiles ( List <String> fnl, HtProperty... flags ) throws IOException, SourceCodeException {
+    default void compileFiles ( List <String> fnl, HtProperty... flags ) throws IOException, SourceCodeException, ParseException {
         for (String fn : fnl) {
             compileFile(fn, flags);
         }
@@ -41,7 +42,7 @@ public interface ICompiler<T extends HtClause, P, Q> extends ILogicCompiler <T, 
      * @param fn
      * @throws IOException
      */
-    default void compileFile ( String fn, HtProperty... flags ) throws IOException, SourceCodeException {
+    default void compileFile ( String fn, HtProperty... flags ) throws IOException, SourceCodeException, ParseException {
         compile(PlTokenSource.getTokenSourceForIoFile(new File(fn)), flags);
     }
 
@@ -59,7 +60,7 @@ public interface ICompiler<T extends HtClause, P, Q> extends ILogicCompiler <T, 
      * @param tokenSource
      * @param flags
      */
-    void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException;
+    void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException, ParseException;
 
     /**
      * @return
@@ -92,7 +93,7 @@ public interface ICompiler<T extends HtClause, P, Q> extends ILogicCompiler <T, 
      */
     void setResolver ( IResolver <P, Q> resolver );
 
-    void compile ( String fileName, HtProperty... flags ) throws IOException, SourceCodeException;
+    void compile ( String fileName, HtProperty... flags ) throws IOException, SourceCodeException, ParseException;
 
     void compile ( T clause ) throws SourceCodeException;
 }

@@ -2,12 +2,11 @@ package org.ltc.hitalk.term;
 
 import com.thesett.aima.search.Operator;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.core.utils.TermUtilities;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.util.stream.IntStream;
 
-import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
-import static org.ltc.hitalk.term.ListTerm.Kind.LIST;
 import static org.ltc.hitalk.term.ListTerm.Kind.values;
 
 /**
@@ -19,22 +18,19 @@ public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
     public static final ListTerm NIL = new ListTerm(Kind.NIL);
 
     protected Kind kind;
-    //    private final ITerm[] heads;
-    protected /*final*/ ITerm[] arguments;
-    private Operator <ITerm> op;
+    protected ITerm[] arguments;
+    protected Operator <ITerm> op;
 
     /**
-     *
-     * @param list
      * @param name
      * @param heads
      */
-    public ListTerm ( Kind list, int name, ITerm[] heads ) {
-        this(Kind.NIL, EMPTY_TERM_ARRAY);
+    public ListTerm ( Kind kind, int name, ITerm[] heads ) {
+        this(kind, TermUtilities.prepend(heads, new IntTerm(name)));
     }
 
     public ListTerm ( int length ) {
-        this(LIST);
+        this(length == 0 ? Kind.NIL : Kind.LIST);
         ITerm[] heads = IntStream.range(0, length).mapToObj(i -> new HtVariable())
                 .toArray(ITerm[]::new);
         setArguments(heads);//fixme name tail
@@ -108,8 +104,8 @@ public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
     }
 
     public ITerm[] getHeads () {
-        return null;
-    }
+        return arguments;
+    }//fixme
 
     /**
      * @param i

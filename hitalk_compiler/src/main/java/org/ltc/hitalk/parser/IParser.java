@@ -7,13 +7,9 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.core.IHitalkObject;
 import org.ltc.hitalk.core.utils.TermUtilities;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ISentence;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.TermParser;
 import org.ltc.hitalk.term.HlOpSymbol;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HiTalkStream;
-import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.Language;
 
 import java.io.IOException;
@@ -21,7 +17,7 @@ import java.io.IOException;
 /**
  *
  */
-public interface IParser extends TermParser <ITerm>, IHitalkObject {
+public interface IParser extends IHitalkObject {
     /**
      * @return
      */
@@ -61,17 +57,13 @@ public interface IParser extends TermParser <ITerm>, IHitalkObject {
 
     void setInterner ( IVafInterner interner );
 
-    default ITermFactory getFactory () {
-        return getParser().getFactory();
-    }//fixme
+    ITermFactory getFactory ()//fixme
+    ;
 
-    default IOperatorTable getOptable () {
-        return getParser().getOptable();
-    }//fixme
+    IOperatorTable getOptable ()//fixme
+    ;
 
-    default void setOptable ( IOperatorTable optable ) {
-        getParser().setOptable(optable);
-    }
+    void setOptable ( IOperatorTable optable );
 
     /**
      * @param op
@@ -130,10 +122,7 @@ public interface IParser extends TermParser <ITerm>, IHitalkObject {
      * @return
      * @throws IOException
      */
-    @Override
-    default ITerm next () throws IOException {
-        return getParser().next();
-    }
+    ITerm next () throws IOException, ParseException;
 
     /**
      * @return
@@ -152,6 +141,6 @@ public interface IParser extends TermParser <ITerm>, IHitalkObject {
      * @return
      */
     default HtClause convert ( ITerm t ) throws SourceCodeException {
-        return TermUtilities.convertToClause((IFunctor) t, getInterner());
+        return TermUtilities.convertToClause(t, getInterner());
     }
 }

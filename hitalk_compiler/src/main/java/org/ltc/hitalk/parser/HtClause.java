@@ -1,6 +1,5 @@
 package org.ltc.hitalk.parser;
 
-import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.entities.ISubroutine;
 import org.ltc.hitalk.term.HtBaseTerm;
 import org.ltc.hitalk.term.ITerm;
@@ -86,9 +85,9 @@ public class HtClause extends HtBaseTerm implements ITerm, ISubroutine {
 
     }
 
-    public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
-        return toString();
-    }
+//    public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
+//        return getClass().getSimpleName()+interner.getDeinternedFunctorName();
+//    }
 
     public ListTerm getBodyAsListTerm () {
         return body;

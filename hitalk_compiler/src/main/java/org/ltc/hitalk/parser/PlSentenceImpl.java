@@ -1,11 +1,9 @@
 package org.ltc.hitalk.parser;
 
-import com.thesett.aima.logic.fol.Sentence;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ISentence;
 import org.ltc.hitalk.term.ITerm;
 
 /**
- * PlSentenceImpl provides a simple implementation of {@link Sentence} for packaging logic terms as sentences in some
+ * PlSentenceImpl provides a simple implementation of {@link ISentence} for packaging logic terms as sentences in some
  * logical language.
  *
  * <pre><p/><table id="crc"><caption>CRC Card</caption>

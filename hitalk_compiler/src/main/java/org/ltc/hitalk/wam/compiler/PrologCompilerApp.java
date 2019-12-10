@@ -12,7 +12,6 @@ import org.apache.commons.vfs2.provider.temp.TemporaryFileProvider;
 import org.apache.commons.vfs2.provider.url.UrlFileProvider;
 import org.apache.commons.vfs2.provider.zip.ZipFileProvider;
 import org.ltc.hitalk.ITermFactory;
-import org.ltc.hitalk.compiler.BaseCompiler;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.VafInterner;
 import org.ltc.hitalk.compiler.bktables.IApplication;
@@ -29,11 +28,7 @@ import org.ltc.hitalk.entities.context.CompilationContext;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.LoadContext;
 import org.ltc.hitalk.interpreter.HtProduct;
-import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.IParser;
-import org.ltc.hitalk.parser.PlPrologParser;
-import org.ltc.hitalk.parser.PlTokenSource;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ISentence;
+import org.ltc.hitalk.parser.*;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.Tools.Kind;
@@ -171,20 +166,20 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApp <T, P, 
         initialized.set(false);
     }
 
-    /**
-     * @param symbolTable
-     * @param interner
-     * @param observer
-     * @param parser
-     * @return
-     */
-    public BaseCompiler <T, P, Q>
-    createWAMCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
-                        IVafInterner interner,
-                        LogicCompilerObserver <P, Q> observer,
-                        PlPrologParser parser ) {
-        return new PrologWAMCompiler(symbolTable, interner, parser, observer);
-    }
+//    /**
+//     * @param symbolTable
+//     * @param interner
+//     * @param observer
+//     * @param parser
+//     * @return
+//     */
+//    public BaseCompiler <T, P, Q>
+//    createWAMCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
+//                        IVafInterner interner,
+//                        LogicCompilerObserver <P, Q> observer,
+//                        PlPrologParser parser ) {
+//        return new PrologWAMCompiler(symbolTable, interner, parser, observer);
+//    }
 
     /**
      * @param stream

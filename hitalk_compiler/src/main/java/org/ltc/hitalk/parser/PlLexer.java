@@ -1,7 +1,5 @@
-package org.ltc.hitalk.parser.jp.segfault.prolog.parser;
+package org.ltc.hitalk.parser;
 
-import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
-import org.ltc.hitalk.parser.PlToken;
 import org.ltc.hitalk.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.io.HiTalkStream;
 
@@ -11,12 +9,9 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import static java.lang.Character.*;
-import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
 
 /**
- * 入力ストリームをPrologテキストとみなし、トークン列に分解します。
- *
  * @author shun
  */
 public class PlLexer {
@@ -49,16 +44,8 @@ public class PlLexer {
     /**
      * 次のトークンを返します。
      */
-    public PlToken next ( boolean value ) {
-        try {
-            return (token = getToken(value));
-        } catch (EOFException e) {
-            token = PlToken.newToken(EOF);
-            return token;
-        } catch (IOException | ParseException e) {
-            e.printStackTrace();
-            throw new ExecutionError(PERMISSION_ERROR, null);
-        }
+    public PlToken next ( boolean value ) throws IOException, ParseException {
+        return (token = getToken(value));
     }
 
     /**
@@ -73,45 +60,49 @@ public class PlLexer {
     }
 
     private PlToken getToken ( boolean valued ) throws IOException, ParseException {
-        int chr = stream.read();
-        if (chr == -1) {
-            return null;
-        }
-        if (valued) {
-            // 括弧など
-            if ("([{".indexOf(chr) != -1) {
-                return new PlToken(calcTokenKind(chr));
+        try {
+            int chr = stream.read();
+            if (chr == -1) {
+                return null;
             }
-            // 整数値アトム
-            if (chr == '-') {
-                int c = stream.read();
-                if (isDigit(c)) {
-                    return getNumber(c, "-");
+            if (valued) {
+                // 括弧など
+                if ("([{".indexOf(chr) != -1) {
+                    return new PlToken(calcTokenKind(chr));
                 }
-                ungetc(c);
-            } else if (isDigit(chr)) {
-                return getNumber(chr, "");
+                // 整数値アトム
+                if (chr == '-') {
+                    int c = stream.read();
+                    if (isDigit(c)) {
+                        return getNumber(c, "-");
+                    }
+                    ungetc(c);
+                } else if (isDigit(chr)) {
+                    return getNumber(chr, "");
+                }
             }
-        }
 
-        if ("}])".indexOf(chr) != -1) {
-            return new PlToken(calcTokenKind(chr), String.valueOf((char) chr));
-        }
-        PlToken token = getAtom(chr);
-        if (token == null) {//不正な文字
-            throw new ParseException(":Bad char `" + (char) chr + ":0x" + Integer.toHexString(chr) + "'.");
-        }
-        if (valued && token.kind == ATOM) {
-            if ((chr = stream.read()) == '(') {
-                return new PlToken(FUNCTOR_BEGIN);
+            if ("}])".indexOf(chr) != -1) {
+                return new PlToken(calcTokenKind(chr), String.valueOf((char) chr));
             }
-            ungetc(chr);
+            PlToken token = getAtom(chr);
+            if (token == null) {//不正な文字
+                throw new ParseException(":Bad char `" + (char) chr + ":0x" + Integer.toHexString(chr) + "'.");
+            }
+            if (valued && token.kind == ATOM) {
+                if ((chr = stream.read()) == '(') {
+                    return new PlToken(FUNCTOR_BEGIN);
+                }
+                ungetc(chr);
+            }
+        } catch (EOFException e) {
+            return PlToken.newToken(EOF);
         }
 
         return token;
     }
 
-    private PlToken getAtom ( int chr ) throws IOException, ParseException {
+    private PlToken getAtom ( int chr ) throws IOException {
         StringBuilder val = new StringBuilder();
         // 単体でアトムを構成
         if (";,!|".indexOf(chr) != -1) {

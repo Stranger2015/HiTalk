@@ -10,6 +10,7 @@ import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.ParseException;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.term.ITerm;
@@ -124,13 +125,13 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
     }
 
     @Override
-    public void compile ( String fileName, HtProperty... flags ) throws IOException, SourceCodeException {
+    public void compile ( String fileName, HtProperty... flags ) throws IOException, SourceCodeException, ParseException {
         PlTokenSource ts = PlTokenSource.getTokenSourceForIoFile(new File(fileName));
         compile(ts, flags);
     }
 
     @Override
-    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException {
+    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException, ParseException {
         getConsole().info("Compiling " + tokenSource.getPath() + "... ");
         parser.setTokenSource(tokenSource);
         while (true) {

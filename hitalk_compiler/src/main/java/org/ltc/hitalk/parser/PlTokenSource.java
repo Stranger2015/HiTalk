@@ -9,7 +9,6 @@ import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.parser.PlToken.TokenKind;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.PlLexer;
 import org.ltc.hitalk.term.HlOpSymbol;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HiTalkStream;
@@ -22,12 +21,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.EXISTENCE_ERROR;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
-import static org.ltc.hitalk.parser.PlToken.TokenKind.BOF;
-import static org.ltc.hitalk.parser.PlToken.TokenKind.DOT;
+import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
 import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
+import static org.ltc.hitalk.term.io.HiTalkStream.createHiTalkStream;
 
 public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
+
+    private boolean encodingPermitted;
 
     /**
      * Holds the current token.
@@ -52,6 +54,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
 
         // The first token is initialized to be empty, so that the first call to poll returns the first token.
         token = new PlToken(BOF);
+        encodingPermitted = true;
     }
 
     private boolean isBofGenerated;
@@ -67,9 +70,6 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
      * @throws CloneNotSupportedException
      */
     public static PlTokenSource getPlTokenSourceForString ( String string ) throws IOException, CloneNotSupportedException {
-//        HiTalkStream stream = new HiTalkStream(FileDescriptor.in, true);
-//        PlLexer lexer = new PlLexer(stream);
-//        return new PlTokenSource(lexer, new ByteArrayInputStream(string.getBytes()));
         return getPlTokenSourceForStdin(new ByteArrayInputStream(string.getBytes()));
     }
 
@@ -103,12 +103,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
         isBofGenerated = bofGenerated;
     }
 
-    private boolean isEncodingChanged;
-    private long fileBeginOffset = 0L;
-
     protected HiTalkStream stream;
-    //    private InputStream input;
-//        private InputStream input;
     private String path;
 
     /**
@@ -117,24 +112,9 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
      */
     protected void onEncodingChanged ( String encoding ) throws IOException {
         if (token.kind == DOT) {
-            fileBeginOffset = stream.position();
-            setBofGenerated(false);
             setEncodingChanged(true);
         }
     }
-
-//    /**
-//     * Builds a token source around the specified token manager.
-//     *
-//     * @param lexer The token manager to use to feed this source.
-//     * @param input
-//     */
-//    public PlTokenSource ( PlLexer lexer, InputStream input ) throws IOException {
-//        this(lexer);
-//        stream = HiTalkStream.createHiTalkStream(input);
-//        this.lexer = lexer;
-//    }
-//
 
     /**
      * @param lexer
@@ -151,59 +131,8 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
      * @throws IOException
      */
     public static PlTokenSource getTokenSourceForIoFile ( File file ) throws IOException {
-        PlLexer lexer = new PlLexer(HiTalkStream.createHiTalkStream(file.getAbsolutePath(), true));
+        PlLexer lexer = new PlLexer(createHiTalkStream(file.getAbsolutePath(), true));
         return new PlTokenSource(lexer);
-    }
-
-//    private static PlTokenSource getTokenSourceForUri ( URI uri ) throws IOException {
-//        FileSystemManager manager = VFS.getManager();
-//        FileObject file = manager.resolveFile(uri);
-//
-//        return getTokenSourceForVfsFileObject(file);
-//    }
-
-    /**
-     * Creates a token source on a file.
-     *
-     * @param path The file to tokenize.
-     *
-     * @return A token source.
-     */
-//    public static PlTokenSource getTokenSourceForPath ( Path path ) throws IOException {
-//        FileSystemManager manager = VFS.getManager();
-//        File userDir = path.toAbsolutePath().toFile();
-//        URI url = userDir.toURI();
-//        FileObject file = manager.resolveFile(url);
-//
-//        return getTokenSourceForVfsFileObject(file);
-//    }
-
-//    /**
-//     *
-//     * @param vfsFo
-//     *
-//     * @return
-//     * @throws IOException
-//     */
-//    public static PlTokenSource getTokenSourceForVfsFileObject ( FileObject vfsFo ) throws IOException {
-//        FileContent content = vfsFo.getContent();
-//        InputStream inputStream = content.getInputStream();
-//
-//        return getTokenSourceForInputStream(inputStream, vfsFo.getName().getPath());
-//    }
-
-    /**
-     * @return
-     */
-    public long getFileBeginOffset () {
-        return fileBeginOffset;
-    }
-
-    /**
-     * @param fileBeginOffset
-     */
-    public void setFileBeginOffset ( long fileBeginOffset ) {
-        this.fileBeginOffset = fileBeginOffset;
     }
 
     /**
@@ -246,15 +175,20 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     public PlToken poll () {
         if (!isBofGenerated()) {
             setBofGenerated(true);
-            token = PlToken.newToken(BOF);
+            token = newBOFToken();
             return token;
         }
         if (token.next == null) {
-            token.next = lexer.next(true);
-        }
-        token = token.next;
-//        token.next=null;
+            try {
+                token.next = lexer.next(true);
+            } catch (IOException | ParseException e) {
+                e.printStackTrace();
+                throw new ExecutionError(EXISTENCE_ERROR, null);
+            }
 
+        }
+
+        token = token.next;
         return token;
     }
 
@@ -270,16 +204,23 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
             return token;
         }
         if (token.next == null) {
-            token.next = lexer.next(true);
+            try {
+                token.next = lexer.next(true);
+            } catch (IOException | ParseException e) {
+                e.printStackTrace();
+                throw new ExecutionError(EXISTENCE_ERROR, null);
+            }
         }
 
         return token.next;
     }
 
     private PlToken newBOFToken () {
-        PlToken t = PlToken.newToken(BOF);
-//        t.next = new PlToken(DOT);
-        return t;
+        return PlToken.newToken(BOF);
+    }
+
+    private PlToken newEOFToken () {
+        return PlToken.newToken(EOF);
     }
 
     public HiTalkStream getStream () {
@@ -419,5 +360,20 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
         } else {
             return false;
         }
+    }
+
+    /**
+     * @param isEofGenerated
+     */
+    public void setEofGenerated ( boolean isEofGenerated ) {
+        this.isEofGenerated = isEofGenerated;
+    }
+
+    public boolean isEncodingPermitted () {
+        return encodingPermitted;
+    }
+
+    public void setEncodingPermitted ( boolean encodingPermitted ) {
+        this.encodingPermitted = encodingPermitted;
     }
 }

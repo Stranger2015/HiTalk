@@ -4,16 +4,13 @@ import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.common.parsing.SourceCodeException;
 import jline.ConsoleReader;
+import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IConfig;
+import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
-import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.IParser;
-import org.ltc.hitalk.parser.PlPrologParser;
-import org.ltc.hitalk.parser.PlSentenceImpl;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ISentence;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
+import org.ltc.hitalk.parser.*;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.Language;
@@ -107,6 +104,18 @@ public class PrologInterpreter<T extends HtClause, P, Q>
         parser.setInterner(interner);
     }
 
+    public ITermFactory getFactory () {
+        return null;
+    }
+
+    public IOperatorTable getOptable () {
+        return null;
+    }
+
+    public void setOptable ( IOperatorTable optable ) {
+
+    }
+
     /**
      * @return
      */
@@ -117,15 +126,22 @@ public class PrologInterpreter<T extends HtClause, P, Q>
 
     /**
      * @return
-     * @throws SourceCodeException
      */
-    public ISentence <ITerm> parse () throws SourceCodeException, ParseException, IOException {
+    public ISentence <ITerm> parse () throws IOException {
         return new PlSentenceImpl(next());
     }
 
     @Override
     public void initializeBuiltIns () {
         parser.initializeBuiltIns();
+    }
+
+    /**
+     * @return
+     * @throws IOException
+     */
+    public ITerm next () throws IOException {
+        return null;
     }
 
     @Override

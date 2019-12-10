@@ -24,12 +24,7 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtProperty;
-import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.PlPrologParser;
-import org.ltc.hitalk.parser.PlToken;
-import org.ltc.hitalk.parser.PlTokenSource;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ISentence;
-import org.ltc.hitalk.parser.jp.segfault.prolog.parser.ParseException;
+import org.ltc.hitalk.parser.*;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HiTalkStream;
@@ -402,7 +397,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     }
 
     @Override
-    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException {
+    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException, ParseException {
         compiler.compile(tokenSource, flags);
     }
 
@@ -447,7 +442,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     }
 
     @Override
-    public void compile ( String fileName, HtProperty... flags ) throws IOException, SourceCodeException {
+    public void compile ( String fileName, HtProperty... flags ) throws IOException, SourceCodeException, ParseException {
         compiler.compile(fileName, flags);
     }
 

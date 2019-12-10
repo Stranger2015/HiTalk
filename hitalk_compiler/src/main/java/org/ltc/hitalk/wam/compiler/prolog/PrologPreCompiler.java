@@ -1,5 +1,6 @@
 package org.ltc.hitalk.wam.compiler.prolog;
 
+import com.thesett.aima.logic.fol.FunctorName;
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.common.parsing.SourceCodeException;
@@ -12,12 +13,13 @@ import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
-import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.PlPrologParser;
-import org.ltc.hitalk.parser.PlTokenSource;
+import org.ltc.hitalk.parser.*;
+import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
 
@@ -84,8 +86,17 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
      * @throws SourceCodeException
      */
     @Override
-    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException {
-
+    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException, ParseException {
+        getConsole().info("Compiling " + tokenSource.getPath() + "... ");
+        parser.setTokenSource(tokenSource);
+        while (true) {
+            ITerm t = parser.next();
+            if (t == null) {
+                break;
+            }
+            T c = (T) parser.convert(t);//FIXME
+            compile(c, flags);
+        }
     }
 
     @Override
@@ -100,16 +111,27 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
 
     public void compile ( T clause, HtProperty... flags ) throws SourceCodeException {
         logger.debug("Compiling " + clause);
+        if (clause.getT().getHead() == null) {
+            final IFunctor goal = (IFunctor) clause.getBody().get(0);
+            if (checkEncodingDirective(goal)) {
+                parser.getTokenSource().setEncodingPermitted(false);
+            }
+        }
     }
 
-    public void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
+    private boolean checkEncodingDirective ( IFunctor goal ) {
+        final FunctorName functorName = interner.getDeinternedFunctorName(goal.getName());
+        return Objects.equals(functorName.getName(), PrologAtoms.ENCODING) && functorName.getArity() == 1;
+    }
+
+    public void compileDcgRule ( DcgRule rule ) {
 
     }
 
     /**
      * @param query
      */
-    public void compileQuery ( Q query ) throws SourceCodeException {
+    public void compileQuery ( Q query ) {
 
     }
 
