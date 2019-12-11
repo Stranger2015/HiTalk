@@ -7,10 +7,10 @@ import org.ltc.hitalk.wam.compiler.hilog.HiLogWAMCompiler;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkInstructionCompiler;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkPreCompiler;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiler;
-import org.ltc.hitalk.wam.compiler.hitalk.PrologInstructionCompiler;
 import org.ltc.hitalk.wam.compiler.logtalk.LogtalkInstructionCompiler;
 import org.ltc.hitalk.wam.compiler.logtalk.LogtalkPreCompiler;
 import org.ltc.hitalk.wam.compiler.logtalk.LogtalkWAMCompiler;
+import org.ltc.hitalk.wam.compiler.prolog.PrologInstructionCompiler;
 import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 

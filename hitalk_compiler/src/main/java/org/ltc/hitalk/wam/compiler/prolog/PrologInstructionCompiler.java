@@ -1,4 +1,4 @@
-package org.ltc.hitalk.wam.compiler.hitalk;
+package org.ltc.hitalk.wam.compiler.prolog;
 
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.common.parsing.SourceCodeException;
@@ -9,7 +9,6 @@ import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.BaseInstructionCompiler;
-import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
 

@@ -81,7 +81,7 @@ public class HiTalkPreprocessor<T extends HtMethod, P, Q, TT extends TransformTa
      */
     @Override
     public void compile ( Sentence <T> sentence ) throws SourceCodeException {
-
+//
     }
 
     /**

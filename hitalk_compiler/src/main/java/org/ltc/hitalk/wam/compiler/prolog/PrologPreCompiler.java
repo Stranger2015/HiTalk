@@ -19,6 +19,7 @@ import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
@@ -36,7 +37,7 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
      * Holds the built in transformation.
      */
     protected final PrologBuiltInTransform <T, P, Q> builtInTransform;
-    final protected IResolver <HtPredicate, HtClause> resolver;
+    protected final IResolver <HtPredicate, HtClause> resolver;
     protected LogicCompilerObserver <P, Q> observer;
 
     /**
@@ -160,11 +161,51 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
 
     }
 
+    /**
+     * @param observer The compiler output observer.
+     */
+    @Override
     public void setCompilerObserver ( LogicCompilerObserver <P, Q> observer ) {
         this.observer = observer;
     }
 
-    public void endScope () throws SourceCodeException {
+    /**
+     *
+     */
+    @Override
+    public void endScope () {
 
+    }
+
+    /**
+     * expand_term(+Term1, -Term2)
+     * This predicate is normally called by the compiler on terms read from the input to perform preprocessing.
+     * It consists of four steps, where each step processes the output of the previous step.
+     * Test conditional compilation directives and translate all input to [] if we are in a `false branch' of
+     * the conditional compilation. See section 4.3.1.2.
+     * <p>
+     * Call term_expansion/2. This predicate is first tried in the module that is being compiled and then
+     * in modules from which this module inherits according to default_module/2. The output of the expansion in
+     * a module is used as input for the next module. Using the default setup and when compiling a normal
+     * application module M, this implies expansion is executed in M, user and finally in system. Library modules
+     * inherit directly from system and can thus not be re-interpreted by term expansion rules in user.
+     * <p>
+     * Call DCG expansion (dcg_translate_rule/2).
+     * <p>
+     * Call expand_goal/2 on each body term that appears in the output of the previous steps.
+     *
+     * @param term
+     * @return
+     */
+    public List <ITerm> expandTerm ( ITerm term ) {
+        return callTermExpansion(term);
+    }
+
+    /**
+     * @param term
+     * @return
+     */
+    public List <ITerm> callTermExpansion ( ITerm term ) {
+        return null;
     }
 }

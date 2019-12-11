@@ -66,6 +66,7 @@ class DefaultTermExpander<T extends HtClause, TC extends ITerm, TT extends TermR
         return result;
     }
 
+
     public void run () {
 
     }

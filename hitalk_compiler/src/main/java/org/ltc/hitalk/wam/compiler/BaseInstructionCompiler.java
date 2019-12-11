@@ -35,7 +35,6 @@ import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
-import org.ltc.hitalk.wam.compiler.hitalk.HiTalkInstructionCompiler;
 import org.ltc.hitalk.wam.compiler.hitalk.HtTermWalker;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn.VarIntroduction;
@@ -286,14 +285,14 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
      */
     private void allocatePermanentQueryRegisters ( ITerm clause, Map <Byte, Integer> varNames ) {
         // Allocate local variable slots for all variables in a query.
-        QueryRegisterAllocatingVisitor allocatingVisitor;
-        allocatingVisitor = new HiTalkInstructionCompiler.QueryRegisterAllocatingVisitor(getSymbolTable(), varNames, null);
+        QueryRegisterAllocatingVisitor allocatingVisitor = new QueryRegisterAllocatingVisitor(getSymbolTable(),
+                varNames,
+                null);
 
         HtPositionalTermTraverser positionalTraverser = new HtPositionalTermTraverser();
         positionalTraverser.setContextChangeVisitor(allocatingVisitor);
 
         HtTermWalker walker = new HtTermWalker(new DepthFirstBacktrackingSearch <>(), positionalTraverser, allocatingVisitor);
-
         walker.walk(clause);
     }
 

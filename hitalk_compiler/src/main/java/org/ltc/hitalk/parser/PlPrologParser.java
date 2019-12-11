@@ -36,6 +36,9 @@ public class PlPrologParser implements IParser {
     public static final String BEGIN_OF_FILE = "begin_of_file";
     public static final String END_OF_FILE = "end_of_file";
 
+    public static ITerm BEGIN_OF_FILE_ATOM;
+    public static ITerm END_OF_FILE_ATOM;
+
     protected HiTalkStream stream;
     protected PlLexer lexer;
     protected final ITermFactory factory;
@@ -229,6 +232,7 @@ public class PlPrologParser implements IParser {
             case BOF:
                 if (!getTokenSource().isBofGenerated()) {
                     term = factory.newAtom(BEGIN_OF_FILE);
+                    BEGIN_OF_FILE_ATOM = term;
                     getTokenSource().setBofGenerated(true);
                     getTokenSource().setEncodingPermitted(true);
                 }
@@ -236,6 +240,8 @@ public class PlPrologParser implements IParser {
             case EOF:
                 if (!getTokenSource().isEofGenerated()) {
                     term = factory.newAtom(END_OF_FILE);
+                    term = factory.newAtom(BEGIN_OF_FILE);
+                    END_OF_FILE_ATOM = term;
                     getTokenSource().setEofGenerated(true);
                     popTokenSource();
                 }

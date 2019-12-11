@@ -32,11 +32,13 @@ import org.ltc.hitalk.parser.*;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.Tools.Kind;
+import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.core.Components.INTERNER;
@@ -68,6 +70,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApp <T, P, 
             new HtVersion(0, 1, 0, 99, " ", true));
     protected LogicCompilerObserver <P, Q> observer;
     protected IVafInterner interner;
+    protected PrologPreCompiler <HtClause, Object, Object> preCompiler;
 
     /**
      * @param fn
@@ -262,14 +265,21 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApp <T, P, 
         // Load the built-ins into the domain
         while (true) {
             ISentence <ITerm> sentence = libParser.parse();
-            if (sentence == null) {
+            final ITerm term = sentence.getT();
+            //TODO  GLOBAL WITHOUT SPECIAL CASES
+            if (term == PlPrologParser.BEGIN_OF_FILE_ATOM) {
+                final List <ITerm> l = preCompiler.expandTerm(term);
+                continue;
+            }
+            if (term == PlPrologParser.END_OF_FILE_ATOM) {
+
                 break;
             }
-//            compiler.compile(sentence);
+            //            compiler.compile(sentence);
             HtClause clause = libParser.convert(sentence.getT());
-            wamCompiler.compile(clause);
+            preCompiler.compile(clause);
         }
-        wamCompiler.endScope();
+        preCompiler.endScope();
 //         There should not be any errors in the built in library, if there are then the prolog engine just
 //         isn't going to work, so report this as a bug.
 //        throw new IllegalStateException("Got an exception whilst loading the built-in library.", e);
