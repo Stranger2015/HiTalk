@@ -23,6 +23,7 @@ import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.task.TransformTask;
 
 import java.util.ArrayList;
@@ -50,5 +51,49 @@ public class PrologPreprocessor<T extends HtClause, P, Q, TC extends ITerm, TT e
                                 PlPrologParser parser ) {
 
         super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, parser);
+    }
+
+    public void compile ( T clause ) {
+        super.compile(clause);
+    }
+
+    /**
+     * expand_term(+Term1, -Term2)
+     * This predicate is normally called by the compiler on terms read from the input to perform preprocessing.
+     * It consists of four steps, where each step processes the output of the previous step.
+     * Test conditional compilation directives and translate all input to [] if we are in a `false branch' of
+     * the conditional compilation. See section 4.3.1.2.
+     * <p>
+     * Call term_expansion/2. This predicate is first tried in the module that is being compiled and then
+     * in modules from which this module inherits according to default_module/2. The output of the expansion in
+     * a module is used as input for the next module. Using the default setup and when compiling a normal
+     * application module M, this implies expansion is executed in M, user and finally in system. Library modules
+     * inherit directly from system and can thus not be re-interpreted by term expansion rules in user.
+     * <p>
+     * Call DCG expansion (dcg_translate_rule/2).
+     * <p>
+     * Call expand_goal/2 on each body term that appears in the output of the previous steps.
+     *
+     * @param term
+     * @return
+     */
+    public List <ITerm> expandTerm ( ITerm term ) {
+        return super.expandTerm(term);
+    }
+
+    /**
+     * @param term
+     * @return
+     */
+    public List <ITerm> callTermExpansion ( ITerm term ) {
+        return super.callTermExpansion(term);
+    }
+
+    /**
+     * @param goal
+     * @return
+     */
+    public List <IFunctor> expandGoal ( IFunctor goal ) {
+        return super.expandGoal(goal);
     }
 }

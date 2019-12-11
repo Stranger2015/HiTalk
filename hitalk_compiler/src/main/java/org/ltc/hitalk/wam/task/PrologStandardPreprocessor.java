@@ -11,12 +11,12 @@ import java.util.function.Function;
  *
  */
 public
-class StandardPreprocessor<T extends ITerm> extends TransformTask <T> {
+class PrologStandardPreprocessor<T extends ITerm> extends TransformTask <T> {
 
     /**
      * @param transformer
      */
-    public StandardPreprocessor ( Function <T, List <T>> action, List <T> target, ITransformer <T> transformer ) {
+    public PrologStandardPreprocessor ( Function <T, List <T>> action, List <T> target, ITransformer <T> transformer ) {
         super(action, target, transformer);
     }
 

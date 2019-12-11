@@ -15,7 +15,7 @@ import java.util.List;
  */
 public
 class SuperCompiler<T extends ITerm>
-        extends StandardPreprocessor <T>
+        extends PrologStandardPreprocessor <T>
         implements IInliner <T>, ISpecializer <T>, IGeneralizer <T>, ITransformer <T> {
 
     private ProcessTree pTree;

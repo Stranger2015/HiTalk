@@ -36,17 +36,16 @@ import java.util.List;
  */
 public
 class TermRewriteTask<TC extends ITerm, TT extends TransformTask <TC>>
-        extends StandardPreprocessor <TC>
+        extends PrologStandardPreprocessor <TC>
         implements IComposite <TC, TT>, ITransformer <TC> {
 
     protected List <TT> rewriteTasks = new ArrayList <>();
 
     /**
-     * @param action
      * @param target
      * @param transformer
      */
-    public TermRewriteTask ( Action <TC> action, List <TC> target, ITransformer <TC> transformer ) {
+    public TermRewriteTask (/* Action <TC> action, */List <TC> target, ITransformer <TC> transformer ) {
         super(action, target, transformer);
     }
 

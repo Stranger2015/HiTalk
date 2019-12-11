@@ -243,7 +243,7 @@ public class PlPrologParser implements IParser {
                     term = factory.newAtom(BEGIN_OF_FILE);
                     END_OF_FILE_ATOM = term;
                     getTokenSource().setEofGenerated(true);
-                    popTokenSource();
+               //     popTokenSource();
                 }
                 break;
             case LPAREN:

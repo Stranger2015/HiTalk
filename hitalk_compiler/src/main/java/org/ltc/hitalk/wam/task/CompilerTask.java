@@ -15,8 +15,8 @@ import static java.lang.String.format;
  */
 abstract public
 class CompilerTask<T extends ITerm> implements IInvokable <T> {
-
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
+
     protected final Function <T, List <T>> action;
 
     /**
@@ -26,7 +26,6 @@ class CompilerTask<T extends ITerm> implements IInvokable <T> {
     CompilerTask ( Function <T, List <T>> action ) {
         this.action = action;
     }
-
 
     /**
      * @param t

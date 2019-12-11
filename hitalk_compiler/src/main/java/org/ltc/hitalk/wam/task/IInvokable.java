@@ -36,7 +36,6 @@ interface IInvokable<T extends ITerm> extends Runnable {
     default
     List <T> invoke ( T t ) {
         banner();
-
         return Collections.singletonList(t);
     }
 

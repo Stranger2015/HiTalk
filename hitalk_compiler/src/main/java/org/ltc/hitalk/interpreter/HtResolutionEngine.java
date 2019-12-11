@@ -416,7 +416,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      */
     @Override
     public void compile ( T clause, HtProperty... flags ) throws SourceCodeException {
-
+        compiler.compile(clause, flags);
     }
 
     /**

@@ -12,7 +12,8 @@ interface PrologAtoms {
     String DCG_IMPLIES = "-->";
     String QUERY = "?";
     String SEMICOLON = ";";
-    String IF = "->";
+    String IF = "if";
+    String IF_NHEN = "->";
     String IF_STAR = "*-> ";
     String COMMA = ",";
     String NOT = "\\+";

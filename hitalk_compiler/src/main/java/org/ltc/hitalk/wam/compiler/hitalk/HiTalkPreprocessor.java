@@ -15,7 +15,7 @@ import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.HtMethod;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
-import org.ltc.hitalk.wam.task.StandardPreprocessor;
+import org.ltc.hitalk.wam.task.PrologStandardPreprocessor;
 import org.ltc.hitalk.wam.task.TransformTask;
 import org.ltc.hitalk.wam.transformers.DefaultTransformer;
 
@@ -71,7 +71,7 @@ public class HiTalkPreprocessor<T extends HtMethod, P, Q, TT extends TransformTa
         }
 //        TermRewriteTask<TC,TransformTask<TC>>trt=new TermRewriteTask(new Action(preCompiledTarget, defaultTransformer,trt));
 //        components.add((TT) new HiLogPreprocessor <>(null, defaultTransformer, interner));
-        components.add((TT) new StandardPreprocessor <>(null, preCompiledTarget, defaultTransformer));
+        components.add((TT) new PrologStandardPreprocessor <>(null, preCompiledTarget, defaultTransformer));
     }
 
     /**

@@ -18,7 +18,6 @@ import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.wam.compiler.CompilerFactory;
 import org.ltc.hitalk.wam.compiler.ICompilerFactory;
-import org.ltc.hitalk.wam.compiler.hitalk.PrologInstructionCompiler;
 
 import java.io.IOException;
 
@@ -76,7 +75,6 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
     }
 
     public PrologWAMCompiler () {
-//        this();
         final BaseApp.AppContext appCtx = BaseApp.getAppContext();
 
         ICompilerFactory <T, P, Q, HtPredicate, HtClause> cf = new CompilerFactory <>();

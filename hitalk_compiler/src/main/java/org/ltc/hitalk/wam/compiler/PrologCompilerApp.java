@@ -38,7 +38,6 @@ import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.core.Components.INTERNER;
@@ -267,13 +266,15 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApp <T, P, 
             ISentence <ITerm> sentence = libParser.parse();
             final ITerm term = sentence.getT();
             //TODO  GLOBAL WITHOUT SPECIAL CASES
-            if (term == PlPrologParser.BEGIN_OF_FILE_ATOM) {
-                final List <ITerm> l = preCompiler.expandTerm(term);
+            if (term == PlPrologParser.BEGIN_OF_FILE_ATOM) {//ignore
+                //    final List <ITerm> l = preCompiler.expandTerm(term);
                 continue;
             }
             if (term == PlPrologParser.END_OF_FILE_ATOM) {
-
-                break;
+                if (!libParser.getTokenSource().isEofGenerated()) {
+                    parser.popTokenSource();
+                    break;
+                }
             }
             //            compiler.compile(sentence);
             HtClause clause = libParser.convert(sentence.getT());

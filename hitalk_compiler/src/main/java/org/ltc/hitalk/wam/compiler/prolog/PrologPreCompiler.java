@@ -16,11 +16,11 @@ import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.*;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.IFunctor;
+import org.ltc.hitalk.wam.task.CompilerTask;
 import org.slf4j.Logger;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
 
@@ -39,6 +39,12 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
     protected final PrologBuiltInTransform <T, P, Q> builtInTransform;
     protected final IResolver <HtPredicate, HtClause> resolver;
     protected LogicCompilerObserver <P, Q> observer;
+
+    ///    protected final Deque<ITerm> condCompilationQueue=new ArrayDeque <>();
+//    protected final Deque<ITerm> execQueue=new ArrayDeque <>();
+//    protected final Deque<ITerm> termExpansionQueue=new ArrayDeque <>();
+    protected final Deque <CompilerTask> compilerTaskQueue = new ArrayDeque <>();
+
 
     /**
      * @param symbolTable
@@ -87,13 +93,49 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
      * @throws SourceCodeException
      */
     @Override
-    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException, ParseException {
+    public void compile ( PlTokenSource tokenSource, HtProperty... flags )
+            throws IOException, SourceCodeException, ParseException {
         getConsole().info("Compiling " + tokenSource.getPath() + "... ");
+        /*
+        // Set up a parser on the token source.
+        LibParser libParser = new LibParser();
+        libParser.setTokenSource(tokenSource);
+
+        // Load the built-ins into the domain
+        while (true) {
+            ISentence <ITerm> sentence = libParser.parse();
+            final ITerm term = sentence.getT();
+            //TODO  GLOBAL WITHOUT SPECIAL CASES
+            if (term == PlPrologParser.BEGIN_OF_FILE_ATOM) {//ignore
+                //    final List <ITerm> l = preCompiler.expandTerm(term);
+                continue;
+            }
+            if (term == PlPrologParser.END_OF_FILE_ATOM) {
+                if (!libParser.getTokenSource().isEofGenerated()) {
+                    parser.popTokenSource();
+                    break;
+                }
+            }
+            //            compiler.compile(sentence);
+            HtClause clause = libParser.convert(sentence.getT());
+            preCompiler.compile(clause);
+        }
+        preCompiler.endScope();
+        *
+        * */
         parser.setTokenSource(tokenSource);
         while (true) {
             ITerm t = parser.next();
-            if (t == null) {
-                break;
+            if (t == PlPrologParser.BEGIN_OF_FILE_ATOM) {
+                termExpansionQueue.push(t);
+                continue;
+            }
+            if (t == PlPrologParser.END_OF_FILE_ATOM) {
+                termExpansionQueue.push(t);
+                if (!parser.getTokenSource().isEofGenerated()) {
+                    parser.popTokenSource();
+                    break;
+                }
             }
             T c = (T) parser.convert(t);//FIXME
             compile(c, flags);
@@ -114,10 +156,18 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
         logger.debug("Compiling " + clause);
         if (clause.getT().getHead() == null) {
             final IFunctor goal = (IFunctor) clause.getBody().get(0);
+            if (checkCondCompilationDirective(goal)) {
+                execQueue.push(goal);
+            }
             if (checkEncodingDirective(goal)) {
                 parser.getTokenSource().setEncodingPermitted(false);
             }
         }
+    }
+
+    private boolean checkCondCompilationDirective ( IFunctor goal ) {
+        final FunctorName functorName = interner.getDeinternedFunctorName(goal.getName());
+        return Objects.equals(functorName.getName(), PrologAtoms.IF) && functorName.getArity() == 1;
     }
 
     private boolean checkEncodingDirective ( IFunctor goal ) {
@@ -206,6 +256,25 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
      * @return
      */
     public List <ITerm> callTermExpansion ( ITerm term ) {
-        return null;
+        final List <ITerm> l = new ArrayList <>();
+
+        return l;
+    }
+
+    /**
+     * @param goal
+     * @return
+     */
+    public List <IFunctor> expandGoal ( IFunctor goal ) {
+        return callGoalExpansion(goal);
+    }
+
+    /**
+     * @param goal
+     * @return
+     */
+    private List <IFunctor> callGoalExpansion ( IFunctor goal ) {
+        final List <IFunctor> l = new ArrayList <>();
+        return l;
     }
 }

@@ -16,7 +16,7 @@ import java.util.function.Function;
  */
 abstract public
 class CompositeTask<T extends HtClause, TC extends ITerm>
-        extends StandardPreprocessor <TC>
+        extends PrologStandardPreprocessor <TC>
         implements IComposite <TC, TransformTask <TC>> {
 
     protected List <TransformTask <TC>> tasks = new ArrayList <>();
