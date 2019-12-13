@@ -18,9 +18,9 @@ package org.ltc.hitalk.wam.compiler.builtins;
 
 import com.thesett.aima.logic.fol.FunctorName;
 import com.thesett.common.util.SizeableLinkedList;
-import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
-import org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction;
 import org.ltc.hitalk.wam.compiler.IFunctor;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkDefaultBuiltIn;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction;
 
 /**
  * BaseBuiltIn provides a base-class on which built-in predicates may be implemented.

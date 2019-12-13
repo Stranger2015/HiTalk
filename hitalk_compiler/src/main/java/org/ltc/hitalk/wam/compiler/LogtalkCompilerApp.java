@@ -2,6 +2,7 @@ package org.ltc.hitalk.wam.compiler;
 
 import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
+import org.ltc.hitalk.wam.compiler.prolog.PrologCompilerApp;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 

@@ -1,6 +1,7 @@
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.common.util.SizeableList;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction;
 
 import java.util.List;
 

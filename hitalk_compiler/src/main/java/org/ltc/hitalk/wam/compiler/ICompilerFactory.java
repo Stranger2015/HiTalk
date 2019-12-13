@@ -5,6 +5,8 @@ import org.ltc.hitalk.core.IHitalkObject;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.IParser;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledClause;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 
 /**

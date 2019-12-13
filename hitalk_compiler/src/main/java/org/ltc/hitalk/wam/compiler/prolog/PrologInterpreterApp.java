@@ -1,4 +1,4 @@
-package org.ltc.hitalk.interpreter;
+package org.ltc.hitalk.wam.compiler.prolog;
 
 import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.compiler.bktables.IProduct;

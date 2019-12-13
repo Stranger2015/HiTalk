@@ -1,4 +1,4 @@
-package org.ltc.hitalk.wam.compiler;
+package org.ltc.hitalk.wam.compiler.hitalk;
 
 /*
  * Copyright The Sett Ltd, 2005 to 2014.
@@ -28,6 +28,7 @@ import com.thesett.common.util.SizeableList;
 import com.thesett.common.util.doublemaps.SymbolKey;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
 
 import java.nio.ByteBuffer;

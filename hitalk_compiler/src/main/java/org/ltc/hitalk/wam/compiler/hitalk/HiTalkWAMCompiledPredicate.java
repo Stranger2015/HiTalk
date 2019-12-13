@@ -1,4 +1,4 @@
-package org.ltc.hitalk.wam.compiler;
+package org.ltc.hitalk.wam.compiler.hitalk;
 
 /*
  * Copyright The Sett Ltd, 2005 to 2014.
@@ -25,6 +25,7 @@ import com.thesett.common.util.Sizeable;
 import com.thesett.common.util.SizeableLinkedList;
 import com.thesett.common.util.SizeableList;
 import org.ltc.hitalk.entities.HtPredicate;
+import org.ltc.hitalk.wam.compiler.IWAMOptimizeableListing;
 import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
 import org.ltc.hitalk.wam.machine.HiTalkWAMResolvingMachine;
 

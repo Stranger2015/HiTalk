@@ -2,13 +2,13 @@ package org.ltc.hitalk.wam.compiler.logtalk;
 
 
 import org.ltc.hitalk.compiler.IVafInterner;
-import org.ltc.hitalk.compiler.PrologBuiltInTransform;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.HtMethod;
+import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltInTransform;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
 

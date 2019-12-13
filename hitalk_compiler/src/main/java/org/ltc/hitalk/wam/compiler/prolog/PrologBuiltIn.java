@@ -1,7 +1,9 @@
-package org.ltc.hitalk.wam.compiler;
+package org.ltc.hitalk.wam.compiler.prolog;
 
 import com.thesett.aima.logic.fol.FunctorName;
 import com.thesett.common.util.SizeableLinkedList;
+import org.ltc.hitalk.wam.compiler.IFunctor;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction;
 
 
 /**

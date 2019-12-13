@@ -18,8 +18,8 @@ package org.ltc.hitalk.wam.machine;
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.wam.compiler.WAMCallPoint;
 import org.ltc.hitalk.compiler.IVafInterner;
-import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledPredicate;
-import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledQuery;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
 
 /**
  * WAMMachine is an abstract machine capable of handling the WAM language in its compiled form.

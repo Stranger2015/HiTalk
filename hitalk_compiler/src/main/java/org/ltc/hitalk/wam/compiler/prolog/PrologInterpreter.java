@@ -1,4 +1,4 @@
-package org.ltc.hitalk.interpreter;
+package org.ltc.hitalk.wam.compiler.prolog;
 
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
@@ -10,11 +10,13 @@ import org.ltc.hitalk.compiler.bktables.IConfig;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
+import org.ltc.hitalk.interpreter.HtResolutionEngine;
+import org.ltc.hitalk.interpreter.IInterpreter;
+import org.ltc.hitalk.interpreter.Mode;
 import org.ltc.hitalk.parser.*;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.Language;
-import org.ltc.hitalk.wam.compiler.prolog.ChainedCompilerObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

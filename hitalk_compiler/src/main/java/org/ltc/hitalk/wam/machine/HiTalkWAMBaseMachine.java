@@ -4,10 +4,10 @@ import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.wam.compiler.WAMCallPoint;
 import com.thesett.aima.logic.fol.wam.compiler.WAMReservedLabel;
 import com.thesett.aima.logic.fol.wam.machine.WAMCodeView;
-import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.VafInterner;
-import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledPredicate;
-import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledQuery;
+import org.ltc.hitalk.core.utils.ISymbolTable;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -27,7 +27,7 @@ class HiTalkWAMBaseMachine extends VafInterner implements HiTalkWAMMachine, WAMC
     /**
      * Holds the symbol table.
      */
-    protected SymbolTable <Integer, String, Object> symbolTable;
+    protected ISymbolTable <Integer, String, Object> symbolTable;
 
     /**
      * Holds the reverse symbol table to look up names by addresses.
@@ -39,8 +39,7 @@ class HiTalkWAMBaseMachine extends VafInterner implements HiTalkWAMMachine, WAMC
      *
      * @param symbolTable The symbol table.
      */
-    protected
-    HiTalkWAMBaseMachine ( SymbolTable <Integer, String, Object> symbolTable ) {
+    protected HiTalkWAMBaseMachine ( ISymbolTable <Integer, String, Object> symbolTable ) {
         super("WAM_Variable_Namespace", "WAM_Functor_Namespace");
         this.symbolTable = symbolTable;
     }

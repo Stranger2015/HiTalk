@@ -1,6 +1,7 @@
 package org.ltc.hitalk.wam.task;
 
-
+import org.ltc.hitalk.core.IPreCompiler;
+import org.ltc.hitalk.parser.Directive.DirectiveKind;
 import org.ltc.hitalk.term.ITerm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,17 +15,20 @@ import static java.lang.String.format;
  *
  */
 abstract public
-class CompilerTask<T extends ITerm> implements IInvokable <T> {
+class CompilerTask implements IInvokable <ITerm> {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
-    protected final Function <T, List <T>> action;
+    protected final IPreCompiler preCompiler;
+    protected final Function <ITerm, List <ITerm>> action;
+    protected final DirectiveKind kind;
+    protected ITerm input;
 
-    /**
-     *
-     */
-    protected
-    CompilerTask ( Function <T, List <T>> action ) {
+    public CompilerTask ( IPreCompiler preCompiler,
+                          Function <ITerm, List <ITerm>> action,
+                          DirectiveKind kind ) {
+        this.preCompiler = preCompiler;
         this.action = action;
+        this.kind = kind;
     }
 
     /**
@@ -32,13 +36,10 @@ class CompilerTask<T extends ITerm> implements IInvokable <T> {
      * @return
      */
     @Override
-    public
-    List <T> invoke ( T t ) {
-        List <T> list = IInvokable.super.invoke(t);
-        for (int i = 0; i < list.size(); i++) {
-            T t1 = list.get(i);
-            list.addAll(action.apply(t1));
-        }
+    public final List <ITerm> invoke ( ITerm t ) {
+        List <ITerm> list = IInvokable.super.invoke(t);
+        list.forEach(t1 -> list.addAll(action.apply(t1)));
+
         return list;
     }
 
@@ -47,6 +48,6 @@ class CompilerTask<T extends ITerm> implements IInvokable <T> {
      */
     public
     void banner () {
-        logger.info(format("\nPerforming %s task ...", getClass().getSimpleName()));
+        logger.debug(format("\nPerforming %s task ...", getClass().getSimpleName()));
     }
 }

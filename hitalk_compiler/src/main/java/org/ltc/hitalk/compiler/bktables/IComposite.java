@@ -1,21 +1,20 @@
 package org.ltc.hitalk.compiler.bktables;
 
-import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.wam.task.TransformTask;
+import org.ltc.hitalk.wam.task.CompilerTask;
 
-import java.util.List;
+import java.util.Deque;
 
 /**
  *
  */
 public
-interface IComposite<TC extends ITerm, TT extends TransformTask <TC>> {
+interface IComposite<T extends CompilerTask> {
     /**
      * @param t
      */
-    default void add ( TT t ) {
+    default void add ( T t ) {
         getComponents().add(t);
     }
 
-    List <TT> getComponents ();
+    Deque <T> getComponents ();
 }

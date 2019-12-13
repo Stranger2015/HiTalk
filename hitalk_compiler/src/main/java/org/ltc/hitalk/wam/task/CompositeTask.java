@@ -14,6 +14,7 @@ import java.util.function.Function;
 /**
  * @param <T>
  */
+@Deprecated
 abstract public
 class CompositeTask<T extends HtClause, TC extends ITerm>
         extends PrologStandardPreprocessor <TC>

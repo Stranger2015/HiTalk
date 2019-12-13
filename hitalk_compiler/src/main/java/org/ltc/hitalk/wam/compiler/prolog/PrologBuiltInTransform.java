@@ -1,12 +1,12 @@
-package org.ltc.hitalk.compiler;
+package org.ltc.hitalk.wam.compiler.prolog;
 
 import com.thesett.common.util.Function;
+import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.compiler.PredicateTable;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
-import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
-import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
 
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
 

@@ -6,9 +6,9 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
-import org.ltc.hitalk.interpreter.PrologInterpreter;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.ListTerm;
+import org.ltc.hitalk.wam.compiler.prolog.PrologInterpreter;
 import org.ltc.hitalk.wam.printer.IPositionalTermTraverser;
 
 import java.io.IOException;

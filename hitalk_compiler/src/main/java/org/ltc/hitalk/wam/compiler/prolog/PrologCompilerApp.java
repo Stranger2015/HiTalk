@@ -1,4 +1,4 @@
-package org.ltc.hitalk.wam.compiler;
+package org.ltc.hitalk.wam.compiler.prolog;
 
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
@@ -21,7 +21,6 @@ import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.core.HtVersion;
 import org.ltc.hitalk.core.utils.HtSymbolTable;
-import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.context.CompilationContext;
@@ -31,9 +30,13 @@ import org.ltc.hitalk.interpreter.HtProduct;
 import org.ltc.hitalk.parser.*;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HiTalkStream;
+import org.ltc.hitalk.wam.compiler.CompilerFactory;
+import org.ltc.hitalk.wam.compiler.ICompilerFactory;
+import org.ltc.hitalk.wam.compiler.Language;
+import org.ltc.hitalk.wam.compiler.LibParser;
 import org.ltc.hitalk.wam.compiler.Tools.Kind;
-import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
-import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledClause;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -92,21 +95,21 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApp <T, P, 
         }
     }
 
-    /**
-     * @param symbolTable
-     * @param interner
-     * @param parser
-     * @param observer
-     * @return
-     */
-    public PrologWAMCompiler <T, P, Q, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>
-
-    createWAMCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
-                        IVafInterner interner,
-                        PlPrologParser parser,
-                        LogicCompilerObserver <P, Q> observer ) {
-        return new PrologWAMCompiler(symbolTable, interner, parser, observer);
-    }
+//    /**
+//     * @param symbolTable
+//     * @param interner
+//     * @param parser
+//     * @param observer
+//     * @return
+//     */
+//    public PrologWAMCompiler <T, P, Q, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>
+//
+//    createWAMCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
+//                        IVafInterner interner,
+//                        PlPrologParser parser,
+//                        LogicCompilerObserver <P, Q> observer ) {
+//        return new PrologWAMCompiler(symbolTable, interner, parser, observer);
+//    }
 
     /**
      * @return
@@ -278,9 +281,9 @@ public class PrologCompilerApp<T extends HtClause, P, Q> extends BaseApp <T, P, 
             }
             //            compiler.compile(sentence);
             HtClause clause = libParser.convert(sentence.getT());
-            preCompiler.compile(clause);
+            wamCompiler.compile(clause);
         }
-        preCompiler.endScope();
+        wamCompiler.endScope();
 //         There should not be any errors in the built in library, if there are then the prolog engine just
 //         isn't going to work, so report this as a bug.
 //        throw new IllegalStateException("Got an exception whilst loading the built-in library.", e);

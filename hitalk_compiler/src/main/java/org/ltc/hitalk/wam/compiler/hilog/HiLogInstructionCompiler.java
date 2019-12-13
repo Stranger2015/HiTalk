@@ -1,4 +1,4 @@
-package org.ltc.hitalk.wam.compiler;
+package org.ltc.hitalk.wam.compiler.hilog;
 
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import org.ltc.hitalk.compiler.IVafInterner;

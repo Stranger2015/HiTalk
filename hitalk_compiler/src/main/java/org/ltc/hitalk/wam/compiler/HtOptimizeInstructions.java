@@ -22,12 +22,13 @@ import com.thesett.aima.logic.fol.wam.optimizer.StateMachine;
 import com.thesett.common.util.doublemaps.SymbolKey;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.utils.ISymbolTable;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction;
 
 import java.util.Deque;
 import java.util.LinkedList;
 
 import static java.lang.Boolean.TRUE;
-import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.HiTalkWAMInstructionSet.*;
+import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.HiTalkWAMInstructionSet.*;
 
 /**
  * Performs an optimization pass for specialized constant instructions.

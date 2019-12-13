@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ltc.hitalk.wam.compiler;
+package org.ltc.hitalk.wam.compiler.hitalk;
 
 import com.thesett.aima.logic.fol.wam.optimizer.Matcher;
 import com.thesett.aima.logic.fol.wam.optimizer.StateMachine;
@@ -21,6 +21,9 @@ import com.thesett.common.util.SizeableLinkedList;
 import com.thesett.common.util.SizeableList;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.utils.ISymbolTable;
+import org.ltc.hitalk.wam.compiler.HtOptimizeInstructions;
+import org.ltc.hitalk.wam.compiler.IOptimizer;
+import org.ltc.hitalk.wam.compiler.IWAMOptimizeableListing;
 
 import java.util.List;
 

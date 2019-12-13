@@ -140,7 +140,16 @@ public interface ITerm extends ReTraversable <ITerm>, Operator <ITerm> {
      */
     boolean isGround ();
 
+    /**
+     * @return
+     */
     boolean isHiLog ();
+
+    /**
+     * @return
+     */
+    boolean isJavaObject ();
+
     /**
      * Gets the actual value of a term, which is either the term itself, or in the case of variables, the value that is
      * currently assigned to the variable.

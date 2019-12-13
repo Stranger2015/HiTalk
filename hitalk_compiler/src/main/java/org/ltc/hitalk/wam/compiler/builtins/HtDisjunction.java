@@ -19,16 +19,16 @@
     import com.thesett.aima.logic.fol.wam.compiler.WAMLabel;
     import com.thesett.common.util.SizeableLinkedList;
     import org.ltc.hitalk.term.ITerm;
-    import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
-    import org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction;
     import org.ltc.hitalk.wam.compiler.IFunctor;
-    import org.ltc.hitalk.wam.compiler.PrologBuiltIn;
+    import org.ltc.hitalk.wam.compiler.hitalk.HiTalkDefaultBuiltIn;
+    import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction;
+    import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltIn;
 
     import java.util.ArrayList;
     import java.util.List;
 
     import static com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys.SYMKEY_PERM_VARS_REMAINING;
-    import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.HiTalkWAMInstructionSet.*;
+    import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.HiTalkWAMInstructionSet.*;
 
     /**
      * Disjunction implements the Prolog disjunction operator ';' that sets up multiple choice points potentially leading to

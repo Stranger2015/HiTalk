@@ -1,6 +1,8 @@
-package org.ltc.hitalk.wam.compiler;
+package org.ltc.hitalk.wam.compiler.hilog;
 
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.wam.compiler.Language;
+import org.ltc.hitalk.wam.compiler.prolog.PrologCompilerApp;
 
 /**
  * @param <T>

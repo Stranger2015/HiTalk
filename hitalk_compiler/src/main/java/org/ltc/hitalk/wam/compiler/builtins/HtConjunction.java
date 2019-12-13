@@ -3,10 +3,10 @@ package org.ltc.hitalk.wam.compiler.builtins;
 import com.thesett.aima.logic.fol.FunctorName;
 import com.thesett.common.util.SizeableLinkedList;
 import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.wam.compiler.HiTalkDefaultBuiltIn;
-import org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction;
 import org.ltc.hitalk.wam.compiler.IFunctor;
-import org.ltc.hitalk.wam.compiler.PrologBuiltIn;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkDefaultBuiltIn;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction;
+import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltIn;
 
 import static com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys.SYMKEY_PERM_VARS_REMAINING;
 

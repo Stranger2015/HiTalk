@@ -1,9 +1,10 @@
-package org.ltc.hitalk.wam.compiler;
+package org.ltc.hitalk.wam.compiler.hitalk;
 
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
-import org.ltc.hitalk.interpreter.PrologInterpreter;
 import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.wam.compiler.HtMethod;
+import org.ltc.hitalk.wam.compiler.prolog.PrologInterpreter;
 
 /**
  * @param <T>

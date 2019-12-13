@@ -1,4 +1,4 @@
-package org.ltc.hitalk.wam.compiler;
+package org.ltc.hitalk.wam.compiler.hitalk;
 
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
@@ -24,7 +24,8 @@ import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.LoadContext;
 import org.ltc.hitalk.parser.*;
 import org.ltc.hitalk.term.io.HiTalkStream;
-import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiler;
+import org.ltc.hitalk.wam.compiler.*;
+import org.ltc.hitalk.wam.compiler.hilog.HiLogCompilerApp;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

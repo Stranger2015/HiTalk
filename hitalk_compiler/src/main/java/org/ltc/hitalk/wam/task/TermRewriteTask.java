@@ -35,6 +35,7 @@ import java.util.List;
  * variable_names	A list of `Name = Var' of the last term read. See read_term/2 for details.
  */
 public
+@Deprecated
 class TermRewriteTask<TC extends ITerm, TT extends TransformTask <TC>>
         extends PrologStandardPreprocessor <TC>
         implements IComposite <TC, TT>, ITransformer <TC> {
@@ -43,10 +44,9 @@ class TermRewriteTask<TC extends ITerm, TT extends TransformTask <TC>>
 
     /**
      * @param target
-     * @param transformer
      */
-    public TermRewriteTask (/* Action <TC> action, */List <TC> target, ITransformer <TC> transformer ) {
-        super(action, target, transformer);
+    public TermRewriteTask ( TC target ) {
+        super(target);
     }
 
     /**

@@ -26,6 +26,17 @@ public class HtClause extends HtBaseTerm implements ITerm, ISubroutine {
 
     /**
      * @param head
+     * @param body
+     */
+    public HtClause ( IFunctor head, IFunctor body ) {
+        this.head = head;
+        this.body = new ListTerm(1);
+        this.body.setArgument(0, body);
+    }
+
+
+    /**
+     * @param head
      */
     public HtClause ( IFunctor head ) {
         this(head, null);
@@ -78,6 +89,13 @@ public class HtClause extends HtBaseTerm implements ITerm, ISubroutine {
     }
 
     public boolean isHiLog () {
+        return false;
+    }
+
+    /**
+     * @return
+     */
+    public boolean isJavaObject () {
         return false;
     }
 

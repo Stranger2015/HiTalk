@@ -35,7 +35,8 @@ import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
-import org.ltc.hitalk.wam.compiler.hitalk.HtTermWalker;
+import org.ltc.hitalk.wam.compiler.hitalk.*;
+import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltIn;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn.VarIntroduction;
 import org.ltc.hitalk.wam.printer.*;
@@ -45,9 +46,9 @@ import java.util.*;
 
 import static com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys.*;
 import static com.thesett.aima.search.util.Searches.allSolutions;
-import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.HiTalkWAMInstructionSet.*;
-import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.REG_ADDR;
-import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.STACK_ADDR;
+import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.HiTalkWAMInstructionSet.*;
+import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.REG_ADDR;
+import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.STACK_ADDR;
 
 /**
  * BaseMachine provides a base for implementing abstract machines components, such as compilers, interpreters, byte code

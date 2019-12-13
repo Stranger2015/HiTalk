@@ -20,13 +20,16 @@ class PrologStandardPreprocessor<T extends ITerm> extends TransformTask <T> {
         super(action, target, transformer);
     }
 
+    public <TC extends ITerm> PrologStandardPreprocessor ( TC target ) {
+        super(target);
+    }
+
     /**
      * @param max
      * @return
      */
     @Override
-    public
-    boolean isAcceptable ( IMetrics max ) {
+    public boolean isAcceptable ( IMetrics max ) {
         return true;
     }
 

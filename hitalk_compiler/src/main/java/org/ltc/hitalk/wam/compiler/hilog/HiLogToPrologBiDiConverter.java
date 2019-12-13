@@ -1,4 +1,4 @@
-package org.ltc.hitalk.wam.task;
+package org.ltc.hitalk.wam.compiler.hilog;
 
 import com.thesett.aima.logic.fol.TermTransformer;
 import com.thesett.common.util.doublemaps.SymbolTable;

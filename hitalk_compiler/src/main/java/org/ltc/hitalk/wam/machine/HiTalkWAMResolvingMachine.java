@@ -16,14 +16,19 @@
 
 package org.ltc.hitalk.wam.machine;
 
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.FunctorName;
+import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.wam.compiler.WAMCallPoint;
-import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
-import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledPredicate;
-import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledQuery;
-import org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction;
+import org.ltc.hitalk.core.IResolver;
+import org.ltc.hitalk.core.utils.ISymbolTable;
+import org.ltc.hitalk.term.HtVariable;
+import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.IWAMResolvingMachineDPIMonitor;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -33,11 +38,11 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.stream.IntStream.range;
-import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.REF;
-import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.STR;
+import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.REF;
+import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.STR;
 
 /**
- * A {@link Resolver} implements a resolution (or proof) procedure over logical clauses. This abstract class is the root
+ * A {@link IResolver} implements a resolution (or proof) procedure over logical clauses. This abstract class is the root
  * of all resolvers that operate over compiled clauses in the WAM language. Implementations may interpret the compiled
  * code directly, or further reduce it into more efficient binary forms.
  * <p>
@@ -48,14 +53,14 @@ import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.STR;
  * <pre><p/><table id="crc"><caption>CRC Card</caption>
  * <tr><th> Responsibilities <th> Collaborations
  * <tr><td> Resolve a query over a set of compiled Horn clauses in the WAM language.
- * <tr><td> Decode results into an abstract source tree from the binary heap format. <td> {@link Term}.
+ * <tr><td> Decode results into an abstract source tree from the binary heap format. <td> {@link ITerm}.
  * </table></pre>
  *
  * @author Rupert Smith
  */
 public abstract
 class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
-        implements Resolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>, IWAMResolvingMachineDPI {
+        implements IResolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>, IWAMResolvingMachineDPI {
     //Used for debugging.
     //private static final Logger log = Logger.getLogger(HiTalkWAMResolvingMachine.class.getName());
 
@@ -85,7 +90,7 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
      *
      * @param symbolTable The symbol table.
      */
-    protected HiTalkWAMResolvingMachine ( SymbolTable <Integer, String, Object> symbolTable ) {
+    protected HiTalkWAMResolvingMachine ( ISymbolTable <Integer, String, Object> symbolTable ) {
         super(symbolTable);
     }
 
@@ -182,7 +187,7 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
     /**
      * {@inheritDoc}
      */
-    public Set <Variable> resolve () {
+    public Set <HtVariable> resolve () {
         // Check that a query has been set to resolve.
         if (currentQuery == null) {
             throw new IllegalStateException("No query set to resolve.");
@@ -286,13 +291,13 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
      * @param query The query to execute.
      * @return A set of variable bindings resulting from the query.
      */
-    protected Set <Variable> executeAndExtractBindings ( HiTalkWAMCompiledQuery query ) {
+    protected Set <HtVariable> executeAndExtractBindings ( HiTalkWAMCompiledQuery query ) {
         // Execute the query and program. The starting point for the execution is the first functor in the query
         // body, this will follow on to the subsequent functors and make calls to functors in the compiled programs.
         boolean success = execute(query.getCallPoint());
 
         // Used to collect the results in.
-        Set <Variable> results = null;
+        Set <HtVariable> results = null;
 
         // Collect the results only if the resolution was successful.
         if (success) {
@@ -300,7 +305,7 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
 
             // The same variable context is used accross all of the results, for common use of variables in the
             // results.
-            Map <Integer, Variable> varContext = new HashMap <>();
+            Map <Integer, HtVariable> varContext = new HashMap <>();
 
             // For each of the free variables in the query, extract its value from the location on the heap pointed to
             // by the register that holds the variable.
@@ -311,9 +316,9 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
 
                 if (query.getNonAnonymousFreeVariables().contains(varName)) {
                     int addr = derefStack(reg);
-                    Term term = decodeHeap(addr, varContext);
+                    ITerm term = decodeHeap(addr, varContext);
 
-                    results.add(new Variable(varName, term, false));
+                    results.add(new HtVariable(varName, term, false));
                 }
             }
         }
@@ -329,12 +334,12 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
      *                        decoded for a particular unifcation.
      * @return The term decoded from its heap representation.
      */
-    protected Term decodeHeap ( int start, Map <Integer, Variable> variableContext ) {
-        /*log.fine("private Term decodeHeap(int start = " + start + ", Map<Integer, Variable> variableContext = " +
+    protected ITerm decodeHeap ( int start, Map <Integer, HtVariable> variableContext ) {
+        /*log.fine("private Term decodeHeap(int start = " + start + ", Map<Integer, HtVariable> variableContext = " +
             variableContext + "): called");*/
 
         // Used to hold the decoded argument in.
-        Term result = null;
+        ITerm result = null;
 
         // Dereference the initial heap pointer.
         int addr = deref(start);
@@ -348,10 +353,10 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
         switch (tag) {
             case REF: {
                 // Check if a variable for the address has already been created in this context, and use it if so.
-                Variable var = variableContext.get(val);
+                HtVariable var = variableContext.get(val);
 
                 if (var == null) {
-                    var = new Variable(varNameId.decrementAndGet(), null, false);
+                    var = new HtVariable(varNameId.decrementAndGet(), null, false);
 
                     variableContext.put(val, var);
                 }
@@ -376,12 +381,11 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
                 int arity = functorName.getArity();
 
                 // Loop over all of the functors arguments, recursively decoding them.
-                Term[] arguments = range(0, arity).mapToObj(i -> decodeHeap(val + 1 + i, variableContext))
-                        .toArray(Term[]::new);
+                ITerm[] arguments = range(0, arity).mapToObj(i -> decodeHeap(val + 1 + i, variableContext))
+                        .toArray(ITerm[]::new);
 
                 // Create a new functor to hold the decoded data.
-                result = new Functor(f, arguments);
-
+                result = new HtFunctor(f, arguments);
                 break;
             }
 
@@ -392,8 +396,7 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
                 /*log.fine("f = " + f);*/
 
                 // Create a new functor to hold the decoded data.
-                result = new Functor(f, null);
-
+                result = new HtFunctor(f, null);
                 break;
             }
 
@@ -403,14 +406,12 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
 
                 // Fill in this functors name and arity and allocate storage space for its arguments.
                 int arity = functorName.getArity();
-                Term[] arguments = range(0, arity).mapToObj(i -> decodeHeap(val + i,
-                        variableContext)).toArray(Term[]::new);
+                ITerm[] arguments = range(0, arity)
+                        .mapToObj(i -> decodeHeap(val + i, variableContext)).toArray(ITerm[]::new);
 
                 // Loop over all of the functors arguments, recursively decoding them.
-
                 // Create a new functor to hold the decoded data.
-                result = new Functor(f, arguments);
-
+                result = new HtFunctor(f, arguments);
                 break;
             }
             default:

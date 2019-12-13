@@ -1,8 +1,8 @@
 package org.ltc.hitalk.entities;
 
 import org.ltc.hitalk.term.ListTerm;
-import org.ltc.hitalk.wam.compiler.HiTalkWAMCompiledPredicate;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
 
 import java.util.function.Consumer;
 

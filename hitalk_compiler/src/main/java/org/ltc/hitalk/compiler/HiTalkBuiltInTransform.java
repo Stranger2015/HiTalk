@@ -29,6 +29,7 @@
  import org.ltc.hitalk.wam.compiler.HtFunctor;
  import org.ltc.hitalk.wam.compiler.HtMethod;
  import org.ltc.hitalk.wam.compiler.IFunctor;
+ import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltInTransform;
  import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
  import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
 

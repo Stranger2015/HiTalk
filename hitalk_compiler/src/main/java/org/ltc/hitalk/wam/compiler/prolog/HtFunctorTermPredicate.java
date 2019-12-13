@@ -30,6 +30,7 @@
      */
 
     public class HtFunctorTermPredicate implements UnaryPredicate <ITerm> {
+
         /**
          * Determine whether a term is a functor.
          *

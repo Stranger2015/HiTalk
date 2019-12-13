@@ -21,7 +21,7 @@
     import org.ltc.hitalk.compiler.IVafInterner;
     import org.ltc.hitalk.core.utils.ISymbolTable;
 
-    import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.STACK_ADDR;
+    import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.STACK_ADDR;
 
     /**
      * PositionPrinter prints some positional context information about functors and how they relate to their compiled form.

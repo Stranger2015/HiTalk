@@ -1,7 +1,8 @@
-package org.ltc.hitalk.wam.compiler;
+package org.ltc.hitalk.wam.compiler.hitalk;
 
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.term.ListTerm;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 
 /**
  *

@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ltc.hitalk.wam.compiler;
+package org.ltc.hitalk.wam.compiler.hitalk;
 
 import org.ltc.hitalk.term.ListTerm;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 
 /**
  *

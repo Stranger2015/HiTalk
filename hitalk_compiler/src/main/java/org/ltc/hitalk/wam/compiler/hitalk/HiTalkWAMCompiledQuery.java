@@ -1,4 +1,4 @@
-package org.ltc.hitalk.wam.compiler;
+package org.ltc.hitalk.wam.compiler.hitalk;
 
 /*
  * Copyright The Sett Ltd, 2005 to 2014.
@@ -20,7 +20,6 @@ package org.ltc.hitalk.wam.compiler;
 import com.thesett.aima.attribute.impl.IdAttribute;
 import com.thesett.aima.logic.fol.FunctorName;
 import com.thesett.aima.logic.fol.LinkageException;
-import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.wam.compiler.WAMCallPoint;
 import com.thesett.common.util.Sizeable;
 import com.thesett.common.util.SizeableLinkedList;
@@ -28,7 +27,10 @@ import com.thesett.common.util.SizeableList;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.ISentence;
 import org.ltc.hitalk.term.ListTerm;
+import org.ltc.hitalk.wam.compiler.IFunctor;
+import org.ltc.hitalk.wam.compiler.IWAMOptimizeableListing;
 import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
 import org.ltc.hitalk.wam.machine.HiTalkWAMResolvingMachine;
 
@@ -55,7 +57,7 @@ import java.util.*;
  * registers is maintained in the clause, and the functors need to be able to access this mapping.
  */
 public class HiTalkWAMCompiledQuery extends HtClause implements
-        Sentence <HiTalkWAMCompiledQuery>, Sizeable, IWAMOptimizeableListing {
+        ISentence <HiTalkWAMCompiledQuery>, Sizeable, IWAMOptimizeableListing {
 
     /* Used for debugging. */
     /* private static final Logger log = Logger.getLogger(WAMCompiledQuery.class.getName()); */

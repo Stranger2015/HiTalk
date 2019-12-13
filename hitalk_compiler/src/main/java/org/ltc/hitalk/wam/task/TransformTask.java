@@ -3,6 +3,7 @@ package org.ltc.hitalk.wam.task;
 import org.jetbrains.annotations.Contract;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
+import org.ltc.hitalk.parser.Directive.DirectiveKind;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.transformers.ITransformer;
 import org.ltc.hitalk.wam.transformers.TransformInfo;
@@ -14,69 +15,34 @@ import java.util.function.Function;
 
 /**
  *
- *
  */
 public
-class TransformTask<T extends ITerm>
-        extends CompilerTask <T>
-        implements ITransformer <T> {
-
-    /**
-     * @param action
-     */
-    protected
-    TransformTask ( Function <T, List <T>> action ) {
-        super(action);
-    }
+class TransformTask extends CompilerTask implements ITransformer <ITerm> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
-    protected ITransformer <T> transformer;
-    protected List <T> target;
+    /**
+     * @param action
+     * @param kind
+     */
+    protected TransformTask ( Function <ITerm, List <ITerm>> action, DirectiveKind kind ) {
+        super(action, kind);
+    }
+
+    protected ITransformer <ITerm> transformer;
+    protected ITerm target;
     private IMetrics bestSoFar = initialMetrics();
-    private TransformInfo <T> bestSoFarResult;
-
-    /**
-     * @param target
-     * @param transformer
-     */
-    public TransformTask ( List <T> target, ITransformer <T> transformer ) {
-        this(null, target);
-        this.transformer = transformer;
-    }
-
-    /**
-     * @param action
-     * @param target
-     */
-    protected TransformTask ( Function <T, List <T>> action, List <T> target ) {
-        super(action);
-        this.target = target;
-        transformer = this;//todo
-    }
-
-    /**
-     * @param action
-     * @param target
-     * @param transformer
-     */
-    public TransformTask ( Function <T, List <T>> action, List <T> target, ITransformer <T> transformer ) {
-        super(action);
-        this.target = target;
-        this.transformer = transformer;
-    }
+    private TransformInfo <ITerm> bestSoFarResult;
 
     /**
      * @return
      */
-    private
-    IMetrics initialMetrics () {
+    private IMetrics initialMetrics () {
         return null;
     }
 
     @Contract(pure = true)
-    private
-    IMetrics selectBest ( IMetrics bestSoFar, IMetrics delta ) {
+    private IMetrics selectBest ( IMetrics bestSoFar, IMetrics delta ) {
         if (bestSoFar.compareTo(delta) <= 0) {
             return bestSoFar;
         }
@@ -84,22 +50,19 @@ class TransformTask<T extends ITerm>
         return delta;
     }
 
-    private
-    void acceptTransform ( IMetrics delta, TransformInfo <T> result ) {
+    private void acceptTransform ( IMetrics delta, TransformInfo <ITerm> result ) {
         if (isAcceptable(getContext().getMaxMetrics())) {
             if (bestSoFar == null) {
                 bestSoFar = delta;
                 bestSoFarResult = result;
-            }
-            else {
+            } else {
                 IMetrics tmp = selectBest(bestSoFar, delta);
                 if (tmp == delta) {
                     bestSoFar = tmp;
                     bestSoFarResult = result;
                 }
             }
-        }
-        else {
+        } else {
             transformer.cancel();
         }
     }
@@ -108,16 +71,14 @@ class TransformTask<T extends ITerm>
      * @return
      */
     @Override
-    public final
-    ExecutionContext getContext () {
+    public final ExecutionContext getContext () {
         return transformer.getContext();
     }
 
     /**
      * @param context
      */
-    public final
-    void setContext ( ExecutionContext context ) {
+    public final void setContext ( ExecutionContext context ) {
         transformer.setContext(context);
     }
 
@@ -125,8 +86,7 @@ class TransformTask<T extends ITerm>
      * @param max
      * @return
      */
-    public
-    boolean isAcceptable ( IMetrics max ) {
+    public boolean isAcceptable ( IMetrics max ) {
         return transformer.isAcceptable(max);
     }
 
@@ -136,7 +96,7 @@ class TransformTask<T extends ITerm>
      * @param t The term to transform.
      * @return A term which is a transformation of the argument.
      */
-    public List <T> transform ( T t ) {
+    public List <ITerm> transform ( ITerm t ) {
         return transformer.transform(t);
     }
 

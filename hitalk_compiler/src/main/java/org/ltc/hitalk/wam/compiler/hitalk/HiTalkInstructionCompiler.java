@@ -21,7 +21,9 @@ import com.thesett.common.util.SizeableLinkedList;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.parser.PlPrologParser;
-import org.ltc.hitalk.wam.compiler.*;
+import org.ltc.hitalk.wam.compiler.HtMethod;
+import org.ltc.hitalk.wam.compiler.IFunctor;
+import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltIn;
 import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
 
 /**

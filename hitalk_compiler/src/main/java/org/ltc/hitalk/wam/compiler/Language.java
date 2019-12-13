@@ -3,6 +3,8 @@ package org.ltc.hitalk.wam.compiler;
 import org.ltc.hitalk.parser.HiLogParser;
 import org.ltc.hitalk.parser.HiTalkParser;
 import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.wam.compiler.hilog.HiLogInstructionCompiler;
+import org.ltc.hitalk.wam.compiler.hilog.HiLogPreCompiler;
 import org.ltc.hitalk.wam.compiler.hilog.HiLogWAMCompiler;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkInstructionCompiler;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkPreCompiler;

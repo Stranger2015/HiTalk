@@ -11,18 +11,17 @@ import org.ltc.hitalk.compiler.HtBaseMachine;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction;
 import org.ltc.hitalk.wam.compiler.IFunctor;
-import org.ltc.hitalk.wam.compiler.PrologBuiltIn;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.TreeSet;
 
 import static com.thesett.aima.search.util.Searches.allSolutions;
-import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.HiTalkWAMInstructionSet.*;
-import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.REG_ADDR;
-import static org.ltc.hitalk.wam.compiler.HiTalkWAMInstruction.STACK_ADDR;
+import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.HiTalkWAMInstructionSet.*;
+import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.REG_ADDR;
+import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.STACK_ADDR;
 
 public class PrologDefaultBuiltIn extends HtBaseMachine implements PrologBuiltIn {
 

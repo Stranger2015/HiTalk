@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ltc.hitalk.wam.compiler;
+package org.ltc.hitalk.wam.compiler.hitalk;
 
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.Sentence;
@@ -28,6 +28,9 @@ import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.PlToken;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ListTerm;
+import org.ltc.hitalk.wam.compiler.HtMethod;
+import org.ltc.hitalk.wam.compiler.IFunctor;
+import org.ltc.hitalk.wam.compiler.PrologInterpreterVisitor;
 import org.ltc.hitalk.wam.printer.IAllTermsVisitor;
 import org.ltc.hitalk.wam.printer.IPositionalTermTraverser;
 
