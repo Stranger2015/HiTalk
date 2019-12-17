@@ -1,5 +1,8 @@
 package org.ltc.hitalk.parser;
 
+import static org.ltc.hitalk.parser.PlPrologParser.BEGIN_OF_FILE;
+import static org.ltc.hitalk.parser.PlPrologParser.END_OF_FILE;
+
 /**
  * Describes the input token stream.
  */
@@ -12,6 +15,7 @@ public class PlToken {
      */
     public PlToken ( TokenKind kind ) {
         this.kind = kind;
+        image = kind.s;
     }
 
     /**
@@ -41,8 +45,8 @@ public class PlToken {
      *
      */
     public enum TokenKind {
-        BOF(""),
-        EOF(""),
+        BOF(BEGIN_OF_FILE),
+        EOF(END_OF_FILE),
         DOT("."),
         LPAREN("("),
         RPAREN(")"),

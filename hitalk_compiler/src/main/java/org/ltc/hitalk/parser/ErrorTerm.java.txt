@@ -11,7 +11,13 @@ import org.ltc.hitalk.term.ITerm;
 
 import java.util.Iterator;
 
+/**
+ *
+ */
 public class ErrorTerm extends HtBaseTerm implements ITerm {
+    /**
+     * @return
+     */
     @Override
     public boolean isNumber () {
         return false;
@@ -48,6 +54,13 @@ public class ErrorTerm extends HtBaseTerm implements ITerm {
     }
 
     public boolean isHiLog () {
+        return false;
+    }
+
+    /**
+     * @return
+     */
+    public boolean isJavaObject () {
         return false;
     }
 

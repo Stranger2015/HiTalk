@@ -1,10 +1,10 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.common.util.doublemaps.SymbolTable;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PredicateTable;
+import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.core.utils.TermUtilities;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtPredicateIndicator;
@@ -30,20 +30,20 @@ import static org.ltc.hitalk.wam.compiler.BodyCall.BodyCalls;
  *
  */
 public
-class Specializer<T extends ITerm, C extends BodyCalls <C>> implements ISpecializer <T> {
+class Specializer<C extends BodyCalls <C>> implements ISpecializer {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
-    private final SymbolTable <Integer, String, Object> symbolTable;
-    private final IVafInterner interner;
-    private final List <HtPredicate> predicates;
-//    private final IResolver <HtPredicate, HtClause> resolver = getResolver();
-    private final List <PiCalls <?>> piCalls = new ArrayList <>();
+    protected final ISymbolTable <Integer, String, Object> symbolTable;
+    protected final IVafInterner interner;
+    protected final List <HtPredicate> predicates;
+    //    protected final IResolver <HtPredicate, HtClause> resolver = getResolver();
+    protected final List <PiCalls <?>> piCalls = new ArrayList <>();
 
     /**
      *
      */
-    public Specializer ( SymbolTable <Integer, String, Object> symbolTable,
+    public Specializer ( ISymbolTable <Integer, String, Object> symbolTable,
                          IVafInterner interner,
                          List <HtPredicate> predicates ) {
         this.symbolTable = symbolTable;
@@ -56,8 +56,8 @@ class Specializer<T extends ITerm, C extends BodyCalls <C>> implements ISpeciali
      * @return
      */
     @Override
-    public List <T> specialize ( T term ) {
-        List <T> spClauses = new ArrayList <>();
+    public List <ITerm> specialize ( ITerm term ) {
+        List <ITerm> spClauses = new ArrayList <>();
         List <PiCalls <?>> calls = new ArrayList <>();
         predicates.stream().map(this::collect).forEachOrdered(calls::addAll);
         final List <PiCalls <?>> merged = getInterestingCalls(calls, predicates);
@@ -70,7 +70,7 @@ class Specializer<T extends ITerm, C extends BodyCalls <C>> implements ISpeciali
      * @param predicates
      * @return
      */
-    private List <PiCalls <?>> getInterestingCalls ( List <PiCalls <?>> calls, List <HtPredicate> predicates ) {
+    protected List <PiCalls <?>> getInterestingCalls ( List <PiCalls <?>> calls, List <HtPredicate> predicates ) {
         PredicateTable <?> table = new PredicateTable();
         List <PiCalls <?>> result = new ArrayList <>();
         for (PiCalls <?> piCalls : calls) {
@@ -83,7 +83,7 @@ class Specializer<T extends ITerm, C extends BodyCalls <C>> implements ISpeciali
         return result;
     }
 
-    private List <XPiCalls <C>> getInterestingIndeedCalls ( List <PiCalls <C>> calls, List <HtPredicate> predicates ) {
+    protected List <XPiCalls <C>> getInterestingIndeedCalls ( List <PiCalls <C>> calls, List <HtPredicate> predicates ) {
         PredicateTable <?> table = new PredicateTable <>(predicates);
         List <XPiCalls <C>> result = new ArrayList <>();
         for (PiCalls <C> piCalls : calls) {
@@ -101,7 +101,7 @@ class Specializer<T extends ITerm, C extends BodyCalls <C>> implements ISpeciali
                 .collect(Collectors.toList());
     }
 
-    private boolean unifiesMnl ( ListTerm args, ListTerm headsArgs ) {
+    protected boolean unifiesMnl ( ListTerm args, ListTerm headsArgs ) {
         return TermUtilities.unify(args, headsArgs);
     }
 //    proper_subset([], [_|_]).
@@ -197,7 +197,7 @@ class Specializer<T extends ITerm, C extends BodyCalls <C>> implements ISpeciali
      * @param ss
      * @return
      */
-    private List <BodyCall <C>> findAllDelete ( List <BodyCall <C>> calls, List <HtClause> selectedClauses, List <ListTerm> ss ) {
+    protected List <BodyCall <C>> findAllDelete ( List <BodyCall <C>> calls, List <HtClause> selectedClauses, List <ListTerm> ss ) {
         List <BodyCall <C>> other = new ArrayList <>();
         calls.forEach(call -> {
             final List <HtClause> sc = (List <HtClause>) call.get(1);
@@ -211,7 +211,7 @@ class Specializer<T extends ITerm, C extends BodyCalls <C>> implements ISpeciali
         return other;
     }
 
-    private ListTerm findMsgOfCalls ( ListTerm args, List <ListTerm> calls ) {
+    protected ListTerm findMsgOfCalls ( ListTerm args, List <ListTerm> calls ) {
         final Map <HtVariable, Pair <ITerm, ITerm>> dict = new HashMap <>();
         for (final ListTerm call : calls) {
             args = (ListTerm) msg(args, call, dict);
@@ -240,7 +240,7 @@ class Specializer<T extends ITerm, C extends BodyCalls <C>> implements ISpeciali
      * @param msg
      * @return
      */
-    private boolean sthBound ( ListTerm msg ) {
+    protected boolean sthBound ( ListTerm msg ) {
         final ITerm[] heads = msg.getHeads();
         for (final ITerm head : heads) {
             if (!head.isVar()) {//chk value??
@@ -264,8 +264,8 @@ class Specializer<T extends ITerm, C extends BodyCalls <C>> implements ISpeciali
      *
      * @param piCalls
      */
-    private void interestingCalls ( final List <PiCalls <C>> piCalls,
-                                    final PredicateTable <?> predicates ) {
+    protected void interestingCalls ( final List <PiCalls <C>> piCalls,
+                                      final PredicateTable <?> predicates ) {
         piCalls.forEach(piCall -> {
 
 //            piCall.accept(pcc); // may not be there if dynamic
@@ -284,7 +284,7 @@ class Specializer<T extends ITerm, C extends BodyCalls <C>> implements ISpeciali
      * @param predicates
      * @return
      */
-    private List <PiCalls <?>> interestingCalls0 ( ITerm[] calls, PredicateTable <?> predicates ) {
+    protected List <PiCalls <?>> interestingCalls0 ( ITerm[] calls, PredicateTable <?> predicates ) {
         return piCalls;
     }
 
@@ -319,7 +319,7 @@ class Specializer<T extends ITerm, C extends BodyCalls <C>> implements ISpeciali
 	'specialise pred'(BCs, N, A, Tabled, SymTab, CLmid, CLout).
 */
 
-    private List <HtClause> specializePred ( PiCalls <?> piCall ) {
+    protected List <HtClause> specializePred ( PiCalls <?> piCall ) {
         List <HtClause> spClauses = new ArrayList <>();
         HtPredicateIndicator symbol = new HtPredicateIndicator(piCall);
 //noinspection PlaceholderCountMatchesArgumentCount
@@ -493,7 +493,7 @@ filter_goal(Sym, Args) :- sym_prop(defined, Sym), sth_bound(Args).
         return false;
     }
 
-    public TransformInfo <? extends ITerm> getBestSoFarResult () {
+    public TransformInfo getBestSoFarResult () {
         return null;
     }
 

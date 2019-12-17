@@ -1,8 +1,6 @@
 package org.ltc.hitalk.core;
 
-
 import com.thesett.aima.logic.fol.LinkageException;
-import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PredicateTable;
@@ -14,13 +12,12 @@ import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.term.io.HiTalkStream;
-import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.ICompilerFactory;
-import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.Language;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
+import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltInTransform;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.slf4j.Logger;
@@ -36,17 +33,15 @@ import static java.io.FileDescriptor.*;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.EXISTENCE_ERROR;
 import static org.ltc.hitalk.core.Components.*;
 import static org.ltc.hitalk.core.PrologBuiltIns.CURRENT_INPUT;
-import static org.ltc.hitalk.parser.HiLogParser.hilogApply;
 
 /**
  *
  */
 @SuppressWarnings("ALL")
 public abstract
-class BaseApp<T extends HtClause, P, Q> implements IApplication {
-    protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
+class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
 
-    public static final IFunctor HILOG_APPLY_FUNCTOR = new HtFunctor(hilogApply, 1, 0);
+    protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     protected final List <HiTalkStream> streams = new ArrayList <>();
 
@@ -467,11 +462,11 @@ class BaseApp<T extends HtClause, P, Q> implements IApplication {
             return (PrologBuiltInTransform) get(BUILTIN_TRANSFORM);
         }
 
-        public <PC, QC> LogicCompilerObserver <PC, QC> getObserverIC () {
-            return (LogicCompilerObserver <PC, QC>) get(OBSERVER_IC);
+        public <PC, QC> ICompilerObserver <PC, QC> getObserverIC () {
+            return (ICompilerObserver <PC, QC>) get(OBSERVER_IC);
         }
 
-        public <P, Q, T extends HtClause> void setCompilerFactory ( ICompilerFactory <T, P, Q, HtPredicate, HtClause> cf ) {
+        public <T extends HtClause, P, Q, PC, QC> void setCompilerFactory ( ICompilerFactory <T, P, Q, PC, QC> cf ) {
             putIfAbsent(COMPILER_FACTORY, cf);
         }
 

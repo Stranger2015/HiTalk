@@ -16,7 +16,6 @@
 package org.ltc.hitalk.wam.compiler.hitalk;
 
 import com.thesett.aima.logic.fol.LinkageException;
-import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.Sink;
 import com.thesett.common.util.Source;
@@ -148,15 +147,15 @@ public class HiTalkInterpreterVisitor<T extends HtMethod, P, Q> extends PrologIn
     /**
      * Evaluates a query against the resolver or adds a clause to the resolvers domain.
      *
-     * @param sentence The clausal sentence to run as a query or as a clause to add to the domain.
+     * @param clause The clausal sentence to run as a query or as a clause to add to the domain.
      * @throws SourceCodeException If the query or domain clause fails to compile or link into the resolver.
      */
-    private void evaluate ( Sentence <T> sentence ) throws SourceCodeException {
-        HtMethod clause = sentence.getT();
+    private void evaluate ( T clause ) throws SourceCodeException {
+//        HtMethod clause = sentence;
 
         if (clause.isQuery()) {
             engine.endScope();
-            engine.getCompiler().compile(sentence);
+            engine.getCompiler().compile(clause);
             evaluateQuery();
         } else {
             // Check if the program clause is new, or a continuation of the current predicate.
@@ -167,7 +166,7 @@ public class HiTalkInterpreterVisitor<T extends HtMethod, P, Q> extends PrologIn
                 currentPredicateName = name;
             }
 
-            addProgramClause(sentence);
+            addProgramClause(clause);
         }
     }
 
@@ -238,7 +237,7 @@ public class HiTalkInterpreterVisitor<T extends HtMethod, P, Q> extends PrologIn
      *
      * @param sentence The clause to add to the domain.
      */
-    private void addProgramClause ( Sentence <T> sentence ) throws SourceCodeException {
+    private void addProgramClause ( T sentence ) throws SourceCodeException {
         logger.debug("Read program clause from input.");
 
         engine.getCompiler().compile(sentence);

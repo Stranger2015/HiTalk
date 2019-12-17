@@ -1,7 +1,7 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
 import org.ltc.hitalk.term.ITerm;
@@ -15,18 +15,18 @@ import java.util.List;
 /**
  *
  */
-public class Inliner implements IInliner <ITerm> {
+public class Inliner implements IInliner {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
-    private final SymbolTable <Integer, String, Object> symbolTable;
+    private final ISymbolTable <Integer, String, Object> symbolTable;
     private final IVafInterner interner;
     private final List <PiCalls> piCalls;
 
     /**
      *
      */
-    public Inliner ( SymbolTable <Integer, String, Object> symbolTable,
+    public Inliner ( ISymbolTable <Integer, String, Object> symbolTable,
                      IVafInterner interner,
                      List <PiCalls> piCalls ) {
         this.symbolTable = symbolTable;

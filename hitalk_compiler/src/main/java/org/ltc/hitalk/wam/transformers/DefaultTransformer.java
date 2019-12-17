@@ -13,19 +13,18 @@ import java.util.List;
  * Created by Anthony on 19.07.2016.
  */
 public
-class DefaultTransformer<T extends ITerm> implements ITransformer <T> {
+class DefaultTransformer implements ITransformer {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
-
-    protected T targetIn;
-    protected List <T> targetOut;
+    protected List <ITerm> output;
 
     protected ExecutionContext context;
     protected ExecutionContext contextBefore;
     protected ExecutionInfo executionInfo;
     protected ExecutionInfo executionInfoBefore;
-    protected ITransformer <T> transformer;
-    protected TransformInfo <T> result;
+    protected ITransformer transformer;
+    protected TransformInfo result;
+    protected ITerm input;
 
 
     /**
@@ -38,15 +37,14 @@ class DefaultTransformer<T extends ITerm> implements ITransformer <T> {
     /**
      * @param term
      */
-    public
-    DefaultTransformer ( T term ) {
-        targetOut = Collections.singletonList(term);
+    public DefaultTransformer ( ITerm term ) {
+        output = Collections.singletonList(term);
         transformer = this;
     }
 
     public
     DefaultTransformer () {
-        this((T) null);
+        this(null);
     }
 
     @Override
@@ -55,7 +53,7 @@ class DefaultTransformer<T extends ITerm> implements ITransformer <T> {
         //todo
     }
 
-    public ITransformer <T> getTransformer () {
+    public ITransformer getTransformer () {
         return transformer;
     }
 
@@ -72,21 +70,21 @@ class DefaultTransformer<T extends ITerm> implements ITransformer <T> {
      * @param term
      * @return
      */
-    public List <T> transform ( T term ) {
-        targetOut = Collections.singletonList(targetIn);
+    public List <ITerm> transform ( ITerm term ) {
+        output = Collections.singletonList(term);
         IMetrics after = context.getCurrentMetrics();
         IMetrics delta = after.subtract(contextBefore.getCurrentMetrics());
-        if (targetOut.size() > 0) {
+        if (output.size() > 0) {
             executionInfo = null;// todo????
         }
         if (!isAcceptable(context.getMaxMetrics())) {
-            result = new TransformInfo(context, executionInfo, delta, term, targetOut); //todo
+            result = new TransformInfo(context, executionInfo, delta, term, output); //todo
             cancel();
         } else {
-            result = new TransformInfo(contextBefore, executionInfo, delta, term, targetOut);//todo
+            result = new TransformInfo(contextBefore, executionInfo, delta, term, output);//todo
         }
 
-        return targetOut;//todo
+        return output;//todo
     }
 
 //    @Override
@@ -128,6 +126,6 @@ class DefaultTransformer<T extends ITerm> implements ITransformer <T> {
     @Override
     public
     void run () {
-        targetOut = transform(targetIn);
+        output = transform(input);
     }
 }

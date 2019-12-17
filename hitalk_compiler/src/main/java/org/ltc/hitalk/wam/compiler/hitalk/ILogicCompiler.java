@@ -15,10 +15,9 @@
  */
 package org.ltc.hitalk.wam.compiler.hitalk;
 
-import com.thesett.aima.logic.fol.LogicCompilerObserver;
-import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.core.IHitalkObject;
+import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 
 /**
  * A compiler over any language that has a one-to-one mapping from some input form, to some output form. Compiles from
@@ -27,7 +26,7 @@ import org.ltc.hitalk.core.IHitalkObject;
  * <p/>The source form may not have the same scope as the target form. For example, the source form might be single
  * lines of code, but the target form might be complete functions. The {@link #endScope()} method is used to signal the
  * completion of some input scope, that triggers the completion of the compilation of its contents. A
- * {@link LogicCompilerObserver} must be set on the compiler, and will be notified upon the compilation of any target
+ * {@link ICompilerObserver} must be set on the compiler, and will be notified upon the compilation of any target
  * forms.
  *
  * <pre><p/><table id="crc"><caption>CRC Card</caption>
@@ -46,14 +45,14 @@ public interface ILogicCompiler<T, P, Q> extends IHitalkObject {
      * @param sentence The sentence to compile.
      * @throws SourceCodeException If there is an error in the source to be compiled that prevents its compilation.
      */
-    void compile ( Sentence <T> sentence ) throws SourceCodeException;
+    void compile ( T sentence ) throws SourceCodeException;
 
     /**
      * Establishes an observer on the compiled forms that the compiler outputs.
      *
      * @param observer The compiler output observer.
      */
-    void setCompilerObserver ( LogicCompilerObserver <P, Q> observer );
+    void setCompilerObserver ( ICompilerObserver <P, Q> observer );
 
     /**
      * Signal the end of a compilation scope, to trigger completion of the compilation of its contents.

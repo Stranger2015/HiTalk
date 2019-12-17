@@ -22,10 +22,14 @@ import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.context.Context;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.LoadContext;
-import org.ltc.hitalk.parser.*;
+import org.ltc.hitalk.parser.HiTalkParser;
+import org.ltc.hitalk.parser.IParser;
+import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.*;
 import org.ltc.hitalk.wam.compiler.hilog.HiLogCompilerApp;
+import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -144,8 +148,8 @@ import static org.ltc.hitalk.wam.compiler.Language.HITALK;
  * The current implementation does not detect such cases and the involved threads will freeze.
  * This problem can be avoided if a mutually dependent collection of files is always loaded from the same start file.
  */
-public class HiTalkCompilerApp<T extends HtMethod, P, Q>
-        extends HiLogCompilerApp <T, P, Q> {
+public class HiTalkCompilerApp<T extends HtMethod, P, Q, PC, QC>
+        extends HiLogCompilerApp <T, P, Q, PC, QC> {
 
     private final static Language language = HITALK;
 
@@ -197,10 +201,10 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q>
      * @param parser
      * @return
      */
-    public PrologWAMCompiler <T, P, Q, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>
+    public PrologWAMCompiler <T, P, Q, PC, QC>
     createWAMCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
                         IVafInterner interner,
-                        LogicCompilerObserver <P, Q> observer,
+                        ICompilerObserver <P, Q> observer,
                         PlPrologParser parser ) {
         return new HiTalkWAMCompiler <>(symbolTable, interner, parser, observer);
     }
@@ -914,12 +918,12 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q>
     /**
      * @param fileName
      */
-    public void logtalkCompile ( String fileName ) throws IOException, SourceCodeException, ParseException {
+    public void logtalkCompile ( String fileName ) throws Exception {
         wamCompiler.compileFile(fileName, executionContext.getFlags());
 //         user, user, user, user, [], []
     }
 
-    public void compile ( String fileName, HtProperty[] flags ) throws IOException, SourceCodeException, ParseException {
+    public void compile ( String fileName, HtProperty[] flags ) throws Exception {
         wamCompiler.compile(getTokenSourceForIoFile(new File(fileName)));
 
     }

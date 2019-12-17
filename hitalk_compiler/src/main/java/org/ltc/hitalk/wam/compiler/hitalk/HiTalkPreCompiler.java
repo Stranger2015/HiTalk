@@ -21,7 +21,7 @@ import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.compiler.IVafInterner;
-import org.ltc.hitalk.core.ICompiler;
+import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
@@ -48,7 +48,7 @@ import java.util.List;
  * @author Rupert Smith
  */
 abstract public
-class HiTalkPreCompiler<T extends HtMethod, P, Q> extends PrologPreCompiler <T, P, Q> implements ICompiler <T, P, Q> {
+class HiTalkPreCompiler<T extends HtMethod, P, Q> extends PrologPreCompiler <T, P, Q> implements IPreCompiler {
     /**
      * Holds the compiler output observer.
      */
@@ -71,9 +71,6 @@ class HiTalkPreCompiler<T extends HtMethod, P, Q> extends PrologPreCompiler <T, 
                                IResolver <HtPredicate, HtClause> resolver,
                                PlPrologParser parser ) {
         super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, parser);
-
-//        builtInTransform = new HiTalkBuiltInTransform (defaultBuiltIn, this, resolver);//TODO GLOBAL CTX NEEDED!!77
-
     }
 
     /**

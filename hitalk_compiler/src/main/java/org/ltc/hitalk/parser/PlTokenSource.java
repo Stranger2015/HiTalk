@@ -7,7 +7,6 @@ import com.thesett.common.util.Source;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
-import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.HlOpSymbol;
 import org.ltc.hitalk.term.ITerm;
@@ -23,12 +22,12 @@ import java.io.InputStream;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.EXISTENCE_ERROR;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
+import static org.ltc.hitalk.core.BaseApp.getAppContext;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
 import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
 import static org.ltc.hitalk.term.io.HiTalkStream.createHiTalkStream;
 
 public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
-
     private boolean encodingPermitted;
 
     /**
@@ -40,7 +39,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
      * Holds the tokenizer that supplies the next token on demand.
      */
     public PlLexer lexer;
-    protected Source <PlToken> tokenSource;
+    //    protected Source <PlToken> tokenSource;
     protected IVafInterner interner;
     protected IOperatorTable operatorTable;
 
@@ -58,8 +57,8 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     }
 
     private boolean isBofGenerated;
-    private int lineOfs;
-    private int colOfs;
+    //    private int lineOfs;
+//    private int colOfs;
     private boolean encodingChanged;
     private String encoding;
 
@@ -74,7 +73,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     }
 
     private static PlTokenSource getPlTokenSourceForStdin ( InputStream inputStream ) throws IOException, CloneNotSupportedException {
-        HiTalkStream stream = BaseApp.appContext.currentInput();
+        HiTalkStream stream = getAppContext().currentInput();
         stream.setInputStream(inputStream);
         PlLexer lexer = new PlLexer(stream);
         return new PlTokenSource(lexer);
@@ -113,6 +112,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     protected void onEncodingChanged ( String encoding ) throws IOException {
         if (token.kind == DOT) {
             setEncodingChanged(true);
+            setEncodingPermitted(false);
         }
     }
 
@@ -181,7 +181,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
         if (token.next == null) {
             try {
                 token.next = lexer.next(true);
-            } catch (IOException | ParseException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 throw new ExecutionError(EXISTENCE_ERROR, null);
             }
@@ -206,7 +206,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
         if (token.next == null) {
             try {
                 token.next = lexer.next(true);
-            } catch (IOException | ParseException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 throw new ExecutionError(EXISTENCE_ERROR, null);
             }

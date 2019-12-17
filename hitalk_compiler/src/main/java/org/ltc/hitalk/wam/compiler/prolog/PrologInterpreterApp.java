@@ -18,7 +18,8 @@ import static org.ltc.hitalk.wam.compiler.Tools.Kind.INTERPRETER;
 /**
  *
  */
-public class PrologInterpreterApp<T extends HtClause, P, Q> extends BaseApp <T, P, Q> {
+public class PrologInterpreterApp<T extends HtClause, P, Q, PC, QC> extends BaseApp <T, P, Q, PC, QC> {
+
     /**
      * @param fn
      */

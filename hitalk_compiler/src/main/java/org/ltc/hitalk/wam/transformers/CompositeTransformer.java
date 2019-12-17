@@ -1,40 +1,69 @@
 package org.ltc.hitalk.wam.transformers;
 
 
+import org.jetbrains.annotations.NotNull;
 import org.ltc.hitalk.compiler.bktables.IComposite;
-import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.core.IPreCompiler;
+import org.ltc.hitalk.entities.context.IMetrics;
+import org.ltc.hitalk.parser.Directive.DirectiveKind;
+import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.task.TransformTask;
 
-import java.util.ArrayList;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.EnumSet;
 import java.util.List;
 
 /**
- * @param <T>
+ *
  */
 public
-class CompositeTransformer<T extends HtClause, TC extends ITerm, TT extends TransformTask <TC>>
-        extends TransformTask <TC>
-        implements ITransformer <TC>, IComposite <TC, TT> {
+class CompositeTransformer<TT extends TransformTask>
+        extends TransformTask
+        implements ITransformer, IComposite <TT> {
 
-    protected final List <TT> transformers = new ArrayList <>();
+    protected final Deque <TT> transformers = new ArrayDeque <>();
+    private List <ITerm> output;
 
-    public CompositeTransformer ( List <TC> target, ITransformer <TC> transformer ) {
-        super(target, transformer);
+    /**
+     * @param preCompiler
+     * @param tokenSource
+     * @param kind
+     */
+    protected CompositeTransformer ( IPreCompiler preCompiler,
+                                     PlTokenSource tokenSource,
+                                     EnumSet <DirectiveKind> kind ) {
+        super(preCompiler, tokenSource, kind);
     }
 
-    private void addAndAssign ( TransformInfo <T> result, TransformInfo <T> transform ) {
+    private void addAndAssign ( TransformInfo result, TransformInfo transform ) {
 
     }
 
-    private
-    TransformInfo <T> initial () {
-        return new TransformInfo <>();
+    private TransformInfo initial () {
+        /*ExecutionContext context,
+                           ExecutionInfo executionInfo,
+                           IMetrics delta,
+                           ITerm input,
+                           List <ITerm> output*/
+        return new TransformInfo(getContext(), new ExecutionInfo(), new IMetrics() {
+            public IMetrics initialMetrics () {
+                return null;
+            }
+
+            public IMetrics subtract ( IMetrics currentMetrics ) {
+                return null;
+            }
+
+            public int compareTo ( @NotNull IMetrics o ) {
+                return 0;
+            }
+        }, input, output);
     }
 
     @Override
-    public final
-    List <TT> getComponents () {
+    public final Deque <TT> getComponents () {
         return transformers;
     }
 }

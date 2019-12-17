@@ -6,16 +6,16 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @param <T>
+ *
  */
 public
-interface ISpecializer<T extends ITerm> extends ITransformer <T> {
+interface ISpecializer extends ITransformer {
 
     /**
      * @param clause
      * @return
      */
-    default List <T> specialize ( T clause ) {
+    default List <ITerm> specialize ( ITerm clause ) {
         return Collections.singletonList(clause);
     }
 
@@ -26,7 +26,7 @@ interface ISpecializer<T extends ITerm> extends ITransformer <T> {
      * @return A clause which is the transformation of the argument.
      */
     @Override
-    default List <T> transform ( T clause ) {
+    default List <ITerm> transform ( ITerm clause ) {
         return specialize(clause);
     }
 }

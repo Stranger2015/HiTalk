@@ -95,6 +95,13 @@ class HtPredicateIndicator extends HtBaseTerm {
     }
 
     /**
+     * @return
+     */
+    public boolean isJavaObject () {
+        return false;
+    }
+
+    /**
      * Frees all assigned variables in the term, leaving them unnassigned. In the case of functors and other compund
      * structures, this recurses down into the term calling free on all argument, so that the call reaches all variables
      * in leaf positions of the term.

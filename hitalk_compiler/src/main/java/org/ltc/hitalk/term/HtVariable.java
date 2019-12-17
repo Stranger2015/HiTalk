@@ -174,6 +174,13 @@ public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingCon
     }
 
     /**
+     * @return
+     */
+    public boolean isJavaObject () {
+        return false;
+    }
+
+    /**
      * Gets the actual value of a term, which is either the term itself, or in the case of variables, the value that is
      * currently assigned to the variable. When the variable is free, the variable term itself is returned.
      *

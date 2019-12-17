@@ -10,22 +10,22 @@ import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.PlPrologParser;
-import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.IFunctor;
-import org.ltc.hitalk.wam.task.CompilerTask;
-import org.ltc.hitalk.wam.task.TermExpansionTask;
+import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler.ClauseChainObserver;
+import org.ltc.hitalk.wam.task.ExecutionTask;
+import org.ltc.hitalk.wam.task.PreCompilerTask;
 
 import java.util.*;
 
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
-import static org.ltc.hitalk.parser.Directive.DirectiveKind.IF;
 
 /**
  *
  */
 public
-class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine implements IPreCompiler /*implements ICompiler <T, P, Q> */ {
+class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
+        implements IPreCompiler {
 
     final protected PlPrologParser parser;
     final protected PrologDefaultBuiltIn defaultBuiltIn;
@@ -37,10 +37,9 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
     protected final IResolver <HtPredicate, HtClause> resolver;
     protected LogicCompilerObserver <P, Q> observer;
 
-    ///    protected final Deque<ITerm> condCompilationQueue=new ArrayDeque <>();
-//    protected final Deque<ITerm> execQueue=new ArrayDeque <>();
-//    protected final Deque<ITerm> termExpansionQueue=new ArrayDeque <>();
-    protected final Deque <CompilerTask> compilerTaskQueue = new ArrayDeque <>();
+    //    protected final Deque <CompilerTask> compilerTaskQueue = new ArrayDeque <>();
+    protected ClauseChainObserver clauseChainObserver;
+    protected final Deque <PreCompilerTask> taskQueue = new ArrayDeque <>();
 
 
     /**
@@ -72,92 +71,40 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
                 getAppContext().getResolverPre(),
                 getAppContext().getParser());
     }
-//
-//    /**
-//     * @param string
-//     * @param flags
-//     * @throws Exception
-//     */
-//    @Override
-//    public void compileString ( String string, HtProperty... flags ) throws Exception {
-//        ICompiler.super.compileString(string, flags);
-//    }
 
-//    /**
-//     * @param tokenSource
-//     * @param flags
-//     * @throws IOException
-//     * @throws SourceCodeException
-//     */
-//    @Override
-//    public void compile ( PlTokenSource tokenSource, HtProperty... flags )
-//            throws IOException, SourceCodeException, ParseException {
-//        getConsole().info("Compiling " + tokenSource.getPath() + "... ");
-//        /*
-//        // Set up a parser on the token source.
-//        LibParser libParser = new LibParser();
-//        libParser.setTokenSource(tokenSource);
-//
-//        // Load the built-ins into the domain
-//        while (true) {
-//            ISentence <ITerm> sentence = libParser.parse();
-//            final ITerm term = sentence.getT();
-//            //TODO  GLOBAL WITHOUT SPECIAL CASES
-//            if (term == PlPrologParser.BEGIN_OF_FILE_ATOM) {//ignore
-//                //    final List <ITerm> l = preCompiler.expandTerm(term);
-//                continue;
-//            }
-//            if (term == PlPrologParser.END_OF_FILE_ATOM) {
-//                if (!libParser.getTokenSource().isEofGenerated()) {
-//                    parser.popTokenSource();
-//                    break;
-//                }
-//            }
-//            //            compiler.compile(sentence);
-//            HtClause clause = libParser.convert(sentence.getT());
-//            preCompiler.compile(clause);
-//        }
-//        preCompiler.endScope();
-//        *
-//        * */
-//        parser.setTokenSource(tokenSource);
-//        while (true) {
-//            ITerm t = parser.next();
-//            if (t == PlPrologParser.BEGIN_OF_FILE_ATOM) {
-////                termExpansionQueue.push(t);
-//                compilerTaskQueue.push(new TermExpansionTask(t));
-//                continue;
-//            }
-//            if (t == PlPrologParser.END_OF_FILE_ATOM) {
-////                termExpansionQueue.push(t);
-//                if (!parser.getTokenSource().isEofGenerated()) {
-//                    parser.popTokenSource();
-//                    break;
-//                }
-//            }
-//            T c = (T) parser.convert(t);//FIXME
-//            compile(c, flags);
-//        }
-//    }
-
-    public List <HtClause> preCompile ( PlTokenSource tokenSource ) {
-        return null;
+    public Deque <PreCompilerTask> getTaskQueue () {
+        return taskQueue;
     }
 
-    //    @Override
+    @Override
     public PlPrologParser getParser () {
         return parser;
+    }
+
+    @Override
+    public boolean isDirective ( HtClause clause ) {
+        return false;
     }
 
     /**
      *
      */
+    @Override
     public void endScope () {
 
     }
 
+    @Override
+    public void setCompilerObserver ( ClauseChainObserver clauseChainObserver ) {
+        this.clauseChainObserver = clauseChainObserver;
+    }
+
+    /**
+     * @param clause
+     * @throws SourceCodeException
+     */
     public void preCompile ( T clause ) throws SourceCodeException {
-        logger.debug("precompiling " + clause);
+        logger.debug("Precompiling " + clause);
         if (clause.getT().getHead() == null) {
             final IFunctor goal = (IFunctor) clause.getBody().get(0);
 //            if (checkDirective(goal, )) {
@@ -200,11 +147,8 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
      * @return
      */
     public List <ITerm> expandTerm ( ITerm term ) {
-        getTaskQueue().push(new TermExpansionTask(this, term1 -> {
-
-            return null;
-        }, IF));
-        return Objects.requireNonNull(getTaskQueue().peek()).invoke(term);
+        getQueue().push(new ExecutionTask(this));
+        return Objects.requireNonNull(getQueue().peek()).invoke(term);
     }
 
     /**
@@ -232,5 +176,26 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
     private List <IFunctor> callGoalExpansion ( IFunctor goal ) {
         final List <IFunctor> l = new ArrayList <>();
         return l;
+    }
+
+    /**
+     * @return
+     */
+    public Deque <PreCompilerTask> getQueue () {
+        return taskQueue;
+    }
+
+    /**
+     * @param item
+     */
+    public void push ( PreCompilerTask item ) {
+
+    }
+
+    /**
+     * @param item
+     */
+    public void remove ( PreCompilerTask item ) {
+
     }
 }

@@ -6,7 +6,7 @@ import org.ltc.hitalk.wam.compiler.prolog.PrologCompilerApp;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 
-public class LogtalkCompilerApp<T extends HtMethod, P, Q> extends PrologCompilerApp <T, P, Q> {
+public class LogtalkCompilerApp<T extends HtMethod, P, Q, PC, QC> extends PrologCompilerApp <T, P, Q, PC, QC> {
 
     /**
      * @param fn

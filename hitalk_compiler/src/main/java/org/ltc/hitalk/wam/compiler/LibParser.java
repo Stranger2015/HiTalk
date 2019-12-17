@@ -4,11 +4,15 @@ import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
-import org.ltc.hitalk.core.BaseApp;
-import org.ltc.hitalk.parser.*;
+import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.IParser;
+import org.ltc.hitalk.parser.ParseException;
+import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
 
 import java.io.IOException;
+
+import static org.ltc.hitalk.core.BaseApp.getAppContext;
 
 /**
  *
@@ -17,7 +21,7 @@ public class LibParser implements IParser {
     /**
      *
      */
-    protected PlPrologParser parser = BaseApp.getAppContext().getParser();
+    protected PlPrologParser parser = getAppContext().getParser();
 
     /**
      * @return
@@ -27,18 +31,25 @@ public class LibParser implements IParser {
         return parser;
     }
 
+    /**
+     * @return
+     */
+    @Override
     public IVafInterner getInterner () {
         return parser.getInterner();
     }
 
+    @Override
     public void setInterner ( IVafInterner interner ) {
         parser.setInterner(interner);
     }
 
+    @Override
     public ITermFactory getFactory () {
         return parser.getFactory();
     }
 
+    @Override
     public IOperatorTable getOptable () {
         return parser.getOptable();
     }
@@ -63,8 +74,8 @@ public class LibParser implements IParser {
      * @return
      */
     @Override
-    public ISentence <ITerm> parse () throws ParseException, IOException {
-        return new PlSentenceImpl(parser.termSentence());
+    public ITerm parse () throws Exception {
+        return parser.termSentence();
     }
 
     /**
@@ -79,7 +90,7 @@ public class LibParser implements IParser {
      * @return
      * @throws IOException
      */
-    public ITerm next () throws IOException, ParseException {
+    public ITerm next () throws Exception {
         return parser.next();
     }
 
@@ -90,7 +101,7 @@ public class LibParser implements IParser {
      * @throws SourceCodeException
      */
     @Override
-    public HtClause parseClause () throws ParseException, IOException, SourceCodeException {
+    public HtClause parseClause () throws Exception {
         return parser.parseClause();
     }
 }

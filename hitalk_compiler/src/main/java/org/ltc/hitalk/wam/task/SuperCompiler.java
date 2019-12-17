@@ -1,7 +1,12 @@
 package org.ltc.hitalk.wam.task;
 
 import org.ltc.hitalk.core.ptree.ProcessTree;
+import org.ltc.hitalk.entities.HtPredicate;
+import org.ltc.hitalk.entities.context.ExecutionContext;
+import org.ltc.hitalk.entities.context.IMetrics;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
 import org.ltc.hitalk.wam.transformers.IGeneralizer;
 import org.ltc.hitalk.wam.transformers.IInliner;
 import org.ltc.hitalk.wam.transformers.ISpecializer;
@@ -13,23 +18,18 @@ import java.util.List;
 /**
  *
  */
-public
-class SuperCompiler<T extends ITerm>
-        extends PrologStandardPreprocessor <T>
-        implements IInliner <T>, ISpecializer <T>, IGeneralizer <T>, ITransformer <T> {
+public class SuperCompiler extends PrologPreCompiler <HtClause, HtPredicate, HtClause>
+        implements IInliner, ISpecializer, IGeneralizer, ITransformer {
 
     private ProcessTree pTree;
 
     /**
-     * @param target
-     * @param transformer
+     *
      */
-    public SuperCompiler ( List <T> target, ITransformer transformer ) {
-        super(null, target, transformer);
+    public SuperCompiler () {
     }
 
-    public
-    ProcessTree buildProcessTree ( T term ) {
+    public ProcessTree buildProcessTree ( ITerm term ) {
 //        repeat,
 //                unprocessed_node( ProcessTree, Beta )-> true; ignore(fail),
 //                relevant_ancestors( Ancestors, Beta ),
@@ -74,13 +74,36 @@ class SuperCompiler<T extends ITerm>
 
     }
 
+    /**
+     * When an object implementing interface <code>Runnable</code> is used
+     * to create a thread, starting the thread causes the object's
+     * <code>run</code> method to be called in that separately executing
+     * thread.
+     * <p>
+     * The general contract of the method <code>run</code> is that it may
+     * take any action whatsoever.
+     *
+     * @see Thread#run()
+     */
+    public void run () {
+
+    }
+
+    /**
+     *
+     */
+    public void cancel () {
+
+    }
+
+
 //    /**
 //     * @param clause
 //     * @return
 //     */
 //    @Override
 //    public
-//    T generalize ( T clause ) {
+//    ITerm generalize ( ITerm clause ) {
 //        return null;
 //    }
 
@@ -90,7 +113,7 @@ class SuperCompiler<T extends ITerm>
 //     */
 //    @Override
 //    public
-//    T inline ( T clause ) {
+//    ITerm inline ( ITerm clause ) {
 //        return null;
 //    }
 //
@@ -100,7 +123,7 @@ class SuperCompiler<T extends ITerm>
 //     */
 //    @Override
 //    public
-//    T specialize ( T clause ) {
+//    ITerm specialize ( ITerm clause ) {
 //        return null;
 //    }
 
@@ -112,7 +135,7 @@ class SuperCompiler<T extends ITerm>
 //     */
 ////    @Override
 //    public
-//    T transform ( HtClause clause ) {
+//    ITerm transform ( HtClause clause ) {
 //        return null;
 ////    }
 //
@@ -165,7 +188,7 @@ class SuperCompiler<T extends ITerm>
      * @return
      */
     @Override
-    public List <T> inline ( T clause ) {
+    public List <ITerm> inline ( ITerm clause ) {
         return Collections.singletonList(clause);
     }
 
@@ -174,8 +197,30 @@ class SuperCompiler<T extends ITerm>
      * @return
      */
     @Override
-    public List <T> generalize ( T clause ) {
+    public List <ITerm> generalize ( ITerm clause ) {
         return Collections.singletonList(clause);
+    }
+
+    /**
+     * @return
+     */
+    public ExecutionContext getContext () {
+        return null;
+    }
+
+    /**
+     * @param context
+     */
+    public void setContext ( ExecutionContext context ) {
+
+    }
+
+    /**
+     * @param max
+     * @return
+     */
+    public boolean isAcceptable ( IMetrics max ) {
+        return false;
     }
 
     /**
@@ -185,8 +230,8 @@ class SuperCompiler<T extends ITerm>
      * @return A clause which is a transformation of the argument.
      */
 //    @Override
-    public List <T> transform ( T clause ) {
-        List <T> newClause;
+    public List <ITerm> transform ( ITerm clause ) {
+        List <ITerm> newClause;
         switch (mode) {
             case INLINE_MODE:
                 newClause = inline(clause);
@@ -209,7 +254,7 @@ class SuperCompiler<T extends ITerm>
      * @return
      */
     @Override
-    public List <T> specialize ( T clause ) {
+    public List <ITerm> specialize ( ITerm clause ) {
         return Collections.singletonList(clause);
     }
 

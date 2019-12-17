@@ -17,6 +17,7 @@
       <w>deref</w>
       <w>dest</w>
       <w>discontiguous</w>
+      <w>elif</w>
       <w>functors</w>
       <w>generalizer</w>
       <w>hilog</w>
@@ -42,6 +43,7 @@
       <w>nonvar</w>
       <w>optable</w>
       <w>optimizeable</w>
+      <w>precompiling</w>
       <w>pred</w>
       <w>preds</w>
       <w>preprocess</w>

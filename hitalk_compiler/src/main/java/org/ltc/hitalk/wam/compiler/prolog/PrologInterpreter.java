@@ -13,7 +13,9 @@ import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.interpreter.IInterpreter;
 import org.ltc.hitalk.interpreter.Mode;
-import org.ltc.hitalk.parser.*;
+import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.IParser;
+import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.Language;
@@ -129,8 +131,8 @@ public class PrologInterpreter<T extends HtClause, P, Q>
     /**
      * @return
      */
-    public ISentence <ITerm> parse () throws IOException {
-        return new PlSentenceImpl(next());
+    public ITerm parse () throws IOException {
+        return next();
     }
 
     @Override
@@ -147,7 +149,7 @@ public class PrologInterpreter<T extends HtClause, P, Q>
     }
 
     @Override
-    public HtClause parseClause () throws ParseException, IOException, SourceCodeException {
+    public HtClause parseClause () throws Exception {
         return parser.parseClause();
     }
 

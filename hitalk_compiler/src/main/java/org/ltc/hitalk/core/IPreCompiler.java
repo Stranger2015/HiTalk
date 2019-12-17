@@ -8,14 +8,19 @@ import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
+import org.ltc.hitalk.wam.task.PreCompilerTask;
 import org.ltc.hitalk.wam.task.TermExpansionTask;
 
 import java.util.*;
 
+import static java.util.EnumSet.noneOf;
+import static org.ltc.hitalk.parser.Directive.DirectiveKind.ENCODING;
+
 /**
  *
  */
-public interface IPreCompiler extends IHitalkObject {
+public interface IPreCompiler extends IQueueHolder <PreCompilerTask>, IHitalkObject {
 
 //    /**
 //     * @param string
@@ -73,23 +78,31 @@ public interface IPreCompiler extends IHitalkObject {
 //        return logger;
 //    }
 
+    /**
+     * @param tokenSource
+     * @return
+     * @throws Exception
+     */
     default List <HtClause> preCompile ( PlTokenSource tokenSource, EnumSet <DirectiveKind> delims ) throws Exception {
         final List <HtClause> list = new ArrayList <>();
-
+        getParser().setTokenSource(tokenSource);
         while (true) {
             ITerm t = getParser().next();
             if (t == PlPrologParser.BEGIN_OF_FILE_ATOM) {
-                getTaskQueue().push(new TermExpansionTask(t));
+                getQueue().push(new TermExpansionTask(this, tokenSource,
+                        EnumSet.of(ENCODING))); //read until
                 continue;
             }
             if (t == PlPrologParser.END_OF_FILE_ATOM) {
-                getTaskQueue().push(new TermExpansionTask(t));
-                if (!getParser().getTokenSource().isEofGenerated()) {
+                getQueue().push(new TermExpansionTask(this,
+                        tokenSource,
+                        noneOf(DirectiveKind.class)));
+                if (!getParser().getTokenSource().isEofGenerated()) {//real EOF
                     getParser().popTokenSource();
                     break;
                 }
             }
-            HtClause c = getParser().convert(t);//FIXME
+            HtClause c = getParser().convert(t);
             if (!checkDirective(c, delims)) {
                 list.add(c);
                 break;
@@ -99,7 +112,7 @@ public interface IPreCompiler extends IHitalkObject {
         return list;
     }
 
-    Deque <TermExpansionTask> getTaskQueue ();
+    Deque <PreCompilerTask> getQueue ();
 
     PlPrologParser getParser ();
 
@@ -138,6 +151,9 @@ public interface IPreCompiler extends IHitalkObject {
     default IVafInterner getInterner () {
         return BaseApp.getAppContext().getInterner();
     }
+
+    void setCompilerObserver ( PrologWAMCompiler.ClauseChainObserver clauseChainObserver );
+
 
     /**
      * expand_term(+Term1, -Term2)

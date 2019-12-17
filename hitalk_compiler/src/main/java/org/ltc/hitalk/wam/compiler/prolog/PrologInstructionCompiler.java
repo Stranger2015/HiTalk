@@ -1,6 +1,5 @@
 package org.ltc.hitalk.wam.compiler.prolog;
 
-import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.IResolver;
@@ -35,7 +34,7 @@ public class PrologInstructionCompiler<T extends HtClause, PC, QC> extends BaseI
     public PrologInstructionCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
                                        IVafInterner interner,
                                        PrologDefaultBuiltIn defaultBuiltIn,
-                                       LogicCompilerObserver <PC, QC> observer,
+                                       ICompilerObserver <PC, QC> observer,
                                        PlPrologParser parser ) {
         super(symbolTable, interner, defaultBuiltIn, observer, parser);
     }
@@ -57,14 +56,14 @@ public class PrologInstructionCompiler<T extends HtClause, PC, QC> extends BaseI
      * @param resolver
      */
     public void setResolver ( IResolver <PC, QC> resolver ) {
-
+        this.resolver = resolver;
     }
 
     public void compile ( T clause ) throws SourceCodeException {
         compile(clause, new HtProperty[0]);
     }
 
-    public void compileQuery ( QC query ) throws SourceCodeException {
+    public void compileQuery ( QC query ) {
 
     }
 }

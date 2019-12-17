@@ -8,13 +8,13 @@ import java.util.List;
  *
  */
 public
-interface IInliner<T extends ITerm> extends ITransformer <T> {
+interface IInliner extends ITransformer {
 
     /**
      * @param clause
      * @return
      */
-    List <T> inline ( T clause );
+    List <ITerm> inline ( ITerm clause );
 
     /**
      * Applies a transformation to the clause.
@@ -23,7 +23,7 @@ interface IInliner<T extends ITerm> extends ITransformer <T> {
      * @return A clause which is a transformation of the argument.
      */
     @Override
-    default List <T> transform ( T clause ) {
+    default List <ITerm> transform ( ITerm clause ) {
         return inline(clause);
     }
 }

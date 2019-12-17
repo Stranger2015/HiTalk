@@ -62,7 +62,7 @@ import java.util.stream.IntStream;
  */
 public
 class HtPredicate extends HtBaseTerm implements ITerm, IPropertyOwner {
-    protected List <HtClause> l;
+    protected List <HtClause> l = new ArrayList <>();
     /**
      * The clauses that make up this predicate.
      */
@@ -79,6 +79,13 @@ class HtPredicate extends HtBaseTerm implements ITerm, IPropertyOwner {
 //        this.l = l;
 //    }
     public boolean isHiLog () {
+        return false;
+    }
+
+    /**
+     * @return
+     */
+    public boolean isJavaObject () {
         return false;
     }
 

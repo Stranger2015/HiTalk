@@ -5,7 +5,9 @@ import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
-import org.ltc.hitalk.parser.*;
+import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.IParser;
+import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.Language;
 
@@ -43,7 +45,7 @@ public class InteractiveParser implements IParser {
      * @return
      * @throws SourceCodeException
      */
-    public ISentence <ITerm> parse () throws SourceCodeException, ParseException, IOException {
+    public ITerm parse () throws Exception {
         return parser.parse();
     }
 
@@ -59,7 +61,7 @@ public class InteractiveParser implements IParser {
      * @return
      * @throws IOException
      */
-    public ITerm next () throws IOException, ParseException {
+    public ITerm next () throws Exception {
         return parser.next();
     }
 
@@ -67,7 +69,7 @@ public class InteractiveParser implements IParser {
      * @return
      */
     @Override
-    public HtClause parseClause () throws ParseException, IOException, SourceCodeException {
+    public HtClause parseClause () throws Exception {
         return parser.parseClause();
     }
 

@@ -298,7 +298,9 @@ enum PrologBuiltIns {
     }),
     ATOM_NUMBER("atom_number", listTerm -> {
     }),
-    ;
+    TERM_EXPANSION("term_expansion", listTerm -> {
+
+    });
 
     private static boolean booleanResult;
     private final String name;

@@ -8,6 +8,7 @@ import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.core.IHitalkObject;
 import org.ltc.hitalk.core.utils.TermUtilities;
 import org.ltc.hitalk.term.HlOpSymbol;
+import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.Language;
@@ -35,11 +36,14 @@ public interface IParser extends IHitalkObject {
         doSetParser(parser);
     }
 
+    /**
+     * @param parser
+     */
     default void doSetParser ( PlPrologParser parser ) {
         getParser().setParser(parser);
     }
 
-    /*
+    /**
      * @return
      */
     default HiTalkStream getStream () {
@@ -81,7 +85,7 @@ public interface IParser extends IHitalkObject {
      * @return
      * @throws SourceCodeException
      */
-    ISentence <ITerm> parse () throws SourceCodeException, ParseException, IOException;
+    ITerm parse () throws Exception;
 
     /**
      * @return
@@ -102,7 +106,7 @@ public interface IParser extends IHitalkObject {
      * @param priority
      * @param associativity
      */
-    default void internOperator ( String name, int priority, HlOpSymbol.Associativity associativity ) {
+    default void internOperator ( String name, int priority, Associativity associativity ) {
         getParser().internOperator(name, priority, associativity);
     }
 
@@ -122,12 +126,12 @@ public interface IParser extends IHitalkObject {
      * @return
      * @throws IOException
      */
-    ITerm next () throws IOException, ParseException;
+    ITerm next () throws Exception;
 
     /**
      * @return
      */
-    HtClause parseClause () throws ParseException, SourceCodeException, IOException;
+    HtClause parseClause () throws Exception;
 
     /**
      * @return

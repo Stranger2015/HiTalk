@@ -1,6 +1,5 @@
 package org.ltc.hitalk.wam.compiler.logtalk;
 
-import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.compiler.BaseCompiler;
 import org.ltc.hitalk.compiler.IVafInterner;
@@ -9,6 +8,7 @@ import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.HtMethod;
+import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 
 public class LogtalkTranspiler<M extends HtMethod, P, Q> extends BaseCompiler <M, P, Q> {
 
@@ -23,7 +23,7 @@ public class LogtalkTranspiler<M extends HtMethod, P, Q> extends BaseCompiler <M
     protected LogtalkTranspiler ( ISymbolTable <Integer, String, Object> symbolTable,
                                   IVafInterner interner,
                                   PlPrologParser parser,
-                                  LogicCompilerObserver <P, Q> observer ) {
+                                  ICompilerObserver <P, Q> observer ) {
         super(symbolTable, interner, parser, observer);
     }
 

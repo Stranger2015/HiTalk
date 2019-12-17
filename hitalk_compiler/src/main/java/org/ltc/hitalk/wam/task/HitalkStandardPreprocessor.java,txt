@@ -1,0 +1,27 @@
+package org.ltc.hitalk.wam.task;
+
+import org.ltc.hitalk.core.IPreCompiler;
+import org.ltc.hitalk.parser.Directive;
+import org.ltc.hitalk.term.ITerm;
+
+import java.util.EnumSet;
+import java.util.List;
+import java.util.function.Function;
+
+/**
+ *
+ */
+@Deprecated
+public class HitalkStandardPreprocessor extends PrologStandardPreprocessor{
+
+    /**
+     * @param preCompiler
+     * @param action
+     * @param delim
+     */
+    public HitalkStandardPreprocessor ( IPreCompiler preCompiler,
+                                        Function <ITerm, List <ITerm>> action,
+                                        EnumSet <Directive.DirectiveKind> delim ) {
+        super(preCompiler, action, delim);
+    }
+}

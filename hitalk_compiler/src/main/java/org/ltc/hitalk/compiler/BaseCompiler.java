@@ -1,7 +1,5 @@
 package org.ltc.hitalk.compiler;
 
-import com.thesett.aima.logic.fol.LogicCompilerObserver;
-import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolKey;
 import org.ltc.hitalk.core.ICompiler;
@@ -10,15 +8,14 @@ import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.ParseException;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -42,8 +39,8 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
     protected int scope;
     protected Deque <SymbolKey> predicatesInScope = new ArrayDeque <>();
     protected PlPrologParser parser;
-    protected IResolver <T, Q> resolver;
-    protected LogicCompilerObserver <P, Q> observer;//todo is that really to be here
+    protected IResolver <P, Q> resolver;
+    protected ICompilerObserver <P, Q> observer;//todo is that really to be here
 
     /**
      * @param symbolTable
@@ -53,7 +50,7 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
     protected BaseCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
                              IVafInterner interner,
                              PlPrologParser parser,
-                             LogicCompilerObserver <P, Q> observer ) {
+                             ICompilerObserver <P, Q> observer ) {
 
         super(symbolTable, interner);
         this.parser = parser;
@@ -65,7 +62,7 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
     }
 
     //    @Override
-    public void compile ( Sentence <T> sentence ) throws SourceCodeException {
+    public void compile ( T sentence ) throws SourceCodeException {
         logger.debug("compile(PlSentence<T> sentence = " + sentence + "): called... ");
 
         // Extract the clause to compile from the parsed sentence.
@@ -101,11 +98,14 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
      *
      * @param observer The compiler output observer.
      */
-    public void setCompilerObserver ( LogicCompilerObserver <P, Q> observer ) {
+    public void setCompilerObserver ( ICompilerObserver <P, Q> observer ) {
         this.observer = observer;
     }
 
-    public IResolver <T, Q> getResolver () {
+    /**
+     * @return
+     */
+    public IResolver <P, Q> getResolver () {
         return resolver;
     }
 
@@ -125,26 +125,35 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
     }
 
     @Override
-    public void compile ( String fileName, HtProperty... flags ) throws IOException, SourceCodeException, ParseException {
+    public void compile ( String fileName, HtProperty... flags ) throws Exception {
         PlTokenSource ts = PlTokenSource.getTokenSourceForIoFile(new File(fileName));
         compile(ts, flags);
     }
 
     @Override
-    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException, ParseException {
+    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws Exception {
         getConsole().info("Compiling " + tokenSource.getPath() + "... ");
         parser.setTokenSource(tokenSource);
         while (true) {
             ITerm t = parser.next();
-            if (t == null) {
-                break;
+            if (t == PlPrologParser.BEGIN_OF_FILE_ATOM) {
+//                getTaskQueue().push(new TermExpansionTask(this, Collections::singletonList,
+//                        EnumSet.of(ENCODING))); //read until
+                continue;
+            }
+            if (t == PlPrologParser.END_OF_FILE_ATOM) {
+//                getTaskQueue().push(new TermExpansionTask(this, Collections::singletonList, EnumSet.noneOf(DirectiveKind.class)));
+                if (!getParser().getTokenSource().isEofGenerated()) {
+                    getParser().popTokenSource();
+                    break;
+                }
             }
             T c = (T) parser.convert(t);//FIXME
             compile(c, flags);
         }
     }
 
-    public LogicCompilerObserver <P, Q> getObserver () {
+    public ICompilerObserver <P, Q> getObserver () {
         return observer;
     }
 }

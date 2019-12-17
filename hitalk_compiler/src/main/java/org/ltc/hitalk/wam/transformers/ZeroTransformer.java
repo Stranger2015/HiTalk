@@ -2,7 +2,6 @@ package org.ltc.hitalk.wam.transformers;
 
 
 import org.ltc.hitalk.entities.context.IMetrics;
-import org.ltc.hitalk.term.ITerm;
 
 /**
  * Doing-nothing transformer.
@@ -11,14 +10,13 @@ import org.ltc.hitalk.term.ITerm;
  * Created by Anthony on 28.06.2015.
  */
 public
-class ZeroTransformer<T extends ITerm> extends DefaultTransformer <T> {
+class ZeroTransformer extends DefaultTransformer {
 //       private static final Logger logger = LoggerFactory.getLogger( ZeroTransformer.class.getName() );
 
     /**
      *
      */
-    public
-    ZeroTransformer () {
+    public ZeroTransformer () {
         super();
     }
 //
@@ -46,14 +44,17 @@ class ZeroTransformer<T extends ITerm> extends DefaultTransformer <T> {
      * @return
      */
     @Override
-    public
-    boolean isAcceptable ( IMetrics max ) {
+    public boolean isAcceptable ( IMetrics max ) {
         return true;
     }
 
-//    @Override
-    public
-    TransformInfo getBestSoFarResult () {
-        return new TransformInfo();
-    }
+////    @Override
+//    public
+//    TransformInfo getBestSoFarResult () {
+//        return new TransformInfo(/*ExecutionContext context,
+//                           ExecutionInfo executionInfo,
+//                           IMetrics delta,
+//                           ITerm input,
+//                           List <ITerm> output*/);
+//    }
 }

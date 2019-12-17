@@ -16,8 +16,6 @@
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.FunctorName;
-import com.thesett.aima.logic.fol.LogicCompilerObserver;
-import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys;
 import com.thesett.aima.logic.fol.wam.compiler.WAMLabel;
 import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
@@ -30,17 +28,19 @@ import org.ltc.hitalk.compiler.BaseCompiler;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.core.utils.TermUtilities;
+import org.ltc.hitalk.parser.Directive;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.hitalk.*;
+import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltIn;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn.VarIntroduction;
 import org.ltc.hitalk.wam.printer.*;
-import org.ltc.hitalk.wam.task.CompilerTask;
+import org.ltc.hitalk.wam.task.PreCompilerTask;
 
 import java.util.*;
 
@@ -67,11 +67,7 @@ import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.STACK_ADDR
 public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
         extends BaseCompiler <T, P, Q> {
 
-    public PrologDefaultBuiltIn getDefaultBuiltIn () {
-        return defaultBuiltIn;
-    }
-
-    protected LogicCompilerObserver <P, Q> observer;
+    protected ICompilerObserver <P, Q> observer;
     protected final PrologDefaultBuiltIn defaultBuiltIn;
 
     /**
@@ -110,14 +106,14 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
     /**
      * @return
      */
-    public Deque <CompilerTask <ITerm>> getTasks () {
+    public Deque <PreCompilerTask> getTasks () {
         return tasks;
     }
 
     /**
      *
      */
-    public final Deque <CompilerTask <ITerm>> tasks = new ArrayDeque <>();
+    public final Deque <PreCompilerTask> tasks = new ArrayDeque <>();
 
     /**
      * Creates a base machine over the specified symbol table.
@@ -128,7 +124,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
     public BaseInstructionCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
                                      IVafInterner interner,
                                      PrologDefaultBuiltIn defaultBuiltIn,
-                                     LogicCompilerObserver <P, Q> observer,
+                                     ICompilerObserver <P, Q> observer,
                                      PlPrologParser parser ) {
         super(symbolTable, interner, parser, observer);
         optimizer = new HiTalkWAMOptimizer(symbolTable, interner);
@@ -142,8 +138,11 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
      * @param clause lause The clause to compile as a query.
      * @throws SourceCodeException If there is an error in the source code preventing its compilation.
      */
-    public void compileQuery ( Sentence <HtClause> clause ) throws SourceCodeException {
-        checkDirective(clause);
+    public void compileQuery ( HtClause clause ) throws SourceCodeException {
+        if (!checkDirective(clause)) {
+            handleDirective(clause);
+            return;
+        }
         // Used to build up the compiled result in.
         HiTalkWAMCompiledQuery result;
 
@@ -157,7 +156,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
         seenRegisters = new TreeSet <>();
 
         // This is used to keep track of the next temporary register available to allocate.
-        lastAllocatedTempReg = findMaxArgumentsInClause(clause.getT());
+        lastAllocatedTempReg = findMaxArgumentsInClause(clause);
 
         // This is used to keep track of the number of permanent variables.
         numPermanentVars = 0;
@@ -237,9 +236,12 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
 
         displayCompiledQuery(result);
 
-        observer.onQueryCompilation((Sentence <Q>) result);
+        observer.onQueryCompilation((Q) result);
     }
 
+    private void handleDirective ( HtClause clause ) {
+
+    }
 
     /**
      * Gather information about variable counts and positions of occurrence of constants and variable within a clause.
@@ -274,7 +276,6 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
         /*log.fine(result.toString());*/
     }
 
-
     /**
      * Allocates stack slots to all free variables in a query clause.
      * <p>
@@ -297,15 +298,13 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
         walker.walk(clause);
     }
 
-    private void checkDirective ( Sentence <HtClause> clause ) {
-        ListTerm body = clause.getT().getBody();
-        if (body.size() == 1) {
-            int name = ((IFunctor) body.get(0)).getName();
-//fixme
-//            throw new IllegalStateException("Unexpected value: " + name);
+    private boolean checkDirective ( HtClause clause ) {
+        if (clause instanceof Directive) {
+            IFunctor body = ((Directive) clause).getDef();
+            final Directive.DirectiveKind kind = ((Directive) clause).getKind();
         }
+        return false;
     }
-
 
     /**
      * Compiles a program clause, and adds its instructions to a compiled predicate.
@@ -608,7 +607,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
             result = optimizer.apply(result);
 
             displayCompiledPredicate(result);
-            observer.onCompilation((Sentence <P>) result);
+            observer.onCompilation(result);
 
             // Move up the low water mark on the predicates table.
             getSymbolTable().setLowMark(predicateKey, SYMKEY_PREDICATES);

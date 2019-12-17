@@ -1,0 +1,34 @@
+package org.ltc.hitalk.wam.task;
+
+import org.ltc.hitalk.core.IPreCompiler;
+import org.ltc.hitalk.entities.context.IMetrics;
+import org.ltc.hitalk.parser.Directive.DirectiveKind;
+import org.ltc.hitalk.term.ITerm;
+
+import java.util.EnumSet;
+import java.util.List;
+import java.util.function.Function;
+
+/**
+ *
+ */
+@Deprecated
+public
+class PrologStandardPreprocessor extends TransformTask {
+    /**
+     *
+     */
+    public PrologStandardPreprocessor ( IPreCompiler preCompiler) {
+
+    }
+
+    /**
+     * @param max
+     * @return
+     */
+    @Override
+    public boolean isAcceptable ( IMetrics max ) {
+        return true;
+    }
+
+}

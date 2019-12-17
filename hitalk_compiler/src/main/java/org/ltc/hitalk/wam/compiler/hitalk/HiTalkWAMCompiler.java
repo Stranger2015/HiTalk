@@ -1,10 +1,10 @@
 package org.ltc.hitalk.wam.compiler.hitalk;
 
-import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.HtMethod;
+import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 
 /**
@@ -43,7 +43,7 @@ public class HiTalkWAMCompiler<T extends HtMethod, P, Q, PC, QC> extends PrologW
     public HiTalkWAMCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
                                IVafInterner interner,
                                PlPrologParser parser,
-                               LogicCompilerObserver <P, Q> observer ) {
+                               ICompilerObserver <P, Q> observer ) {
         super(symbolTable, interner, parser, observer);
     }
 }

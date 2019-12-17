@@ -57,6 +57,13 @@ public class IntTerm extends IntegerLiteral implements ITerm {
         return true;
     }
 
+    /**
+     * @return
+     */
+    public boolean isJavaObject () {
+        return false;
+    }
+
     public ITerm getChildStateForOperator ( Operator <ITerm> op ) {
         return null;
     }//fixme

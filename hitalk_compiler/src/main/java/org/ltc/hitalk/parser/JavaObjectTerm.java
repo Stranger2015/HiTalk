@@ -20,6 +20,13 @@ public class JavaObjectTerm extends HtBaseTerm {
     }
 
     /**
+     * @return
+     */
+    public boolean isJavaObject () {
+        return true;
+    }
+
+    /**
      * Frees all assigned variables in the term, leaving them unnassigned.
      */
     public void free () {

@@ -1,11 +1,9 @@
 package org.ltc.hitalk.parser;
 
-import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.Source;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
-import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.core.utils.TermUtilities;
 import org.ltc.hitalk.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.*;
@@ -32,17 +30,18 @@ import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
  * @author shun
  */
 public class PlPrologParser implements IParser {
-
     public static final String BEGIN_OF_FILE = "begin_of_file";
     public static final String END_OF_FILE = "end_of_file";
 
-    public static ITerm BEGIN_OF_FILE_ATOM;
-    public static ITerm END_OF_FILE_ATOM;
+    public static final Atom END_OF_FILE_ATOM =
+            getAppContext().getTermFactory().newAtom(END_OF_FILE);
+    public static final Atom BEGIN_OF_FILE_ATOM =
+            getAppContext().getTermFactory().newAtom(BEGIN_OF_FILE);
 
     protected HiTalkStream stream;
     protected PlLexer lexer;
     protected final ITermFactory factory;
-    protected final IOperatorTable operatorTable;
+    protected IOperatorTable operatorTable;
     protected final Deque <PlTokenSource> tokenSourceStack = new ArrayDeque <>();
     protected IVafInterner interner;
     protected ITermFactory termFactory;
@@ -67,8 +66,7 @@ public class PlPrologParser implements IParser {
      *
      */
     public PlPrologParser () {
-        this(
-                getAppContext().getStream(),
+        this(getAppContext().getStream(),
                 getAppContext().getInterner(),
                 getAppContext().getTermFactory(),
                 getAppContext().getOpTable());
@@ -105,11 +103,11 @@ public class PlPrologParser implements IParser {
     }
 
     public IOperatorTable getOptable () {
-        return null;
+        return operatorTable;
     }
 
     public void setOptable ( IOperatorTable optable ) {
-
+        this.operatorTable = optable;
     }
 
     /**
@@ -122,27 +120,27 @@ public class PlPrologParser implements IParser {
     /**
      * @return
      */
-    public ISentence <ITerm> parse () throws ParseException, IOException {
-        return new PlSentenceImpl(termSentence());
+    public ITerm parse () throws Exception {
+        return termSentence();
     }
 
     /**
      * @return
      */
     @Override
-    public ITerm next () throws IOException, ParseException {
+    public ITerm next () throws Exception {
         PlToken token = lexer.next(true);
-        if (token == null) {
-            token = PlToken.newToken(EOF);
-        }
-        return newTerm(token, false, EnumSet.of(DOT));
+//        if (token == null) {
+//            token = PlToken.newToken(EOF);
+//        }
+        return newTerm(token, false, EnumSet.of(DOT, EOF));
     }
 
     /**
      * @return
      */
-    public HtClause parseClause () throws ParseException, SourceCodeException, IOException {
-        return TermUtilities.convertToClause(termSentence(), BaseApp.getAppContext().getInterner());
+    public HtClause parseClause () throws Exception {
+        return TermUtilities.convertToClause(termSentence(), getAppContext().getInterner());
     }
 
     /**
@@ -169,7 +167,7 @@ public class PlPrologParser implements IParser {
      * @throws ParseException
      */
     protected ITerm newTerm ( PlToken token, boolean nullable, EnumSet <TokenKind> terminators )
-            throws IOException, ParseException {
+            throws Exception {
         HlOperatorJoiner <ITerm> joiner = new HlOperatorJoiner <ITerm>() {
             @Override
             protected ITerm join ( int notation, List <ITerm> args ) {
@@ -211,8 +209,8 @@ public class PlPrologParser implements IParser {
      * @throws IOException
      * @throws ParseException
      */
-    protected ITerm literal ( PlToken token ) throws IOException, ParseException {
-        ITerm term = new ErrorTerm();
+    protected ITerm literal ( PlToken token ) throws Exception {
+        ITerm term = null;
         switch (token.kind) {
             case VAR:
                 term = factory.newVariable(token.image);
@@ -222,6 +220,13 @@ public class PlPrologParser implements IParser {
                 break;
             case ATOM:
                 term = factory.newAtom(token.image);
+                if (term.equals(END_OF_FILE_ATOM)) {
+                    getTokenSource().setEofGenerated(true);
+                }
+                if (term.equals(BEGIN_OF_FILE_ATOM)) {
+                    getTokenSource().setBofGenerated(true);//suspiviuoys --> enciding??
+                    getTokenSource().setEncodingPermitted(false);//suspiviuoys --> enciding??
+                }
                 break;
             case INTEGER_LITERAL:
                 term = factory.newAtomic(Integer.parseInt(token.image));
@@ -230,30 +235,22 @@ public class PlPrologParser implements IParser {
                 term = factory.newAtomic(Double.parseDouble(token.image));
                 break;
             case BOF:
-                if (!getTokenSource().isBofGenerated()) {
-                    term = factory.newAtom(BEGIN_OF_FILE);
-                    BEGIN_OF_FILE_ATOM = term;
-                    getTokenSource().setBofGenerated(true);
-                    getTokenSource().setEncodingPermitted(true);
-                }
+                term = BEGIN_OF_FILE_ATOM;
+                getTokenSource().setBofGenerated(false);
+                getTokenSource().setEncodingPermitted(true);
                 break;
             case EOF:
-                if (!getTokenSource().isEofGenerated()) {
-                    term = factory.newAtom(END_OF_FILE);
-                    term = factory.newAtom(BEGIN_OF_FILE);
-                    END_OF_FILE_ATOM = term;
-                    getTokenSource().setEofGenerated(true);
-               //     popTokenSource();
-                }
+                term = END_OF_FILE_ATOM;
+                getTokenSource().setEofGenerated(false);
                 break;
             case LPAREN:
-                ListTerm listTerm = readSequence(token.kind, RPAREN, true);//blocked sequence
+                term = readSequence(token.kind, RPAREN, true);//blocked sequence
                 break;
             case LBRACKET:
-                listTerm = readSequence(token.kind, RBRACKET, false);
+                term = readSequence(token.kind, RBRACKET, false);
                 break;
             case LBRACE:
-                listTerm = readSequence(token.kind, RBRACE, false);
+                term = readSequence(token.kind, RBRACE, false);
                 break;
 //            case RBRACE:
 //            case RPAREN:
@@ -309,7 +306,7 @@ public class PlPrologParser implements IParser {
     }
 
     //PSEUDO COMPOUND == (terms)
-    protected ListTerm readSequence ( TokenKind ldelim, TokenKind rdelim, boolean isBlocked ) throws IOException, ParseException {
+    protected ListTerm readSequence ( TokenKind ldelim, TokenKind rdelim, boolean isBlocked ) throws Exception {
         List <ITerm> elements = new ArrayList <>();
         EnumSet <TokenKind> rdelims = isBlocked ? of(COMMA, rdelim) : of(COMMA, CONS, rdelim);
         ListTerm.Kind kind = LIST;
@@ -359,12 +356,12 @@ public class PlPrologParser implements IParser {
      * @throws IOException
      * @throws ParseException
      */
-    protected IFunctor compound ( String name ) throws IOException, ParseException {
+    protected IFunctor compound ( String name ) throws Exception {
         ListTerm args = readSequence(LPAREN, RPAREN, false);
         return compound(name, args);
     }
 
-    protected IFunctor compound ( String name, ListTerm args ) throws IOException, ParseException {
+    protected IFunctor compound ( String name, ListTerm args ) throws Exception {
         return factory.newFunctor(hilogApply, name, args);
     }
 
@@ -391,14 +388,15 @@ public class PlPrologParser implements IParser {
      *
      * @return A term parsed in a fresh variable context.
      */
-    public ITerm termSentence () throws IOException, ParseException {
+    public ITerm termSentence () throws Exception {
         // Each new sentence provides a new scope in which to make variables unique.
         variableContext.clear();
 
-        if (tokenSourceStack.size() > 0) {
+        if (!tokenSourceStack.isEmpty()) {
             return literal(lexer.getNextToken());
         }
-        return null;
+
+        return literal(PlToken.newToken(EOF));
     }
 
     //    @Override

@@ -1,5 +1,6 @@
 package org.ltc.hitalk.parser;
 
+import org.ltc.hitalk.core.IHitalkObject;
 import org.ltc.hitalk.entities.ISubroutine;
 import org.ltc.hitalk.term.HtBaseTerm;
 import org.ltc.hitalk.term.ITerm;
@@ -9,9 +10,14 @@ import org.ltc.hitalk.wam.compiler.IFunctor;
 /**
  *
  */
-public class HtClause extends HtBaseTerm implements ITerm, ISubroutine {
+public class HtClause extends HtBaseTerm implements ITerm, ISubroutine, IHitalkObject {
     protected IFunctor head;
     protected ListTerm body;
+
+    boolean isDirective () {
+        return this instanceof Directive;
+
+    }
 
     /**
      * Creates a program sentence in L2.

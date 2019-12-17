@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.function.Function;
 
 /**
- * @param <T>
+ *
  */
-public class Action<T extends ITerm> implements Function <T, List <T>> {
+public class Action implements Function <ITerm, List <ITerm>> {
 
 
     public Action () {
@@ -21,7 +21,7 @@ public class Action<T extends ITerm> implements Function <T, List <T>> {
      * @param t the function argument
      * @return the function result
      */
-    public List <T> apply ( T t ) {
+    public List <ITerm> apply ( ITerm t ) {
         return null;
     }
 }

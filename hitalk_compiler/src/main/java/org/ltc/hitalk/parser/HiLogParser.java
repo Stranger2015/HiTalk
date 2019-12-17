@@ -9,7 +9,6 @@ import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.Language;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,6 +22,7 @@ public class HiLogParser extends PlPrologParser {
 
     public static final String HILOG_APPLY = "$hilog_apply";
     public static int hilogApply = -2;
+    public static final IFunctor HILOG_APPLY_FUNCTOR = new HtFunctor(hilogApply, 1, 0);
 
     /**
      * Builds a
@@ -55,7 +55,7 @@ public class HiLogParser extends PlPrologParser {
     }
 
     //    @Override
-    protected IFunctor compound ( String name, ListTerm args ) throws IOException, ParseException {
+    protected IFunctor compound ( String name, ListTerm args ) throws Exception {
         IFunctor result;
         if (hilogFunctors.contains(name)) {
             result = factory.newFunctor(hilogApply, name, args);// :- hilog p, q, pi/N =>

@@ -24,15 +24,18 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtProperty;
-import org.ltc.hitalk.parser.*;
+import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.parser.PlToken;
+import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.IFunctor;
+import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -49,7 +52,7 @@ import static org.ltc.hitalk.term.HlOpSymbol.Associativity;
  * @author Rupert Smith
  */
 public
-class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
+class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractiveParser
         implements IVafInterner, ICompiler <T, P, Q>, IResolver <P, Q> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
@@ -92,7 +95,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
         this.interner = interner;
         this.compiler = compiler;
         this.resolver = this;
-        this.compiler.setCompilerObserver(observer);
+//        this.compiler.setCompilerObserver(observer);
     }
 
     /**
@@ -129,20 +132,18 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
      * @param stream The input stream to consult.
      * @throws SourceCodeException If any code read from the input stream fails to parse, compile or link.
      */
-    public void consultInputStream ( HiTalkStream stream ) throws SourceCodeException, IOException, ParseException {
+    public void consultInputStream ( HiTalkStream stream ) throws Exception {
         // Create a token source to read from the specified input stream.
         PlTokenSource tokenSource = stream.getTokenSource();
         getParser().setTokenSource(tokenSource);
 
         // Consult the type checking rules and add them to the knowledge base.
         while (true) {
-            ISentence <ITerm> sentence = getParser().parse();
+            ITerm term = getParser().parse();
 
-            if (sentence == null) {
+            if (term == PlPrologParser.END_OF_FILE_ATOM) {
                 break;
             }
-
-//            getCompiler().compile(sentence.getT());
         }
     }
 
@@ -301,16 +302,6 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
 
     /**
      * {@inheritDoc}
-     *
-     * @return
-     */
-    @Override
-    public ISentence <ITerm> parse () throws SourceCodeException, IOException, ParseException {
-        return parser.parse();
-    }
-
-    /**
-     * {@inheritDoc}
      */
     public void setOperator ( String operatorName, int priority, Associativity associativity ) {
         parser.setOperator(operatorName, priority, associativity);
@@ -357,6 +348,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     /**
      * {@inheritDoc}
      */
+    @Override
     public Iterator <Set <HtVariable>> iterator () {
         return vars.iterator();
     }
@@ -374,7 +366,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
         compiler.compile(sentence.getT());
     }
 
-    public void setCompilerObserver ( LogicCompilerObserver <P, Q> observer ) {
+    public void setCompilerObserver ( ICompilerObserver <P, Q> observer ) {
         compiler.setCompilerObserver(observer);
     }
 
@@ -397,7 +389,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     }
 
     @Override
-    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException, ParseException {
+    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws Exception {
         compiler.compile(tokenSource, flags);
     }
 
@@ -442,7 +434,7 @@ class HtResolutionEngine<T extends HtClause, P, Q> extends InteractiveParser
     }
 
     @Override
-    public void compile ( String fileName, HtProperty... flags ) throws IOException, SourceCodeException, ParseException {
+    public void compile ( String fileName, HtProperty... flags ) throws Exception {
         compiler.compile(fileName, flags);
     }
 

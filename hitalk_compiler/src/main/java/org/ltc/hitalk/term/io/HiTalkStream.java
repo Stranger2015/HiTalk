@@ -45,7 +45,7 @@ import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.EXISTEN
  * ByteBuffer newbb = charset.encode(cb);
  */
 public
-class HiTalkStream implements IInputStream,
+class HiTalkStream/* extends PushbackInputStream */ implements IInputStream,
         IOutputStream, IPropertyOwner, PropertyChangeListener, Cloneable, IHitalkObject {
 
     public static final int BB_ALLOC_SIZE = 32768;
@@ -59,13 +59,14 @@ class HiTalkStream implements IInputStream,
     protected DataInputStream dis;
     protected DataOutputStream dos;
 
-    protected long offset;
+    //    protected long offset;
     protected EnumSet <StandardOpenOption> options = EnumSet.noneOf(StandardOpenOption.class);
 
     protected boolean isOpen;
     protected boolean isReading;
 
     protected PlTokenSource tokenSource;
+    private int bof;
 
     /**
      * @param fn
@@ -83,11 +84,10 @@ class HiTalkStream implements IInputStream,
     /**
      * @param path
      * @param encoding
-     * @param offset
      * @param options
      * @throws IOException
      */
-    protected HiTalkStream ( Path path, String encoding, long offset, StandardOpenOption... options ) throws IOException {
+    protected HiTalkStream ( Path path, String encoding, StandardOpenOption... options ) throws IOException {
         this.options.addAll(Arrays.asList(options));
         if (this.options.contains(READ)) {
             setInputStream(new FileInputStream(path.toFile()));
@@ -95,7 +95,7 @@ class HiTalkStream implements IInputStream,
         if (this.options.contains(WRITE)) {
             setOutputStream(new FileOutputStream(path.toFile()));
         }
-        this.offset = offset;
+//        this.offset = offset;
         Charset charset = isSupported(encoding) ? forName(encoding) : defaultCharset();//currentCharset;
         CharsetEncoder encoder = charset.newEncoder();
         CharsetDecoder decoder = charset.newDecoder();
@@ -108,21 +108,11 @@ class HiTalkStream implements IInputStream,
 
     /**
      * @param path
-     * @param offset
-     * @param options
-     * @throws IOException
-     */
-    protected HiTalkStream ( Path path, long offset, StandardOpenOption... options ) throws IOException {
-        this(path, defaultCharset().name(), offset, options);
-    }
-
-    /**
-     * @param path
      * @param options
      * @throws IOException
      */
     protected HiTalkStream ( Path path, StandardOpenOption... options ) throws IOException {
-        this(path, 0L, options);
+        this(path, defaultCharset().name(), options);
     }
 
     protected HiTalkStream ( FileInputStream inputStream, PlTokenSource tokenSource ) throws IOException {
@@ -146,18 +136,14 @@ class HiTalkStream implements IInputStream,
                     channel.position(Files.size(Paths.get(name)));
                     break;
                 case TRUNCATE_EXISTING:
-                    break;
+                case DSYNC:
                 case CREATE:
-                    break;
                 case CREATE_NEW:
-                    break;
                 case DELETE_ON_CLOSE:
                     break;
                 case SPARSE:
                     break;
                 case SYNC:
-                    break;
-                case DSYNC:
                     break;
                 default:
                     throw new IllegalStateException("Unexpected option: " + option);
@@ -531,7 +517,8 @@ class HiTalkStream implements IInputStream,
      *                     or if some other I/O error occurs
      */
     public void unread ( int c ) throws IOException {
-        pushbackInputStream.unread(c);
+        // pushbackInputStream.unread(c);
+        position(position() - 1);
     }
 
     /**
@@ -927,7 +914,6 @@ class HiTalkStream implements IInputStream,
     @NotNull
     @Override
     public String readUTF () throws IOException {
-
         return dis.readUTF();
     }
 
@@ -1033,6 +1019,10 @@ class HiTalkStream implements IInputStream,
     @Override
     public HiTalkStream copy () throws CloneNotSupportedException {
         return (HiTalkStream) this.clone();
+    }
+
+    public boolean isBOF () {
+        return bof++ == 0;
     }
 
     /**

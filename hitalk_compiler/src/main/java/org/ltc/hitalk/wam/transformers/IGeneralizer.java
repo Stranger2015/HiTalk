@@ -8,12 +8,12 @@ import java.util.List;
  *
  */
 public
-interface IGeneralizer<T extends ITerm> extends ITransformer <T> {
+interface IGeneralizer extends ITransformer {
     /**
      *  @param term
      * @return
      */
-    List <T> generalize ( T term );
+    List <ITerm> generalize ( ITerm term );
 
     /**
      * Applies a transformation to the term.
@@ -22,7 +22,7 @@ interface IGeneralizer<T extends ITerm> extends ITransformer <T> {
      * @return A term which is a transformation of the argument.
      */
     @Override
-    default List <T> transform ( T term ) {
+    default List <ITerm> transform ( ITerm term ) {
         return generalize(term);
     }
 }

@@ -1,6 +1,5 @@
 package org.ltc.hitalk.wam.compiler.logtalk;
 
-import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.IResolver;
@@ -9,6 +8,7 @@ import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.HtMethod;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
+import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 
 public class LogtalkWAMCompiler<T extends HtMethod, P, Q, PC, QC> extends PrologWAMCompiler <T, P, Q, PC, QC> {
@@ -30,7 +30,7 @@ public class LogtalkWAMCompiler<T extends HtMethod, P, Q, PC, QC> extends Prolog
     public LogtalkWAMCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
                                 IVafInterner interner,
                                 PlPrologParser parser,
-                                LogicCompilerObserver <P, Q> observer,
+                                ICompilerObserver <P, Q> observer,
                                 LogtalkTranspiler <T, P, Q> transpiler ) {
         super(symbolTable, interner, parser, observer);
         this.transpiler = transpiler;
@@ -51,13 +51,12 @@ public class LogtalkWAMCompiler<T extends HtMethod, P, Q, PC, QC> extends Prolog
      * @param resolver
      */
     public void setResolver ( IResolver <P, Q> resolver ) {
-
+        this.resolver = resolver;
     }
 
     @Override
     public void endScope () throws SourceCodeException {
         transpiler.endScope();
-
     }
 
     /**

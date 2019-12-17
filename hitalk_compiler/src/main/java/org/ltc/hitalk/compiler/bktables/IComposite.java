@@ -1,6 +1,6 @@
 package org.ltc.hitalk.compiler.bktables;
 
-import org.ltc.hitalk.wam.task.CompilerTask;
+import org.ltc.hitalk.wam.task.PreCompilerTask;
 
 import java.util.Deque;
 
@@ -8,7 +8,7 @@ import java.util.Deque;
  *
  */
 public
-interface IComposite<T extends CompilerTask> {
+interface IComposite<T extends PreCompilerTask> {
     /**
      * @param t
      */

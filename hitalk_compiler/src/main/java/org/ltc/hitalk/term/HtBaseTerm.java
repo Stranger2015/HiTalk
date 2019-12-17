@@ -296,6 +296,13 @@ public abstract class HtBaseTerm extends TraversableState <ITerm> implements ITe
     }
 
     /**
+     * @return
+     */
+    public boolean isJavaObject () {
+        return false;
+    }
+
+    /**
      * {@inheritDoc}
      */
     protected Object clone () throws CloneNotSupportedException {

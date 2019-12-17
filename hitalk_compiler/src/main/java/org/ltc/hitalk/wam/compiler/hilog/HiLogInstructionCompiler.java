@@ -1,12 +1,12 @@
 package org.ltc.hitalk.wam.compiler.hilog;
 
-import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.PlPrologParser;
-import org.ltc.hitalk.wam.compiler.hitalk.PrologInstructionCompiler;
+import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
+import org.ltc.hitalk.wam.compiler.prolog.PrologInstructionCompiler;
 
 public class HiLogInstructionCompiler<T extends HtClause, P, Q> extends PrologInstructionCompiler <T, P, Q> {
     /**
@@ -21,7 +21,7 @@ public class HiLogInstructionCompiler<T extends HtClause, P, Q> extends PrologIn
     public HiLogInstructionCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
                                       IVafInterner interner,
                                       PrologDefaultBuiltIn defaultBuiltIn,
-                                      LogicCompilerObserver <P, Q> observer,
+                                      ICompilerObserver <P, Q> observer,
                                       PlPrologParser parser ) {
         super(symbolTable, interner, defaultBuiltIn, observer, parser);
     }

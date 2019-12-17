@@ -43,7 +43,7 @@ import org.ltc.hitalk.wam.task.TransformTask;
  * ),
  * RestCode2 = [].
  */
-public class HiLogPreprocessor<T extends HtClause, P, Q, TC extends ITerm, TT extends TransformTask <TC>>
+public class HiLogPreprocessor<T extends HtClause, P, Q, TC extends ITerm, TT extends TransformTask>
         extends PrologPreprocessor <T, P, Q, TC, TT> {
     /**
      * Creates a base machine over the specified symbol table.

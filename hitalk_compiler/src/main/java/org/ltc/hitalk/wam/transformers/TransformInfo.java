@@ -6,19 +6,19 @@ import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
 import org.ltc.hitalk.term.ITerm;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
- * @param <T>
+ *
  */
 public
-class TransformInfo<T extends ITerm> extends Triple <ExecutionContext, ExecutionInfo, IMetrics> {
+class TransformInfo extends Triple <ExecutionContext, ExecutionInfo, IMetrics> {
 
+    private final ITerm input;
+    private final List <ITerm> output;
     private ExecutionContext context;
     private ExecutionInfo info;
     private IMetrics metrics;
-    private List <T> target;
 
     /**
      * @param context
@@ -28,21 +28,22 @@ class TransformInfo<T extends ITerm> extends Triple <ExecutionContext, Execution
     public TransformInfo ( ExecutionContext context,
                            ExecutionInfo executionInfo,
                            IMetrics delta,
-                           T target,
-                           List <T> targetOut ) {
+                           ITerm input,
+                           List <ITerm> output ) {
 
         this.context = context;
         info = executionInfo;
         metrics = delta;
-        this.target = Collections.singletonList(target);
+        this.input = input;
+        this.output = output;
     }
-
-    /**
-     *
-     */
-    public TransformInfo () {
-
-    }
+//
+//    /**
+//     *
+//     */
+//    public TransformInfo () {
+//
+//    }
 
     /**
      * @return
@@ -98,7 +99,7 @@ class TransformInfo<T extends ITerm> extends Triple <ExecutionContext, Execution
     /**
      * @return
      */
-    public List <T> getTarget () {
-        return target;
+    public List <ITerm> getTarget () {
+        return output;
     }
 }

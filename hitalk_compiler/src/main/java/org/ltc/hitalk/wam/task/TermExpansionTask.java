@@ -1,47 +1,67 @@
 package org.ltc.hitalk.wam.task;
 
 import org.ltc.hitalk.compiler.IVafInterner;
-import org.ltc.hitalk.compiler.bktables.IComposite;
 import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.parser.Directive.DirectiveKind;
 import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.builtins.Bypass;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.IntStream;
 
 /**
  *
  */
-public class TermExpansionTask extends CompilerTask implements IComposite <CompilerTask> {
+public class TermExpansionTask extends PreCompilerTask {
 
-    protected final Deque <CompilerTask> tasks = new ArrayDeque <>();
+    protected final Deque <PreCompilerTask> tasks = new ArrayDeque <>();
 
     public TermExpansionTask ( IPreCompiler preCompiler,
-                               Function <ITerm, List <ITerm>> action,
-                               DirectiveKind kind ) {
-        super(preCompiler, action, kind);
+                               PlTokenSource tokenSource,
+                               EnumSet <DirectiveKind> kind ) {
+        super(preCompiler, tokenSource, kind);
+    }
+
+    /**
+     * @return
+     */
+    public Deque <PreCompilerTask> getQueue () {
+        return tasks;
+    }
+
+    /**
+     * @param item
+     */
+    public void push ( PreCompilerTask item ) {
+
+    }
+
+    /**
+     * @param item
+     */
+    public void remove ( PreCompilerTask item ) {
+
     }
 
     /**
      *
      */
-    private static class ConditionalCompilation extends TermExpansionTask {
+    private static class CondCompilationTask extends TermExpansionTask {
 
         protected final PlPrologParser parser;
         protected final IVafInterner interner;
 
 
         /**
-         * @param action
+         * @param tokenSource
          */
-        public ConditionalCompilation ( IPreCompiler preCompiler,
-                                        Function <ITerm, List <ITerm>> action,
-                                        DirectiveKind kind ) {
-            super(preCompiler, action, kind);
+        public CondCompilationTask ( IPreCompiler preCompiler,
+                                     PlTokenSource tokenSource,
+                                     EnumSet <DirectiveKind> kind ) {
+            super(preCompiler, tokenSource, kind);
 
             parser = preCompiler.getParser();
             interner = preCompiler.getInterner();
@@ -50,8 +70,8 @@ public class TermExpansionTask extends CompilerTask implements IComposite <Compi
         /**
          * @param task
          */
-        public void add ( CompilerTask task ) {
-
+        public void push ( PreCompilerTask task ) {
+            tasks.push(task);
         }
     }
 //
@@ -72,11 +92,11 @@ public class TermExpansionTask extends CompilerTask implements IComposite <Compi
      */
     protected List <ITerm> condCompilation ( ITerm t ) {
         final List <ITerm> l = new ArrayList <>();
-        if (!checkDirective(t, kind)) {
-            l.add(t);
-        } else {
-
-        }
+//        if (!checkDirective(t, kind)) {
+//            l.add(t);
+//        } else {
+//
+//        }
 //        HiTalkWAMMachine wamMachine = new HtResolutionEngine <HiTalkWAMCompiledQuery,>();
 //        HiTalkWAMCompiledQuery query = new HiTalkWAMCompiledQuery();
 
@@ -111,9 +131,7 @@ public class TermExpansionTask extends CompilerTask implements IComposite <Compi
      */
     protected List <ITerm> userExpansion ( ITerm t ) {
         final List <ITerm> l = new ArrayList <>();
-//        HiTalkWAMMachine wamMachine = new HtResolutionEngine <HiTalkWAMCompiledQuery,>();
         HiTalkWAMCompiledQuery query = new HiTalkWAMCompiledQuery();
-//                query.current solve();
 
         return l;
     }
@@ -124,7 +142,6 @@ public class TermExpansionTask extends CompilerTask implements IComposite <Compi
      */
     protected List <ITerm> dcgExpansion ( ITerm t ) {
         final List <ITerm> l = new ArrayList <>();
-//        HiTalkWAMMachine wamMachine = new HtResolutionEngine <HiTalkWAMCompiledQuery,>();
         HiTalkWAMCompiledQuery query = new HiTalkWAMCompiledQuery();
 
         return l;
@@ -138,7 +155,6 @@ public class TermExpansionTask extends CompilerTask implements IComposite <Compi
      */
     protected List <ITerm> goalExpansion ( ITerm t ) {
         final List <ITerm> l = new ArrayList <>();
-//        HiTalkWAMMachine wamMachine = new HtResolutionEngine <HtClause,HiTalkWAMCompiledPredicate,HiTalkWAMCompiledQuery>();
         HiTalkWAMCompiledQuery query = new HiTalkWAMCompiledQuery();
 
         return l;
@@ -154,7 +170,7 @@ public class TermExpansionTask extends CompilerTask implements IComposite <Compi
         return output;
     }
 
-    public Deque <CompilerTask> getComponents () {
-        return tasks;
-    }
+//    public Deque <PreCompilerTask> getComponents () {
+//        return tasks;
+//    }
 }

@@ -1,26 +1,27 @@
 package org.ltc.hitalk.wam.compiler.prolog;
 
-import com.thesett.aima.logic.fol.LogicCompilerObserver;
-import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.compiler.BaseCompiler;
 import org.ltc.hitalk.compiler.IVafInterner;
-import org.ltc.hitalk.core.BaseApp;
-import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IHitalkObject;
+import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
-import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.ParseException;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.parser.PlTokenSource;
+import org.ltc.hitalk.wam.compiler.BaseInstructionCompiler;
 import org.ltc.hitalk.wam.compiler.CompilerFactory;
 import org.ltc.hitalk.wam.compiler.ICompilerFactory;
 
 import java.io.IOException;
+import java.util.EnumSet;
+import java.util.List;
 
+import static org.ltc.hitalk.core.BaseApp.AppContext;
+import static org.ltc.hitalk.core.BaseApp.getAppContext;
+import static org.ltc.hitalk.parser.Directive.DirectiveKind.IF;
 import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
 
 /**
@@ -38,19 +39,22 @@ import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
 public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
         extends BaseCompiler <T, P, Q> implements IHitalkObject {
 
+    /**
+     * @param preCompiler
+     */
     public void setPreCompiler ( PrologPreCompiler <T, P, Q> preCompiler ) {
         this.preCompiler = preCompiler;
     }
 
-    public void setInstructionCompiler ( PrologInstructionCompiler <T, PC, QC> instructionCompiler ) {
-        this.instructionCompiler = (ICompiler <T, HtPredicate, HtClause>) instructionCompiler;
-//        this.observer2 = new ChainedCompilerObserver();
+    /**
+     * @param instructionCompiler
+     */
+    public void setInstructionCompiler ( BaseInstructionCompiler <T, PC, QC> instructionCompiler ) {
+        this.instructionCompiler = instructionCompiler;
     }
 
-    protected ICompiler <T, P, Q> preCompiler;
-    //    protected LogicCompilerObserver <P, Q> observer1;
-//    protected LogicCompilerObserver <PC, QC> observer2;
-    protected ICompiler <T, HtPredicate, HtClause> instructionCompiler;
+    protected IPreCompiler preCompiler;
+    protected BaseInstructionCompiler <T, PC, QC> instructionCompiler;
 
     /**
      * Creates a base machine over the specified symbol table.
@@ -61,26 +65,24 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
     public PrologWAMCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
                                IVafInterner interner,
                                PlPrologParser parser,
-                               //  PrologPreCompiler <T, P, Q> preCompiler,
-                               //  PrologInstructionCompiler <T, PC, QC> instructionCompiler,
-                               LogicCompilerObserver <P, Q> observer ) {
+                               ICompilerObserver <P, Q> observer ) {
         super(symbolTable, interner, parser, observer);
 
-        ICompilerFactory <T, P, Q, HtPredicate, HtClause> cf = new CompilerFactory <>();
+        ICompilerFactory <T, P, Q, PC, QC> cf = new CompilerFactory <>();
 //        final PrologDefaultBuiltIn defaultBuiltIn = new PrologDefaultBuiltIn(symbolTable, interner);
         this.preCompiler = cf.createPreCompiler(PROLOG);
-        this.instructionCompiler = cf.createInstrCompiler(PROLOG);
+        setInstructionCompiler(cf.createInstrCompiler(PROLOG));
         this.preCompiler.setCompilerObserver(new PrologWAMCompiler.ClauseChainObserver());
 
     }
 
     public PrologWAMCompiler () {
-        final BaseApp.AppContext appCtx = BaseApp.getAppContext();
+        final AppContext appCtx = getAppContext();
 
-        ICompilerFactory <T, P, Q, HtPredicate, HtClause> cf = new CompilerFactory <>();
+        ICompilerFactory <T, P, Q, PC, QC> cf = new CompilerFactory <>();
         appCtx.setCompilerFactory(cf);
         this.preCompiler = cf.createPreCompiler(PROLOG);
-        this.instructionCompiler = cf.createInstrCompiler(PROLOG);
+        setInstructionCompiler(cf.createInstrCompiler(PROLOG));
         this.preCompiler.setCompilerObserver(new PrologWAMCompiler.ClauseChainObserver());
     }
 
@@ -92,7 +94,8 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
 
     @Override
     public void compile ( T clause, HtProperty... flags ) throws SourceCodeException {
-        preCompiler.compile(clause, flags);
+        instructionCompiler.compile(clause, flags);
+        //        preCompiler.preCompile(clause);
     }
 
     /**
@@ -102,11 +105,17 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
      * @throws SourceCodeException
      */
     @Override
-    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws IOException, SourceCodeException, ParseException {
-        getPreCompiler().compile(tokenSource, flags);
+    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws Exception {
+        final List <HtClause> clauses = preCompiler.preCompile(tokenSource, EnumSet.of(IF));
+        for (HtClause clause : clauses) {
+            instructionCompiler.compile((T) clause);
+        }
     }
 
-    private ICompiler <T, P, Q> getPreCompiler () {
+    /**
+     * @return
+     */
+    public IPreCompiler getPreCompiler () {
         return preCompiler;
     }
 
@@ -121,26 +130,30 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
 
     }
 
-    public void compile ( T clause ) {
-
+    /**
+     * @param clause
+     * @throws SourceCodeException
+     */
+    public void compile ( T clause ) throws SourceCodeException {
+        instructionCompiler.compile(clause);
     }
 
     /**
      * Chains compilation completion events onto the instruction compiler.
      */
-    public class ClauseChainObserver implements LogicCompilerObserver <T, Q> {
+    public class ClauseChainObserver implements ICompilerObserver <T, Q> {
         /**
          * {@inheritDoc}
          */
-        public void onCompilation ( Sentence <T> sentence ) throws SourceCodeException {
-            PrologWAMCompiler.this.instructionCompiler.compile(sentence);
+        public void onCompilation ( T clause ) throws SourceCodeException {
+            PrologWAMCompiler.this.instructionCompiler.compile(clause);
         }
 
         /**
          * {@inheritDoc}
          */
-        public void onQueryCompilation ( Sentence <Q> sentence ) throws SourceCodeException {
-            PrologWAMCompiler.this.instructionCompiler.compileQuery((HtClause) sentence);
+        public void onQueryCompilation ( Q clause ) throws SourceCodeException {
+            PrologWAMCompiler.this.instructionCompiler.compileQuery((HtClause) clause);
         }
     }
 }

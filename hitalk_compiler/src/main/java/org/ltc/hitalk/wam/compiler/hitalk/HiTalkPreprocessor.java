@@ -15,20 +15,20 @@ import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.HtMethod;
 import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltInTransform;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
-import org.ltc.hitalk.wam.task.PrologStandardPreprocessor;
 import org.ltc.hitalk.wam.task.TransformTask;
 import org.ltc.hitalk.wam.transformers.DefaultTransformer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  *
  */
-public class HiTalkPreprocessor<T extends HtMethod, P, Q, TT extends TransformTask <T>, TC extends ITerm>
+public class HiTalkPreprocessor<T extends HtMethod, P, Q, TT extends TransformTask>
         extends HiTalkPreCompiler <T, P, Q> {
 
-    protected final DefaultTransformer <T> defaultTransformer;
+    protected final DefaultTransformer defaultTransformer;
     protected final List <TT> components = new ArrayList <>();
 
     private static Object apply ( Object o ) {
@@ -61,7 +61,7 @@ public class HiTalkPreprocessor<T extends HtMethod, P, Q, TT extends TransformTa
 
         super(symbolTable, interner, builtInTransform, defaultBuiltIn, resolver, parser);
 
-        defaultTransformer = new DefaultTransformer <>(null);
+        defaultTransformer = new DefaultTransformer(null);
 
         if (preCompiledTarget != null) {
             for (final T t : preCompiledTarget) {
@@ -69,9 +69,7 @@ public class HiTalkPreprocessor<T extends HtMethod, P, Q, TT extends TransformTa
                 resolver.resolve();
             }
         }
-//        TermRewriteTask<TC,TransformTask<TC>>trt=new TermRewriteTask(new Action(preCompiledTarget, defaultTransformer,trt));
-//        components.add((TT) new HiLogPreprocessor <>(null, defaultTransformer, interner));
-        components.add((TT) new PrologStandardPreprocessor <>(null, preCompiledTarget, defaultTransformer));
+//        components.add((TT)
     }
 
     /**
@@ -99,7 +97,7 @@ public class HiTalkPreprocessor<T extends HtMethod, P, Q, TT extends TransformTa
     protected List <T> preprocess ( T t ) {
         List <T> list = new ArrayList <>();
 
-        components.stream().map(task -> task.invoke(t)).forEach(list::addAll);
+        components.stream().map(task -> task.invoke(t)).forEach((Consumer <? super List <ITerm>>) list);//fixme
 
         return list;
     }

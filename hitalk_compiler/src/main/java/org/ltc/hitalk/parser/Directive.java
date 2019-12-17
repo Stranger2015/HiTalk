@@ -2,6 +2,8 @@ package org.ltc.hitalk.parser;
 
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
+import java.util.function.Consumer;
+
 public class Directive extends HtClause {
     /**
      * Creates a program sentence in L2.
@@ -14,17 +16,32 @@ public class Directive extends HtClause {
 
     public enum DirectiveKind {
         //        CONDITIONAL_COMPILATION,
-        IF,
-        ELSE,
-        ELIF,
-        ENDIF,
+        IF(functor -> {
+        }),
+        ELSE(functor -> {
+        }),
+        ELIF(functor -> {
+        }),
+        ENDIF(functor -> {
+        }),
 
-        ENCODING,
-        INCLUDE,
-        OP,
+        ENCODING(functor -> {
+        }),
+        INCLUDE(functor -> {
+        }),
+        OP(functor -> {
+        }),
+        ;
+
+        DirectiveKind ( Consumer <IFunctor> handler ) {
+        }
     }
 
-    protected IFunctor def;
+    public IFunctor getDef () {
+        return getGoal(0);
+    }
+
+//    protected IFunctor def;
 
     public DirectiveKind getKind () {
         return kind;

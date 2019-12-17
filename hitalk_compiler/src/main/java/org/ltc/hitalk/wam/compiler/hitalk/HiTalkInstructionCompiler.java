@@ -16,14 +16,14 @@
 package org.ltc.hitalk.wam.compiler.hitalk;
 
 import com.thesett.aima.logic.fol.FunctorName;
-import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.common.util.SizeableLinkedList;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.HtMethod;
 import org.ltc.hitalk.wam.compiler.IFunctor;
-import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltIn;
+import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
+import org.ltc.hitalk.wam.compiler.prolog.PrologInstructionCompiler;
 import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
 
 /**
@@ -130,8 +130,7 @@ import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
  *
  * @author Rupert Smith
  */
-public class HiTalkInstructionCompiler<T extends HtMethod, PC, QC> extends PrologInstructionCompiler <T, PC, QC>
-        implements PrologBuiltIn {
+public class HiTalkInstructionCompiler<T extends HtMethod, PC, QC> extends PrologInstructionCompiler <T, PC, QC> {
 
 //public final static FunctorName OBJECT = new FunctorName("object", 2);
 //public final static FunctorName END_OBJECT = new FunctorName("end_object", 0);
@@ -151,7 +150,7 @@ public class HiTalkInstructionCompiler<T extends HtMethod, PC, QC> extends Prolo
     public HiTalkInstructionCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
                                        IVafInterner interner,
                                        HiTalkDefaultBuiltIn defaultBuiltIn,
-                                       LogicCompilerObserver <PC, QC> observer,
+                                       ICompilerObserver <PC, QC> observer,
                                        PlPrologParser parser ) {
         super(symbolTable, interner, defaultBuiltIn, observer, parser);
     }
@@ -167,7 +166,7 @@ public class HiTalkInstructionCompiler<T extends HtMethod, PC, QC> extends Prolo
      *                          for BaseApp trimming.
      * @return A list of instructions for the body call.
      */
-    @Override
+//    @Override
     public SizeableLinkedList <HiTalkWAMInstruction> compileBodyCall ( IFunctor expression,
                                                                        boolean isFirstBody,
                                                                        boolean isLastBody,

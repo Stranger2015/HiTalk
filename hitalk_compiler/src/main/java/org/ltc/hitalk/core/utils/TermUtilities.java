@@ -19,6 +19,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import static org.ltc.hitalk.parser.PrologAtoms.COMMA;
+import static org.ltc.hitalk.parser.PrologAtoms.IMPLIES;
 import static org.ltc.hitalk.term.ListTerm.Kind.LIST;
 
 /**
@@ -219,13 +221,16 @@ public class TermUtilities {
         if (term instanceof HlOpSymbol) {
             HlOpSymbol symbol = (HlOpSymbol) term;
 
-            if (":-".equals(symbol.getTextName())) {
+            if (IMPLIES.equals(symbol.getTextName())) {
                 IFunctor[] flattenedArgs = flattenTerm((IFunctor) symbol.getArgument(1),
-                        IFunctor.class, ",", interner);
+                        IFunctor.class, COMMA, interner);
 
                 return new HtClause((IFunctor) symbol.getArgument(0), new ListTerm(LIST, flattenedArgs));
             } else if ("?-".equals(symbol.getTextName())) {
-                IFunctor[] flattenedArgs = flattenTerm((IFunctor) symbol.getArgument(0), IFunctor.class, ",", interner);
+                IFunctor[] flattenedArgs = flattenTerm((IFunctor) symbol.getArgument(0),
+                        IFunctor.class,
+                        COMMA,
+                        interner);
 
                 return new HtClause(null, new ListTerm(LIST, flattenedArgs));
             }
@@ -244,6 +249,15 @@ public class TermUtilities {
         lt.setArgument(1, term2);
 
         PrologBuiltIns.UNIFIES.getBuiltInDef().accept(lt);
+        return PrologBuiltIns.getBooleanResult();
+    }
+
+    public static boolean term_expansion ( ITerm term1, ITerm term2 ) {
+        final ListTerm lt = new ListTerm(2);
+        lt.setArgument(0, term1);
+        lt.setArgument(1, term2);
+
+        PrologBuiltIns.TERM_EXPANSION.getBuiltInDef().accept(lt);
         return PrologBuiltIns.getBooleanResult();
     }
 }

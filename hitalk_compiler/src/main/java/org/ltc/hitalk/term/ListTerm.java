@@ -224,6 +224,13 @@ public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
     }
 
     /**
+     * @return
+     */
+    public boolean isJavaObject () {
+        return false;
+    }
+
+    /**
      * Frees all assigned variables in the term, leaving them unassigned.
      */
     @Override
