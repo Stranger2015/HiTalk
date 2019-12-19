@@ -5,6 +5,7 @@ import org.ltc.hitalk.term.io.HiTalkStream;
 
 import java.io.EOFException;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Optional;
 
 import static java.lang.Character.*;
@@ -67,6 +68,10 @@ public class PlLexer {
         return null;
     }
 
+    int read () throws IOException {
+        return stream.readChar();
+    }
+
     private PlToken getToken ( boolean valued ) throws Exception {
         try {
             if (stream.isBOF()) {
@@ -80,7 +85,7 @@ public class PlLexer {
             if (valued) {
                 // 括弧など
                 if ("([{".indexOf(chr) != -1) {
-                    return new PlToken(calcTokenKind(chr));
+                    return new PlToken(Objects.requireNonNull(calcTokenKind(chr)));
                 }
                 // 整数値アトム
                 if (chr == '-') {

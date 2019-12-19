@@ -14,7 +14,7 @@ import org.ltc.hitalk.wam.compiler.IFunctor;
  *
  */
 public
-class HiLogToPrologBiDiConverter<T extends HtClause, P, Q> {
+class HiLogToPrologBiDiConverter<T extends HtClause, P, Q, PC, QC> {
 
 //    private final Map <Term, Term> hiLogTerms = new HashMap <>();
 
@@ -37,7 +37,7 @@ class HiLogToPrologBiDiConverter<T extends HtClause, P, Q> {
     IVafInterner interner = new VafInterner("", "");
 
 
-    private final HiLogDecoder <T, P, Q> hilog2Prolog;//= new HiLogDecoder<>(symbolTable, interner,);
+    private final HiLogDecoder <T, P, Q, PC, QC> hilog2Prolog;//= new HiLogDecoder<>(symbolTable, interner,);
 //    private final HiLogEncoder prolog2Hilog = new HiLogEncoder(symbolTable, interner);
 
 //    private final HiLogEncoder transformer;
@@ -87,7 +87,7 @@ class HiLogToPrologBiDiConverter<T extends HtClause, P, Q> {
 //    };
 
     public HiLogToPrologBiDiConverter ( IVafInterner interner,
-                                        HiLogDecoder <T, P, Q> hilog2Prolog ) {
+                                        HiLogDecoder <T, P, Q, PC, QC> hilog2Prolog ) {
 //        transformer = this.hilog2Prolog;
 //        transformer = this.prolog2Hilog;
 

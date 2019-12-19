@@ -45,10 +45,19 @@ import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.EXISTEN
  * ByteBuffer newbb = charset.encode(cb);
  */
 public
-class HiTalkStream/* extends PushbackInputStream */ implements IInputStream,
-        IOutputStream, IPropertyOwner, PropertyChangeListener, Cloneable, IHitalkObject {
+class HiTalkStream
+        implements IInputStream, IOutputStream, IPropertyOwner, PropertyChangeListener, Cloneable, IHitalkObject {
 
     public static final int BB_ALLOC_SIZE = 32768;
+
+    private static int defaultCharBufferSize = 8192;
+    private static int defaultExpectedLineLength = 80;
+
+
+    private static final int UNMARKED = -1;
+    private static final int INVALIDATED = -2;
+
+    protected final Object lock;
 
     protected FileDescriptor fd;
     protected FileChannel channel;
@@ -59,27 +68,27 @@ class HiTalkStream/* extends PushbackInputStream */ implements IInputStream,
     protected DataInputStream dis;
     protected DataOutputStream dos;
 
-    //    protected long offset;
     protected EnumSet <StandardOpenOption> options = EnumSet.noneOf(StandardOpenOption.class);
 
     protected boolean isOpen;
     protected boolean isReading;
 
     protected PlTokenSource tokenSource;
+    protected PropertyOwner <HtProperty> owner;
+    protected Charset currentCharset = defaultCharset();
+    protected StreamDecoder sd;
+    protected StreamEncoder se;
+    protected PushbackInputStream pushbackInputStream;
     private int bof;
-
-    /**
-     * @param fn
-     * @param isReading s
-     */
-    public static HiTalkStream createHiTalkStream ( String fn, boolean isReading ) {
-        try {
-            return new HiTalkStream(Paths.get(fn).toAbsolutePath(), isReading ? READ : WRITE);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new ExecutionError(EXISTENCE_ERROR, null);
-        }
-    }
+    //============= readline stuff
+    private boolean skipLF;
+    private int nextChar;
+    private int nChars;
+    private char[] cb;
+    private int markedChar;
+    private int readAheadLimit = 0;//Valid only when markedChar > 0
+    private int lineNumber;
+    private int colNumber;
 
     /**
      * @param path
@@ -95,7 +104,6 @@ class HiTalkStream/* extends PushbackInputStream */ implements IInputStream,
         if (this.options.contains(WRITE)) {
             setOutputStream(new FileOutputStream(path.toFile()));
         }
-//        this.offset = offset;
         Charset charset = isSupported(encoding) ? forName(encoding) : defaultCharset();//currentCharset;
         CharsetEncoder encoder = charset.newEncoder();
         CharsetDecoder decoder = charset.newDecoder();
@@ -104,14 +112,16 @@ class HiTalkStream/* extends PushbackInputStream */ implements IInputStream,
         } else {
             se = StreamEncoder.forEncoder(this, encoder, BB_ALLOC_SIZE);
         }
+        lock = this;
     }
 
     /**
      * @param path
+     * @param lock
      * @param options
      * @throws IOException
      */
-    protected HiTalkStream ( Path path, StandardOpenOption... options ) throws IOException {
+    protected HiTalkStream ( Path path, Object lock, StandardOpenOption... options ) throws IOException {
         this(path, defaultCharset().name(), options);
     }
 
@@ -119,6 +129,7 @@ class HiTalkStream/* extends PushbackInputStream */ implements IInputStream,
         options.add(READ);
         setInputStream(inputStream);
         setTokenSource(tokenSource);
+        lock = this;
     }
 
     protected HiTalkStream ( @NotNull String name, StandardOpenOption... options ) throws IOException {
@@ -140,14 +151,48 @@ class HiTalkStream/* extends PushbackInputStream */ implements IInputStream,
                 case CREATE:
                 case CREATE_NEW:
                 case DELETE_ON_CLOSE:
-                    break;
                 case SPARSE:
-                    break;
                 case SYNC:
                     break;
                 default:
                     throw new IllegalStateException("Unexpected option: " + option);
             }
+        }
+        lock = this;
+    }
+
+    /**
+     * @param out
+     * @param lock
+     * @throws IOException
+     */
+    protected HiTalkStream ( FileOutputStream out, Object lock ) throws IOException {
+        this.lock = lock;
+        options.add(WRITE);
+        setOutputStream(out);
+    }
+
+    /**
+     * @param fd
+     * @throws IOException
+     */
+    public HiTalkStream ( FileDescriptor fd, boolean isReading ) throws IOException {
+        this.lock = this;
+        this.fd = fd;
+        options.add(isReading ? READ : WRITE);
+        init(fd);
+    }
+
+    /**
+     * @param fn
+     * @param isReading s
+     */
+    public static HiTalkStream createHiTalkStream ( String fn, boolean isReading ) {
+        try {
+            return new HiTalkStream(Paths.get(fn).toAbsolutePath(), new Object(), isReading ? READ : WRITE);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new ExecutionError(EXISTENCE_ERROR, null);
         }
     }
 
@@ -165,26 +210,6 @@ class HiTalkStream/* extends PushbackInputStream */ implements IInputStream,
      */
     private void newOutputStream ( String name ) throws IOException {
         setOutputStream(new FileOutputStream(name));
-    }
-
-    /**
-     * @param out
-     * @throws IOException
-     */
-    protected HiTalkStream ( FileOutputStream out ) throws IOException {
-        options.add(WRITE);
-        setOutputStream(out);
-    }
-
-    /**
-     * @param fd
-     * @throws IOException
-     */
-    public HiTalkStream ( FileDescriptor fd, boolean isReading ) throws IOException {
-        this.fd = fd;
-        this.isReading = isReading;
-        options.add(isReading ? READ : WRITE);
-        init(fd);
     }
 
     /**
@@ -213,11 +238,16 @@ class HiTalkStream/* extends PushbackInputStream */ implements IInputStream,
     public void setInputStream ( FileInputStream inputStream ) throws IOException {
         options.add(READ);
         isOpen = true;
+        isReading = true;
         this.inputStream = inputStream;
         channel = inputStream.getChannel();
         fd = inputStream.getFD();
         dis = new DataInputStream(inputStream);
-        pushbackInputStream = new PushbackInputStream(dis);
+        pushbackInputStream = new PushbackInputStream(dis, 1);
+    }
+
+    public void setInputStream ( InputStream inputStream ) throws IOException {
+        System.setIn(inputStream);
     }
 
     /**
@@ -238,12 +268,6 @@ class HiTalkStream/* extends PushbackInputStream */ implements IInputStream,
         channel = outputStream.getChannel();
         fd = outputStream.getFD();
     }
-
-    protected PropertyOwner <HtProperty> owner;
-    protected Charset currentCharset = defaultCharset();
-    protected StreamDecoder sd;
-    protected StreamEncoder se;
-    protected PushbackInputStream pushbackInputStream;
 
     /**
      *
@@ -334,7 +358,6 @@ class HiTalkStream/* extends PushbackInputStream */ implements IInputStream,
         this.force(false);//fixme
         this.close();
     }
-//
 
     /**
      * Returns this channel's file position.
@@ -498,13 +521,13 @@ class HiTalkStream/* extends PushbackInputStream */ implements IInputStream,
     }
 
     /**
-     * Read the character from input stream
+     * Read the byte from input stream
      *
      * @return
      * @throws IOException
      */
     public int read () throws IOException {
-        return readChar();
+        return pushbackInputStream.read();
     }
 
     /**
@@ -517,8 +540,7 @@ class HiTalkStream/* extends PushbackInputStream */ implements IInputStream,
      *                     or if some other I/O error occurs
      */
     public void unread ( int c ) throws IOException {
-        // pushbackInputStream.unread(c);
-        position(position() - 1);
+        pushbackInputStream.unread(c);
     }
 
     /**
@@ -553,10 +575,11 @@ class HiTalkStream/* extends PushbackInputStream */ implements IInputStream,
 
     /**
      * @param c
+     * @param c
      * @throws IOException
      */
     public void write ( char c ) throws IOException {
-        writeChar(c);
+        writeChar(c);//fixme
     }
 
     /**
@@ -824,27 +847,27 @@ class HiTalkStream/* extends PushbackInputStream */ implements IInputStream,
     }
 
     /**
-     * @param tokenSource
-     */
-    public void setTokenSource ( PlTokenSource tokenSource ) {
-        this.tokenSource = tokenSource;
-    }
-
-    /**
      * @return
      */
     public PlTokenSource getTokenSource () {
         return tokenSource;
     }
 
+    /**
+     * @param tokenSource
+     */
+    public void setTokenSource ( PlTokenSource tokenSource ) {
+        this.tokenSource = tokenSource;
+    }
+
     @Override
     public void readFully ( @NotNull byte[] b ) throws IOException {
-
+        pushbackInputStream.read(b);//fixme cols
     }
 
     @Override
     public void readFully ( @NotNull byte[] b, int off, int len ) throws IOException {
-
+        pushbackInputStream.read(b, off, len);//fixme cols
     }
 
     @Override
@@ -854,27 +877,37 @@ class HiTalkStream/* extends PushbackInputStream */ implements IInputStream,
 
     @Override
     public boolean readBoolean () throws IOException {
-        return dis.readBoolean();
+        return read() != 0;
     }
 
     @Override
     public byte readByte () throws IOException {
-        return 0;
+        return (byte) read();
     }
 
     @Override
     public int readUnsignedByte () throws IOException {
-        return 0;
+        int ch = read();
+        if (ch < 0)
+            throw new EOFException();
+        return ch;
     }
 
     @Override
     public short readShort () throws IOException {
-        return 0;
+        int ch1 = read();
+        int ch2 = read();
+        if ((ch1 | ch2) < 0)
+            throw new EOFException();
+        return (short) ((ch1 << 8) + ch2);
     }
 
     @Override
     public int readUnsignedShort () throws IOException {
-        return 0;
+        int ch = read();
+        if (ch < 0)
+            throw new EOFException();
+        return ch;
     }
 
     /**
@@ -883,110 +916,366 @@ class HiTalkStream/* extends PushbackInputStream */ implements IInputStream,
      */
     @Override
     public char readChar () throws IOException {
-        return dis.readChar();
+        int ch1 = read();
+        int ch2 = read();
+        if ((ch1 | ch2) < 0) {
+            throw new EOFException();
+        }
+        colNumber++;
+        return (char) ((ch1 & 0xff << 8) + ch2);
     }
 
-    @Override
-    public int readInt () throws IOException {
-        return dis.readInt();
+    public void unreadChar ( char ch ) {
+        unread();
+        unread();
+        colNumber--;
     }
 
+    /**
+     * @return
+     * @throws IOException
+     */
     @Override
-    public long readLong () throws IOException {
-        return dis.readLong();
+    public int readInt () throws IOException {//fixme
+        int ch1 = read();
+        int ch2 = read();
+        int ch3 = read();
+        int ch4 = read();
+        if ((ch1 | ch2 | ch3 | ch4) < 0)
+            throw new EOFException();
+        return ((ch1 & 0xff << 24) + (ch2 & 0xff << 16) + (ch3 << 8) + ch4);
     }
 
+    /**
+     * @return
+     * @throws IOException
+     */
     @Override
-    public float readFloat () throws IOException {
-        return dis.readFloat();
+    public long readLong () throws IOException {//fixme
+        int ch1 = read();
+        int ch2 = read();
+        int ch3 = read();
+        int ch4 = read();
+        int ch5 = read();
+        int ch6 = read();
+        int ch7 = read();
+        int ch8 = read();
+        if ((ch1 | ch2 | ch3 | ch4 | ch5 | ch6 | ch7 | ch8) < 0)
+            throw new EOFException();
+        return (ch1 & 0xFFL << 56) + (ch2 & 0xffL << 48) + (ch3 & 0xffL << 40) + (ch4 & 0xffL << 32) +
+                (ch5 & 0xffL << 24) + (ch6 & 0xffL << 16) + (ch7 & 0xffL << 8) + ch8;
     }
 
+    /**
+     * @return
+     * @throws IOException
+     */
     @Override
-    public double readDouble () throws IOException {
-        return dis.readDouble();
+    public float readFloat () throws IOException {//fixme
+        return Float.intBitsToFloat(readInt());
     }
 
+    /**
+     * @return
+     * @throws IOException
+     */
     @Override
+    public double readDouble () throws IOException {//fixme
+        return Double.longBitsToDouble(readLong());
+    }
+
+    /**
+     * Checks to make sure that the stream has not been closed
+     */
+    private void ensureOpen () throws IOException {
+        if (getInputStream() == null) {
+            throw new IOException("Stream closed");
+        }
+    }
+
+    /**
+     * Reads a line of text.  A line is considered to be terminated by any one
+     * of a line feed ('\n'), a carriage return ('\r'), or a carriage return
+     * followed immediately by a linefeed.
+     *
+     * @param ignoreLF If true, the next '\n' will be skipped
+     * @return A String containing the contents of the line, not including
+     * any line-termination characters, or null if the end of the
+     * stream has been reached
+     * @throws IOException If an I/O error occurs
+     * @see java.io.LineNumberReader#readLine()
+     */
+    String readLine ( boolean ignoreLF ) throws IOException {
+        StringBuffer s = null;
+        int startChar;
+
+        synchronized (lock) {
+            ensureOpen();
+            boolean omitLF = ignoreLF || skipLF;
+
+            bufferLoop:
+            for (; ; ) {
+                if (nextChar >= nChars) {
+                    fill();
+                }
+                if (nextChar >= nChars) { /* EOF */
+                    if (s != null && s.length() > 0)
+                        return s.toString();
+                    else
+                        return null;
+                }
+                boolean eol = false;
+                char c = 0;
+                int i;
+
+                /* Skip a leftover '\n', if necessary */
+                if (omitLF && (cb[nextChar] == '\n')) {
+                    nextChar++;
+                }
+                skipLF = false;
+                omitLF = false;
+
+                charLoop:
+                for (i = nextChar; i < nChars; i++) {
+                    c = cb[i];
+                    if ((c == '\n') || (c == '\r')) {
+                        eol = true;
+                        break charLoop;
+                    }
+                }
+
+                startChar = nextChar;
+                nextChar = i;
+
+                if (eol) {
+                    lineNumber++;
+                    colNumber = 0;
+                    String str;
+                    if (s == null) {
+                        str = new String(cb, startChar, i - startChar);
+                    } else {
+                        s.append(cb, startChar, i - startChar);
+                        str = s.toString();
+                    }
+                    nextChar++;
+                    if (c == '\r') {
+                        skipLF = true;
+                    }
+                    return str;
+                }
+
+                if (s == null) {
+                    s = new StringBuffer(defaultExpectedLineLength);
+                }
+                s.append(cb, startChar, i - startChar);
+            }
+        }
+    }
+
+    /**
+     * Reads a line of text.  A line is considered to be terminated by any one
+     * of a line feed ('\n'), a carriage return ('\r'), or a carriage return
+     * followed immediately by a linefeed.
+     *
+     * @return A String containing the contents of the line, not including
+     * any line-termination characters, or null if the end of the
+     * stream has been reached
+     * @throws IOException If an I/O error occurs
+     * @see java.nio.file.Files#readAllLines
+     */
     public String readLine () throws IOException {
-        return dis.readLine();
+        return readLine(false);
     }
 
+    /**
+     * Fills the input buffer, taking the mark into account if it is valid.
+     */
+    private void fill () throws IOException {
+        int dst;
+        if (markedChar <= UNMARKED) {
+            /* No mark */
+            dst = 0;
+        } else {
+            /* Marked */
+            int delta = nextChar - markedChar;
+            if (delta >= readAheadLimit) {
+                /* Gone past read-ahead limit: Invalidate mark */
+                markedChar = INVALIDATED;
+                readAheadLimit = 0;
+                dst = 0;
+            } else {
+                if (readAheadLimit <= cb.length) {
+                    /* Shuffle in the current buffer */
+                    System.arraycopy(cb, markedChar, cb, 0, delta);
+                    markedChar = 0;
+                    dst = delta;
+                } else {
+                    /* Reallocate buffer to accommodate read-ahead limit */
+                    char[] ncb = new char[readAheadLimit];
+                    System.arraycopy(cb, markedChar, ncb, 0, delta);
+                    cb = ncb;
+                    markedChar = 0;
+                    dst = delta;
+                }
+                nextChar = nChars = delta;
+            }
+        }
+
+        int n;
+        do {
+            n = read(cb, dst, cb.length - dst);
+        } while (n == 0);
+        if (n > 0) {
+            nChars = dst + n;
+            nextChar = dst;
+        }
+    }
+
+
+    /**
+     * @param cbuf
+     * @param offset
+     * @param length
+     * @return
+     * @throws IOException
+     */
+    public int read ( char[] cbuf, int offset, int length ) throws IOException {
+        return sd.read(cbuf, offset, length);
+    }
+
+    /**
+     * @return
+     * @throws IOException
+     */
     @NotNull
     @Override
     public String readUTF () throws IOException {
-        return dis.readUTF();
+        return dis.readUTF();//fixme
     }
 
-//    @Override
-//    public void writeTerm ( Term term ) {
-//
-//    }
-
+    /**
+     * @param b
+     * @throws IOException
+     */
     @Override
     public void write ( int b ) throws IOException {
         writeChar(b);
     }
 
+    /**
+     * @param b
+     * @throws IOException
+     */
     @Override
     public void write ( @NotNull byte[] b ) throws IOException {
 
     }
 
+    /**
+     * @param b
+     * @param off
+     * @param len
+     * @throws IOException
+     */
     @Override
     public void write ( @NotNull byte[] b, int off, int len ) throws IOException {
 
     }
 
+    /**
+     * @param v
+     * @throws IOException
+     */
     @Override
     public void writeBoolean ( boolean v ) throws IOException {
 
     }
 
+    /**
+     * @param v
+     * @throws IOException
+     */
     @Override
     public void writeByte ( int v ) throws IOException {
 
     }
 
+    /**
+     * @param v
+     * @throws IOException
+     */
     @Override
     public void writeShort ( int v ) throws IOException {
 
     }
 
+    /**
+     * @param v
+     * @throws IOException
+     */
     @Override
     public void writeChar ( int v ) throws IOException {
 
     }
 
+    /**
+     * @param v
+     * @throws IOException
+     */
     @Override
     public void writeInt ( int v ) throws IOException {
 
     }
 
+    /**
+     * @param v
+     * @throws IOException
+     */
     @Override
     public void writeLong ( long v ) throws IOException {
 
     }
 
+    /**
+     * @param v
+     * @throws IOException
+     */
     @Override
     public void writeFloat ( float v ) throws IOException {
 
     }
 
+    /**
+     * @param v
+     * @throws IOException
+     */
     @Override
     public void writeDouble ( double v ) throws IOException {
 
     }
 
+    /**
+     * @param s
+     * @throws IOException
+     */
     @Override
     public void writeBytes ( @NotNull String s ) throws IOException {
 
     }
 
+    /**
+     * @param s
+     * @throws IOException
+     */
     @Override
     public void writeChars ( @NotNull String s ) throws IOException {
 
     }
 
+    /**
+     * @param s
+     * @throws IOException
+     */
     @Override
     public void writeUTF ( @NotNull String s ) throws IOException {
 
@@ -1012,10 +1301,6 @@ class HiTalkStream/* extends PushbackInputStream */ implements IInputStream,
         dis.close();
     }
 
-    public void setInputStream ( InputStream inputStream ) throws IOException {
-        System.setIn(inputStream);
-    }
-
     @Override
     public HiTalkStream copy () throws CloneNotSupportedException {
         return (HiTalkStream) this.clone();
@@ -1023,6 +1308,14 @@ class HiTalkStream/* extends PushbackInputStream */ implements IInputStream,
 
     public boolean isBOF () {
         return bof++ == 0;
+    }
+
+    public int getLineNumber () {
+        return lineNumber;
+    }
+
+    public int getColNumber () {
+        return colNumber;
     }
 
     /**

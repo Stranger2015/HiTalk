@@ -19,7 +19,7 @@ import static java.lang.String.format;
 /**
  *
  */
-public class HiLogDecoder<T extends HtClause, P, Q> extends MetaInterpreterVisitor <T, P, Q> {
+public class HiLogDecoder<T extends HtClause, P, Q, PC, QC> extends MetaInterpreterVisitor <T, P, Q, PC, QC> {
     /**
      * Creates a positional visitor.
      *

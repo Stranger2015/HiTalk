@@ -16,7 +16,9 @@
 package org.ltc.hitalk.interpreter;
 
 import com.thesett.aima.attribute.impl.IdAttribute;
-import com.thesett.aima.logic.fol.*;
+import com.thesett.aima.logic.fol.FunctorName;
+import com.thesett.aima.logic.fol.LinkageException;
+import com.thesett.aima.logic.fol.Parser;
 import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.Filterator;
 import com.thesett.common.util.Source;
@@ -75,7 +77,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
     /**
      * Holds the observer for compiler outputs.
      */
-    protected LogicCompilerObserver <P, Q> observer = new ChainedCompilerObserver <>();
+    protected ICompilerObserver <P, Q> observer = new ChainedCompilerObserver();
 
     protected Q currentQuery;
     protected final List <Set <HtVariable>> vars = new ArrayList <>();
@@ -353,17 +355,8 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
         return vars.iterator();
     }
 
-//    /**
-//     * {@inheritDoc}
-//     *
-//     * @param observer
-//     */
-//    public void setCompilerObserver ( ChainedCompilerObserver observer ) {
-//        chainedObserver.setCompilerObserver(observer);
-//    }
-
-    public void compile ( Sentence <T> sentence ) throws SourceCodeException {
-        compiler.compile(sentence.getT());
+    public void compile ( T sentence ) throws SourceCodeException {
+        compiler.compile(sentence);
     }
 
     public void setCompilerObserver ( ICompilerObserver <P, Q> observer ) {
@@ -438,10 +431,6 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
         compiler.compile(fileName, flags);
     }
 
-    public void compile ( T clause ) throws SourceCodeException {
-        compiler.compile(clause);
-    }
-
     /**
      * ChainedCompilerObserver implements the compiler observer for this resolution engine. Compiled programs are added
      * to the resolvers domain. Compiled queries are executed.
@@ -449,7 +438,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      * <p/>If a chained observer is set up, all compiler outputs are forwarded onto it.
      */
     public static
-    class ChainedCompilerObserver<P, Q> implements LogicCompilerObserver <P, Q> {
+    class ChainedCompilerObserver<P, Q> implements ICompilerObserver <P, Q> {
 
         /**
          * Accepts notification of the completion of the compilation of a sentence into a (binary) form.
@@ -458,7 +447,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
          * @throws SourceCodeException If there is an error in the compiled code that prevents its further processing.
          */
         @Override
-        public void onCompilation ( Sentence <P> sentence ) throws SourceCodeException {
+        public void onCompilation ( P sentence ) throws SourceCodeException {
             //todo
         }
 
@@ -467,7 +456,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
          *
          * @param sentence
          */
-        public void onQueryCompilation ( Sentence <Q> sentence ) throws SourceCodeException {
+        public void onQueryCompilation ( Q sentence ) throws SourceCodeException {
 //todo
         }
     }

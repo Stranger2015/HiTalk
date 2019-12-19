@@ -22,7 +22,7 @@ public class HiLogParser extends PlPrologParser {
 
     public static final String HILOG_APPLY = "$hilog_apply";
     public static int hilogApply = -2;
-    public static final IFunctor HILOG_APPLY_FUNCTOR = new HtFunctor(hilogApply, 1, 0);
+    public static final IFunctor HILOG_APPLY_FUNCTOR = new HlApplyFunctor(hilogApply, 1, 0);
 
     /**
      * Builds a

@@ -16,7 +16,7 @@ import java.io.InputStream;
  *
  */
 public
-class HiTalkWAMEngine<T extends HtClause, P, Q> extends HtResolutionEngine <T, P, Q> {
+class HiTalkWAMEngine<T extends HtClause, P, Q, PC, QC> extends HtResolutionEngine <T, P, Q, PC, QC> {
 
     protected final Logger log = LoggerFactory.getLogger(getClass().getSimpleName());
 

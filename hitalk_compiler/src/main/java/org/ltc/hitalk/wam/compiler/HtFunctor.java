@@ -29,9 +29,6 @@ public class HtFunctor extends ListTerm implements IFunctor {
      * @param arityDelta
      */
     public HtFunctor ( int name, int arityMin, int arityDelta ) {
-//        this.name = name;
-//        args =fixme
-
         super(name);
         setArityRange(arityMin, arityDelta);
     }

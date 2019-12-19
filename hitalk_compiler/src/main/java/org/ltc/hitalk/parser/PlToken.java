@@ -16,6 +16,10 @@ public class PlToken {
     public PlToken ( TokenKind kind ) {
         this.kind = kind;
         image = kind.s;
+        if (kind == TokenKind.BOF) {
+            endLine = beginLine = 0;
+            endColumn = beginColumn = 0;
+        }
     }
 
     /**

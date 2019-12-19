@@ -29,7 +29,7 @@ import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
 /**
  *
  */
-public abstract class MetaInterpreterVisitor<T extends HtClause, P, Q> extends HtBasePositionalVisitor
+public abstract class MetaInterpreterVisitor<T extends HtClause, P, Q, PC, QC> extends HtBasePositionalVisitor
         implements IPositionalTermVisitor {
 
     protected final IResolver <P, Q> resolver;

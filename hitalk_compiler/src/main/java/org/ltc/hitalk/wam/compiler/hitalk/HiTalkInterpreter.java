@@ -11,7 +11,7 @@ import org.ltc.hitalk.wam.compiler.prolog.PrologInterpreter;
  * @param <P>
  * @param <Q>
  */
-public class HiTalkInterpreter<T extends HtMethod, P, Q> extends PrologInterpreter <T, P, Q> {
+public class HiTalkInterpreter<T extends HtMethod, P, Q, PC, QC> extends PrologInterpreter <T, P, Q, PC, QC> {
     /**
      * @param parser
      * @param compiler

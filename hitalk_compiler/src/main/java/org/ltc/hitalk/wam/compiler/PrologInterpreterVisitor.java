@@ -39,9 +39,9 @@ import java.util.Set;
  * @param <P>
  * @param <Q>
  */
-public class PrologInterpreterVisitor<T extends HtClause, P, Q> extends MetaInterpreterVisitor <T, P, Q> {
+public class PrologInterpreterVisitor<T extends HtMethod, P, Q, PC, QC> extends MetaInterpreterVisitor <T, P, Q, PC, QC> {
 
-    protected final PrologInterpreter <T, P, Q> engine;
+    protected final PrologInterpreter <T, P, Q, PC, QC> engine;
     protected final ConsoleReader consoleReader = new ConsoleReader();
 
     /**
@@ -57,7 +57,7 @@ public class PrologInterpreterVisitor<T extends HtClause, P, Q> extends MetaInte
                                          IVafInterner interner,
                                          IResolver <P, Q> resolver,
                                          IPositionalTermTraverser traverser,
-                                         PrologInterpreter <T, P, Q> engine ) throws IOException {
+                                         PrologInterpreter <T, P, Q, PC, QC> engine ) throws IOException {
 
         super(symbolTable, interner, resolver, traverser);
         this.engine = engine;

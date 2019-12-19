@@ -1,7 +1,6 @@
 package org.ltc.hitalk.wam.compiler.prolog;
 
 import com.thesett.aima.logic.fol.LinkageException;
-import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.common.parsing.SourceCodeException;
 import jline.ConsoleReader;
 import org.ltc.hitalk.ITermFactory;
@@ -31,7 +30,7 @@ import java.util.Set;
  * @param <P>
  * @param <Q>
  */
-public class PrologInterpreter<T extends HtClause, P, Q>
+public class PrologInterpreter<T extends HtClause, P, Q, PC, QC>
         implements IInterpreter <T, P, Q>, IParser {
 
     private final static String meta =
@@ -50,6 +49,7 @@ public class PrologInterpreter<T extends HtClause, P, Q>
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     protected final PlPrologParser parser;
+    private ConsoleReader reader;
 
     public String getMeta () {
         return meta;
@@ -61,10 +61,9 @@ public class PrologInterpreter<T extends HtClause, P, Q>
 
     protected final ICompiler <T, P, Q> compiler;
     protected IConfig config;
-    protected ConsoleReader reader;
-    protected LogicCompilerObserver <P, Q> observer;
+    protected ICompilerObserver <P, Q> observer;
     protected Mode mode;
-    protected HtResolutionEngine <T, P, Q> engine;
+    protected HtResolutionEngine <T, P, Q, PC, QC> engine;
     protected int currentPredicateName;
 
     /**
@@ -185,7 +184,7 @@ public class PrologInterpreter<T extends HtClause, P, Q>
     }
 
     /**
-     * @returcn
+     * @return
      */
     @Override
     public ConsoleReader getConsoleReader () {
