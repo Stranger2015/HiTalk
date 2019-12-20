@@ -1022,7 +1022,7 @@ class HiTalkStream
                     if (s != null && s.length() > 0) {
                         return s.toString();
                     } else {
-                        return null;
+                        return "";
                     }
                 }
                 boolean eol = false;
@@ -1047,7 +1047,6 @@ class HiTalkStream
 
                 startChar = nextChar;
                 nextChar = i;
-
                 if (eol) {
                     lineNumber++;
                     colNumber = 0;

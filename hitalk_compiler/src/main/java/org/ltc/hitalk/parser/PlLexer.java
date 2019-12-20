@@ -231,32 +231,37 @@ public class PlLexer {
         return (char) c;
     }
 
-    private void skipWhitespaces () throws Exception {
+    private int skipWhitespaces () throws Exception {
+        char chr;
+        int i = 0;
         for (; ; ) {
-            int chr = read();
-            if (!isWhitespace(chr)) {
-                if (chr == '%') {
-                    stream.readLine();
-                    continue;
-                }
-                if (chr == '/') {
-                    int c = read();
-                    if (c == '*') {
-                        while (true) {
-                            if (readFully() == '*' && readFully() == '/') {
-                                break;
-                            }
-                            //todo detect eol's
-                        }
-                        continue;
+            String line = stream.readLine();
+            for (int idx2 = 0; i < line.length(); i++) {
+                chr = line.charAt(i);
+                if (!isWhitespace(chr)) {//remove \r  \n from there
+                    if (chr == '%') {
+                        break; // goto outer loop
                     }
-                    ungetc(c);
+
+                    int idx1 = line.indexOf("/*", idx2 + 2);
+                    if (idx1 == -1) {
+                        break;
+                    }
+                    idx2 = line.indexOf("*/", idx1 + 2);
+                    if (idx2 == -1) {
+                        break;
+                    }
                 }
-                ungetc(chr);
-                break;
             }
         }
+
+        return i;
     }
+
+    public boolean isWhitespace ( char c ) {
+        " \\t".indexOf(c);
+    }
+
 
     private void ungetc ( int c ) throws Exception {
         if (c != -1) {
