@@ -531,11 +531,11 @@ class HiTalkStream
     }
 
     /**
-     * Pushes back a single character by copying it to the front of the
-     * pushback buffer. After this method returns, the next character to be read
-     * will have the value <code>(char)c</code>.
+     * Pushes back a byte by copying it to the front of the
+     * pushback buffer. After this method returns, the next byte to be read
+     * will have the value <code>(byte)c</code>.
      *
-     * @param c The int value representing a character to be pushed back
+     * @param c The int value representing a byte to be pushed back
      * @throws IOException If the pushback buffer is full,
      *                     or if some other I/O error occurs
      */
@@ -925,9 +925,9 @@ class HiTalkStream
         return (char) ((ch1 & 0xff << 8) + ch2);
     }
 
-    public void unreadChar ( char ch ) {
-        unread();
-        unread();
+    public void unreadChar ( int ch ) throws IOException {
+        unread(((ch >>> 8) & 0xFF));
+        unread(((ch) & 0xFF));
         colNumber--;
     }
 
@@ -1006,7 +1006,7 @@ class HiTalkStream
      * @see java.io.LineNumberReader#readLine()
      */
     String readLine ( boolean ignoreLF ) throws IOException {
-        StringBuffer s = null;
+        StringBuilder s = null;
         int startChar;
 
         synchronized (lock) {
@@ -1019,10 +1019,11 @@ class HiTalkStream
                     fill();
                 }
                 if (nextChar >= nChars) { /* EOF */
-                    if (s != null && s.length() > 0)
+                    if (s != null && s.length() > 0) {
                         return s.toString();
-                    else
+                    } else {
                         return null;
+                    }
                 }
                 boolean eol = false;
                 char c = 0;
@@ -1065,7 +1066,7 @@ class HiTalkStream
                 }
 
                 if (s == null) {
-                    s = new StringBuffer(defaultExpectedLineLength);
+                    s = new StringBuilder(defaultExpectedLineLength);
                 }
                 s.append(cb, startChar, i - startChar);
             }

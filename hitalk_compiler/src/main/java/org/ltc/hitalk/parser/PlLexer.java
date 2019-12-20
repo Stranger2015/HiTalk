@@ -78,7 +78,7 @@ public class PlLexer {
                 return PlToken.newToken(BOF);
             }
             skipWhitespaces();
-            int chr = stream.read();
+            int chr = read();
             if (chr == -1 || chr == 26) {
                 return PlToken.newToken(EOF);
             }
@@ -89,7 +89,7 @@ public class PlLexer {
                 }
                 // 整数値アトム
                 if (chr == '-') {
-                    int c = stream.read();
+                    int c = read();
                     if (isDigit(c)) {
                         return getNumber(c, "-");
                     }
@@ -107,7 +107,7 @@ public class PlLexer {
                 throw new ParseException(":Bad char `" + (char) chr + ":0x" + Integer.toHexString(chr) + "'.");
             }
             if (valued && token.kind == ATOM) {
-                if ((chr = stream.read()) == '(') {
+                if ((chr = read()) == '(') {
                     return new PlToken(FUNCTOR_BEGIN);
                 }
                 ungetc(chr);
@@ -129,7 +129,7 @@ public class PlLexer {
         if (isJavaIdentifierStart(chr)) {
             do {
                 val.append((char) chr);
-            } while (isJavaIdentifierPart(chr = stream.read()));
+            } while (isJavaIdentifierPart(chr = read()));
             ungetc(chr);
             return new PlToken(isUpperCase(val.charAt(0)) || val.charAt(0) == '_' ? VAR : ATOM, val.toString());
         }
@@ -155,14 +155,14 @@ public class PlLexer {
     private PlToken getNumber ( int chr, String prefix ) throws Exception {
         String number = prefix;
         if (chr == '0') {
-            chr = stream.read();
+            chr = read();
             if (chr == 'x') {
                 return new PlToken(INTEGER_LITERAL, number + "0x" + repeat1("0123456789abcdefABCDEF"));
             }
             ungetc(chr);
             if (isDigit(chr)) {
                 number += repeat("01234567");
-                if (!isDigit(chr = stream.read())) {
+                if (!isDigit(chr = read())) {
                     ungetc(chr);
                     return new PlToken(INTEGER_LITERAL, "0" + number);
                 }
@@ -175,20 +175,20 @@ public class PlLexer {
             number += (char) chr + repeat("0123456789");
         }
         TokenKind kind = INTEGER_LITERAL;
-        chr = stream.read();
+        chr = read();
         if (chr == '.') {
-            if (!isDigit(chr = stream.read())) {
+            if (!isDigit(chr = read())) {
                 ungetc(chr);
                 ungetc('.');
                 return new PlToken(INTEGER_LITERAL, number);
             }
             kind = FLOATING_POINT_LITERAL;
             number += "." + (char) chr + repeat("0123456789");
-            chr = stream.read();
+            chr = read();
         }
         if (chr == 'e' || chr == 'E') {
             String sign = "";
-            chr = stream.read();
+            chr = read();
             if (chr == '+' || chr == '-') {
                 sign = String.valueOf((char) chr);
             } else {
@@ -213,7 +213,7 @@ public class PlLexer {
     private String repeat ( String chars ) throws Exception {
         StringBuilder result = new StringBuilder();
         for (; ; ) {
-            int c = stream.read();
+            int c = read();
             if (chars.indexOf(c) == -1) {
                 ungetc(c);
                 break;
@@ -224,7 +224,7 @@ public class PlLexer {
     }
 
     private char readFully () throws IOException {
-        int c = stream.read();
+        int c = read();
         if (c == -1) {
             throw new EOFException();
         }
@@ -233,17 +233,20 @@ public class PlLexer {
 
     private void skipWhitespaces () throws Exception {
         for (; ; ) {
-            int chr = stream.read();
+            int chr = read();
             if (!isWhitespace(chr)) {
                 if (chr == '%') {
                     stream.readLine();
                     continue;
                 }
                 if (chr == '/') {
-                    int c = stream.read();
+                    int c = read();
                     if (c == '*') {
                         while (true) {
-                            if (readFully() == '*' && readFully() == '/') break;
+                            if (readFully() == '*' && readFully() == '/') {
+                                break;
+                            }
+                            //todo detect eol's
                         }
                         continue;
                     }
@@ -257,7 +260,7 @@ public class PlLexer {
 
     private void ungetc ( int c ) throws Exception {
         if (c != -1) {
-            stream.unread(c);
+            stream.unreadChar(c);
         }
     }
 
