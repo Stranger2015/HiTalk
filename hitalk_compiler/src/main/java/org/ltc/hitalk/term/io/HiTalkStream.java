@@ -2,10 +2,13 @@ package org.ltc.hitalk.term.io;
 
 import org.ltc.hitalk.core.IHitalkObject;
 import org.ltc.hitalk.entities.HtProperty;
+import org.ltc.hitalk.entities.IProperty;
 import org.ltc.hitalk.entities.IPropertyOwner;
 import org.ltc.hitalk.entities.PropertyOwner;
+import org.ltc.hitalk.term.ITerm;
 import sun.nio.cs.StreamDecoder;
 
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.Closeable;
 import java.io.FileDescriptor;
@@ -16,6 +19,7 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.EnumSet;
+import java.util.Properties;
 
 import static java.nio.charset.Charset.*;
 
@@ -40,8 +44,6 @@ class HiTalkStream
     protected EnumSet <StandardOpenOption> options = EnumSet.noneOf(StandardOpenOption.class);
 
     protected boolean isOpen;
-//    protected boolean isReading;
-
 
     protected PropertyOwner <HtProperty> owner;
     protected Charset currentCharset = defaultCharset();
@@ -54,14 +56,7 @@ class HiTalkStream
      * @throws IOException
      */
     protected HiTalkStream ( Path path, String encoding, StandardOpenOption... options ) throws IOException {
-//        super();
-//        this.options.addAll(Arrays.asList(options));
-//        if (this.options.contains(READ)) {
-//            setInputStream(new FileInputStream(path.toFile()));
-//        }
-//        if (this.options.contains(WRITE)) {
-//            setOutputStream(new FileOutputStream(path.toFile()));
-//        }
+
         Charset charset = isSupported(encoding) ? forName(encoding) : defaultCharset();//currentCharset;
         CharsetDecoder decoder = charset.newDecoder();
         sd = StreamDecoder.forDecoder(channel, decoder, BB_ALLOC_SIZE);
@@ -81,19 +76,90 @@ class HiTalkStream
      * @throws IOException
      */
     public HiTalkStream ( FileDescriptor fd ) throws IOException {
-//        this.lock = this;
         this.fd = fd;
-//        options.add(isReading ? READ : WRITE);
         init(fd);
     }
 
     protected HiTalkStream () {
     }
 
-
     /**
      * @param fd
      * @throws IOException
      */
     protected abstract void init ( FileDescriptor fd ) throws IOException;
+
+    /**
+     * This method gets called when a bound property is changed.
+     *
+     * @param evt A PropertyChangeEvent object describing the event source
+     *            and the property that has changed.
+     */
+    @Override
+    public void propertyChange ( PropertyChangeEvent evt ) {
+
+    }
+
+    /**
+     * Closes this stream and releases any system resources associated
+     * with it. If the stream is already closed then invoking this
+     * method has no effect.
+     *
+     * <p> As noted in {@link AutoCloseable#close()}, cases where the
+     * close may fail require careful attention. It is strongly advised
+     * to relinquish the underlying resources and to internally
+     * <em>mark</em> the {@code Closeable} as closed, prior to throwing
+     * the {@code IOException}.
+     *
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    public void close () throws IOException {
+
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public HtProperty[] getFlags () {
+        return new HtProperty[0];
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public int getPropLength () {
+        return 0;
+    }
+
+    @Override
+    public void addListener ( PropertyChangeListener listener ) {
+
+    }
+
+    @Override
+    public void removeListener ( PropertyChangeListener listener ) {
+
+    }
+
+    @Override
+    public void fireEvent ( IProperty property, ITerm value ) {
+
+    }
+
+    @Override
+    public ITerm getValue ( Properties property ) {
+        return null;
+    }
+
+    /**
+     * @param property
+     * @param value
+     */
+    @Override
+    public void setValue ( Properties property, ITerm value ) {
+
+    }
 }

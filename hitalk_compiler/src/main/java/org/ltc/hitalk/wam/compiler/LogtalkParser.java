@@ -4,7 +4,7 @@ import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.parser.PlPrologParser;
-import org.ltc.hitalk.term.io.HiTalkStream;
+import org.ltc.hitalk.term.io.HiTalkInputStream;
 
 /**
  *
@@ -16,7 +16,7 @@ public class LogtalkParser extends PlPrologParser {
      * @param factory
      * @param optable
      */
-    public LogtalkParser ( HiTalkStream stream,
+    public LogtalkParser ( HiTalkInputStream stream,
                            IVafInterner interner,
                            ITermFactory factory,
                            IOperatorTable optable ) {

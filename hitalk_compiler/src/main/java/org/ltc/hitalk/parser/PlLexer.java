@@ -23,6 +23,9 @@ public class PlLexer {
     public static final String PARENTHESIS = "(){}[],!|";
 
     public PlLexer ( HiTalkInputStream stream ) {
+        if (stream == null) {
+            throw new IllegalArgumentException();
+        }
         this.stream = stream;
     }
 
@@ -87,9 +90,9 @@ public class PlLexer {
             if (stream.isBOF()) {
                 return PlToken.newToken(BOF);
             }
-            skipWhitespaces();
+//            skipWhitespaces();
             int chr = read();
-            if (chr == -1 || chr == 26) {
+            if (chr == -1) {
                 return PlToken.newToken(EOF);
             }
             if (valued) {
@@ -106,6 +109,7 @@ public class PlLexer {
                     ungetc(c);
                 } else if (isDigit(chr)) {
                     return getNumber(chr, "");
+//                    ungetc(c);
                 }
             }
 
@@ -145,10 +149,10 @@ public class PlLexer {
         }
         // 'アトム' = atom
         if (chr == '\'') {
-            while ((chr = readFully()) != '\'') {
+            while ((chr = read()) != '\'') {
                 val.append((char) chr);
                 if (chr == '\\') {
-                    val.append(readFully());
+                    val.append(read());
                 }
             }
             return new PlToken(ATOM, decode(val.toString()))/*, true)*/;//todo encoding
@@ -242,28 +246,25 @@ public class PlLexer {
 //    }
 
     private void skipWhitespaces () throws Exception {
-        char chr;
-        while (true) {
-            String line = stream.readLine();
-            if (line == null) {
-                throw new EOFException();
-            }
-            for (int i = 0, idx2 = 0; i < line.length(); i++) {
-                chr = line.charAt(i);
-                if (!isWhitespace(chr)) {//remove \r  \n from there
-                    if (chr == '%') {
-                        break; // goto outer loop
-                    }
-                    int idx1 = line.indexOf("/*", idx2 + 2);//fixme
-                    if (idx1 == -1) {
-                        break;
-                    }
-                    idx2 = line.indexOf("*/", idx1 + 2);//fixme
-                    if (idx2 == -1) {
-                        break;
-                    }
-                    stream.setColNumber(idx2 + 2);
+        for (; ; ) {
+            int chr = read();
+            if (!isWhitespace((char) chr)) {
+                if (chr == '%') {
+                    stream.readLine();
+                    continue;
                 }
+                if (chr == '/') {
+                    int c = read();
+                    if (c == '*') {
+                        while (true) {
+                            if (read() == '*' && read() == '/') break;
+                        }
+                        continue;
+                    }
+                    ungetc(c);
+                }
+                ungetc(chr);
+                break;
             }
         }
     }
@@ -273,7 +274,7 @@ public class PlLexer {
      * @return
      */
     public static boolean isWhitespace ( char c ) {
-        return " \\t".indexOf(c) >= 0;
+        return " \\r\\n\\t".indexOf(c) != -1;
     }
 
     private void ungetc ( int c ) throws Exception {

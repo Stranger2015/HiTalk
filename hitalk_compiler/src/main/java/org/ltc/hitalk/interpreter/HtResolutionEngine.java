@@ -32,7 +32,7 @@ import org.ltc.hitalk.parser.PlToken;
 import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.term.io.HiTalkStream;
+import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 import org.slf4j.Logger;
@@ -134,7 +134,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      * @param stream The input stream to consult.
      * @throws SourceCodeException If any code read from the input stream fails to parse, compile or link.
      */
-    public void consultInputStream ( HiTalkStream stream ) throws Exception {
+    public void consultInputStream ( HiTalkInputStream stream ) throws Exception {
         // Create a token source to read from the specified input stream.
         PlTokenSource tokenSource = stream.getTokenSource();
         getParser().setTokenSource(tokenSource);

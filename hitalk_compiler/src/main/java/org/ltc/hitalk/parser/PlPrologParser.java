@@ -67,7 +67,7 @@ public class PlPrologParser implements IParser {
      *
      */
     public PlPrologParser () {
-        this(getAppContext().getStream(),
+        this(getAppContext().getInputStream(),
                 getAppContext().getInterner(),
                 getAppContext().getTermFactory(),
                 getAppContext().getOpTable());

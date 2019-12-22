@@ -21,8 +21,8 @@ import java.util.Properties;
 
 public class HiTalkInputStream extends HiTalkStream implements Readable {
 
-    private BufferedReader input;
-    //    private final int bufSize;
+    private LineNumberReader input;
+    private int bufSize = 8192;
     protected FileInputStream inputStream;
     protected PushbackInputStream pushbackInputStream;
     private int bof;
@@ -37,27 +37,39 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      * @param bufSize
      * @param path
      */
-    public HiTalkInputStream ( int bufSize, Path path ) throws IOException {
+    public HiTalkInputStream ( int bufSize, Path path, PlTokenSource tokenSource ) throws IOException {
+        this.bufSize = bufSize;
         final FileInputStream fis = new FileInputStream(path.toFile());
         setInputStream(fis);
-        this.input = new LineNumberReader(new BufferedReader(new InputStreamReader(pushbackInputStream)), bufSize);
-        setTokenSource(PlTokenSource.getTokenSourceForIoFile(path.toFile()));
-    }
-
-    public HiTalkInputStream ( Path path, PlTokenSource tokenSource ) throws IOException {
-//        options.add(READ);
-        setInputStream(inputStream);
         setTokenSource(tokenSource);
-        this.input = new LineNumberReader(new BufferedReader(new InputStreamReader(pushbackInputStream)), 8192);
+    }
+//
+//    private LineNumberReader createReader ( FileInputStream fis, int bufSize ) {
+//        return new LineNumberReader(new BufferedReader(new InputStreamReader(fis), bufSize));
+//    }
+
+    /**
+     * @param path
+     * @param tokenSource
+     * @throws IOException
+     */
+    public HiTalkInputStream ( Path path, PlTokenSource tokenSource ) throws IOException {
+        this(8192, path, tokenSource);
     }
 
-    public HiTalkInputStream ( FileDescriptor in ) {
-        fd = in;
-        setInputStream(new FileInputStream(in));
+    public HiTalkInputStream ( FileDescriptor fd ) {
+        this.fd = fd;
+        final FileInputStream fis = new FileInputStream(fd);
+        setInputStream(fis);//fixme
+//        createReader(fis,8192);
     }
 
-    public HiTalkInputStream ( String path ) throws IOException {
-        this(8192, Paths.get(path));
+    public HiTalkInputStream ( String path, PlTokenSource tokenSource ) throws IOException {
+        this(Paths.get(path), tokenSource);
+    }
+
+    public HiTalkInputStream ( File file ) throws FileNotFoundException {
+        setInputStream(new FileInputStream(file));
     }
 
     /**
@@ -84,7 +96,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      * @throws IOException
      */
     public int read () throws IOException {
-        return pushbackInputStream.read();
+        return input.read();
     }
 
     /**
@@ -98,98 +110,6 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      */
     public void unread ( int c ) throws IOException {
         pushbackInputStream.unread(c);
-    }
-
-    /**
-     * Reads some bytes from an input
-     * stream and stores them into the buffer
-     * array {@code b}. The number of bytes
-     * read is equal
-     * to the length of {@code b}.
-     * <p>
-     * This method blocks until one of the
-     * following conditions occurs:
-     * <ul>
-     * <li>{@code b.length}
-     * bytes of input data are available, in which
-     * case a normal return is made.
-     *
-     * <li>End of
-     * file is detected, in which case an {@code EOFException}
-     * is thrown.
-     *
-     * <li>An I/O error occurs, in
-     * which case an {@code IOException} other
-     * than {@code EOFException} is thrown.
-     * </ul>
-     * <p>
-     * If {@code b} is {@code null},
-     * a {@code NullPointerException} is thrown.
-     * If {@code b.length} is zero, then
-     * no bytes are read. Otherwise, the first
-     * byte read is stored into element {@code b[0]},
-     * the next one into {@code b[1]}, and
-     * so on.
-     * If an exception is thrown from
-     * this method, then it may be that some but
-     * not all bytes of {@code b} have been
-     * updated with data from the input stream.
-     *
-     * @param b the buffer into which the data is read.
-     * @throws EOFException if this stream reaches the end before reading
-     *                      all the bytes.
-     * @throws IOException  if an I/O error occurs.
-     */
-    public void readFully ( @NotNull byte[] b ) throws IOException {
-
-    }
-
-    /**
-     * Reads {@code len}
-     * bytes from
-     * an input stream.
-     * <p>
-     * This method
-     * blocks until one of the following conditions
-     * occurs:
-     * <ul>
-     * <li>{@code len} bytes
-     * of input data are available, in which case
-     * a normal return is made.
-     *
-     * <li>End of file
-     * is detected, in which case an {@code EOFException}
-     * is thrown.
-     *
-     * <li>An I/O error occurs, in
-     * which case an {@code IOException} other
-     * than {@code EOFException} is thrown.
-     * </ul>
-     * <p>
-     * If {@code b} is {@code null},
-     * a {@code NullPointerException} is thrown.
-     * If {@code off} is negative, or {@code len}
-     * is negative, or {@code off+len} is
-     * greater than the length of the array {@code b},
-     * then an {@code IndexOutOfBoundsException}
-     * is thrown.
-     * If {@code len} is zero,
-     * then no bytes are read. Otherwise, the first
-     * byte read is stored into element {@code b[off]},
-     * the next one into {@code b[off+1]},
-     * and so on. The number of bytes read is,
-     * at most, equal to {@code len}.
-     *
-     * @param b   the buffer into which the data is read.
-     * @param off an int specifying the offset into the data.
-     * @param len an int specifying the number of bytes to read.
-     * @throws EOFException if this stream reaches the end before reading
-     *                      all the bytes.
-     * @throws IOException  if an I/O error occurs.
-     */
-    //@Override
-    public void readFully ( @NotNull byte[] b, int off, int len ) throws IOException {
-
     }
 
     /**
@@ -233,49 +153,6 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
             throw new EOFException();
         return ((ch1 & 0xff << 24) + (ch2 & 0xff << 16) + (ch3 << 8) + ch4);
     }
-
-    /**
-     * Reads the next line of text from the input stream.
-     * It reads successive bytes, converting
-     * each byte separately into a character,
-     * until it encounters a line terminator or
-     * end of
-     * file; the characters read are then
-     * returned as a {@code String}. Note
-     * that because this
-     * method processes bytes,
-     * it does not support input of the full Unicode
-     * character set.
-     * <p>
-     * If end of file is encountered
-     * before even one byte can be read, then {@code null}
-     * is returned. Otherwise, each byte that is
-     * read is converted to type {@code char}
-     * by zero-extension. If the character {@code '\n'}
-     * is encountered, it is discarded and reading
-     * ceases. If the character {@code '\r'}
-     * is encountered, it is discarded and, if
-     * the following byte converts &#32;to the
-     * character {@code '\n'}, then that is
-     * discarded also; reading then ceases. If
-     * end of file is encountered before either
-     * of the characters {@code '\n'} and
-     * {@code '\r'} is encountered, reading
-     * ceases. Once reading has ceased, a {@code String}
-     * is returned that contains all the characters
-     * read and not discarded, taken in order.
-     * Note that every character in this string
-     * will have a value less than {@code \u005Cu0100},
-     * that is, {@code (char)256}.
-     *
-     * @return the next line of text from the input stream,
-     * or {@code null} if the end of file is
-     * encountered before a byte can be read.
-     * @throws IOException if an I/O error occurs.
-     */
-//    public String readLine () throws IOException {
-//        return null;
-//    }
 
     /**
      * Reads in a string that has been encoded using a
@@ -539,13 +416,15 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      * @throws IOException if an I/O error occurs.
      */
     public String readLine () throws IOException {
+        setColNumber(0);
         return input.readLine();
     }
 
     public void setInputStream ( FileInputStream inputStream ) {
         this.inputStream = inputStream;
         channel = inputStream.getChannel();
-        pushbackInputStream = new PushbackInputStream(inputStream);
+        pushbackInputStream = new PushbackInputStream(inputStream, 128);
+        input = new LineNumberReader(new BufferedReader(new InputStreamReader(inputStream), bufSize));
     }
 
     public FileInputStream getInputStream () {
@@ -633,7 +512,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
 
     }
 
-    //@Override
+    @Override
     protected void init ( FileDescriptor fd ) throws IOException {
         setInputStream(new FileInputStream(fd));
     }
@@ -706,6 +585,11 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
     public void setColNumber ( int colNumber ) {
         this.colNumber = colNumber;
     }
+
+    public boolean isBOF () {
+        return bof++ == 0;
+    }
+
 //
 //    //@Override
 //    public String readUTF () throws IOException {

@@ -11,7 +11,6 @@ import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.HtBaseTerm;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ITermVisitor;
-import org.ltc.hitalk.term.io.HiTalkStream.Properties;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;

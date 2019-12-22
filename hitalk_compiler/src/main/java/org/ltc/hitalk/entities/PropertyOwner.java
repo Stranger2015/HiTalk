@@ -1,12 +1,12 @@
 package org.ltc.hitalk.entities;
 
 import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.term.io.HiTalkStream.Properties;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 /**
  *

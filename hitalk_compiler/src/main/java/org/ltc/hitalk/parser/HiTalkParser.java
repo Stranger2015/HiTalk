@@ -3,7 +3,7 @@ package org.ltc.hitalk.parser;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
-import org.ltc.hitalk.term.io.HiTalkStream;
+import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.wam.compiler.Language;
 
 import static org.ltc.hitalk.parser.PrologAtoms.*;
@@ -33,7 +33,7 @@ public class HiTalkParser extends PlPrologParser {
      *
      * @param interner The interner for variable and functor names.
      */
-    public HiTalkParser ( HiTalkStream stream,
+    public HiTalkParser ( HiTalkInputStream stream,
                           IVafInterner interner,
                           ITermFactory factory,
                           IOperatorTable optable ) {

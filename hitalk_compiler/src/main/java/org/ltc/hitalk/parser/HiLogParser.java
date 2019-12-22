@@ -4,7 +4,7 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.TermFactory;
 import org.ltc.hitalk.term.ListTerm;
-import org.ltc.hitalk.term.io.HiTalkStream;
+import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.Language;
@@ -39,7 +39,7 @@ public class HiLogParser extends PlPrologParser {
      * @param factory
      * @param optable
      */
-    public HiLogParser ( HiTalkStream stream,
+    public HiLogParser ( HiTalkInputStream stream,
                          IVafInterner interner,
                          TermFactory factory,
                          IOperatorTable optable ) {

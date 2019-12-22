@@ -31,13 +31,15 @@ import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.term.io.HiTalkStream;
+import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.wam.compiler.CompilerFactory;
 import org.ltc.hitalk.wam.compiler.ICompilerFactory;
 import org.ltc.hitalk.wam.compiler.Language;
 import org.ltc.hitalk.wam.compiler.LibParser;
 import org.ltc.hitalk.wam.compiler.Tools.Kind;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -45,7 +47,6 @@ import java.nio.file.Paths;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.core.Components.INTERNER;
 import static org.ltc.hitalk.core.Components.WAM_COMPILER;
-import static org.ltc.hitalk.term.io.HiTalkStream.createHiTalkStream;
 import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
 import static org.ltc.hitalk.wam.compiler.Tools.Kind.COMPILER;
 
@@ -56,7 +57,6 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
 
     public static final String DEFAULT_SCRATCH_DIRECTORY = "scratch";
     public static final HtProperty[] DEFAULT_PROPS = new HtProperty[]{
-
     };
 
     protected DefaultFileSystemManager fsManager;
@@ -93,22 +93,6 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
             throw new ExecutionError(PERMISSION_ERROR, null);
         }
     }
-
-//    /**
-//     * @param symbolTable
-//     * @param interner
-//     * @param parser
-//     * @param observer
-//     * @return
-//     */
-//    public PrologWAMCompiler <T, P, Q, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>
-//
-//    createWAMCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
-//                        IVafInterner interner,
-//                        PlPrologParser parser,
-//                        LogicCompilerObserver <P, Q> observer ) {
-//        return new PrologWAMCompiler(symbolTable, interner, parser, observer);
-//    }
 
     /**
      * @return
@@ -147,18 +131,22 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
     }
 
     @Override
-    protected void initComponents () {
+    protected void initComponents () throws FileNotFoundException {
         final AppContext appCtx = getAppContext();
         final ICompilerFactory <T, P, Q, PC, QC> cf = new CompilerFactory <>();
         setSymbolTable(new HtSymbolTable <>());
         setInterner(new VafInterner(
                 language().getName() + "_Variable_Namespace",//todo language
                 language().getName() + "_Functor_Namespace"));
-        appCtx.setStream(createHiTalkStream(fileName, true));
+        appCtx.setInputStream(createInputHiTalkStream(fileName));
         appCtx.setTermFactory(appCtx.getInterner());
         setParser((PlPrologParser) cf.createParser(language()));
         setWAMCompiler(cf.createWAMCompiler(language()));
 
+    }
+
+    public HiTalkInputStream createInputHiTalkStream ( String fileName ) throws FileNotFoundException {
+        return new HiTalkInputStream(new File(fileName));
     }
 
     /**
@@ -192,7 +180,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
      * @param optable
      * @return
      */
-    public IParser createParser ( HiTalkStream stream,
+    public IParser createParser ( HiTalkInputStream stream,
                                   IVafInterner interner,
                                   ITermFactory factory,
                                   IOperatorTable optable ) {
@@ -277,6 +265,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
         // Set up a parser on the token source.
         LibParser libParser = new LibParser();
         libParser.setTokenSource(tokenSource);
+        logger.info("Parsing " + classPath);
         // Load the built-ins into the domain
         while (true) {
             final ITerm term = libParser.parse();
@@ -301,15 +290,6 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
 
         return classPath;
     }
-
-//    private boolean isBOFAtom ( Atom term ) {
-//        return Objects.equals(term, PlPrologParser.BEGIN_OF_FILE_ATOM);
-//    }
-//
-//
-//    private boolean isEOFAtom ( Atom term ) {
-//        return Objects.equals(term, PlPrologParser.END_OF_FILE_ATOM);
-//    }
 
     protected Object clone () throws CloneNotSupportedException {
         return super.clone();

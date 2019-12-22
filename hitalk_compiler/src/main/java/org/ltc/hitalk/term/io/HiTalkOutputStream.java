@@ -42,7 +42,7 @@ public class HiTalkOutputStream extends HiTalkStream {
     }
 
     public HiTalkOutputStream ( FileDescriptor out ) {
-
+setOutputStream(new FileOutputStream(out));
     }
 
     /**

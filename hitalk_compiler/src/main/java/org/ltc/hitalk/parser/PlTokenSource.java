@@ -35,7 +35,6 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
      * Holds the tokenizer that supplies the next token on demand.
      */
     public PlLexer lexer;
-    //    protected Source <PlToken> tokenSource;
     protected IVafInterner interner;
     protected IOperatorTable operatorTable;
 
@@ -54,7 +53,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
 
     private boolean isBofGenerated;
     private boolean encodingChanged;
-    private String encoding = "UTF8";
+    private String encoding = "UTF-8";
 
     /**
      * @param string
@@ -66,7 +65,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
         return getPlTokenSourceForStdin(new ByteArrayInputStream(string.getBytes()));
     }
 
-    private static PlTokenSource getPlTokenSourceForStdin ( InputStream inputStream ) throws IOException, CloneNotSupportedException {
+    public static PlTokenSource getPlTokenSourceForStdin ( InputStream inputStream ) throws IOException, CloneNotSupportedException {
         HiTalkInputStream stream = getAppContext().currentInput();
         stream.setInputStream(new FileInputStream(FileDescriptor.in));
         PlLexer lexer = new PlLexer(stream);
@@ -125,7 +124,8 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
      * @throws IOException
      */
     public static PlTokenSource getTokenSourceForIoFile ( File file ) throws IOException {
-        PlLexer lexer = new PlLexer(new HiTalkInputStream(file.getAbsolutePath()));
+//        final FileInputStream fis = new FileInputStream(file);
+        PlLexer lexer = new PlLexer(new HiTalkInputStream(file));
         return new PlTokenSource(lexer);
     }
 

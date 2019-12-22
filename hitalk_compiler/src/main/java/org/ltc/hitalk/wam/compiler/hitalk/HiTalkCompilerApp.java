@@ -26,7 +26,7 @@ import org.ltc.hitalk.parser.HiTalkParser;
 import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.parser.PlTokenSource;
-import org.ltc.hitalk.term.io.HiTalkStream;
+import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.wam.compiler.*;
 import org.ltc.hitalk.wam.compiler.hilog.HiLogCompilerApp;
 import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
@@ -209,7 +209,7 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q, PC, QC>
         return new HiTalkWAMCompiler <>(symbolTable, interner, parser, observer);
     }
 
-    public IParser createParser ( HiTalkStream stream,
+    public IParser createParser ( HiTalkInputStream stream,
                                   IVafInterner interner,
                                   ITermFactory factory,
                                   IOperatorTable opTable ) {

@@ -1,9 +1,9 @@
 package org.ltc.hitalk.entities;
 
 import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.term.io.HiTalkStream.Properties;
 
 import java.beans.PropertyChangeListener;
+import java.util.Properties;
 
 import static org.ltc.hitalk.parser.PrologAtoms.*;
 
@@ -12,15 +12,14 @@ import static org.ltc.hitalk.parser.PrologAtoms.*;
  */
 public
 class HtScope implements IPropertyOwner {
-    protected
-    PropertyOwner owner;
+
+    protected PropertyOwner owner;
 
     /**
      * @return
      */
     @Override
-    public
-    int getPropLength () {
+    public int getPropLength () {
         return owner.getPropLength();
     }
 

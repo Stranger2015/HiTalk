@@ -25,13 +25,16 @@ import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static java.io.FileDescriptor.*;
+import static java.io.FileDescriptor.err;
+import static java.io.FileDescriptor.out;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.EXISTENCE_ERROR;
 import static org.ltc.hitalk.core.Components.*;
 import static org.ltc.hitalk.core.PrologBuiltIns.CURRENT_INPUT;
@@ -45,10 +48,9 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
-    protected final List <HiTalkStream> streams = new ArrayList <>();
+    public final List <HiTalkStream> streams = new ArrayList <>();
 
     public final static AppContext appContext = new AppContext();
-
     public static AppContext getAppContext () {
         return appContext;
     }
@@ -194,7 +196,7 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
 
     public BaseApp () {
         try {
-            streams.add(new HiTalkInputStream(in));//  "current_input"
+            streams.add(new HiTalkInputStream(FileDescriptor.in));//  "current_input"
             streams.add(new HiTalkOutputStream(out));// "current_output"
             streams.add(new HiTalkOutputStream(err));// "current_error" BUFSIZE == 0;
 
@@ -217,7 +219,7 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
     /**
      *
      */
-    protected abstract void initComponents ();
+    protected abstract void initComponents () throws FileNotFoundException;
 
     /**
      * @return
@@ -406,6 +408,8 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
      */
     public static class AppContext extends HashMap <Components, IHitalkObject> {
 
+        private HiTalkInputStream inputStream;
+
         /**
          * Creates an empty enum map with the specified key type.
          *
@@ -440,9 +444,9 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
             return (IResolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>) get(RESOLVER_IC);
         }
 
-        public HiTalkInputStream getStream () {
-            return (HiTalkInputStream) get(STREAM);
-        }
+//        public HiTalkInputStream getStream () {
+//            return (HiTalkInputStream) get(STREAM);
+//        }
 
         public ISymbolTable <Integer, String, Object> getSymbolTable () {
             return (ISymbolTable <Integer, String, Object>) get(SYMBOL_TABLE);
@@ -478,6 +482,14 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
 
         public void setTermFactory ( IVafInterner interner ) {
             putIfAbsent(TERM_FACTORY, (IHitalkObject) new TermFactory(interner));
+        }
+
+        public void setInputStream ( HiTalkInputStream inputStream ) {
+            this.inputStream = inputStream;
+        }
+
+        public HiTalkInputStream getInputStream () {
+            return inputStream;
         }
     }
 }
