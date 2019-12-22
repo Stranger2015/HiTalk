@@ -11,6 +11,8 @@ import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.parser.PlTokenSource;
+import org.ltc.hitalk.term.io.HiTalkInputStream;
+import org.ltc.hitalk.term.io.HiTalkOutputStream;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.ICompilerFactory;
 import org.ltc.hitalk.wam.compiler.Language;
@@ -192,9 +194,9 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
 
     public BaseApp () {
         try {
-            streams.add(new HiTalkStream(in, true));//  "current_input"
-            streams.add(new HiTalkStream(out, false));// "current_output"
-            streams.add(new HiTalkStream(err, false));// "current_error"
+            streams.add(new HiTalkInputStream(in));//  "current_input"
+            streams.add(new HiTalkOutputStream(out));// "current_output"
+            streams.add(new HiTalkOutputStream(err));// "current_error" BUFSIZE == 0;
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -414,8 +416,8 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
         public AppContext () {
         }
 
-        public HiTalkStream currentInput () {
-            return (HiTalkStream) get(CURRENT_INPUT);
+        public HiTalkInputStream currentInput () {
+            return (HiTalkInputStream) get(CURRENT_INPUT);
         }
 
         public PredicateTable getPredicateTable () {
@@ -438,8 +440,8 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
             return (IResolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>) get(RESOLVER_IC);
         }
 
-        public HiTalkStream getStream () {
-            return (HiTalkStream) get(STREAM);
+        public HiTalkInputStream getStream () {
+            return (HiTalkInputStream) get(STREAM);
         }
 
         public ISymbolTable <Integer, String, Object> getSymbolTable () {

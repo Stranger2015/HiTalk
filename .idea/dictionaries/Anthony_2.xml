@@ -46,6 +46,7 @@
       <w>precompiling</w>
       <w>pred</w>
       <w>preds</w>
+      <w>preproc</w>
       <w>preprocess</w>
       <w>proc</w>
       <w>prolog</w>
@@ -64,6 +65,7 @@
       <w>transpiler</w>
       <w>traverser</w>
       <w>ttyflush</w>
+      <w>ungetc</w>
       <w>unsets</w>
     </words>
   </dictionary>

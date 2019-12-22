@@ -8,24 +8,20 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.parser.PlToken.TokenKind;
-import org.ltc.hitalk.term.HlOpSymbol;
+import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.term.io.HiTalkStream;
+import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.wam.compiler.HtFunctorName;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.EXISTENCE_ERROR;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
 import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
-import static org.ltc.hitalk.term.io.HiTalkStream.createHiTalkStream;
 
 public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     private boolean encodingPermitted;
@@ -57,10 +53,8 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     }
 
     private boolean isBofGenerated;
-    //    private int lineOfs;
-//    private int colOfs;
     private boolean encodingChanged;
-    private String encoding;
+    private String encoding = "UTF8";
 
     /**
      * @param string
@@ -73,8 +67,8 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     }
 
     private static PlTokenSource getPlTokenSourceForStdin ( InputStream inputStream ) throws IOException, CloneNotSupportedException {
-        HiTalkStream stream = getAppContext().currentInput();
-        stream.setInputStream(inputStream);
+        HiTalkInputStream stream = getAppContext().currentInput();
+        stream.setInputStream(new FileInputStream(FileDescriptor.in));
         PlLexer lexer = new PlLexer(stream);
         return new PlTokenSource(lexer);
     }
@@ -102,7 +96,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
         isBofGenerated = bofGenerated;
     }
 
-    protected HiTalkStream stream;
+    protected HiTalkInputStream stream;
     private String path;
 
     /**
@@ -131,7 +125,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
      * @throws IOException
      */
     public static PlTokenSource getTokenSourceForIoFile ( File file ) throws IOException {
-        PlLexer lexer = new PlLexer(createHiTalkStream(file.getAbsolutePath(), true));
+        PlLexer lexer = new PlLexer(new HiTalkInputStream(file.getAbsolutePath()));
         return new PlTokenSource(lexer);
     }
 
@@ -223,7 +217,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
         return PlToken.newToken(EOF);
     }
 
-    public HiTalkStream getStream () {
+    public HiTalkInputStream getStream () {
         return stream;
     }
 
@@ -235,7 +229,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
      * @param priority      The priority of the operator, zero unsets it.
      * @param associativity The operators associativity.
      */
-    public void internOperator ( String operatorName, int priority, HlOpSymbol.Associativity associativity ) {
+    public void internOperator ( String operatorName, int priority, Associativity associativity ) {
         int arity;
 
         if ((associativity == xfy) | (associativity == yfx) | (associativity == xfx)) {
@@ -333,7 +327,6 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
             throw new SourceCodeException("Expected " + token.image + " but got " + nextToken.image + ".", null, null, null, new SourceCodePositionImpl(nextToken.beginLine, nextToken.beginColumn, nextToken.endLine, nextToken.endColumn));
         } else {
             nextToken = poll();
-
             result = nextToken;
         }
         return result;

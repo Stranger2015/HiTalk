@@ -9,6 +9,7 @@ import org.ltc.hitalk.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.*;
 import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 import org.ltc.hitalk.term.HlOpSymbol.Fixity;
+import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.HtFunctorName;
@@ -51,7 +52,7 @@ public class PlPrologParser implements IParser {
      * @param factory
      * @param optable
      */
-    public PlPrologParser ( HiTalkStream stream,
+    public PlPrologParser ( HiTalkInputStream stream,
                             IVafInterner interner,
                             ITermFactory factory,
                             IOperatorTable optable ) {
@@ -220,13 +221,6 @@ public class PlPrologParser implements IParser {
                 break;
             case ATOM:
                 term = factory.newAtom(token.image);
-                if (term.equals(END_OF_FILE_ATOM)) {
-                    getTokenSource().setEofGenerated(true);
-                }
-                if (term.equals(BEGIN_OF_FILE_ATOM)) {
-                    getTokenSource().setBofGenerated(true);//suspiviuoys --> enciding??
-                    getTokenSource().setEncodingPermitted(false);//suspiviuoys --> enciding??
-                }
                 break;
             case INTEGER_LITERAL:
                 term = factory.newAtomic(Integer.parseInt(token.image));

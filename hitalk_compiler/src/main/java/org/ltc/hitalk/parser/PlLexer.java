@@ -1,7 +1,7 @@
 package org.ltc.hitalk.parser;
 
 import org.ltc.hitalk.parser.PlToken.TokenKind;
-import org.ltc.hitalk.term.io.HiTalkStream;
+import org.ltc.hitalk.term.io.HiTalkInputStream;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -16,13 +16,13 @@ import static org.ltc.hitalk.parser.Quotemeta.decode;
  * @author shun
  */
 public class PlLexer {
-    private final HiTalkStream stream;
+    private final HiTalkInputStream stream;
     private PlToken token;
 
     public static final String PUNCTUATION = "#&*+-./\\:;?@^$<=>";
     public static final String PARENTHESIS = "(){}[],!|";
 
-    public PlLexer ( HiTalkStream stream ) {
+    public PlLexer ( HiTalkInputStream stream ) {
         this.stream = stream;
     }
 
@@ -49,7 +49,17 @@ public class PlLexer {
      *
      */
     public PlToken next ( boolean value ) throws Exception {
-        return (token = getToken(value));
+        int lineNumber = stream.getLineNumber();
+        int colNumber = stream.getColNumber();
+
+        token = getToken(value);
+
+        token.setBeginLine(lineNumber);
+        token.setBeginColumn(colNumber);
+        token.setEndLine(stream.getLineNumber());
+        token.setEndColumn(stream.getColNumber());
+
+        return token;
     }
 
     /**
@@ -222,46 +232,49 @@ public class PlLexer {
         }
         return result.toString();
     }
+//
+//    private char readFully () throws IOException {
+//        int c = read();
+//        if (c == -1) {
+//            throw new EOFException();
+//        }
+//        return (char) c;
+//    }
 
-    private char readFully () throws IOException {
-        int c = read();
-        if (c == -1) {
-            throw new EOFException();
-        }
-        return (char) c;
-    }
-
-    private int skipWhitespaces () throws Exception {
+    private void skipWhitespaces () throws Exception {
         char chr;
-        int i = 0;
-        for (; ; ) {
+        while (true) {
             String line = stream.readLine();
-            for (int idx2 = 0; i < line.length(); i++) {
+            if (line == null) {
+                throw new EOFException();
+            }
+            for (int i = 0, idx2 = 0; i < line.length(); i++) {
                 chr = line.charAt(i);
                 if (!isWhitespace(chr)) {//remove \r  \n from there
                     if (chr == '%') {
                         break; // goto outer loop
                     }
-
-                    int idx1 = line.indexOf("/*", idx2 + 2);
+                    int idx1 = line.indexOf("/*", idx2 + 2);//fixme
                     if (idx1 == -1) {
                         break;
                     }
-                    idx2 = line.indexOf("*/", idx1 + 2);
+                    idx2 = line.indexOf("*/", idx1 + 2);//fixme
                     if (idx2 == -1) {
                         break;
                     }
+                    stream.setColNumber(idx2 + 2);
                 }
             }
         }
-
-        return i;
     }
 
-    public boolean isWhitespace ( char c ) {
-        " \\t".indexOf(c);
+    /**
+     * @param c
+     * @return
+     */
+    public static boolean isWhitespace ( char c ) {
+        return " \\t".indexOf(c) >= 0;
     }
-
 
     private void ungetc ( int c ) throws Exception {
         if (c != -1) {

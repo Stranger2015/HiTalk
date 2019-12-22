@@ -10,6 +10,38 @@ public class PlToken {
     public boolean quote;
     private String number;
 
+    public void setBeginLine ( int beginLine ) {
+        this.beginLine = beginLine;
+    }
+
+    public void setBeginColumn ( int beginColumn ) {
+        this.beginColumn = beginColumn;
+    }
+
+    public void setEndLine ( int endLine ) {
+        this.endLine = endLine;
+    }
+
+    public void setEndColumn ( int endColumn ) {
+        this.endColumn = endColumn;
+    }
+
+    public int getBeginLine () {
+        return beginLine;
+    }
+
+    public int getBeginColumn () {
+        return beginColumn;
+    }
+
+    public int getEndLine () {
+        return endLine;
+    }
+
+    public int getEndColumn () {
+        return endColumn;
+    }
+
     /**
      * @param kind
      */

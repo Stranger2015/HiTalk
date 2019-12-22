@@ -4,8 +4,7 @@ package org.ltc.hitalk.entities;
 import org.ltc.hitalk.term.ITerm;
 
 import java.beans.PropertyChangeListener;
-
-import static org.ltc.hitalk.term.io.HiTalkStream.Properties;
+import java.util.Properties;
 
 /**
  *
