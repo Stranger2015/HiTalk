@@ -24,8 +24,6 @@ import java.util.List;
 import static com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys.SYMKEY_PREDICATES;
 
 /**
- *
- *
  * @param <P>
  * @param <Q>
  */
@@ -142,11 +140,8 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
                 continue;
             }
             if (t == PlPrologParser.END_OF_FILE_ATOM) {
-//                getTaskQueue().push(new TermExpansionTask(this, Collections::singletonList, EnumSet.noneOf(DirectiveKind.class)));
-                if (!getParser().getTokenSource().isEofGenerated()) {
-                    getParser().popTokenSource();
-                    break;
-                }
+                getParser().popTokenSource();
+                break;
             }
             T c = (T) parser.convert(t);//FIXME
             compile(c, flags);

@@ -19,8 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import static org.ltc.hitalk.parser.PrologAtoms.COMMA;
-import static org.ltc.hitalk.parser.PrologAtoms.IMPLIES;
+import static org.ltc.hitalk.parser.PrologAtoms.*;
 import static org.ltc.hitalk.term.ListTerm.Kind.LIST;
 
 /**
@@ -226,7 +225,7 @@ public class TermUtilities {
                         IFunctor.class, COMMA, interner);
 
                 return new HtClause((IFunctor) symbol.getArgument(0), new ListTerm(LIST, flattenedArgs));
-            } else if ("?-".equals(symbol.getTextName())) {
+            } else if (QUERY.equals(symbol.getTextName())) {
                 IFunctor[] flattenedArgs = flattenTerm((IFunctor) symbol.getArgument(0),
                         IFunctor.class,
                         COMMA,

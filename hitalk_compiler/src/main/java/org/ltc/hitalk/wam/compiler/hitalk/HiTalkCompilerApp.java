@@ -25,7 +25,6 @@ import org.ltc.hitalk.entities.context.LoadContext;
 import org.ltc.hitalk.parser.HiTalkParser;
 import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.PlPrologParser;
-import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.wam.compiler.*;
 import org.ltc.hitalk.wam.compiler.hilog.HiLogCompilerApp;
@@ -1168,13 +1167,13 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q, PC, QC>
 ////
 ////        }
 //        }
+    @Override
     public Path getScratchDirectory () {
         if (scratchDirectory == null) {
             scratchDirectory = Paths.get(DEFAULT_SCRATCH_DIRECTORY).toAbsolutePath();
         }
         return scratchDirectory;
     }
-
 
     /**
      * Establishes an observer on the compiled forms that the compiler outputs.
@@ -1219,17 +1218,6 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q, PC, QC>
     public Language language () {
         return HITALK;
     }
-
-    /**
-     * @param tokenSource
-     */
-    public void setTokenSource ( PlTokenSource tokenSource ) {
-
-    }
-
-//    public Tools tool () {
-//        return COMPILER;
-//    }
 
     /**
      * @return

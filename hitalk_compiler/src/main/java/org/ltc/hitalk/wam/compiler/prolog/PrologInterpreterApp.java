@@ -5,7 +5,6 @@ import org.ltc.hitalk.compiler.bktables.IProduct;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.wam.compiler.Language;
 import org.ltc.hitalk.wam.compiler.Tools.Kind;
 
@@ -26,7 +25,7 @@ public class PrologInterpreterApp<T extends HtClause, P, Q, PC, QC> extends Base
     public PrologInterpreterApp ( String fn ) throws IOException, CloneNotSupportedException {
         if (fn.startsWith("meta:")) {
             fn = fn.substring(6);
-            getParser().setTokenSource(PlTokenSource.getPlTokenSourceForString(fn));
+            ///getParser().setTokenSource(PlTokenSource.getPlTokenSourceForString(fn));
         } else {
             setFileName(fn);
         }

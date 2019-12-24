@@ -13,7 +13,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import static org.ltc.hitalk.parser.PlTokenSource.getPlTokenSourceForString;
 import static org.ltc.hitalk.parser.PlTokenSource.getTokenSourceForIoFile;
 
 /**
@@ -53,9 +52,9 @@ public interface ICompiler<T extends HtClause, P, Q> extends ILogicCompiler <T, 
      * @throws IOException
      * @throws SourceCodeException
      */
-    default void compileString ( String string, HtProperty... flags ) throws Exception {
-        compile(getPlTokenSourceForString(string), flags);
-    }
+//    default void compileString ( String string, HtProperty... flags ) throws Exception {
+//        compile(getPlTokenSourceForString(string), flags);
+//    }
 
     /**
      * @param tokenSource

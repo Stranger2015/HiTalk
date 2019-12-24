@@ -1,5 +1,6 @@
 package org.ltc.hitalk.parser;
 
+import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
 
@@ -9,25 +10,27 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static java.lang.Character.*;
+import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.EXISTENCE_ERROR;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
 import static org.ltc.hitalk.parser.Quotemeta.decode;
 
 /**
  * @author shun
  */
-public class PlLexer {
-    private final HiTalkInputStream stream;
+public class PlLexer extends PlTokenSource {
+    //    rivate final HiTalkInputStream stream;
     private PlToken token;
 
-    public static final String PUNCTUATION = "#&*+-./\\:;?@^$<=>";
-    public static final String PARENTHESIS = "(){}[],!|";
+    public static final String PUNCTUATION = "#&*+-./\\:;?@^$<=>,!|";
+    public static final String PARENTHESES = "(){}[]";
 
-    public PlLexer ( HiTalkInputStream stream ) {
-        if (stream == null) {
-            throw new IllegalArgumentException();
-        }
-        this.stream = stream;
+    public PlLexer ( HiTalkInputStream inputStream ) {
+        super(inputStream);
     }
+
+//    public HiTalkInputStream getInputStream () {
+//        return stream;
+//    }
 
     public static boolean isMergeable ( String l, String r ) {
         return isTokenBoundary(l.charAt(l.length() - 1), r.charAt(0));
@@ -45,89 +48,126 @@ public class PlLexer {
      * @return
      */
     public static boolean isTokenBoundary ( char c ) {
-        return isWhitespace(c) || PARENTHESIS.indexOf(c) != -1;
+        return isWhitespace(c) || PARENTHESES.indexOf(c) != -1;
     }
 
     /**
      *
      */
     public PlToken next ( boolean value ) throws Exception {
+        final HiTalkInputStream stream = getInputStream();
         int lineNumber = stream.getLineNumber();
         int colNumber = stream.getColNumber();
 
-        token = getToken(value);
+        PlToken token = getToken(value);
 
         token.setBeginLine(lineNumber);
         token.setBeginColumn(colNumber);
-        token.setEndLine(stream.getLineNumber());
-        token.setEndColumn(stream.getColNumber());
+        token.setEndLine(lineNumber);
+        token.setEndColumn(colNumber + token.image.length());
 
         return token;
     }
 
     /**
-     * 前に解析したトークンを返します。
+     * @return
      */
-    public PlToken peek () {
+    public PlToken poll () {
+        if (token.next == null) {
+            try {
+                token.next = next(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new ExecutionError(EXISTENCE_ERROR, null);
+            }
+
+        }
+
+        token = token.next;
         return token;
     }
 
-    private TokenKind calcTokenKind ( int c ) {
-        for (TokenKind value : values()) {
-            if (value.getChar() == c) {
-                return value;
+    /**
+     * Retrieves, but does not remove, the head token, returning <tt>null</tt> if there are no more tokens.
+     *
+     * @return The head token, returning <tt>null</tt> if there are no more tokens.
+     */
+    public PlToken peek () {
+        if (token.next == null) {
+            try {
+                token.next = next(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new ExecutionError(EXISTENCE_ERROR, null);
             }
         }
-        return null;
+
+        return token.next;
+    }
+
+    /**
+     * @param c
+     * @return
+     */
+    private TokenKind calcTokenKind ( int c ) {
+        TokenKind result = null;
+        for (TokenKind value : values()) {
+            if (value.getChar() == c) {
+                result = value;
+                break;
+            }
+        }
+
+        return result;
     }
 
     int read () throws IOException {
-        return stream.readChar();
+        return getInputStream().read();
     }
 
     private PlToken getToken ( boolean valued ) throws Exception {
+        PlToken token = null;
         try {
-            if (stream.isBOF()) {
-                return PlToken.newToken(BOF);
-            }
-//            skipWhitespaces();
+            skipWhitespaces();
             int chr = read();
             if (chr == -1) {
-                return PlToken.newToken(EOF);
-            }
-            if (valued) {
-                // 括弧など
-                if ("([{".indexOf(chr) != -1) {
-                    return new PlToken(Objects.requireNonNull(calcTokenKind(chr)));
-                }
-                // 整数値アトム
-                if (chr == '-') {
-                    int c = read();
-                    if (isDigit(c)) {
-                        return getNumber(c, "-");
+                token = PlToken.newToken(EOF);
+            } else {
+                if (valued) {
+                    // 括弧など
+                    if ("([{".indexOf(chr) != -1) {
+                        token = new PlToken(Objects.requireNonNull(calcTokenKind(chr)));
+                    } else if (chr == '-') {
+                        int c = read();
+                        if (isDigit(c)) {
+                            token = getNumber(c, "-");
+                        } else {
+                            ungetc(c);
+                        }
+                    } else if (isDigit(chr)) {
+                        token = getNumber(chr, "");
                     }
-                    ungetc(c);
-                } else if (isDigit(chr)) {
-                    return getNumber(chr, "");
-//                    ungetc(c);
                 }
-            }
-
-            if ("}])".indexOf(chr) != -1) {
-                return new PlToken(calcTokenKind(chr), String.valueOf((char) chr));
-            }
-            PlToken token = getAtom(chr);
-            if (token == null) {//不正な文字=Illegal characters
-                throw new ParseException(":Bad char `" + (char) chr + ":0x" + Integer.toHexString(chr) + "'.");
-            }
-            if (valued && token.kind == ATOM) {
-                if ((chr = read()) == '(') {
-                    return new PlToken(FUNCTOR_BEGIN);
+                if (token == null) {
+                    if ("}])".indexOf(chr) != -1) {
+                        token = new PlToken(calcTokenKind(chr), String.valueOf((char) chr));
+                    } else {
+                        token = getAtom(chr);
+                        if (token == null) {//不正な文字=Illegal characters
+                            throw new ParseException(":Bad char `" + (char) chr + ":0x" + Integer.toHexString(chr) + "'.");
+                        }
+                        if (valued && token.kind == ATOM) {
+                            if ((chr = read()) == '(') {
+                                token = new PlToken(FUNCTOR_BEGIN);
+                            } else {
+                                ungetc(chr);
+                            }
+                        }
+                    }
                 }
-                ungetc(chr);
             }
         } catch (EOFException e) {
-            return PlToken.newToken(EOF);
+            token = PlToken.newToken(EOF);
         }
 
         return token;
@@ -135,11 +175,10 @@ public class PlLexer {
 
     private PlToken getAtom ( int chr ) throws Exception {
         StringBuilder val = new StringBuilder();
-        // 単体でアトムを構成=Atom is composed of body
         if (";,!|".indexOf(chr) != -1) {
             return new PlToken(ATOM, String.valueOf((char) chr));
         }
-        // アルファベットのみで構成されるアトムか変数=Atom or variable consisting only of letters
+//       Atom or variable consisting only of letters
         if (isJavaIdentifierStart(chr)) {
             do {
                 val.append((char) chr);
@@ -221,6 +260,7 @@ public class PlLexer {
         if (result.isEmpty()) {
             throw new ParseException("文字がありません。chars=\"" + chars + "\"");
         }
+
         return result;
     }
 
@@ -236,29 +276,19 @@ public class PlLexer {
         }
         return result.toString();
     }
-//
-//    private char readFully () throws IOException {
-//        int c = read();
-//        if (c == -1) {
-//            throw new EOFException();
-//        }
-//        return (char) c;
-//    }
 
     private void skipWhitespaces () throws Exception {
         for (; ; ) {
             int chr = read();
             if (!isWhitespace((char) chr)) {
                 if (chr == '%') {
-                    stream.readLine();
+                    getInputStream().readLine();
                     continue;
                 }
                 if (chr == '/') {
                     int c = read();
                     if (c == '*') {
-                        while (true) {
-                            if (read() == '*' && read() == '/') break;
-                        }
+                        while (read() != '*' || read() != '/') ;
                         continue;
                     }
                     ungetc(c);
@@ -274,12 +304,12 @@ public class PlLexer {
      * @return
      */
     public static boolean isWhitespace ( char c ) {
-        return " \\r\\n\\t".indexOf(c) != -1;
+        return " \r\n\t".indexOf(c) != -1;
     }
 
     private void ungetc ( int c ) throws Exception {
         if (c != -1) {
-            stream.unreadChar(c);
+            getInputStream().unread(c);
         }
     }
 

@@ -142,7 +142,6 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
         appCtx.setTermFactory(appCtx.getInterner());
         setParser((PlPrologParser) cf.createParser(language()));
         setWAMCompiler(cf.createWAMCompiler(language()));
-
     }
 
     public HiTalkInputStream createInputHiTalkStream ( String fileName ) throws FileNotFoundException {
@@ -158,33 +157,18 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
         initialized.set(false);
     }
 
-//    /**
-//     * @param symbolTable
-//     * @param interner
-//     * @param observer
-//     * @param parser
-//     * @return
-//     */
-//    public BaseCompiler <T, P, Q>
-//    createWAMCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
-//                        IVafInterner interner,
-//                        LogicCompilerObserver <P, Q> observer,
-//                        PlPrologParser parser ) {
-//        return new PrologWAMCompiler(symbolTable, interner, parser, observer);
-//    }
-
     /**
-     * @param stream
+     * @param inputStream
      * @param interner
      * @param factory
      * @param optable
      * @return
      */
-    public IParser createParser ( HiTalkInputStream stream,
+    public IParser createParser ( HiTalkInputStream inputStream,
                                   IVafInterner interner,
                                   ITermFactory factory,
                                   IOperatorTable optable ) {
-        return new PlPrologParser(stream, interner, factory, optable);
+        return new PlPrologParser(inputStream, interner, factory, optable);
     }
 
     /**
@@ -211,7 +195,6 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
 //            fsManager.setBaseFile(new File(System.getProperty("user.dir")));
 
             fsManager.setCacheStrategy(CacheStrategy.ON_RESOLVE);
-
             fsManager.init();
 
         } catch (IOException e) {
@@ -275,10 +258,8 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
             }
             if (term == PlPrologParser.END_OF_FILE_ATOM) {//ignore
                 logger.info("end_of_file");
-                if (!libParser.getTokenSource().isEofGenerated()) {
-                    parser.popTokenSource();
-                    break;
-                }
+                parser.popTokenSource();
+                break;
             }
             HtClause clause = libParser.convert(term);
             wamCompiler.compile((T) clause);
@@ -332,7 +313,6 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
     protected void setWAMCompiler ( PrologWAMCompiler <T, P, Q, PC, QC> compiler ) {
         this.wamCompiler = compiler;
         getAppContext().putIfAbsent(WAM_COMPILER, compiler);
-//        setPreCompiler();
     }
 
     @Override

@@ -97,10 +97,8 @@ public interface IPreCompiler extends IQueueHolder <PreCompilerTask>, IHitalkObj
                 getQueue().push(new TermExpansionTask(this,
                         tokenSource,
                         noneOf(DirectiveKind.class)));
-                if (!getParser().getTokenSource().isEofGenerated()) {//real EOF
-                    getParser().popTokenSource();
-                    break;
-                }
+                getParser().popTokenSource();
+                break;
             }
             HtClause c = getParser().convert(t);
             if (!checkDirective(c, delims)) {

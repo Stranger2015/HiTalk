@@ -4,13 +4,11 @@ import com.thesett.common.util.Source;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
-import org.ltc.hitalk.core.utils.TermUtilities;
 import org.ltc.hitalk.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.*;
 import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 import org.ltc.hitalk.term.HlOpSymbol.Fixity;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
-import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.HtFunctorName;
 import org.ltc.hitalk.wam.compiler.IFunctor;
@@ -21,6 +19,7 @@ import java.util.*;
 
 import static java.util.EnumSet.of;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
+import static org.ltc.hitalk.core.utils.TermUtilities.convertToClause;
 import static org.ltc.hitalk.parser.HiLogParser.hilogApply;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
 import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
@@ -38,8 +37,9 @@ public class PlPrologParser implements IParser {
             getAppContext().getTermFactory().newAtom(END_OF_FILE);
     public static final Atom BEGIN_OF_FILE_ATOM =
             getAppContext().getTermFactory().newAtom(BEGIN_OF_FILE);
+    private PlTokenSource tokenSource;
 
-    protected HiTalkStream stream;
+    //    protected HiTalkInputStream stream;
     protected PlLexer lexer;
     protected final ITermFactory factory;
     protected IOperatorTable operatorTable;
@@ -48,16 +48,15 @@ public class PlPrologParser implements IParser {
     protected ITermFactory termFactory;
 
     /**
-     * @param stream
+     * @param inputStream
      * @param factory
      * @param optable
      */
-    public PlPrologParser ( HiTalkInputStream stream,
+    public PlPrologParser ( HiTalkInputStream inputStream,
                             IVafInterner interner,
                             ITermFactory factory,
                             IOperatorTable optable ) {
-        this.stream = stream;
-        lexer = new PlLexer(stream);
+        this.tokenSource = new PlLexer(inputStream);
         this.interner = interner;
         this.factory = factory;
         this.operatorTable = optable;
@@ -131,9 +130,6 @@ public class PlPrologParser implements IParser {
     @Override
     public ITerm next () throws Exception {
         PlToken token = lexer.next(true);
-//        if (token == null) {
-//            token = PlToken.newToken(EOF);
-//        }
         return newTerm(token, false, EnumSet.of(DOT, EOF));
     }
 
@@ -141,7 +137,7 @@ public class PlPrologParser implements IParser {
      * @return
      */
     public HtClause parseClause () throws Exception {
-        return TermUtilities.convertToClause(termSentence(), getAppContext().getInterner());
+        return convertToClause(termSentence(), getAppContext().getInterner());
     }
 
     /**
@@ -230,12 +226,12 @@ public class PlPrologParser implements IParser {
                 break;
             case BOF:
                 term = BEGIN_OF_FILE_ATOM;
-                getTokenSource().setBofGenerated(false);
+//                getTokenSource().setBofGenerated(false);
                 getTokenSource().setEncodingPermitted(true);
                 break;
             case EOF:
                 term = END_OF_FILE_ATOM;
-                getTokenSource().setEofGenerated(false);
+                popTokenSource();
                 break;
             case LPAREN:
                 term = readSequence(token.kind, RPAREN, true);//blocked sequence
@@ -369,7 +365,6 @@ public class PlPrologParser implements IParser {
     /**
      * @param source
      */
-//    @Override?
     public void setTokenSource ( Source <PlToken> source ) {
         setTokenSource((PlTokenSource) source);
     }
@@ -387,7 +382,7 @@ public class PlPrologParser implements IParser {
         variableContext.clear();
 
         if (!tokenSourceStack.isEmpty()) {
-            return literal(lexer.getNextToken());
+            return literal(((PlLexer) getTokenSource()).getNextToken());
         }
 
         return literal(PlToken.newToken(EOF));

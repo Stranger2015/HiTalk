@@ -1,8 +1,5 @@
 package org.ltc.hitalk.parser;
 
-
-import com.thesett.common.parsing.SourceCodeException;
-import com.thesett.common.parsing.SourceCodePositionImpl;
 import com.thesett.common.util.Source;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
@@ -15,15 +12,20 @@ import org.ltc.hitalk.wam.compiler.HtFunctorName;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.*;
+import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.IOException;
 
-import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.EXISTENCE_ERROR;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
-import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
+import static org.ltc.hitalk.parser.PlToken.TokenKind.BOF;
+import static org.ltc.hitalk.parser.PlToken.TokenKind.DOT;
 import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
 
-public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
+abstract public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
+
+    private HiTalkInputStream inputStream;
     private boolean encodingPermitted;
 
     /**
@@ -34,20 +36,21 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     /**
      * Holds the tokenizer that supplies the next token on demand.
      */
-    public PlLexer lexer;
+//    public PlLexer lexer;
     protected IVafInterner interner;
     protected IOperatorTable operatorTable;
 
     /**
      * Builds a token source around the specified token manager.
      *
-     * @param lexer The token manager to use to feed this source.
+     * @param inputStream The token manager to use to feed this source.
      */
-    public PlTokenSource ( PlLexer lexer ) {
-        this.lexer = lexer;
+    public PlTokenSource ( HiTalkInputStream inputStream ) {
+        this.inputStream = inputStream;
 
         // The first token is initialized to be empty, so that the first call to poll returns the first token.
         token = new PlToken(BOF);
+        isBofGenerated = true;
         encodingPermitted = true;
     }
 
@@ -56,30 +59,32 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     private String encoding = "UTF-8";
 
     /**
-     * @param string
+     * //     * @param string
+     *
      * @return
-     * @throws IOException
-     * @throws CloneNotSupportedException
      */
-    public static PlTokenSource getPlTokenSourceForString ( String string ) throws IOException, CloneNotSupportedException {
-        return getPlTokenSourceForStdin(new ByteArrayInputStream(string.getBytes()));
-    }
-
-    public static PlTokenSource getPlTokenSourceForStdin ( InputStream inputStream ) throws IOException, CloneNotSupportedException {
+//    public static PlTokenSource getPlTokenSourceForString ( String string ) {
+//        return getPlTokenSourceForStdin(new ByteArrayInputStream(string.getBytes()));
+//    }
+//
+    public static PlTokenSource getPlTokenSourceForStdin () {
         HiTalkInputStream stream = getAppContext().currentInput();
         stream.setInputStream(new FileInputStream(FileDescriptor.in));
-        PlLexer lexer = new PlLexer(stream);
-        return new PlTokenSource(lexer);
+        return newInstance(stream);
     }
 
-    /**
-     * @return
-     */
-    public boolean isEofGenerated () {
-        return isEofGenerated;
+    protected static PlTokenSource newInstance ( HiTalkInputStream stream ) {
+        return null;
     }
 
-    private boolean isEofGenerated;
+//    /**
+//     * @return
+//     */
+//    public boolean isEofGenerated () {
+//        return isEofGenerated;
+//    }
+//
+//    private boolean isEofGenerated;
 
     /**
      * @return
@@ -109,12 +114,16 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
         }
     }
 
+    public void setEncodingPermitted ( boolean b ) {
+        encodingPermitted = b;
+    }
+
     /**
-     * @param lexer
+     * @param inputStream
      * @param path
      */
-    public PlTokenSource ( PlLexer lexer, String path ) {
-        this.lexer = lexer;
+    public PlTokenSource ( HiTalkInputStream inputStream, String path ) {
+        this.inputStream = inputStream;
         this.path = path;
     }
 
@@ -124,9 +133,8 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
      * @throws IOException
      */
     public static PlTokenSource getTokenSourceForIoFile ( File file ) throws IOException {
-//        final FileInputStream fis = new FileInputStream(file);
-        PlLexer lexer = new PlLexer(new HiTalkInputStream(file));
-        return new PlTokenSource(lexer);
+        HiTalkInputStream stream = new HiTalkInputStream(file);
+        return new PlLexer(stream);
     }
 
     /**
@@ -163,60 +171,6 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
         this.encodingChanged = encodingChanged;
     }
 
-    /**
-     * @return
-     */
-    public PlToken poll () {
-        if (!isBofGenerated()) {
-            setBofGenerated(true);
-            token = newBOFToken();
-            return token;
-        }
-        if (token.next == null) {
-            try {
-                token.next = lexer.next(true);
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new ExecutionError(EXISTENCE_ERROR, null);
-            }
-
-        }
-
-        token = token.next;
-        return token;
-    }
-
-    /**
-     * Retrieves, but does not remove, the head token, returning <tt>null</tt> if there are no more tokens.
-     *
-     * @return The head token, returning <tt>null</tt> if there are no more tokens.
-     */
-    public PlToken peek () {
-        if (!isBofGenerated()) {
-            setBofGenerated(true);
-            token = newBOFToken();
-            return token;
-        }
-        if (token.next == null) {
-            try {
-                token.next = lexer.next(true);
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new ExecutionError(EXISTENCE_ERROR, null);
-            }
-        }
-
-        return token.next;
-    }
-
-    private PlToken newBOFToken () {
-        return PlToken.newToken(BOF);
-    }
-
-    private PlToken newEOFToken () {
-        return PlToken.newToken(EOF);
-    }
-
     public HiTalkInputStream getStream () {
         return stream;
     }
@@ -231,7 +185,6 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
      */
     public void internOperator ( String operatorName, int priority, Associativity associativity ) {
         int arity;
-
         if ((associativity == xfy) | (associativity == yfx) | (associativity == xfx)) {
             arity = 2;
         } else {
@@ -317,14 +270,17 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
      *
      * @param kind The kind of token to consume.
      * @return The consumed token of the expected kind.
-     * @throws SourceCodeException If the next token in the sequence is not of the expected kind.
      */
-    protected PlToken consumeToken ( TokenKind kind ) throws SourceCodeException {
+    protected PlToken consumeToken ( TokenKind kind ) throws HtSourceCodeException {
         PlToken result;
         PlToken nextToken = peek();
 
         if (nextToken.kind != kind) {
-            throw new SourceCodeException("Expected " + token.image + " but got " + nextToken.image + ".", null, null, null, new SourceCodePositionImpl(nextToken.beginLine, nextToken.beginColumn, nextToken.endLine, nextToken.endColumn));
+            throw new HtSourceCodeException("Expected " + token.image + " but got " + nextToken.image + ".",
+                    null,
+                    null,
+                    null,
+                    nextToken);
         } else {
             nextToken = poll();
             result = nextToken;
@@ -344,7 +300,7 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
         if (nextToken.kind == kind) {
             try {
                 consumeToken(kind);
-            } catch (SourceCodeException e) {
+            } catch (HtSourceCodeException e) {
                 // If the peek ahead kind can not be consumed then something strange has gone wrong so report this
                 // as a bug rather than try to recover from it.
                 throw new ExecutionError(PERMISSION_ERROR, null);//illegal  state
@@ -356,17 +312,16 @@ public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
     }
 
     /**
-     * @param isEofGenerated
+     * @return
      */
-    public void setEofGenerated ( boolean isEofGenerated ) {
-        this.isEofGenerated = isEofGenerated;
-    }
-
     public boolean isEncodingPermitted () {
         return encodingPermitted;
     }
 
-    public void setEncodingPermitted ( boolean encodingPermitted ) {
-        this.encodingPermitted = encodingPermitted;
+    /**
+     * @return
+     */
+    public HiTalkInputStream getInputStream () {
+        return inputStream;
     }
 }

@@ -1,5 +1,6 @@
 package org.ltc.hitalk.term;
 
+import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 
 /**
@@ -69,9 +70,12 @@ class Atom extends HtFunctor {
      * @return Always <tt>true</tt>
      */
     @Override
-    public
-    boolean isAtom () {
+    public boolean isAtom () {
         return true;
+    }
+
+    public String toString () {
+        return BaseApp.getAppContext().getInterner().getDeinternedFunctorName(this.getName()).getName();
     }
 
     /**
@@ -80,8 +84,7 @@ class Atom extends HtFunctor {
      * @return Always <tt>true</tt>
      */
     @Override
-    public
-    boolean isGround () {
+    public boolean isGround () {
         return true;
     }
 }

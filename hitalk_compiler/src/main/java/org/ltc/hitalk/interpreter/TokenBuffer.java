@@ -22,7 +22,7 @@ public class TokenBuffer extends PlTokenSource implements Source <PlToken>, Sink
      * @param lexer
      */
     public TokenBuffer ( PlLexer lexer ) {
-        super(lexer);
+        super(lexer.getInputStream());
     }
 
     /**

@@ -5,6 +5,7 @@ import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.IProperty;
 import org.ltc.hitalk.entities.IPropertyOwner;
 import org.ltc.hitalk.entities.PropertyOwner;
+import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.term.ITerm;
 import sun.nio.cs.StreamDecoder;
 
@@ -48,6 +49,7 @@ class HiTalkStream
     protected PropertyOwner <HtProperty> owner;
     protected Charset currentCharset = defaultCharset();
     protected StreamDecoder sd;
+    private PlTokenSource tokenSource;
 
     /**
      * @param path
@@ -161,5 +163,13 @@ class HiTalkStream
     @Override
     public void setValue ( Properties property, ITerm value ) {
 
+    }
+
+    public PlTokenSource getTokenSource () {
+        return tokenSource;
+    }
+
+    public void setTokenSource ( PlTokenSource tokenSource ) {
+        this.tokenSource = tokenSource;
     }
 }

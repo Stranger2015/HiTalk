@@ -25,7 +25,6 @@ import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,8 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static java.io.FileDescriptor.err;
-import static java.io.FileDescriptor.out;
+import static java.io.FileDescriptor.*;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.EXISTENCE_ERROR;
 import static org.ltc.hitalk.core.Components.*;
 import static org.ltc.hitalk.core.PrologBuiltIns.CURRENT_INPUT;
@@ -185,6 +183,9 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
         return stream;
     }
 
+    /**
+     * @return
+     */
     public List <HiTalkStream> getStreams () {
         return streams;
     }
@@ -193,12 +194,14 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
         return resolver;// == null ? new HtResolutionEngine <>(getParser((), getInterner(), getCompiler()) : resolver;//todo
     }
 
-
+    /**
+     *
+     */
     public BaseApp () {
         try {
-            streams.add(new HiTalkInputStream(FileDescriptor.in));//  "current_input"
-            streams.add(new HiTalkOutputStream(out));// "current_output"
-            streams.add(new HiTalkOutputStream(err));// "current_error" BUFSIZE == 0;
+            streams.add(new HiTalkInputStream(in, 256));//  "current_input"
+            streams.add(new HiTalkOutputStream(256, out));// "current_output"
+            streams.add(new HiTalkOutputStream(0, err));// "current_error";
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -409,6 +412,7 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
     public static class AppContext extends HashMap <Components, IHitalkObject> {
 
         private HiTalkInputStream inputStream;
+        private PlTokenSource tokenSource;
 
         /**
          * Creates an empty enum map with the specified key type.
@@ -485,11 +489,19 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
         }
 
         public void setInputStream ( HiTalkInputStream inputStream ) {
-            this.inputStream = inputStream;
+            setStream(inputStream);
         }
 
         public HiTalkInputStream getInputStream () {
-            return inputStream;
+            return (HiTalkInputStream) getStream();
+        }
+
+        private HiTalkStream getStream () {
+            return (HiTalkStream) get(STREAM);
+        }
+
+        public PlTokenSource getTokenSource () {
+            return tokenSource;
         }
     }
 }

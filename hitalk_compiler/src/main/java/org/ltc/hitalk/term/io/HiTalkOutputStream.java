@@ -41,8 +41,8 @@ public class HiTalkOutputStream extends HiTalkStream {
         StreamEncoder se = StreamEncoder.forEncoder(channel, encoder, BB_ALLOC_SIZE);
     }
 
-    public HiTalkOutputStream ( FileDescriptor out ) {
-setOutputStream(new FileOutputStream(out));
+    public HiTalkOutputStream ( int i, FileDescriptor out ) {
+        setOutputStream(new FileOutputStream(out));
     }
 
     /**
