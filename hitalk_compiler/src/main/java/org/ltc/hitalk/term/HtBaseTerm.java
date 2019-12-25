@@ -21,13 +21,14 @@ import com.thesett.aima.search.GoalState;
 import com.thesett.aima.search.Operator;
 import com.thesett.aima.search.TraversableState;
 import com.thesett.aima.search.util.backtracking.Reversable;
-import com.thesett.common.parsing.SourceCodePosition;
 import com.thesett.common.util.doublemaps.SymbolKey;
-import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.parser.ISourceCodePosition;
 
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
+import static org.ltc.hitalk.core.BaseApp.getAppContext;
 
 /**
  * BaseTerm provides an abstract base implementation of {@link ITerm}. In particular it provides methods to make an
@@ -54,7 +55,7 @@ public abstract class HtBaseTerm extends TraversableState <ITerm> implements ITe
     /**
      * Holds the source code position that this term was parsed from.
      */
-    protected SourceCodePosition sourcePosition;
+    protected ISourceCodePosition sourcePosition;
 
     /**
      * Holds the bracketing flag for this term.
@@ -182,14 +183,14 @@ public abstract class HtBaseTerm extends TraversableState <ITerm> implements ITe
     /**
      * {@inheritDoc}
      */
-    public SourceCodePosition getSourceCodePosition () {
+    public ISourceCodePosition getSourceCodePosition () {
         return sourcePosition;
     }
 
     /**
      * {@inheritDoc}
      */
-    public void setSourceCodePosition ( SourceCodePosition sourceCodePosition ) {
+    public void setSourceCodePosition ( ISourceCodePosition sourceCodePosition ) {
         this.sourcePosition = sourceCodePosition;
     }
 
@@ -232,12 +233,12 @@ public abstract class HtBaseTerm extends TraversableState <ITerm> implements ITe
         return transformer.transform(this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
-        return toString();
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
+//        return toString();
+//    }
 
     /**
      * {@inheritDoc}
@@ -307,5 +308,9 @@ public abstract class HtBaseTerm extends TraversableState <ITerm> implements ITe
      */
     protected Object clone () throws CloneNotSupportedException {
         return super.clone();
+    }
+
+    public String toString () {
+        return toString(getAppContext().getInterner(), true, true);
     }
 }

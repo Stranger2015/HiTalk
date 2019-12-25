@@ -78,6 +78,10 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
         this(file, defaultBufSize);
     }
 
+    public HiTalkInputStream ( String string ) {
+
+    }
+
     /**
      * Attempts to read characters into the specified character buffer.
      * The buffer is used as a repository of characters as-is: the only
@@ -277,5 +281,13 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
 
     public PlTokenSource getTokenSource () {
         return tokenSource;
+    }
+
+    public void toString0 ( StringBuilder sb ) {
+        super.toString0(sb);
+        sb.append(", inputStream=").append(inputStream);
+        sb.append(", pushbackReader=").append(pushbackReader);
+        sb.append(", tokenSource=").append(tokenSource);
+        sb.append(", reader=").append(reader);
     }
 }

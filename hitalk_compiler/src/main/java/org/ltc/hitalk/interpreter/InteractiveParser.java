@@ -1,7 +1,5 @@
 package org.ltc.hitalk.interpreter;
 
-
-import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
@@ -43,7 +41,7 @@ public class InteractiveParser implements IParser {
 
     /**
      * @return
-     * @throws SourceCodeException
+     * @throws HtSourceCodeException
      */
     public ITerm parse () throws Exception {
         return parser.parse();
@@ -98,5 +96,9 @@ public class InteractiveParser implements IParser {
 
     public void setOptable ( IOperatorTable optable ) {
         parser.setOptable(optable);
+    }
+
+    public void toString0 ( StringBuilder sb ) {
+
     }
 }

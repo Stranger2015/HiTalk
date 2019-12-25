@@ -1,7 +1,6 @@
 package org.ltc.hitalk.wam.machine;
 
 
-import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
@@ -88,7 +87,7 @@ class HiTalkWAMEngine<T extends HtClause, P, Q, PC, QC> extends HtResolutionEngi
             }
 
             compiler.endScope();
-        } catch (SourceCodeException e) {
+        } catch (HtSourceCodeException e) {
             // There should not be any errors in the built in library, if there are then the prolog engine just
             // isn't going to work, so report this as a bug.
             throw new IllegalStateException("Got an exception whilst loading the built-in library.", e);

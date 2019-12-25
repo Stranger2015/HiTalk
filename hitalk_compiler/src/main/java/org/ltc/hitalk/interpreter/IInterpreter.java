@@ -1,7 +1,6 @@
 package org.ltc.hitalk.interpreter;
 
 
-import com.thesett.common.parsing.SourceCodeException;
 import jline.ConsoleReader;
 import org.ltc.hitalk.compiler.PredicateTable;
 import org.ltc.hitalk.core.BaseApp;
@@ -9,6 +8,7 @@ import org.ltc.hitalk.core.IConfigurable;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.parser.PlToken;
 import org.ltc.hitalk.term.HtVariable;
@@ -160,9 +160,9 @@ public interface IInterpreter<T extends HtClause, P, Q> extends IConfigurable/*,
 
     /**
      * @param clause
-     * @throws SourceCodeException
+     * @throws HtSourceCodeException
      */
-    void evaluate ( T clause ) throws SourceCodeException;
+    void evaluate ( T clause ) throws HtSourceCodeException, HtSourceCodeException;
 
     /**
      * @return

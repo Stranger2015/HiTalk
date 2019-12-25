@@ -1,13 +1,9 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
-import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.IParser;
-import org.ltc.hitalk.parser.ParseException;
-import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.parser.*;
 import org.ltc.hitalk.term.ITerm;
 
 import java.io.IOException;
@@ -98,10 +94,13 @@ public class LibParser implements IParser {
      * @return
      * @throws ParseException
      * @throws IOException
-     * @throws SourceCodeException
+     * @throws HtSourceCodeException
      */
     @Override
     public HtClause parseClause () throws Exception {
         return parser.parseClause();
+    }
+
+    public void toString0 ( StringBuilder sb ) {
     }
 }

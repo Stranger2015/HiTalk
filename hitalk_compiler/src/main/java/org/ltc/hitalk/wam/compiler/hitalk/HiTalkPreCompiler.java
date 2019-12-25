@@ -16,20 +16,20 @@
 package org.ltc.hitalk.wam.compiler.hitalk;
 
 
-import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
-import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.HtMethod;
 import org.ltc.hitalk.wam.compiler.HtTermWalkers;
+import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltInTransform;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
@@ -52,7 +52,7 @@ class HiTalkPreCompiler<T extends HtMethod, P, Q> extends PrologPreCompiler <T, 
     /**
      * Holds the compiler output observer.
      */
-    protected LogicCompilerObserver <P, Q> observer;
+    protected ICompilerObserver <P, Q> observer;
 
     /**
      * Creates a new PreCompiler.
@@ -78,7 +78,7 @@ class HiTalkPreCompiler<T extends HtMethod, P, Q> extends PrologPreCompiler <T, 
      *
      * @param sentence
      */
-    public abstract void compile ( Sentence <T> sentence ) throws SourceCodeException;
+    public abstract void compile ( Sentence <T> sentence ) throws HtSourceCodeException;
 
 
     /**
@@ -119,7 +119,7 @@ class HiTalkPreCompiler<T extends HtMethod, P, Q> extends PrologPreCompiler <T, 
         walk.walk(clause);
     }
 
-    public LogicCompilerObserver <P, Q> getObserver () {
+    public ICompilerObserver <P, Q> getObserver () {
         return observer;
     }
 }

@@ -364,6 +364,10 @@ public class HtSymbolTable<K, L, E> implements ISymbolTable <K, L, E> {
         return result.append("] ]").toString();
     }
 
+    public void toString0 ( StringBuilder sb ) {
+
+    }
+
     /**
      * Implements the {@link SymbolKey} as the sequence number assigned to a symbol by the sequencing function. This
      * index is used to directly look up values in the field tables.

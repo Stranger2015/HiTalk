@@ -248,7 +248,7 @@ public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
      */
     @Override
     public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
-        return null;
+        return toString();
     }
 
 

@@ -413,7 +413,7 @@
 //                 }
 //             }
 //             lastTerm = term;
-//         } catch (SourceCodeException e) {
+//         } catch (HtSourceCodeException e) {
 //             throw new ExecutionError(PERMISSION_ERROR, null);
 //         }
          return false;
@@ -434,7 +434,7 @@
 //            }
 //        }
 //    }
-//} catch (SourceCodeException e) {
+//} catch (HtSourceCodeException e) {
 //    throw new ExecutionError();
 //}
 //         return false;

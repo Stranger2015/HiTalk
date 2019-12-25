@@ -12,7 +12,6 @@ import org.ltc.hitalk.wam.printer.IFunctorTraverser;
 import java.util.*;
 import java.util.stream.IntStream;
 
-import static java.lang.String.format;
 import static org.ltc.hitalk.term.ListTerm.Kind.LIST;
 
 /**
@@ -262,16 +261,6 @@ public class HtFunctor extends ListTerm implements IFunctor {
     }
 
     /**
-     * Creates a string representation of this functor, mostly used for debugging purposes.
-     *
-     * @return A string representation of this functor.
-     */
-    public String toString () {
-        return format("%s: [ name = %d, arity = %d, arguments = %s ]",
-                getClass().getSimpleName(), getName(), args.size(), toStringArguments());
-    }
-
-    /**
      * {@inheritDoc}
      */
     public void accept ( ITermVisitor visitor ) {
@@ -338,7 +327,6 @@ public class HtFunctor extends ListTerm implements IFunctor {
                 result.append((nextArg != null) ? nextArg.toString() : "<null>");
                 result.append((i < (args.size() - 1)) ? ", " : " ");
             });
-
             result.append(" ]");
         }
 

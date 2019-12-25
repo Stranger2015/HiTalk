@@ -15,8 +15,8 @@
  */
 package org.ltc.hitalk.wam.compiler.hitalk;
 
-import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.core.IHitalkObject;
+import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 
 /**
@@ -43,9 +43,9 @@ public interface ILogicCompiler<T, P, Q> extends IHitalkObject {
      * Compiles a sentence into a (presumably binary) form, that provides a Java interface into the compiled structure.
      *
      * @param sentence The sentence to compile.
-     * @throws SourceCodeException If there is an error in the source to be compiled that prevents its compilation.
+     * @throws HtSourceCodeException If there is an error in the source to be compiled that prevents its compilation.
      */
-    void compile ( T sentence ) throws SourceCodeException;
+    void compile ( T sentence ) throws HtSourceCodeException;
 
     /**
      * Establishes an observer on the compiled forms that the compiler outputs.
@@ -57,7 +57,7 @@ public interface ILogicCompiler<T, P, Q> extends IHitalkObject {
     /**
      * Signal the end of a compilation scope, to trigger completion of the compilation of its contents.
      *
-     * @throws SourceCodeException If there is an error in the source to be compiled that prevents its compilation.
+     * @throws HtSourceCodeException If there is an error in the source to be compiled that prevents its compilation.
      */
-    void endScope () throws SourceCodeException;
+    void endScope () throws HtSourceCodeException;
 }

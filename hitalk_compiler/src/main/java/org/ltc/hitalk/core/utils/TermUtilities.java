@@ -5,10 +5,10 @@ import com.thesett.aima.logic.fol.FreeVariablePredicate;
 import com.thesett.aima.search.QueueBasedSearchMethod;
 import com.thesett.aima.search.util.Searches;
 import com.thesett.aima.search.util.uninformed.DepthFirstSearch;
-import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.PrologBuiltIns;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.term.HlOpSymbol;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
@@ -108,10 +108,10 @@ public class TermUtilities {
      * @param symbolToFlattenOn A symbol of fixity 2 to flatten on.
      * @param interner          The functor and variable interner for the namespace the term to flatten is in.
      * @return A sequence of terms parsed as a term, then flattened back into a list seperated on commas.
-     * @throws SourceCodeException If any of the extracted terms encountered do not extend the superclass.
+     * @throws HtSourceCodeException If any of the extracted terms encountered do not extend the superclass.
      */
     public static <T extends IFunctor> IFunctor[] flattenTerm ( IFunctor term, Class <T> superClass, String symbolToFlattenOn,
-                                                                IVafInterner interner ) throws SourceCodeException {
+                                                                IVafInterner interner ) throws HtSourceCodeException {
         List <T> terms = new LinkedList <>();
 
         // Used to hold the next term to examine as operators are flattened.
@@ -134,7 +134,7 @@ public class TermUtilities {
                     terms.add(superClass.cast(termToExtract));
                     nextTerm = op.getArgument(1);
                 } else {
-                    throw new SourceCodeException("The term " + termToExtract + " is expected to extend " + superClass +
+                    throw new HtSourceCodeException("The term " + termToExtract + " is expected to extend " + superClass +
                             " but does not.", null, null, null, termToExtract.getSourceCodePosition());
                 }
             } else {
@@ -142,7 +142,7 @@ public class TermUtilities {
                     terms.add(superClass.cast(nextTerm));
                     mayBeMoreCommas = false;
                 } else {
-                    throw new SourceCodeException("The term " + nextTerm + " is expected to extend " + superClass +
+                    throw new HtSourceCodeException("The term " + nextTerm + " is expected to extend " + superClass +
                             " but does not.", null, null, null, nextTerm.getSourceCodePosition());
                 }
             }
@@ -212,9 +212,9 @@ public class TermUtilities {
      * @param term     The term to convert to a top-level clause.
      * @param interner The functor and variable name interner for the namespace the term to convert is in.
      * @return A clause for the term, or <tt>null</tt> if it cannot be converted.
-     * @throws SourceCodeException If the term to convert to a clause does not form a valid clause.
+     * @throws HtSourceCodeException If the term to convert to a clause does not form a valid clause.
      */
-    public static HtClause convertToClause ( ITerm term, IVafInterner interner ) throws SourceCodeException {
+    public static HtClause convertToClause ( ITerm term, IVafInterner interner ) throws HtSourceCodeException {
         // Check if the top level term is a query, an implication or neither and reduce the term into a clause
         // accordingly.
         if (term instanceof HlOpSymbol) {
@@ -237,7 +237,7 @@ public class TermUtilities {
         if (term != null) {
             return new HtClause((IFunctor) term, null);
         } else {
-            throw new SourceCodeException("Only functor can be as a clause head", null, null, null, null
+            throw new HtSourceCodeException("Only functor can be as a clause head", null, null, null, null
                     /*  requireNonNull(term).getSourceCodePosition()*/);
         }
     }

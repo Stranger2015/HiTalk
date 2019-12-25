@@ -117,7 +117,7 @@ public class HlOpSymbol extends HtFunctor implements Comparable, Cloneable {
             throw new IllegalArgumentException("An operator has minimum 1 and maximum 2 arguments.");
         }
 
-//        this.args = arguments; fixme
+        this.arguments = arguments;
     }
 
     /**

@@ -66,4 +66,8 @@ public class CompilerFactory<T extends HtClause, P, Q, PC, QC> implements ICompi
             throw new ExecutionError(EXISTENCE_ERROR, null);
         }
     }
+
+    public void toString0 ( StringBuilder sb ) {
+
+    }
 }

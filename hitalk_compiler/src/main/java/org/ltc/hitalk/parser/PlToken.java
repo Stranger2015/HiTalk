@@ -46,11 +46,11 @@ public class PlToken implements ISourceCodePosition {
     public PlToken ( TokenKind kind ) {
         this.kind = kind;
         image = kind.getImage();
-        if (image != null) {
+        if (!image.isEmpty()) {
             endColumn = beginColumn + image.length();
         }
         if (kind == TokenKind.BOF) {
-            beginLine = 0;
+            endLine = beginLine = 0;
             endColumn = beginColumn = 0;
         }
     }
@@ -95,23 +95,23 @@ public class PlToken implements ISourceCodePosition {
         D_QUOTE("\""),
         S_QUOTE("'"),
         B_QUOTE("`"),
-        INTEGER_LITERAL(null),
-        DECIMAL_LITERAL(null),
-        HEX_LITERAL(null),
-        FLOATING_POINT_LITERAL(null),
-        DECIMAL_EXPONENT(null),
-        CHARACTER_LITERAL(null),
-        STRING_LITERAL(null),
-        VAR(null),
-        FUNCTOR_BEGIN(null),
-        ATOM(null),
-        NAME(null),
-        SYMBOLIC_NAME(null),
-        DIGIT(null),
-        ANY_CHAR(null),
-        LOWERCASE(null),
-        UPPERCASE(null),
-        SYMBOL(null),
+        INTEGER_LITERAL(""),
+        DECIMAL_LITERAL(""),
+        HEX_LITERAL(""),
+        FLOATING_POINT_LITERAL(""),
+        DECIMAL_EXPONENT(""),
+        CHARACTER_LITERAL(""),
+        STRING_LITERAL(""),
+        VAR(""),
+        FUNCTOR_BEGIN(""),
+        ATOM(""),
+        NAME(""),
+        SYMBOLIC_NAME(""),
+        DIGIT(""),
+        ANY_CHAR(""),
+        LOWERCASE(""),
+        UPPERCASE(""),
+        SYMBOL(""),
         COMMA(","),
         SEMICOLON(";"),
         COLON(":"),
@@ -158,7 +158,7 @@ public class PlToken implements ISourceCodePosition {
      * A reference to the next regular (non-special) token from the input
      * stream.  If this is the last token from the input stream, or if the
      * token manager has not read tokens beyond this one, this field is
-     * set to null.  This is true only if this token is also a regular
+     * set to "".  This is true only if this token is also a regular
      * token.  Otherwise, see below for a description of the contents of
      * this field.
      */
@@ -167,14 +167,14 @@ public class PlToken implements ISourceCodePosition {
     /**
      * This field is used to access special tokens that occur prior to this
      * token, but after the immediately preceding regular (non-special) token.
-     * If there are no such special tokens, this field is set to null.
+     * If there are no such special tokens, this field is set to "".
      * When there are more than one such special token, this field refers
      * to the last of these special tokens, which in turn refers to the next
      * previous special token through its specialToken field, and so on
-     * until the first special token (whose specialToken field is null).
+     * until the first special token (whose specialToken field is "").
      * The next fields of special tokens refer to other special tokens that
      * immediately follow it (without an intervening regular token).  If there
-     * is no such token, this field is null.
+     * is no such token, this field is "".
      */
     public PlToken specialToken;
 

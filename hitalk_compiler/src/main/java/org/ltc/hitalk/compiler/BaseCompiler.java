@@ -1,6 +1,5 @@
 package org.ltc.hitalk.compiler;
 
-import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.doublemaps.SymbolKey;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
@@ -8,6 +7,7 @@ import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.term.ITerm;
@@ -60,8 +60,8 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
     }
 
     //    @Override
-    public void compile ( T sentence ) throws SourceCodeException {
-        logger.debug("compile(PlSentence<T> sentence = " + sentence + "): called... ");
+    public void compile ( T sentence ) throws HtSourceCodeException {
+        logger.info("compile( T sentence = " + sentence + " ): called... ");
 
         // Extract the clause to compile from the parsed sentence.
         HtClause clause = sentence.getT();
@@ -118,7 +118,7 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
     }
 
     @Override
-    public void compileDcgRule ( DcgRule rule ) throws SourceCodeException {
+    public void compileDcgRule ( DcgRule rule ) throws HtSourceCodeException {
 
     }
 
@@ -140,7 +140,8 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
                 continue;
             }
             if (t == PlPrologParser.END_OF_FILE_ATOM) {
-                getParser().popTokenSource();
+//if (parser.getTokenSource().getStream())
+                parser.popTokenSource();
                 break;
             }
             T c = (T) parser.convert(t);//FIXME

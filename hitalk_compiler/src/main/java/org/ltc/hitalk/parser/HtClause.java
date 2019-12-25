@@ -1,11 +1,14 @@
 package org.ltc.hitalk.parser;
 
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.IHitalkObject;
 import org.ltc.hitalk.entities.ISubroutine;
 import org.ltc.hitalk.term.HtBaseTerm;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.IFunctor;
+
+import java.util.stream.IntStream;
 
 /**
  *
@@ -109,11 +112,27 @@ public class HtClause extends HtBaseTerm implements ITerm, ISubroutine, IHitalkO
 
     }
 
-//    public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
-//        return getClass().getSimpleName()+interner.getDeinternedFunctorName();
-//    }
+    public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
+        StringBuilder result = new StringBuilder();
+        if (head != null) {
+            result.append(head.toString(interner, printVarName, printBindings));
+        }
+
+        if (body != null) {
+            result.append(isQuery() ? "?- " : " :- ");
+
+            IntStream.range(0, body.size()).forEachOrdered(i -> result.append(body.get(i).
+                    toString(interner, printVarName, printBindings))
+                    .append((i < (body.size() - 1)) ? ", " : ""));
+        }
+
+        return result.toString();
+    }
 
     public ListTerm getBodyAsListTerm () {
         return body;
+    }
+
+    public void toString0 ( StringBuilder sb ) {
     }
 }

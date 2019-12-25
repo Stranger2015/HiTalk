@@ -1,9 +1,9 @@
 package org.ltc.hitalk.core;
 
-import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.wam.compiler.hitalk.ILogicCompiler;
@@ -26,7 +26,7 @@ public interface ICompiler<T extends HtClause, P, Q> extends ILogicCompiler <T, 
     /**
      * @param fnl
      * @throws IOException
-     * @throws SourceCodeException
+     * @throws HtSourceCodeException
      */
     default void compileFiles ( List <String> fnl ) throws Exception {
         compileFiles(fnl, EMPTY_FLAG_ARRAY);
@@ -50,7 +50,7 @@ public interface ICompiler<T extends HtClause, P, Q> extends ILogicCompiler <T, 
      * @param string
      * @param flags
      * @throws IOException
-     * @throws SourceCodeException
+     * @throws HtSourceCodeException
      */
 //    default void compileString ( String string, HtProperty... flags ) throws Exception {
 //        compile(getPlTokenSourceForString(string), flags);
@@ -74,19 +74,19 @@ public interface ICompiler<T extends HtClause, P, Q> extends ILogicCompiler <T, 
 
     /**
      * @param clause
-     * @throws SourceCodeException
+     * @throws HtSourceCodeException
      */
-    void compile ( T clause, HtProperty... flags ) throws SourceCodeException;
+    void compile ( T clause, HtProperty... flags ) throws HtSourceCodeException;
 
     /**
      * @param rule
      */
-    void compileDcgRule ( DcgRule rule ) throws SourceCodeException;
+    void compileDcgRule ( DcgRule rule ) throws HtSourceCodeException;
 
     /**
      * @param query
      */
-    void compileQuery ( Q query ) throws SourceCodeException;
+    void compileQuery ( Q query ) throws HtSourceCodeException;
 
     /**
      * @param resolver
@@ -102,7 +102,7 @@ public interface ICompiler<T extends HtClause, P, Q> extends ILogicCompiler <T, 
 
     /**
      * @param clause
-     * @throws SourceCodeException
+     * @throws HtSourceCodeException
      */
-    void compile ( T clause ) throws SourceCodeException;
+    void compile ( T clause ) throws HtSourceCodeException;
 }

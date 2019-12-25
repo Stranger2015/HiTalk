@@ -138,6 +138,10 @@ public class VafInterner implements IVafInterner {
     public int getFunctorArity ( IFunctor functor ) {
         return getFunctorArity(functor.getName());
     }
+
+    public void toString0 ( StringBuilder sb ) {
+
+    }
 }
 
 

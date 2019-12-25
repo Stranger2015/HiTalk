@@ -13,6 +13,8 @@ import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.HtFunctorName;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.Language;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
@@ -30,6 +32,8 @@ import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
  * @author shun
  */
 public class PlPrologParser implements IParser {
+    protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
+
     public static final String BEGIN_OF_FILE = "begin_of_file";
     public static final String END_OF_FILE = "end_of_file";
 
@@ -37,10 +41,6 @@ public class PlPrologParser implements IParser {
             getAppContext().getTermFactory().newAtom(END_OF_FILE);
     public static final Atom BEGIN_OF_FILE_ATOM =
             getAppContext().getTermFactory().newAtom(BEGIN_OF_FILE);
-    private PlTokenSource tokenSource;
-
-    //    protected HiTalkInputStream stream;
-    protected PlLexer lexer;
     protected final ITermFactory factory;
     protected IOperatorTable operatorTable;
     protected final Deque <PlTokenSource> tokenSourceStack = new ArrayDeque <>();
@@ -56,7 +56,7 @@ public class PlPrologParser implements IParser {
                             IVafInterner interner,
                             ITermFactory factory,
                             IOperatorTable optable ) {
-        this.tokenSource = new PlLexer(inputStream);
+        tokenSourceStack.push(new PlLexer(inputStream));
         this.interner = interner;
         this.factory = factory;
         this.operatorTable = optable;
@@ -70,6 +70,9 @@ public class PlPrologParser implements IParser {
                 getAppContext().getInterner(),
                 getAppContext().getTermFactory(),
                 getAppContext().getOpTable());
+    }
+
+    public void toString0 ( StringBuilder sb ) {
     }
 
     /**
@@ -103,7 +106,7 @@ public class PlPrologParser implements IParser {
     }
 
     public IOperatorTable getOptable () {
-        return operatorTable;
+        return operatorTable == null ? new PlDynamicOperatorParser() : operatorTable;
     }
 
     public void setOptable ( IOperatorTable optable ) {
@@ -129,7 +132,7 @@ public class PlPrologParser implements IParser {
      */
     @Override
     public ITerm next () throws Exception {
-        PlToken token = lexer.next(true);
+        PlToken token = (getLexer()).next(true);
         return newTerm(token, false, EnumSet.of(DOT, EOF));
     }
 
@@ -152,7 +155,11 @@ public class PlPrologParser implements IParser {
      * @return
      */
     public PlTokenSource popTokenSource () {
-        return tokenSourceStack.pop();
+        PlTokenSource result = null;
+        if (!tokenSourceStack.isEmpty()) {
+            result = tokenSourceStack.pop();
+        }
+        return result;
     }
 
     /**
@@ -165,6 +172,9 @@ public class PlPrologParser implements IParser {
      */
     protected ITerm newTerm ( PlToken token, boolean nullable, EnumSet <TokenKind> terminators )
             throws Exception {
+        if (token.kind == EOF/* && getLexer() == null*/) {
+            return END_OF_FILE_ATOM;
+        }
         HlOperatorJoiner <ITerm> joiner = new HlOperatorJoiner <ITerm>() {
             @Override
             protected ITerm join ( int notation, List <ITerm> args ) {
@@ -172,8 +182,8 @@ public class PlPrologParser implements IParser {
             }
         };
         outer:
-        for (int i = 0; ; ++i, token = lexer.next(joiner.accept(x))) {
-            if (token == null) {
+        for (int i = 0; ; ++i, token = getLexer().next(joiner.accept(x))) {
+            if (token.kind == EOF) {
                 throw new ParseException("Premature EOF");//不正な位置でEOFを検出しました。
             }
             if (!token.quote) {
@@ -185,7 +195,8 @@ public class PlPrologParser implements IParser {
                     }
                 }
                 if (token.kind == ATOM) {
-                    for (HlOpSymbol right : operatorTable.getOperatorsMatchingNameByFixity(token.image).values()) {
+                    logger.info("token.image ==" + token.image);
+                    for (HlOpSymbol right : getOptable().getOperatorsMatchingNameByFixity(token.image).values()) {
                         if (joiner.accept(right.getAssociativity())) {
                             joiner.push(right);
                             continue outer;
@@ -198,6 +209,10 @@ public class PlPrologParser implements IParser {
             }
             joiner.push(literal(token));
         }
+    }
+
+    public PlLexer getLexer () {
+        return (PlLexer) getTokenSource();
     }
 
     /**
@@ -317,17 +332,17 @@ public class PlPrologParser implements IParser {
             default:
                 break;
         }
-        ITerm term = newTerm(lexer.getNextToken(), true, rdelims);
+        ITerm term = newTerm(getLexer().getNextToken(), true, rdelims);
         if (term == null) {
-            if (rdelim != lexer.peek().kind) {
+            if (rdelim != getLexer().peek().kind) {
                 throw new ParseException("No (more) elements");//要素がありません・・・。
             }
             elements.add(term);
-            while (COMMA == lexer.peek().kind) {//todo flatten
-                elements.add(newTerm(lexer.getNextToken(), false, rdelims));
+            while (COMMA == getLexer().peek().kind) {//todo flatten
+                elements.add(newTerm(getLexer().getNextToken(), false, rdelims));
             }
-            if (CONS == lexer.peek().kind) {
-                newTerm(lexer.getNextToken(), true, rdelims);
+            if (CONS == getLexer().peek().kind) {
+                newTerm(getLexer().getNextToken(), true, rdelims);
             }
 
             return factory.newListTerm(kind, flatten(elements));
@@ -359,6 +374,8 @@ public class PlPrologParser implements IParser {
      * @param source
      */
     public void setTokenSource ( PlTokenSource source ) {
+        logger.info(source.toString());
+
         tokenSourceStack.push(source);
     }
 
@@ -382,7 +399,7 @@ public class PlPrologParser implements IParser {
         variableContext.clear();
 
         if (!tokenSourceStack.isEmpty()) {
-            return literal(((PlLexer) getTokenSource()).getNextToken());
+            return literal((getLexer()).getNextToken());
         }
 
         return literal(PlToken.newToken(EOF));
@@ -476,9 +493,6 @@ public class PlPrologParser implements IParser {
         internOperator(PrologAtoms.UP, 200, yfx);
         internOperator(PrologAtoms.STAR_STAR, 200, yfx);
         internOperator(PrologAtoms.AS, 200, fy);
-        //FIXME
-//        internOperator(PrologAtoms.VBAR, 1001, xfy);
-//        internOperator(PrologAtoms.VBAR, 1001, fy);
 
         // Intern all built in names.
         interner.internFunctorName(PrologAtoms.ARGLIST_NIL, 0);
@@ -499,5 +513,12 @@ public class PlPrologParser implements IParser {
     public Directive peekAndConsumeDirective () {
 
         return null;//fixme
+    }
+
+    public String toString () {
+        final StringBuilder sb = new StringBuilder("PlPrologParser{");
+        sb.append("tokenSourceStack=").append(tokenSourceStack);
+        sb.append('}');
+        return sb.toString();
     }
 }

@@ -2,17 +2,17 @@ package org.ltc.hitalk.wam.compiler.hitalk;
 
 
 import com.thesett.aima.logic.fol.LinkageException;
-import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.aima.logic.fol.Sentence;
-import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.HtMethod;
+import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltInTransform;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.task.TransformTask;
@@ -36,11 +36,11 @@ public class HiTalkPreprocessor<T extends HtMethod, P, Q, TT extends TransformTa
     }
 
     @Override
-    public LogicCompilerObserver <P, Q> getObserver () {
+    public ICompilerObserver <P, Q> getObserver () {
         return observer;
     }
 
-    protected LogicCompilerObserver <P, Q> observer;
+    protected ICompilerObserver <P, Q> observer;
     protected List <T> preCompiledTarget;
     protected PlPrologParser parser;
 
@@ -78,7 +78,7 @@ public class HiTalkPreprocessor<T extends HtMethod, P, Q, TT extends TransformTa
      * @param sentence
      */
     @Override
-    public void compile ( Sentence <T> sentence ) throws SourceCodeException {
+    public void compile ( Sentence <T> sentence ) throws HtSourceCodeException {
 //
     }
 

@@ -101,5 +101,9 @@ public class ExecutionTask extends PreCompilerTask implements IExecutionTask {
     public Iterator <Set <HtVariable>> iterator () {
         return null;
     }
+
+    public void toString0 ( StringBuilder sb ) {
+
+    }
 }
 

@@ -20,7 +20,6 @@ import com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys;
 import com.thesett.aima.logic.fol.wam.compiler.WAMLabel;
 import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
 import com.thesett.aima.search.util.uninformed.BreadthFirstSearch;
-import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.SizeableLinkedList;
 import com.thesett.common.util.SizeableList;
 import com.thesett.common.util.doublemaps.SymbolKey;
@@ -30,6 +29,7 @@ import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.core.utils.TermUtilities;
 import org.ltc.hitalk.parser.Directive;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
@@ -136,9 +136,9 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
      * Compiles a clause as a query. The clause should have no head, only a body.
      *
      * @param clause lause The clause to compile as a query.
-     * @throws SourceCodeException If there is an error in the source code preventing its compilation.
+     * @throws HtSourceCodeException If there is an error in the source code preventing its compilation.
      */
-    public void compileQuery ( HtClause clause ) throws SourceCodeException {
+    public void compileQuery ( HtClause clause ) throws HtSourceCodeException {
         if (!checkDirective(clause)) {
             handleDirective(clause);
             return;
@@ -578,7 +578,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
     /**
      * {@inheritDoc}
      */
-    public void endScope () throws SourceCodeException {
+    public void endScope () throws HtSourceCodeException {
         // Loop over all predicates in the current scope, found in the symbol table, and consume and compile them.
         for (SymbolKey predicateKey = predicatesInScope.poll(); predicateKey != null; predicateKey = predicatesInScope.poll()) {
             List <T> clauses = (List <T>) scopeTable.get(predicateKey, SYMKEY_PREDICATES);

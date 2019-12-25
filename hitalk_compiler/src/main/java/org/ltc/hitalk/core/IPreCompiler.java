@@ -36,11 +36,11 @@ public interface IPreCompiler extends IQueueHolder <PreCompilerTask>, IHitalkObj
 //     * @param tokenSource
 //     * @param flags
 //     * @throws IOException
-//     * @throws SourceCodeException
+//     * @throws HtSourceCodeException
 //     */
 //    @Override
 //    public void compile ( PlTokenSource tokenSource, HtProperty... flags )
-//            throws IOException, SourceCodeException, ParseException {
+//            throws IOException, HtSourceCodeException, ParseException {
 //        getConsole().info("Compiling " + tokenSource.getPath() + "... ");
 //        /*
 //        // Set up a parser on the token source.

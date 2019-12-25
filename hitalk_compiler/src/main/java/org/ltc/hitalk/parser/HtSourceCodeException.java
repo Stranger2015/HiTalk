@@ -18,7 +18,7 @@ package org.ltc.hitalk.parser;
 import com.thesett.common.error.UserReadableException;
 
 /**
- * SourceCodeException represents an error condition that relates to a location with a text source file, and it is also
+ * HtSourceCodeException represents an error condition that relates to a location with a text source file, and it is also
  * a user readable exception, as typically such exceptions will be reported back to the user to correct.
  *
  * <pre><p/><table id="crc"><caption>CRC Card</caption>

@@ -16,7 +16,6 @@
 package org.ltc.hitalk.wam.compiler.hitalk;
 
 import com.thesett.aima.logic.fol.LinkageException;
-import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.Sink;
 import com.thesett.common.util.Source;
 import org.ltc.hitalk.compiler.IVafInterner;
@@ -24,6 +23,7 @@ import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.parser.PlToken;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ListTerm;
@@ -148,9 +148,9 @@ public class HiTalkInterpreterVisitor<T extends HtMethod, P, Q, PC, QC> extends 
      * Evaluates a query against the resolver or adds a clause to the resolvers domain.
      *
      * @param clause The clausal sentence to run as a query or as a clause to add to the domain.
-     * @throws SourceCodeException If the query or domain clause fails to compile or link into the resolver.
+     * @throws HtSourceCodeException If the query or domain clause fails to compile or link into the resolver.
      */
-    private void evaluate ( T clause ) throws SourceCodeException {
+    private void evaluate ( T clause ) throws HtSourceCodeException {
 //        HtMethod clause = sentence;
 
         if (clause.isQuery()) {
@@ -237,7 +237,7 @@ public class HiTalkInterpreterVisitor<T extends HtMethod, P, Q, PC, QC> extends 
      *
      * @param sentence The clause to add to the domain.
      */
-    private void addProgramClause ( T sentence ) throws SourceCodeException {
+    private void addProgramClause ( T sentence ) throws HtSourceCodeException {
         logger.debug("Read program clause from input.");
 
         engine.getCompiler().compile(sentence);

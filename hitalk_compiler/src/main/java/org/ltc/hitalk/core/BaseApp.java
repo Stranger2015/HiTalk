@@ -448,10 +448,6 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
             return (IResolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>) get(RESOLVER_IC);
         }
 
-//        public HiTalkInputStream getStream () {
-//            return (HiTalkInputStream) get(STREAM);
-//        }
-
         public ISymbolTable <Integer, String, Object> getSymbolTable () {
             return (ISymbolTable <Integer, String, Object>) get(SYMBOL_TABLE);
         }
@@ -502,6 +498,10 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
 
         public PlTokenSource getTokenSource () {
             return tokenSource;
+        }
+
+        protected void setOptable ( IOperatorTable optable ) {
+            putIfAbsent(OP_TABLE, optable);
         }
     }
 }

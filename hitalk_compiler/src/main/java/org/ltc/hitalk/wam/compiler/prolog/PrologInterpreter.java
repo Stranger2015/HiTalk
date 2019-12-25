@@ -1,7 +1,6 @@
 package org.ltc.hitalk.wam.compiler.prolog;
 
 import com.thesett.aima.logic.fol.LinkageException;
-import com.thesett.common.parsing.SourceCodeException;
 import jline.ConsoleReader;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
@@ -13,6 +12,7 @@ import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.interpreter.IInterpreter;
 import org.ltc.hitalk.interpreter.Mode;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.HtVariable;
@@ -154,10 +154,10 @@ public class PrologInterpreter<T extends HtClause, P, Q, PC, QC>
 
     /**
      * @param clause
-     * @throws SourceCodeException
+     * @throws HtSourceCodeException
      */
     @Override
-    public void evaluate ( T clause ) throws SourceCodeException {
+    public void evaluate ( T clause ) throws HtSourceCodeException {
         if (clause.isQuery()) {
             engine.endScope();
             engine.compile(clause);
@@ -287,9 +287,9 @@ public class PrologInterpreter<T extends HtClause, P, Q, PC, QC>
     /**
      * Signal the end of a compilation scope, to trigger completion of the compilation of its contents.
      *
-     * @throws SourceCodeException If there is an error in the source to be compiled that prevents its compilation.
+     * @throws HtSourceCodeException If there is an error in the source to be compiled that prevents its compilation.
      */
-    public void endScope () throws SourceCodeException {
+    public void endScope () throws HtSourceCodeException {
 
     }
 
@@ -307,5 +307,9 @@ public class PrologInterpreter<T extends HtClause, P, Q, PC, QC>
     @Override
     public void setConfig ( IConfig config ) {
         this.config = config;
+    }
+
+    public void toString0 ( StringBuilder sb ) {
+
     }
 }

@@ -280,4 +280,8 @@ public class TermFactory implements ITermFactory {
         }
         return new HtFunctor(name, args);
     }
+
+    public void toString0 ( StringBuilder sb ) {
+
+    }
 }

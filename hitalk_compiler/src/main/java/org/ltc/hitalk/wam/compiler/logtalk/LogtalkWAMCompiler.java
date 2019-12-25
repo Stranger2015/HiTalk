@@ -1,10 +1,10 @@
 package org.ltc.hitalk.wam.compiler.logtalk;
 
-import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtProperty;
+import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.HtMethod;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
@@ -43,7 +43,7 @@ public class LogtalkWAMCompiler<T extends HtMethod, P, Q, PC, QC> extends Prolog
     /**
      * @param query
      */
-    public void compileQuery ( HiTalkWAMCompiledQuery query ) throws SourceCodeException {
+    public void compileQuery ( HiTalkWAMCompiledQuery query ) throws HtSourceCodeException {
 
     }
 
@@ -55,16 +55,16 @@ public class LogtalkWAMCompiler<T extends HtMethod, P, Q, PC, QC> extends Prolog
     }
 
     @Override
-    public void endScope () throws SourceCodeException {
+    public void endScope () throws HtSourceCodeException {
         transpiler.endScope();
     }
 
     /**
      * @param clause
      * @param flags
-     * @throws SourceCodeException
+     * @throws HtSourceCodeException
      */
-    public void compile ( T clause, HtProperty... flags ) throws SourceCodeException {
+    public void compile ( T clause, HtProperty... flags ) throws HtSourceCodeException {
 
     }
 

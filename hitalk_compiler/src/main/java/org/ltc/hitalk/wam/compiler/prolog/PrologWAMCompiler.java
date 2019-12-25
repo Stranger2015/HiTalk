@@ -1,6 +1,5 @@
 package org.ltc.hitalk.wam.compiler.prolog;
 
-import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.compiler.BaseCompiler;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.IHitalkObject;
@@ -9,6 +8,7 @@ import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.wam.compiler.BaseInstructionCompiler;
@@ -87,13 +87,13 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
     }
 
     @Override
-    public void endScope () throws SourceCodeException {
+    public void endScope () throws HtSourceCodeException {
         preCompiler.endScope();
         instructionCompiler.endScope();
     }
 
     @Override
-    public void compile ( T clause, HtProperty... flags ) throws SourceCodeException {
+    public void compile ( T clause, HtProperty... flags ) throws HtSourceCodeException {
         instructionCompiler.compile(clause, flags);
         //        preCompiler.preCompile(clause);
     }
@@ -102,7 +102,7 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
      * @param tokenSource
      * @param flags
      * @throws IOException
-     * @throws SourceCodeException
+     * @throws HtSourceCodeException
      */
     @Override
     public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws Exception {
@@ -132,10 +132,13 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
 
     /**
      * @param clause
-     * @throws SourceCodeException
+     * @throws HtSourceCodeException
      */
-    public void compile ( T clause ) throws SourceCodeException {
+    public void compile ( T clause ) throws HtSourceCodeException {
         instructionCompiler.compile(clause);
+    }
+
+    public void toString0 ( StringBuilder sb ) {
     }
 
     /**
@@ -145,14 +148,14 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
         /**
          * {@inheritDoc}
          */
-        public void onCompilation ( T clause ) throws SourceCodeException {
+        public void onCompilation ( T clause ) throws HtSourceCodeException {
             PrologWAMCompiler.this.instructionCompiler.compile(clause);
         }
 
         /**
          * {@inheritDoc}
          */
-        public void onQueryCompilation ( Q clause ) throws SourceCodeException {
+        public void onQueryCompilation ( Q clause ) throws HtSourceCodeException {
             PrologWAMCompiler.this.instructionCompiler.compileQuery((HtClause) clause);
         }
     }

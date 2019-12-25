@@ -128,4 +128,7 @@ class TransformTask extends PreCompilerTask implements ITransformer {
     public void remove ( PreCompilerTask item ) {
 
     }
+
+    public void toString0 ( StringBuilder sb ) {
+    }
 }

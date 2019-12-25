@@ -4,7 +4,6 @@ import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import com.thesett.aima.logic.fol.Sentence;
 import com.thesett.aima.logic.fol.Term;
-import com.thesett.common.parsing.SourceCodeException;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
@@ -23,6 +22,7 @@ import org.ltc.hitalk.entities.context.Context;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.LoadContext;
 import org.ltc.hitalk.parser.HiTalkParser;
+import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
@@ -42,6 +42,7 @@ import java.util.List;
 import static java.lang.System.in;
 import static org.ltc.hitalk.compiler.bktables.BkTableKind.LOADED_ENTITIES;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
+import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.RESOURCE_ERROR;
 import static org.ltc.hitalk.parser.PlTokenSource.getTokenSourceForIoFile;
 import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
 import static org.ltc.hitalk.wam.compiler.Language.HITALK;
@@ -86,6 +87,7 @@ import static org.ltc.hitalk.wam.compiler.Language.HITALK;
  * New modules are recorded in the reload context. Export declarations (the module's public list and export/1 calls)
  * are both applied and recorded.
  * When the end-of-file is reached, the following fixup steps are taken:
+
  * For each predicate
  * The current clause and subsequent clauses are marked for future deletion.
  * All clauses marked for future deletion or creation are (in)activated by changing
@@ -108,6 +110,7 @@ import static org.ltc.hitalk.wam.compiler.Language.HITALK;
  * compiling the remainder of the file and once to effectuate this. As of version 7.5.13, conventional transaction
  * semantics apply. This implies that for the thread performing the reload the file's content is first wiped and
  * gradually rebuilt, while other threads see an atomic update from the old file content to the new one.
+
  * <p>
  * Compilation of mutually dependent code
  * <p>
@@ -371,7 +374,7 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q, PC, QC>
 //     * @param input
 //     * @throws IOException
 //     */
-//    private void logtalkCompile ( InputStream input ) throws IOException, SourceCodeException {
+//    private void logtalkCompile ( InputStream input ) throws IOException, HtSourceCodeException {
 //        PlTokenSource tokenSource = getTokenSourceForInputStream(input, "");
 //        setTokenSource(tokenSource);
 //        compiler.compile(tokenSource);
@@ -382,7 +385,7 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q, PC, QC>
      * @param fileName
      * @param scratchDir
      * @throws IOException
-     * @throws SourceCodeException
+     * @throws HtSourceCodeException
      */
     protected void loadBuiltInEntity ( HtEntityIdentifier identifier, String fileName, Path scratchDir ) throws Exception {
         List rs = bkt.select(LOADED_ENTITIES);
@@ -1264,18 +1267,28 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q, PC, QC>
          * Accepts notification of the completion of the compilation of a sentence into a (binary) form.
          *
          * @param sentence The compiled form of the sentence.
-         * @throws SourceCodeException If there is an error in the compiled code that prevents its further processing.
          */
         @Override
-        public void onCompilation ( Sentence <T> sentence ) throws SourceCodeException {
-            instructionCompiler.compile(sentence.getT());
+        public void onCompilation ( Sentence <T> sentence ) {
+            try {
+                instructionCompiler.compile(sentence.getT());
+            } catch (HtSourceCodeException e) {
+                e.printStackTrace();
+                throw new ExecutionError(RESOURCE_ERROR, null);
+
+            }
         }
 
         /**
          * {@inheritDoc}
          */
-        public void onQueryCompilation ( Sentence <Q> sentence ) throws SourceCodeException {
-            instructionCompiler.compile((T) sentence.getT());
+        public void onQueryCompilation ( Sentence <Q> sentence ) {
+            try {
+                instructionCompiler.compile((T) sentence.getT());
+            } catch (HtSourceCodeException e) {
+                e.printStackTrace();
+                throw new ExecutionError(RESOURCE_ERROR, null);
+            }
         }
     }
 }

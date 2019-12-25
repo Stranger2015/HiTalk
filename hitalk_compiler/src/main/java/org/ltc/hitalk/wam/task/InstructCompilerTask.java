@@ -33,4 +33,8 @@ public class InstructCompilerTask implements IPendingClausesHolder, IHitalkObjec
     public HtClause poll () {
         return clauses.poll();
     }
+
+    public void toString0 ( StringBuilder sb ) {
+
+    }
 }

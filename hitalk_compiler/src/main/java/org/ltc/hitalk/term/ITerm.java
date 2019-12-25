@@ -19,9 +19,9 @@ import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.search.Operator;
 import com.thesett.aima.search.util.backtracking.ReTraversable;
 import com.thesett.aima.search.util.backtracking.Reversable;
-import com.thesett.common.parsing.SourceCodePosition;
 import com.thesett.common.util.doublemaps.SymbolKey;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.parser.ISourceCodePosition;
 
 import java.util.Iterator;
 import java.util.List;
@@ -230,14 +230,14 @@ public interface ITerm extends ReTraversable <ITerm>, Operator <ITerm> {
      * @return The source code position that this term was parsed from. May be <tt>null</tt> if no position has been
      * associated.
      */
-    SourceCodePosition getSourceCodePosition ();
+    ISourceCodePosition getSourceCodePosition ();
 
     /**
      * Associates a source code position with this term.
      *
      * @param sourceCodePosition The source code position that this term was parsed from.
      */
-    void setSourceCodePosition ( SourceCodePosition sourceCodePosition );
+    void setSourceCodePosition ( ISourceCodePosition sourceCodePosition );
 
     /**
      * Reports whether this term is the top-level term in a bracketed expression, and therefore requires no fruther

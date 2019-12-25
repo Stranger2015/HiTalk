@@ -18,19 +18,12 @@ import static org.ltc.hitalk.parser.Quotemeta.decode;
  * @author shun
  */
 public class PlLexer extends PlTokenSource {
-    //    rivate final HiTalkInputStream stream;
-    private PlToken token;
-
     public static final String PUNCTUATION = "#&*+-./\\:;?@^$<=>,!|";
     public static final String PARENTHESES = "(){}[]";
 
     public PlLexer ( HiTalkInputStream inputStream ) {
         super(inputStream);
     }
-
-//    public HiTalkInputStream getInputStream () {
-//        return stream;
-//    }
 
     public static boolean isMergeable ( String l, String r ) {
         return isTokenBoundary(l.charAt(l.length() - 1), r.charAt(0));
@@ -59,7 +52,7 @@ public class PlLexer extends PlTokenSource {
         int lineNumber = stream.getLineNumber();
         int colNumber = stream.getColNumber();
 
-        PlToken token = getToken(value);
+        PlToken token = stream.isBOFNotPassed() ? PlToken.newToken(BOF) : getToken(value);
 
         token.setBeginLine(lineNumber);
         token.setBeginColumn(colNumber);
@@ -67,6 +60,11 @@ public class PlLexer extends PlTokenSource {
         token.setEndColumn(colNumber + token.image.length());
 
         return token;
+    }
+
+    public String toString () {
+        final String sb = "PlLexer{" + "inputStream=" + inputStream + '}';
+        return sb;
     }
 
     /**

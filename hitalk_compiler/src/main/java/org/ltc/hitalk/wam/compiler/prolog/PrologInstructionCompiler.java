@@ -1,11 +1,11 @@
 package org.ltc.hitalk.wam.compiler.prolog;
 
-import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.BaseInstructionCompiler;
 
@@ -48,7 +48,7 @@ public class PrologInstructionCompiler<T extends HtClause, PC, QC> extends BaseI
     }
 
     @Override
-    public void compile ( T clause, HtProperty... flags ) throws SourceCodeException {
+    public void compile ( T clause, HtProperty... flags ) throws HtSourceCodeException {
 
     }
 
@@ -59,11 +59,14 @@ public class PrologInstructionCompiler<T extends HtClause, PC, QC> extends BaseI
         this.resolver = resolver;
     }
 
-    public void compile ( T clause ) throws SourceCodeException {
+    public void compile ( T clause ) throws HtSourceCodeException {
         compile(clause, new HtProperty[0]);
     }
 
     public void compileQuery ( QC query ) {
 
+    }
+
+    public void toString0 ( StringBuilder sb ) {
     }
 }

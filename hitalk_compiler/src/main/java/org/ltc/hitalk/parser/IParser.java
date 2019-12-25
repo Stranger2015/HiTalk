@@ -1,7 +1,6 @@
 package org.ltc.hitalk.parser;
 
 
-import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
@@ -83,7 +82,7 @@ public interface IParser extends IHitalkObject {
 
     /**
      * @return
-     * @throws SourceCodeException
+     * @throws HtSourceCodeException
      */
     ITerm parse () throws Exception;
 
@@ -144,7 +143,7 @@ public interface IParser extends IHitalkObject {
      * @param t
      * @return
      */
-    default HtClause convert ( ITerm t ) throws SourceCodeException {
+    default HtClause convert ( ITerm t ) throws HtSourceCodeException {
         return TermUtilities.convertToClause(t, getInterner());
     }
 }

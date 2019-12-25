@@ -19,17 +19,13 @@ import com.thesett.aima.attribute.impl.IdAttribute;
 import com.thesett.aima.logic.fol.FunctorName;
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.Parser;
-import com.thesett.common.parsing.SourceCodeException;
 import com.thesett.common.util.Filterator;
 import com.thesett.common.util.Source;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtProperty;
-import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.PlPrologParser;
-import org.ltc.hitalk.parser.PlToken;
-import org.ltc.hitalk.parser.PlTokenSource;
+import org.ltc.hitalk.parser.*;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
@@ -132,7 +128,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      * knowledge base.
      *
      * @param stream The input stream to consult.
-     * @throws SourceCodeException If any code read from the input stream fails to parse, compile or link.
+     * @throws HtSourceCodeException If any code read from the input stream fails to parse, compile or link.
      */
     public void consultInputStream ( HiTalkInputStream stream ) throws Exception {
         // Create a token source to read from the specified input stream.
@@ -355,7 +351,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
         return vars.iterator();
     }
 
-    public void compile ( T sentence ) throws SourceCodeException {
+    public void compile ( T sentence ) throws HtSourceCodeException {
         compiler.compile(sentence);
     }
 
@@ -366,7 +362,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
     /**
      * {@inheritDoc}
      */
-    public void endScope () throws SourceCodeException {
+    public void endScope () throws HtSourceCodeException {
         compiler.endScope();
     }
 
@@ -397,10 +393,10 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
     /**
      * @param clause
      * @param flags
-     * @throws SourceCodeException
+     * @throws HtSourceCodeException
      */
     @Override
-    public void compile ( T clause, HtProperty... flags ) throws SourceCodeException {
+    public void compile ( T clause, HtProperty... flags ) throws HtSourceCodeException {
         compiler.compile(clause, flags);
     }
 
@@ -408,7 +404,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      * @param rule
      */
     @Override
-    public void compileDcgRule ( DcgRule rule ) throws SourceCodeException {//fixme
+    public void compileDcgRule ( DcgRule rule ) throws HtSourceCodeException {//fixme
         compiler.compileDcgRule(rule);
     }
 
@@ -416,7 +412,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      * @param query
      */
     @Override
-    public void compileQuery ( Q query ) throws SourceCodeException {
+    public void compileQuery ( Q query ) throws HtSourceCodeException {
         compiler.compileQuery(query);
     }
 
@@ -444,10 +440,10 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
          * Accepts notification of the completion of the compilation of a sentence into a (binary) form.
          *
          * @param sentence The compiled form of the sentence.
-         * @throws SourceCodeException If there is an error in the compiled code that prevents its further processing.
+         * @throws HtSourceCodeException If there is an error in the compiled code that prevents its further processing.
          */
         @Override
-        public void onCompilation ( P sentence ) throws SourceCodeException {
+        public void onCompilation ( P sentence ) throws HtSourceCodeException {
             //todo
         }
 
@@ -456,7 +452,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
          *
          * @param sentence
          */
-        public void onQueryCompilation ( Q sentence ) throws SourceCodeException {
+        public void onQueryCompilation ( Q sentence ) throws HtSourceCodeException {
 //todo
         }
     }

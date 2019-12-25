@@ -1,6 +1,6 @@
 package org.ltc.hitalk.term;
 
-import org.ltc.hitalk.core.BaseApp;
+import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 
 /**
@@ -74,8 +74,19 @@ class Atom extends HtFunctor {
         return true;
     }
 
-    public String toString () {
-        return BaseApp.getAppContext().getInterner().getDeinternedFunctorName(this.getName()).getName();
+//    public String toString () {
+//        return getAppContext().getInterner().getDeinternedFunctorName(this.getName()).getName();
+//    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param interner
+     * @param printVarName
+     * @param printBindings
+     */
+    public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
+        return super.toString(interner, printVarName, printBindings);
     }
 
     /**

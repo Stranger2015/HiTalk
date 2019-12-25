@@ -15,6 +15,7 @@
  */
 package org.ltc.hitalk.compiler.bktables;
 
+import org.ltc.hitalk.core.IHitalkObject;
 import org.ltc.hitalk.term.HlOpSymbol;
 import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 
@@ -36,11 +37,10 @@ import static org.ltc.hitalk.term.HlOpSymbol.Fixity;
  *
  * @author Rupert Smith
  */
-public interface IOperatorTable {
+public interface IOperatorTable extends IHitalkObject {
     /**
      * Sets the priority and associativity of a named operator in this table. This method may be used to remove
      * operators by some implementations, through a special setting of the priority value.
-     *
      */
     void setOperator ( int name, String textName, int priority, Associativity associativity );
 

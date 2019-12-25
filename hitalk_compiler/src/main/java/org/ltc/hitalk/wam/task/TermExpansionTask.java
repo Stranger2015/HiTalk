@@ -46,6 +46,9 @@ public class TermExpansionTask extends PreCompilerTask {
 
     }
 
+    public void toString0 ( StringBuilder sb ) {
+    }
+
     /**
      *
      */

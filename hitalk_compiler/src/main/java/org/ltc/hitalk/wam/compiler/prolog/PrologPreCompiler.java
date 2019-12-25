@@ -1,7 +1,6 @@
 package org.ltc.hitalk.wam.compiler.prolog;
 
 import com.thesett.aima.logic.fol.LogicCompilerObserver;
-import com.thesett.common.parsing.SourceCodeException;
 import org.ltc.hitalk.compiler.AbstractBaseMachine;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.IPreCompiler;
@@ -9,6 +8,7 @@ import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.IFunctor;
@@ -101,9 +101,9 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
 
     /**
      * @param clause
-     * @throws SourceCodeException
+     * @throws HtSourceCodeException
      */
-    public void preCompile ( T clause ) throws SourceCodeException {
+    public void preCompile ( T clause ) throws HtSourceCodeException {
         logger.debug("Precompiling " + clause);
         if (clause.getT().getHead() == null) {
             final IFunctor goal = (IFunctor) clause.getBody().get(0);
@@ -197,5 +197,8 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
      */
     public void remove ( PreCompilerTask item ) {
 
+    }
+
+    public void toString0 ( StringBuilder sb ) {
     }
 }

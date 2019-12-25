@@ -17,7 +17,7 @@ import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 
 public enum Language {
-    PROLOG("LTC-Prolog",
+    PROLOG("Ltc-Prolog",
             PlPrologParser.class,
             PrologWAMCompiler.class,
             PrologPreCompiler.class,

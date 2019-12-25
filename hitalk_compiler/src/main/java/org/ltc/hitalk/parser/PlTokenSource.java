@@ -12,10 +12,7 @@ import org.ltc.hitalk.wam.compiler.HtFunctorName;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
@@ -25,18 +22,25 @@ import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
 
 abstract public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
 
-    private HiTalkInputStream inputStream;
-    private boolean encodingPermitted;
+    protected HiTalkInputStream inputStream;
+    protected boolean encodingPermitted;
 
     /**
      * Holds the current token.
      */
     public PlToken token;
 
+    public String toString () {
+        final StringBuilder sb = new StringBuilder(getClass().getSimpleName() + "{");
+        sb.append("inputStream=").append(inputStream);
+        sb.append(", path='").append(path).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
+
     /**
      * Holds the tokenizer that supplies the next token on demand.
      */
-//    public PlLexer lexer;
     protected IVafInterner interner;
     protected IOperatorTable operatorTable;
 
@@ -63,28 +67,16 @@ abstract public class PlTokenSource implements Source <PlToken>, PropertyChangeL
      *
      * @return
      */
-//    public static PlTokenSource getPlTokenSourceForString ( String string ) {
-//        return getPlTokenSourceForStdin(new ByteArrayInputStream(string.getBytes()));
-//    }
-//
+    public static PlTokenSource getPlTokenSourceForString ( String string ) throws FileNotFoundException {
+        HiTalkInputStream inputStream = new HiTalkInputStream(string);
+        return new PlLexer(inputStream);
+    }
+
     public static PlTokenSource getPlTokenSourceForStdin () {
         HiTalkInputStream stream = getAppContext().currentInput();
         stream.setInputStream(new FileInputStream(FileDescriptor.in));
-        return newInstance(stream);
+        return new PlLexer(stream);
     }
-
-    protected static PlTokenSource newInstance ( HiTalkInputStream stream ) {
-        return null;
-    }
-
-//    /**
-//     * @return
-//     */
-//    public boolean isEofGenerated () {
-//        return isEofGenerated;
-//    }
-//
-//    private boolean isEofGenerated;
 
     /**
      * @return
@@ -100,8 +92,8 @@ abstract public class PlTokenSource implements Source <PlToken>, PropertyChangeL
         isBofGenerated = bofGenerated;
     }
 
-    protected HiTalkInputStream stream;
-    private String path;
+    //    protected HiTalkInputStream stream;
+    protected String path;
 
     /**
      * @param encoding
@@ -123,6 +115,7 @@ abstract public class PlTokenSource implements Source <PlToken>, PropertyChangeL
      * @param path
      */
     public PlTokenSource ( HiTalkInputStream inputStream, String path ) {
+//        super(inputStream);
         this.inputStream = inputStream;
         this.path = path;
     }
@@ -170,10 +163,7 @@ abstract public class PlTokenSource implements Source <PlToken>, PropertyChangeL
     public void setEncodingChanged ( boolean encodingChanged ) {
         this.encodingChanged = encodingChanged;
     }
-
-    public HiTalkInputStream getStream () {
-        return stream;
-    }
+//
 
     /**
      * Interns an operators name as a functor of appropriate arity for the operators fixity, and sets the operator in

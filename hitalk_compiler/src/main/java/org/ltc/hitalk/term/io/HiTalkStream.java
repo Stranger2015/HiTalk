@@ -5,8 +5,9 @@ import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.IProperty;
 import org.ltc.hitalk.entities.IPropertyOwner;
 import org.ltc.hitalk.entities.PropertyOwner;
-import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.term.ITerm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sun.nio.cs.StreamDecoder;
 
 import java.beans.PropertyChangeEvent;
@@ -37,6 +38,9 @@ public abstract
 class HiTalkStream
         implements IPropertyOwner, PropertyChangeListener, Cloneable, Closeable, IHitalkObject {
 
+
+    protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
+
     public static final int BB_ALLOC_SIZE = 32768;
 
     protected FileDescriptor fd;
@@ -49,7 +53,7 @@ class HiTalkStream
     protected PropertyOwner <HtProperty> owner;
     protected Charset currentCharset = defaultCharset();
     protected StreamDecoder sd;
-    private PlTokenSource tokenSource;
+//    private PlTokenSource tokenSource;
 
     /**
      * @param path
@@ -165,11 +169,21 @@ class HiTalkStream
 
     }
 
-    public PlTokenSource getTokenSource () {
-        return tokenSource;
+    public final String toString () {
+        final StringBuilder sb = new StringBuilder();
+        sb.append(getClass().getSimpleName()).append('{');
+        toString0(sb);
+        sb.append('}');
+        return sb.toString();
     }
 
-    public void setTokenSource ( PlTokenSource tokenSource ) {
-        this.tokenSource = tokenSource;
+    /**
+     * @param sb
+     */
+    public void toString0 ( StringBuilder sb ) {
+        sb.append(", fd=").append(fd);
+        sb.append(", channel=").append(channel);
+        sb.append(", currentCharset=").append(currentCharset);
+        sb.append(", sd=").append(sd);
     }
 }
