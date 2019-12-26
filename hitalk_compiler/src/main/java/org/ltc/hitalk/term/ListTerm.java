@@ -2,11 +2,12 @@ package org.ltc.hitalk.term;
 
 import com.thesett.aima.search.Operator;
 import org.ltc.hitalk.compiler.IVafInterner;
-import org.ltc.hitalk.core.utils.TermUtilities;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
+import java.util.Arrays;
 import java.util.stream.IntStream;
 
+import static org.ltc.hitalk.core.utils.TermUtilities.prepend;
 import static org.ltc.hitalk.term.ListTerm.Kind.values;
 
 /**
@@ -14,8 +15,8 @@ import static org.ltc.hitalk.term.ListTerm.Kind.values;
  */
 public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
 
-    public static final ITerm TRUE = new ListTerm(Kind.TRUE);
-    public static final ListTerm NIL = new ListTerm(Kind.NIL);
+    //    public static final ITerm TRUE = new ListTerm(Kind.TRUE);
+    public static final ListTerm NIL = new ListTerm();
 
     protected Kind kind;
     protected ITerm[] arguments;
@@ -25,10 +26,13 @@ public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
      * @param name
      * @param heads
      */
-    public ListTerm ( Kind kind, int name, ITerm[] heads ) {
-        this(kind, TermUtilities.prepend(heads, new IntTerm(name)));
+    public ListTerm ( int name, ITerm[] heads ) {
+        this(prepend(heads, new IntTerm(name)));
     }
 
+    /**
+     * @param length
+     */
     public ListTerm ( int length ) {
         this(length == 0 ? Kind.NIL : Kind.LIST);
         ITerm[] heads = IntStream.range(0, length).mapToObj(i -> new HtVariable())
@@ -37,28 +41,23 @@ public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
     }
 
     /**
-     * @param kind
      * @param arguments
      */
-    public ListTerm ( Kind kind, ITerm... arguments ) {
-//        super(-kind.ordinal(), arguments);
-        this.kind = kind;
+    public ListTerm ( ITerm... arguments ) {
+        kind = arguments == null || arguments.length == 0 ? Kind.NIL : Kind.LIST;
         this.arguments = arguments;
     }
 
     /**
      *
      */
-    public ListTerm () {
+    public ListTerm () {//fixme redundant
         this(0);
     }
 
-//    //todo name
-//    public ListTerm ( Kind kind, ITerm[] heads ) {
-////        this(kind, heads);
-//        this.kind = kind;
-//        this.heads = heads;
-//    }
+    public ListTerm ( Kind kind ) {
+        this.kind = kind;
+    }
 
     /**
      * @return
@@ -112,9 +111,9 @@ public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
      * @return
      */
     public ITerm get ( int i ) {
-        if (size() == i) {
-            return TRUE;
-        }
+//        if (size() == i) {
+//            return TRUE;
+//        }
         return getHeads()[i];
     }
 
@@ -126,7 +125,7 @@ public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
         if (arguments[0].isFunctor()) {// also isHilog()
             return ((IFunctor) arguments[0]).getName();
         } else {
-            return -2;
+            return -2;//fixme
         }
     }
 
@@ -151,7 +150,7 @@ public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
      * @return
      */
     public ITerm getArgument ( int i ) {
-        return null;
+        return arguments[i];
     }
 
     /**
@@ -238,6 +237,16 @@ public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
 
     }
 
+
+//    public String toString () {
+//        final StringBuilder sb = new StringBuilder("ListTerm{");
+//        sb.append("kind=").append(kind);
+//        sb.append(", arguments=").append(Arrays.toString(arguments));
+//        sb.append(", bracketed=").append(bracketed);
+//        sb.append('}');
+//        return sb.toString();
+//    }
+
     /**
      * @param interner      The interner use to provide symbol names.
      * @param printVarName  <tt>true</tt> if the names of bound variables should be printed, <tt>false</tt> if just the
@@ -248,7 +257,38 @@ public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
      */
     @Override
     public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
-        return toString();
+        final StringBuilder sb = new StringBuilder();
+        switch (kind) {
+            case NIL:
+                sb.append("[]");
+            case LIST:
+                sb.append("[");
+                sb.append(Arrays.toString(getHeads()));
+                sb.append("|");
+                sb.append(arguments[arguments.length - 1].toString(interner, printVarName, printBindings));
+                break;
+            case BYPASS:
+                break;
+            case AND:
+                break;
+            case OR:
+                break;
+            case NOT:
+                break;
+            case IF:
+                break;
+            case TRUE:
+                break;
+            case GOAL:
+                break;
+            case HILOG_APPLY:
+                break;
+            case INLINE_GOAL:
+                break;
+            case OTHER:
+                break;
+        }
+        return sb.toString();
     }
 
 

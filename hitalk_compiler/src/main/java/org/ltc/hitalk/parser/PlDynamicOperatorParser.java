@@ -15,8 +15,6 @@
  */
 package org.ltc.hitalk.parser;
 
-import com.thesett.aima.logic.fol.Term;
-import com.thesett.aima.logic.fol.isoprologparser.OperatorTable;
 import com.thesett.common.util.Queue;
 import com.thesett.common.util.StackQueue;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
@@ -26,22 +24,20 @@ import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 import org.ltc.hitalk.term.HlOpSymbol.Fixity;
 import org.ltc.hitalk.term.ITerm;
 
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.IntStream;
 
 import static org.ltc.hitalk.term.HlOpSymbol.Fixity.*;
 
 /**
- * DynamicOperatorParser is a 'deferred decision parser' that can be used to parse Prolog with dynamically defined
- * operators. Prolog operators are dynamic; they can be redefined at run-time with altered fixities, associativities and
- * priorities. This means that the grammar of prolog is not fixed and parser generator tools have a hard time coping
- * with it. A solution is to parse sequences of adjacent terms into a flat array, and then to pass this array to this
+ * PlDynamicOperatorParser is a 'deferred decision parser' that can be used to parse Prolog with dynamically defined
+ * operators. Prolog operators are dynamic; they can be redefined at run-time with altered fixities, associativities
+ * and priorities.
+ * This means that the grammar of prolog is not fixed and parser generator tools have a hard time coping with it.
+ * A solution is to parse sequences of adjacent terms into a flat array, and then to pass this array to this
  * parser to attempt to correctly parse the sequence of terms using the currently defined operators.
  * <p>
- * <p/>This parser maintains the {@link OperatorTable} in an ISO Prolog compliant manner. That is, it does not permit
+ * <p/>This parser maintains the {@link IOperatorTable} in an ISO Prolog compliant manner. That is, it does not permit
  * the ',' operator to be redefined, it does not allow an infix and postfix operator with the same name to be
  * simultaneously defined, priority must be between 0 and 1200 inclusive, setting a priority of 0 on an operator removes
  * it from the table. It is the responsibility of the caller to ensure that operators have valid names.
@@ -206,15 +202,13 @@ import static org.ltc.hitalk.term.HlOpSymbol.Fixity.*;
  * <tr><td> Add new operators to the table following ISO Prolog rules.
  * <tr><td> Find all candidate operators matching a given name.
  * <tr><td> Parse sequences of terms and candidate operators using ISO Prolog rules.
- *     <td> {@link Term}, {@link CandidateOperator}, {@link HlOpSymbol}.
+ *     <td> {@link ITerm}, {@link CandidateOperator}, {@link HlOpSymbol}.
  * </table></pre>
  *
  * @author Rupert Smith
  */
 public class PlDynamicOperatorParser implements IOperatorTable {
-    public void toString0 ( StringBuilder sb ) {
 
-    }
     /* Used for debugging purposes. */
     /* private final Logger log = Logger.getLogger(DynamicOperatorParser.class.getName()); */
 
@@ -318,7 +312,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
     /**
      * Holds the parser state stack.
      */
-    private final Queue <Integer> stack = new StackQueue <Integer>();
+    private final Queue <Integer> stack = new StackQueue <>();
 
     /**
      * Holds the parsers current state.
@@ -405,7 +399,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
         // Check that the name of the operator is valid.
 
         // Check that the priority of the operator is valid.
-        if ((priority < 0) || (priority > 1200)) {
+        if (priority < 0 || (priority > 1200)) {
             throw new IllegalArgumentException("Operator priority must be between 0 and 1200 inclusive.");
         }
 
@@ -511,7 +505,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
          * @throws HtSourceCodeException With an error location if the action cannot be performed because the input
          *                               sequence does not form a valid instance of the grammar.
          */
-        public abstract void apply () throws HtSourceCodeException, HtSourceCodeException;
+        public abstract void apply () throws HtSourceCodeException;
     }
 
     /**
@@ -608,12 +602,12 @@ public class PlDynamicOperatorParser implements IOperatorTable {
         }
 
         /**
-         * Performs shift-reduce resolution between a pair of operators as describe in {@link com.thesett.aima.logic.fol.isoprologparser.DynamicOperatorParser}.
+         * Performs shift-reduce resolution between a pair of operators as describe in {@link PlDynamicOperatorParser}.
          *
          * @throws HtSourceCodeException With an error location if the action cannot be performed because the input
          *                               sequence does not form a valid instance of the grammar.
          */
-        public void apply () throws HtSourceCodeException, HtSourceCodeException {
+        public void apply () throws HtSourceCodeException {
             // This cast should not fail, as resolve is only called when the next symbol is a candidate operator.
             CandidateOperator nextCandidate = (CandidateOperator) nextTerm;
 
@@ -637,6 +631,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
                 } else if ((pos == 0) && isHlOperator) {
                     lastCandidate = (CandidateOperator) nextTerm;
                 } else if ((pos == 1) && beta) {
+                    assert nextTerm instanceof CandidateOperator;
                     lastCandidate = (CandidateOperator) nextTerm;
                 } else if ((pos == 1) && !beta) {
                     alpha = true;
@@ -735,6 +730,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
      * terminates.
      */
     private class Accept extends Action {
+
         /**
          * Accepts the input sequence as valid.
          */
@@ -749,6 +745,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
      * Implements a reduction by rule 1 of the grammar. This consumes a single state from the state stack.
      */
     private class Rule1 extends Action {
+
         /**
          * Defines the number of symbols on the right hand side of this rule.
          */
@@ -758,9 +755,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
          * Reduces by rule 1.
          */
         public void apply () {
-            for (int i = 0; i < NUM_SYMBOLS_RHS; i++) {
-                stack.poll();
-            }
+            IntStream.range(0, NUM_SYMBOLS_RHS).forEachOrdered(i -> stack.poll());
         }
     }
 
@@ -783,9 +778,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
          */
         public void apply () throws HtSourceCodeException {
             // Consume from the state stack for the number of RHS symbols.
-            for (int i = 0; i < NUM_SYMBOLS_RHS; i++) {
-                stack.poll();
-            }
+            IntStream.range(0, NUM_SYMBOLS_RHS).forEachOrdered(i -> stack.poll());
 
             // Attempt to consume a term and an operator in prefix order from the output stack.
             ITerm t = outputStack.poll();
@@ -796,7 +789,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
             // Clone the operator symbol from the operator table before adding the unique source code position and
             // argument for this symbol instance.
             op = op.copySymbol();
-            op.setSourceCodePosition(candidate.getSourceCodePosition());
+            op.setSourceCodePosition(Objects.requireNonNull(candidate).getSourceCodePosition());
             op.setArguments(new ITerm[]{t});
 
             // Place the fully parsed, promoted operator back onto the output stack.
@@ -875,11 +868,15 @@ public class PlDynamicOperatorParser implements IOperatorTable {
             // argument for this symbol instance.
             // Note that the order of the arguments is swapped here, because they come off the stack backwards.
             op = op.copySymbol();
-            op.setSourceCodePosition(candidate.getSourceCodePosition());
+            op.setSourceCodePosition(Objects.requireNonNull(candidate).getSourceCodePosition());
             op.setArguments(new ITerm[]{t2, t1});
 
             outputStack.offer(op);
         }
+    }
+
+    public void toString0 ( StringBuilder sb ) {
+
     }
 }
 

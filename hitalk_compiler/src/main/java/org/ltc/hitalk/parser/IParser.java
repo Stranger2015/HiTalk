@@ -1,6 +1,5 @@
 package org.ltc.hitalk.parser;
 
-
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;

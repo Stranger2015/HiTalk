@@ -128,6 +128,8 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
         executionContext = new ExecutionContext();
 
         initVfs();
+
+        parser.initializeBuiltIns();
     }
 
     @Override
@@ -301,35 +303,57 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
         getTarget().run();
     }
 
+    /**
+     * @param interner
+     */
     public void setInterner ( IVafInterner interner ) {
         this.interner = interner;
         appContext.putIfAbsent(INTERNER, interner);
     }
 
+    /**
+     * @return
+     */
     protected PrologWAMCompiler <T, P, Q, PC, QC> getWAMCompiler () {
         return wamCompiler;
     }
 
+    /**
+     * @param compiler
+     */
     protected void setWAMCompiler ( PrologWAMCompiler <T, P, Q, PC, QC> compiler ) {
         this.wamCompiler = compiler;
         getAppContext().putIfAbsent(WAM_COMPILER, compiler);
     }
 
+    /**
+     * @return
+     */
     @Override
     public IProduct product () {
         return product;
     }
 
+    /**
+     * @return
+     */
     @Override
     public Language language () {
         return PROLOG;
     }
 
+    /**
+     * @return
+     */
     @Override
     public Kind tool () {
         return COMPILER;
     }
 
+    /**
+     * @return
+     * @throws Exception
+     */
     protected FileObject createScratchDirectory () throws Exception {
         FileSystemOptions fileSystemOptions = new FileSystemOptions();
         final FileObject scratchFolder = VFS.getManager().resolveFile(String.valueOf(getScratchDirectory().toFile()));

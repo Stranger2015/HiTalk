@@ -8,6 +8,7 @@ import org.ltc.hitalk.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.*;
 import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 import org.ltc.hitalk.term.HlOpSymbol.Fixity;
+import org.ltc.hitalk.term.ListTerm.Kind;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.HtFunctorName;
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.*;
 
+import static java.lang.String.format;
 import static java.util.EnumSet.of;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
 import static org.ltc.hitalk.core.utils.TermUtilities.convertToClause;
@@ -56,7 +58,7 @@ public class PlPrologParser implements IParser {
                             IVafInterner interner,
                             ITermFactory factory,
                             IOperatorTable optable ) {
-        tokenSourceStack.push(new PlLexer(inputStream));
+        setTokenSource(new PlLexer(inputStream));
         this.interner = interner;
         this.factory = factory;
         this.operatorTable = optable;
@@ -109,6 +111,10 @@ public class PlPrologParser implements IParser {
         return operatorTable == null ? new PlDynamicOperatorParser() : operatorTable;
     }
 
+    /**
+     * @param optable
+     */
+    @Override
     public void setOptable ( IOperatorTable optable ) {
         this.operatorTable = optable;
     }
@@ -152,14 +158,12 @@ public class PlPrologParser implements IParser {
     }
 
     /**
-     * @return
+     *
      */
-    public PlTokenSource popTokenSource () {
-        PlTokenSource result = null;
+    public void popTokenSource () {
         if (!tokenSourceStack.isEmpty()) {
-            result = tokenSourceStack.pop();
+            tokenSourceStack.pop();
         }
-        return result;
     }
 
     /**
@@ -195,7 +199,6 @@ public class PlPrologParser implements IParser {
                     }
                 }
                 if (token.kind == ATOM) {
-                    logger.info("token.image ==" + token.image);
                     for (HlOpSymbol right : getOptable().getOperatorsMatchingNameByFixity(token.image).values()) {
                         if (joiner.accept(right.getAssociativity())) {
                             joiner.push(right);
@@ -205,7 +208,7 @@ public class PlPrologParser implements IParser {
                 }
             }
             if (!joiner.accept(x)) {
-                throw new ParseException("Impossible to resolve operator! token=" + token);
+                throw new ParseException("Impossible to resolve operator! token = " + token);
             }
             joiner.push(literal(token));
         }
@@ -314,7 +317,7 @@ public class PlPrologParser implements IParser {
     protected ListTerm readSequence ( TokenKind ldelim, TokenKind rdelim, boolean isBlocked ) throws Exception {
         List <ITerm> elements = new ArrayList <>();
         EnumSet <TokenKind> rdelims = isBlocked ? of(COMMA, rdelim) : of(COMMA, CONS, rdelim);
-        ListTerm.Kind kind = LIST;
+        Kind kind = LIST;
         switch (ldelim) {
             case LPAREN:
                 if (isBlocked) {
@@ -374,8 +377,7 @@ public class PlPrologParser implements IParser {
      * @param source
      */
     public void setTokenSource ( PlTokenSource source ) {
-        logger.info(source.toString());
-
+//        logger.info(source.toString());
         tokenSourceStack.push(source);
     }
 
@@ -428,23 +430,24 @@ public class PlPrologParser implements IParser {
      * @param associativity The operators associativity.
      */
     public void internOperator ( String operatorName, int priority, Associativity associativity ) {
-        int arity;
+        logger.info(format("Operator \"%s\", %d, %s", operatorName, priority, associativity));
 
-        if ((associativity == xfy) | (associativity == yfx) | (associativity == xfx)) {
+        int arity;
+        if ((associativity == xfy) || (associativity == yfx) || (associativity == xfx)) {
             arity = 2;
         } else {
             arity = 1;
         }
 
-        int name;
-        name = interner.internFunctorName(operatorName, arity);
-        operatorTable.setOperator(name, operatorName, priority, associativity);
+        int name = getInterner().internFunctorName(operatorName, arity);
+        getOptable().setOperator(name, operatorName, priority, associativity);
     }
 
     /**
      * Interns and inserts into the operator table all of the built in operators and names in Prolog.
      */
     public void initializeBuiltIns () {
+        logger.info("Initializing built-in's...");
         // Initializes the operator table with the standard ISO prolog built-in operators.
         internOperator(PrologAtoms.IMPLIES, 1200, xfx);
         internOperator(PrologAtoms.IMPLIES, 1200, fx);

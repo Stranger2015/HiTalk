@@ -118,14 +118,9 @@ public class TermFactory implements ITermFactory {
     public ListTerm newListTerm ( Kind kind, ITerm[] headTail ) {
         this.kind = kind;
         this.headTail = headTail;
-        ListTerm t;
-        if (headTail.length == 0) {
-            t = new ListTerm(Kind.LIST, headTail);
-        } else { //if (headTail.length ==1){ //[|VarOrList] []
-            t = new ListTerm(kind, headTail);
-        }
+        //if (headTail.length ==1){ //[|VarOrList] []
 
-        return t;
+        return headTail.length == 0 ? new ListTerm(Kind.LIST, headTail) : new ListTerm(kind, headTail);
     }
 
     @Override

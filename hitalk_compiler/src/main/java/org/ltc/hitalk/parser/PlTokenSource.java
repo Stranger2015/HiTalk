@@ -32,10 +32,14 @@ abstract public class PlTokenSource implements Source <PlToken>, PropertyChangeL
 
     public String toString () {
         final StringBuilder sb = new StringBuilder(getClass().getSimpleName() + "{");
-        sb.append("inputStream=").append(inputStream);
-        sb.append(", path='").append(path).append('\'');
+        toString0(sb);
         sb.append('}');
+
         return sb.toString();
+    }
+
+    public void toString0 ( StringBuilder sb ) {
+        sb.append("Path='").append(path).append('\'');
     }
 
     /**
@@ -60,7 +64,7 @@ abstract public class PlTokenSource implements Source <PlToken>, PropertyChangeL
 
     private boolean isBofGenerated;
     private boolean encodingChanged;
-    private String encoding = "UTF-8";
+    protected String encoding = "UTF-8";
 
     /**
      * //     * @param string
@@ -115,8 +119,7 @@ abstract public class PlTokenSource implements Source <PlToken>, PropertyChangeL
      * @param path
      */
     public PlTokenSource ( HiTalkInputStream inputStream, String path ) {
-//        super(inputStream);
-        this.inputStream = inputStream;
+        this(inputStream);
         this.path = path;
     }
 

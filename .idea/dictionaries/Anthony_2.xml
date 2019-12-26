@@ -18,6 +18,7 @@
       <w>dest</w>
       <w>discontiguous</w>
       <w>elif</w>
+      <w>fixities</w>
       <w>functors</w>
       <w>generalizer</w>
       <w>hilog</w>
@@ -34,6 +35,7 @@
       <w>lbracket</w>
       <w>logtalk</w>
       <w>lparen</w>
+      <w>lprio</w>
       <w>mergeable</w>
       <w>metacall</w>
       <w>metaclasses</w>
@@ -41,6 +43,7 @@
       <w>multifile</w>
       <w>nlink</w>
       <w>nonvar</w>
+      <w>nullable</w>
       <w>optable</w>
       <w>optimizeable</w>
       <w>precompiling</w>
@@ -57,6 +60,7 @@
       <w>researchgate</w>
       <w>rewriter</w>
       <w>rparen</w>
+      <w>rprio</w>
       <w>specializer</w>
       <w>sshtools</w>
       <w>stdin</w>

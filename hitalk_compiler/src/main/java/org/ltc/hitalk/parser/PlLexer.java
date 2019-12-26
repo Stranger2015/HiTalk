@@ -275,6 +275,9 @@ public class PlLexer extends PlTokenSource {
         return result.toString();
     }
 
+    /**
+     * @throws Exception
+     */
     private void skipWhitespaces () throws Exception {
         for (; ; ) {
             int chr = read();
@@ -305,7 +308,11 @@ public class PlLexer extends PlTokenSource {
         return " \r\n\t".indexOf(c) != -1;
     }
 
-    private void ungetc ( int c ) throws Exception {
+    /**
+     * @param c
+     * @throws Exception
+     */
+    protected void ungetc ( int c ) throws Exception {
         if (c != -1) {
             getInputStream().unread(c);
         }

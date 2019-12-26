@@ -218,7 +218,8 @@ public class PrologDefaultBuiltIn extends HtBaseMachine implements PrologBuiltIn
                             symbolTable.put(nextArg.getSymbolKey(), SymbolTableKeys.SYMKEY_VARIABLE_INTRO, VarIntroduction.Set);
                         } else {
                             // Check if the variable is 'local' and use a local instruction on the first occurrence.
-                            VarIntroduction introduction = (VarIntroduction) symbolTable.get(nextArg.getSymbolKey(), SymbolTableKeys.SYMKEY_VARIABLE_INTRO);
+                            VarIntroduction introduction = (VarIntroduction) symbolTable.get(nextArg.getSymbolKey(),
+                                    SymbolTableKeys.SYMKEY_VARIABLE_INTRO);
 
                             if (isLocalVariable(introduction, addrMode)) {
                                 /*log.fine("SET_LOCAL_VAL " + ((addrMode == REG_ADDR) ? "X" : "Y") +
@@ -226,7 +227,9 @@ public class PrologDefaultBuiltIn extends HtBaseMachine implements PrologBuiltIn
 
                                 instruction = new HiTalkWAMInstruction(SetLocalVal, addrMode, address, nextArg);
 
-                                symbolTable.put(nextArg.getSymbolKey(), SymbolTableKeys.SYMKEY_VARIABLE_INTRO, null);
+                                symbolTable.put(nextArg.getSymbolKey(),
+                                        SymbolTableKeys.SYMKEY_VARIABLE_INTRO,
+                                        null);
                             } else {
                                 /*log.fine("SET_VAL " + ((addrMode == REG_ADDR) ? "X" : "Y") + address);*/
                                 instruction = new HiTalkWAMInstruction(SetVal, addrMode, address, nextArg);

@@ -85,7 +85,7 @@ public interface IPreCompiler extends IQueueHolder <PreCompilerTask>, IHitalkObj
      */
     default List <HtClause> preCompile ( PlTokenSource tokenSource, EnumSet <DirectiveKind> delims ) throws Exception {
         final List <HtClause> list = new ArrayList <>();
-        getParser().setTokenSource(tokenSource);
+//        getParser().setTokenSource(tokenSource);
         while (true) {
             ITerm t = getParser().next();
             if (t == PlPrologParser.BEGIN_OF_FILE_ATOM) {

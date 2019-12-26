@@ -38,6 +38,7 @@ import static org.ltc.hitalk.term.HlOpSymbol.Fixity;
  * @author Rupert Smith
  */
 public interface IOperatorTable extends IHitalkObject {
+
     /**
      * Sets the priority and associativity of a named operator in this table. This method may be used to remove
      * operators by some implementations, through a special setting of the priority value.

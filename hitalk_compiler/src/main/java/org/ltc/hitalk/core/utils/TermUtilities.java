@@ -17,6 +17,7 @@ import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import static org.ltc.hitalk.parser.PrologAtoms.*;
@@ -56,6 +57,7 @@ public class TermUtilities {
      * @return
      */
     public static ITerm[] prepend ( ITerm[] original, ITerm elem ) {
+        Objects.requireNonNull(original);
         final ITerm[] copy = copyOf(original);
         copy[0] = elem;
 

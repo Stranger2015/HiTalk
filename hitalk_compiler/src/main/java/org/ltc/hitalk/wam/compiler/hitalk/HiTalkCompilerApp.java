@@ -12,11 +12,10 @@ import org.ltc.hitalk.compiler.HiTalkBuiltInTransform;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.*;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
-import org.ltc.hitalk.core.ICompiler;
+import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
-import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.context.Context;
 import org.ltc.hitalk.entities.context.ExecutionContext;
@@ -1247,20 +1246,19 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q, PC, QC>
     }
 
     /**
-     * public
+     *
      */
     public static class ClauseChainObserver<T extends HtMethod, P, Q> implements LogicCompilerObserver <T, Q> {
-        protected ICompiler <T, P, Q> instructionCompiler;
+        protected IPreCompiler preCompiler;
+        protected BaseInstructionCompiler <T, P, Q> instructionCompiler;
 
         /**
+         * @param preCompiler
          * @param instructionCompiler
          */
-        ClauseChainObserver ( ICompiler <T, P, Q> instructionCompiler ) {
+        public ClauseChainObserver ( IPreCompiler preCompiler, BaseInstructionCompiler <T, P, Q> instructionCompiler ) {
+            this.preCompiler = preCompiler;
             this.instructionCompiler = instructionCompiler;
-        }
-
-        public ClauseChainObserver ( ICompiler <T, HtPredicate, T> preCompiler, ICompiler <T, P, Q> instructionCompiler ) {
-
         }
 
         /**
@@ -1275,7 +1273,6 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q, PC, QC>
             } catch (HtSourceCodeException e) {
                 e.printStackTrace();
                 throw new ExecutionError(RESOURCE_ERROR, null);
-
             }
         }
 
