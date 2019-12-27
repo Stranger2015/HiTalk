@@ -43,8 +43,8 @@ public class PlPrologParser implements IParser {
             getAppContext().getTermFactory().newAtom(END_OF_FILE);
     public static final Atom BEGIN_OF_FILE_ATOM =
             getAppContext().getTermFactory().newAtom(BEGIN_OF_FILE);
-    protected final ITermFactory factory;
-    protected IOperatorTable operatorTable;
+    //    protected final ITermFactory factory;
+    protected IOperatorTable operatorTable = new PlDynamicOperatorParser();
     protected final Deque <PlTokenSource> tokenSourceStack = new ArrayDeque <>();
     protected IVafInterner interner;
     protected ITermFactory termFactory;
@@ -60,8 +60,10 @@ public class PlPrologParser implements IParser {
                             IOperatorTable optable ) {
         setTokenSource(new PlLexer(inputStream));
         this.interner = interner;
-        this.factory = factory;
+        this.termFactory = factory;
         this.operatorTable = optable;
+
+        this.initializeBuiltIns();
     }
 
     /**
@@ -228,19 +230,19 @@ public class PlPrologParser implements IParser {
         ITerm term = null;
         switch (token.kind) {
             case VAR:
-                term = factory.newVariable(token.image);
+                term = termFactory.newVariable(token.image);
                 break;
             case FUNCTOR_BEGIN:
                 term = compound(token.image);
                 break;
             case ATOM:
-                term = factory.newAtom(token.image);
+                term = termFactory.newAtom(token.image);
                 break;
             case INTEGER_LITERAL:
-                term = factory.newAtomic(Integer.parseInt(token.image));
+                term = termFactory.newAtomic(Integer.parseInt(token.image));
                 break;
             case FLOATING_POINT_LITERAL:
-                term = factory.newAtomic(Double.parseDouble(token.image));
+                term = termFactory.newAtomic(Double.parseDouble(token.image));
                 break;
             case BOF:
                 term = BEGIN_OF_FILE_ATOM;
@@ -348,7 +350,7 @@ public class PlPrologParser implements IParser {
                 newTerm(getLexer().getNextToken(), true, rdelims);
             }
 
-            return factory.newListTerm(kind, flatten(elements));
+            return termFactory.newListTerm(flatten(elements));
         }
 
         return (ListTerm) term;
@@ -370,7 +372,7 @@ public class PlPrologParser implements IParser {
     }
 
     protected IFunctor compound ( String name, ListTerm args ) throws Exception {
-        return factory.newFunctor(hilogApply, name, args);
+        return termFactory.newFunctor(hilogApply, name, args);
     }
 
     /**

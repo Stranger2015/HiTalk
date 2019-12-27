@@ -38,6 +38,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.stream.IntStream.range;
+import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
 import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.REF;
 import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.STR;
 
@@ -396,7 +397,7 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
                 /*log.fine("f = " + f);*/
 
                 // Create a new functor to hold the decoded data.
-                result = new HtFunctor(f, null);
+                result = new HtFunctor(f, EMPTY_TERM_ARRAY);
                 break;
             }
 

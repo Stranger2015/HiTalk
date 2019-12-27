@@ -36,14 +36,14 @@ public class HiLogParser extends PlPrologParser {
     /**
      * @param stream
      * @param interner
-     * @param factory
+     * @param termFactory
      * @param optable
      */
     public HiLogParser ( HiTalkInputStream stream,
                          IVafInterner interner,
-                         TermFactory factory,
+                         TermFactory termFactory,
                          IOperatorTable optable ) {
-        super(stream, interner, factory, optable);
+        super(stream, interner, termFactory, optable);
 
         hilogApply = interner.internFunctorName(HILOG_APPLY, 0);
     }
@@ -58,7 +58,7 @@ public class HiLogParser extends PlPrologParser {
     protected IFunctor compound ( String name, ListTerm args ) throws Exception {
         IFunctor result;
         if (hilogFunctors.contains(name)) {
-            result = factory.newFunctor(hilogApply, name, args);// :- hilog p, q, pi/N =>
+            result = termFactory.newFunctor(hilogApply, name, args);// :- hilog p, q, pi/N =>
 // hilog p/_ q/_, pi_N/N, pi_1/1, piA1_A2/1-2.
         } else {
             result = super.compound(name, args);

@@ -9,6 +9,7 @@ import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.PlDynamicOperatorParser;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
@@ -49,6 +50,7 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
     public final List <HiTalkStream> streams = new ArrayList <>();
 
     public final static AppContext appContext = new AppContext();
+
     public static AppContext getAppContext () {
         return appContext;
     }
@@ -433,7 +435,12 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
         }
 
         public PlPrologParser getParser () {
-            return (PlPrologParser) get(PARSER);
+            PlPrologParser parser = (PlPrologParser) get(PARSER);
+            if (parser == null) {
+                parser = new PlPrologParser();
+            }
+            put(PARSER, parser);
+            return parser;
         }
 
         public IVafInterner getInterner () {
@@ -456,8 +463,20 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
             return (ITermFactory) get(TERM_FACTORY);
         }
 
+        /**
+         * @return
+         */
         public IOperatorTable getOpTable () {
-            return (IOperatorTable) get(OP_TABLE);
+            IOperatorTable table = (IOperatorTable) appContext.get(OP_TABLE);
+            if (table == null) {
+                table = new PlDynamicOperatorParser();
+                setOpTable(table);
+            }
+            return table;
+        }
+
+        private void setOpTable ( IOperatorTable table ) {
+            appContext.putIfAbsent(OP_TABLE, table);
         }
 
         public PrologDefaultBuiltIn getDefaultBuiltIn () {

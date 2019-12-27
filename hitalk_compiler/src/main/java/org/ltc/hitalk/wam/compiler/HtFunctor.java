@@ -12,15 +12,15 @@ import org.ltc.hitalk.wam.printer.IFunctorTraverser;
 import java.util.*;
 import java.util.stream.IntStream;
 
-import static org.ltc.hitalk.term.ListTerm.Kind.LIST;
+import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
 
 /**
  *
  */
 public class HtFunctor extends ListTerm implements IFunctor {
 
-    //    protected final int name;
-    protected ListTerm args;//nameArgsTail
+    protected int name;
+//    protected ListTerm args;//nameArgsTail
 
     /**
      * @param name
@@ -37,8 +37,8 @@ public class HtFunctor extends ListTerm implements IFunctor {
      * @param args
      */
     public HtFunctor ( int name, ITerm[] args ) {
-        super(Kind.LIST, name, args);
-        this.args = new ListTerm(LIST, args);
+        super(name, args);
+        this.args = new ListTerm(args);//name heads tail
     }
 
     /**
@@ -55,15 +55,6 @@ public class HtFunctor extends ListTerm implements IFunctor {
     }
 
     /**
-     * @param list
-     * @param name
-     * @param heads
-     */
-    public HtFunctor ( Kind list, int name, ITerm[] heads ) {
-        super(list, name, heads);
-    }
-
-    /**
      * @param length
      */
     public HtFunctor ( int length ) {
@@ -71,16 +62,18 @@ public class HtFunctor extends ListTerm implements IFunctor {
     }
 
     /**
-     * @param kind
      * @param arguments
      */
-    public HtFunctor ( Kind kind, ITerm... arguments ) {
-        super(kind, arguments);
+    public HtFunctor ( ITerm... arguments ) {
+        super(arguments);
     }
 
     @Override
     public ITerm[] getArguments () {
-        return args.getHeads();
+        if (args == null) {
+            return EMPTY_TERM_ARRAY;
+        }
+        return args.getArguments();
     }
 
     @Override

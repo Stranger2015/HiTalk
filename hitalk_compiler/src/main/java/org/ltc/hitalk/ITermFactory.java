@@ -5,7 +5,6 @@ import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.term.*;
-import org.ltc.hitalk.term.ListTerm.Kind;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.nio.file.Path;
@@ -74,7 +73,7 @@ interface ITermFactory extends IHitalkObject {
 
     FloatTerm newAtomic ( double f );
 
-    ListTerm newListTerm ( Kind kind, ITerm[] terms );
+    ListTerm newListTerm ( ITerm[] terms );
 
     HtProperty createFlag ( String scratch_directory, Path scratchDir );
 

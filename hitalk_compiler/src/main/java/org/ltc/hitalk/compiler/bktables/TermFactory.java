@@ -105,22 +105,18 @@ public class TermFactory implements ITermFactory {
      * 文字列アトムを生成します。
      */
 //        public abstract Term newAtom ( String value );
-    public IFunctor newAtom ( IVafInterner interner, TokenKind ldelim, TokenKind rdelim ) {
+    public IFunctor newAtom ( TokenKind ldelim, TokenKind rdelim ) {
         String s = String.format("%s%s", ldelim.getImage(), rdelim.getImage());
         return new HtFunctor(interner.internFunctorName(s, 0), EMPTY_TERM_ARRAY);
     }
 
-    /**
-     * @param kind
-     * @param headTail
-     * @return
-     */
-    public ListTerm newListTerm ( Kind kind, ITerm[] headTail ) {
-        this.kind = kind;
+
+    public ListTerm newListTerm ( ITerm[] headTail ) {
+//        this.kind = kind;
         this.headTail = headTail;
         //if (headTail.length ==1){ //[|VarOrList] []
 
-        return headTail.length == 0 ? new ListTerm(Kind.LIST, headTail) : new ListTerm(kind, headTail);
+        return new ListTerm(headTail);
     }
 
     @Override
@@ -183,7 +179,7 @@ public class TermFactory implements ITermFactory {
      */
     @Override
     public HtProperty createFlag ( String name, ITerm... args ) {
-        return createFlag(name, new ListTerm(Kind.LIST, args));
+        return createFlag(name, new ListTerm(args));
     }
 
     @Override
@@ -227,7 +223,7 @@ public class TermFactory implements ITermFactory {
         int n = interner.internFunctorName(name, 0);
 
 //        return new HtProperty(n, new ListTerm(args));
-        return new HtProperty(new ListTerm(Kind.LIST, args));
+        return new HtProperty(new ListTerm(args));
     }
 
     /**

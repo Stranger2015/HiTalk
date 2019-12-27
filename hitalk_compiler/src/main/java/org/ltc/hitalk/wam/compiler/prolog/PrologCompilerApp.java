@@ -1,7 +1,6 @@
 package org.ltc.hitalk.wam.compiler.prolog;
 
 import com.thesett.aima.logic.fol.LinkageException;
-import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import org.apache.commons.vfs2.*;
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
 import org.apache.commons.vfs2.provider.jar.JarFileProvider;
@@ -20,6 +19,7 @@ import org.ltc.hitalk.compiler.bktables.IProduct;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.core.HtVersion;
+import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.core.utils.HtSymbolTable;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.context.CompilationContext;
@@ -66,12 +66,12 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
     protected CompilationContext compilationContext = new CompilationContext();
     protected LoadContext loadContext = new LoadContext(DEFAULT_PROPS);
     protected ExecutionContext executionContext = new ExecutionContext();
-    protected IProduct product = new HtProduct("Copyright (c) Anton Danilov 2018-2019, All rights reserved",
+    protected IProduct product = new HtProduct("Copyright (c) Anton Danilov 2018-2019, All rights reserved.",
             language().getName() + " " + tool().getName(),
-            new HtVersion(0, 1, 0, 99, " ", true));
-    protected LogicCompilerObserver <P, Q> observer;
+            new HtVersion(0, 1, 0, 119, "", false));
+    protected ICompilerObserver <P, Q> observer;
     protected IVafInterner interner;
-    protected PrologPreCompiler <HtClause, Object, Object> preCompiler;
+    protected IPreCompiler preCompiler;
 
     /**
      * @param fn
@@ -101,6 +101,10 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
         return language;
     }
 
+    /**
+     * @param varOrFunctor
+     * @return
+     */
     @Override
     public String namespace ( String varOrFunctor ) {
         return "namespace " + varOrFunctor;
@@ -129,23 +133,32 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
 
         initVfs();
 
+//        final ListTerm lt = new ListTerm(new ITerm[1]);
+//        final String s = lt.toString();
+
         parser.initializeBuiltIns();
     }
-
     @Override
     protected void initComponents () throws FileNotFoundException {
         final AppContext appCtx = getAppContext();
         final ICompilerFactory <T, P, Q, PC, QC> cf = new CompilerFactory <>();
         setSymbolTable(new HtSymbolTable <>());
         setInterner(new VafInterner(
-                language().getName() + "_Variable_Namespace",//todo language
+                language().getName() + "_Variable_Namespace",
                 language().getName() + "_Functor_Namespace"));
         appCtx.setInputStream(createInputHiTalkStream(fileName));
         appCtx.setTermFactory(appCtx.getInterner());
-        setParser((PlPrologParser) cf.createParser(language()));
+//        appCtx.setOptable()
+        setParser(new PlPrologParser());
+//        getParser().
         setWAMCompiler(cf.createWAMCompiler(language()));
     }
 
+    /**
+     * @param fileName
+     * @return
+     * @throws FileNotFoundException
+     */
     public HiTalkInputStream createInputHiTalkStream ( String fileName ) throws FileNotFoundException {
         return new HiTalkInputStream(new File(fileName));
     }
@@ -282,6 +295,8 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
     }
 
     protected void initDirectives () {
+//        cond
+//        encodunf
     }
 
     /**
@@ -375,11 +390,11 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
         fsManager.close();
     }
 
-    public LogicCompilerObserver <P, Q> getObserver () {
+    public ICompilerObserver <P, Q> getObserver () {
         return observer;
     }
 
-    public void setObserver ( LogicCompilerObserver <P, Q> observer ) {
+    public void setObserver ( ICompilerObserver <P, Q> observer ) {
         this.observer = observer;
     }
 }

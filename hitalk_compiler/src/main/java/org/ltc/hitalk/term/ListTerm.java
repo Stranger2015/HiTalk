@@ -4,10 +4,9 @@ import com.thesett.aima.search.Operator;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
-import java.util.Arrays;
 import java.util.stream.IntStream;
 
-import static org.ltc.hitalk.core.utils.TermUtilities.prepend;
+import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
 import static org.ltc.hitalk.term.ListTerm.Kind.values;
 
 /**
@@ -18,16 +17,20 @@ public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
     //    public static final ITerm TRUE = new ListTerm(Kind.TRUE);
     public static final ListTerm NIL = new ListTerm();
 
+    protected int name;
     protected Kind kind;
     protected ITerm[] arguments;
     protected Operator <ITerm> op;
+    protected ListTerm args;
 
     /**
      * @param name
      * @param heads
      */
-    public ListTerm ( int name, ITerm[] heads ) {
-        this(prepend(heads, new IntTerm(name)));
+    public ListTerm ( int name, ITerm... heads ) {
+        arguments = heads;
+//        this(TermUtilities.append(heads, new IntTerm(name)));
+        this.name = name;
     }
 
     /**
@@ -35,8 +38,8 @@ public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
      */
     public ListTerm ( int length ) {
         this(length == 0 ? Kind.NIL : Kind.LIST);
-        ITerm[] heads = IntStream.range(0, length).mapToObj(i -> new HtVariable())
-                .toArray(ITerm[]::new);
+        //            HtVariable htVariable = new HtVariable();
+        ITerm[] heads = IntStream.range(0, length).mapToObj(i -> new HtVariable()).toArray(ITerm[]::new);
         setArguments(heads);//fixme name tail
     }
 
@@ -44,8 +47,11 @@ public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
      * @param arguments
      */
     public ListTerm ( ITerm... arguments ) {
-        kind = arguments == null || arguments.length == 0 ? Kind.NIL : Kind.LIST;
-        this.arguments = arguments;
+        this((arguments == null) || (arguments.length == 0) ? 0 : arguments.length);
+        int bound = this.getHeads().length;
+        for (int i = 0; i < bound; i++) {
+            this.arguments[i] = new HtVariable();
+        }
     }
 
     /**
@@ -76,35 +82,45 @@ public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
 //        return args[args.length - 1];
 //    }
 
-//    /**
-//     * args = name + heads + tail
-//     *
-//     * @return
-//     */
-//    public ITerm[] getHeads () {
-//        ITerm[] args = getArguments();
-//        if (args.length <= 1) {
-//            return EMPTY_TERM_ARRAY;
-//        } else {
-//            int headsLen = args.length - 2;
-//            ITerm[] heads = new ITerm[headsLen];
-//            System.arraycopy(args, 1, heads, 0, headsLen);
-//
-//            return heads;
-//        }
-//    }
+    /**
+     * args = name + heads + tail
+     *
+     * @return
+     */
+    public ITerm[] getHeads () {
+        ITerm[] args = getArguments();
+        if (args.length <= 1) {
+            return EMPTY_TERM_ARRAY;
+        } else {
+            int headsLen = args.length - 2;
+            ITerm[] heads = new ITerm[headsLen];
+            System.arraycopy(args, 1, heads, 0, headsLen);
 
+            return heads;
+        }
+    }
+
+    /**
+     * @return
+     */
     public boolean isNil () {
         return getName() < 0;
     }
 
+    /**
+     * @return
+     */
     public int size () {
         return getHeads().length;
     }
 
-    public ITerm[] getHeads () {
-        return arguments;
-    }//fixme
+//    public ITerm[] getHeads () {
+//        return arguments;
+//    }//fixme
+
+    public ITerm getTail () {
+        return arguments[arguments.length - 2];
+    }
 
     /**
      * @param i
@@ -122,12 +138,9 @@ public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
      */
     @Override
     public int getName () {
-        if (arguments[0].isFunctor()) {// also isHilog()
-            return ((IFunctor) arguments[0]).getName();
-        } else {
-            return -2;//fixme
-        }
+        return ((IntTerm) arguments[arguments.length - 1]).intValue();
     }
+
 
     /**
      * @return
@@ -142,7 +155,7 @@ public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
      */
     @Override
     public ListTerm getArgsAsListTerm () {
-        return null;
+        return args;
     }
 
     /**
@@ -158,7 +171,7 @@ public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
      */
     @Override
     public int getArity () {
-        return 0;
+        return 0;//fixme
     }
 
     /**
@@ -263,10 +276,20 @@ public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
                 sb.append("[]");
             case LIST:
                 sb.append("[");
-                sb.append(Arrays.toString(getHeads()));
-                sb.append("|");
-                sb.append(arguments[arguments.length - 1].toString(interner, printVarName, printBindings));
-                break;
+                final ITerm[] heads = getHeads();
+                final int iMax = heads.length - 1;
+                for (int i = 0; i < heads.length; i++) {
+                    sb.append(heads[i].toString(interner, printVarName, printBindings));
+
+                    if (i < iMax) {
+                        sb.append(", ");
+                    } else if (i == iMax) {
+                        sb.append('|');
+                    }
+
+                    sb.append(getTail().toString(interner, printVarName, printBindings));
+                    sb.append("]");
+                }
             case BYPASS:
                 break;
             case AND:

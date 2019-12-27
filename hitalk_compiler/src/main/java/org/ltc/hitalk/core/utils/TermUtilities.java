@@ -21,7 +21,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import static org.ltc.hitalk.parser.PrologAtoms.*;
-import static org.ltc.hitalk.term.ListTerm.Kind.LIST;
 
 /**
  * TermUtils provides some convenient static utility methods for working with terms in first order logic.
@@ -44,10 +43,10 @@ public class TermUtilities {
      * @param original
      * @return
      */
-    public static ITerm[] copyOf ( ITerm[] original ) {
+    public static ITerm[] copyOf ( ITerm[] original, int ofs ) {
         int newLength = original.length + 1;
         final ITerm[] copy = new ITerm[newLength];
-        System.arraycopy(original, 0, copy, 1, original.length);
+        System.arraycopy(original, 0, copy, ofs, original.length);
         return copy;
     }
 
@@ -56,10 +55,23 @@ public class TermUtilities {
      * @param elem
      * @return
      */
-    public static ITerm[] prepend ( ITerm[] original, ITerm elem ) {
+    public static ITerm[] prepend ( ITerm elem, ITerm[] original ) {
         Objects.requireNonNull(original);
-        final ITerm[] copy = copyOf(original);
+        final ITerm[] copy = copyOf(original, 1);
         copy[0] = elem;
+
+        return copy;
+    }
+
+    /**
+     * @param original
+     * @param elem
+     * @return
+     */
+    public static ITerm[] append ( ITerm[] original, ITerm elem ) {
+        Objects.requireNonNull(original);
+        final ITerm[] copy = copyOf(original, 0);
+        copy[copy.length - 1] = elem;
 
         return copy;
     }
@@ -226,14 +238,14 @@ public class TermUtilities {
                 IFunctor[] flattenedArgs = flattenTerm((IFunctor) symbol.getArgument(1),
                         IFunctor.class, COMMA, interner);
 
-                return new HtClause((IFunctor) symbol.getArgument(0), new ListTerm(LIST, flattenedArgs));
+                return new HtClause((IFunctor) symbol.getArgument(0), new ListTerm(flattenedArgs));
             } else if (QUERY.equals(symbol.getTextName())) {
                 IFunctor[] flattenedArgs = flattenTerm((IFunctor) symbol.getArgument(0),
                         IFunctor.class,
                         COMMA,
                         interner);
 
-                return new HtClause(null, new ListTerm(LIST, flattenedArgs));
+                return new HtClause(null, new ListTerm(flattenedArgs));
             }
         }
         if (term != null) {

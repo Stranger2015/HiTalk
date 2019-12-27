@@ -22,7 +22,6 @@ import org.ltc.hitalk.wam.compiler.HtFunctor;
 import java.util.EnumSet;
 
 import static java.lang.String.format;
-import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
 import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
 
 
@@ -54,19 +53,22 @@ public class HlOpSymbol extends HtFunctor implements Comparable <HlOpSymbol>, Cl
 
     public int lprio;
     public int rprio;
+
     /**
      * Holds the raw text name of this operator.
      */
     protected String textName;
+
     /**
      * Holds the associativity of this operator.
      */
     protected Associativity associativity;
+
     /**
      * Holds the priority of this operator.
      */
     protected int priority;
-    protected int name;
+//    protected int name;
 
     /**
      * Creates a new operator with the specified name and arguments.
@@ -76,7 +78,7 @@ public class HlOpSymbol extends HtFunctor implements Comparable <HlOpSymbol>, Cl
      * @param priority      The operators priority.
      */
     public HlOpSymbol ( int name, String textName, Associativity associativity, int priority ) {
-        super(name, EMPTY_TERM_ARRAY);
+        super(name, new ITerm[associativity.arity]);
 
         // Check that there is at least one and at most two arguments.
         if (args.size() < 1 || args.size() > 2) {
@@ -115,7 +117,7 @@ public class HlOpSymbol extends HtFunctor implements Comparable <HlOpSymbol>, Cl
     @Override
     public void setArguments ( ITerm[] arguments ) {
         // Check that there is at least one and at most two arguments.
-        if ((arguments == null) || (arguments.length < 1) || (arguments.length > 2)) {
+        if ((arguments.length < 1) || (arguments.length > 2)) {
             throw new IllegalArgumentException("An operator has minimum 1 and maximum 2 arguments.");
         }
 
@@ -292,11 +294,6 @@ public class HlOpSymbol extends HtFunctor implements Comparable <HlOpSymbol>, Cl
         // Create a new state and copy the existing board position into it
 
         return super.clone();
-    }
-
-    @Override
-    public int getName () {
-        return name;
     }
 
     /**
