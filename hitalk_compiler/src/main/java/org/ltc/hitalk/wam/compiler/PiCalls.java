@@ -31,8 +31,8 @@ public class PiCalls<C extends BodyCall.BodyCalls <C>> extends HtFunctor {
      * @param args
      * @param arityDelta
      */
-    public PiCalls ( int name, ITerm[] args, int arityDelta ) {
-        super(name, args, arityDelta);
+    public PiCalls ( int name, int arityDelta, ITerm... args ) {
+        super(name, arityDelta, args);
     }
 
     /**
@@ -72,7 +72,7 @@ public class PiCalls<C extends BodyCall.BodyCalls <C>> extends HtFunctor {
      * @param args
      */
     public PiCalls ( int name, ListTerm args ) {
-        this(name, args.getArity(), 0);//fixme
+        this(name, args.getHeads().length, 0);//fixme
     }
 
     /**
@@ -120,7 +120,7 @@ public class PiCalls<C extends BodyCall.BodyCalls <C>> extends HtFunctor {
     }
 
     public void setMgCalls ( HtVariable var ) {
-        this.getHeads()[0] = var;
+        this.setArgument(0, var);
     }
 
     /**

@@ -106,16 +106,16 @@ public abstract class MetaInterpreterVisitor<T extends HtClause, P, Q, PC, QC> e
         for (int i = 0, headsSize = listTerm.size(); i <= headsSize; i++) {
             switch (listTerm.getKind()) {
                 case NOT:
-                    listTerm.get(i).accept(this);
+                    listTerm.getHead(i).accept(this);
                     break;
                 case AND://fall down
                 case OR:
                 case IF:
-                    listTerm.get(i).accept(this);
-                    listTerm.get(i + 1).accept(this);
+                    listTerm.getHead(i).accept(this);
+                    listTerm.getHead(i + 1).accept(this);
                     break;
                 case GOAL:
-                    IFunctor goal = (IFunctor) listTerm.get(i);
+                    IFunctor goal = (IFunctor) listTerm.getHead(i);
                     if (goal.isDefined()) {
                         final Set <PiCalls <?>> hbSet = new HashSet <>();
                         lookupGoal((PiCalls) goal, hbSet);
@@ -142,7 +142,7 @@ public abstract class MetaInterpreterVisitor<T extends HtClause, P, Q, PC, QC> e
         boolean unifies = true;
         for (PiCalls <?> hbEl : hbSet) {
             eqf.setArgument(1, hbEl);//fixme
-            unifies = TermUtilities.unify(eqf.get(0), eqf.get(1));
+            unifies = TermUtilities.unify(eqf.getArgument(0), eqf.getArgument(1));
             if (unifies) {
 //                this.bindings.addAll(bindings);
                 return;

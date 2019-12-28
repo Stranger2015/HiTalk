@@ -121,7 +121,7 @@ public class HlOpSymbol extends HtFunctor implements Comparable <HlOpSymbol>, Cl
             throw new IllegalArgumentException("An operator has minimum 1 and maximum 2 arguments.");
         }
 
-        this.arguments = arguments;
+        this.args.setHeads(arguments);
     }
 
     /**

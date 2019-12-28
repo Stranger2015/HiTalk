@@ -11,17 +11,20 @@ import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 import org.ltc.hitalk.wam.task.PreCompilerTask;
 import org.ltc.hitalk.wam.task.TermExpansionTask;
+import org.slf4j.Logger;
 
 import java.util.*;
 
 import static java.util.EnumSet.noneOf;
 import static org.ltc.hitalk.parser.Directive.DirectiveKind.ENCODING;
+import static org.ltc.hitalk.parser.PlPrologParser.BEGIN_OF_FILE_ATOM;
+import static org.ltc.hitalk.parser.PlPrologParser.END_OF_FILE_ATOM;
 
 /**
  *
  */
 public interface IPreCompiler extends IQueueHolder <PreCompilerTask>, IHitalkObject {
-
+    Logger getLogger ();
 //    /**
 //     * @param string
 //     * @param flags
@@ -88,17 +91,20 @@ public interface IPreCompiler extends IQueueHolder <PreCompilerTask>, IHitalkObj
 //        getParser().setTokenSource(tokenSource);
         while (true) {
             ITerm t = getParser().next();
-            if (t == PlPrologParser.BEGIN_OF_FILE_ATOM) {
+            if (t == BEGIN_OF_FILE_ATOM) {
+                getLogger().info("begin_of_file");
                 getQueue().push(new TermExpansionTask(this, tokenSource,
                         EnumSet.of(ENCODING))); //read until
                 continue;
             }
-            if (t == PlPrologParser.END_OF_FILE_ATOM) {
+            if (t == END_OF_FILE_ATOM) {
+                getLogger().info("end_of_file");
                 getQueue().push(new TermExpansionTask(this,
                         tokenSource,
                         noneOf(DirectiveKind.class)));
                 getParser().popTokenSource();
-                break;
+
+                return list;
             }
             HtClause c = getParser().convert(t);
             if (!checkDirective(c, delims)) {

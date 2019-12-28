@@ -1,5 +1,3 @@
-package org.ltc.hitalk.wam.compiler.hitalk;
-
 /*
  * Copyright The Sett Ltd, 2005 to 2014.
  *
@@ -16,6 +14,7 @@ package org.ltc.hitalk.wam.compiler.hitalk;
  * limitations under the License.
  */
 
+package org.ltc.hitalk.wam.compiler.hitalk;
 
 import com.thesett.aima.attribute.impl.IdAttribute;
 import com.thesett.aima.logic.fol.FunctorName;
@@ -143,19 +142,17 @@ public class HiTalkWAMCompiledQuery extends HtClause implements
     /**
      * Adds a conjunctive body functor to this query clause.
      *
-     * @param body         A conjunctive body functor to add to this clause.
+     * @param goal         A conjunctive body functor to add to this clause.
      * @param instructions A list of instructions to add to the body.
      */
-    public void addInstructions ( ListTerm body, SizeableList <HiTalkWAMInstruction> instructions ) {
-        int oldLength;
+    public void addInstructions ( IFunctor goal, SizeableList <HiTalkWAMInstruction> instructions ) {
+//        int oldLength;
 
-        if (this.body == null) {
-            oldLength = 0;
-            this.body = new ListTerm(1);
-        } else {
-            oldLength = this.body.size();
-            this.body = new ListTerm(oldLength + 1);
-        }
+//        if (body == null) {
+//            oldLength = 0;
+//            body = new ListTerm(1);
+//        } else {
+//            this.body = new ListTerm(goal.size() + 1);
 
         addInstructions(instructions);
     }

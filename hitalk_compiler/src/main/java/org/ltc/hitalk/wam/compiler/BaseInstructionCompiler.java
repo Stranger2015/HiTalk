@@ -36,7 +36,7 @@ import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.hitalk.*;
 import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
-import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltIn;
+import org.ltc.hitalk.wam.compiler.prolog.IPrologBuiltIn;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn.VarIntroduction;
 import org.ltc.hitalk.wam.printer.*;
@@ -207,11 +207,11 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
         FunctorName fn = new FunctorName("tq", 0);
 
         for (int i = 0; i < expressions.size(); i++) {
-            ListTerm goal = (ListTerm) expressions.get(i);
+            IFunctor goal = (IFunctor) expressions.getHead(i);
             boolean isFirstBody = i == 0;
 
             // Select a non-default built-in implementation to compile the functor with, if it is a built-in.
-            PrologBuiltIn builtIn = goal instanceof PrologBuiltIn ? (PrologBuiltIn) goal : defaultBuiltIn;
+            IPrologBuiltIn builtIn = goal instanceof IPrologBuiltIn ? (IPrologBuiltIn) goal : defaultBuiltIn;
 
             // The 'isFirstBody' parameter is only set to true, when this is the first functor of a rule, which it
             // never is for a query.
@@ -418,7 +418,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
             ListTerm expressions = clause.getBody();
 
             for (int i = 0; i < expressions.size(); i++) {
-                goal = (IFunctor) expressions.get(i);
+                goal = (IFunctor) expressions.getHead(i);
 
                 boolean isLastBody = i == (expressions.size() - 1);
                 boolean isFirstBody = i == 0;
@@ -426,10 +426,10 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
                 Integer permVarsRemaining = (Integer) getSymbolTable().get(goal.getSymbolKey(), SYMKEY_PERM_VARS_REMAINING);
 
                 // Select a non-default built-in implementation to compile the functor with, if it is a built-in.
-                PrologBuiltIn builtIn;
+                IPrologBuiltIn builtIn;
 
-                if (goal instanceof PrologBuiltIn) {
-                    builtIn = (PrologBuiltIn) goal;
+                if (goal instanceof IPrologBuiltIn) {
+                    builtIn = (IPrologBuiltIn) goal;
                 } else {
                     builtIn = defaultBuiltIn;
                 }
@@ -485,7 +485,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
         // In the same pass, pick out which body variables last occur in.
         if ((clause.getBody() != null)) {
             for (int i = clause.getBody().size() - 1; i >= 1; i--) {
-                Set <HtVariable> groupVariables = TermUtilities.findFreeVariables(clause.getBody().get(i));
+                Set <HtVariable> groupVariables = TermUtilities.findFreeVariables(clause.getBody().getHead(i));
 
                 // Add all their counts to the bag and update their last occurrence positions.
                 for (HtVariable variable : groupVariables) {
@@ -513,7 +513,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
         }
 
         if ((clause.getBody() != null) && (clause.getBody().size() > 0)) {
-            Set <HtVariable> firstArgVariables = TermUtilities.findFreeVariables(clause.getBody().get(0));
+            Set <HtVariable> firstArgVariables = TermUtilities.findFreeVariables(clause.getBody().getHead(0));
             firstGroupVariables.addAll(firstArgVariables);
         }
 
@@ -565,7 +565,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
         int permVarsRemaining = 0;
 
         for (int i = permVarsRemainingCount.length - 1; i >= 0; i--) {
-            getSymbolTable().put(clause.getBody().get(i).getSymbolKey(), SYMKEY_PERM_VARS_REMAINING, permVarsRemaining);
+            getSymbolTable().put(clause.getBody().getHead(i).getSymbolKey(), SYMKEY_PERM_VARS_REMAINING, permVarsRemaining);
             permVarsRemaining += permVarsRemainingCount[i];
         }
     }
@@ -658,12 +658,13 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
         ListTerm body = clause.getBody();
 
         if (body != null) {
-            for (ITerm functor : body.getArguments()) {
-                int arity = ((IFunctor) functor).getArity();
+            final ITerm[] heads = body.getHeads();
+            for (final ITerm iTerm : heads) {
+                final IFunctor functor = (IFunctor) iTerm;
+                int arity = functor.getArity();
                 result = Math.max(arity, result);
             }
         }
-
         return result;
     }
 

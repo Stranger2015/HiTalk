@@ -22,7 +22,7 @@
     import org.ltc.hitalk.wam.compiler.IFunctor;
     import org.ltc.hitalk.wam.compiler.hitalk.HiTalkDefaultBuiltIn;
     import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction;
-    import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltIn;
+    import org.ltc.hitalk.wam.compiler.prolog.IPrologBuiltIn;
 
     import java.util.ArrayList;
     import java.util.List;
@@ -99,10 +99,10 @@
                                 SYMKEY_PERM_VARS_REMAINING);
 
                 // Select a non-default built-in implementation to compile the functor with, if it is a built-in.
-                PrologBuiltIn builtIn;
+                IPrologBuiltIn builtIn;
 
-                if (expression instanceof PrologBuiltIn) {
-                    builtIn = (PrologBuiltIn) expression;
+                if (expression instanceof IPrologBuiltIn) {
+                    builtIn = (IPrologBuiltIn) expression;
                 } else {
                     builtIn = defaultBuiltIn;
                 }

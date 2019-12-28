@@ -1,57 +1,43 @@
 package org.ltc.hitalk.term;
 
-import com.thesett.aima.search.Operator;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.util.stream.IntStream;
 
+import static org.ltc.hitalk.parser.PlPrologParser.CONJUNCTION;
 import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
-import static org.ltc.hitalk.term.ListTerm.Kind.values;
 
 /**
  *
  */
-public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
+public class ListTerm extends HtBaseTerm {
 
     //    public static final ITerm TRUE = new ListTerm(Kind.TRUE);
     public static final ListTerm NIL = new ListTerm();
 
-    protected int name;
-    protected Kind kind;
-    protected ITerm[] arguments;
-    protected Operator <ITerm> op;
-    protected ListTerm args;
+    //    protected int name;
+    protected Kind kind;//fixme encode in name
+    ITerm[] heads = EMPTY_TERM_ARRAY;
+    ITerm tail = NIL;
 
-    /**
-     * @param name
-     * @param heads
-     */
-    public ListTerm ( int name, ITerm... heads ) {
-        arguments = heads;
-//        this(TermUtilities.append(heads, new IntTerm(name)));
-        this.name = name;
-    }
+//    protected Operator <ITerm> op;
 
     /**
      * @param length
      */
     public ListTerm ( int length ) {
         this(length == 0 ? Kind.NIL : Kind.LIST);
-        //            HtVariable htVariable = new HtVariable();
-        ITerm[] heads = IntStream.range(0, length).mapToObj(i -> new HtVariable()).toArray(ITerm[]::new);
-        setArguments(heads);//fixme name tail
+        heads = IntStream.range(0, length).mapToObj(i -> new HtVariable()).toArray(ITerm[]::new);
     }
 
     /**
-     * @param arguments
+     * @param heads
      */
-    public ListTerm ( ITerm... arguments ) {
-        this((arguments == null) || (arguments.length == 0) ? 0 : arguments.length);
+    public ListTerm ( ITerm... heads ) {
+        this((heads == null) || (heads.length == 0) ? 0 : heads.length);
         int bound = this.getHeads().length;
-        for (int i = 0; i < bound; i++) {
-            this.arguments[i] = new HtVariable();
-        }
+        IntStream.range(0, bound).forEach(i -> this.heads[i] = new HtVariable());
     }
 
     /**
@@ -61,6 +47,9 @@ public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
         this(0);
     }
 
+    /**
+     * @param kind
+     */
     public ListTerm ( Kind kind ) {
         this.kind = kind;
     }
@@ -69,7 +58,7 @@ public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
      * @return
      */
     public Kind getKind () {
-        return values()[-getName()];
+        return kind;
     }
 
 //    /**
@@ -88,23 +77,24 @@ public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
      * @return
      */
     public ITerm[] getHeads () {
-        ITerm[] args = getArguments();
-        if (args.length <= 1) {
-            return EMPTY_TERM_ARRAY;
-        } else {
-            int headsLen = args.length - 2;
-            ITerm[] heads = new ITerm[headsLen];
-            System.arraycopy(args, 1, heads, 0, headsLen);
-
-            return heads;
-        }
+//        ITerm[] args = getArguments();
+//        if (args.length <= 1) {
+//            return EMPTY_TERM_ARRAY;
+//        } else {
+//            int headsLen = arguments.length - 2;
+//            ITerm[] heads = new ITerm[headsLen];
+//            System.arraycopy(arguments, 1, heads, 0, headsLen);
+//
+//            return heads;
+//        }
+        return heads;
     }
 
     /**
      * @return
      */
     public boolean isNil () {
-        return getName() < 0;
+        return size() == 0;
     }
 
     /**
@@ -114,65 +104,28 @@ public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
         return getHeads().length;
     }
 
-//    public ITerm[] getHeads () {
-//        return arguments;
-//    }//fixme
-
     public ITerm getTail () {
-        return arguments[arguments.length - 2];
+        return tail;
     }
 
     /**
      * @param i
      * @return
      */
-    public ITerm get ( int i ) {
+    public ITerm getHead ( int i ) {
 //        if (size() == i) {
 //            return TRUE;
 //        }
         return getHeads()[i];
     }
-
-    /**
-     * @return
-     */
-    @Override
-    public int getName () {
-        return ((IntTerm) arguments[arguments.length - 1]).intValue();
-    }
-
-
-    /**
-     * @return
-     */
-    @Override
-    public ITerm[] getArguments () {
-        return arguments;
-    }
-
-    /**
-     * @return
-     */
-    @Override
-    public ListTerm getArgsAsListTerm () {
-        return args;
-    }
-
-    /**
-     * @param i
-     * @return
-     */
-    public ITerm getArgument ( int i ) {
-        return arguments[i];
-    }
-
-    /**
-     * @return
-     */
-    @Override
-    public int getArity () {
-        return 0;//fixme
-    }
+//
+//    /**
+//     * @return
+//     */
+//    @Override
+//    public int getArity () {
+//        return 0;//fixme
+//    }
 
     /**
      * @return
@@ -183,48 +136,16 @@ public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
     }
 
     /**
-     * @return
-     */
-    @Override
-    public boolean isDefined () {
-        return false;
-    }
-
-    @Override
-    public String toStringArguments () {
-        return null;
-    }
-
-    /**
      * @param i
      * @param term
      */
-    @Override
-    public void setArgument ( int i, ITerm term ) {
-        getHeads()[i] = term;
+    public void setHead ( int i, ITerm term ) {
+        if (isConjunction(term))
+            getHeads()[i] = term;
     }
 
-    /**
-     * @param terms
-     */
-    @Override
-    public void setArguments ( ITerm[] terms ) {
-        arguments = terms;
-    }
-
-    /**
-     * @return
-     */
-    @Override
-    public int getArityInt () {
-        return 0;
-    }
-
-    /**
-     * @return
-     */
-    public ITerm getArityTerm () {
-        return null;
+    private boolean isConjunction ( ITerm term ) {
+        return (term.isFunctor() && ((IFunctor) term).getName() == CONJUNCTION.getName());
     }
 
     /**
@@ -314,23 +235,16 @@ public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
         return sb.toString();
     }
 
-
-    /**
-     * @param op
-     * @return
-     */
-    @Override
-    public ITerm getChildStateForOperator ( Operator <ITerm> op ) {
-        this.op = op;
-        return null;
-    }//todo
-
     /**
      * @param isOpen
      * @return
      */
     public ITerm newTail ( boolean isOpen ) {
         return isOpen ? new HtVariable() : NIL;
+    }
+
+    public void setHeads ( ITerm[] heads ) {
+        this.heads = heads;
     }
 
     /**
@@ -364,6 +278,13 @@ public class ListTerm extends HtBaseTerm implements ITerm, IFunctor {
          *
          */
         Kind () {
+        }
+
+        /**
+         * @return
+         */
+        public IFunctor getGoal () {
+            return goal;
         }
     }
 }

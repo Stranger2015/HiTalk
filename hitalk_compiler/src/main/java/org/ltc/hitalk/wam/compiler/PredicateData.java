@@ -25,7 +25,7 @@ public class PredicateData extends HtFunctor {
      * @param args
      * @param arityDelta
      */
-    public PredicateData ( int name, ITerm[] args, int arityDelta ) {
-        super(name, args, arityDelta);
+    public PredicateData ( int name, int arityDelta, ITerm... args ) {
+        super(name, arityDelta, args);
     }
 }

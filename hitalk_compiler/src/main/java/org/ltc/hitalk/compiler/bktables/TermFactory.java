@@ -65,7 +65,7 @@ public class TermFactory implements ITermFactory {
      */
     @Override
     public IFunctor newFunctor ( int hilogApply, String name, ListTerm listTerm ) {
-        int arity = listTerm.getArguments().length - 1;
+        int arity = listTerm.getHeads().length - 1;
         return newFunctor(interner.internFunctorName(name, arity), listTerm);
     }
 
@@ -76,7 +76,7 @@ public class TermFactory implements ITermFactory {
      */
     @Override
     public IFunctor newFunctor ( int value, ListTerm args ) {
-        return new HtFunctor(value, args.getArguments());
+        return new HtFunctor(value, args.getHeads());
     }
 
     /**
@@ -133,6 +133,11 @@ public class TermFactory implements ITermFactory {
         return createMostGeneral(functor.getName());
     }
 
+    @Override
+    public IFunctor newFunctor ( String name, int arity ) {
+        return new HtFunctor(interner.internFunctorName(name, arity));
+    }
+
     public HtVariable createVariable ( String vname ) {
         return new HtVariable(interner.internVariableName(vname), null, false);
     }
@@ -184,7 +189,7 @@ public class TermFactory implements ITermFactory {
 
     @Override
     public IFunctor newFunctor ( int hilogApply, ITerm name, ListTerm args ) {
-        ITerm[] headTail = args.getArguments();
+        ITerm[] headTail = args.getHeads();
         ITerm[] nameHeadTail = new ITerm[headTail.length + 1];
         System.arraycopy(headTail, 0, nameHeadTail, 1, headTail.length);
         nameHeadTail[0] = name;

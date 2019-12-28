@@ -1201,6 +1201,7 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q, PC, QC>
     @Override
     public void doInit () throws LinkageException, IOException {
         super.doInit();
+
         EXPANDING = getTermFactory().createIdentifier(HtEntityKind.PROTOCOL, "expanding");
         MONITORING = getTermFactory().createIdentifier(HtEntityKind.PROTOCOL, "monitoring");
         FORWARDING = getTermFactory().createIdentifier(HtEntityKind.PROTOCOL, "forwarding");

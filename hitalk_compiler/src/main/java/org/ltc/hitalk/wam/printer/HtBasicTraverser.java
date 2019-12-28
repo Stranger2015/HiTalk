@@ -131,7 +131,7 @@ class HtBasicTraverser implements
         if (body != null) {
             for (int i = leftToRightClauseBodies ? 0 : (body.size() - 1);
                  leftToRightClauseBodies ? (i < body.size()) : (i >= 0); i += (leftToRightClauseBodies ? 1 : -1)) {
-                IFunctor bodyFunctor = (IFunctor) body.get(i);
+                IFunctor bodyFunctor = (IFunctor) body.getHead(i);
 
                 bodyFunctor.setReversible(createBodyOperator(bodyFunctor, i, body, clause));
                 bodyFunctor.setTermTraverser(this);

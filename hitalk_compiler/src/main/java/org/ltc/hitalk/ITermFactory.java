@@ -83,6 +83,7 @@ interface ITermFactory extends IHitalkObject {
      */
     IFunctor createMostGeneral ( IFunctor functor );
 
+    IFunctor newFunctor ( String name, int arity );
 }
 /*
     public static final String ANON_VAR = PrologConstants.UNDERSCORE_VAR_NAME;

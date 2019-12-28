@@ -23,7 +23,7 @@ import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.HiTalkWAMI
 import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.REG_ADDR;
 import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.STACK_ADDR;
 
-public class PrologDefaultBuiltIn extends HtBaseMachine implements PrologBuiltIn {
+public class PrologDefaultBuiltIn extends HtBaseMachine implements IPrologBuiltIn {
 
     /**
      * Enumerates the possible ways in which a variable can be introduced to a clause.

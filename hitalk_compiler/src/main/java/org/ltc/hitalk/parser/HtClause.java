@@ -40,15 +40,14 @@ public class HtClause extends HtBaseTerm implements ITerm, ISubroutine, IHitalkO
     public HtClause ( IFunctor head, IFunctor body ) {
         this.head = head;
         this.body = new ListTerm(1);
-        this.body.setArgument(0, body);
+        this.body.setHead(0, body);
     }
-
 
     /**
      * @param head
      */
     public HtClause ( IFunctor head ) {
-        this(head, null);
+        this(head, (ListTerm) null);
     }
 
     /**
@@ -87,7 +86,7 @@ public class HtClause extends HtBaseTerm implements ITerm, ISubroutine, IHitalkO
      */
     @Override
     public IFunctor getGoal ( int i ) {
-        return (IFunctor) getBody().get(i);
+        return (IFunctor) getBody().getHead(i);
     }
 
     /**
@@ -121,7 +120,7 @@ public class HtClause extends HtBaseTerm implements ITerm, ISubroutine, IHitalkO
         if (body != null) {
             result.append(isQuery() ? "?- " : " :- ");
 
-            IntStream.range(0, body.size()).forEachOrdered(i -> result.append(body.get(i).
+            IntStream.range(0, body.size()).forEachOrdered(i -> result.append(body.getHead(i).
                     toString(interner, printVarName, printBindings))
                     .append((i < (body.size() - 1)) ? ", " : ""));
         }

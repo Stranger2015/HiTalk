@@ -133,11 +133,9 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
 
         initVfs();
 
-//        final ListTerm lt = new ListTerm(new ITerm[1]);
-//        final String s = lt.toString();
-
         parser.initializeBuiltIns();
     }
+
     @Override
     protected void initComponents () throws FileNotFoundException {
         final AppContext appCtx = getAppContext();

@@ -866,7 +866,7 @@
          for (int i = entityFunctor.getArityMin(); i < arityMax; i++) {
              HtFunctor relationFunctor = (HtFunctor) entityFunctor.getArgument(i);
              HtFunctor subEntityFunctor = (HtFunctor) relationFunctor.getArgument(0);
-             if (subEntityFunctor instanceof ListTerm) {
+          /*   if (subEntityFunctor instanceof ListTerm) {
                  ListTerm listTerm = subEntityFunctor;
                  for (; !listTerm.isNil(); listTerm = (ListTerm) listTerm.newTail(false)) {
                      ITerm[] heads = listTerm.getHeads();
@@ -874,7 +874,8 @@
                          handleNormalizedRelations((HtFunctor) heads[j], kinds, relations, dynamic);
                      }
                  }
-             } else if (entityFunctor.getArityDelta() != 0) {
+             } else */
+             if (entityFunctor.getArityDelta() != 0) {
                  FunctorName name = interner.getDeinternedFunctorName(entityFunctor.getName());
                  relationFunctor = (HtFunctor) entityFunctor.getArgument(1);
                  createRelation(relationFunctor, null, dynamic);

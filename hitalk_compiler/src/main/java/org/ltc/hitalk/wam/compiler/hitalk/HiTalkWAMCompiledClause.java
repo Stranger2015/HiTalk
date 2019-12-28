@@ -75,7 +75,7 @@ class HiTalkWAMCompiledClause extends HtClause {
      * @param body         A conjunctive body functor to add to this clause.
      * @param instructions A list of instructions to add to the body.
      */
-    public void addInstructions ( IFunctor body, SizeableList <HiTalkWAMInstruction> instructions ) {
+    public void addInstructions ( IFunctor body, SizeableList <HiTalkWAMInstruction> instructions ) {//FIXME
         int oldLength;
         if (this.body == null) {
             oldLength = 0;
@@ -84,11 +84,11 @@ class HiTalkWAMCompiledClause extends HtClause {
             oldLength = this.body.size();
             this.body = new ListTerm(oldLength + 1);
             for (int i = 0, len = this.body.size(); i < len; i++) {
-                this.body.setArgument(i, body.getArgument(i));
+                this.body.setHead(i, body.getArgument(i));
             }
         }
 
-        this.body.setArgument(oldLength, body);
+        this.body.setHead(oldLength, body);
         addInstructionsAndThisToParent(instructions);
     }
 

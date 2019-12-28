@@ -132,8 +132,8 @@ enum PrologBuiltIns {
         final IVafInterner interner = BaseApp.getAppContext().getInterner();
         final HtFunctor eqf = new HtFunctor(interner.internFunctorName("=", 2), EMPTY_TERM_ARRAY);// fixme
         final HtClause query = new HtClause(null, new ListTerm(eqf));
-        eqf.setArgument(0, listTerm.get(0));
-        eqf.setArgument(1, listTerm.get(1));
+        eqf.setArgument(0, listTerm.getHead(0));
+        eqf.setArgument(1, listTerm.getHead(1));
 
         resolver.reset();
         try {

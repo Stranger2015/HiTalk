@@ -15,6 +15,8 @@ import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler.ClauseChainObserver;
 import org.ltc.hitalk.wam.task.ExecutionTask;
 import org.ltc.hitalk.wam.task.PreCompilerTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -26,6 +28,7 @@ import static org.ltc.hitalk.core.BaseApp.getAppContext;
 public
 class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
         implements IPreCompiler {
+    protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     final protected PlPrologParser parser;
     final protected PrologDefaultBuiltIn defaultBuiltIn;
@@ -106,7 +109,7 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
     public void preCompile ( T clause ) throws HtSourceCodeException {
         logger.debug("Precompiling " + clause);
         if (clause.getT().getHead() == null) {
-            final IFunctor goal = (IFunctor) clause.getBody().get(0);
+            final IFunctor goal = (IFunctor) clause.getBody().getHead(0);
 //            if (checkDirective(goal, )) {
 //                parser.getTokenSource().setEncodingPermitted(false);
 //            }
@@ -176,6 +179,10 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
     private List <IFunctor> callGoalExpansion ( IFunctor goal ) {
         final List <IFunctor> l = new ArrayList <>();
         return l;
+    }
+
+    public Logger getLogger () {
+        return logger;
     }
 
     /**

@@ -10,7 +10,7 @@ interface PrologAtoms {
     String RBRACE = "}";
     String IMPLIES = ":-";
     String DCG_IMPLIES = "-->";
-    String QUERY = "?";
+    String QUERY = "?-";
     String SEMICOLON = ";";
     String IF = "if";
     String IF_NHEN = "->";

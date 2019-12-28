@@ -1,26 +1,24 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.Functor;
 import com.thesett.aima.search.Operator;
 import org.ltc.hitalk.compiler.IVafInterner;
-import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.term.ITermTransformer;
-import org.ltc.hitalk.term.ITermVisitor;
-import org.ltc.hitalk.term.ListTerm;
+import org.ltc.hitalk.term.*;
 import org.ltc.hitalk.wam.printer.IFunctorTraverser;
 
 import java.util.*;
 import java.util.stream.IntStream;
 
-import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
-
 /**
  *
  */
-public class HtFunctor extends ListTerm implements IFunctor {
+public class HtFunctor extends HtBaseTerm implements IFunctor {
 
     protected int name;
-//    protected ListTerm args;//nameArgsTail
+
+    /**
+     * view of arguments
+     */
+    protected ListTerm args = ListTerm.NIL;
 
     /**
      * @param name
@@ -28,7 +26,7 @@ public class HtFunctor extends ListTerm implements IFunctor {
      * @param arityDelta
      */
     public HtFunctor ( int name, int arityMin, int arityDelta ) {
-        super(name);
+        this.name = name;
         setArityRange(arityMin, arityDelta);
     }
 
@@ -36,8 +34,8 @@ public class HtFunctor extends ListTerm implements IFunctor {
      * @param name
      * @param args
      */
-    public HtFunctor ( int name, ITerm[] args ) {
-        super(name, args);
+    public HtFunctor ( int name, ITerm... args ) {
+        this.name = name;
         this.args = new ListTerm(args);//name heads tail
     }
 
@@ -46,34 +44,41 @@ public class HtFunctor extends ListTerm implements IFunctor {
      * @param args
      * @param arityDelta
      */
-    public HtFunctor ( int name, ITerm[] args, int arityDelta ) {
+    public HtFunctor ( int name, int arityDelta, ITerm... args ) {
         this(name, args);
         setArityRange(args.length, arityDelta);
     }
 
+    /**
+     *
+     */
     public HtFunctor () {
     }
 
     /**
-     * @param length
+     * @param name
      */
-    public HtFunctor ( int length ) {
-        super(length);
+    public HtFunctor ( int name ) {
+        this.name = name;
     }
 
     /**
      * @param arguments
      */
     public HtFunctor ( ITerm... arguments ) {
-        super(arguments);
+
+    }
+
+    /**
+     * @return
+     */
+    public int getName () {
+        return 0;
     }
 
     @Override
     public ITerm[] getArguments () {
-        if (args == null) {
-            return EMPTY_TERM_ARRAY;
-        }
-        return args.getArguments();
+        return args.getHeads();
     }
 
     @Override
@@ -108,6 +113,13 @@ public class HtFunctor extends ListTerm implements IFunctor {
     @Override
     public ITerm getArityTerm () {
         return null;
+    }
+
+    /**
+     * @return
+     */
+    public boolean isHiLog () {
+        return false;
     }
 
     /**
@@ -179,21 +191,21 @@ public class HtFunctor extends ListTerm implements IFunctor {
      * not equal, and cannot be unified. The false answer is the definite one. If this method returns true, the two
      * functors may be unifiable.
      *
-     * @param comparator The object to compare to.
+     * @param that The object to compare to.
      * @return <tt>true</tt> if the comparator has the same name and arity as this one, <tt>false</tt> otherwise.
      */
-    public boolean equals ( Object comparator ) {
-        if (this == comparator) {
+    public boolean equals ( Object that ) {
+        if (this == that) {
             return true;
         }
 
-        if ((comparator == null) || (getClass() != comparator.getClass())) {
+        if ((that == null) || (getClass() != that.getClass())) {
             return false;
         }
 
-        Functor functor = (Functor) comparator;
+        IFunctor functor = (IFunctor) that;
 
-        return (args.getHeads().length == functor.getArity()/* && (name == functor.getName()*/);
+        return (args.getHeads().length == functor.getArity());
     }
 
     /**
@@ -203,8 +215,7 @@ public class HtFunctor extends ListTerm implements IFunctor {
      * @return A hash code based on the name and arity.
      */
     public int hashCode () {
-        int result = 0;//fixmwe
-//        result = name;
+        int result = name;
         result = (31 * result) + args.getHeads().length;
 
         return result;
@@ -324,5 +335,13 @@ public class HtFunctor extends ListTerm implements IFunctor {
         }
 
         return result.toString();
+    }
+
+    public void setArgument ( int i, ITerm term ) {
+
+    }
+
+    public void setArguments ( ITerm[] terms ) {
+
     }
 }

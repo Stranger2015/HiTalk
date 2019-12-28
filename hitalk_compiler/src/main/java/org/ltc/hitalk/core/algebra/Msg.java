@@ -51,8 +51,8 @@ public class Msg {
             if (f1.getName() == f2.getName() && f1.getName() >= 0) {
                 result = new HtFunctor(f1.getName(), f1.getArity(), 0);
             } else if (f1.isHiLog() && f2.isHiLog()) {
-                final ITerm name1 = f1.getArgsAsListTerm().get(0);
-                final ITerm name2 = f2.getArgsAsListTerm().get(0);
+                final ITerm name1 = f1.getArgsAsListTerm().getHead(0);
+                final ITerm name2 = f2.getArgsAsListTerm().getHead(0);
                 final ITerm name = msg(name1, name2, dict);
                 final ListTerm lt = msgList(f1.getArgsAsListTerm(), f2.getArgsAsListTerm(), dict);
                 result = new HtFunctor(hilogApply, new ITerm[]{name, lt});
@@ -78,7 +78,7 @@ public class Msg {
     private static ListTerm msgList ( ListTerm lt1, ListTerm lt2, Map <HtVariable, Pair <ITerm, ITerm>> dict ) {
         int len = Math.min(lt1.size(), lt2.size());
         final ListTerm lt = new ListTerm(len);
-        IntStream.range(0, len).forEachOrdered(i -> lt.setArgument(i, msg(lt1, lt2, dict)));
+        IntStream.range(0, len).forEachOrdered(i -> lt.setHead(i, msg(lt1, lt2, dict)));
         lt.newTail(lt1.size() != lt2.size());
 
         return lt;

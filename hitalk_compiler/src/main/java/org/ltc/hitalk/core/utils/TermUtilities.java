@@ -38,7 +38,6 @@ import static org.ltc.hitalk.parser.PrologAtoms.*;
  * @author Rupert Smith
  */
 public class TermUtilities {
-
     /**
      * @param original
      * @return
@@ -249,7 +248,7 @@ public class TermUtilities {
             }
         }
         if (term != null) {
-            return new HtClause((IFunctor) term, null);
+             return new HtClause((IFunctor) term, (IFunctor) null);
         } else {
             throw new HtSourceCodeException("Only functor can be as a clause head", null, null, null, null
                     /*  requireNonNull(term).getSourceCodePosition()*/);
@@ -258,8 +257,8 @@ public class TermUtilities {
 
     public static boolean unify ( ITerm term1, ITerm term2 ) {
         final ListTerm lt = new ListTerm(2);
-        lt.setArgument(0, term1);
-        lt.setArgument(1, term2);
+        lt.setHead(0, term1);
+        lt.setHead(1, term2);
 
         PrologBuiltIns.UNIFIES.getBuiltInDef().accept(lt);
         return PrologBuiltIns.getBooleanResult();
@@ -267,10 +266,11 @@ public class TermUtilities {
 
     public static boolean term_expansion ( ITerm term1, ITerm term2 ) {
         final ListTerm lt = new ListTerm(2);
-        lt.setArgument(0, term1);
-        lt.setArgument(1, term2);
+        lt.setHead(0, term1);
+        lt.setHead(1, term2);
 
         PrologBuiltIns.TERM_EXPANSION.getBuiltInDef().accept(lt);
+
         return PrologBuiltIns.getBooleanResult();
     }
 }

@@ -3,13 +3,13 @@ package org.ltc.hitalk.wam.compiler.builtins;
 import com.thesett.common.util.doublemaps.SymbolKey;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.IFunctor;
-import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltIn;
+import org.ltc.hitalk.wam.compiler.prolog.IPrologBuiltIn;
 
 /**
  *
  */
 public abstract
-class PrologBuiltInFunctor extends HtFunctor implements PrologBuiltIn {
+class PrologBuiltInFunctor extends HtFunctor implements IPrologBuiltIn {
     /**
      * Holds the functor that this is a built in for.
      */

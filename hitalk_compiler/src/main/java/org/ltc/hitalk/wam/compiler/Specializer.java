@@ -176,7 +176,7 @@ class Specializer<C extends BodyCalls <C>> implements ISpecializer {
                 call = rest.get(0);
             }
             final ITerm msg = findMsgOfCalls(call.args, sameSelect);
-            sameSelect.add((ListTerm) call.get(i));
+            sameSelect.add((ListTerm) call.getArgument(i));
             merged.add(new BodyCalls <>(msg, call.selectedClauses, sameSelect));
         }
 
@@ -200,9 +200,9 @@ class Specializer<C extends BodyCalls <C>> implements ISpecializer {
     protected List <BodyCall <C>> findAllDelete ( List <BodyCall <C>> calls, List <HtClause> selectedClauses, List <ListTerm> ss ) {
         List <BodyCall <C>> other = new ArrayList <>();
         calls.forEach(call -> {
-            final List <HtClause> sc = (List <HtClause>) call.get(1);
+            final List <HtClause> sc = (List <HtClause>) call.getArgument(1);
             if (selectedClauses == sc) {
-                ss.add((ListTerm) call.get(0));
+                ss.add((ListTerm) call.getArgument(0));
             } else {
                 other.add(call);
             }

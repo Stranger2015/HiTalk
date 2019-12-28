@@ -192,7 +192,7 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
             /*log.fine("Created: " +
                     ("body operator " + (i + 1) + " on " + bodyFunctor.toString(interner, true, false)));*/
         IntStream.range(0, body.size()).forEachOrdered(i -> {
-            IFunctor bodyFunctor = (IFunctor) body.get(i);
+            IFunctor bodyFunctor = (IFunctor) body.getHead(i);
             bodyFunctor.setReversible(new ContextOperator(clauseScopedSymbolTable, i + 1,
                     createBodyOperator(bodyFunctor, i, body, clause)));
             bodyFunctor.setTermTraverser(this);

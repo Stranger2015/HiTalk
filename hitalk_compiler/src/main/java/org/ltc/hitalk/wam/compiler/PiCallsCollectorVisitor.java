@@ -79,7 +79,7 @@ public class PiCallsCollectorVisitor extends MetaInterpreterVisitor {
 
     private void chb ( ListTerm body, Map <IFunctor, List <PiCalls <?>>> hb ) {
         for (int i = 0, bodyLength = body.size(); i < bodyLength; i++) {
-            final ListTerm goal = (ListTerm) body.get(i);
+            final ListTerm goal = (ListTerm) body.getHead(i);
             switch (goal.getKind()) {
                 case NOT:
 //                    final IFunctor g1 = (IFunctor);

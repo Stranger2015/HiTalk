@@ -74,10 +74,6 @@ class Atom extends HtFunctor {
         return true;
     }
 
-//    public String toString () {
-//        return getAppContext().getInterner().getDeinternedFunctorName(this.getName()).getName();
-//    }
-
     /**
      * {@inheritDoc}
      *

@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.*;
 
-import static java.lang.String.format;
 import static java.util.EnumSet.of;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
 import static org.ltc.hitalk.core.utils.TermUtilities.convertToClause;
@@ -43,8 +42,9 @@ public class PlPrologParser implements IParser {
             getAppContext().getTermFactory().newAtom(END_OF_FILE);
     public static final Atom BEGIN_OF_FILE_ATOM =
             getAppContext().getTermFactory().newAtom(BEGIN_OF_FILE);
+    public static final IFunctor CONJUNCTION = getAppContext().getTermFactory().newFunctor(PrologAtoms.COMMA, 2);
     //    protected final ITermFactory factory;
-    protected IOperatorTable operatorTable = new PlDynamicOperatorParser();
+    protected IOperatorTable operatorTable;
     protected final Deque <PlTokenSource> tokenSourceStack = new ArrayDeque <>();
     protected IVafInterner interner;
     protected ITermFactory termFactory;
@@ -63,7 +63,7 @@ public class PlPrologParser implements IParser {
         this.termFactory = factory;
         this.operatorTable = optable;
 
-        this.initializeBuiltIns();
+//        this.initializeBuiltIns();
     }
 
     /**
@@ -178,42 +178,47 @@ public class PlPrologParser implements IParser {
      */
     protected ITerm newTerm ( PlToken token, boolean nullable, EnumSet <TokenKind> terminators )
             throws Exception {
-        if (token.kind == EOF/* && getLexer() == null*/) {
-            return END_OF_FILE_ATOM;
-        }
-        HlOperatorJoiner <ITerm> joiner = new HlOperatorJoiner <ITerm>() {
-            @Override
-            protected ITerm join ( int notation, List <ITerm> args ) {
-                return new HtFunctor(notation, args.toArray(new ITerm[args.size()]));
-            }
-        };
-        outer:
-        for (int i = 0; ; ++i, token = getLexer().next(joiner.accept(x))) {
-            if (token.kind == EOF) {
-                throw new ParseException("Premature EOF");//不正な位置でEOFを検出しました。
-            }
-            if (!token.quote) {
-                if (nullable && i == 0 || joiner.accept(xf)) {
-                    for (TokenKind terminator : terminators) {
-                        if (token.kind == terminator) {
-                            return i > 0 ? joiner.complete() : null;
+        ITerm result = END_OF_FILE_ATOM;
+        boolean finished = false;
+        if (token.kind != EOF/* && getLexer() == null*/) {
+            HlOperatorJoiner <ITerm> joiner = new HlOperatorJoiner <ITerm>() {
+                @Override
+                protected ITerm join ( int notation, List <ITerm> args ) {
+                    return new HtFunctor(notation, args.toArray(new ITerm[args.size()]));
+                }
+            };
+            outer:
+            for (int i = 0; ; ++i, token = getLexer().next(joiner.accept(x))) {
+                if (token.kind == EOF) {
+                    throw new ParseException("Premature EOF");//不正な位置でEOFを検出しました。
+                }
+                if (!token.quote) {
+                    if (nullable && i == 0 || joiner.accept(xf)) {
+                        for (TokenKind terminator : terminators) {
+                            if (token.kind == terminator) {
+                                result = i > 0 ? joiner.complete() : null;
+                                finished = true;
+                                break;
+                            }
+                        }
+                        if (finished) break;
+                    }
+                    if (token.kind == ATOM) {
+                        for (HlOpSymbol right : getOptable().getOperatorsMatchingNameByFixity(token.image).values()) {
+                            if (joiner.accept(right.getAssociativity())) {
+                                joiner.push(right);
+                                continue outer;
+                            }
                         }
                     }
                 }
-                if (token.kind == ATOM) {
-                    for (HlOpSymbol right : getOptable().getOperatorsMatchingNameByFixity(token.image).values()) {
-                        if (joiner.accept(right.getAssociativity())) {
-                            joiner.push(right);
-                            continue outer;
-                        }
-                    }
+                if (!joiner.accept(x)) {
+                    throw new ParseException("Impossible to resolve operator! token = " + token);
                 }
+                joiner.push(literal(token));
             }
-            if (!joiner.accept(x)) {
-                throw new ParseException("Impossible to resolve operator! token = " + token);
-            }
-            joiner.push(literal(token));
         }
+        return result;
     }
 
     public PlLexer getLexer () {
@@ -319,7 +324,7 @@ public class PlPrologParser implements IParser {
     protected ListTerm readSequence ( TokenKind ldelim, TokenKind rdelim, boolean isBlocked ) throws Exception {
         List <ITerm> elements = new ArrayList <>();
         EnumSet <TokenKind> rdelims = isBlocked ? of(COMMA, rdelim) : of(COMMA, CONS, rdelim);
-        Kind kind = LIST;
+        Kind kind = OTHER;
         switch (ldelim) {
             case LPAREN:
                 if (isBlocked) {
@@ -335,7 +340,7 @@ public class PlPrologParser implements IParser {
                 kind = BYPASS;
                 break;
             default:
-                break;
+                throw new IllegalArgumentException();
         }
         ITerm term = newTerm(getLexer().getNextToken(), true, rdelims);
         if (term == null) {
@@ -347,13 +352,13 @@ public class PlPrologParser implements IParser {
                 elements.add(newTerm(getLexer().getNextToken(), false, rdelims));
             }
             if (CONS == getLexer().peek().kind) {
-                newTerm(getLexer().getNextToken(), true, rdelims);
+                elements.add(newTerm(getLexer().getNextToken(), true, rdelims));
             }
 
             return termFactory.newListTerm(flatten(elements));
         }
 
-        return (ListTerm) term;
+        return termFactory.newListTerm(flatten(elements));
     }
 
     private ITerm[] flatten ( List <ITerm> elements ) {
@@ -367,7 +372,7 @@ public class PlPrologParser implements IParser {
      * @throws ParseException
      */
     protected IFunctor compound ( String name ) throws Exception {
-        ListTerm args = readSequence(LPAREN, RPAREN, false);
+        ListTerm args = (ListTerm) readSequence(LPAREN, RPAREN, false);
         return compound(name, args);
     }
 
@@ -432,7 +437,7 @@ public class PlPrologParser implements IParser {
      * @param associativity The operators associativity.
      */
     public void internOperator ( String operatorName, int priority, Associativity associativity ) {
-        logger.info(format("Operator \"%s\", %d, %s", operatorName, priority, associativity));
+//        logger.info(format("Operator \"%s\", %d, %s", operatorName, priority, associativity));
 
         int arity;
         if ((associativity == xfy) || (associativity == yfx) || (associativity == xfx)) {
@@ -449,7 +454,8 @@ public class PlPrologParser implements IParser {
      * Interns and inserts into the operator table all of the built in operators and names in Prolog.
      */
     public void initializeBuiltIns () {
-        logger.info("Initializing built-in's...");
+        logger.info("Initializing built-in operators...");
+
         // Initializes the operator table with the standard ISO prolog built-in operators.
         internOperator(PrologAtoms.IMPLIES, 1200, xfx);
         internOperator(PrologAtoms.IMPLIES, 1200, fx);

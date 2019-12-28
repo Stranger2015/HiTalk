@@ -18,7 +18,7 @@ import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction;
  * @author Rupert Smith
  */
 public
-interface PrologBuiltIn {
+interface IPrologBuiltIn {
 
     /**
      * Compiles the arguments to a call to a body of a clause into an instruction listing in WAM.

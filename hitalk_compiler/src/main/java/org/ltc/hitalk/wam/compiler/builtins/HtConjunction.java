@@ -6,7 +6,7 @@ import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction;
-import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltIn;
+import org.ltc.hitalk.wam.compiler.prolog.IPrologBuiltIn;
 
 import static com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys.SYMKEY_PERM_VARS_REMAINING;
 
@@ -38,10 +38,10 @@ public class HtConjunction extends HiTalkBaseBuiltIn {
                     (Integer) defaultBuiltIn.getSymbolTable().get(expression.getSymbolKey(), SYMKEY_PERM_VARS_REMAINING);
 
             // Select a non-default built-in implementation to compile the functor with, if it is a built-in.
-            PrologBuiltIn builtIn;
+            IPrologBuiltIn builtIn;
 
-            if (expression instanceof PrologBuiltIn) {
-                builtIn = (PrologBuiltIn) expression;
+            if (expression instanceof IPrologBuiltIn) {
+                builtIn = (IPrologBuiltIn) expression;
             } else {
                 builtIn = defaultBuiltIn;
             }
