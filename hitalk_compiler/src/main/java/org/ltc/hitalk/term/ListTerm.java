@@ -12,7 +12,6 @@ import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
  *
  */
 public class ListTerm extends HtBaseTerm {
-
     //    public static final ITerm TRUE = new ListTerm(Kind.TRUE);
     public static final ListTerm NIL = new ListTerm();
 
@@ -140,8 +139,9 @@ public class ListTerm extends HtBaseTerm {
      * @param term
      */
     public void setHead ( int i, ITerm term ) {
-        if (isConjunction(term))
+        if (isConjunction(term)) {
             getHeads()[i] = term;
+        }
     }
 
     private boolean isConjunction ( ITerm term ) {

@@ -13,14 +13,16 @@ import org.ltc.hitalk.wam.compiler.HtFunctorName;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.*;
+import java.nio.file.Paths;
 
+import static java.nio.file.StandardOpenOption.READ;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.BOF;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.DOT;
 import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
 
-abstract public class PlTokenSource implements Source <PlToken>, PropertyChangeListener {
+abstract public class PlTokenSource implements Source <PlToken>, PropertyChangeListener, Closeable {
 
     protected HiTalkInputStream inputStream;
     protected boolean encodingPermitted;
@@ -131,6 +133,17 @@ abstract public class PlTokenSource implements Source <PlToken>, PropertyChangeL
     public static PlTokenSource getTokenSourceForIoFile ( File file ) throws IOException {
         HiTalkInputStream stream = new HiTalkInputStream(file);
         return new PlLexer(stream);
+    }
+
+    public static PlTokenSource getTokenSourceForIoFileName ( String fileName ) throws IOException {
+        HiTalkInputStream stream = new HiTalkInputStream(Paths.get(fileName), "UTF-8", READ);
+        final PlLexer lexer = new PlLexer(stream);
+        lexer.setPath(fileName);
+        return lexer;
+    }
+
+    public void setPath ( String path ) {
+        this.path = path;
     }
 
     /**
@@ -317,4 +330,14 @@ abstract public class PlTokenSource implements Source <PlToken>, PropertyChangeL
     public HiTalkInputStream getInputStream () {
         return inputStream;
     }
+
+    public abstract void close ();
+
+    public boolean isOpen () {
+        return getInputStream().isOpen();
+    }
+
+//    public void setPath ( Path path ) {
+//        this.path = path;
+//    }
 }

@@ -15,7 +15,6 @@ import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -124,7 +123,8 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
 
     @Override
     public void compile ( String fileName, HtProperty... flags ) throws Exception {
-        PlTokenSource ts = PlTokenSource.getTokenSourceForIoFile(new File(fileName));
+        PlTokenSource ts = PlTokenSource.getTokenSourceForIoFileName(fileName);
+        ts.setPath(fileName);
         compile(ts, flags);
     }
 
@@ -132,7 +132,7 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
     public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws Exception {
         getConsole().info("Compiling " + tokenSource.getPath() + "... ");
         parser.setTokenSource(tokenSource);
-        while (true) {
+        while (tokenSource.isOpen()) {
             ITerm t = parser.next();
             if (t == PlPrologParser.BEGIN_OF_FILE_ATOM) {
 //                getTaskQueue().push(new TermExpansionTask(this, Collections::singletonList,

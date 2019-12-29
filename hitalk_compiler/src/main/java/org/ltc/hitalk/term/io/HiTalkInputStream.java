@@ -12,7 +12,11 @@ import java.nio.CharBuffer;
 import java.nio.ReadOnlyBufferException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Properties;
+
+import static java.nio.file.StandardOpenOption.READ;
+import static org.apache.commons.lang3.CharEncoding.UTF_8;
 
 /**
  *
@@ -20,6 +24,7 @@ import java.util.Properties;
 public class HiTalkInputStream extends HiTalkStream implements Readable {
 
     public final static int defaultBufSize = 8192;
+    public static final String defaultEncoding = UTF_8;
 
 //    private final int bufferSize;
 
@@ -37,13 +42,13 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      * Creates a buffering character-input stream that uses a default-sized
      * input buffer.
      *
-     * @param bufSize
+     * @param encoding
      * @param path
      */
-    public HiTalkInputStream ( Path path, int bufSize ) throws FileNotFoundException {
+    public HiTalkInputStream ( Path path, String encoding ) throws IOException {
+        super(path, encoding, READ);
         final FileInputStream fis = new FileInputStream(path.toFile());
         setInputStream(fis);
-        /*setTokenSource(tokenSource);*/
     }
 
 //    /**
@@ -64,22 +69,40 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
 //        setTokenSource(tokenSource);
     }
 
-    public HiTalkInputStream ( String path, /*PlTokenSource tokenSource, */int bufferSize ) throws IOException {
-        this(Paths.get(path),/* tokenSource,*/ bufferSize);
+    public HiTalkInputStream ( String path, int bufferSize ) throws IOException {
+        super(Paths.get(path), defaultEncoding, READ);
     }
 
+    /**
+     * @param file
+     * @param bufferSize
+     * @throws FileNotFoundException
+     */
     public HiTalkInputStream ( File file, int bufferSize ) throws FileNotFoundException {
-//        setTokenSource(tokenSource);
-//     /**/   this.bufferSize = bufferSize;
+//       this(file,bufferSize);
         setInputStream(new FileInputStream(file));
     }
 
+    /**
+     * @param file
+     * @throws FileNotFoundException
+     */
     public HiTalkInputStream ( File file ) throws FileNotFoundException {
         this(file, defaultBufSize);
     }
 
-    public HiTalkInputStream ( String string ) {
+    /**
+     * @param string
+     * @throws FileNotFoundException
+     */
+    public HiTalkInputStream ( String string ) throws FileNotFoundException {
+        this(new File(string), defaultBufSize);
+        final FileInputStream fis = new FileInputStream(string);
+        setInputStream(fis);
+    }
 
+    public HiTalkInputStream ( Path path, String s, StandardOpenOption read ) throws IOException {
+        super(path, s, read);
     }
 
     /**
@@ -131,6 +154,24 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      */
     public void setTokenSource ( PlTokenSource tokenSource ) {
         this.tokenSource = tokenSource;
+    }
+
+    /**
+     * Closes this stream and releases any system resources associated
+     * with it. If the stream is already closed then invoking this
+     * method has no effect.
+     *
+     * <p> As noted in {@link AutoCloseable#close()}, cases where the
+     * close may fail require careful attention. It is strongly advised
+     * to relinquish the underlying resources and to internally
+     * <em>mark</em> the {@code Closeable} as closed, prior to throwing
+     * the {@code IOException}.
+     *
+     * @throws IOException if an I/O error occurs
+     */
+    public void close () throws IOException {
+        super.close();
+        inputStream.close();
     }
 
     /**
@@ -198,7 +239,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      */
     //@Override
     public boolean isOpen () {
-        return false;
+        return isOpen;
     }
 
     @Override

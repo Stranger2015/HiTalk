@@ -248,13 +248,18 @@ public class TermUtilities {
             }
         }
         if (term != null) {
-             return new HtClause((IFunctor) term, (IFunctor) null);
+            return new HtClause((IFunctor) term, new ListTerm());
         } else {
             throw new HtSourceCodeException("Only functor can be as a clause head", null, null, null, null
                     /*  requireNonNull(term).getSourceCodePosition()*/);
         }
     }
 
+    /**
+     * @param term1
+     * @param term2
+     * @return
+     */
     public static boolean unify ( ITerm term1, ITerm term2 ) {
         final ListTerm lt = new ListTerm(2);
         lt.setHead(0, term1);
@@ -264,6 +269,11 @@ public class TermUtilities {
         return PrologBuiltIns.getBooleanResult();
     }
 
+    /**
+     * @param term1
+     * @param term2
+     * @return
+     */
     public static boolean term_expansion ( ITerm term1, ITerm term2 ) {
         final ListTerm lt = new ListTerm(2);
         lt.setHead(0, term1);

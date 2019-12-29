@@ -27,14 +27,11 @@ class ExecutionError extends RuntimeException {
         RESOURCE_ERROR("Resource error"), REPRESENTATION_ERROR("Representation error"), SYNTAX_ERROR("Syntax error"),
         ;
 //        OBJECT_CREATION_ERROR();
-
-
         private final String kindString;
 
         /**
          * @param kindString
          */
-        private
         Kind ( String kindString ) {
             this.kindString = kindString;
         }

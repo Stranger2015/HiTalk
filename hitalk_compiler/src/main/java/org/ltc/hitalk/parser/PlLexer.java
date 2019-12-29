@@ -25,6 +25,10 @@ public class PlLexer extends PlTokenSource {
         super(inputStream);
     }
 
+    public void close () {
+
+    }
+
     public static boolean isMergeable ( String l, String r ) {
         return isTokenBoundary(l.charAt(l.length() - 1), r.charAt(0));
     }

@@ -49,6 +49,7 @@ public class PrologInstructionCompiler<T extends HtClause, PC, QC> extends BaseI
 
     @Override
     public void compile ( T clause, HtProperty... flags ) throws HtSourceCodeException {
+        logger.info("Compiling (" + clause + ")");
 
     }
 

@@ -443,7 +443,9 @@ public class HiTalkOutputStream extends HiTalkStream {
      * @throws IOException If an I/O error occurs
      */
     public void close () throws IOException {
-
+        super.close();
+        outputStream.flush();
+        outputStream.close();
     }
 
     protected void init ( FileDescriptor fd ) throws IOException {

@@ -262,20 +262,23 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
         LibParser libParser = new LibParser();
         libParser.setTokenSource(tokenSource);
         logger.info("Parsing " + classPath);
+        boolean generateClause = true;
         // Load the built-ins into the domain
-        while (true) {
+        while (tokenSource.isOpen()) {
             final ITerm term = libParser.parse();
-            if (term == PlPrologParser.BEGIN_OF_FILE_ATOM) {//ignore
+            if (term == PlPrologParser.BEGIN_OF_FILE_ATOM) {
                 logger.info("begin_of_file");
                 continue;
-            }
-            if (term == PlPrologParser.END_OF_FILE_ATOM) {//ignore
+            } else if (term == PlPrologParser.END_OF_FILE_ATOM) {
                 logger.info("end_of_file");
-                parser.popTokenSource();
-                break;
+                libParser.popTokenSource();
+                generateClause = false;
+            } else {
+                if (generateClause) {
+                    HtClause clause = libParser.convert(term);
+                    wamCompiler.compile((T) clause);
+                }
             }
-            HtClause clause = libParser.convert(term);
-            wamCompiler.compile((T) clause);
         }
         wamCompiler.endScope();
 //         There should not be any errors in the built in library, if there are then the prolog engine just

@@ -50,8 +50,11 @@ public class TokenBuffer extends PlTokenSource implements Source <PlToken>, Sink
     /**
      *
      */
-    public
-    void clear () {
+    public void clear () {
         tokens.clear();
+    }
+
+    public void close () {
+
     }
 }

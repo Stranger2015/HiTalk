@@ -95,7 +95,6 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
     @Override
     public void compile ( T clause, HtProperty... flags ) throws HtSourceCodeException {
         instructionCompiler.compile(clause, flags);
-        //        preCompiler.preCompile(clause);
     }
 
     /**

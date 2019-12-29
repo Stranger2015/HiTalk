@@ -35,10 +35,7 @@ import static java.nio.charset.Charset.*;
  * ByteBuffer newbb = charset.encode(cb);
  */
 public abstract
-class HiTalkStream
-        implements IPropertyOwner, PropertyChangeListener, Cloneable, Closeable, IHitalkObject {
-
-
+class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable, Closeable, IHitalkObject {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     public static final int BB_ALLOC_SIZE = 32768;
@@ -53,7 +50,7 @@ class HiTalkStream
     protected PropertyOwner <HtProperty> owner;
     protected Charset currentCharset = defaultCharset();
     protected StreamDecoder sd;
-//    private PlTokenSource tokenSource;
+    protected Path path;
 
     /**
      * @param path
@@ -62,7 +59,7 @@ class HiTalkStream
      * @throws IOException
      */
     protected HiTalkStream ( Path path, String encoding, StandardOpenOption... options ) throws IOException {
-
+        this.path = path;
         Charset charset = isSupported(encoding) ? forName(encoding) : defaultCharset();//currentCharset;
         CharsetDecoder decoder = charset.newDecoder();
         sd = StreamDecoder.forDecoder(channel, decoder, BB_ALLOC_SIZE);
@@ -121,7 +118,10 @@ class HiTalkStream
      */
     @Override
     public void close () throws IOException {
-
+        if (isOpen) {
+            isOpen = false;
+            channel.close();
+        }
     }
 
     /**

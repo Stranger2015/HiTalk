@@ -32,7 +32,10 @@ import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -42,7 +45,7 @@ import static java.lang.System.in;
 import static org.ltc.hitalk.compiler.bktables.BkTableKind.LOADED_ENTITIES;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.RESOURCE_ERROR;
-import static org.ltc.hitalk.parser.PlTokenSource.getTokenSourceForIoFile;
+import static org.ltc.hitalk.parser.PlTokenSource.getTokenSourceForIoFileName;
 import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
 import static org.ltc.hitalk.wam.compiler.Language.HITALK;
 
@@ -925,7 +928,7 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q, PC, QC>
     }
 
     public void compile ( String fileName, HtProperty[] flags ) throws Exception {
-        wamCompiler.compile(getTokenSourceForIoFile(new File(fileName)));
+        wamCompiler.compile(getTokenSourceForIoFileName(fileName), flags);
 
     }
     //logtalkCompile(@list(sourceFile_name))

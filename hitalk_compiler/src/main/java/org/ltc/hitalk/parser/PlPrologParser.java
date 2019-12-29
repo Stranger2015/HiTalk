@@ -160,12 +160,17 @@ public class PlPrologParser implements IParser {
     }
 
     /**
-     *
+     * @return
      */
-    public void popTokenSource () {
+    @Override
+    public PlTokenSource popTokenSource () {
         if (!tokenSourceStack.isEmpty()) {
-            tokenSourceStack.pop();
+            final PlTokenSource ts = tokenSourceStack.pop();
+            ts.close();
+            return ts;
         }
+
+        return null;
     }
 
     /**
@@ -201,7 +206,9 @@ public class PlPrologParser implements IParser {
                                 break;
                             }
                         }
-                        if (finished) break;
+                        if (finished) {
+                            break;
+                        }
                     }
                     if (token.kind == ATOM) {
                         for (HlOpSymbol right : getOptable().getOperatorsMatchingNameByFixity(token.image).values()) {

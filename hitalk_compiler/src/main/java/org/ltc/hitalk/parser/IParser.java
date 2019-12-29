@@ -96,7 +96,18 @@ public interface IParser extends IHitalkObject {
      * @param source
      */
     default void setTokenSource ( PlTokenSource source ) {
-        getParser().setTokenSource(source);
+        if (source.inputStream.isOpen()) {
+            getParser().setTokenSource(source);
+        }
+    }
+
+    /**
+     * @return
+     */
+    default PlTokenSource popTokenSource () throws IOException {
+        final PlTokenSource ts = getParser().popTokenSource();
+        ts.close();
+        return ts;
     }
 
     /**

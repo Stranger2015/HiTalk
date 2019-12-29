@@ -87,9 +87,9 @@ public interface IPreCompiler extends IQueueHolder <PreCompilerTask>, IHitalkObj
      * @throws Exception
      */
     default List <HtClause> preCompile ( PlTokenSource tokenSource, EnumSet <DirectiveKind> delims ) throws Exception {
+        getLogger().info("Precompiling ..." + tokenSource.getPath());
         final List <HtClause> list = new ArrayList <>();
-//        getParser().setTokenSource(tokenSource);
-        while (true) {
+        while (tokenSource.isOpen()) {
             ITerm t = getParser().next();
             if (t == BEGIN_OF_FILE_ATOM) {
                 getLogger().info("begin_of_file");
@@ -99,17 +99,15 @@ public interface IPreCompiler extends IQueueHolder <PreCompilerTask>, IHitalkObj
             }
             if (t == END_OF_FILE_ATOM) {
                 getLogger().info("end_of_file");
-                getQueue().push(new TermExpansionTask(this,
-                        tokenSource,
-                        noneOf(DirectiveKind.class)));
+                getQueue().push(new TermExpansionTask(this, tokenSource, noneOf(DirectiveKind.class)));
                 getParser().popTokenSource();
-
-                return list;
-            }
-            HtClause c = getParser().convert(t);
-            if (!checkDirective(c, delims)) {
-                list.add(c);
                 break;
+            } else {
+                HtClause c = getParser().convert(t);
+                if (!checkDirective(c, delims)) {
+                    list.add(c);
+                    break;
+                }
             }
         }
 
