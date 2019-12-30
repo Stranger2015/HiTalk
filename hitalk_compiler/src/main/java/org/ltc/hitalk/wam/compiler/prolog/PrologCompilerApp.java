@@ -26,10 +26,7 @@ import org.ltc.hitalk.entities.context.CompilationContext;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.LoadContext;
 import org.ltc.hitalk.interpreter.HtProduct;
-import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.IParser;
-import org.ltc.hitalk.parser.PlPrologParser;
-import org.ltc.hitalk.parser.PlTokenSource;
+import org.ltc.hitalk.parser.*;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.wam.compiler.CompilerFactory;
@@ -43,6 +40,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.EnumSet;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.core.Components.INTERNER;
@@ -309,7 +307,23 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
         setTarget(() -> {
             try {
                 this.initialize();
+
+                getWAMCompiler().setInstructionCompiler(new PrologInstructionCompiler <>());
+                getWAMCompiler().setPreCompiler(new PrologPreCompiler <>());
                 getWAMCompiler().compile(fileName, loadContext.getFlags());
+                getWAMCompiler().setCompilerObserver(new ICompilerObserver <P, Q>() {
+                    public void onCompilation ( PlTokenSource tokenSource ) {
+                        getWAMCompiler().getPreCompiler().preCompile(tokenSource, EnumSet.of(PL));
+                    }
+
+                    public void onCompilation ( P sentence ) throws HtSourceCodeException {
+
+                    }
+
+                    public void onQueryCompilation ( Q sentence ) throws HtSourceCodeException {
+
+                    }
+                });
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new ExecutionError(PERMISSION_ERROR, null);

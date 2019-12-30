@@ -1,6 +1,5 @@
 package org.ltc.hitalk.wam.compiler.prolog;
 
-import com.thesett.aima.logic.fol.LogicCompilerObserver;
 import org.ltc.hitalk.compiler.AbstractBaseMachine;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.IPreCompiler;
@@ -38,7 +37,7 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
      */
     protected final PrologBuiltInTransform <T, P, Q> builtInTransform;
     protected final IResolver <HtPredicate, HtClause> resolver;
-    protected LogicCompilerObserver <P, Q> observer;
+    protected ICompilerObserver <P, Q> observer;
 
     //    protected final Deque <CompilerTask> compilerTaskQueue = new ArrayDeque <>();
     protected ClauseChainObserver clauseChainObserver;
@@ -75,10 +74,16 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
                 getAppContext().getParser());
     }
 
+    /**
+     * @return
+     */
     public Deque <PreCompilerTask> getTaskQueue () {
         return taskQueue;
     }
 
+    /**
+     * @return
+     */
     @Override
     public PlPrologParser getParser () {
         return parser;

@@ -556,7 +556,7 @@
       * @return The result of applying the function to its argument.
       */
      @Override
-     public HtFunctor apply ( HtFunctor functor ) {
+     public IFunctor apply ( IFunctor functor ) {
          return super.apply(functor);
      }
 

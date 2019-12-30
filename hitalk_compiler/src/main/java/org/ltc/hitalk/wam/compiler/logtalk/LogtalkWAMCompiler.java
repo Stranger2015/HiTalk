@@ -75,6 +75,7 @@ public class LogtalkWAMCompiler<T extends HtMethod, P, Q, PC, QC> extends Prolog
 
     }
 
+    @Override
     public void compile ( T clause ) {
 
     }

@@ -3,18 +3,24 @@ package org.ltc.hitalk.wam.compiler.prolog;
 import com.thesett.common.util.Function;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PredicateTable;
+import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.wam.compiler.HtFunctor;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
 
+/**
+ * @param <T>
+ * @param <P>
+ * @param <Q>
+ */
 public class PrologBuiltInTransform<T extends HtClause, P, Q>
-        implements Function <HtFunctor, HtFunctor> {
+        implements Function <IFunctor, IFunctor> {
 
     protected final IVafInterner interner;
-    protected final PrologPreCompiler <T, P, Q> preCompiler;
+    protected final IPreCompiler preCompiler;
     protected final IResolver <P, Q> resolver;
     protected final PredicateTable <HtPredicate> predicateTable = getAppContext().getPredicateTable();
 
@@ -31,7 +37,7 @@ public class PrologBuiltInTransform<T extends HtClause, P, Q>
      */
     public PrologBuiltInTransform ( PrologDefaultBuiltIn defaultBuiltIn,
                                     IVafInterner interner,
-                                    PrologPreCompiler <T, P, Q> preCompiler,
+                                    IPreCompiler preCompiler,
                                     IResolver <P, Q> resolver ) {
         this.defaultBuiltIn = defaultBuiltIn;
         this.interner = interner;
@@ -44,7 +50,7 @@ public class PrologBuiltInTransform<T extends HtClause, P, Q>
      * @return
      */
     @Override
-    public HtFunctor apply ( HtFunctor functor ) {
+    public IFunctor apply ( IFunctor functor ) {
         return functor;//todo
     }
 }

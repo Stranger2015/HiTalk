@@ -5,7 +5,6 @@ import com.thesett.aima.search.Operator;
 import com.thesett.common.util.StackQueue;
 import org.ltc.hitalk.compiler.IPredicateVisitor;
 import org.ltc.hitalk.compiler.IVafInterner;
-import org.ltc.hitalk.compiler.VafInterner;
 import org.ltc.hitalk.interpreter.IPredicateTraverser;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.HtBaseTerm;
@@ -69,14 +68,6 @@ class HtPredicate extends HtBaseTerm implements ITerm, IPropertyOwner {
     final protected List <PropertyChangeListener> listeners = new ArrayList <>();
     private boolean builtIn;
 
-    /**
-     * Creates a predicate formed from a set of clauses.
-     * <p>
-     * //     * @param l The clauses that make up the getDefinition()  of the predicate.
-     */
-//    public HtPredicate ( HtPredicateDefinition l ) {
-//        this.l = l;
-//    }
     public boolean isHiLog () {
         return false;
     }
@@ -101,15 +92,6 @@ class HtPredicate extends HtBaseTerm implements ITerm, IPropertyOwner {
     public int size () {
         return l.size();
     }
-//    /**
-//     * Gets all of the clauses that make up the getDefinition()  of the predicate.
-//     *
-//     * @return All of the clauses that make up the getDefinition()  of the predicate.
-//     */
-//    public
-//    HtPredicateDefinition/*<T,P,Q>*/ getDefinition () {
-//        return l;
-//    }
 
     /**
      * {@inheritDoc}
@@ -150,31 +132,25 @@ class HtPredicate extends HtBaseTerm implements ITerm, IPropertyOwner {
     public void accept ( ITermVisitor visitor ) {
         if (visitor instanceof IPredicateVisitor) {
             ((IPredicateVisitor) visitor).visit(this);
-        } else {
+        } /*else {
             this.accept(visitor);
-        }
+        }*/
     }
 //
 //    public List<ITerm> acceptTransformer ( ITermTransformer transformer ) {
 //        return null;
 //    }
 
-    public String toString ( VafInterner interner, boolean printVarName, boolean printBindings ) {
-        return null;
-    }
-
     /**
      * {@inheritDoc}
      */
     public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
-        StringBuilder result = new StringBuilder();
+        String result = IntStream.range(0, size())
+                .mapToObj(i -> l.get(i)
+                        .toString(interner, printVarName, printBindings) + ((i < (l.size() - 1)) ? "\n" : ""))
+                .collect(Collectors.joining());
 
-        for (int i = 0; i < size(); i++) {
-            result.append(l.get(i).toString(interner, printVarName, printBindings)).
-                    append((i < (l.size() - 1)) ? "\n" : "");
-        }
-
-        return result.toString();
+        return result;
     }
 
     /**

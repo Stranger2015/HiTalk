@@ -73,7 +73,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
     /**
      * Holds the observer for compiler outputs.
      */
-    protected ICompilerObserver <P, Q> observer = new ChainedCompilerObserver();
+    protected ICompilerObserver <P, Q> observer = new ChainedCompilerObserver <>();
 
     protected Q currentQuery;
     protected final List <Set <HtVariable>> vars = new ArrayList <>();
@@ -136,7 +136,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
         getParser().setTokenSource(tokenSource);
 
         // Consult the type checking rules and add them to the knowledge base.
-        while (true) {
+        while (tokenSource.isOpen()) {
             ITerm term = getParser().parse();
 
             if (term == PlPrologParser.END_OF_FILE_ATOM) {

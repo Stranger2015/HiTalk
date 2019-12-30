@@ -1,6 +1,5 @@
 package org.ltc.hitalk.interpreter;
 
-
 import jline.ConsoleReader;
 import org.ltc.hitalk.compiler.PredicateTable;
 import org.ltc.hitalk.core.BaseApp;
@@ -43,9 +42,6 @@ public interface IInterpreter<T extends HtClause, P, Q> extends IConfigurable/*,
      * @throws IOException
      */
     default void interpreterLoop () throws IOException {
-        // Display the welcome message.
-//        banner();
-
         // Initialize the JLine console.
         setConsoleReader(initializeCommandLineReader());
 

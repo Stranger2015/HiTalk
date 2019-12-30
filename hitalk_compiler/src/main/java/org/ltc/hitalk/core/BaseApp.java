@@ -8,10 +8,7 @@ import org.ltc.hitalk.compiler.bktables.*;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
-import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.PlDynamicOperatorParser;
-import org.ltc.hitalk.parser.PlPrologParser;
-import org.ltc.hitalk.parser.PlTokenSource;
+import org.ltc.hitalk.parser.*;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.term.io.HiTalkOutputStream;
 import org.ltc.hitalk.term.io.HiTalkStream;
@@ -20,6 +17,7 @@ import org.ltc.hitalk.wam.compiler.Language;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
+import org.ltc.hitalk.wam.compiler.prolog.ChainedCompilerObserver;
 import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltInTransform;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
@@ -487,9 +485,38 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
             return (PrologBuiltInTransform) get(BUILTIN_TRANSFORM);
         }
 
+        public <PC, QC> void setObserverIC ( ICompilerObserver observer ) {
+            putIfAbsent(OBSERVER_IC, (IHitalkObject) observer);
+        }
+
         public <PC, QC> ICompilerObserver <PC, QC> getObserverIC () {
+            final ICompilerObserver <PC, QC> observer = (ICompilerObserver <PC, QC>) get(OBSERVER_IC);
+            if (observer == null) {
+                setObserverIC(new ChainedCompilerObserver());
+            }
             return (ICompilerObserver <PC, QC>) get(OBSERVER_IC);
         }
+
+        public <PC, QC> void setObserverPre ( ICompilerObserver observer ) {
+            putIfAbsent(OBSERVER_IC, (IHitalkObject) observer);
+        }
+
+        public <PC, QC> ICompilerObserver <PC, QC> getObserverPre () {
+            final ICompilerObserver <PC, QC> observer = (ICompilerObserver <PC, QC>) get(OBSERVER_PRE);
+            if (observer == null) {
+                setObserverPre(new ICompilerObserver <PC, QC>() {//fixme
+                    public void onCompilation ( PC sentence ) throws HtSourceCodeException {
+
+                    }
+
+                    public void onQueryCompilation ( QC sentence ) throws HtSourceCodeException {
+
+                    }
+                });
+            }
+            return (ICompilerObserver <PC, QC>) get(OBSERVER_PRE);
+        }
+
 
         public <T extends HtClause, P, Q, PC, QC> void setCompilerFactory ( ICompilerFactory <T, P, Q, PC, QC> cf ) {
             putIfAbsent(COMPILER_FACTORY, cf);

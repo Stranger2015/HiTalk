@@ -55,6 +55,7 @@ public class LogtalkTranspiler<M extends HtMethod, P, Q> extends BaseCompiler <M
 
     }
 
+    @Override
     public void compile ( M clause ) {
 
     }

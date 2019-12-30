@@ -31,8 +31,7 @@ public class CompilerFactory<T extends HtClause, P, Q, PC, QC> implements ICompi
      * @return
      */
     @Override
-    public PrologWAMCompiler <T, P, Q, PC, QC>
-    createWAMCompiler ( Language language ) {
+    public PrologWAMCompiler <T, P, Q, PC, QC> createWAMCompiler ( Language language ) {
         try {
             return (PrologWAMCompiler <T, P, Q, PC, QC>) language.getWamCompilerClass().newInstance();
         } catch (InstantiationException | IllegalAccessException e) {

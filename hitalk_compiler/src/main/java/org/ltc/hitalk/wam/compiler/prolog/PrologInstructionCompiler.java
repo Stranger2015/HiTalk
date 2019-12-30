@@ -8,6 +8,7 @@ import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.BaseInstructionCompiler;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
 
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
 
@@ -51,6 +52,8 @@ public class PrologInstructionCompiler<T extends HtClause, PC, QC> extends BaseI
     public void compile ( T clause, HtProperty... flags ) throws HtSourceCodeException {
         logger.info("Compiling (" + clause + ")");
 
+        final HiTalkWAMCompiledPredicate predicate = new HiTalkWAMCompiledPredicate(clause.getHead().getName());
+        compileClause(clause, (PC) predicate, true, true, true, 0);
     }
 
     /**
@@ -60,6 +63,11 @@ public class PrologInstructionCompiler<T extends HtClause, PC, QC> extends BaseI
         this.resolver = resolver;
     }
 
+    /**
+     * @param clause
+     * @throws HtSourceCodeException
+     */
+    @Override
     public void compile ( T clause ) throws HtSourceCodeException {
         compile(clause, new HtProperty[0]);
     }

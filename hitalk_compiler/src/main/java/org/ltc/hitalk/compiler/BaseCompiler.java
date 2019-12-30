@@ -54,11 +54,14 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
         this.observer = observer;
     }
 
+    /**
+     *
+     */
     public BaseCompiler () {
         super();
     }
 
-    //    @Override
+    @Override
     public void compile ( T sentence ) throws HtSourceCodeException {
         logger.info("compile( T sentence = " + sentence + " ): called... ");
 

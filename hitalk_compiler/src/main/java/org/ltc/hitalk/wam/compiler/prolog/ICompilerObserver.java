@@ -1,8 +1,17 @@
 package org.ltc.hitalk.wam.compiler.prolog;
 
 import org.ltc.hitalk.parser.HtSourceCodeException;
+import org.ltc.hitalk.parser.PlTokenSource;
 
+/**
+ * @param <T>
+ * @param <Q>
+ */
 public interface ICompilerObserver<T, Q> {
+    default void onCompilation ( PlTokenSource tokenSource ) {
+
+    }
+
     /**
      * Accepts notification of the completion of the compilation of a sentence into a (binary) form.
      *

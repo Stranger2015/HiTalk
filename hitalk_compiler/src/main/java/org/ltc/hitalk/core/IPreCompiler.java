@@ -8,7 +8,7 @@ import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
+import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler.ClauseChainObserver;
 import org.ltc.hitalk.wam.task.PreCompilerTask;
 import org.ltc.hitalk.wam.task.TermExpansionTask;
 import org.slf4j.Logger;
@@ -24,6 +24,9 @@ import static org.ltc.hitalk.parser.PlPrologParser.END_OF_FILE_ATOM;
  *
  */
 public interface IPreCompiler extends IQueueHolder <PreCompilerTask>, IHitalkObject {
+    /**
+     * @return
+     */
     Logger getLogger ();
 //    /**
 //     * @param string
@@ -154,7 +157,7 @@ public interface IPreCompiler extends IQueueHolder <PreCompilerTask>, IHitalkObj
         return BaseApp.getAppContext().getInterner();
     }
 
-    void setCompilerObserver ( PrologWAMCompiler.ClauseChainObserver clauseChainObserver );
+    void setCompilerObserver ( ClauseChainObserver clauseChainObserver );
 
 
     /**
