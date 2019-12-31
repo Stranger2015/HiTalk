@@ -7,8 +7,11 @@ import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.wam.compiler.BaseInstructionCompiler;
-import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
 
@@ -16,6 +19,8 @@ import static org.ltc.hitalk.core.BaseApp.getAppContext;
  *
  */
 public class PrologInstructionCompiler<T extends HtClause, PC, QC> extends BaseInstructionCompiler <T, PC, QC> {
+
+    private int clauseNumber = 0;
 
     public PrologDefaultBuiltIn getDefaultBuiltIn () {
         return defaultBuiltIn;
@@ -48,12 +53,48 @@ public class PrologInstructionCompiler<T extends HtClause, PC, QC> extends BaseI
                 getAppContext().getParser());
     }
 
-    @Override
-    public void compile ( T clause, HtProperty... flags ) throws HtSourceCodeException {
-        logger.info("Compiling (" + clause + ")");
+    /**
+     * @param fnl
+     * @throws Exception
+     * @throws HtSourceCodeException
+     */
+    public List <HtClause> compileFiles ( List <String> fnl ) throws Exception {
+        return null;
+    }
 
-        final HiTalkWAMCompiledPredicate predicate = new HiTalkWAMCompiledPredicate(clause.getHead().getName());
-        compileClause(clause, (PC) predicate, true, true, true, 0);
+    public List <HtClause> compileFiles ( List <String> fnl, HtProperty... flags ) throws Exception {
+        final List <HtClause> list = new ArrayList <>();
+        return list;
+    }
+
+    /**
+     * @param fn
+     * @param flags
+     * @throws Exception
+     */
+    public List <HtClause> compileFile ( String fn, HtProperty... flags ) throws Exception {
+        final List <HtClause> list = new ArrayList <>();
+        return list;
+    }
+
+    @Override
+    public List <HtClause> compile ( PlTokenSource tokenSource, HtProperty... flags ) throws HtSourceCodeException {
+        logger.info("Precompiling (" + tokenSource.getPath() + ") ...");
+//        clauseNumber
+
+//        final HiTalkWAMCompiledPredicate predicate = new HiTalkWAMCompiledPredicate(clause.getHead().getName());
+//        compileClause(clause, (PC) predicate, true, true, true, 0);
+        final List <HtClause> list = new ArrayList <>();
+        return list;
+    }
+
+    /**
+     * @param clause
+     * @param flags
+     * @throws HtSourceCodeException
+     */
+    public void compile ( T clause, HtProperty... flags ) throws HtSourceCodeException {
+
     }
 
     /**
@@ -68,8 +109,8 @@ public class PrologInstructionCompiler<T extends HtClause, PC, QC> extends BaseI
      * @throws HtSourceCodeException
      */
     @Override
-    public void compile ( T clause ) throws HtSourceCodeException {
-        compile(clause, new HtProperty[0]);
+    public void compile ( HtClause clause ) throws Exception {
+        compile((T) clause, new HtProperty[0]);
     }
 
     public void compileQuery ( QC query ) {

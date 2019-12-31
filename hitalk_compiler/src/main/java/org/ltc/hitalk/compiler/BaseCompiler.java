@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
-import static com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys.SYMKEY_PREDICATES;
-
 /**
  * @param <P>
  * @param <Q>
@@ -50,6 +48,7 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
                              ICompilerObserver <P, Q> observer ) {
 
         super(symbolTable, interner);
+
         this.parser = parser;
         this.observer = observer;
     }
@@ -59,38 +58,6 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
      */
     public BaseCompiler () {
         super();
-    }
-
-    @Override
-    public void compile ( T sentence ) throws HtSourceCodeException {
-        logger.info("compile( T sentence = " + sentence + " ): called... ");
-
-        // Extract the clause to compile from the parsed sentence.
-        HtClause clause = sentence.getT();
-
-        // Classify the sentence to compile by the different sentence types in the language.
-        if (clause.isQuery()) {
-            compileQuery((Q) clause);//FIXME
-        } else {
-            // Initialize a nested symbol table for the current compilation scope, if it has not already been.
-            if (scopeTable == null) {
-                scopeTable = symbolTable.enterScope(scope);
-            }
-
-            // Check in the symbol table, if a compiled predicate with name matching the program clause exists, and if
-            // not create it.
-            SymbolKey predicateKey = scopeTable.getSymbolKey(clause.getHead().getName());
-            List <HtClause> clauses = (List <HtClause>) scopeTable.get(predicateKey, SYMKEY_PREDICATES);
-
-            if (clauses == null) {
-                clauses = new ArrayList <>();
-                scopeTable.put(predicateKey, SYMKEY_PREDICATES, clauses);
-                predicatesInScope.offer(predicateKey);
-            }
-
-            // Add the clause to compile to its parent predicate for compilation at the end of the current scope.
-            clauses.add(clause);
-        }
     }
 
     /**
@@ -124,16 +91,23 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
 
     }
 
+    /**
+     * @param fileName
+     * @param flags
+     * @return
+     * @throws Exception
+     */
     @Override
-    public void compile ( String fileName, HtProperty... flags ) throws Exception {
+    public List <HtClause> compile ( String fileName, HtProperty... flags ) throws Exception {
         PlTokenSource ts = PlTokenSource.getTokenSourceForIoFileName(fileName);
         ts.setPath(fileName);
-        compile(ts, flags);
+        return compile(ts, flags);
     }
 
     @Override
-    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws Exception {
-        getConsole().info("Compiling " + tokenSource.getPath() + "... ");
+    public List <HtClause> compile ( PlTokenSource tokenSource, HtProperty... flags ) throws Exception {
+        getConsole().info("PreCompiling " + tokenSource.getPath() + "... ");
+        final List <HtClause> list = new ArrayList <>();
         parser.setTokenSource(tokenSource);
         while (tokenSource.isOpen()) {
             ITerm t = parser.next();
@@ -150,6 +124,8 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
             T c = (T) parser.convert(t);//FIXME
             compile(c, flags);
         }
+
+        return list;
     }
 
     public ICompilerObserver <P, Q> getObserver () {

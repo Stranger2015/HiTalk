@@ -21,6 +21,7 @@ import org.ltc.hitalk.wam.compiler.hitalk.HtSymbolKeyTraverser;
 import org.ltc.hitalk.wam.compiler.hitalk.HtTermWalker;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -94,15 +95,45 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
     }
 
 
+    /**
+     * @throws HtSourceCodeException
+     */
     @Override
-    public void endScope () throws HtSourceCodeException {
+    public void endScope () throws Exception {
         preCompiler.endScope();
         instructionCompiler.endScope();
     }
 
     @Override
     public void compile ( T clause, HtProperty... flags ) throws HtSourceCodeException {
-        instructionCompiler.compile(clause, flags);
+//        instructionCompiler.compile(clause, flags);
+    }
+
+    /**
+     * @param fnl
+     * @return
+     * @throws IOException
+     * @throws HtSourceCodeException
+     */
+    public List <HtClause> compileFiles ( List <String> fnl ) throws Exception {
+        return compileFiles(fnl, EMPTY_FLAG_ARRAY);
+    }
+
+    public List <HtClause> compileFiles ( List <String> fnl, HtProperty... flags ) throws Exception {
+        List <HtClause> list = new ArrayList <>();
+        for (String fn : fnl) {
+            list = compileFile(fn, flags);
+        }
+        return list;
+    }
+
+    /**
+     * @param fn
+     * @param flags
+     * @throws IOException
+     */
+    public List <HtClause> compileFile ( String fn, HtProperty... flags ) throws Exception {
+        return null;
     }
 
     /**
@@ -112,17 +143,17 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
      * @throws HtSourceCodeException
      */
     @Override
-    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws Exception {
-        final List <HtClause> clauses = preCompiler.preCompile(tokenSource, EnumSet.of(IF));
-        for (HtClause clause : clauses) {
-            instructionCompiler.compile((T) clause);
-        }
+    public List <HtClause> compile ( PlTokenSource tokenSource, HtProperty... flags ) throws Exception {
+        return preCompiler.preCompile(tokenSource, EnumSet.of(IF));
+//        for (HtClause clause : clauses) {
+//            instructionCompiler.compile((T) clause);
+//        }
     }
 
     /**
      * {@inheritDoc}
      */
-    public void compile ( ITerm clause ) throws HtSourceCodeException {
+    public void compile ( ITerm clause ) throws Exception {
         substituteBuiltIns(clause);
         initializeSymbolTable(clause);
         topLevelCheck(clause);
@@ -218,11 +249,16 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
      * @throws HtSourceCodeException
      */
     @Override
-    public void compile ( T clause ) throws HtSourceCodeException {
-        instructionCompiler.compile(clause);
+    public void compile ( HtClause clause ) throws HtSourceCodeException {
+        logger.info("");
     }
 
     public void toString0 ( StringBuilder sb ) {
+
+    }
+
+    public BaseInstructionCompiler <T, PC, QC> getInstructionCompiler () {
+        return instructionCompiler;
     }
 
     /**
@@ -232,7 +268,7 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
         /**
          * {@inheritDoc}
          */
-        public void onCompilation ( T clause ) throws HtSourceCodeException {
+        public void onCompilation ( T clause ) throws Exception {
             PrologWAMCompiler.this.instructionCompiler.compile(clause);
         }
 

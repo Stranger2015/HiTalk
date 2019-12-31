@@ -158,7 +158,7 @@ public interface IInterpreter<T extends HtClause, P, Q> extends IConfigurable/*,
      * @param clause
      * @throws HtSourceCodeException
      */
-    void evaluate ( T clause ) throws HtSourceCodeException, HtSourceCodeException;
+    void evaluate ( T clause ) throws Exception;
 
     /**
      * @return

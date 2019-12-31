@@ -27,12 +27,10 @@ import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.LoadContext;
 import org.ltc.hitalk.interpreter.HtProduct;
 import org.ltc.hitalk.parser.*;
-import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.wam.compiler.CompilerFactory;
 import org.ltc.hitalk.wam.compiler.ICompilerFactory;
 import org.ltc.hitalk.wam.compiler.Language;
-import org.ltc.hitalk.wam.compiler.LibParser;
 import org.ltc.hitalk.wam.compiler.Tools.Kind;
 
 import java.io.File;
@@ -41,10 +39,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.EnumSet;
+import java.util.List;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.core.Components.INTERNER;
 import static org.ltc.hitalk.core.Components.WAM_COMPILER;
+import static org.ltc.hitalk.parser.Directive.DirectiveKind.IF;
 import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
 import static org.ltc.hitalk.wam.compiler.Tools.Kind.COMPILER;
 
@@ -59,6 +59,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
 
     protected DefaultFileSystemManager fsManager;
     protected PrologWAMCompiler <T, P, Q, PC, QC> wamCompiler;
+    protected LibraryLoader loader = new LibraryLoader();
 
     protected Path scratchDirectory = Paths.get(DEFAULT_SCRATCH_DIRECTORY).toAbsolutePath();
     protected CompilationContext compilationContext = new CompilationContext();
@@ -66,9 +67,17 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
     protected ExecutionContext executionContext = new ExecutionContext();
     protected IProduct product = new HtProduct("Copyright (c) Anton Danilov 2018-2019, All rights reserved.",
             language().getName() + " " + tool().getName(),
-            new HtVersion(0, 1, 0, 119, "", false));
+            new HtVersion(0, 1, 0, 128, "", false));
     protected ICompilerObserver <P, Q> observer;
     protected IVafInterner interner;
+
+    /**
+     * @return
+     */
+    public IPreCompiler getPreCompiler () {
+        return preCompiler;
+    }
+
     protected IPreCompiler preCompiler;
 
     /**
@@ -220,7 +229,8 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
     public void initialize () throws Exception {
         initDirectives();
         cacheCompilerFlags();
-        Path scratchDirectory = loadWAMBuiltIns(Paths.get("c:\\Users\\Anthony_2\\IdeaProjects\\WAM\\hitalk_compiler\\src\\main\\resources\\wam_builtins.pl"));
+        Path scratchDirectory = getScratchDirectory();
+        loader.loadWAMBuiltIns(Paths.get("c:\\Users\\Anthony_2\\IdeaProjects\\WAM\\hitalk_compiler\\src\\main\\resources\\wam_builtins.pl"));
         startRuntimeThreading();
 //        Path path = Paths.get("c:\\Users\\Anthony_2\\IdeaProjects\\WAM\\hitalk_compiler\\src\\main\\resources\\empty.pl");
 //        Object result = loadSettingsFile(path);
@@ -239,52 +249,16 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
     protected Object loadSettingsFile ( Path path ) throws Exception {
         // Create a token source to load the model rules from.
 //        InputStream input = getClass().getClassLoader().getResourceAsStream(BUILT_IN_LIB);
-        logger.debug("Loading settings...");
+        logger.info("Loading settings...");
 
         return path;
     }
 
     private void startRuntimeThreading () {
 
+
     }
 
-    /**
-     * @param classPath wambuiltins.pl
-     * @return
-     * @throws Exception
-     */
-    private Path loadWAMBuiltIns ( Path classPath ) throws Exception {
-//        final String classPath = Paths.get(System.getProperties().getProperty("CLASSPATH",);
-        PlTokenSource tokenSource = PlTokenSource.getTokenSourceForIoFile(classPath.toFile());
-        // Set up a parser on the token source.
-        LibParser libParser = new LibParser();
-        libParser.setTokenSource(tokenSource);
-        logger.info("Parsing " + classPath);
-        boolean generateClause = true;
-        // Load the built-ins into the domain
-        while (tokenSource.isOpen()) {
-            final ITerm term = libParser.parse();
-            if (term == PlPrologParser.BEGIN_OF_FILE_ATOM) {
-                logger.info("begin_of_file");
-                continue;
-            } else if (term == PlPrologParser.END_OF_FILE_ATOM) {
-                logger.info("end_of_file");
-                libParser.popTokenSource();
-                generateClause = false;
-            } else {
-                if (generateClause) {
-                    HtClause clause = libParser.convert(term);
-                    wamCompiler.compile((T) clause);
-                }
-            }
-        }
-        wamCompiler.endScope();
-//         There should not be any errors in the built in library, if there are then the prolog engine just
-//         isn't going to work, so report this as a bug.
-//        throw new IllegalStateException("Got an exception whilst loading the built-in library.", e);
-
-        return classPath;
-    }
 
     protected Object clone () throws CloneNotSupportedException {
         return super.clone();
@@ -312,11 +286,14 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
                 getWAMCompiler().setPreCompiler(new PrologPreCompiler <>());
                 getWAMCompiler().compile(fileName, loadContext.getFlags());
                 getWAMCompiler().setCompilerObserver(new ICompilerObserver <P, Q>() {
-                    public void onCompilation ( PlTokenSource tokenSource ) {
-                        getWAMCompiler().getPreCompiler().preCompile(tokenSource, EnumSet.of(PL));
+                    public void onCompilation ( PlTokenSource tokenSource ) throws Exception {
+                        final List <HtClause> list = getWAMCompiler().getPreCompiler().preCompile(tokenSource, EnumSet.of(IF));
+                        for (HtClause clause : list) {
+                            getWAMCompiler().getInstructionCompiler().compile(clause);
+                        }
                     }
 
-                    public void onCompilation ( P sentence ) throws HtSourceCodeException {
+                    public void onCompilation ( P sentence ) {
 
                     }
 
@@ -405,10 +382,16 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
         fsManager.close();
     }
 
+    /**
+     * @return
+     */
     public ICompilerObserver <P, Q> getObserver () {
         return observer;
     }
 
+    /**
+     * @param observer
+     */
     public void setObserver ( ICompilerObserver <P, Q> observer ) {
         this.observer = observer;
     }

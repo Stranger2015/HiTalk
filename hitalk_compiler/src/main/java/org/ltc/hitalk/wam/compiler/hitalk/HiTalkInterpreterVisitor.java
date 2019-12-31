@@ -150,7 +150,7 @@ public class HiTalkInterpreterVisitor<T extends HtMethod, P, Q, PC, QC> extends 
      * @param clause The clausal sentence to run as a query or as a clause to add to the domain.
      * @throws HtSourceCodeException If the query or domain clause fails to compile or link into the resolver.
      */
-    private void evaluate ( T clause ) throws HtSourceCodeException {
+    private void evaluate ( T clause ) throws Exception {
 //        HtMethod clause = sentence;
 
         if (clause.isQuery()) {
@@ -237,7 +237,7 @@ public class HiTalkInterpreterVisitor<T extends HtMethod, P, Q, PC, QC> extends 
      *
      * @param sentence The clause to add to the domain.
      */
-    private void addProgramClause ( T sentence ) throws HtSourceCodeException {
+    private void addProgramClause ( T sentence ) throws Exception {
         logger.debug("Read program clause from input.");
 
         engine.getCompiler().compile(sentence);

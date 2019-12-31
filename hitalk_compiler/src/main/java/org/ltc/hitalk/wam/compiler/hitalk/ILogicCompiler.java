@@ -45,7 +45,7 @@ public interface ILogicCompiler<T, P, Q> extends IHitalkObject {
      * @param sentence The sentence to compile.
      * @throws HtSourceCodeException If there is an error in the source to be compiled that prevents its compilation.
      */
-    void compile ( T sentence ) throws HtSourceCodeException;
+    void compile ( T sentence ) throws Exception;
 
     /**
      * Establishes an observer on the compiled forms that the compiler outputs.
@@ -59,5 +59,5 @@ public interface ILogicCompiler<T, P, Q> extends IHitalkObject {
      *
      * @throws HtSourceCodeException If there is an error in the source to be compiled that prevents its compilation.
      */
-    void endScope () throws HtSourceCodeException;
+    void endScope () throws Exception;
 }

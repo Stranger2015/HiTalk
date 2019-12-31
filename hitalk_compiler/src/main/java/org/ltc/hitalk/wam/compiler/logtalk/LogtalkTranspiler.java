@@ -5,11 +5,19 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtProperty;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.HtMethod;
 import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 
+import java.util.List;
+
+/**
+ * @param <M>
+ * @param <P>
+ * @param <Q>
+ */
 public class LogtalkTranspiler<M extends HtMethod, P, Q> extends BaseCompiler <M, P, Q> {
 
     public static final String CORE = "core.pl";
@@ -33,6 +41,28 @@ public class LogtalkTranspiler<M extends HtMethod, P, Q> extends BaseCompiler <M
     }
 
     /**
+     * @param fnl
+     * @throws Exception
+     * @throws HtSourceCodeException
+     */
+    public List <HtClause> compileFiles ( List <String> fnl ) throws Exception {
+        return null;
+    }
+
+    public List <HtClause> compileFiles ( List <String> fnl, HtProperty... flags ) throws Exception {
+        return null;
+    }
+
+    /**
+     * @param fn
+     * @param flags
+     * @throws Exception
+     */
+    public List <HtClause> compileFile ( String fn, HtProperty... flags ) throws Exception {
+        return null;
+    }
+
+    /**
      * @param clause
      * @param flags
      * @throws HtSourceCodeException
@@ -52,6 +82,14 @@ public class LogtalkTranspiler<M extends HtMethod, P, Q> extends BaseCompiler <M
      * @param resolver
      */
     public void setResolver ( IResolver <P, Q> resolver ) {
+
+    }
+
+    /**
+     * @param clause
+     * @throws HtSourceCodeException
+     */
+    public void compile ( HtClause clause ) throws Exception {
 
     }
 

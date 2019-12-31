@@ -157,7 +157,7 @@ public class PrologInterpreter<T extends HtClause, P, Q, PC, QC>
      * @throws HtSourceCodeException
      */
     @Override
-    public void evaluate ( T clause ) throws HtSourceCodeException {
+    public void evaluate ( T clause ) throws Exception {
         if (clause.isQuery()) {
             engine.endScope();
             engine.compile(clause);

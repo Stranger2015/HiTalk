@@ -8,7 +8,7 @@ import org.ltc.hitalk.parser.PlTokenSource;
  * @param <Q>
  */
 public interface ICompilerObserver<T, Q> {
-    default void onCompilation ( PlTokenSource tokenSource ) {
+    default void onCompilation ( PlTokenSource tokenSource ) throws Exception {
 
     }
 
@@ -18,7 +18,7 @@ public interface ICompilerObserver<T, Q> {
      * @param sentence The compiled form of the sentence.
      * @throws HtSourceCodeException If there is an error in the compiled code that prevents its further processing.
      */
-    void onCompilation ( T sentence ) throws HtSourceCodeException;
+    void onCompilation ( T sentence ) throws Exception;
 
     /**
      * Accepts notification of the completion of the compilation of a query into binary form.

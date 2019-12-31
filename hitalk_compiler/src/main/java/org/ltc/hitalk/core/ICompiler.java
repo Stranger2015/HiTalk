@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.ltc.hitalk.parser.PlTokenSource.getTokenSourceForIoFile;
@@ -28,22 +29,25 @@ public interface ICompiler<T extends HtClause, P, Q> extends ILogicCompiler <T, 
      * @throws IOException
      * @throws HtSourceCodeException
      */
-    default void compileFiles ( List <String> fnl ) throws Exception {
-        compileFiles(fnl, EMPTY_FLAG_ARRAY);
+    default List <HtClause> compileFiles ( List <String> fnl ) throws Exception {
+        return compileFiles(fnl, EMPTY_FLAG_ARRAY);
     }
 
-    default void compileFiles ( List <String> fnl, HtProperty... flags ) throws Exception {
+    default List <HtClause> compileFiles ( List <String> fnl, HtProperty... flags ) throws Exception {
+        List <HtClause> list = new ArrayList <>();
         for (String fn : fnl) {
-            compileFile(fn, flags);
+            list.addAll(compileFile(fn, flags));
         }
+
+        return list;
     }
 
     /**
      * @param fn
      * @throws IOException
      */
-    default void compileFile ( String fn, HtProperty... flags ) throws Exception {
-        compile(getTokenSourceForIoFile(new File(fn)), flags);
+    default List <HtClause> compileFile ( String fn, HtProperty... flags ) throws Exception {
+        return compile(getTokenSourceForIoFile(new File(fn)), flags);
     }
 
     /**
@@ -60,7 +64,7 @@ public interface ICompiler<T extends HtClause, P, Q> extends ILogicCompiler <T, 
      * @param tokenSource
      * @param flags
      */
-    void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws Exception;
+    List <HtClause> compile ( PlTokenSource tokenSource, HtProperty... flags ) throws Exception;
 
     /**
      * @return
@@ -98,11 +102,11 @@ public interface ICompiler<T extends HtClause, P, Q> extends ILogicCompiler <T, 
      * @param flags
      * @throws Exception
      */
-    void compile ( String fileName, HtProperty... flags ) throws Exception;
+    List <HtClause> compile ( String fileName, HtProperty... flags ) throws Exception;
 
     /**
      * @param clause
      * @throws HtSourceCodeException
      */
-    void compile ( T clause ) throws HtSourceCodeException;
+    void compile ( HtClause clause ) throws Exception;
 }

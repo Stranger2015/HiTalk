@@ -578,7 +578,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
     /**
      * {@inheritDoc}
      */
-    public void endScope () throws HtSourceCodeException {
+    public void endScope () throws Exception {
         // Loop over all predicates in the current scope, found in the symbol table, and consume and compile them.
         for (SymbolKey predicateKey = predicatesInScope.poll(); predicateKey != null; predicateKey = predicatesInScope.poll()) {
             List <T> clauses = (List <T>) scopeTable.get(predicateKey, SYMKEY_PREDICATES);

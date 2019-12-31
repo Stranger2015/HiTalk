@@ -135,7 +135,11 @@ enum PrologBuiltIns {
         eqf.setArgument(0, listTerm.getHead(0));
         eqf.setArgument(1, listTerm.getHead(1));
 
-        resolver.reset();
+        try {
+            resolver.reset();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         try {
             resolver.setQuery(query);
         } catch (LinkageException e) {

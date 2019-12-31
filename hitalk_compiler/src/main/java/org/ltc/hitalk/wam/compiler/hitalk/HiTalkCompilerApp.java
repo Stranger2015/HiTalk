@@ -1274,7 +1274,7 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q, PC, QC>
         public void onCompilation ( Sentence <T> sentence ) {
             try {
                 instructionCompiler.compile(sentence.getT());
-            } catch (HtSourceCodeException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 throw new ExecutionError(RESOURCE_ERROR, null);
             }
@@ -1286,7 +1286,7 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q, PC, QC>
         public void onQueryCompilation ( Sentence <Q> sentence ) {
             try {
                 instructionCompiler.compile((T) sentence.getT());
-            } catch (HtSourceCodeException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 throw new ExecutionError(RESOURCE_ERROR, null);
             }

@@ -101,7 +101,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      * bootstrapping libraries of built-ins that
      * the engine requires, but otherwise set its domain to empty.
      */
-    public void reset () {
+    public void reset () throws Exception {
 
     }
 
@@ -351,7 +351,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
         return vars.iterator();
     }
 
-    public void compile ( T sentence ) throws HtSourceCodeException {
+    public void compile ( HtClause sentence ) throws Exception {
         compiler.compile(sentence);
     }
 
@@ -362,7 +362,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
     /**
      * {@inheritDoc}
      */
-    public void endScope () throws HtSourceCodeException {
+    public void endScope () throws Exception {
         compiler.endScope();
     }
 
@@ -378,8 +378,8 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
     }
 
     @Override
-    public void compile ( PlTokenSource tokenSource, HtProperty... flags ) throws Exception {
-        compiler.compile(tokenSource, flags);
+    public List <HtClause> compile ( PlTokenSource tokenSource, HtProperty... flags ) throws Exception {
+        return compiler.compile(tokenSource, flags);
     }
 
     /**
@@ -423,9 +423,10 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
     }
 
     @Override
-    public void compile ( String fileName, HtProperty... flags ) throws Exception {
-        compiler.compile(fileName, flags);
+    public List <HtClause> compile ( String fileName, HtProperty... flags ) throws Exception {
+        return compiler.compile(fileName, flags);
     }
+
 
     /**
      * ChainedCompilerObserver implements the compiler observer for this resolution engine. Compiled programs are added

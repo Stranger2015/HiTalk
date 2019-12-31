@@ -84,7 +84,7 @@
          * Resets the resolver. This should clear any start and goal states, and leave the resolver in a state in which it
          * is ready to be run.
          */
-        void reset ();
+        void reset () throws Exception;
 
         /**
          * Provides an iterator that generates all solutions on demand as a sequence of variable bindings.

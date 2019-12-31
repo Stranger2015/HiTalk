@@ -62,7 +62,7 @@ class HiTalkWAMEngine<T extends HtClause, P, Q, PC, QC> extends HtResolutionEngi
      * <p>
      * Loads the built-in library resource specified by {@link #BUILT_IN_LIB}.
      */
-    public void reset () {
+    public void reset () throws Exception {
         // Reset the resolver to completely clear out its domain.
         cleanupDomain();
 
