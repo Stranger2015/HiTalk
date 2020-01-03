@@ -14,6 +14,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.Closeable;
 import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
@@ -51,6 +52,14 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
     protected Charset currentCharset = defaultCharset();
     protected StreamDecoder sd;
     protected Path path;
+
+    public final void open () throws FileNotFoundException {
+        if (!isOpen) {
+            doOpen();
+        }
+    }
+
+    abstract protected void doOpen () throws FileNotFoundException;//{    }
 
     /**
      * @param path
@@ -182,8 +191,12 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
      */
     public void toString0 ( StringBuilder sb ) {
         sb.append(", fd=").append(fd);
-        sb.append(", channel=").append(channel);
+//        sb.append(", channel=").append(channel);
         sb.append(", currentCharset=").append(currentCharset);
         sb.append(", sd=").append(sd);
+    }
+
+    public boolean isOpen () {
+        return isOpen;
     }
 }

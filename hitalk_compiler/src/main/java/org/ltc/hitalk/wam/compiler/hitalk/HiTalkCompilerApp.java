@@ -32,10 +32,7 @@ import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -216,7 +213,7 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q, PC, QC>
     public IParser createParser ( HiTalkInputStream stream,
                                   IVafInterner interner,
                                   ITermFactory factory,
-                                  IOperatorTable opTable ) {
+                                  IOperatorTable opTable ) throws FileNotFoundException {
         return new HiTalkParser(stream, interner, factory, opTable);
     }
 

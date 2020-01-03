@@ -1,5 +1,6 @@
 package org.ltc.hitalk.parser;
 
+import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.TermFactory;
@@ -9,6 +10,7 @@ import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.Language;
 
+import java.io.FileNotFoundException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -42,7 +44,7 @@ public class HiLogParser extends PlPrologParser {
     public HiLogParser ( HiTalkInputStream stream,
                          IVafInterner interner,
                          TermFactory termFactory,
-                         IOperatorTable optable ) {
+                         IOperatorTable optable ) throws FileNotFoundException {
         super(stream, interner, termFactory, optable);
 
         hilogApply = interner.internFunctorName(HILOG_APPLY, 0);
@@ -51,7 +53,21 @@ public class HiLogParser extends PlPrologParser {
     /**
      *
      */
-    public HiLogParser () {
+    public HiLogParser () throws FileNotFoundException {
+        super();
+    }
+
+    /**
+     * @param inputStream
+     * @param interner
+     * @param factory
+     * @param optable
+     */
+    public HiLogParser ( HiTalkInputStream inputStream,
+                         IVafInterner interner,
+                         ITermFactory factory,
+                         IOperatorTable optable ) throws FileNotFoundException {
+        super(inputStream, interner, factory, optable);
     }
 
     //    @Override

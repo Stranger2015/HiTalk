@@ -7,6 +7,8 @@ import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.parser.PlToken;
 import org.ltc.hitalk.parser.PlTokenSource;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +23,7 @@ public class TokenBuffer extends PlTokenSource implements Source <PlToken>, Sink
      *
      * @param lexer
      */
-    public TokenBuffer ( PlLexer lexer ) {
+    public TokenBuffer ( PlLexer lexer ) throws FileNotFoundException {
         super(lexer.getInputStream());
     }
 
@@ -54,7 +56,7 @@ public class TokenBuffer extends PlTokenSource implements Source <PlToken>, Sink
         tokens.clear();
     }
 
-    public void close () {
-
+    public void close () throws IOException {
+        super.close();
     }
 }

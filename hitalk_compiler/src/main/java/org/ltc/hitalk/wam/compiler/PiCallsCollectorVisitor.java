@@ -113,8 +113,8 @@ public class PiCallsCollectorVisitor extends MetaInterpreterVisitor {
     }
 
     @Override
-    protected void enterListTerm ( ListTerm listTerm ) throws LinkageException {
-        super.enterListTerm(listTerm);
+    protected void enterListTerm ( ListTerm dottedPair ) throws LinkageException {
+        super.enterListTerm(dottedPair);
     }
 
     protected void leaveListTerm ( ListTerm listTerm ) {

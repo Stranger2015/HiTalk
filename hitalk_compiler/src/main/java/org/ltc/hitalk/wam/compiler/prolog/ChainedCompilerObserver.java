@@ -18,6 +18,7 @@ public class ChainedCompilerObserver<P, Q> implements ICompilerObserver <P, Q>, 
      */
     @Override
     public void onCompilation ( P sentence ) {
+
     }
 
     /**

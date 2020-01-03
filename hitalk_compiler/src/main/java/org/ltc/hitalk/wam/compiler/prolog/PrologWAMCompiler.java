@@ -1,6 +1,5 @@
 package org.ltc.hitalk.wam.compiler.prolog;
 
-import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
 import org.ltc.hitalk.compiler.BaseCompiler;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.IHitalkObject;
@@ -12,20 +11,17 @@ import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.parser.PlTokenSource;
-import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.BaseInstructionCompiler;
 import org.ltc.hitalk.wam.compiler.CompilerFactory;
-import org.ltc.hitalk.wam.compiler.HtTermWalkers;
 import org.ltc.hitalk.wam.compiler.ICompilerFactory;
-import org.ltc.hitalk.wam.compiler.hitalk.HtSymbolKeyTraverser;
-import org.ltc.hitalk.wam.compiler.hitalk.HtTermWalker;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
-import static org.ltc.hitalk.core.BaseApp.*;
+import static org.ltc.hitalk.core.BaseApp.AppContext;
+import static org.ltc.hitalk.core.BaseApp.getAppContext;
 import static org.ltc.hitalk.parser.Directive.DirectiveKind.IF;
 import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
 
@@ -144,76 +140,8 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
      */
     @Override
     public List <HtClause> compile ( PlTokenSource tokenSource, HtProperty... flags ) throws Exception {
+
         return preCompiler.preCompile(tokenSource, EnumSet.of(IF));
-//        for (HtClause clause : clauses) {
-//            instructionCompiler.compile((T) clause);
-//        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void compile ( ITerm clause ) throws Exception {
-        substituteBuiltIns(clause);
-        initializeSymbolTable(clause);
-        topLevelCheck(clause);
-
-        if (observer != null) {
-            if (clause.isQuery()) {
-                observer.onQueryCompilation((Q) clause);
-            } else {
-                observer.onCompilation((P) clause);
-            }
-        }
-    }
-
-    /**
-     * Runs a symbol key traverser over the clause to be compiled, to ensure that all of its terms and sub-terms have
-     * their symbol keys initialised.
-     *
-     * @param clause The clause to initialise the symbol keys of.
-     */
-    private void initializeSymbolTable ( ITerm clause ) {
-        // Run the symbol key traverser over the clause, to ensure that all terms have their symbol keys correctly
-        // set up.
-        HtSymbolKeyTraverser symbolKeyTraverser = new HtSymbolKeyTraverser(interner, symbolTable, null);
-        symbolKeyTraverser.setContextChangeVisitor(symbolKeyTraverser);
-
-        HtTermWalker symWalker =
-                new HtTermWalker(new DepthFirstBacktrackingSearch <>(),
-                        symbolKeyTraverser,
-                        symbolKeyTraverser);
-        symWalker.walk(clause);
-    }
-
-    /**
-     * Finds and marks all functors within the clause that are considered to be top-level.
-     *
-     * @param clause The clause to top-level check.
-     */
-    private void topLevelCheck ( ITerm clause ) {
-        HtTermWalker walk = HtTermWalkers.positionalWalker(
-                new HtTopLevelCheckVisitor(
-                        symbolTable,
-                        interner,
-                        null));
-        walk.walk(clause);
-    }
-
-    /**
-     * Substitutes built-ins within a clause, with their built-in definitions.
-     *
-     * @param clause The clause to transform.
-     */
-    private void substituteBuiltIns ( ITerm clause ) {
-        HtTermWalker walk =
-                HtTermWalkers.positionalWalker(
-                        new HtBuiltInTransformVisitor(
-                                symbolTable,
-                                interner,
-                                null,
-                                appContext.getBuiltInTransform()));
-        walk.walk(clause);
     }
 
     /**
@@ -222,7 +150,6 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
      * @param observer The compiler output observer.
      */
     public void setCompilerObserver ( ICompilerObserver <P, Q> observer ) {
-
         instructionCompiler.setCompilerObserver((ICompilerObserver <PC, QC>) observer);
     }
 
@@ -250,7 +177,7 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
      */
     @Override
     public void compile ( HtClause clause ) throws HtSourceCodeException {
-        logger.info("");
+        logger.info("Compiling clause ...");
     }
 
     public void toString0 ( StringBuilder sb ) {

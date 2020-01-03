@@ -432,7 +432,7 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
             return (PredicateTable) get(PRED_TABLE);
         }
 
-        public PlPrologParser getParser () {
+        public PlPrologParser getParser () throws FileNotFoundException {
             PlPrologParser parser = (PlPrologParser) get(PARSER);
             if (parser == null) {
                 parser = new PlPrologParser();

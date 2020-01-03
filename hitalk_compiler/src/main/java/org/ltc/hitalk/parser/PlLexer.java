@@ -5,6 +5,7 @@ import org.ltc.hitalk.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
 
 import java.io.EOFException;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
@@ -21,12 +22,17 @@ public class PlLexer extends PlTokenSource {
     public static final String PUNCTUATION = "#&*+-./\\:;?@^$<=>,!|";
     public static final String PARENTHESES = "(){}[]";
 
-    public PlLexer ( HiTalkInputStream inputStream ) {
+    public PlLexer ( HiTalkInputStream inputStream ) throws FileNotFoundException {
         super(inputStream);
+        inputStream.setTokenSource(this);
     }
 
-    public void close () {
-
+    /**
+     * @param inputStream
+     * @param path
+     */
+    public PlLexer ( HiTalkInputStream inputStream, String path ) throws FileNotFoundException {
+        super(inputStream, path);
     }
 
     public static boolean isMergeable ( String l, String r ) {
@@ -65,11 +71,11 @@ public class PlLexer extends PlTokenSource {
 
         return token;
     }
-
-    public String toString () {
-        final String sb = "PlLexer{" + "inputStream=" + inputStream + '}';
-        return sb;
-    }
+//
+//    public String toString () {
+//        final String sb = "PlLexer{" + "inputStream=" + inputStream + '}';
+//        return sb;
+//    }
 
     /**
      * @return
@@ -293,7 +299,9 @@ public class PlLexer extends PlTokenSource {
                 if (chr == '/') {
                     int c = read();
                     if (c == '*') {
-                        while (read() != '*' || read() != '/') ;
+                        while (read() != '*' || read() != '/') {
+
+                        }
                         continue;
                     }
                     ungetc(c);

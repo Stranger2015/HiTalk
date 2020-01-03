@@ -1,8 +1,9 @@
 package org.ltc.hitalk.term;
 
 import org.ltc.hitalk.compiler.IVafInterner;
-import org.ltc.hitalk.wam.compiler.IFunctor;
 
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.IntStream;
 
 import static org.ltc.hitalk.parser.PlPrologParser.CONJUNCTION;
@@ -14,13 +15,10 @@ import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
 public class ListTerm extends HtBaseTerm {
     //    public static final ITerm TRUE = new ListTerm(Kind.TRUE);
     public static final ListTerm NIL = new ListTerm();
-
     //    protected int name;
     protected Kind kind;//fixme encode in name
     ITerm[] heads = EMPTY_TERM_ARRAY;
     ITerm tail = NIL;
-
-//    protected Operator <ITerm> op;
 
     /**
      * @param length
@@ -36,7 +34,7 @@ public class ListTerm extends HtBaseTerm {
     public ListTerm ( ITerm... heads ) {
         this((heads == null) || (heads.length == 0) ? 0 : heads.length);
         int bound = this.getHeads().length;
-        IntStream.range(0, bound).forEach(i -> this.heads[i] = new HtVariable());
+        IntStream.range(0, bound).forEach(i -> this.heads[i] = Objects.requireNonNull(heads)[i]);
     }
 
     /**
@@ -51,6 +49,17 @@ public class ListTerm extends HtBaseTerm {
      */
     public ListTerm ( Kind kind ) {
         this.kind = kind;
+    }
+
+    /**
+     * @param kind
+     * @param tail
+     * @param heads
+     */
+    public ListTerm ( Kind kind, ITerm tail, ITerm... heads ) {
+        this(kind);
+        setHeads((heads.length > 0) ? Arrays.copyOf(heads, heads.length - 1) : EMPTY_TERM_ARRAY);
+        this.tail = tail;
     }
 
     /**
@@ -145,7 +154,7 @@ public class ListTerm extends HtBaseTerm {
     }
 
     private boolean isConjunction ( ITerm term ) {
-        return (term.isFunctor() && ((IFunctor) term).getName() == CONJUNCTION.getName());
+        return (term.isList() && ((ListTerm) term).getKind() == CONJUNCTION.getKind());
     }
 
     /**
@@ -170,16 +179,6 @@ public class ListTerm extends HtBaseTerm {
     public void free () {
 
     }
-
-
-//    public String toString () {
-//        final StringBuilder sb = new StringBuilder("ListTerm{");
-//        sb.append("kind=").append(kind);
-//        sb.append(", arguments=").append(Arrays.toString(arguments));
-//        sb.append(", bracketed=").append(bracketed);
-//        sb.append('}');
-//        return sb.toString();
-//    }
 
     /**
      * @param interner      The interner use to provide symbol names.
@@ -263,16 +262,17 @@ public class ListTerm extends HtBaseTerm {
         GOAL(),
         HILOG_APPLY,
         INLINE_GOAL,
-        OTHER();
+        OTHER(),
+        CLAUSE_BODY();
 
-        private IFunctor goal;
+//        private IFunctor goal;
 
-        /**
-         * @param goal
-         */
-        Kind ( IFunctor goal ) {
-            this.goal = goal;
-        }
+//        /**
+//         * @param goal
+//         */
+//        Kind ( IFunctor goal ) {
+//            this.goal = goal;
+//        }
 
         /**
          *
@@ -280,11 +280,11 @@ public class ListTerm extends HtBaseTerm {
         Kind () {
         }
 
-        /**
-         * @return
-         */
-        public IFunctor getGoal () {
-            return goal;
-        }
+//        /**
+//         * @return
+//         */
+//        public IFunctor getGoal () {
+//            return goal;
+//        }
     }
 }

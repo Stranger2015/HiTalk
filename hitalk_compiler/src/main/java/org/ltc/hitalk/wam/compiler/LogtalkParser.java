@@ -6,6 +6,8 @@ import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
 
+import java.io.FileNotFoundException;
+
 /**
  *
  */
@@ -19,13 +21,14 @@ public class LogtalkParser extends PlPrologParser {
     public LogtalkParser ( HiTalkInputStream stream,
                            IVafInterner interner,
                            ITermFactory factory,
-                           IOperatorTable optable ) {
+                           IOperatorTable optable ) throws FileNotFoundException {
         super(stream, interner, factory, optable);
     }
 
     /**
      *
      */
-    public LogtalkParser () {
+    public LogtalkParser () throws FileNotFoundException {
+        super();
     }
 }

@@ -1,32 +1,44 @@
 package org.ltc.hitalk.wam.compiler.prolog;
 
+import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
 import org.ltc.hitalk.compiler.AbstractBaseMachine;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
+import org.ltc.hitalk.parser.Directive.DirectiveKind;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.wam.compiler.HtTermWalkers;
 import org.ltc.hitalk.wam.compiler.IFunctor;
+import org.ltc.hitalk.wam.compiler.hitalk.HtSymbolKeyTraverser;
+import org.ltc.hitalk.wam.compiler.hitalk.HtTermWalker;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler.ClauseChainObserver;
 import org.ltc.hitalk.wam.task.ExecutionTask;
 import org.ltc.hitalk.wam.task.PreCompilerTask;
+import org.ltc.hitalk.wam.task.TermExpansionTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileNotFoundException;
 import java.util.*;
 
+import static java.util.EnumSet.noneOf;
+import static org.ltc.hitalk.core.BaseApp.appContext;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
+import static org.ltc.hitalk.parser.Directive.DirectiveKind.ENCODING;
+import static org.ltc.hitalk.parser.PlPrologParser.BEGIN_OF_FILE_ATOM;
+import static org.ltc.hitalk.parser.PlPrologParser.END_OF_FILE_ATOM;
 
 /**
  *
  */
 public
-class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
-        implements IPreCompiler {
+class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine implements IPreCompiler {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     final protected PlPrologParser parser;
@@ -65,7 +77,7 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
         this.parser = parser;
     }
 
-    public PrologPreCompiler () {
+    public PrologPreCompiler () throws FileNotFoundException {
         this(getAppContext().getSymbolTable(),
                 getAppContext().getInterner(),
                 getAppContext().getDefaultBuiltIn(),
@@ -107,12 +119,36 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
         this.clauseChainObserver = clauseChainObserver;
     }
 
+    public List <HtClause> preCompile ( PlTokenSource tokenSource, EnumSet <DirectiveKind> delims ) throws Exception {
+        getLogger().info("Precompiling " + tokenSource.getPath() + " ...");
+        final List <HtClause> list = new ArrayList <>();
+        while (tokenSource.isOpen()) {
+            ITerm t = getParser().next();
+            if (t == BEGIN_OF_FILE_ATOM) {
+                getLogger().info("begin_of_file");
+                getQueue().push(new TermExpansionTask(this, tokenSource, EnumSet.of(ENCODING))); //read until
+            } else if (t == END_OF_FILE_ATOM) {
+                getLogger().info("end_of_file");
+                getQueue().push(new TermExpansionTask(this, tokenSource, noneOf(DirectiveKind.class)));
+                getParser().popTokenSource();
+            } else {
+                preCompile(t);
+                HtClause c = getParser().convert(t);
+                if (!checkDirective(c, delims)) {
+                    list.add(c);
+                }
+            }
+        }
+
+        return list;
+    }
+
     /**
      * @param clause
      * @throws HtSourceCodeException
      */
     public void preCompile ( T clause ) throws HtSourceCodeException {
-        logger.debug("Precompiling " + clause);
+        logger.debug("Precompiling " + "( " + clause + ") ...");
         if (clause.getT().getHead() == null) {
             final IFunctor goal = (IFunctor) clause.getBody().getHead(0);
 //            if (checkDirective(goal, )) {
@@ -121,6 +157,76 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public void preCompile ( ITerm clause ) throws Exception {
+        logger.debug("Precompiling " + "( " + clause + ") ...");
+        substituteBuiltIns(clause);
+        initializeSymbolTable(clause);
+        topLevelCheck(clause);
+
+        if (observer != null) {
+            if (clause.isQuery()) {
+                observer.onQueryCompilation((Q) clause);
+            } else {
+                observer.onCompilation((P) clause);
+            }
+        }
+    }
+
+    /**
+     * Runs a symbol key traverser over the clause to be compiled, to ensure that all of its terms and sub-terms have
+     * their symbol keys initialized.
+     *
+     * @param clause The clause to initialise the symbol keys of.
+     */
+
+    private void initializeSymbolTable ( ITerm clause ) {
+        logger.debug("Initializing symbol table " + "( " + clause + ") ...");
+        // Run the symbol key traverser over the clause, to ensure that all terms have their symbol keys correctly
+        // set up.
+        HtSymbolKeyTraverser symbolKeyTraverser = new HtSymbolKeyTraverser(interner, symbolTable, null);
+        symbolKeyTraverser.setContextChangeVisitor(symbolKeyTraverser);
+
+        HtTermWalker symWalker =
+                new HtTermWalker(new DepthFirstBacktrackingSearch <>(),
+                        symbolKeyTraverser,
+                        symbolKeyTraverser);
+        symWalker.walk(clause);
+    }
+
+    /**
+     * Finds and marks all functors within the clause that are considered to be top-level.
+     *
+     * @param clause The clause to top-level check.
+     */
+    private void topLevelCheck ( ITerm clause ) {
+        logger.info("TopLevel checking " + "( " + clause + ") ...");
+        HtTermWalker walk = HtTermWalkers.positionalWalker(
+                new HtTopLevelCheckVisitor(
+                        symbolTable,
+                        interner,
+                        null));
+        walk.walk(clause);
+    }
+
+    /**
+     * Substitutes built-ins within a clause, with their built-in definitions.
+     *
+     * @param clause The clause to transform.
+     */
+    private void substituteBuiltIns ( ITerm clause ) {
+        logger.debug("Built-in's substitution" + "( " + clause + ") ...");
+        HtTermWalker walk =
+                HtTermWalkers.positionalWalker(
+                        new HtBuiltInTransformVisitor(
+                                symbolTable,
+                                interner,
+                                null,
+                                appContext.getBuiltInTransform()));
+        walk.walk(clause);
+    }
 
 //
 //    private boolean checkEncodingDirective ( IFunctor goal ) {

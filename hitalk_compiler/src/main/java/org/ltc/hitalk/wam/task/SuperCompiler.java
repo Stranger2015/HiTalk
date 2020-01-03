@@ -1,17 +1,24 @@
 package org.ltc.hitalk.wam.task;
 
+import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.ptree.ProcessTree;
+import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltInTransform;
+import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
 import org.ltc.hitalk.wam.transformers.IGeneralizer;
 import org.ltc.hitalk.wam.transformers.IInliner;
 import org.ltc.hitalk.wam.transformers.ISpecializer;
 import org.ltc.hitalk.wam.transformers.ITransformer;
 
+import java.io.FileNotFoundException;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,7 +33,20 @@ public class SuperCompiler extends PrologPreCompiler <HtClause, HtPredicate, HtC
     /**
      *
      */
-    public SuperCompiler () {
+    public SuperCompiler () throws FileNotFoundException {
+        super();
+    }
+
+    /**
+     * @param symbolTable
+     * @param interner
+     * @param defaultBuiltIn
+     * @param builtInTransform
+     * @param resolver
+     * @param parser
+     */
+    public SuperCompiler ( ISymbolTable <Integer, String, Object> symbolTable, IVafInterner interner, PrologDefaultBuiltIn defaultBuiltIn, PrologBuiltInTransform <HtClause, HtPredicate, HtClause> builtInTransform, IResolver <HtPredicate, HtClause> resolver, PlPrologParser parser ) {
+        super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, parser);
     }
 
     public ProcessTree buildProcessTree ( ITerm term ) {

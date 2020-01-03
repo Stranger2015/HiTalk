@@ -10,6 +10,9 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 
+/**
+ *
+ */
 public class LibraryLoader {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
@@ -24,8 +27,7 @@ public class LibraryLoader {
         // Set up a parser on the token source.
         LibParser libParser = new LibParser();
         libParser.setTokenSource(tokenSource);
-        logger.info("Parsing " + classPath);
-//        boolean generateClause = true;
+        logger.info("Loading " + classPath);
         // Load the built-ins into the domain
         while (tokenSource.isOpen()) {
             final ITerm term = libParser.parse();
@@ -34,7 +36,6 @@ public class LibraryLoader {
             } else if (term == PlPrologParser.END_OF_FILE_ATOM) {
                 logger.info("end_of_file");
                 libParser.popTokenSource();
-//                generateClause = false;
             } else {
                 HtClause clause = libParser.convert(term);
 //                    inCompiler.compile((T) clause);

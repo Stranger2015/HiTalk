@@ -2,6 +2,7 @@ package org.ltc.hitalk.compiler.bktables;
 
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.core.utils.TermUtilities;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
 import org.ltc.hitalk.entities.HtProperty;
@@ -16,6 +17,7 @@ import org.ltc.hitalk.wam.compiler.IFunctor;
 import java.nio.file.Path;
 
 import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
+import static org.ltc.hitalk.term.ListTerm.NIL;
 
 /**
  *
@@ -111,7 +113,7 @@ public class TermFactory implements ITermFactory {
     }
 
 
-    public ListTerm newListTerm ( ITerm[] headTail ) {
+    public ListTerm newListTerm ( ITerm... headTail ) {
 //        this.kind = kind;
         this.headTail = headTail;
         //if (headTail.length ==1){ //[|VarOrList] []
@@ -121,7 +123,7 @@ public class TermFactory implements ITermFactory {
 
     @Override
     public HtProperty createFlag ( String scratch_directory, Path scratchDir ) {
-        return null;
+        return new HtProperty(scratch_directory, newAtom(scratchDir.toString()));
     }
 
     public IFunctor createMostGeneral ( IFunctor functor ) {
@@ -198,12 +200,24 @@ public class TermFactory implements ITermFactory {
 
     @Override
     public IntTerm newAtomic ( int i ) {
-        return null;
+        return new IntTerm(i);
     }
 
     @Override
     public FloatTerm newAtomic ( double f ) {
         return new FloatTerm((float) f);
+    }
+
+    /**
+     * @param kind
+     * @param terms
+     * @return
+     */
+    @Override
+    public ListTerm newListTerm ( Kind kind, ITerm... terms ) {
+        final ITerm tail = terms.length == 0 ? NIL : TermUtilities.getLast(terms);
+
+        return new ListTerm(kind, tail, terms);
     }
 
     //    @Override

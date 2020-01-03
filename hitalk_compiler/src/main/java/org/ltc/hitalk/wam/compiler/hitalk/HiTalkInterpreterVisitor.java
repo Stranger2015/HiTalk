@@ -83,12 +83,12 @@ public class HiTalkInterpreterVisitor<T extends HtMethod, P, Q, PC, QC> extends 
     }
 
     /**
-     * @param lt
+     * @param dottedPair
      * @throws LinkageException
      */
     @Override
-    protected void enterListTerm ( ListTerm lt ) throws LinkageException {
-        super.enterListTerm(lt);
+    protected void enterListTerm ( ListTerm dottedPair ) throws LinkageException {
+        super.enterListTerm(dottedPair);
     }
 
     /**

@@ -283,6 +283,14 @@ public class TermUtilities {
 
         return PrologBuiltIns.getBooleanResult();
     }
+
+    /**
+     * @param a
+     * @return
+     */
+    public static ITerm getLast ( ITerm[] a ) {
+        return a[a.length - 1];
+    }
 }
 
 

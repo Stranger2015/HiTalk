@@ -187,7 +187,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
     public IParser createParser ( HiTalkInputStream inputStream,
                                   IVafInterner interner,
                                   ITermFactory factory,
-                                  IOperatorTable optable ) {
+                                  IOperatorTable optable ) throws FileNotFoundException {
         return new PlPrologParser(inputStream, interner, factory, optable);
     }
 
@@ -230,7 +230,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
         initDirectives();
         cacheCompilerFlags();
         Path scratchDirectory = getScratchDirectory();
-        loader.loadWAMBuiltIns(Paths.get("c:\\Users\\Anthony_2\\IdeaProjects\\WAM\\hitalk_compiler\\src\\main\\resources\\wam_builtins.pl"));
+//        loader.loadWAMBuiltIns(Paths.get("c:\\Users\\Anthony_2\\IdeaProjects\\WAM\\hitalk_compiler\\src\\main\\resources\\wam_builtins.pl"));
         startRuntimeThreading();
 //        Path path = Paths.get("c:\\Users\\Anthony_2\\IdeaProjects\\WAM\\hitalk_compiler\\src\\main\\resources\\empty.pl");
 //        Object result = loadSettingsFile(path);
@@ -284,7 +284,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
 
                 getWAMCompiler().setInstructionCompiler(new PrologInstructionCompiler <>());
                 getWAMCompiler().setPreCompiler(new PrologPreCompiler <>());
-                getWAMCompiler().compile(fileName, loadContext.getFlags());
+
                 getWAMCompiler().setCompilerObserver(new ICompilerObserver <P, Q>() {
                     public void onCompilation ( PlTokenSource tokenSource ) throws Exception {
                         final List <HtClause> list = getWAMCompiler().getPreCompiler().preCompile(tokenSource, EnumSet.of(IF));
@@ -301,6 +301,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
 
                     }
                 });
+                getWAMCompiler().compile(fileName, loadContext.getFlags());
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new ExecutionError(PERMISSION_ERROR, null);

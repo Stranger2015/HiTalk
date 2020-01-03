@@ -7,18 +7,14 @@ import org.ltc.hitalk.parser.Directive.DirectiveKind;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.parser.PlTokenSource;
-import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler.ClauseChainObserver;
 import org.ltc.hitalk.wam.task.PreCompilerTask;
-import org.ltc.hitalk.wam.task.TermExpansionTask;
 import org.slf4j.Logger;
 
-import java.util.*;
-
-import static java.util.EnumSet.noneOf;
-import static org.ltc.hitalk.parser.Directive.DirectiveKind.ENCODING;
-import static org.ltc.hitalk.parser.PlPrologParser.BEGIN_OF_FILE_ATOM;
-import static org.ltc.hitalk.parser.PlPrologParser.END_OF_FILE_ATOM;
+import java.util.Deque;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Objects;
 
 /**
  *
@@ -89,28 +85,7 @@ public interface IPreCompiler extends IQueueHolder <PreCompilerTask>, IHitalkObj
      * @return
      * @throws Exception
      */
-    default List <HtClause> preCompile ( PlTokenSource tokenSource, EnumSet <DirectiveKind> delims ) throws Exception {
-        getLogger().info("Precompiling " + tokenSource.getPath() + " ...");
-        final List <HtClause> list = new ArrayList <>();
-        while (tokenSource.isOpen()) {
-            ITerm t = getParser().next();
-            if (t == BEGIN_OF_FILE_ATOM) {
-                getLogger().info("begin_of_file");
-                getQueue().push(new TermExpansionTask(this, tokenSource, EnumSet.of(ENCODING))); //read until
-            } else if (t == END_OF_FILE_ATOM) {
-                getLogger().info("end_of_file");
-                getQueue().push(new TermExpansionTask(this, tokenSource, noneOf(DirectiveKind.class)));
-                getParser().popTokenSource();
-            } else {
-                HtClause c = getParser().convert(t);
-                if (!checkDirective(c, delims)) {
-                    list.add(c);
-                }
-            }
-        }
-
-        return list;
-    }
+    List <HtClause> preCompile ( PlTokenSource tokenSource, EnumSet <DirectiveKind> delims ) throws Exception;
 
     Deque <PreCompilerTask> getQueue ();
 

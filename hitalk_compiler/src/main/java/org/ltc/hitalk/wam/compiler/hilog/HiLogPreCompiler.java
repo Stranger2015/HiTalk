@@ -10,6 +10,8 @@ import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltInTransform;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
 
+import java.io.FileNotFoundException;
+
 public class HiLogPreCompiler<T extends HtClause, P, Q> extends PrologPreCompiler <T, P, Q> {
     /**
      * @param symbolTable
@@ -28,7 +30,8 @@ public class HiLogPreCompiler<T extends HtClause, P, Q> extends PrologPreCompile
         super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, parser);
     }
 
-    public HiLogPreCompiler () {
+    public HiLogPreCompiler () throws FileNotFoundException {
+        super();
 //        this();//todo
     }
 }

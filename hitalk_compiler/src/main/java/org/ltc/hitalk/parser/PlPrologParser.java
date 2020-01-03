@@ -17,6 +17,7 @@ import org.ltc.hitalk.wam.compiler.Language;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
@@ -42,8 +43,7 @@ public class PlPrologParser implements IParser {
             getAppContext().getTermFactory().newAtom(END_OF_FILE);
     public static final Atom BEGIN_OF_FILE_ATOM =
             getAppContext().getTermFactory().newAtom(BEGIN_OF_FILE);
-    public static final IFunctor CONJUNCTION = getAppContext().getTermFactory().newFunctor(PrologAtoms.COMMA, 2);
-    //    protected final ITermFactory factory;
+    public static final ListTerm CONJUNCTION = getAppContext().getTermFactory().newListTerm(CLAUSE_BODY);
     protected IOperatorTable operatorTable;
     protected final Deque <PlTokenSource> tokenSourceStack = new ArrayDeque <>();
     protected IVafInterner interner;
@@ -57,7 +57,7 @@ public class PlPrologParser implements IParser {
     public PlPrologParser ( HiTalkInputStream inputStream,
                             IVafInterner interner,
                             ITermFactory factory,
-                            IOperatorTable optable ) {
+                            IOperatorTable optable ) throws FileNotFoundException {
         setTokenSource(new PlLexer(inputStream));
         this.interner = interner;
         this.termFactory = factory;
@@ -69,7 +69,7 @@ public class PlPrologParser implements IParser {
     /**
      *
      */
-    public PlPrologParser () {
+    public PlPrologParser () throws FileNotFoundException {
         this(getAppContext().getInputStream(),
                 getAppContext().getInterner(),
                 getAppContext().getTermFactory(),
@@ -183,7 +183,7 @@ public class PlPrologParser implements IParser {
      */
     protected ITerm newTerm ( PlToken token, boolean nullable, EnumSet <TokenKind> terminators )
             throws Exception {
-        ITerm result = END_OF_FILE_ATOM;
+        ITerm result = null;//END_OF_FILE_ATOM;
         boolean finished = false;
         if (token.kind != EOF/* && getLexer() == null*/) {
             HlOperatorJoiner <ITerm> joiner = new HlOperatorJoiner <ITerm>() {
@@ -195,7 +195,7 @@ public class PlPrologParser implements IParser {
             outer:
             for (int i = 0; ; ++i, token = getLexer().next(joiner.accept(x))) {
                 if (token.kind == EOF) {
-                    throw new ParseException("Premature EOF");//不正な位置でEOFを検出しました。
+                    throw new ParseException("Premature EOF");
                 }
                 if (!token.quote) {
                     if (nullable && i == 0 || joiner.accept(xf)) {
@@ -211,7 +211,9 @@ public class PlPrologParser implements IParser {
                         }
                     }
                     if (token.kind == ATOM) {
-                        for (HlOpSymbol right : getOptable().getOperatorsMatchingNameByFixity(token.image).values()) {
+                        final Collection <HlOpSymbol> values = getOptable()
+                                .getOperatorsMatchingNameByFixity(token.image).values();
+                        for (HlOpSymbol right : values) {
                             if (joiner.accept(right.getAssociativity())) {
                                 joiner.push(right);
                                 continue outer;
@@ -225,6 +227,7 @@ public class PlPrologParser implements IParser {
                 joiner.push(literal(token));
             }
         }
+
         return result;
     }
 
@@ -258,7 +261,6 @@ public class PlPrologParser implements IParser {
                 break;
             case BOF:
                 term = BEGIN_OF_FILE_ATOM;
-//                getTokenSource().setBofGenerated(false);
                 getTokenSource().setEncodingPermitted(true);
                 break;
             case EOF:
@@ -274,71 +276,31 @@ public class PlPrologParser implements IParser {
             case LBRACE:
                 term = readSequence(token.kind, RBRACE, false);
                 break;
-//            case RBRACE:
-//            case RPAREN:
-//            case RBRACKET:
-//                break;
             case D_QUOTE:
                 break;
             case S_QUOTE:
                 break;
             case B_QUOTE:
                 break;
-//            case CONS:
-//                break;
-//            case DECIMAL_LITERAL:
-//                break;
-//            case HEX_LITERAL:
-//                break;
-//            case DECIMAL_FLOATING_POINT_LITERAL:
-//                break;
-//            case DECIMAL_EXPONENT:
-//                break;
-//            case CHARACTER_LITERAL:
-//                break;
-//            case STRING_LITERAL:
-//                break;
-//            case NAME:
-//                break;
-//            case SYMBOLIC_NAME:
-//                break;
-//            case DIGIT:
-//                break;
-//            case ANY_CHAR:
-//                break;
-//            case LOWERCASE:
-//                break;
-//            case UPPERCASE:
-//                break;
-//            case SYMBOL:
-//                break;
-//            case INFO:
-//                break;
-//            case TRACE:
-//                break;
-//            case USER:
-//                break;
-//            case COMMA:
-//                break;
             default:
-                throw new ParseException("Unexpected token: " + token);//不明なトークン
+                throw new ParseException("Unexpected token: " + token);
         }
 
         return term;
     }
 
-    //PSEUDO COMPOUND == (terms)
     protected ListTerm readSequence ( TokenKind ldelim, TokenKind rdelim, boolean isBlocked ) throws Exception {
         List <ITerm> elements = new ArrayList <>();
         EnumSet <TokenKind> rdelims = isBlocked ? of(COMMA, rdelim) : of(COMMA, CONS, rdelim);
-        Kind kind = OTHER;
+        Kind kind;
         switch (ldelim) {
             case LPAREN:
-                if (isBlocked) {
-                    kind = AND;
-                } else {
-                    kind = LIST;//compound args
-                }
+                kind = CLAUSE_BODY;
+//                if (isBlocked) {
+//                    kind = CLAUSE_BODY;
+//                } else {
+//                    kind = LIST;//compound args
+//                }
                 break;
             case LBRACKET:
                 kind = LIST;
@@ -352,7 +314,7 @@ public class PlPrologParser implements IParser {
         ITerm term = newTerm(getLexer().getNextToken(), true, rdelims);
         if (term == null) {
             if (rdelim != getLexer().peek().kind) {
-                throw new ParseException("No (more) elements");//要素がありません・・・。
+                throw new ParseException("No (more) elements");
             }
             elements.add(term);
             while (COMMA == getLexer().peek().kind) {//todo flatten
@@ -362,10 +324,10 @@ public class PlPrologParser implements IParser {
                 elements.add(newTerm(getLexer().getNextToken(), true, rdelims));
             }
 
-            return termFactory.newListTerm(flatten(elements));
+            return termFactory.newListTerm(kind, flatten(elements));
         }
 
-        return termFactory.newListTerm(flatten(elements));
+        return termFactory.newListTerm(kind, flatten(elements));
     }
 
     private ITerm[] flatten ( List <ITerm> elements ) {
@@ -379,7 +341,7 @@ public class PlPrologParser implements IParser {
      * @throws ParseException
      */
     protected IFunctor compound ( String name ) throws Exception {
-        ListTerm args = (ListTerm) readSequence(LPAREN, RPAREN, false);
+        ListTerm args = readSequence(LPAREN, RPAREN, false);
         return compound(name, args);
     }
 
@@ -391,8 +353,11 @@ public class PlPrologParser implements IParser {
      * @param source
      */
     public void setTokenSource ( PlTokenSource source ) {
-//        logger.info(source.toString());
-        tokenSourceStack.push(source);
+        logger.info("Adding ts " + source.getPath() + source.isOpen());
+        if (!tokenSourceStack.contains(source)) {
+            tokenSourceStack.push(source);
+        }
+        logger.info("declined  Adding dup ts " + source.getPath());
     }
 
     /**
@@ -535,7 +500,7 @@ public class PlPrologParser implements IParser {
 
     public String toString () {
         final StringBuilder sb = new StringBuilder("PlPrologParser{");
-        sb.append("tokenSourceStack=").append(tokenSourceStack);
+//        sb.append("tokenSourceStack=").append(tokenSourceStack);
         sb.append('}');
         return sb.toString();
     }

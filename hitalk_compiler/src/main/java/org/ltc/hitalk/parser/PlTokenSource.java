@@ -8,7 +8,6 @@ import org.ltc.hitalk.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
-import org.ltc.hitalk.wam.compiler.HtFunctorName;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -22,27 +21,35 @@ import static org.ltc.hitalk.parser.PlToken.TokenKind.BOF;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.DOT;
 import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
 
+/**
+ *
+ */
 abstract public class PlTokenSource implements Source <PlToken>, PropertyChangeListener, Closeable {
 
     protected HiTalkInputStream inputStream;
     protected boolean encodingPermitted;
+
+    public String toString () {
+        StringBuilder sb = new StringBuilder(getClass().getSimpleName());
+        toString0(sb);
+        return sb.toString();
+    }
 
     /**
      * Holds the current token.
      */
     public PlToken token;
 
-    public String toString () {
-        final StringBuilder sb = new StringBuilder(getClass().getSimpleName() + "{");
-        toString0(sb);
-        sb.append('}');
-
-        return sb.toString();
-    }
-
     public void toString0 ( StringBuilder sb ) {
-        sb.append("Path='").append(path).append('\'');
+        sb.append("{ inputStream").append(inputStream);
+        sb.append("Path='").append(path).append("'}");
     }
+
+
+    public void close () throws IOException {
+        inputStream.close();
+    }
+
 
     /**
      * Holds the tokenizer that supplies the next token on demand.
@@ -55,16 +62,15 @@ abstract public class PlTokenSource implements Source <PlToken>, PropertyChangeL
      *
      * @param inputStream The token manager to use to feed this source.
      */
-    public PlTokenSource ( HiTalkInputStream inputStream ) {
+    public PlTokenSource ( HiTalkInputStream inputStream ) throws FileNotFoundException {
         this.inputStream = inputStream;
-
+        inputStream.open();
         // The first token is initialized to be empty, so that the first call to poll returns the first token.
         token = new PlToken(BOF);
-        isBofGenerated = true;
         encodingPermitted = true;
     }
 
-    private boolean isBofGenerated;
+    //    private boolean isBofGenerated;
     private boolean encodingChanged;
     protected String encoding = "UTF-8";
 
@@ -78,27 +84,15 @@ abstract public class PlTokenSource implements Source <PlToken>, PropertyChangeL
         return new PlLexer(inputStream);
     }
 
-    public static PlTokenSource getPlTokenSourceForStdin () {
+    public static PlTokenSource getPlTokenSourceForStdin () throws FileNotFoundException {
         HiTalkInputStream stream = getAppContext().currentInput();
         stream.setInputStream(new FileInputStream(FileDescriptor.in));
-        return new PlLexer(stream);
+        final PlLexer lexer = new PlLexer(stream);
+        lexer.setPath("stdin");
+
+        return lexer;
     }
 
-    /**
-     * @return
-     */
-    public boolean isBofGenerated () {
-        return isBofGenerated;
-    }
-
-    /**
-     * @param bofGenerated
-     */
-    public void setBofGenerated ( boolean bofGenerated ) {
-        isBofGenerated = bofGenerated;
-    }
-
-    //    protected HiTalkInputStream stream;
     protected String path;
 
     /**
@@ -112,6 +106,9 @@ abstract public class PlTokenSource implements Source <PlToken>, PropertyChangeL
         }
     }
 
+    /**
+     * @param b
+     */
     public void setEncodingPermitted ( boolean b ) {
         encodingPermitted = b;
     }
@@ -120,9 +117,9 @@ abstract public class PlTokenSource implements Source <PlToken>, PropertyChangeL
      * @param inputStream
      * @param path
      */
-    public PlTokenSource ( HiTalkInputStream inputStream, String path ) {
+    public PlTokenSource ( HiTalkInputStream inputStream, String path ) throws FileNotFoundException {
         this(inputStream);
-        this.path = path;
+        setPath(path);
     }
 
     /**
@@ -132,9 +129,16 @@ abstract public class PlTokenSource implements Source <PlToken>, PropertyChangeL
      */
     public static PlTokenSource getTokenSourceForIoFile ( File file ) throws IOException {
         HiTalkInputStream stream = new HiTalkInputStream(file);
-        return new PlLexer(stream);
+        final PlLexer lexer = new PlLexer(stream);
+        lexer.setPath(file.getAbsolutePath());
+        return lexer;
     }
 
+    /**
+     * @param fileName
+     * @return
+     * @throws IOException
+     */
     public static PlTokenSource getTokenSourceForIoFileName ( String fileName ) throws IOException {
         HiTalkInputStream stream = new HiTalkInputStream(Paths.get(fileName), "UTF-8", READ);
         final PlLexer lexer = new PlLexer(stream);
@@ -142,6 +146,9 @@ abstract public class PlTokenSource implements Source <PlToken>, PropertyChangeL
         return lexer;
     }
 
+    /**
+     * @param path
+     */
     public void setPath ( String path ) {
         this.path = path;
     }
@@ -200,75 +207,75 @@ abstract public class PlTokenSource implements Source <PlToken>, PropertyChangeL
         int name = interner.internFunctorName(operatorName, arity);
         operatorTable.setOperator(name, operatorName, priority, associativity);
     }
-
-    /**
-     * Interns and inserts into the operator table all of the built in operators and functors in Prolog.
-     */
-    protected void initializeBuiltIns () {
-        // Initializes the operator table with the standard ISO prolog built-in operators.
-        internOperator(PrologAtoms.IMPLIES, 1200, xfx);
-        internOperator(PrologAtoms.IMPLIES, 1200, fx);
-        internOperator(PrologAtoms.DCG_IMPLIES, 1200, xfx);
-        internOperator(PrologAtoms.QUERY, 1200, fx);
-
-        internOperator(PrologAtoms.SEMICOLON, 1100, xfy);
-        internOperator(PrologAtoms.IF, 1050, xfy);
-        internOperator(PrologAtoms.IF_STAR, 1050, xfy);
-
-        internOperator(PrologAtoms.COMMA, 1000, xfy);
-        internOperator(PrologAtoms.NOT, 900, fy);
-
-        internOperator(PrologAtoms.UNIFIES, 700, xfx);
-        internOperator(PrologAtoms.NON_UNIFIES, 700, xfx);
-        internOperator(PrologAtoms.IDENTICAL, 700, xfx);
-        internOperator(PrologAtoms.NON_IDENTICAL, 700, xfx);
-        internOperator(PrologAtoms.AT_LESS, 700, xfx);
-        internOperator(PrologAtoms.AT_LESS_OR_EQUAL, 700, xfx);
-        internOperator(PrologAtoms.AT_GREATER, 700, xfx);
-        internOperator(PrologAtoms.AT_GREATER_OR_EQUAL, 700, xfx);
-        internOperator(PrologAtoms.UNIV, 700, xfx);
-        internOperator(PrologAtoms.IS, 700, xfx);
-//        internOperator(PrologAtoms.C, 700, xfx);
-        internOperator(PrologAtoms.EQ_BSLASH_EQ, 700, xfx);
-        internOperator(PrologAtoms.LESS, 700, xfx);
-        internOperator(PrologAtoms.LESS_OR_EQUAL, 700, xfx);
-        internOperator(PrologAtoms.GREATER, 700, xfx);
-        internOperator(PrologAtoms.GREATER_OR_EQUAL, 700, xfx);
-
-//        internOperator(PrologAtoms."+", 500, yfx);
-//        internOperator(PrologAtoms."-", 500, yfx);
-
-        internOperator(PrologAtoms.BSLASH_SLASH, 500, yfx);
-        internOperator(PrologAtoms.SLASH_BSLASH, 500, yfx);
-
-        internOperator(PrologAtoms.SLASH, 400, yfx);
-        internOperator(PrologAtoms.SLASH_SLASH, 400, yfx);
-        internOperator(PrologAtoms.STAR, 400, yfx);
-        internOperator(PrologAtoms.RSHIFT, 400, yfx);
-        internOperator(PrologAtoms.LSHIFT, 400, yfx);
-        internOperator(PrologAtoms.REM, 400, yfx);
-        internOperator(PrologAtoms.MOD, 400, yfx);
-
-        internOperator(PrologAtoms.MINUS, 200, fy);
-        internOperator(PrologAtoms.UP, 200, yfx);
-        internOperator(PrologAtoms.STAR_STAR, 200, yfx);
-        internOperator(PrologAtoms.AS, 200, fy);
-
-        // Intern all built in functors.
-        interner.internFunctorName(PrologAtoms.ARGLIST_NIL, 0);
-        interner.internFunctorName(new HtFunctorName(PrologAtoms.ARGLIST_CONS, 0, 2));
-
-        interner.internFunctorName(PrologAtoms.NIL, 0);
-        interner.internFunctorName(new HtFunctorName(PrologAtoms.CONS, 0, 2));
-
-        interner.internFunctorName(PrologAtoms.TRUE, 0);
-        interner.internFunctorName(PrologAtoms.FAIL, 0);
-        interner.internFunctorName(PrologAtoms.FALSE, 0);
-        interner.internFunctorName(PrologAtoms.CUT, 0);
-
-        interner.internFunctorName(PrologAtoms.BYPASS_NIL, 0);
-        interner.internFunctorName(new HtFunctorName(PrologAtoms.BYPASS_CONS, 0, 2));
-    }
+//
+//    /**
+//     * Interns and inserts into the operator table all of the built in operators and functors in Prolog.
+//     */
+//    protected void initializeBuiltIns () {
+//        // Initializes the operator table with the standard ISO prolog built-in operators.
+//        internOperator(PrologAtoms.IMPLIES, 1200, xfx);
+//        internOperator(PrologAtoms.IMPLIES, 1200, fx);
+//        internOperator(PrologAtoms.DCG_IMPLIES, 1200, xfx);
+//        internOperator(PrologAtoms.QUERY, 1200, fx);
+//
+//        internOperator(PrologAtoms.SEMICOLON, 1100, xfy);
+//        internOperator(PrologAtoms.IF, 1050, xfy);
+//        internOperator(PrologAtoms.IF_STAR, 1050, xfy);
+//
+//        internOperator(PrologAtoms.COMMA, 1000, xfy);
+//        internOperator(PrologAtoms.NOT, 900, fy);
+//
+//        internOperator(PrologAtoms.UNIFIES, 700, xfx);
+//        internOperator(PrologAtoms.NON_UNIFIES, 700, xfx);
+//        internOperator(PrologAtoms.IDENTICAL, 700, xfx);
+//        internOperator(PrologAtoms.NON_IDENTICAL, 700, xfx);
+//        internOperator(PrologAtoms.AT_LESS, 700, xfx);
+//        internOperator(PrologAtoms.AT_LESS_OR_EQUAL, 700, xfx);
+//        internOperator(PrologAtoms.AT_GREATER, 700, xfx);
+//        internOperator(PrologAtoms.AT_GREATER_OR_EQUAL, 700, xfx);
+//        internOperator(PrologAtoms.UNIV, 700, xfx);
+//        internOperator(PrologAtoms.IS, 700, xfx);
+////        internOperator(PrologAtoms.C, 700, xfx);
+//        internOperator(PrologAtoms.EQ_BSLASH_EQ, 700, xfx);
+//        internOperator(PrologAtoms.LESS, 700, xfx);
+//        internOperator(PrologAtoms.LESS_OR_EQUAL, 700, xfx);
+//        internOperator(PrologAtoms.GREATER, 700, xfx);
+//        internOperator(PrologAtoms.GREATER_OR_EQUAL, 700, xfx);
+//
+////        internOperator(PrologAtoms."+", 500, yfx);
+////        internOperator(PrologAtoms."-", 500, yfx);
+//
+//        internOperator(PrologAtoms.BSLASH_SLASH, 500, yfx);
+//        internOperator(PrologAtoms.SLASH_BSLASH, 500, yfx);
+//
+//        internOperator(PrologAtoms.SLASH, 400, yfx);
+//        internOperator(PrologAtoms.SLASH_SLASH, 400, yfx);
+//        internOperator(PrologAtoms.STAR, 400, yfx);
+//        internOperator(PrologAtoms.RSHIFT, 400, yfx);
+//        internOperator(PrologAtoms.LSHIFT, 400, yfx);
+//        internOperator(PrologAtoms.REM, 400, yfx);
+//        internOperator(PrologAtoms.MOD, 400, yfx);
+//
+//        internOperator(PrologAtoms.MINUS, 200, fy);
+//        internOperator(PrologAtoms.UP, 200, yfx);
+//        internOperator(PrologAtoms.STAR_STAR, 200, yfx);
+//        internOperator(PrologAtoms.AS, 200, fy);
+//
+//        // Intern all built in functors.
+//        interner.internFunctorName(PrologAtoms.ARGLIST_NIL, 0);
+//        interner.internFunctorName(new HtFunctorName(PrologAtoms.ARGLIST_CONS, 0, 2));
+//
+//        interner.internFunctorName(PrologAtoms.NIL, 0);
+//        interner.internFunctorName(new HtFunctorName(PrologAtoms.CONS, 0, 2));
+//
+//        interner.internFunctorName(PrologAtoms.TRUE, 0);
+//        interner.internFunctorName(PrologAtoms.FAIL, 0);
+//        interner.internFunctorName(PrologAtoms.FALSE, 0);
+//        interner.internFunctorName(PrologAtoms.CUT, 0);
+//
+//        interner.internFunctorName(PrologAtoms.BYPASS_NIL, 0);
+//        interner.internFunctorName(new HtFunctorName(PrologAtoms.BYPASS_CONS, 0, 2));
+//    }
 
     /**
      * Consumes a token of the expected kind from the token sequence. If the next token in the sequence is not of the
@@ -331,13 +338,9 @@ abstract public class PlTokenSource implements Source <PlToken>, PropertyChangeL
         return inputStream;
     }
 
-    public abstract void close ();
+//    public abstract void close ();
 
     public boolean isOpen () {
         return getInputStream().isOpen();
     }
-
-//    public void setPath ( Path path ) {
-//        this.path = path;
-//    }
 }

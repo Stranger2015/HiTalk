@@ -103,6 +103,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
 
     public HiTalkInputStream ( Path path, String s, StandardOpenOption read ) throws IOException {
         super(path, s, read);
+        setInputStream(new FileInputStream(path.toFile()));
     }
 
     /**
@@ -172,6 +173,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
     public void close () throws IOException {
         super.close();
         inputStream.close();
+        isOpen = false;
     }
 
     /**
@@ -228,18 +230,18 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
         pushbackReader = new PushbackReader(reader, 4);
     }
 
+    /**
+     * @return
+     */
     public FileInputStream getInputStream () {
         return inputStream;
     }
 
-    /**
-     * Tells whether or not this channel is open.
-     *
-     * @return <tt>true</tt> if, and only if, this channel is open
-     */
-    //@Override
-    public boolean isOpen () {
-        return isOpen;
+    protected void doOpen () throws FileNotFoundException {
+        if (getInputStream() == null) {
+            setInputStream(new FileInputStream(tokenSource.getPath()));
+        }
+        isOpen = true;
     }
 
     @Override
@@ -327,8 +329,21 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
     public void toString0 ( StringBuilder sb ) {
         super.toString0(sb);
         sb.append(", inputStream=").append(inputStream);
-        sb.append(", pushbackReader=").append(pushbackReader);
-        sb.append(", tokenSource=").append(tokenSource);
-        sb.append(", reader=").append(reader);
+//        sb.append(", pushbackReader=").append(pushbackReader);
+        //sb.append(", tokenSource=").append(tokenSource);
+//        sb.append(", reader=").append(reader);
+    }
+
+    public boolean equals ( Object o ) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final HiTalkInputStream that = (HiTalkInputStream) o;
+
+        return getInputStream().equals(that.getInputStream());
+    }
+
+    public int hashCode () {
+        return getInputStream().hashCode();
     }
 }

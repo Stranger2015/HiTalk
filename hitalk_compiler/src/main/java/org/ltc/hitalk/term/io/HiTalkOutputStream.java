@@ -3,10 +3,7 @@ package org.ltc.hitalk.term.io;
 import org.jetbrains.annotations.NotNull;
 import sun.nio.cs.StreamEncoder;
 
-import java.io.BufferedWriter;
-import java.io.FileDescriptor;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.ClosedByInterruptException;
@@ -417,15 +414,6 @@ public class HiTalkOutputStream extends HiTalkStream {
     }
 
     /**
-     * Tells whether or not this channel is open.
-     *
-     * @return <tt>true</tt> if, and only if, this channel is open
-     */
-    public boolean isOpen () {
-        return false;
-    }
-
-    /**
      * Closes this channel.
      *
      * <p> After a channel is closed, any further attempt to invoke I/O
@@ -446,6 +434,10 @@ public class HiTalkOutputStream extends HiTalkStream {
         super.close();
         outputStream.flush();
         outputStream.close();
+    }
+
+    protected void doOpen () throws FileNotFoundException {
+
     }
 
     protected void init ( FileDescriptor fd ) throws IOException {

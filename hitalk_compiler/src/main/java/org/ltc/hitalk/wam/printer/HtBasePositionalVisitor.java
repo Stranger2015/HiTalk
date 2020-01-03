@@ -179,8 +179,6 @@ class HtBasePositionalVisitor extends AbstractBaseMachine implements IAllTermsVi
     }
 
     protected void leaveListTerm ( ListTerm dottedPair ) {
-
-
     }
 
     /**

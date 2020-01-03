@@ -10,6 +10,7 @@ import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.wam.compiler.BaseInstructionCompiler;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +46,7 @@ public class PrologInstructionCompiler<T extends HtClause, PC, QC> extends BaseI
         super(symbolTable, interner, defaultBuiltIn, observer, parser);
     }
 
-    public PrologInstructionCompiler () {
+    public PrologInstructionCompiler () throws FileNotFoundException {
         this(getAppContext().getSymbolTable(),
                 getAppContext().getInterner(),
                 getAppContext().getDefaultBuiltIn(),

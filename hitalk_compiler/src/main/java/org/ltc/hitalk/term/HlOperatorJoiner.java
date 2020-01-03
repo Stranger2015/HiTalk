@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.ltc.hitalk.term.HlOpSymbol.Associativity.fx;
+import static org.ltc.hitalk.term.HlOpSymbol.isCorrectOrder;
 
 /**
  * 演算子優先順位解析を行います。
@@ -26,7 +27,7 @@ public abstract class HlOperatorJoiner<T extends ITerm> {
      * 指定された演算子を受け付けるかどうかを調べます。
      */
     public boolean accept ( Associativity associativity ) {
-        return HlOpSymbol.isCorrectOrder(this.associativity, associativity);
+        return isCorrectOrder(this.associativity, associativity);
     }
 
     /**

@@ -97,11 +97,11 @@ public class PrologInterpreterVisitor<T extends HtMethod, P, Q, PC, QC> extends 
     }
 
     /**
-     * @param listTerm
+     * @param dottedPair
      * @throws LinkageException
      */
     @Override
-    protected void enterListTerm ( ListTerm listTerm ) throws LinkageException {
+    protected void enterListTerm ( ListTerm dottedPair ) throws LinkageException {
 
     }
 
