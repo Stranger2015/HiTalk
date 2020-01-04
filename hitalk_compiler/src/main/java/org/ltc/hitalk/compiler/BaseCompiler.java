@@ -100,7 +100,6 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
     @Override
     public List <HtClause> compile ( String fileName, HtProperty... flags ) throws Exception {
         PlTokenSource ts = PlTokenSource.getTokenSourceForIoFileName(fileName);
-        ts.setPath(fileName);
         return compile(ts, flags);
     }
 

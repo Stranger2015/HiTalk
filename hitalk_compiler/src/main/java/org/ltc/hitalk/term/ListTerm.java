@@ -6,8 +6,8 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
-import static org.ltc.hitalk.parser.PlPrologParser.CONJUNCTION;
 import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
+import static org.ltc.hitalk.term.ListTerm.Kind.CLAUSE_BODY;
 
 /**
  *
@@ -154,7 +154,7 @@ public class ListTerm extends HtBaseTerm {
     }
 
     private boolean isConjunction ( ITerm term ) {
-        return (term.isList() && ((ListTerm) term).getKind() == CONJUNCTION.getKind());
+        return (term.isList() && ((ListTerm) term).getKind() == CLAUSE_BODY);
     }
 
     /**

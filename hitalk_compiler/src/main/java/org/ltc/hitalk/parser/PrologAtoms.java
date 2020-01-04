@@ -13,7 +13,7 @@ interface PrologAtoms {
     String QUERY = "?-";
     String SEMICOLON = ";";
     String IF = "if";
-    String IF_NHEN = "->";
+    String IF_THEN = "->";
     String IF_STAR = "*-> ";
     String COMMA = ",";
     String NOT = "\\+";
@@ -44,14 +44,12 @@ interface PrologAtoms {
     String UP = "^";
     String STAR_STAR = "**";
     String COLON_COLON = "::";
-    String UP_UP = "";
-    String PLUS = "";
-    String AT = "";
+    String UP_UP = "^^";
+    String PLUS = "+";
+    String AT = "@";
     String QUESTION = "?";
-    //   String MINUS = "-";
-    String PLUS_PLUS = "";
-    //    String QUESTION = "";
-    String MINUS_MINUS = "";
+    String PLUS_PLUS = "++";
+    String MINUS_MINUS = "--";
     //  String  LSHIFT = "<<";
 //  String  RSHIFT = ">>";
     String AS = "as";
@@ -85,4 +83,9 @@ interface PrologAtoms {
     String ENCODING = "encoding";
 
     String HILOG = "hilog";
+    String COLON = ":";
+    String BSLASH = "\\";
+    String DOT = ".";
+    String ASSIGN = ":=";
+    String DOLLAR = "$";
 }

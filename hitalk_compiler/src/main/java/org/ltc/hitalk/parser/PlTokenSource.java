@@ -129,9 +129,7 @@ abstract public class PlTokenSource implements Source <PlToken>, PropertyChangeL
      */
     public static PlTokenSource getTokenSourceForIoFile ( File file ) throws IOException {
         HiTalkInputStream stream = new HiTalkInputStream(file);
-        final PlLexer lexer = new PlLexer(stream);
-        lexer.setPath(file.getAbsolutePath());
-        return lexer;
+        return new PlLexer(stream, file.getAbsolutePath());
     }
 
     /**
@@ -141,9 +139,7 @@ abstract public class PlTokenSource implements Source <PlToken>, PropertyChangeL
      */
     public static PlTokenSource getTokenSourceForIoFileName ( String fileName ) throws IOException {
         HiTalkInputStream stream = new HiTalkInputStream(Paths.get(fileName), "UTF-8", READ);
-        final PlLexer lexer = new PlLexer(stream);
-        lexer.setPath(fileName);
-        return lexer;
+        return new PlLexer(stream, fileName);
     }
 
     /**

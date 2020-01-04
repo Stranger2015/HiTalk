@@ -19,9 +19,14 @@ import static org.ltc.hitalk.parser.Quotemeta.decode;
  * @author shun
  */
 public class PlLexer extends PlTokenSource {
-    public static final String PUNCTUATION = "#&*+-./\\:;?@^$<=>,!|";
+    public static final String PUNCTUATION = ";,!|";
+    public static final String SPECIAL = "#$&*+-./:<=>?@\\^`~";
     public static final String PARENTHESES = "(){}[]";
 
+    /**
+     * @param inputStream
+     * @throws FileNotFoundException
+     */
     public PlLexer ( HiTalkInputStream inputStream ) throws FileNotFoundException {
         super(inputStream);
         inputStream.setTokenSource(this);
@@ -35,6 +40,11 @@ public class PlLexer extends PlTokenSource {
         super(inputStream, path);
     }
 
+    /**
+     * @param l
+     * @param r
+     * @return
+     */
     public static boolean isMergeable ( String l, String r ) {
         return isTokenBoundary(l.charAt(l.length() - 1), r.charAt(0));
     }
@@ -183,7 +193,7 @@ public class PlLexer extends PlTokenSource {
 
     private PlToken getAtom ( int chr ) throws Exception {
         StringBuilder val = new StringBuilder();
-        if (";,!|".indexOf(chr) != -1) {
+        if (PUNCTUATION.indexOf(chr) != -1) {
             return new PlToken(ATOM, String.valueOf((char) chr));
         }
 //       Atom or variable consisting only of letters
@@ -199,16 +209,17 @@ public class PlLexer extends PlTokenSource {
             while ((chr = read()) != '\'') {
                 val.append((char) chr);
                 if (chr == '\\') {
-                    val.append(read());
+                    val.append(read());//FIXME
                 }
             }
-            return new PlToken(ATOM, decode(val.toString()))/*, true)*/;//todo encoding
+            return new PlToken(ATOM, decode(val.toString()), true);//todo encoding
         }
         ungetc(chr);
-        val = Optional.of(repeat(PUNCTUATION)).map(StringBuilder::new).orElse(null);
+        val = Optional.of(repeat(SPECIAL)).map(StringBuilder::new).orElse(null);
         if (!val.toString().isEmpty()) {
             return new PlToken(ATOM, val.toString());
         }
+        ungetc(chr);
 
         return null;
     }
@@ -217,9 +228,16 @@ public class PlLexer extends PlTokenSource {
         String number = prefix;
         if (chr == '0') {
             chr = read();
+            if (chr == '\'') {
+                chr = read();
+                if (SPECIAL.indexOf(chr) != -1) {
+                    return new PlToken(INTEGER_LITERAL, String.valueOf(chr));
+                }
+            }
             if (chr == 'x') {
                 return new PlToken(INTEGER_LITERAL, number + "0x" + repeat1("0123456789abcdefABCDEF"));
             }
+
             ungetc(chr);
             if (isDigit(chr)) {
                 number += repeat("01234567");

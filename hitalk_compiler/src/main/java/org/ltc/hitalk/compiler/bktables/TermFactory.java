@@ -39,6 +39,11 @@ public class TermFactory implements ITermFactory {
      */
     @Override
     public Atom newAtom ( String value ) {
+        if (value.charAt(0) == '\'') {
+            if (value.charAt(value.length() - 1) == '\'') {
+
+            }
+        }
         return newAtom(interner.internFunctorName(value, 0));
     }
 

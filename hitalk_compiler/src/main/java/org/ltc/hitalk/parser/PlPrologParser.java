@@ -4,6 +4,7 @@ import com.thesett.common.util.Source;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
+import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.*;
 import org.ltc.hitalk.term.HlOpSymbol.Associativity;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static java.util.EnumSet.of;
+import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.REPRESENTATION_ERROR;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
 import static org.ltc.hitalk.core.utils.TermUtilities.convertToClause;
 import static org.ltc.hitalk.parser.HiLogParser.hilogApply;
@@ -34,20 +36,23 @@ import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
  * @author shun
  */
 public class PlPrologParser implements IParser {
-    protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
-
     public static final String BEGIN_OF_FILE = "begin_of_file";
     public static final String END_OF_FILE = "end_of_file";
-
     public static final Atom END_OF_FILE_ATOM =
             getAppContext().getTermFactory().newAtom(END_OF_FILE);
     public static final Atom BEGIN_OF_FILE_ATOM =
             getAppContext().getTermFactory().newAtom(BEGIN_OF_FILE);
-    public static final ListTerm CONJUNCTION = getAppContext().getTermFactory().newListTerm(CLAUSE_BODY);
-    protected IOperatorTable operatorTable;
+    protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
     protected final Deque <PlTokenSource> tokenSourceStack = new ArrayDeque <>();
+    //    public static final ListTerm CONJUNCTION = getAppContext().getTermFactory().newListTerm(CLAUSE_BODY);
+    protected IOperatorTable operatorTable;
     protected IVafInterner interner;
     protected ITermFactory termFactory;
+    /**
+     * Holds the variable scoping context for the current sentence.
+     */
+    protected Map <Integer, HtVariable> variableContext = new HashMap <>();
+    protected HlOpSymbol operator;
 
     /**
      * @param inputStream
@@ -78,19 +83,6 @@ public class PlPrologParser implements IParser {
 
     public void toString0 ( StringBuilder sb ) {
     }
-
-    /**
-     * Describes the possible system directives in interactive mode.
-     */
-    public enum Directive {
-        Trace, Info, User, File
-    }
-
-    /**
-     * Holds the variable scoping context for the current sentence.
-     */
-    protected Map <Integer, HtVariable> variableContext = new HashMap <>();
-    protected HlOpSymbol operator;
 
     @Override
     public PlPrologParser getParser () {
@@ -141,7 +133,7 @@ public class PlPrologParser implements IParser {
     @Override
     public ITerm next () throws Exception {
         PlToken token = (getLexer()).next(true);
-        return newTerm(token, false, EnumSet.of(DOT, EOF));
+        return newTerm(token, false, EnumSet.of(EOF));
     }
 
     /**
@@ -160,17 +152,35 @@ public class PlPrologParser implements IParser {
     }
 
     /**
+     * @param source
+     */
+    public void setTokenSource ( PlTokenSource source ) {
+        logger.info("Adding ts " + source.getPath() + source.isOpen());
+        if (!tokenSourceStack.contains(source)) {
+            tokenSourceStack.push(source);
+        }
+        logger.info("declined  Adding dup ts " + source.getPath());
+    }
+
+    /**
+     * @param source
+     */
+    public void setTokenSource ( Source <PlToken> source ) {
+        setTokenSource((PlTokenSource) source);
+    }
+
+    /**
      * @return
      */
     @Override
-    public PlTokenSource popTokenSource () {
+    public PlTokenSource popTokenSource () throws IOException {
         if (!tokenSourceStack.isEmpty()) {
             final PlTokenSource ts = tokenSourceStack.pop();
             ts.close();
             return ts;
         }
 
-        return null;
+        throw new ExecutionError(REPRESENTATION_ERROR, null);
     }
 
     /**
@@ -183,9 +193,14 @@ public class PlPrologParser implements IParser {
      */
     protected ITerm newTerm ( PlToken token, boolean nullable, EnumSet <TokenKind> terminators )
             throws Exception {
-        ITerm result = null;//END_OF_FILE_ATOM;
+        logger.info(token.toString());
+        ITerm result = null;
         boolean finished = false;
-        if (token.kind != EOF/* && getLexer() == null*/) {
+        if (token.kind == BOF) {
+            result = BEGIN_OF_FILE_ATOM;
+        } else if (token.kind == EOF) {
+            result = END_OF_FILE_ATOM;
+        } else {
             HlOperatorJoiner <ITerm> joiner = new HlOperatorJoiner <ITerm>() {
                 @Override
                 protected ITerm join ( int notation, List <ITerm> args ) {
@@ -211,8 +226,8 @@ public class PlPrologParser implements IParser {
                         }
                     }
                     if (token.kind == ATOM) {
-                        final Collection <HlOpSymbol> values = getOptable()
-                                .getOperatorsMatchingNameByFixity(token.image).values();
+                        logger.info(token.image);
+                        final Collection <HlOpSymbol> values = getOptable().getOperatorsMatchingNameByFixity(token.image).values();
                         for (HlOpSymbol right : values) {
                             if (joiner.accept(right.getAssociativity())) {
                                 joiner.push(right);
@@ -279,6 +294,8 @@ public class PlPrologParser implements IParser {
             case D_QUOTE:
                 break;
             case S_QUOTE:
+                token.quote = true;
+                term = termFactory.newAtom(token.image);
                 break;
             case B_QUOTE:
                 break;
@@ -291,7 +308,7 @@ public class PlPrologParser implements IParser {
 
     protected ListTerm readSequence ( TokenKind ldelim, TokenKind rdelim, boolean isBlocked ) throws Exception {
         List <ITerm> elements = new ArrayList <>();
-        EnumSet <TokenKind> rdelims = isBlocked ? of(COMMA, rdelim) : of(COMMA, CONS, rdelim);
+        EnumSet <TokenKind> rdelims = isBlocked ? of(rdelim) : of(/*COMMA, CONS, */rdelim);
         Kind kind;
         switch (ldelim) {
             case LPAREN:
@@ -317,6 +334,7 @@ public class PlPrologParser implements IParser {
                 throw new ParseException("No (more) elements");
             }
             elements.add(term);
+//            remove this
             while (COMMA == getLexer().peek().kind) {//todo flatten
                 elements.add(newTerm(getLexer().getNextToken(), false, rdelims));
             }
@@ -350,24 +368,6 @@ public class PlPrologParser implements IParser {
     }
 
     /**
-     * @param source
-     */
-    public void setTokenSource ( PlTokenSource source ) {
-        logger.info("Adding ts " + source.getPath() + source.isOpen());
-        if (!tokenSourceStack.contains(source)) {
-            tokenSourceStack.push(source);
-        }
-        logger.info("declined  Adding dup ts " + source.getPath());
-    }
-
-    /**
-     * @param source
-     */
-    public void setTokenSource ( Source <PlToken> source ) {
-        setTokenSource((PlTokenSource) source);
-    }
-
-    /**
      * Parses a single terms, or atom (a name with arity zero), as a sentence in first order logic. The sentence will
      * be parsed in a fresh variable context, to ensure its variables are scoped to within the term only. The sentence
      * does not have to be terminated by a full stop. This method is not generally used by Prolog, but is provided as a
@@ -379,7 +379,7 @@ public class PlPrologParser implements IParser {
         // Each new sentence provides a new scope in which to make variables unique.
         variableContext.clear();
 
-        if (!tokenSourceStack.isEmpty()) {
+        if (!tokenSourceStack.isEmpty() && tokenSourceStack.peek().isOpen()) {
             return literal((getLexer()).getNextToken());
         }
 
@@ -433,12 +433,14 @@ public class PlPrologParser implements IParser {
         internOperator(PrologAtoms.IMPLIES, 1200, fx);
         internOperator(PrologAtoms.DCG_IMPLIES, 1200, xfx);
         internOperator(PrologAtoms.QUERY, 1200, fx);
+        internOperator(PrologAtoms.QUESTION, 500, fx);
 
         internOperator(PrologAtoms.SEMICOLON, 1100, xfy);
         internOperator(PrologAtoms.IF, 1050, xfy);
         internOperator(PrologAtoms.IF_STAR, 1050, xfy);
 
         internOperator(PrologAtoms.COMMA, 1000, xfy);
+        internOperator(PrologAtoms.ASSIGN, 990, xfy);
         internOperator(PrologAtoms.NOT, 900, fy);
 
         internOperator(PrologAtoms.UNIFIES, 700, xfx);
@@ -457,10 +459,7 @@ public class PlPrologParser implements IParser {
         internOperator(PrologAtoms.LESS_OR_EQUAL, 700, xfx);
         internOperator(PrologAtoms.GREATER, 700, xfx);
         internOperator(PrologAtoms.GREATER_OR_EQUAL, 700, xfx);
-
-//        internOperator(PrologAtoms."+", 500, YFX);
-//        internOperator(PrologAtoms."-", 500, YFX);
-
+        internOperator(PrologAtoms.BSLASH, 500, fy);
         internOperator(PrologAtoms.BSLASH_SLASH, 500, yfx);
         internOperator(PrologAtoms.SLASH_BSLASH, 500, yfx);
 
@@ -472,10 +471,19 @@ public class PlPrologParser implements IParser {
         internOperator(PrologAtoms.REM, 400, yfx);
         internOperator(PrologAtoms.MOD, 400, yfx);
 
+        internOperator(PrologAtoms.PLUS, 500, yfx);
+        internOperator(PrologAtoms.PLUS, 200, fy);
+        internOperator(PrologAtoms.MINUS, 500, yfx);
         internOperator(PrologAtoms.MINUS, 200, fy);
+        internOperator(PrologAtoms.COLON, 600, xfy);
         internOperator(PrologAtoms.UP, 200, yfx);
-        internOperator(PrologAtoms.STAR_STAR, 200, yfx);
+        internOperator(PrologAtoms.UP_UP, 200, yfx);
+        internOperator(PrologAtoms.STAR_STAR, 200, xfx);
         internOperator(PrologAtoms.AS, 200, fy);
+        internOperator(PrologAtoms.VBAR, 1100, xfx);
+        internOperator(PrologAtoms.VBAR, 1100, fx);
+        internOperator(PrologAtoms.DOT, 100, yfx);
+        internOperator(PrologAtoms.DOLLAR, 1, fx);
 
         // Intern all built in names.
         interner.internFunctorName(PrologAtoms.ARGLIST_NIL, 0);
@@ -503,5 +511,12 @@ public class PlPrologParser implements IParser {
 //        sb.append("tokenSourceStack=").append(tokenSourceStack);
         sb.append('}');
         return sb.toString();
+    }
+
+    /**
+     * Describes the possible system directives in interactive mode.
+     */
+    public enum Directive {
+        Trace, Info, User, File
     }
 }

@@ -119,19 +119,30 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
         this.clauseChainObserver = clauseChainObserver;
     }
 
+    /**
+     * @param tokenSource
+     * @param delims
+     * @return
+     * @throws Exception
+     */
+    @Override
     public List <HtClause> preCompile ( PlTokenSource tokenSource, EnumSet <DirectiveKind> delims ) throws Exception {
         getLogger().info("Precompiling " + tokenSource.getPath() + " ...");
         final List <HtClause> list = new ArrayList <>();
         while (tokenSource.isOpen()) {
             ITerm t = getParser().next();
-            if (t == BEGIN_OF_FILE_ATOM) {
+            if (t == null) {
+                t = END_OF_FILE_ATOM;
+            } else if (t == BEGIN_OF_FILE_ATOM) {
                 getLogger().info("begin_of_file");
-                getQueue().push(new TermExpansionTask(this, tokenSource, EnumSet.of(ENCODING))); //read until
-            } else if (t == END_OF_FILE_ATOM) {
+                getQueue().push(new TermExpansionTask(this, tokenSource, EnumSet.of(ENCODING)));
+                continue;
+            }
+            if (t == END_OF_FILE_ATOM) {
                 getLogger().info("end_of_file");
                 getQueue().push(new TermExpansionTask(this, tokenSource, noneOf(DirectiveKind.class)));
                 getParser().popTokenSource();
-            } else {
+            } else {//?????????????
                 preCompile(t);
                 HtClause c = getParser().convert(t);
                 if (!checkDirective(c, delims)) {
@@ -217,7 +228,7 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
      * @param clause The clause to transform.
      */
     private void substituteBuiltIns ( ITerm clause ) {
-        logger.debug("Built-in's substitution" + "( " + clause + ") ...");
+        logger.debug("Built-in's substitution " + "( " + clause + ") ...");
         HtTermWalker walk =
                 HtTermWalkers.positionalWalker(
                         new HtBuiltInTransformVisitor(

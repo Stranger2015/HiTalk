@@ -140,7 +140,6 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
      */
     @Override
     public List <HtClause> compile ( PlTokenSource tokenSource, HtProperty... flags ) throws Exception {
-
         return preCompiler.preCompile(tokenSource, EnumSet.of(IF));
     }
 
