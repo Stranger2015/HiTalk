@@ -78,7 +78,7 @@ public class HlOpSymbol extends HtFunctor implements Comparable <HlOpSymbol>, Cl
      * @param priority      The operators priority.
      */
     public HlOpSymbol ( int name, String textName, Associativity associativity, int priority ) {
-        super(name, new ITerm[associativity.arity]);
+        super(name, new ListTerm(associativity.arity));
 
         // Check that there is at least one and at most two arguments.
         if (args.size() < 1 || args.size() > 2) {

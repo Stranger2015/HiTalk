@@ -15,6 +15,7 @@
  */
 package org.ltc.hitalk.parser;
 
+import com.thesett.aima.logic.fol.isoprologparser.DynamicOperatorParser;
 import com.thesett.common.util.Queue;
 import com.thesett.common.util.StackQueue;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
@@ -23,6 +24,8 @@ import org.ltc.hitalk.term.HlOpSymbol;
 import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 import org.ltc.hitalk.term.HlOpSymbol.Fixity;
 import org.ltc.hitalk.term.ITerm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.IntStream;
@@ -210,7 +213,7 @@ import static org.ltc.hitalk.term.HlOpSymbol.Fixity.*;
 public class PlDynamicOperatorParser implements IOperatorTable {
 
     /* Used for debugging purposes. */
-    /* private final Logger log = Logger.getLogger(DynamicOperatorParser.class.getName()); */
+    protected final Logger logger = LoggerFactory.getLogger(DynamicOperatorParser.class.getName());
 
     /**
      * Encodes the possible symbols that this parser accepts.

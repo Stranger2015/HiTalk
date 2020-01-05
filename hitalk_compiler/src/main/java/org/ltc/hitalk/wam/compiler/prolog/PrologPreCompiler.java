@@ -131,23 +131,25 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
         final List <HtClause> list = new ArrayList <>();
         while (tokenSource.isOpen()) {
             ITerm t = getParser().next();
-            if (t == null) {
+           /* if (t == null) {
                 t = END_OF_FILE_ATOM;
-            } else if (t == BEGIN_OF_FILE_ATOM) {
+            } else */
+            if (t.equals(BEGIN_OF_FILE_ATOM)) {
                 getLogger().info("begin_of_file");
                 getQueue().push(new TermExpansionTask(this, tokenSource, EnumSet.of(ENCODING)));
-                continue;
-            }
-            if (t == END_OF_FILE_ATOM) {
+//                continue;
+            } else if (t.equals(END_OF_FILE_ATOM)) {
                 getLogger().info("end_of_file");
                 getQueue().push(new TermExpansionTask(this, tokenSource, noneOf(DirectiveKind.class)));
                 getParser().popTokenSource();
-            } else {//?????????????
+            } else if (t != null) {//?????????????
                 preCompile(t);
                 HtClause c = getParser().convert(t);
                 if (!checkDirective(c, delims)) {
                     list.add(c);
                 }
+            } else {
+                logger.info("no term found!!");
             }
         }
 

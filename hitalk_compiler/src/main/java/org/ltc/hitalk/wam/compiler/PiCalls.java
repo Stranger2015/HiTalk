@@ -23,7 +23,7 @@ public class PiCalls<C extends BodyCall.BodyCalls <C>> extends HtFunctor {
      * @param args
      */
     public PiCalls ( int name, ITerm[] args ) {
-        super(name, args);
+        super(name, new ListTerm(args));
     }
 
     /**
@@ -32,7 +32,7 @@ public class PiCalls<C extends BodyCall.BodyCalls <C>> extends HtFunctor {
      * @param arityDelta
      */
     public PiCalls ( int name, int arityDelta, ITerm... args ) {
-        super(name, arityDelta, args);
+        super(name, arityDelta, new ListTerm(args));
     }
 
     /**

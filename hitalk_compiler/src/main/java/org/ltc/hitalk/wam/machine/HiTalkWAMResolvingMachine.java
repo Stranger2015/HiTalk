@@ -24,6 +24,7 @@ import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.IWAMResolvingMachineDPIMonitor;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
@@ -31,14 +32,11 @@ import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction;
 
 import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.stream.IntStream.range;
-import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
+import static org.ltc.hitalk.term.ListTerm.NIL;
 import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.REF;
 import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.STR;
 
@@ -382,11 +380,15 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
                 int arity = functorName.getArity();
 
                 // Loop over all of the functors arguments, recursively decoding them.
-                ITerm[] arguments = range(0, arity).mapToObj(i -> decodeHeap(val + 1 + i, variableContext))
-                        .toArray(ITerm[]::new);
+                List <ITerm> list = new ArrayList <>();
+                for (int i = 0; i < arity; i++) {
+                    ITerm iTerm = decodeHeap(val + 1 + i, variableContext);
+                    list.add(iTerm);
+                }
+                ITerm[] arguments = list.toArray(new ITerm[list.size()]);
 
                 // Create a new functor to hold the decoded data.
-                result = new HtFunctor(f, arguments);
+                result = new HtFunctor(f, new ListTerm(arguments));
                 break;
             }
 
@@ -397,22 +399,19 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
                 /*log.fine("f = " + f);*/
 
                 // Create a new functor to hold the decoded data.
-                result = new HtFunctor(f, EMPTY_TERM_ARRAY);
+                result = new HtFunctor(f, NIL);
                 break;
             }
-
             case HiTalkWAMInstruction.LIS: {
                 FunctorName functorName = new FunctorName("cons", 2);
                 int f = internFunctorName(functorName);
-
                 // Fill in this functors name and arity and allocate storage space for its arguments.
                 int arity = functorName.getArity();
                 ITerm[] arguments = range(0, arity)
                         .mapToObj(i -> decodeHeap(val + i, variableContext)).toArray(ITerm[]::new);
-
                 // Loop over all of the functors arguments, recursively decoding them.
                 // Create a new functor to hold the decoded data.
-                result = new HtFunctor(f, arguments);
+                result = new HtFunctor(f, new ListTerm(arguments));
                 break;
             }
             default:

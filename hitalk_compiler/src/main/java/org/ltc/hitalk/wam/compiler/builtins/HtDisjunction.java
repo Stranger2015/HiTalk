@@ -155,10 +155,10 @@
          */
         private void gatherDisjunctions ( HtDisjunction disjunction, List <ITerm> expressions ) {
             // Left argument.
-            gatherDisjunctionsExploreArgument(disjunction.getArguments()[0], expressions);
+            gatherDisjunctionsExploreArgument(disjunction.getArguments().getHead(0), expressions);
 
             // Right argument.
-            gatherDisjunctionsExploreArgument(disjunction.getArguments()[1], expressions);
+            gatherDisjunctionsExploreArgument(disjunction.getArguments().getHead(1), expressions);
         }
 
         /**

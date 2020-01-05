@@ -16,9 +16,7 @@ public interface IFunctor extends ITerm, IRangedArity {
     /**
      * @return
      */
-    ITerm[] getArguments ();
-
-    ListTerm getArgsAsListTerm ();
+    ListTerm getArguments ();
 
     /**
      * @param i
@@ -30,14 +28,7 @@ public interface IFunctor extends ITerm, IRangedArity {
      * @return
      */
     default int getArity () {
-        return getArguments().length;
-    }
-
-    /**
-     * @return
-     */
-    default boolean isListTerm () {
-        return this instanceof ListTerm;
+        return getArguments().size();
     }
 
     boolean isBracketed ();
@@ -51,4 +42,8 @@ public interface IFunctor extends ITerm, IRangedArity {
     void setArgument ( int i, ITerm term );
 
     void setArguments ( ITerm[] terms );
+
+    default boolean isListTerm () {
+        return false;
+    }
 }

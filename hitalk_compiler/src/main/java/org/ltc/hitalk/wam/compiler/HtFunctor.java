@@ -34,9 +34,9 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
      * @param name
      * @param args
      */
-    public HtFunctor ( int name, ITerm... args ) {
+    public HtFunctor ( int name, ListTerm args ) {
         this.name = name;
-        this.args = new ListTerm(args);//name heads tail
+        this.args = args;//name heads tail
     }
 
     /**
@@ -44,9 +44,9 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
      * @param args
      * @param arityDelta
      */
-    public HtFunctor ( int name, int arityDelta, ITerm... args ) {
+    public HtFunctor ( int name, int arityDelta, ListTerm args ) {
         this(name, args);
-        setArityRange(args.length, arityDelta);
+        setArityRange(args.size(), arityDelta);
     }
 
     /**
@@ -62,12 +62,12 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
         this.name = name;
     }
 
-    /**
-     * @param arguments
-     */
-    public HtFunctor ( ITerm... arguments ) {
-
-    }
+//    /**
+//     * @param arguments
+//     */
+//    public HtFunctor ( ITerm... arguments ) {
+//
+//    }
 
     /**
      * @return
@@ -77,18 +77,13 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
     }
 
     @Override
-    public ITerm[] getArguments () {
-        return args.getHeads();
-    }
-
-    @Override
-    public ListTerm getArgsAsListTerm () {
+    public ListTerm getArguments () {
         return args;
     }
 
     @Override
     public ITerm getArgument ( int i ) {
-        return args.getHeads()[i];
+        return args.getHead(i);
     }
 
     /**

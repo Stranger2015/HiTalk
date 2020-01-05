@@ -7,7 +7,6 @@ import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
-import org.ltc.hitalk.core.utils.TermUtilities;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.HtVariable;
@@ -24,7 +23,7 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
-import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
+import static org.ltc.hitalk.core.utils.TermUtilities.unify;
 
 /**
  *
@@ -136,13 +135,13 @@ public abstract class MetaInterpreterVisitor<T extends HtClause, P, Q, PC, QC> e
     public void lookupGoal ( PiCalls <?> goal, Set <PiCalls <?>> hbSet ) throws LinkageException {
         ITermFactory factory = BaseApp.getAppContext().getTermFactory();
         goal.setMgCalls(factory.newVariable("Calls"));
-        final HtFunctor eqf = new HtFunctor(interner.internFunctorName("=", 2), EMPTY_TERM_ARRAY);// fixme
+        final HtFunctor eqf = new HtFunctor(interner.internFunctorName("=", 2), new ListTerm(0));// fixme
 //        final HtClause<IFunctor> query = new HtClause<>(null, new ListTerm( LIST,eqf));?
         eqf.setArgument(0, goal);
         boolean unifies = true;
         for (PiCalls <?> hbEl : hbSet) {
             eqf.setArgument(1, hbEl);//fixme
-            unifies = TermUtilities.unify(eqf.getArgument(0), eqf.getArgument(1));
+            unifies = unify(eqf.getArgument(0), eqf.getArgument(1));
             if (unifies) {
 //                this.bindings.addAll(bindings);
                 return;

@@ -3,6 +3,7 @@ package org.ltc.hitalk.wam.compiler.builtins;
 import com.thesett.aima.logic.fol.FunctorName;
 import com.thesett.common.util.SizeableLinkedList;
 import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction;
@@ -29,9 +30,9 @@ public class HtConjunction extends HiTalkBaseBuiltIn {
         SizeableLinkedList <HiTalkWAMInstruction> result = new SizeableLinkedList <>();
         SizeableLinkedList <HiTalkWAMInstruction> instructions;
 
-        ITerm[] expressions = functor.getArguments();
+        ListTerm expressions = functor.getArguments();
 
-        for (final ITerm iTerm : expressions) {
+        for (final ITerm iTerm : expressions.getHeads()) {
             IFunctor expression = (IFunctor) iTerm;
 
             Integer permVarsRemaining =

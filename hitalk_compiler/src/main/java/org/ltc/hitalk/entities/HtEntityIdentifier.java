@@ -1,7 +1,7 @@
 package org.ltc.hitalk.entities;
 
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
-import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
@@ -20,9 +20,9 @@ class HtEntityIdentifier extends HtFunctor {
      * @param arguments
      * @param kind
      */
-    public HtEntityIdentifier ( int name, ITerm[] arguments, HtEntityKind kind ) {
+    public HtEntityIdentifier ( int name, ListTerm arguments, HtEntityKind kind ) {
         super(name, arguments);
-        if ((kind == HtEntityKind.PROTOCOL) && (arguments.length != 0)) {
+        if ((kind == HtEntityKind.PROTOCOL) && (arguments.size() != 0)) {
             throw new ExecutionError(PERMISSION_ERROR, null/*"Protocol name must be an atom."*/);
         }
         this.kind = kind;

@@ -21,12 +21,12 @@ import org.slf4j.LoggerFactory;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.IntStream;
 
 import static java.util.EnumSet.of;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.REPRESENTATION_ERROR;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
 import static org.ltc.hitalk.core.utils.TermUtilities.convertToClause;
-import static org.ltc.hitalk.parser.HiLogParser.hilogApply;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
 import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
 import static org.ltc.hitalk.term.ListTerm.Kind.*;
@@ -36,13 +36,14 @@ import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
  * @author shun
  */
 public class PlPrologParser implements IParser {
+    protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
+
     public static final String BEGIN_OF_FILE = "begin_of_file";
     public static final String END_OF_FILE = "end_of_file";
-    public static final Atom END_OF_FILE_ATOM =
-            getAppContext().getTermFactory().newAtom(END_OF_FILE);
-    public static final Atom BEGIN_OF_FILE_ATOM =
-            getAppContext().getTermFactory().newAtom(BEGIN_OF_FILE);
-    protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
+    public static final Atom END_OF_FILE_ATOM = getAppContext().getTermFactory().newAtom(END_OF_FILE);
+    public static final Atom BEGIN_OF_FILE_ATOM = getAppContext().getTermFactory().newAtom(BEGIN_OF_FILE);
+    public static final String ANONYMOUS = "_";
+
     protected final Deque <PlTokenSource> tokenSourceStack = new ArrayDeque <>();
     //    public static final ListTerm CONJUNCTION = getAppContext().getTermFactory().newListTerm(CLAUSE_BODY);
     protected IOperatorTable operatorTable;
@@ -132,7 +133,7 @@ public class PlPrologParser implements IParser {
      */
     @Override
     public ITerm next () throws Exception {
-        PlToken token = (getLexer()).next(true);
+        PlToken token = (getLexer()).poll();
         return newTerm(token, false, EnumSet.of(EOF));
     }
 
@@ -204,7 +205,7 @@ public class PlPrologParser implements IParser {
             HlOperatorJoiner <ITerm> joiner = new HlOperatorJoiner <ITerm>() {
                 @Override
                 protected ITerm join ( int notation, List <ITerm> args ) {
-                    return new HtFunctor(notation, args.toArray(new ITerm[args.size()]));
+                    return new HtFunctor(notation, new ListTerm(args.toArray(new ITerm[args.size()])));
                 }
             };
             outer:
@@ -227,8 +228,12 @@ public class PlPrologParser implements IParser {
                     }
                     if (token.kind == ATOM) {
                         logger.info(token.image);
-                        final Collection <HlOpSymbol> values = getOptable().getOperatorsMatchingNameByFixity(token.image).values();
-                        for (HlOpSymbol right : values) {
+                        final EnumMap <Fixity, HlOpSymbol> syms = getOptable().getOperatorsMatchingNameByFixity(token.image);
+//                        final Collection <HlOpSymbol> values = getOptable().getOperatorsMatchingNameByFixity(token.image);.values();
+                        if (syms == null) {
+                            return result;
+                        }
+                        for (HlOpSymbol right : syms.values()) {
                             if (joiner.accept(right.getAssociativity())) {
                                 joiner.push(right);
                                 continue outer;
@@ -364,7 +369,9 @@ public class PlPrologParser implements IParser {
     }
 
     protected IFunctor compound ( String name, ListTerm args ) throws Exception {
-        return termFactory.newFunctor(hilogApply, name, args);
+        final int iname = interner.internFunctorName(name, 0);
+        return termFactory.newFunctor(iname, args);
+//        return termFactory.newFunctor(hilogApply, name, args);
     }
 
     /**
@@ -422,6 +429,11 @@ public class PlPrologParser implements IParser {
         getOptable().setOperator(name, operatorName, priority, associativity);
     }
 
+    public void op ( int priority, Associativity associativity, String... operatorNames ) {
+        IntStream.range(0, operatorNames.length).forEachOrdered(i ->
+                internOperator(operatorNames[i], priority, associativity));
+    }
+
     /**
      * Interns and inserts into the operator table all of the built in operators and names in Prolog.
      */
@@ -439,7 +451,7 @@ public class PlPrologParser implements IParser {
         internOperator(PrologAtoms.IF, 1050, xfy);
         internOperator(PrologAtoms.IF_STAR, 1050, xfy);
 
-        internOperator(PrologAtoms.COMMA, 1000, xfy);
+//        internOperator(PrologAtoms.COMMA, 1000, xfy);
         internOperator(PrologAtoms.ASSIGN, 990, xfy);
         internOperator(PrologAtoms.NOT, 900, fy);
 
@@ -463,6 +475,19 @@ public class PlPrologParser implements IParser {
         internOperator(PrologAtoms.BSLASH_SLASH, 500, yfx);
         internOperator(PrologAtoms.SLASH_BSLASH, 500, yfx);
 
+        op(400, yfx,
+                PrologAtoms.SLASH,
+                PrologAtoms.SLASH_SLASH,
+                PrologAtoms.STAR,
+                PrologAtoms.RSHIFT,
+                PrologAtoms.LSHIFT,
+                PrologAtoms.REM,
+                PrologAtoms.MOD,
+                PrologAtoms.XOR,
+                PrologAtoms.REM,
+                PrologAtoms.REM,
+                PrologAtoms.REM,
+                );
         internOperator(PrologAtoms.SLASH, 400, yfx);
         internOperator(PrologAtoms.SLASH_SLASH, 400, yfx);
         internOperator(PrologAtoms.STAR, 400, yfx);
@@ -482,7 +507,7 @@ public class PlPrologParser implements IParser {
         internOperator(PrologAtoms.AS, 200, fy);
         internOperator(PrologAtoms.VBAR, 1100, xfx);
         internOperator(PrologAtoms.VBAR, 1100, fx);
-        internOperator(PrologAtoms.DOT, 100, yfx);
+//        internOperator(PrologAtoms.DOT, 100, yfx);
         internOperator(PrologAtoms.DOLLAR, 1, fx);
 
         // Intern all built in names.

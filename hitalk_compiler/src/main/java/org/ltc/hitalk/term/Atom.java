@@ -3,6 +3,8 @@ package org.ltc.hitalk.term;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 
+import static org.ltc.hitalk.term.ListTerm.NIL;
+
 /**
  *
  */
@@ -18,7 +20,7 @@ class Atom extends HtFunctor {
      */
     public
     Atom ( int name ) {
-        super(name, EMPTY_TERM_ARRAY);
+        super(name, NIL);
     }
 
 

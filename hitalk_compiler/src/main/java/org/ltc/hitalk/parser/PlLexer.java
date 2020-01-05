@@ -19,8 +19,8 @@ import static org.ltc.hitalk.parser.Quotemeta.decode;
  * @author shun
  */
 public class PlLexer extends PlTokenSource {
-    public static final String PUNCTUATION = ";,!|";
-    public static final String SPECIAL = "#$&*+-./:<=>?@\\^`~";
+    public static final String PUNCTUATION = ";,!|.";
+    public static final String SPECIAL = "#$&*+-/:<=>?@\\^`~";
     public static final String PARENTHESES = "(){}[]";
 
     /**
@@ -65,7 +65,7 @@ public class PlLexer extends PlTokenSource {
     }
 
     /**
-     *
+     * @param value
      */
     public PlToken next ( boolean value ) throws Exception {
         final HiTalkInputStream stream = getInputStream();
@@ -77,15 +77,10 @@ public class PlLexer extends PlTokenSource {
         token.setBeginLine(lineNumber);
         token.setBeginColumn(colNumber);
         token.setEndLine(lineNumber);
-        token.setEndColumn(colNumber + token.image.length());
+        token.setEndColumn(colNumber + token.image.length());//FUNCTOR_BEGIN =  "atom("
 
         return token;
     }
-//
-//    public String toString () {
-//        final String sb = "PlLexer{" + "inputStream=" + inputStream + '}';
-//        return sb;
-//    }
 
     /**
      * @return
@@ -143,6 +138,30 @@ public class PlLexer extends PlTokenSource {
         return getInputStream().read();
     }
 
+    /**
+     * @param c
+     * @return
+     */
+    public static boolean isAtomStart ( int c ) {
+        return c != '$' && c != '_' && isLowerCase(c);
+    }
+
+    /**
+     * @param c
+     * @return
+     */
+    public static boolean isVarStart ( int c ) {
+        return c == '_' && isUpperCase(c);
+    }
+
+    /**
+     * @param c
+     * @return
+     */
+    public static boolean isPrologIdentifierPart ( int c ) {
+        return isLetterOrDigit(c) || c == '_';
+    }
+
     private PlToken getToken ( boolean valued ) throws Exception {
         PlToken token = null;
         try {
@@ -176,7 +195,7 @@ public class PlLexer extends PlTokenSource {
                         }
                         if (valued && token.kind == ATOM) {
                             if ((chr = read()) == '(') {
-                                token = new PlToken(FUNCTOR_BEGIN);
+                                token = new PlToken(FUNCTOR_BEGIN, token.image);
                             } else {
                                 ungetc(chr);
                             }
@@ -197,24 +216,28 @@ public class PlLexer extends PlTokenSource {
             return new PlToken(ATOM, String.valueOf((char) chr));
         }
 //       Atom or variable consisting only of letters
-        if (isJavaIdentifierStart(chr)) {
+        final int start = chr;
+        if (isOperatorStart(start)) {
+
+        }
+        if (isAtomStart(start)) {
             do {
                 val.append((char) chr);
-            } while (isJavaIdentifierPart(chr = read()));
+            } while (isPrologIdentifierPart(chr = read()));
             ungetc(chr);
-            return new PlToken(isUpperCase(val.charAt(0)) || val.charAt(0) == '_' ? VAR : ATOM, val.toString());
+            if (isVarStart(start)) {
+                return new PlToken(VAR, val.toString());
+            }
+            return new PlToken(ATOM, val.toString());
         }
         // 'アトム' = atom
         if (chr == '\'') {
             while ((chr = read()) != '\'') {
                 val.append((char) chr);
-                if (chr == '\\') {
-                    val.append(read());//FIXME
-                }
             }
             return new PlToken(ATOM, decode(val.toString()), true);//todo encoding
         }
-        ungetc(chr);
+//        ungetc(chr);
         val = Optional.of(repeat(SPECIAL)).map(StringBuilder::new).orElse(null);
         if (!val.toString().isEmpty()) {
             return new PlToken(ATOM, val.toString());
@@ -222,6 +245,21 @@ public class PlLexer extends PlTokenSource {
         ungetc(chr);
 
         return null;
+    }
+
+    private boolean isOperatorStart ( int start ) {
+        return SPECIAL.indexOf(start) != -1;
+    }
+
+    private boolean isOperatorPart ( int chr1, int chr2 ) {
+        if (!isCombinable(chr1, chr2)) {
+            return false;
+        }
+        return (SPECIAL.indexOf(chr1) != -1 || PUNCTUATION.indexOf(chr2) != -1);
+    }
+
+    private boolean isCombinable ( int chr1, int chr2 ) {
+        return false;
     }
 
     private PlToken getNumber ( int chr, String prefix ) throws Exception {
@@ -317,7 +355,10 @@ public class PlLexer extends PlTokenSource {
                 if (chr == '/') {
                     int c = read();
                     if (c == '*') {
-                        while (read() != '*' || read() != '/') {
+                        while (true) {
+                            if (read() == '*' && read() == '/') {
+                                break;
+                            }
 
                         }
                         continue;
@@ -335,7 +376,7 @@ public class PlLexer extends PlTokenSource {
      * @return
      */
     public static boolean isWhitespace ( char c ) {
-        return " \r\n\t".indexOf(c) != -1;
+        return Character.isWhitespace(c);
     }
 
     /**

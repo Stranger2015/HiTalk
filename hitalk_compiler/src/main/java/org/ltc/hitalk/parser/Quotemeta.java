@@ -57,6 +57,7 @@ public final class Quotemeta {
         if (j < value.length()) {
             result.append(value.subSequence(j, value.length()));
         }
+
         return result.toString();
     }
 
@@ -111,7 +112,7 @@ public final class Quotemeta {
         if (value.length() == 0) {
             return "''";
         }
-        for (int i = 0; i < value.length(); ++i) {
+        for (int i = 0; i < value.length(); i++) {
             char c = value.charAt(i);
             if (Character.isWhitespace(c) || Character.isISOControl(c) || "()[]{}'".indexOf(c) != -1) {
                 return "'" + encode(value) + "'";

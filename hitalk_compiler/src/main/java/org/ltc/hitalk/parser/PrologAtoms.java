@@ -88,4 +88,5 @@ interface PrologAtoms {
     String DOT = ".";
     String ASSIGN = ":=";
     String DOLLAR = "$";
+    String XOR = "xor";
 }

@@ -27,7 +27,7 @@ import static org.ltc.hitalk.term.HlOpSymbol.Fixity.*;
  */
 public class CandidateOperator extends HtFunctor {
 
-    public CandidateOperator ( int name, ITerm[] args, String name1, EnumMap <Fixity, HlOpSymbol> possibleOperators ) {
+    public CandidateOperator ( int name, ListTerm args, String name1, EnumMap <Fixity, HlOpSymbol> possibleOperators ) {
         super(name, args);
         this.name = name1;
         this.possibleOperators = possibleOperators;

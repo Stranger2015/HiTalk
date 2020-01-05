@@ -211,12 +211,12 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
 
         Queue <Operator <ITerm>> queue = (!reverse) ? new StackQueue <>() : new LinkedList <>();
 
-        ITerm[] arguments = functor.getArguments();
+        ListTerm arguments = functor.getArguments();
 
         // For a top-level functor clear top-level flag, so that child functors are not taken as top-level.
 //            if (arguments != null) {
-        for (int i = 0; i < arguments.length; i++) {
-            ITerm argument = arguments[i];
+        for (int i = 0; i < arguments.size(); i++) {
+            ITerm argument = arguments.getHead(i);
 
             // When navigating onto a variable, the variable is scoped within a clause, and may appear many times
             // within it. Therefore it always uses its unique id relative to the root symbol table for the

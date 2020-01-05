@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.ltc.hitalk.core.algebra.Msg.msg;
 import static org.ltc.hitalk.wam.compiler.BodyCall.BodyCalls;
@@ -97,8 +96,13 @@ class Specializer<C extends BodyCalls <C>> implements ISpecializer {
     }
 
     protected List <HtClause> findSelectedClauses ( ListTerm args, List <HtClause> clauses ) {
-        return clauses.stream().filter(clause -> unifiesMnl(args, clause.getHead().getArgsAsListTerm()))
-                .collect(Collectors.toList());
+        List <HtClause> list = new ArrayList <>();
+        for (HtClause clause : clauses) {
+            if (unifiesMnl(args, clause.getHead().getArguments())) {
+                list.add(clause);
+            }
+        }
+        return list;
     }
 
     protected boolean unifiesMnl ( ListTerm args, ListTerm headsArgs ) {
@@ -140,7 +144,7 @@ class Specializer<C extends BodyCalls <C>> implements ISpecializer {
     public static @NotNull ListTerm findMsg ( ListTerm bodyCalls, List <HtClause> clauses ) {
         final Map <HtVariable, Pair <ITerm, ITerm>> dict = new HashMap <>();
         for (final HtClause clause : clauses) {
-            bodyCalls = (ListTerm) msg(bodyCalls, clause.getHead().getArgsAsListTerm(), dict);
+            bodyCalls = (ListTerm) msg(bodyCalls, clause.getHead(), dict);
         }
 
         return bodyCalls;

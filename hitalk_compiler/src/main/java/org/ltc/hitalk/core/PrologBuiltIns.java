@@ -9,8 +9,6 @@ import org.ltc.hitalk.wam.compiler.HtFunctor;
 
 import java.util.function.Consumer;
 
-import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
-
 /**
  *
  */
@@ -130,7 +128,7 @@ enum PrologBuiltIns {
     UNIFIES("=", listTerm -> {
         final IResolver <HtPredicate, HtClause> resolver = BaseApp.getAppContext().getResolverPre();//
         final IVafInterner interner = BaseApp.getAppContext().getInterner();
-        final HtFunctor eqf = new HtFunctor(interner.internFunctorName("=", 2), EMPTY_TERM_ARRAY);// fixme
+        final HtFunctor eqf = new HtFunctor(interner.internFunctorName("=", 2), new ListTerm(2));// fixme
         final HtClause query = new HtClause(null, new ListTerm(eqf));
         eqf.setArgument(0, listTerm.getHead(0));
         eqf.setArgument(1, listTerm.getHead(1));

@@ -1,6 +1,7 @@
 package org.ltc.hitalk.wam.compiler;
 
 import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.ListTerm;
 
 public class PredicateData extends HtFunctor {
     /**
@@ -17,7 +18,7 @@ public class PredicateData extends HtFunctor {
      * @param args
      */
     public PredicateData ( int name, ITerm[] args ) {
-        super(name, args);
+        super(name, new ListTerm(args));
     }
 
     /**
@@ -26,6 +27,6 @@ public class PredicateData extends HtFunctor {
      * @param arityDelta
      */
     public PredicateData ( int name, int arityDelta, ITerm... args ) {
-        super(name, arityDelta, args);
+        super(name, arityDelta, new ListTerm(args));
     }
 }

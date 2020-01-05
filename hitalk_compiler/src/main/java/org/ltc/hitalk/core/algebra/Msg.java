@@ -51,16 +51,15 @@ public class Msg {
             if (f1.getName() == f2.getName() && f1.getName() >= 0) {
                 result = new HtFunctor(f1.getName(), f1.getArity(), 0);
             } else if (f1.isHiLog() && f2.isHiLog()) {
-                final ITerm name1 = f1.getArgsAsListTerm().getHead(0);
-                final ITerm name2 = f2.getArgsAsListTerm().getHead(0);
+                final ITerm name1 = f1.getArguments().getHead(0);
+                final ITerm name2 = f2.getArguments().getHead(0);
                 final ITerm name = msg(name1, name2, dict);
-                final ListTerm lt = msgList(f1.getArgsAsListTerm(), f2.getArgsAsListTerm(), dict);
-                result = new HtFunctor(hilogApply, new ITerm[]{name, lt});
+                final ListTerm lt = msgList(f1.getArguments(), f2.getArguments(), dict);
+                result = new HtFunctor(hilogApply, new ListTerm(name, lt));
             } else {
-                result = new HtFunctor(hilogApply, new ITerm[]{updateDictNewVar(f1, f2, dict),
-                        /* new ListTerm(LIST, calls.getHeads())*/});
+                result = new HtFunctor(hilogApply, new ListTerm(updateDictNewVar(f1, f2, dict)));
+                /* new ListTerm(LIST, calls.getHeads())*/
             }
-
         } else if (term1.isList() && term2.isList()) {
             ListTerm lt1 = (ListTerm) term1;
             ListTerm lt2 = (ListTerm) term2;
@@ -168,4 +167,3 @@ public class Msg {
 
     }
 }
-

@@ -73,7 +73,7 @@ public class HtBuiltInTransformVisitor extends HtBasePositionalVisitor
                     parentClause.getBody().setHead(pos, builtInFunctor);
                 } else if (parentTerm instanceof IFunctor) {
                     IFunctor parentFunctor = (IFunctor) parentTerm;
-                    parentFunctor.getArguments()[pos] = builtInFunctor;
+                    parentFunctor.setArgument(pos, builtInFunctor);
                 }
             }
         }

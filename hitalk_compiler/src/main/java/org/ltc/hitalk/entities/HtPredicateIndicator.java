@@ -3,10 +3,7 @@ package org.ltc.hitalk.entities;
 import com.thesett.aima.search.Operator;
 import org.ltc.enumus.Hierarchy;
 import org.ltc.hitalk.compiler.IVafInterner;
-import org.ltc.hitalk.term.HtBaseTerm;
-import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.term.ITermTransformer;
-import org.ltc.hitalk.term.ITermVisitor;
+import org.ltc.hitalk.term.*;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
@@ -28,7 +25,7 @@ class HtPredicateIndicator extends HtBaseTerm {
      * @param arg2
      */
     public HtPredicateIndicator ( IFunctor name, ITerm arg1, ITerm arg2 ) {
-        delegate = new HtFunctor(name.getName(), new ITerm[]{name, arg1, arg2});
+        delegate = new HtFunctor(name.getName(), new ListTerm(name, arg1, arg2));
     }
 
     public HtPredicateIndicator ( IFunctor functor ) {
@@ -137,7 +134,7 @@ class HtPredicateIndicator extends HtBaseTerm {
      *
      * @return All of this functors arguments, possibly <tt>null</tt>.
      */
-    public ITerm[] getArguments () {
+    public ListTerm getArguments () {
         return delegate.getArguments();
     }
 

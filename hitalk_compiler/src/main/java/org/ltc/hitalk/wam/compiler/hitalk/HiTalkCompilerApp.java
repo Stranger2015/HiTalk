@@ -43,7 +43,7 @@ import static org.ltc.hitalk.compiler.bktables.BkTableKind.LOADED_ENTITIES;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.RESOURCE_ERROR;
 import static org.ltc.hitalk.parser.PlTokenSource.getTokenSourceForIoFileName;
-import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
+import static org.ltc.hitalk.term.ListTerm.NIL;
 import static org.ltc.hitalk.wam.compiler.Language.HITALK;
 
 /**
@@ -317,7 +317,7 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q, PC, QC>
         HtProperty[] flags = new HtProperty[]{///todo flags
                 getTermFactory().createFlag("basename", fileName),//FIXME PARSE
                 getTermFactory().createFlag("directory", fileName),//FIXME PARSE
-                getTermFactory().createFlag("entity_identifier", new HtFunctor(-1, EMPTY_TERM_ARRAY)),//FIXME PARSE
+                getTermFactory().createFlag("entity_identifier", new HtFunctor(-1, NIL)),//FIXME PARSE
                 getTermFactory().createFlag("file", fileName),//FIXME PARSE
                 getTermFactory().createFlag("basename", fileName),//FIXME PARSE
         };

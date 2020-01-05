@@ -150,14 +150,14 @@ class HtBasicTraverser implements
 
         Queue <Operator <ITerm>> queue = (!reverse) ? new StackQueue <>() : new LinkedList <>();
 
-        ITerm[] arguments = functor.getArguments();
+        ListTerm arguments = functor.getArguments();
 
         // For a top-level functor clear top-level flag, so that child functors are not taken as top-level.
         if (arguments != null) {
-            for (int i = leftToRightFunctorArgs ? 0 : (arguments.length - 1);
-                 leftToRightFunctorArgs ? (i < arguments.length) : (i >= 0);
-                 i = i + (leftToRightFunctorArgs ? 1 : -1)) {
-                ITerm argument = arguments[i];
+            for (int i = leftToRightFunctorArgs ? 0 : (arguments.size() - 1);
+                 leftToRightFunctorArgs ? (i < arguments.size()) : (i >= 0);
+                 i += (leftToRightFunctorArgs ? 1 : -1)) {
+                ITerm argument = arguments.getHead(i);
                 argument.setReversible(createTermOperator(argument, i, functor));
                 argument.setTermTraverser(this);
                 queue.offer(argument);
