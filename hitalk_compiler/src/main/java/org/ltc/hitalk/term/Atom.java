@@ -1,6 +1,5 @@
 package org.ltc.hitalk.term;
 
-import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 
 import static org.ltc.hitalk.term.ListTerm.NIL;
@@ -83,9 +82,9 @@ class Atom extends HtFunctor {
      * @param printVarName
      * @param printBindings
      */
-    public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
-        return super.toString(interner, printVarName, printBindings);
-    }
+//    public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
+//        return super.toString(interner, printVarName, printBindings);
+//    }
 
     /**
      * Reports whether or not this term is a ground term, i.e. contains no vars.
@@ -93,7 +92,7 @@ class Atom extends HtFunctor {
      * @return Always <tt>true</tt>
      */
     @Override
-    public boolean isGround () {
+    public boolean isGround() {
         return true;
     }
 }

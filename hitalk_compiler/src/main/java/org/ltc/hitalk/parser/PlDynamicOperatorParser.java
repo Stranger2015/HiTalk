@@ -15,7 +15,6 @@
  */
 package org.ltc.hitalk.parser;
 
-import com.thesett.aima.logic.fol.isoprologparser.DynamicOperatorParser;
 import com.thesett.common.util.Queue;
 import com.thesett.common.util.StackQueue;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
@@ -211,9 +210,11 @@ import static org.ltc.hitalk.term.HlOpSymbol.Fixity.*;
  * @author Rupert Smith
  */
 public class PlDynamicOperatorParser implements IOperatorTable {
-
     /* Used for debugging purposes. */
-    protected final Logger logger = LoggerFactory.getLogger(DynamicOperatorParser.class.getName());
+    protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
+
+    public static final int OP_HIGH = 1200;
+    public static final int OP_LOW = 1200;
 
     /**
      * Encodes the possible symbols that this parser accepts.
@@ -402,51 +403,56 @@ public class PlDynamicOperatorParser implements IOperatorTable {
         // Check that the name of the operator is valid.
 
         // Check that the priority of the operator is valid.
-        if (priority < 0 || (priority > 1200)) {
-            throw new IllegalArgumentException("Operator priority must be between 0 and 1200 inclusive.");
-        }
+        if (priority > 0 && (priority <= 1200)) {
 
-        HlOpSymbol opSymbol = new HlOpSymbol(name, textName, associativity, priority);
+            HlOpSymbol opSymbol = new HlOpSymbol(name, textName, associativity, priority);
 
-        // Consult the defined operators to see if there are any already defined that match the name of the
-        // new definition, otherwise a map of operators by fixity needs to be created.
-        EnumMap <Fixity, HlOpSymbol> operatorMap = operators.get(textName);
+            // Consult the defined operators to see if there are any already defined that match the name of the
+            // new definition, otherwise a map of operators by fixity needs to be created.
+            EnumMap<Fixity, HlOpSymbol> operatorMap = operators.get(textName);
 
-        // Check if the priority is non-zero in which case the operator is being added or redefined.
-        if (priority > 0) {
-            if (operatorMap == null) {
-                operatorMap = new EnumMap <>(Fixity.class);
-                operators.put(textName, operatorMap);
-            }
-
-            // Check if the operators fixity to see if further rules regarding simultaneous definition of post and
-            // infix operators need to be applied.
-            if (opSymbol.isPostfix()) {
-                // Postfix, so check if an infix definition already exists, which is not allowed.
-                if (operatorMap.containsKey(In)) {
-                    throw new IllegalArgumentException(
-                            "Cannot define a postfix operator when an infix one with the same name already exists.");
+            // Check if the priority is non-zero in which case the operator is being added or redefined.
+            if (priority > 0) {
+                if (operatorMap == null) {
+                    operatorMap = new EnumMap<>(Fixity.class);
+                    operators.put(textName, operatorMap);
                 }
-            } else if (opSymbol.isInfix()) {
-                // Infix, so check if a postfix definition already exists, which is not allowed.
-                if (operatorMap.containsKey(Post)) {
-                    throw new IllegalArgumentException(
-                            "Cannot define an infix operator when an postfix one with the same name already exists.");
+
+                // Check if the operators fixity to see if further rules regarding simultaneous definition of post and
+                // infix operators need to be applied.
+                if (opSymbol.isPostfix()) {
+                    // Postfix, so check if an infix definition already exists, which is not allowed.
+                    if (operatorMap.containsKey(In)) {
+                        throw new IllegalArgumentException(
+                                "Cannot define a postfix operator when an infix one with the same name already exists.");
+                    }
+                } else if (opSymbol.isInfix()) {
+                    // Infix, so check if a postfix definition already exists, which is not allowed.
+                    if (operatorMap.containsKey(Post)) {
+                        throw new IllegalArgumentException(
+                                "Cannot define an infix operator when an postfix one with the same name already exists.");
+                    }
+                }
+
+                // Add the operator to the table replacing any previous definition of the same fixity.
+                operatorMap.put(opSymbol.getFixity(), opSymbol);
+            } else {
+                // The priority is zero, in which case the operator is to be removed.
+                if ((operatorMap != null) && opSymbol.isPrefix()) {
+                    // Remove it from the prefix table, if it exists there.
+                    operatorMap.remove(Pre);
+                } else if ((operatorMap != null) && (opSymbol.isPostfix() || opSymbol.isInfix())) {
+                    // Remove it from the postfix/infix table, if it exists there.
+                    operatorMap.remove(Post);
+                    operatorMap.remove(In);
                 }
             }
+        } else if (priority == 0) {
+//
+        } else if (priority == -1) {
 
-            // Add the operator to the table replacing any previous definition of the same fixity.
-            operatorMap.put(opSymbol.getFixity(), opSymbol);
         } else {
-            // The priority is zero, in which case the operator is to be removed.
-            if ((operatorMap != null) && opSymbol.isPrefix()) {
-                // Remove it from the prefix table, if it exists there.
-                operatorMap.remove(Pre);
-            } else if ((operatorMap != null) && (opSymbol.isPostfix() || opSymbol.isInfix())) {
-                // Remove it from the postfix/infix table, if it exists there.
-                operatorMap.remove(Post);
-                operatorMap.remove(In);
-            }
+            throw new IllegalArgumentException("Operator priority must be between 0 and 1200 inclusive.");
         }
     }
 
@@ -456,8 +462,19 @@ public class PlDynamicOperatorParser implements IOperatorTable {
      * @param name The interned name of the operator to find.
      * @return An array of matching operators, or <tt>null</tt> if none can be found.
      */
-    public EnumMap <Fixity, HlOpSymbol> getOperatorsMatchingNameByFixity ( String name ) {
-        return operators.get(name);
+    public Map<Fixity, HlOpSymbol> getOperatorsMatchingNameByFixity(String name) {
+        final Map<Fixity, HlOpSymbol> map = operators.get(name);
+        return map == null ? Collections.emptyMap() : map;
+    }
+
+    public Set<HlOpSymbol> getOperators(String s) {
+        final Map<Fixity, HlOpSymbol> map = getOperatorsMatchingNameByFixity(s);
+        return new HashSet<>(map.values());
+    }
+
+    public int getPriority(String image, Associativity associativity) {
+        Map<Fixity, HlOpSymbol> map;//= //todo getOperatorsMatchingNameByFixity(image);
+        return 0;
     }
 
     /**
@@ -465,9 +482,13 @@ public class PlDynamicOperatorParser implements IOperatorTable {
      *
      * @return The current state of this parser as a string.
      */
-    public String toString () {
-        return "DynamicOperatorsParser: [ state = " + state + ", nextTerm = " + nextTerm + " stack = " + stack +
-                " outputStack = " + outputStack + " ]";
+    public String toString() {
+        return String.format("%s: { state = %d, nextTerm = %s stack = %s outputStack = %s }",
+                getClass().getSimpleName(),
+                state,
+                nextTerm,
+                stack,
+                outputStack);
     }
 
     /**

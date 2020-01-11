@@ -4,7 +4,6 @@ import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.core.IHitalkObject;
-import org.ltc.hitalk.core.utils.TermUtilities;
 import org.ltc.hitalk.term.HlOpSymbol;
 import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 import org.ltc.hitalk.term.ITerm;
@@ -13,6 +12,8 @@ import org.ltc.hitalk.wam.compiler.Language;
 
 import java.io.IOException;
 
+import static org.ltc.hitalk.core.utils.TermUtilities.convertToClause;
+
 /**
  *
  */
@@ -20,7 +21,7 @@ public interface IParser extends IHitalkObject {
     /**
      * @return
      */
-    PlPrologParser getParser ();
+    PlPrologParser getParser();
 
     /**
      * @param parser
@@ -88,15 +89,15 @@ public interface IParser extends IHitalkObject {
     /**
      * @return
      */
-    default PlTokenSource getTokenSource () {
+    default ITokenSource getTokenSource() {
         return getParser().getTokenSource();
     }
 
     /**
      * @param source
      */
-    default void setTokenSource ( PlTokenSource source ) {
-        if (source.inputStream.isOpen()) {
+    default void setTokenSource(ITokenSource source) {
+        if (source.isOpen()) {
             getParser().setTokenSource(source);
         }
     }
@@ -104,8 +105,8 @@ public interface IParser extends IHitalkObject {
     /**
      * @return
      */
-    default PlTokenSource popTokenSource () throws IOException {
-        final PlTokenSource ts = getParser().popTokenSource();
+    default ITokenSource popTokenSource() throws IOException {
+        final ITokenSource ts = getParser().popTokenSource();
         ts.close();
         return ts;
     }
@@ -154,6 +155,6 @@ public interface IParser extends IHitalkObject {
      * @return
      */
     default HtClause convert ( ITerm t ) throws HtSourceCodeException {
-        return TermUtilities.convertToClause(t, getInterner());
+        return convertToClause(t, getInterner());
     }
 }

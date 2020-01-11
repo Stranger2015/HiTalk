@@ -15,7 +15,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.ltc.hitalk.term.HlOpSymbol.Associativity.fx;
-import static org.ltc.hitalk.wam.compiler.Language.HILOG;
 
 /**
  *
@@ -85,7 +84,7 @@ public class HiLogParser extends PlPrologParser {
 
     @Override
     public Language language () {
-        return HILOG;
+        return Language.HILOG;
     }
 
     /**
@@ -95,6 +94,8 @@ public class HiLogParser extends PlPrologParser {
         super.initializeBuiltIns();
 
         internOperator(PrologAtoms.HILOG, 1150, fx);
+//        internOperator(PrologAtoms.HILOG, 1150, hx);
+//        internOperator(PrologAtoms.HILOG, 1150, hy);
     }
 }
 //%% Copyright (C) 1990 SUNY at Stony Brook

@@ -7,8 +7,8 @@ import org.ltc.hitalk.core.HtVersion;
 import org.ltc.hitalk.core.IConfigurable;
 import org.ltc.hitalk.core.utils.HtSymbolTable;
 import org.ltc.hitalk.core.utils.ISymbolTable;
+import org.ltc.hitalk.parser.ITokenSource;
 import org.ltc.hitalk.parser.PlPrologParser;
-import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.wam.compiler.Language;
 import org.ltc.hitalk.wam.compiler.Tools;
 import org.slf4j.Logger;
@@ -294,10 +294,10 @@ public interface IApplication extends Runnable, IConfigurable {
     /**
      * @param tokenSource
      */
-    void setTokenSource ( PlTokenSource tokenSource );
+    void setTokenSource(ITokenSource tokenSource);
 
     /**
      * @return
      */
-    PlTokenSource getTokenSource () throws IOException;
+    ITokenSource getTokenSource() throws IOException;
 }

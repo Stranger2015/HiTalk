@@ -39,7 +39,6 @@ public enum Language {
             LogtalkInstructionCompiler.class);;
 
     private final String name;
-    //    public final PlPrologParser parser;
     private Class <?> parserClass;
     private Class <?> wamCompilerClass;
     private Class <?> preCompilerClass;

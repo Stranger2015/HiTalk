@@ -17,6 +17,7 @@ package org.ltc.hitalk.term;
 
 
 import org.jetbrains.annotations.NotNull;
+import org.ltc.hitalk.parser.IOpFunctor;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 
 import java.util.EnumSet;
@@ -49,8 +50,9 @@ import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
  *
  * @author Rupert Smith
  */
-public class HlOpSymbol extends HtFunctor implements Comparable <HlOpSymbol>, Cloneable {
+public class HlOpSymbol extends HtFunctor implements IOpFunctor, Comparable<HlOpSymbol>, Cloneable {
 
+    protected final boolean builtIn;
     public int lprio;
     public int rprio;
 
@@ -68,7 +70,15 @@ public class HlOpSymbol extends HtFunctor implements Comparable <HlOpSymbol>, Cl
      * Holds the priority of this operator.
      */
     protected int priority;
+
+    public HlOpSymbol(int name, String textName, Associativity associativity, int priority) {
+        this(name, textName, associativity, priority, true);
+    }
 //    protected int name;
+
+    public boolean isBuiltIn() {
+        return builtIn;
+    }
 
     /**
      * Creates a new operator with the specified name and arguments.
@@ -77,8 +87,10 @@ public class HlOpSymbol extends HtFunctor implements Comparable <HlOpSymbol>, Cl
      * @param associativity Specifies the associativity of the operator.
      * @param priority      The operators priority.
      */
-    public HlOpSymbol ( int name, String textName, Associativity associativity, int priority ) {
+    public HlOpSymbol(int name, String textName, Associativity associativity, int priority, boolean builtIn) {
         super(name, new ListTerm(associativity.arity));
+        this.priority = priority;
+        this.builtIn = builtIn;
 
         // Check that there is at least one and at most two arguments.
         if (args.size() < 1 || args.size() > 2) {
@@ -190,7 +202,7 @@ public class HlOpSymbol extends HtFunctor implements Comparable <HlOpSymbol>, Cl
                 return Fixity.In;
 
             default:
-                throw new IllegalStateException("Unknown associativity.");
+                throw new IllegalStateException("Unknown fixity.");
         }
     }
 
@@ -269,7 +281,8 @@ public class HlOpSymbol extends HtFunctor implements Comparable <HlOpSymbol>, Cl
         try {
             return (HlOpSymbol) clone();
         } catch (CloneNotSupportedException e) {
-            throw new IllegalStateException("Got a CloneNotSupportedException but clone is defined on Operator and should not fail.", e);
+            throw new IllegalStateException("Got a CloneNotSupportedException but clone is defined on Operator and " +
+                    "should not fail.", e);
         }
     }
 
@@ -280,7 +293,7 @@ public class HlOpSymbol extends HtFunctor implements Comparable <HlOpSymbol>, Cl
      * @return The operator as a string.
      */
     public String toString () {
-        return format("%s: [ name = %s, priority = %d, associativity = %s ]",
+        return format("%s: { name = %s, priority = %d, associativity = %s }",
                 getClass().getSimpleName(), textName, priority, associativity);
     }
 

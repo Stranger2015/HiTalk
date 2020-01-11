@@ -288,25 +288,26 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
      */
     @Override
     public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
-        if (getName() < 0) {
-            return "internal_built_in";
-        }
+//        if (getName() < 0) {
+//            return "internal_built_in";
+//        }
 
-        StringBuilder result = new StringBuilder(interner.getFunctorName(getName()));
+//        StringBuilder result = new StringBuilder(interner.getFunctorName(getName()));
+//
+//        if (args.size() > 0) {
+//            result.append("(");
+//
+//            IntStream.range(0, args.size()).forEachOrdered(i -> {
+//                ITerm nextArg = getArgument(i);
+//                result.append(nextArg.toString(interner, printVarName, printBindings));
+//                result.append((i < (args.size() - 1)) ? ", " : "");
+//            });
+//
+//            result.append(")");
+        return "Scheisse";
+//        }
 
-        if (args.size() > 0) {
-            result.append("(");
-
-            IntStream.range(0, args.size()).forEachOrdered(i -> {
-                ITerm nextArg = getArgument(i);
-                result.append(nextArg.toString(interner, printVarName, printBindings));
-                result.append((i < (args.size() - 1)) ? ", " : "");
-            });
-
-            result.append(")");
-        }
-
-        return result.toString();
+//        return result.toString();
     }
 
     /**

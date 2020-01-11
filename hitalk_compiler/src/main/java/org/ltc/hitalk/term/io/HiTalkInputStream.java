@@ -2,7 +2,7 @@ package org.ltc.hitalk.term.io;
 
 import org.jetbrains.annotations.NotNull;
 import org.ltc.hitalk.entities.IProperty;
-import org.ltc.hitalk.parser.PlTokenSource;
+import org.ltc.hitalk.parser.ITokenSource;
 import org.ltc.hitalk.term.ITerm;
 
 import java.beans.PropertyChangeEvent;
@@ -31,12 +31,12 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
     protected FileInputStream inputStream;
     protected PushbackReader pushbackReader;
     private int bof;
-    private PlTokenSource tokenSource;
+    private ITokenSource tokenSource;
 
     private int reads;
     private int lineNumber;
     private int colNumber;
-    private LineNumberReader reader;
+    private LineNumberReader reader;//=new LineNumberReader();
 
     /**
      * Creates a buffering character-input stream that uses a default-sized
@@ -51,17 +51,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
         setInputStream(fis);
     }
 
-//    /**
-//     * @param path
-//     * @param tokenSource
-//     * @param bufferSize
-//     * @throws IOException
-//     */
-//    public HiTalkInputStream ( Path path, PlTokenSource tokenSource, int bufferSize ) throws IOException {
-//        this(bufferSize, path, tokenSource);
-//    }
-
-    public HiTalkInputStream ( FileDescriptor fd, /*PlTokenSource tokenSource, */int bufferSize ) {
+    public HiTalkInputStream(FileDescriptor fd, int bufferSize) {
 //        this.bufferSize = bufferSize;
         this.fd = fd;
         final FileInputStream fis = new FileInputStream(fd);
@@ -153,7 +143,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
     /**
      * @param tokenSource
      */
-    public void setTokenSource ( PlTokenSource tokenSource ) {
+    public void setTokenSource(ITokenSource tokenSource) {
         this.tokenSource = tokenSource;
     }
 
@@ -210,20 +200,21 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      * will have a value less than {@code \u005Cu0100},
      * that is, {@code (char)256}.
      *
-     * @return the next line of text from the input stream,
-     * or {@code null} if the end of file is
-     * encountered before a byte can be read.
      * @throws IOException if an I/O error occurs.
      */
-    public String readLine () throws IOException {
+    public void readLine() throws IOException {
         setColNumber(0);
-        return reader.readLine();
+        reader.readLine();
+    }
+
+    public LineNumberReader getReader() {
+        return reader;
     }
 
     /**
      * @param inputStream
      */
-    public void setInputStream ( FileInputStream inputStream ) {
+    public void setInputStream(FileInputStream inputStream) {
         this.inputStream = inputStream;
         channel = inputStream.getChannel();
         reader = new LineNumberReader(new BufferedReader(new InputStreamReader(inputStream), defaultBufSize));
@@ -322,7 +313,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
         return bof++ == 0;
     }
 
-    public PlTokenSource getTokenSource () {
+    public ITokenSource getTokenSource() {
         return tokenSource;
     }
 
@@ -335,8 +326,12 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
     }
 
     public boolean equals ( Object o ) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         final HiTalkInputStream that = (HiTalkInputStream) o;
 

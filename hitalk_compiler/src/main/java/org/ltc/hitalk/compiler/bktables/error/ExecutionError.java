@@ -7,13 +7,15 @@ import org.ltc.hitalk.wam.compiler.HtFunctorName;
  */
 public
 class ExecutionError extends RuntimeException {
-    public
-    Kind getKind () {
+    public ExecutionError() {
+    }
+
+    public Kind getKind() {
         return kind;
     }
 
     @Override
-    public String getMessage () {
+    public String getMessage() {
         return message;
     }
 

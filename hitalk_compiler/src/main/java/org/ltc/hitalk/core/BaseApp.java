@@ -361,7 +361,7 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
      * @param tokenSource
      */
     @Override
-    public void setTokenSource ( PlTokenSource tokenSource ) {
+    public void setTokenSource(ITokenSource tokenSource) {
         getParser().setTokenSource(tokenSource);
     }
 
@@ -369,7 +369,7 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
      * @return
      */
     @Override
-    public PlTokenSource getTokenSource () {
+    public ITokenSource getTokenSource() {
         return getParser().getTokenSource();
     }
 
@@ -410,9 +410,8 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
      *
      */
     public static class AppContext extends HashMap <Components, IHitalkObject> {
-
         private HiTalkInputStream inputStream;
-        private PlTokenSource tokenSource;
+        private ITokenSource tokenSource;
 
         /**
          * Creates an empty enum map with the specified key type.
@@ -542,7 +541,7 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
             return (HiTalkStream) get(STREAM);
         }
 
-        public PlTokenSource getTokenSource () {
+        public ITokenSource getTokenSource() {
             return tokenSource;
         }
 

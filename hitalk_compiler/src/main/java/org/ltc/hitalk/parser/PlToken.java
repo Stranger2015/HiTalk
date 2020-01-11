@@ -1,55 +1,85 @@
 package org.ltc.hitalk.parser;
 
+import static org.ltc.hitalk.parser.PlToken.TokenKind.TK_BOF;
+import static org.ltc.hitalk.parser.PlToken.TokenKind.TK_EOF;
+
 /**
  * Describes the input token stream.
  */
 public class PlToken implements ISourceCodePosition {
 
-    public boolean quote;
+    /**
+     * The string image of the token.
+     */
     public String image;
 
-    public void setBeginLine ( int beginLine ) {
+    @Override
+    public void setBeginLine(int beginLine) {
         this.beginLine = beginLine;
     }
 
-    public void setBeginColumn ( int beginColumn ) {
+    @Override
+    public void setBeginColumn(int beginColumn) {
         this.beginColumn = beginColumn;
     }
 
-    public void setEndLine ( int endLine ) {
+    /**
+     * @param endLine
+     */
+    public void setEndLine(int endLine) {
         this.endLine = endLine;
     }
 
-    public void setEndColumn ( int endColumn ) {
+    /**
+     * @param endColumn
+     */
+    @Override
+    public void setEndColumn(int endColumn) {
         this.endColumn = endColumn;
     }
 
-    public int getBeginLine () {
+    /**
+     * @return
+     */
+    @Override
+    public int getBeginLine() {
         return beginLine;
     }
 
-    public int getBeginColumn () {
+    /**
+     * @return
+     */
+    @Override
+    public int getBeginColumn() {
         return beginColumn;
     }
 
-    public int getEndLine () {
+    /**
+     * @return
+     */
+    @Override
+    public int getEndLine() {
         return endLine;
     }
 
-    public int getEndColumn () {
+    /**
+     * @return
+     */
+    @Override
+    public int getEndColumn() {
         return endColumn;
     }
 
     /**
      * @param kind
      */
-    public PlToken ( TokenKind kind ) {
+    public PlToken(TokenKind kind) {
         this.kind = kind;
         image = kind.getImage();
         if (!image.isEmpty()) {
             endColumn = beginColumn + image.length();
         }
-        if (kind == TokenKind.BOF) {
+        if (kind == TK_BOF) {
             endLine = beginLine = 0;
             endColumn = beginColumn = 0;
         }
@@ -65,69 +95,91 @@ public class PlToken implements ISourceCodePosition {
     }
 
     /**
-     * @param kind
-     * @param number
-     * @param quote
+     * @return
      */
-    public PlToken ( TokenKind kind, String number, boolean quote ) {
-        this(kind, number);
-        this.quote = quote;
+    public String getImage() {
+        return image;
     }
 
-    public String getImage () {
-        return image;
+    /**
+     * @return
+     */
+    public boolean isEOF() {
+        return kind == TK_EOF;
+    }
+
+    public boolean isBOF() {
+        return kind == TK_BOF;
+    }
+
+    public boolean isOperator(boolean commaIsEndMarker) {
+        return false;
+    }
+
+    public boolean isNumber() {
+        return false;
     }
 
     /**
      *
      */
     public enum TokenKind {
-        BOF(""),
-        EOF(""),
-        DOT("."),
-        LPAREN("("),
-        RPAREN(")"),
-        LBRACKET("["),
-        RBRACKET("]"),
-        LBRACE("{"),
-        RBRACE("}"),
+        TK_BOF(""),
+        TK_EOF(""),
+        TK_DOT("."),
+        TK_LPAREN("("),
+        TK_RPAREN(")"),
+        TK_LBRACKET("["),
+        TK_RBRACKET("]"),
+        TK_LBRACE("{"),
+        TK_RBRACE("}"),
 
-        D_QUOTE("\""),
-        S_QUOTE("'"),
-        B_QUOTE("`"),
-        INTEGER_LITERAL(""),
-        DECIMAL_LITERAL(""),
-        HEX_LITERAL(""),
-        FLOATING_POINT_LITERAL(""),
-        DECIMAL_EXPONENT(""),
-        CHARACTER_LITERAL(""),
-        STRING_LITERAL(""),
-        VAR(""),
-        FUNCTOR_BEGIN(""),
-        ATOM(""),
-        NAME(""),
-        SYMBOLIC_NAME(""),
-        DIGIT(""),
-        ANY_CHAR(""),
-        LOWERCASE(""),
-        UPPERCASE(""),
-        SYMBOL(""),
-        COMMA(","),
-        SEMICOLON(";"),
-        COLON(":"),
-        CONS("|");
+        TK_D_QUOTE("\""),
+        TK_S_QUOTE("'"),
+        TK_B_QUOTE("`"),
+        TK_INTEGER_LITERAL(""),
+        TK_DECIMAL_LITERAL(""),
+        TK_HEX_LITERAL(""),
+        TK_FLOATING_POINT_LITERAL(""),
+        TK_DECIMAL_EXPONENT(""),
+        TK_CHARACTER_LITERAL(""),
+        TK_STRING_LITERAL(""),
+        TK_VAR(""),
+        TK_FUNCTOR_BEGIN(""),
+        TK_ATOM(""),
+        TK_QUOTED_NAME(""),
+        TK_SYMBOLIC_NAME(""),
+        TK_DIGIT(""),
+        TK_ANY_CHAR(""),
+        TK_LOWERCASE(""),
+        TK_UPPERCASE(""),
+        TK_SYMBOL(""),
+        TK_COMMA(","),
+        TK_SEMICOLON(";"),
+        TK_COLON(":"),
+        TK_CONS("|");
 
-        TokenKind ( String image ) {
+        /**
+         * @param image
+         */
+        TokenKind(String image) {
             this.image = image;
+        }
+
+        public boolean isAtom() {
+            return this == TK_ATOM || this == TK_SYMBOLIC_NAME || this == TK_QUOTED_NAME;
         }
 
         private String image;
 
-        public String getImage () {
+        /**
+         * @return
+         */
+        public String getImage() {
             return image;
         }
 
-        public char getChar () {
+        public char getChar() {
             return image == null || image.isEmpty() ? 0 : image.charAt(0);
         }
     }
@@ -145,11 +197,6 @@ public class PlToken implements ISourceCodePosition {
     public int endColumn;
 
     /**
-     * The string image of the token.
-     */
-//    public String image;
-
-    /**
      * A reference to the next regular (non-special) token from the input
      * stream.  If this is the last token from the input stream, or if the
      * token manager has not read tokens beyond this one, this field is
@@ -159,24 +206,24 @@ public class PlToken implements ISourceCodePosition {
      */
     public PlToken next;
 
-    /**
-     * This field is used to access special tokens that occur prior to this
-     * token, but after the immediately preceding regular (non-special) token.
-     * If there are no such special tokens, this field is set to "".
-     * When there are more than one such special token, this field refers
-     * to the last of these special tokens, which in turn refers to the next
-     * previous special token through its specialToken field, and so on
-     * until the first special token (whose specialToken field is "").
-     * The next fields of special tokens refer to other special tokens that
-     * immediately follow it (without an intervening regular token).  If there
-     * is no such token, this field is "".
-     */
-    public PlToken specialToken;
+//    /**
+//     * This field is used to access special tokens that occur prior to this
+//     * token, but after the immediately preceding regular (non-special) token.
+//     * If there are no such special tokens, this field is set to "".
+//     * When there are more than one such special token, this field refers
+//     * to the last of these special tokens, which in turn refers to the next
+//     * previous special token through its specialToken field, and so on
+//     * until the first special token (whose specialToken field is "").
+//     * The next fields of special tokens refer to other special tokens that
+//     * immediately follow it (without an intervening regular token).  If there
+//     * is no such token, this field is "".
+//     */
+//    public PlToken specialToken;
 
     /**
      * Returns the image.
      */
-    public String toString () {
+    public String toString() {
         return image;
     }
 

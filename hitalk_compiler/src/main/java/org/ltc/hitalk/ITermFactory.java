@@ -19,7 +19,7 @@ interface ITermFactory extends IHitalkObject {
     /**
      * 整数値アトムを生成します。
      */
-    Atom newAtom ( int value );
+    Atom newAtom(int value);
 
     Atom newAtom ( String value );
 
@@ -74,15 +74,17 @@ interface ITermFactory extends IHitalkObject {
 
     ListTerm newListTerm ( Kind kind, ITerm... headTail );
 
-    HtProperty createFlag ( String scratch_directory, Path scratchDir );
+    HtProperty createFlag(String scratch_directory, Path scratchDir);
 
     /**
      * @param functor
      * @return
      */
-    IFunctor createMostGeneral ( IFunctor functor );
+    IFunctor createMostGeneral(IFunctor functor);
 
-    IFunctor newFunctor ( String name, int arity );
+    IFunctor newFunctor(String name, int arity);
+
+    NumberTerm createNumber(String s);
 }
 /*
     public static final String ANON_VAR = PrologConstants.UNDERSCORE_VAR_NAME;

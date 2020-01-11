@@ -3,8 +3,8 @@ package org.ltc.hitalk.parser;
 public
 interface PrologAtoms {
     String BYPASS_NIL = "{}";//arity 0 => ATOM
-    String BYPASS_CONS = "{|}";//arity 0-2: {}, {| TERM_LIST OR VAR),{ERM1 | TERM_TAIL OR VAR}; depends on ctx:
-    // bypass/ dcg_escape/ other
+//    String BYPASS_CONS = "{|}";//arity 0-2: {}, {| TERM_LIST OR VAR),{ERM1 | TERM_TAIL OR VAR}; depends on ctx:
+// bypass/ dcg_escape/ other
 //                       "{|}";//arity 0-2: {}, {| CALLABLE_LIST OR VAR),(CALLABLE1 | CALLABLE_TAIL OR VAR);
     String LBRACE = "{";
     String RBRACE = "}";
@@ -63,15 +63,16 @@ interface PrologAtoms {
     String BSLASH_SLASH = "\\/";
 
     String NIL = "[]";//arity 0 => ATOM
-    String CONS = "[|]";//;
-    String VBAR = "|";//arity 1-2: (), (|LIST OR VAR),(EL1 | TAIL OR VAR);
+//    String CONS = "[|]";//;
+
+    String CONS = "|";//arity 1-2: (), (|LIST OR VAR),(EL1 | TAIL OR VAR);
 
     String TRUE = "true";
     String FAIL = "fail";
     String FALSE = "false";
 
     String ARGLIST_NIL = "()";//arity 0 => ATOM
-    String ARGLIST_CONS = "(|)";//arity 0-2: (), (|ARGLIST OR VAR),(ARG1 | ARGTAIL OR VAR);
+    //    String ARGLIST_CONS = "(|)";//arity 0-2: (), (|ARGLIST OR VAR),(ARG1 | ARGTAIL OR VAR);
     String CUT = "!";
 
     String EXTENDS = "extends";
@@ -89,4 +90,17 @@ interface PrologAtoms {
     String ASSIGN = ":=";
     String DOLLAR = "$";
     String XOR = "xor";
+    String DYNAMIC = "dynamic";
+    String DISCONTIGUOUS = "discontiguous";
+    String INITIALIZATION = "initialization";
+    String META_PREDICATE = "meta_predicate";
+    String MODULE_TRANSPARENT = "module_transparent";
+    String MULTIFILE = "multifile";
+    String THREAD_LOCAL = "thread_local";
+    String THREAD_INITIALIZATION = "thread_initialization";
+    String VOLATILE = "volatile";
+    String RDIV = "rdiv";
+    String DIV = "div";
+    String COMMA_ = COMMA;
+    PlToken.TokenKind rdelim = ;
 }

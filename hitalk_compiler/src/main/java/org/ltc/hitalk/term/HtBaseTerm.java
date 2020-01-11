@@ -28,8 +28,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.ltc.hitalk.core.BaseApp.getAppContext;
-
 /**
  * BaseTerm provides an abstract base implementation of {@link ITerm}. In particular it provides methods to make an
  * abstract syntax tree expressible as a state space with operations to navigate over it.
@@ -315,6 +313,6 @@ public abstract class HtBaseTerm extends TraversableState <ITerm> implements ITe
     }
 
     public String toString () {
-        return toString(getAppContext().getInterner(), true, true);
+        return "";//oString(getAppContext().getInterner(), true, true);
     }
 }

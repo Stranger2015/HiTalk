@@ -131,9 +131,6 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
         final List <HtClause> list = new ArrayList <>();
         while (tokenSource.isOpen()) {
             ITerm t = getParser().next();
-           /* if (t == null) {
-                t = END_OF_FILE_ATOM;
-            } else */
             if (t.equals(BEGIN_OF_FILE_ATOM)) {
                 getLogger().info("begin_of_file");
                 getQueue().push(new TermExpansionTask(this, tokenSource, EnumSet.of(ENCODING)));
