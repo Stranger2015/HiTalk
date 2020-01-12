@@ -12,7 +12,6 @@ import java.util.stream.IntStream;
  *
  */
 public class HtFunctor extends HtBaseTerm implements IFunctor {
-
     protected int name;
 
     /**
@@ -52,14 +51,18 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
     /**
      *
      */
-    public HtFunctor () {
+    public HtFunctor() {
     }
 
     /**
      * @param name
      */
-    public HtFunctor ( int name ) {
+    public HtFunctor(int name) {
         this.name = name;
+    }
+
+    public HtFunctor(int yf, HlOpSymbol symbol) {
+
     }
 
 //    /**

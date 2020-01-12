@@ -4,6 +4,10 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.term.HtBaseTerm;
 
 public class NumberTerm extends HtBaseTerm {
+    public NumberTerm(String image) {
+
+    }
+
     /**
      * @return
      */
@@ -12,7 +16,7 @@ public class NumberTerm extends HtBaseTerm {
     }
 
     /**
-     * Frees all assigned variables in the term, leaving them unnassigned.
+     * Frees all assigned variables in the term, leaving them unassigned.
      */
     public void free() {
 

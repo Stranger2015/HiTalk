@@ -21,35 +21,36 @@ interface ITermFactory extends IHitalkObject {
      */
     Atom newAtom(int value);
 
-    Atom newAtom ( String value );
+    Atom newAtom(String value);
 
     /**
      * 実数値アトムを生成します。
+     *
      * @return
      */
-    FloatTerm newAtom ( double value );
+    FloatTerm newAtom(double value);
 
     /**
      * ひとつ以上の引数を持つ関数子を作成します。
      */
-    IFunctor newFunctor ( int hilogApply, String value, ListTerm args );
+    IFunctor newFunctor(int hilogApply, String value, ListTerm args);
 
-    IFunctor newFunctor ( int value, ListTerm args );
+    IFunctor newFunctor(int value, ListTerm args);
 
     /**
      * 変数を作成します。
      */
-    HtVariable newVariable ( String value );
+    HtVariable newVariable(String value);
 
     /**
      * @param s
      * @return
      */
-    IFunctor createAtom ( String s );
+    IFunctor createAtom(String s);
 
 //    Functor createCompound ( String s, Term[] head, Term tail );
 
-    HtProperty createFlag ( String flagName, String flagValue );
+    HtProperty createFlag(String flagName, String flagValue);
 
     /**
      * @param name
@@ -57,22 +58,22 @@ interface ITermFactory extends IHitalkObject {
      * @param kind
      * @return
      */
-    HtEntityIdentifier createIdentifier ( HtEntityKind kind, String name, ITerm... args );
+    HtEntityIdentifier createIdentifier(HtEntityKind kind, String name, ITerm... args);
 
     /**
      * @param name
      * @param args
      * @return
      */
-    HtProperty createFlag ( String name, ITerm... args );
+    HtProperty createFlag(String name, ITerm... args);
 
-    IFunctor newFunctor ( int hilogApply, ITerm name, ListTerm args );
+    IFunctor newFunctor(int hilogApply, ITerm name, ListTerm args);
 
-    IntTerm newAtomic ( int i );
+    IntTerm newAtomic(int i);
 
-    FloatTerm newAtomic ( double f );
+    FloatTerm newAtomic(double f);
 
-    ListTerm newListTerm ( Kind kind, ITerm... headTail );
+    ListTerm newListTerm(Kind kind, ITerm... headTail);
 
     HtProperty createFlag(String scratch_directory, Path scratchDir);
 

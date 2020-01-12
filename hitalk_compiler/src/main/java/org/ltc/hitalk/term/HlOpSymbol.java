@@ -52,7 +52,7 @@ import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
  */
 public class HlOpSymbol extends HtFunctor implements IOpFunctor, Comparable<HlOpSymbol>, Cloneable {
 
-    protected final boolean builtIn;
+    protected boolean builtIn;
     public int lprio;
     public int rprio;
 
@@ -73,6 +73,21 @@ public class HlOpSymbol extends HtFunctor implements IOpFunctor, Comparable<HlOp
 
     public HlOpSymbol(int name, String textName, Associativity associativity, int priority) {
         this(name, textName, associativity, priority, true);
+    }
+
+    public HlOpSymbol(String image, int result) {
+
+    }
+
+    public HlOpSymbol(String image, int result, int result1) {
+
+    }
+
+    public HlOpSymbol(int kind, HlOpSymbol symbol) {
+    }
+
+    public HlOpSymbol(int xfx, IOpFunctor xfx1) {
+
     }
 //    protected int name;
 
@@ -150,8 +165,12 @@ public class HlOpSymbol extends HtFunctor implements IOpFunctor, Comparable<HlOp
      *
      * @return The symbols priority.
      */
-    public int getPriority () {
+    public int getPriority() {
         return priority;
+    }
+
+    public int getResult() {
+        return 0;
     }
 
     /**
@@ -159,7 +178,7 @@ public class HlOpSymbol extends HtFunctor implements IOpFunctor, Comparable<HlOp
      *
      * @return The symbols textual representation.
      */
-    public String getTextName () {
+    public String getTextName() {
         return textName;
     }
 

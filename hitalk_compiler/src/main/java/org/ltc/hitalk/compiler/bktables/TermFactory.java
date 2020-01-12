@@ -1,6 +1,7 @@
 package org.ltc.hitalk.compiler.bktables;
 
 import org.ltc.hitalk.ITermFactory;
+import org.ltc.hitalk.NumberTerm;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.utils.TermUtilities;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
@@ -141,11 +142,15 @@ public class TermFactory implements ITermFactory {
     }
 
     @Override
-    public IFunctor newFunctor ( String name, int arity ) {
+    public IFunctor newFunctor(String name, int arity) {
         return new HtFunctor(interner.internFunctorName(name, arity));
     }
 
-    public HtVariable createVariable ( String vname ) {
+    public NumberTerm createNumber(String s) {
+        return null;
+    }
+
+    public HtVariable createVariable(String vname) {
         return new HtVariable(interner.internVariableName(vname), null, false);
     }
 
