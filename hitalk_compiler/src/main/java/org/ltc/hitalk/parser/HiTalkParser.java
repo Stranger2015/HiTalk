@@ -6,8 +6,6 @@ import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.wam.compiler.Language;
 
-import java.io.FileNotFoundException;
-
 import static org.ltc.hitalk.parser.PrologAtoms.*;
 import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
 import static org.ltc.hitalk.wam.compiler.Language.HITALK;
@@ -17,7 +15,7 @@ import static org.ltc.hitalk.wam.compiler.Language.HITALK;
  */
 public class HiTalkParser extends PlPrologParser {
 
-    public HiTalkParser () throws FileNotFoundException {
+    public HiTalkParser() throws Exception {
         super();
     }
 
@@ -35,10 +33,10 @@ public class HiTalkParser extends PlPrologParser {
      *
      * @param interner The interner for variable and functor names.
      */
-    public HiTalkParser ( HiTalkInputStream stream,
-                          IVafInterner interner,
-                          ITermFactory factory,
-                          IOperatorTable optable ) throws FileNotFoundException {
+    public HiTalkParser(HiTalkInputStream stream,
+                        IVafInterner interner,
+                        ITermFactory factory,
+                        IOperatorTable optable) throws Exception {
         super(stream, interner, factory, optable);
     }
 

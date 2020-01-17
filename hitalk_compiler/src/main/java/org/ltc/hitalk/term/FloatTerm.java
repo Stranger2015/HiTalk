@@ -1,18 +1,22 @@
 package org.ltc.hitalk.term;
 
 import com.thesett.aima.search.util.backtracking.Reversable;
+import org.ltc.hitalk.NumberTerm;
 import org.ltc.hitalk.compiler.IVafInterner;
 
 import java.util.List;
 
-public class FloatTerm extends HtFloatLiteral implements ITerm {
+/**
+ *
+ */
+public class FloatTerm extends NumberTerm implements ITerm {
 
     /**
      * Creates a new number with the specified value.
      *
      * @param fvalue The value of the number.
      */
-    public FloatTerm ( float fvalue ) {
+    public FloatTerm(float fvalue) {
         super(Float.floatToIntBits(fvalue));
     }
 
@@ -64,7 +68,8 @@ public class FloatTerm extends HtFloatLiteral implements ITerm {
      * @param transformer The transformation function to apply.
      * @return The transformed term tree.
      */
-    public List <ITerm> acceptTransformer ( ITermTransformer transformer ) {
+    @Override
+    public List<ITerm> acceptTransformer(ITermTransformer transformer) {
         return null;
     }
 

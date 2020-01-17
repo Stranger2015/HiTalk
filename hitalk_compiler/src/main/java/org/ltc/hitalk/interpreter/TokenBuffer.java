@@ -3,7 +3,6 @@ package org.ltc.hitalk.interpreter;
 
 import com.thesett.common.util.Sink;
 import org.ltc.hitalk.parser.ITokenSource;
-import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.parser.PlToken;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
 
@@ -18,16 +17,16 @@ import java.util.Deque;
  */
 public class TokenBuffer implements ITokenSource, Sink<PlToken> {
     private Deque<PlToken> tokens = new ArrayDeque<>();
-    private PlLexer lexer;
+//    private PlLexer lexer;
 
     /**
      * Builds a token source around the specified token manager.
-     *
-     * @param lexer
+     * <p>
+     * //     * @param lexer
      */
-    public TokenBuffer(PlLexer lexer) throws FileNotFoundException {
+    public TokenBuffer() throws FileNotFoundException {
 //        super(lexer.getInputStream());
-        this.lexer = lexer;
+//        this.lexer = lexer;
     }
 
     /**
@@ -51,7 +50,7 @@ public class TokenBuffer implements ITokenSource, Sink<PlToken> {
      * @return
      */
     @Override
-    public PlToken peek () {
+    public PlToken peek() {
         return tokens.peek();
     }
 
@@ -60,6 +59,13 @@ public class TokenBuffer implements ITokenSource, Sink<PlToken> {
      */
     public void clear() {
         tokens.clear();
+    }
+
+    /**
+     * @throws IOException
+     */
+    public void close() throws IOException {
+
     }
 
     /**

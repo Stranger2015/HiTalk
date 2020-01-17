@@ -6,11 +6,10 @@ import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtSourceCodeException;
+import org.ltc.hitalk.parser.ITokenSource;
 import org.ltc.hitalk.parser.PlPrologParser;
-import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.wam.compiler.BaseInstructionCompiler;
 
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +45,7 @@ public class PrologInstructionCompiler<T extends HtClause, PC, QC> extends BaseI
         super(symbolTable, interner, defaultBuiltIn, observer, parser);
     }
 
-    public PrologInstructionCompiler () throws FileNotFoundException {
+    public PrologInstructionCompiler() throws Exception {
         this(getAppContext().getSymbolTable(),
                 getAppContext().getInterner(),
                 getAppContext().getDefaultBuiltIn(),
@@ -79,13 +78,13 @@ public class PrologInstructionCompiler<T extends HtClause, PC, QC> extends BaseI
     }
 
     @Override
-    public List <HtClause> compile ( PlTokenSource tokenSource, HtProperty... flags ) throws HtSourceCodeException {
+    public List<HtClause> compile(ITokenSource tokenSource, HtProperty... flags) throws HtSourceCodeException {
         logger.info("Precompiling (" + tokenSource.getPath() + ") ...");
 //        clauseNumber
 
 //        final HiTalkWAMCompiledPredicate predicate = new HiTalkWAMCompiledPredicate(clause.getHead().getName());
 //        compileClause(clause, (PC) predicate, true, true, true, 0);
-        final List <HtClause> list = new ArrayList <>();
+        final List<HtClause> list = new ArrayList<>();
         return list;
     }
 

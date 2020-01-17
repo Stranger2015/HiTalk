@@ -3,6 +3,7 @@ package org.ltc.hitalk.parser;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
+import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.interpreter.TokenBuffer;
 import org.ltc.hitalk.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.ITerm;
@@ -60,7 +61,7 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
      *   StreamTokenizer st = new StreamTokenizer(r);
      * </pre></blockquote>
      */
-    public PlLexer(InputStream is) {
+    public PlLexer(InputStream is) throws FileNotFoundException {
         super(is);
     }
 
@@ -68,18 +69,13 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
         return pushBackBuffer;
     }
 
-    protected TokenBuffer pushBackBuffer;
+    protected TokenBuffer pushBackBuffer = new TokenBuffer();
     /**
      * Holds the tokenizer that supplies the next token on demand.
      */
     protected IVafInterner interner;
     private boolean encodingChanged;
     private String path;
-//        if (token.kind == TK_DOT) {
-//        setEncodingChanged(true);
-//        setEncodingPermitted(false);
-//    }
-//
 
     /**
      * Create a tokenizer that parses the given character stream.
@@ -87,17 +83,11 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
      * @param r a Reader object providing the input stream.
      * @since JDK1.1
      */
-    public PlLexer(Reader r) {
+    public PlLexer(Reader r) throws FileNotFoundException {
         super(r);
     }
 
-//    public PlLexer(HiTalkInputStream inputStream) {
-//        super(inputStream.getReader());
-//
-//        this.inputStream = inputStream;
-//    }
-
-    public PlLexer(HiTalkInputStream stream, String path) {
+    public PlLexer(HiTalkInputStream stream, String path) throws FileNotFoundException {
         super(stream.getReader());
         setPath(path);
 
@@ -111,7 +101,7 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
      * @throws IOException
      */
     public void close() throws IOException {
-        inputStream.close();
+        getInputStream().close();
     }
 //
 
@@ -237,14 +227,14 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
      * @return
      */
     public HiTalkInputStream getInputStream() {
-        return inputStream;
+        return inputStream == null ? BaseApp.getAppContext().getInputStream() : inputStream;
     }
 
     /**
      * @return
      */
     public boolean isOpen() {
-        return inputStream.isOpen();
+        return getInputStream().isOpen();
     }
 
     /**
@@ -291,7 +281,7 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
         int lineNumber = stream.getLineNumber();
         int colNumber = stream.getColNumber();
 
-        PlToken token = stream.isBOFNotPassed() ? PlToken.newToken(TK_BOF) : getToken(valued);
+        PlToken token = stream.isBOFNotPassed() ? PlToken.newToken(TK_BOF) : readToken();// getToken(valued);
 
         token.setBeginLine(lineNumber);
         token.setBeginColumn(colNumber);
@@ -633,274 +623,14 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
 //    Token readToken () throws InvalidTermException, IOException {
 //    }
     public PlToken readToken() throws Exception {
-        return !pushBackBuffer.isEmpty() ? pushBackBuffer.poll() : readNextToken();
+        return !getPushBackBuffer().isEmpty() ? getPushBackBuffer().poll() : readNextToken();
     }
 
     public PlToken readNextToken() throws Exception {
-        int typea;
-        String svala;
         for (; ; ) {
             skipWhitespaces();
-
+            NEXT
         }
-//        if (pushBack2 != null) {
-//            typea = pushBack2.typea;
-//            svala = pushBack2.svala;
-//            pushBack2 = null;
-//        } else {
-//            typea = super.nextToken();
-//            svala = sval;
-//        }
-//
-//        // skips whitespace
-//        // could be simplified if lookahead for blank space in functors wasn't necessary
-//        // and if '.' in numbers could be written with blank space
-//        while (Tokenizer.isWhite(typea)) {
-//            typea = super.nextToken();
-//            svala = sval;
-//        }
-//
-//        // skips single line comments
-//        // could be simplified if % was not a legal character in quotes
-//        if (typea == '%') {
-//            do {
-//                typea = super.nextToken();
-//            } while (typea != '\r' && typea != '\n' && typea != TT_EOF);
-//            pushBack();  // pushes back \r or \n. These are whitespace, so when readNextToken() finds them, they are marked as whitespace
-//            return readNextToken();
-//        }
-//
-//        // skips /* comments */
-//        if (typea == '/') {
-//            int typeb = super.nextToken();
-//            if (typeb == '*') {
-//                do {
-//                    typea = typeb;
-//                    typeb = super.nextToken();
-//                } while (typea != '*' || typeb != '/');
-//                return readNextToken();
-//            } else {
-//                pushBack();
-//            }
-//        }
-//
-//        // syntactic charachters
-//        if (typea == TT_EOF) return new Token("", Tokenizer.EOF);
-//        if (typea == '(') return new Token("(", Tokenizer.LPAR);
-//        if (typea == ')') return new Token(")", Tokenizer.RPAR);
-//        if (typea == '{') return new Token("{", Tokenizer.LBRA2);
-//        if (typea == '}') return new Token("}", Tokenizer.RBRA2);
-//        if (typea == '[') return new Token("[", Tokenizer.LBRA);
-//        if (typea == ']') return new Token("]", Tokenizer.RBRA);
-//        if (typea == '|') return new Token("|", Tokenizer.BAR);
-//
-//        if (typea == '!') return new Token("!", Tokenizer.ATOM);
-//        if (typea == ',') return new Token(",", Tokenizer.OPERATOR);
-//
-//        if (typea == '.') { // check that '.' as end token is followed by a layout character, see ISO Standard 6.4.8 endnote
-//            int typeb = super.nextToken();
-//            if (Tokenizer.isWhite(typeb) || typeb == '%' || typeb == StreamTokenizer.TT_EOF)
-//                return new Token(".", Tokenizer.END);
-//            else
-//                pushBack();
-//        }
-//
-//        boolean isNumber = false;
-//
-//        // variable, atom or number
-//        if (typea == TT_WORD) {
-//            char firstChar = svala.charAt(0);
-//            // variable
-//            if (Character.isUpperCase(firstChar) || '_' == firstChar)
-//                return new Token(svala, Tokenizer.VARIABLE);
-//
-//            else if (firstChar >= '0' && firstChar <= '9') // all words starting with 0 or 9 must be a number
-//                isNumber = true;                           // set type to number and handle later
-//
-//            else {                                         // otherwise, it must be an atom (or wrong)
-//                int typeb = super.nextToken();             // lookahead 1 to identify what type of atom
-//                pushBack();                                // this does not skip whitespaces, only readNext does so.
-//                if (typeb == '(')
-//                    return new Token(svala, Tokenizer.ATOM | Tokenizer.FUNCTOR);
-//                if (Tokenizer.isWhite(typeb))
-//                    return new Token(svala, Tokenizer.ATOM | Tokenizer.OPERATOR);
-//                return new Token(svala, Tokenizer.ATOM);
-//            }
-//        }
-//
-//        // quotes
-//        if (typea == '\'' || typea == '\"' || typea == '`') {
-//            int qType = typea;
-//            StringBuffer quote = new StringBuffer();
-//            while (true) { // run through entire quote and added body to quote buffer
-//                typea = super.nextToken();
-//                svala = sval;
-//                // continuation escape sequence
-//                if (typea == '\\') {
-//                    int typeb = super.nextToken();
-//                    if (typeb == '\n') // continuation escape sequence marker \\n
-//                        continue;
-//                    if (typeb == '\r') {
-//                        int typec = super.nextToken();
-//                        if (typec == '\n')
-//                            continue; // continuation escape sequence marker \\r\n
-//                        pushBack();
-//                        continue; // continuation escape sequence marker \\r
-//                    }
-//                    pushBack(); // pushback typeb
-//                }
-//                // double '' or "" or ``
-//                if (typea == qType) {
-//                    int typeb = super.nextToken();
-//                    if (typeb == qType) { // escaped '' or "" or ``
-//                        quote.append((char) qType);
-//                        continue;
-//                    } else {
-//                        pushBack();
-//                        break; // otherwise, break on single quote
-//                    }
-//                }
-//                if (typea == '\n' || typea == '\r')
-//                    throw new InvalidTermException("line break in quote not allowed (unless they are escaped \\ first)");
-//
-//                if (svala != null)
-//                    quote.append(svala);
-//                else
-//                    quote.append((char) typea);
-//            }
-//
-//            String quoteBody = quote.toString();
-//
-//            qType = qType == '\'' ? SQ_SEQUENCE : qType == '\"' ? DQ_SEQUENCE : SQ_SEQUENCE;
-//            if (qType == SQ_SEQUENCE) {
-//                if (Parser.isAtom(quoteBody))
-//                    qType = ATOM;
-//                int typeb = super.nextToken(); // lookahead 1 to identify what type of quote
-//                pushBack();                    // nextToken() does not skip whitespaces, only readNext does so.
-//                if (typeb == '(')
-//                    return new Token(quoteBody, qType | FUNCTOR);
-//            }
-//            return new Token(quoteBody, qType);
-//        }
-//
-//        // symbols
-//        if (Arrays.binarySearch(Tokenizer.GRAPHIC_CHARS, (char) typea) >= 0) {
-//
-//            // the symbols are parsed individually by the super.nextToken(), so accumulate symbollist
-//            StringBuffer symbols = new StringBuffer();
-//            int typeb = typea;
-//            // String svalb = null;
-//            while (Arrays.binarySearch(Tokenizer.GRAPHIC_CHARS, (char) typeb) >= 0) {
-//                symbols.append((char) typeb);
-//                typeb = super.nextToken();
-//                // svalb = sval;
-//            }
-//            pushBack();
-//
-//            // special symbols: unary + and unary -
-////            try {
-////                if (symbols.length() == 1 && typeb == TT_WORD && java.lang.Long.parseLong(svalb) > 0) {
-////                    if (typea == '+')                         //todo, issue of handling + and -. I don't think this is ISO..
-////                        return readNextToken();               //skips + and returns the next number
-////                    if (typea == '-') {
-////                        Token t = readNextToken();            //read the next number
-////                        t.seq = "-" + t.seq;                   //add minus to value
-////                        return t;                             //return token
-////                    }
-////                }                                             //ps. the reason why the number isn't returned right away, but through nextToken(), is because the number might be for instance a float
-////            } catch (NumberFormatException e) {
-////            }
-//            return new Token(symbols.toString(), Tokenizer.OPERATOR);
-//        }
-//
-//        // numbers: 1. integer, 2. float
-//        if (isNumber) {
-//            try { // the various parseInt checks will throw exceptions when parts of numbers are written illegally
-//
-//                // 1.a. complex integers
-//                if (svala.startsWith("0")) {
-//                    if (svala.indexOf('b') == 1)
-//                        return new Token("" + java.lang.Long.parseLong(svala.substring(2), 2), Tokenizer.INTEGER); // try binary
-//                    if (svala.indexOf('o') == 1)
-//                        return new Token("" + java.lang.Long.parseLong(svala.substring(2), 8), Tokenizer.INTEGER); // try octal
-//                    if (svala.indexOf('x') == 1)
-//                        return new Token("" + java.lang.Long.parseLong(svala.substring(2), 16), Tokenizer.INTEGER); // try hex
-//                }
-//
-//                // lookahead 1
-//                int typeb = super.nextToken();
-//                String svalb = sval;
-//
-//                // 1.b ordinary integers
-//                if (typeb != '.' && typeb != '\'') { // i.e. not float or character constant
-//                    pushBack(); // lookahead 0
-//                    return new Token("" + java.lang.Long.parseLong(svala), Tokenizer.INTEGER);
-//                }
-//
-//                // 1.c character code constant
-//                if (typeb == '\'' && "0".equals(svala)) {
-//                    int typec = super.nextToken(); // lookahead 2
-//                    String svalc = sval;
-//                    int intVal;
-//                    if ((intVal = isCharacterCodeConstantToken(typec, svalc)) != -1)
-//                        return new Token("" + intVal, Tokenizer.INTEGER);
-//
-//                    // this is an invalid character code constant int
-//                    throw new InvalidTermException("Character code constant starting with 0'<X> at line: " + super.lineno() + " cannot be recognized.");
-//                }
-//
-//                // 2.a check that the value of the word prior to period is a valid long
-//                java.lang.Long.parseLong(svala); // throws an exception if not
-//
-//                // 2.b first int is followed by a period
-//                if (typeb != '.')
-//                    throw new InvalidTermException("A number starting with 0-9 cannot be rcognized as an int and does not have a fraction '.' at line: " + super.lineno());
-//
-//                // lookahead 2
-//                int typec = super.nextToken();
-//                String svalc = sval;
-//
-//                // 2.c check that the next token after '.' is a possible fraction
-//                if (typec != TT_WORD) { // if its not, the period is an End period
-//                    pushBack(); // pushback 1 the token after period
-//                    pushBack2 = new PushBack(typeb, svalb); // pushback 2 the period token
-//                    return new Token(svala, INTEGER); // return what must be an int
-//                }
-//
-//                // 2.d checking for exponent
-//                int exponent = svalc.indexOf("E");
-//                if (exponent == -1)
-//                    exponent = svalc.indexOf("e");
-//
-//                if (exponent >= 1) {                                  // the float must have a valid exponent
-//                    if (exponent == svalc.length() - 1) {             // the exponent must be signed exponent
-//                        int typeb2 = super.nextToken();
-//                        if (typeb2 == '+' || typeb2 == '-') {
-//                            int typec2 = super.nextToken();
-//                            String svalc2 = sval;
-//                            if (typec2 == TT_WORD) {
-//                                // verify the remaining parts of the float and return
-//                                java.lang.Long.parseLong(svalc.substring(0, exponent));
-//                                java.lang.Integer.parseInt(svalc2);
-//                                return new Token(svala + "." + svalc + (char) typeb2 + svalc2, Tokenizer.FLOAT);
-//                            }
-//                        }
-//                    }
-//                }
-//                // 2.e verify lastly that ordinary floats and unsigned exponent floats are Java legal and return them
-//                java.lang.Double.parseDouble(svala + "." + svalc);
-//                return new Token(svala + "." + svalc, Tokenizer.FLOAT);
-//
-//            } catch (NumberFormatException e) {
-//                // TODO return more info on what was wrong with the number given
-//                throw new InvalidTermException("A term starting with 0-9 cannot be parsed as a number at line: " + lineno());
-//            }
-//        }
-//        throw new InvalidTermException("Unknown Unicode character: " + typea + "  (" + svala + ")");
-//    }
-    }
-
-/////////////////////////////////////////////////////////////////
 ///**
 // * BNF for tuProlog
 // *
@@ -1033,4 +763,5 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
 //ignore_ops(Bool)
 //    If true, the generic term representation (<functor>(<args> ... )) will be used for all terms.
 //    Otherwise (default),//    operators will be used where appropriate..
+    }
 }

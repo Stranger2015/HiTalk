@@ -20,12 +20,14 @@ import com.thesett.aima.logic.fol.FunctorName;
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.Parser;
 import com.thesett.common.util.Filterator;
-import com.thesett.common.util.Source;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtProperty;
-import org.ltc.hitalk.parser.*;
+import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtSourceCodeException;
+import org.ltc.hitalk.parser.ITokenSource;
+import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
@@ -132,7 +134,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      */
     public void consultInputStream ( HiTalkInputStream stream ) throws Exception {
         // Create a token source to read from the specified input stream.
-        PlTokenSource tokenSource = stream.getTokenSource();
+        ITokenSource tokenSource = stream.getTokenSource();
         getParser().setTokenSource(tokenSource);
 
         // Consult the type checking rules and add them to the knowledge base.
@@ -287,21 +289,21 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      * {@inheritDoc}
      */
     @Override
-    public int getFunctorArity ( IFunctor functor ) {
+    public int getFunctorArity(IFunctor functor) {
         return interner.getFunctorArity(functor);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void setTokenSource ( Source <PlToken> tokenSource ) {
-        parser.setTokenSource(tokenSource);
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    public void setTokenSource ( Source <PlToken> tokenSource ) {
+//        parser.setTokenSource(tokenSource);
+//    }
 
     /**
      * {@inheritDoc}
      */
-    public void setOperator ( String operatorName, int priority, Associativity associativity ) {
+    public void setOperator(String operatorName, int priority, Associativity associativity) {
         parser.setOperator(operatorName, priority, associativity);
     }
 
@@ -378,7 +380,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
     }
 
     @Override
-    public List <HtClause> compile ( PlTokenSource tokenSource, HtProperty... flags ) throws Exception {
+    public List<HtClause> compile(ITokenSource tokenSource, HtProperty... flags) throws Exception {
         return compiler.compile(tokenSource, flags);
     }
 

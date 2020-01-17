@@ -3,7 +3,7 @@ package org.ltc.hitalk.wam.task;
 import org.ltc.hitalk.core.IHitalkObject;
 import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.parser.Directive.DirectiveKind;
-import org.ltc.hitalk.parser.PlTokenSource;
+import org.ltc.hitalk.parser.ITokenSource;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.IPendingTasks;
 import org.slf4j.Logger;
@@ -20,7 +20,7 @@ abstract public
 class PreCompilerTask implements IPendingTasks, IInvokable <ITerm>, IHitalkObject {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
-    protected final PlTokenSource tokenSource;
+    protected final ITokenSource tokenSource;
     protected final IPreCompiler preCompiler;
     protected final EnumSet <DirectiveKind> kind;
 
@@ -41,9 +41,9 @@ class PreCompilerTask implements IPendingTasks, IInvokable <ITerm>, IHitalkObjec
     protected ITerm input;
     protected final Deque <ITerm> output = new ArrayDeque <>();
 
-    public PreCompilerTask ( IPreCompiler preCompiler,
-                             PlTokenSource tokenSource,
-                             EnumSet <DirectiveKind> kind ) {
+    public PreCompilerTask(IPreCompiler preCompiler,
+                           ITokenSource tokenSource,
+                           EnumSet<DirectiveKind> kind) {
         this.preCompiler = preCompiler;
         this.tokenSource = tokenSource;
         this.kind = kind;

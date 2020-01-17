@@ -8,8 +8,8 @@ import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtSourceCodeException;
+import org.ltc.hitalk.parser.ITokenSource;
 import org.ltc.hitalk.parser.PlPrologParser;
-import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 import org.slf4j.Logger;
@@ -99,14 +99,14 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
      */
     @Override
     public List <HtClause> compile ( String fileName, HtProperty... flags ) throws Exception {
-        PlTokenSource ts = PlTokenSource.getTokenSourceForIoFileName(fileName);
+        ITokenSource ts = ITokenSource.getTokenSourceForIoFileName(fileName);
         return compile(ts, flags);
     }
 
     @Override
-    public List <HtClause> compile ( PlTokenSource tokenSource, HtProperty... flags ) throws Exception {
+    public List<HtClause> compile(ITokenSource tokenSource, HtProperty... flags) throws Exception {
         getConsole().info("PreCompiling " + tokenSource.getPath() + "... ");
-        final List <HtClause> list = new ArrayList <>();
+        final List<HtClause> list = new ArrayList<>();
         parser.setTokenSource(tokenSource);
         while (tokenSource.isOpen()) {
             ITerm t = parser.next();

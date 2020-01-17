@@ -108,7 +108,7 @@ public interface IApplication extends Runnable, IConfigurable {
     /**
      *
      */
-    void doInit () throws LinkageException, IOException;
+    void doInit() throws Exception;
 
     /**
      *

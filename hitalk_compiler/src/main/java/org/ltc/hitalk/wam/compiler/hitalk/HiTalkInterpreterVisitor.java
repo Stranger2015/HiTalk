@@ -322,7 +322,7 @@ public class HiTalkInterpreterVisitor<T extends HtMethod, P, Q, PC, QC> extends 
             newToken.endColumn = token.endColumn;
             newToken.image = token.image;
             newToken.next = token.next;
-            newToken.specialToken = token.specialToken;
+//            newToken.specialToken = token.specialToken;
 
             return newToken;
         }

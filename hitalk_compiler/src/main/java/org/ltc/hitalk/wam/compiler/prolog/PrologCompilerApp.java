@@ -1,6 +1,5 @@
 package org.ltc.hitalk.wam.compiler.prolog;
 
-import com.thesett.aima.logic.fol.LinkageException;
 import org.apache.commons.vfs2.*;
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
 import org.apache.commons.vfs2.provider.jar.JarFileProvider;
@@ -26,10 +25,7 @@ import org.ltc.hitalk.entities.context.CompilationContext;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.LoadContext;
 import org.ltc.hitalk.interpreter.HtProduct;
-import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.HtSourceCodeException;
-import org.ltc.hitalk.parser.IParser;
-import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.parser.*;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.wam.compiler.CompilerFactory;
 import org.ltc.hitalk.wam.compiler.ICompilerFactory;
@@ -134,7 +130,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
      *
      */
     @Override
-    public void doInit () throws LinkageException, IOException {
+    public void doInit() throws Exception {
         super.doInit();
 
         compilationContext = new CompilationContext();
@@ -147,10 +143,10 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
     }
 
     @Override
-    protected void initComponents () throws FileNotFoundException {
+    protected void initComponents() throws Exception {
         final AppContext appCtx = getAppContext();
-        final ICompilerFactory <T, P, Q, PC, QC> cf = new CompilerFactory <>();
-        setSymbolTable(new HtSymbolTable <>());
+        final ICompilerFactory<T, P, Q, PC, QC> cf = new CompilerFactory<>();
+        setSymbolTable(new HtSymbolTable<>());
         setInterner(new VafInterner(
                 language().getName() + "_Variable_Namespace",
                 language().getName() + "_Functor_Namespace"));
@@ -187,10 +183,10 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
      * @param optable
      * @return
      */
-    public IParser createParser ( HiTalkInputStream inputStream,
-                                  IVafInterner interner,
-                                  ITermFactory factory,
-                                  IOperatorTable optable ) throws FileNotFoundException {
+    public IParser createParser(HiTalkInputStream inputStream,
+                                IVafInterner interner,
+                                ITermFactory factory,
+                                IOperatorTable optable) throws Exception {
         return new PlPrologParser(inputStream, interner, factory, optable);
     }
 
@@ -287,8 +283,8 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
                 getWAMCompiler().setInstructionCompiler(new PrologInstructionCompiler <>());
                 getWAMCompiler().setPreCompiler(new PrologPreCompiler <>());
                 getWAMCompiler().setCompilerObserver(new ICompilerObserver <P, Q>() {
-                    public void onCompilation ( PlTokenSource tokenSource ) throws Exception {
-                        final List <HtClause> list = getWAMCompiler().getPreCompiler().preCompile(tokenSource, EnumSet.of(IF));
+                    public void onCompilation(ITokenSource tokenSource) throws Exception {
+                        final List<HtClause> list = getWAMCompiler().getPreCompiler().preCompile(tokenSource, EnumSet.of(IF));
                         for (HtClause clause : list) {
                             getWAMCompiler().getInstructionCompiler().compile(clause);
                         }

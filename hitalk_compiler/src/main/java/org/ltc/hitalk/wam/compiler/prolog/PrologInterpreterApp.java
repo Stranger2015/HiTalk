@@ -25,7 +25,7 @@ public class PrologInterpreterApp<T extends HtClause, P, Q, PC, QC> extends Base
     public PrologInterpreterApp ( String fn ) throws IOException, CloneNotSupportedException {
         if (fn.startsWith("meta:")) {
             fn = fn.substring(6);
-            ///getParser().setTokenSource(PlTokenSource.getPlTokenSourceForString(fn));
+            ///getParser().setTokenSource(ITokenSource.getITokenSourceForString(fn));
         } else {
             setFileName(fn);
         }

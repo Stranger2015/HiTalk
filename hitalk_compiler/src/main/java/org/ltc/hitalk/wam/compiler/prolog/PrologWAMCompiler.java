@@ -9,8 +9,8 @@ import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtSourceCodeException;
+import org.ltc.hitalk.parser.ITokenSource;
 import org.ltc.hitalk.parser.PlPrologParser;
-import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.wam.compiler.BaseInstructionCompiler;
 import org.ltc.hitalk.wam.compiler.CompilerFactory;
 import org.ltc.hitalk.wam.compiler.ICompilerFactory;
@@ -139,7 +139,7 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
      * @throws HtSourceCodeException
      */
     @Override
-    public List <HtClause> compile ( PlTokenSource tokenSource, HtProperty... flags ) throws Exception {
+    public List<HtClause> compile(ITokenSource tokenSource, HtProperty... flags) throws Exception {
         return preCompiler.preCompile(tokenSource, EnumSet.of(IF));
     }
 

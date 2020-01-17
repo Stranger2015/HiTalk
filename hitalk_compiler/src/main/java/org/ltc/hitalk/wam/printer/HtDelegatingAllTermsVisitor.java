@@ -6,7 +6,6 @@ import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.term.IntegerLiteral;
 import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
@@ -65,16 +64,6 @@ class HtDelegatingAllTermsVisitor implements IAllTermsVisitor {
         if (delegate != null) {
             //variable.accept(delegate);
             delegate.visit(variable);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void visit ( IntegerLiteral literal ) {
-        if (delegate != null) {
-            //literal.accept(delegate);
-            delegate.visit(literal);
         }
     }
 

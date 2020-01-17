@@ -214,7 +214,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
     public static final int OP_HIGH = 1200;
-    public static final int OP_LOW = 1200;
+    public static final int OP_LOW = 1;
 
     /**
      * Encodes the possible symbols that this parser accepts.

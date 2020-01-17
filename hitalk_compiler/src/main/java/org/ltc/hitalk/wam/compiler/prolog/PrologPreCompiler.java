@@ -10,8 +10,8 @@ import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.Directive.DirectiveKind;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtSourceCodeException;
+import org.ltc.hitalk.parser.ITokenSource;
 import org.ltc.hitalk.parser.PlPrologParser;
-import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.HtTermWalkers;
 import org.ltc.hitalk.wam.compiler.IFunctor;
@@ -24,7 +24,6 @@ import org.ltc.hitalk.wam.task.TermExpansionTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileNotFoundException;
 import java.util.*;
 
 import static java.util.EnumSet.noneOf;
@@ -77,7 +76,7 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
         this.parser = parser;
     }
 
-    public PrologPreCompiler () throws FileNotFoundException {
+    public PrologPreCompiler() throws Exception {
         this(getAppContext().getSymbolTable(),
                 getAppContext().getInterner(),
                 getAppContext().getDefaultBuiltIn(),
@@ -126,9 +125,9 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
      * @throws Exception
      */
     @Override
-    public List <HtClause> preCompile ( PlTokenSource tokenSource, EnumSet <DirectiveKind> delims ) throws Exception {
+    public List<HtClause> preCompile(ITokenSource tokenSource, EnumSet<DirectiveKind> delims) throws Exception {
         getLogger().info("Precompiling " + tokenSource.getPath() + " ...");
-        final List <HtClause> list = new ArrayList <>();
+        final List<HtClause> list = new ArrayList<>();
         while (tokenSource.isOpen()) {
             ITerm t = getParser().next();
             if (t.equals(BEGIN_OF_FILE_ATOM)) {

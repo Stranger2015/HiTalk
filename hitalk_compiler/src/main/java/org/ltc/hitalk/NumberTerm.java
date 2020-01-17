@@ -4,8 +4,11 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.term.HtBaseTerm;
 
 public class NumberTerm extends HtBaseTerm {
-    public NumberTerm(String image) {
+    private int image;
 
+    public NumberTerm(int image) {
+
+        this.image = image;
     }
 
     /**

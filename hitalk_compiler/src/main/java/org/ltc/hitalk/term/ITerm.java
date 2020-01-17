@@ -294,7 +294,10 @@ public interface ITerm extends ReTraversable <ITerm>, Operator <ITerm> {
      * @param term The term to compare with this one for structural equality.
      * @return <tt>true</tt> if the two terms are structurally eqaul, <tt>false</tt> otherwise.
      */
-    boolean structuralEquals ( ITerm term );
+    boolean structuralEquals(ITerm term);
 
-    boolean isQuery ();
+    /**
+     * @return
+     */
+    boolean isQuery();
 }

@@ -68,7 +68,7 @@ class HiTalkWAMEngine<T extends HtClause, P, Q, PC, QC> extends HtResolutionEngi
 
         // Create a token source to load the model rules from.
         InputStream input = getClass().getClassLoader().getResourceAsStream(BUILT_IN_LIB);
-        PlTokenSource tokenSource = null;
+        ITokenSource tokenSource = null;
 
         // Set up a parser on the token source.
         IParser libParser = new HiTalkParser();

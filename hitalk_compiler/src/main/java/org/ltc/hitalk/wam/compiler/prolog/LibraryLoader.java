@@ -1,8 +1,8 @@
 package org.ltc.hitalk.wam.compiler.prolog;
 
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.ITokenSource;
 import org.ltc.hitalk.parser.PlPrologParser;
-import org.ltc.hitalk.parser.PlTokenSource;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.LibParser;
 import org.slf4j.Logger;
@@ -23,7 +23,7 @@ public class LibraryLoader {
      */
     public Path loadWAMBuiltIns ( Path classPath ) throws Exception {
 //        final String classPath = Paths.get(System.getProperties().getProperty("CLASSPATH",);
-        PlTokenSource tokenSource = PlTokenSource.getTokenSourceForIoFile(classPath.toFile());
+        ITokenSource tokenSource = ITokenSource.getTokenSourceForIoFile(classPath.toFile());
         // Set up a parser on the token source.
         LibParser libParser = new LibParser();
         libParser.setTokenSource(tokenSource);

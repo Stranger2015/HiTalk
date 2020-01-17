@@ -17,7 +17,6 @@ package org.ltc.hitalk.term;
 
 
 import org.jetbrains.annotations.NotNull;
-import org.ltc.hitalk.parser.IOpFunctor;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 
 import java.util.EnumSet;
@@ -50,17 +49,20 @@ import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
  *
  * @author Rupert Smith
  */
-public class HlOpSymbol extends HtFunctor implements IOpFunctor, Comparable<HlOpSymbol>, Cloneable {
-
+public class HlOpSymbol extends HtFunctor implements /*IOpSymbol,*/ Comparable<HlOpSymbol>, Cloneable {
+    private String name;
+    private ITerm result;
+    private ITerm result1;
+    /**
+     *
+     */
     protected boolean builtIn;
     public int lprio;
     public int rprio;
-
     /**
      * Holds the raw text name of this operator.
      */
     protected String textName;
-
     /**
      * Holds the associativity of this operator.
      */
@@ -71,25 +73,34 @@ public class HlOpSymbol extends HtFunctor implements IOpFunctor, Comparable<HlOp
      */
     protected int priority;
 
+    /**
+     * @param name
+     * @param textName
+     * @param associativity
+     * @param priority
+     */
     public HlOpSymbol(int name, String textName, Associativity associativity, int priority) {
         this(name, textName, associativity, priority, true);
     }
 
-    public HlOpSymbol(String image, int result) {
+    public HlOpSymbol(String name, ITerm result, ITerm result1) {
 
+        this.name = name;
+        this.result = result;
+        this.result1 = result1;
     }
 
-    public HlOpSymbol(String image, int result, int result1) {
-
+    public HlOpSymbol(String name, ITerm result) {
+        this(name, result, null);
     }
 
-    public HlOpSymbol(int kind, HlOpSymbol symbol) {
+    public HlOpSymbol(int name, String textName, Associativity associativity, int priority, boolean b, ITerm term) {
+        this(name, textName, associativity, priority);
     }
 
-    public HlOpSymbol(int xfx, IOpFunctor xfx1) {
-
+    public HlOpSymbol(int name, ITerm result) {
+        this(name, "", xfx, 1200, true, null);
     }
-//    protected int name;
 
     public boolean isBuiltIn() {
         return builtIn;
@@ -120,7 +131,7 @@ public class HlOpSymbol extends HtFunctor implements IOpFunctor, Comparable<HlOp
     /**
      * 与えられた演算子の並び順が表記上正しいかどうかを判別します。
      */
-    public static boolean isCorrectOrder ( Associativity l, Associativity r ) {
+    public static boolean isCorrectOrder(Associativity l, Associativity r) {
         l = l.round();
         r = r.round();
         switch (r) {
@@ -142,7 +153,7 @@ public class HlOpSymbol extends HtFunctor implements IOpFunctor, Comparable<HlOp
      * @param arguments The arguments the operator is applied to.
      */
     @Override
-    public void setArguments ( ITerm[] arguments ) {
+    public void setArguments(ITerm[] arguments) {
         // Check that there is at least one and at most two arguments.
         if ((arguments.length < 1) || (arguments.length > 2)) {
             throw new IllegalArgumentException("An operator has minimum 1 and maximum 2 arguments.");
@@ -156,7 +167,7 @@ public class HlOpSymbol extends HtFunctor implements IOpFunctor, Comparable<HlOp
      *
      * @return The symbols associativity.
      */
-    public Associativity getAssociativity () {
+    public Associativity getAssociativity() {
         return associativity;
     }
 
@@ -167,10 +178,6 @@ public class HlOpSymbol extends HtFunctor implements IOpFunctor, Comparable<HlOp
      */
     public int getPriority() {
         return priority;
-    }
-
-    public int getResult() {
-        return 0;
     }
 
     /**
@@ -185,14 +192,14 @@ public class HlOpSymbol extends HtFunctor implements IOpFunctor, Comparable<HlOp
     /**
      * @return
      */
-    public int getLprio () {
+    public int getLprio() {
         return lprio;
     }
 
     /**
      * @return
      */
-    public int getRprio () {
+    public int getRprio() {
         return rprio;
     }
 
@@ -202,7 +209,7 @@ public class HlOpSymbol extends HtFunctor implements IOpFunctor, Comparable<HlOp
      *
      * @return The symbols fixity.
      */
-    public Fixity getFixity () {
+    public Fixity getFixity() {
         switch (associativity) {
             case hy:
             case hx:
@@ -230,8 +237,8 @@ public class HlOpSymbol extends HtFunctor implements IOpFunctor, Comparable<HlOp
      *
      * @return <tt>true <tt>if this operator is an prefix operator.
      */
-    public boolean isPrefix () {
-        EnumSet <Associativity> prefixOps = EnumSet.of(fx, fy, hx, hy);
+    public boolean isPrefix() {
+        EnumSet<Associativity> prefixOps = EnumSet.of(fx, fy, hx, hy);
         return prefixOps.contains(associativity);
     }
 
@@ -240,8 +247,8 @@ public class HlOpSymbol extends HtFunctor implements IOpFunctor, Comparable<HlOp
      *
      * @return <tt>true <tt>if this operator is an postfix operator.
      */
-    public boolean isPostfix () {
-        EnumSet <Associativity> postfixOps = EnumSet.of(xf, yf);
+    public boolean isPostfix() {
+        EnumSet<Associativity> postfixOps = EnumSet.of(xf, yf);
         return postfixOps.contains(associativity);
     }
 
@@ -250,8 +257,8 @@ public class HlOpSymbol extends HtFunctor implements IOpFunctor, Comparable<HlOp
      *
      * @return <tt>true <tt>if this operator is an infix operator.
      */
-    public boolean isInfix () {
-        EnumSet <Associativity> infixOps = EnumSet.of(xfx, xfy, yfx);
+    public boolean isInfix() {
+        EnumSet<Associativity> infixOps = EnumSet.of(xfx, xfy, yfx);
         return infixOps.contains(associativity);
     }
 
@@ -260,8 +267,8 @@ public class HlOpSymbol extends HtFunctor implements IOpFunctor, Comparable<HlOp
      *
      * @return <tt>true</tt> if this operatis is right associative.
      */
-    public boolean isRightAssociative () {
-        EnumSet <Associativity> rightOps = EnumSet.of(xfy, fy, hy);
+    public boolean isRightAssociative() {
+        EnumSet<Associativity> rightOps = EnumSet.of(xfy, fy, hy);
         return rightOps.contains(associativity);
     }
 
@@ -270,8 +277,8 @@ public class HlOpSymbol extends HtFunctor implements IOpFunctor, Comparable<HlOp
      *
      * @return <tt>true</tt> if this operatis is left associative.
      */
-    public boolean isLeftAssociative () {
-        EnumSet <Associativity> leftOps = EnumSet.of(yfx, yf);
+    public boolean isLeftAssociative() {
+        EnumSet<Associativity> leftOps = EnumSet.of(yfx, yf);
         return leftOps.contains(associativity);
     }
 
@@ -296,7 +303,7 @@ public class HlOpSymbol extends HtFunctor implements IOpFunctor, Comparable<HlOp
      *
      * @return A shallow copy of the symbol.
      */
-    public HlOpSymbol copySymbol () {
+    public HlOpSymbol copySymbol() {
         try {
             return (HlOpSymbol) clone();
         } catch (CloneNotSupportedException e) {
@@ -311,7 +318,7 @@ public class HlOpSymbol extends HtFunctor implements IOpFunctor, Comparable<HlOp
      *
      * @return The operator as a string.
      */
-    public String toString () {
+    public String toString() {
         return format("%s: { name = %s, priority = %d, associativity = %s }",
                 getClass().getSimpleName(), textName, priority, associativity);
     }
@@ -322,7 +329,7 @@ public class HlOpSymbol extends HtFunctor implements IOpFunctor, Comparable<HlOp
      * @return A shallow clone of this object.
      * @throws CloneNotSupportedException If cloning fails.
      */
-    protected Object clone () throws CloneNotSupportedException {
+    protected Object clone() throws CloneNotSupportedException {
         // Create a new state and copy the existing board position into it
 
         return super.clone();
@@ -366,7 +373,7 @@ public class HlOpSymbol extends HtFunctor implements IOpFunctor, Comparable<HlOp
      * @throws ClassCastException   if the specified object's type prevents it
      *                              from being compared to this object.
      */
-    public int compareTo ( @NotNull HlOpSymbol o ) {
+    public int compareTo(@NotNull HlOpSymbol o) {
         return 0;
     }
 
@@ -410,16 +417,16 @@ public class HlOpSymbol extends HtFunctor implements IOpFunctor, Comparable<HlOp
         /**
          * この演算子が結合する項数です。
          */
-        public final int arity;
+        public int arity;
 
-        Associativity ( int arity ) {
+        Associativity(int arity) {
             this.arity = arity;
         }
 
         /**
          * @return
          */
-        public Associativity round () {
+        public Associativity round() {
             Associativity result;
             switch (this) {
                 case xfy:
@@ -442,7 +449,7 @@ public class HlOpSymbol extends HtFunctor implements IOpFunctor, Comparable<HlOp
         /**
          * @return
          */
-        public int lprio () {
+        public int lprio() {
             switch (this) {
                 case yfx:
                 case yf:
@@ -452,7 +459,7 @@ public class HlOpSymbol extends HtFunctor implements IOpFunctor, Comparable<HlOp
             }
         }
 
-        public int rprio () {
+        public int rprio() {
             switch (this) {
                 case xfy:
                 case fy:

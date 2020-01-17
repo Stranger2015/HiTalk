@@ -6,15 +6,14 @@ import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.TermFactory;
 import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
-import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.Language;
 
-import java.io.FileNotFoundException;
 import java.util.HashSet;
 import java.util.Set;
 
 import static org.ltc.hitalk.term.HlOpSymbol.Associativity.fx;
+import static org.ltc.hitalk.wam.compiler.Language.HILOG;
 
 /**
  *
@@ -32,7 +31,7 @@ public class HiLogParser extends PlPrologParser {
      *
      * @param interner  the  interner for variable and functor names.
      */
-    protected Set <HtFunctor> hilogFunctors = new HashSet <>();
+    protected Set<IFunctor> hilogFunctors = new HashSet<>();
 
     /**
      * @param stream
@@ -40,10 +39,10 @@ public class HiLogParser extends PlPrologParser {
      * @param termFactory
      * @param optable
      */
-    public HiLogParser ( HiTalkInputStream stream,
-                         IVafInterner interner,
-                         TermFactory termFactory,
-                         IOperatorTable optable ) throws FileNotFoundException {
+    public HiLogParser(HiTalkInputStream stream,
+                       IVafInterner interner,
+                       TermFactory termFactory,
+                       IOperatorTable optable) throws Exception {
         super(stream, interner, termFactory, optable);
 
         hilogApply = interner.internFunctorName(HILOG_APPLY, 0);
@@ -52,7 +51,7 @@ public class HiLogParser extends PlPrologParser {
     /**
      *
      */
-    public HiLogParser () throws FileNotFoundException {
+    public HiLogParser() throws Exception {
         super();
     }
 
@@ -62,29 +61,26 @@ public class HiLogParser extends PlPrologParser {
      * @param factory
      * @param optable
      */
-    public HiLogParser ( HiTalkInputStream inputStream,
-                         IVafInterner interner,
-                         ITermFactory factory,
-                         IOperatorTable optable ) throws FileNotFoundException {
+    public HiLogParser(HiTalkInputStream inputStream,
+                       IVafInterner interner,
+                       ITermFactory factory,
+                       IOperatorTable optable) throws Exception {
         super(inputStream, interner, factory, optable);
     }
 
-    //    @Override
+    @Override
     protected IFunctor compound ( String name, ListTerm args ) throws Exception {
-        IFunctor result;
-        if (hilogFunctors.contains(name)) {
-            result = termFactory.newFunctor(hilogApply, name, args);// :- hilog p, q, pi/N =>
-// hilog p/_ q/_, pi_N/N, pi_1/1, piA1_A2/1-2.
-        } else {
-            result = super.compound(name, args);
-        }
+        // hilog p/_ q/_, pi_N/N, pi_1/1, piA1_A2/1-2.
+        final IFunctor result = hilogFunctors.contains(termFactory.newFunctor(name, args.size())) ?
+                termFactory.newFunctor(hilogApply, name, args) :
+                super.compound(name, args);// :- hilog p, q, pi/N =>
 
         return result;
     }
 
     @Override
     public Language language () {
-        return Language.HILOG;
+        return HILOG;
     }
 
     /**
@@ -94,8 +90,6 @@ public class HiLogParser extends PlPrologParser {
         super.initializeBuiltIns();
 
         internOperator(PrologAtoms.HILOG, 1150, fx);
-//        internOperator(PrologAtoms.HILOG, 1150, hx);
-//        internOperator(PrologAtoms.HILOG, 1150, hy);
     }
 }
 //%% Copyright (C) 1990 SUNY at Stony Brook

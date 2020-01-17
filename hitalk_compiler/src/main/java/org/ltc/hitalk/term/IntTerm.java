@@ -1,6 +1,7 @@
 package org.ltc.hitalk.term;
 
 import com.thesett.aima.search.Operator;
+import org.ltc.hitalk.NumberTerm;
 import org.ltc.hitalk.compiler.IVafInterner;
 
 import java.util.List;
@@ -8,13 +9,13 @@ import java.util.List;
 /**
  *
  */
-public class IntTerm extends IntegerLiteral implements ITerm {
+public class IntTerm extends NumberTerm implements ITerm {
     /**
      * Creates a new number with the specified value.
      *
      * @param value The value of the number.
      */
-    public IntTerm ( int value ) {
+    public IntTerm(int value) {
         super(value);
     }
 
@@ -22,23 +23,25 @@ public class IntTerm extends IntegerLiteral implements ITerm {
      *
      */
     @Override
-    public void free () {
+    public void free() {
 
     }
 
-    public void accept ( ITermVisitor visitor ) {
+    @Override
+    public void accept(ITermVisitor visitor) {
         visitor.visit(this);
     }
 
-    public List <ITerm> acceptTransformer ( ITermTransformer transformer ) {
+    @Override
+    public List<ITerm> acceptTransformer(ITermTransformer transformer) {
         return transformer.transform(this);
     }
 
-    public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
+    public String toString(IVafInterner interner, boolean printVarName, boolean printBindings) {
         return toString();
     }
 
-    public boolean structuralEquals ( ITerm term ) {
+    public boolean structuralEquals(ITerm term) {
         return false;
     }
 

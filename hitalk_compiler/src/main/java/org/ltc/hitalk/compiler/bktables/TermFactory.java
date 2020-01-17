@@ -132,13 +132,17 @@ public class TermFactory implements ITermFactory {
         return new HtProperty(scratch_directory, newAtom(scratchDir.toString()));
     }
 
-    public IFunctor createMostGeneral ( IFunctor functor ) {
+    public IFunctor createMostGeneral(IFunctor functor) {
 //        List <ITerm> l = new ArrayList <>();
 //        for (int i = 0; i < functor.getArity(); i++) {
 //            l.add(createVariable(String.format("$VAR%d", i)));
 //        }
+        return newFunctor(functor.getName(), functor.getArity());
+//        return createMostGeneral(functor.getName());
+    }
 
-        return createMostGeneral(functor.getName());
+    public IFunctor newFunctor(int name, int arity) {
+        return new HtFunctor(name, new ListTerm(arity));
     }
 
     @Override
@@ -149,6 +153,13 @@ public class TermFactory implements ITermFactory {
     public NumberTerm createNumber(String s) {
         return null;
     }
+
+//    public NumberTerm createNumber(String s) {
+//            try {
+//                return parseInteger(s);
+//            } catch (Exception e) {
+//                return parseFloat(s);
+//            }}
 
     public HtVariable createVariable(String vname) {
         return new HtVariable(interner.internVariableName(vname), null, false);

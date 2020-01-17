@@ -18,7 +18,6 @@ import org.ltc.hitalk.wam.transformers.IInliner;
 import org.ltc.hitalk.wam.transformers.ISpecializer;
 import org.ltc.hitalk.wam.transformers.ITransformer;
 
-import java.io.FileNotFoundException;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,7 +32,7 @@ public class SuperCompiler extends PrologPreCompiler <HtClause, HtPredicate, HtC
     /**
      *
      */
-    public SuperCompiler () throws FileNotFoundException {
+    public SuperCompiler() throws Exception {
         super();
     }
 

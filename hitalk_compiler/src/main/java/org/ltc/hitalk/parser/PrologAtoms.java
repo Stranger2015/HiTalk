@@ -102,5 +102,5 @@ interface PrologAtoms {
     String RDIV = "rdiv";
     String DIV = "div";
     String COMMA_ = COMMA;
-    PlToken.TokenKind rdelim = ;
+    String NAF = NOT;
 }

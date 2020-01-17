@@ -6,7 +6,7 @@ import org.ltc.hitalk.compiler.bktables.IComposite;
 import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.entities.context.IMetrics;
 import org.ltc.hitalk.parser.Directive.DirectiveKind;
-import org.ltc.hitalk.parser.PlTokenSource;
+import org.ltc.hitalk.parser.ITokenSource;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.task.TransformTask;
 
@@ -31,9 +31,9 @@ class CompositeTransformer<TT extends TransformTask>
      * @param tokenSource
      * @param kind
      */
-    protected CompositeTransformer ( IPreCompiler preCompiler,
-                                     PlTokenSource tokenSource,
-                                     EnumSet <DirectiveKind> kind ) {
+    protected CompositeTransformer(IPreCompiler preCompiler,
+                                   ITokenSource tokenSource,
+                                   EnumSet<DirectiveKind> kind) {
         super(preCompiler, tokenSource, kind);
     }
 

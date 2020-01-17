@@ -41,14 +41,13 @@ class ExecutionError extends RuntimeException {
         /**
          * @return
          */
-        public
-        String getKindString () {
+        public String getKindString() {
             return kindString;
         }
     }
 
-    private final String message;
-    private final Kind kind;
+    private String message;
+    private Kind kind;
 
     /**
      * Constructs a new runtime exception with the specified detail message.
@@ -58,7 +57,7 @@ class ExecutionError extends RuntimeException {
      * //     * @param message the detail message. The detail message is saved for
      * later retrieval by the {@link #getMessage()} method.
      */
-    public ExecutionError ( Kind kind, HtFunctorName functorName ) {
+    public ExecutionError(Kind kind, HtFunctorName functorName) {
         this.kind = kind;
         this.message = String.format("%s: %s", kind.getKindString(), functorName);
     }

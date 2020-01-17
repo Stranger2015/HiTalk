@@ -3,9 +3,9 @@ package org.ltc.hitalk.term;
 import org.ltc.hitalk.compiler.IVafInterner;
 
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.stream.IntStream;
 
+import static java.util.Objects.requireNonNull;
 import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
 import static org.ltc.hitalk.term.ListTerm.Kind.CLAUSE_BODY;
 
@@ -15,7 +15,6 @@ import static org.ltc.hitalk.term.ListTerm.Kind.CLAUSE_BODY;
 public class ListTerm extends HtBaseTerm {
     //    public static final ITerm TRUE = new ListTerm(Kind.TRUE);
     public static final ListTerm NIL = new ListTerm();
-    //    protected int name;
     protected Kind kind;//fixme encode in name
     ITerm[] heads = EMPTY_TERM_ARRAY;
     ITerm tail = NIL;
@@ -34,7 +33,7 @@ public class ListTerm extends HtBaseTerm {
     public ListTerm ( ITerm... heads ) {
         this((heads == null) || (heads.length == 0) ? 0 : heads.length);
         int bound = this.getHeads().length;
-        IntStream.range(0, bound).forEach(i -> this.heads[i] = Objects.requireNonNull(heads)[i]);
+        IntStream.range(0, bound).forEach(i -> this.heads[i] = requireNonNull(heads)[i]);
     }
 
     /**
@@ -56,16 +55,20 @@ public class ListTerm extends HtBaseTerm {
      * @param tail
      * @param heads
      */
-    public ListTerm ( Kind kind, ITerm tail, ITerm... heads ) {
+    public ListTerm(Kind kind, ITerm tail, ITerm... heads) {
         this(kind);
         setHeads((heads.length > 0) ? Arrays.copyOf(heads, heads.length - 1) : EMPTY_TERM_ARRAY);
         this.tail = tail;
     }
 
+    public ListTerm(ITerm tail, ITerm[] toArray) {
+        this(Kind.LIST, tail, toArray);
+    }
+
     /**
      * @return
      */
-    public Kind getKind () {
+    public Kind getKind() {
         return kind;
     }
 
@@ -263,7 +266,7 @@ public class ListTerm extends HtBaseTerm {
         HILOG_APPLY,
         INLINE_GOAL,
         OTHER(),
-        CLAUSE_BODY();
+        CLAUSE_BODY(), ARGS;
 
 //        private IFunctor goal;
 

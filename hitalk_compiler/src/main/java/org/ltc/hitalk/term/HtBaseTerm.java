@@ -238,6 +238,7 @@ public abstract class HtBaseTerm extends TraversableState <ITerm> implements ITe
 //        return toString();
 //    }
 
+    @Override
     public boolean isQuery () {
         return false;
     }

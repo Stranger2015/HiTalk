@@ -8,8 +8,6 @@ import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.prolog.PrologInstructionCompiler;
 
-import java.io.FileNotFoundException;
-
 public class HiLogInstructionCompiler<T extends HtClause, P, Q> extends PrologInstructionCompiler <T, P, Q> {
     /**
      * Creates a base machine over the specified symbol table.
@@ -28,7 +26,7 @@ public class HiLogInstructionCompiler<T extends HtClause, P, Q> extends PrologIn
         super(symbolTable, interner, defaultBuiltIn, observer, parser);
     }
 
-    public HiLogInstructionCompiler () throws FileNotFoundException {
+    public HiLogInstructionCompiler() throws Exception {
         super();
     }
 }

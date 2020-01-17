@@ -6,7 +6,6 @@ import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.parser.*;
 import org.ltc.hitalk.term.ITerm;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
@@ -20,7 +19,7 @@ public class LibParser implements IParser {
      */
     protected PlPrologParser parser = getAppContext().getParser();
 
-    public LibParser () throws FileNotFoundException {
+    public LibParser() throws Exception {
     }
 
     /**

@@ -20,12 +20,12 @@ public interface ITokenSource extends Source<PlToken>, PropertyChangeListener, C
      */
     void close() throws IOException;
 
-    static ITokenSource getPlTokenSourceForString(String string) throws FileNotFoundException {
+    static ITokenSource getITokenSourceForString(String string) throws FileNotFoundException {
         HiTalkInputStream inputStream = new HiTalkInputStream(string);
         return new PlLexer(inputStream);
     }
 
-    static ITokenSource getPlTokenSourceForStdin() throws FileNotFoundException {
+    static ITokenSource getITokenSourceForStdin() throws FileNotFoundException {
         HiTalkInputStream stream = getAppContext().currentInput();
         stream.setInputStream(new FileInputStream(FileDescriptor.in));
 

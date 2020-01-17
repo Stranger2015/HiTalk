@@ -24,7 +24,6 @@ import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -213,7 +212,7 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
      *
      */
     @Override
-    public void doInit () throws LinkageException, IOException {
+    public void doInit() throws Exception {
         getLogger().info("Initializing... ");
         initComponents();
         initialized.set(true);
@@ -222,7 +221,7 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
     /**
      *
      */
-    protected abstract void initComponents () throws FileNotFoundException;
+    protected abstract void initComponents() throws Exception;
 
     /**
      * @return
@@ -431,7 +430,7 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
             return (PredicateTable) get(PRED_TABLE);
         }
 
-        public PlPrologParser getParser () throws FileNotFoundException {
+        public PlPrologParser getParser() throws Exception {
             PlPrologParser parser = (PlPrologParser) get(PARSER);
             if (parser == null) {
                 parser = new PlPrologParser();

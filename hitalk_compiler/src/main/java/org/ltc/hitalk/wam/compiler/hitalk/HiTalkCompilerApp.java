@@ -32,7 +32,10 @@ import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -42,7 +45,7 @@ import static java.lang.System.in;
 import static org.ltc.hitalk.compiler.bktables.BkTableKind.LOADED_ENTITIES;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.RESOURCE_ERROR;
-import static org.ltc.hitalk.parser.PlTokenSource.getTokenSourceForIoFileName;
+import static org.ltc.hitalk.parser.ITokenSource.getTokenSourceForIoFileName;
 import static org.ltc.hitalk.term.ListTerm.NIL;
 import static org.ltc.hitalk.wam.compiler.Language.HITALK;
 
@@ -210,10 +213,10 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q, PC, QC>
         return new HiTalkWAMCompiler <>(symbolTable, interner, parser, observer);
     }
 
-    public IParser createParser ( HiTalkInputStream stream,
-                                  IVafInterner interner,
-                                  ITermFactory factory,
-                                  IOperatorTable opTable ) throws FileNotFoundException {
+    public IParser createParser(HiTalkInputStream stream,
+                                IVafInterner interner,
+                                ITermFactory factory,
+                                IOperatorTable opTable) throws Exception {
         return new HiTalkParser(stream, interner, factory, opTable);
     }
 
@@ -374,7 +377,7 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q, PC, QC>
 //     * @throws IOException
 //     */
 //    private void logtalkCompile ( InputStream input ) throws IOException, HtSourceCodeException {
-//        PlTokenSource tokenSource = getTokenSourceForInputStream(input, "");
+//        ITokenSource tokenSource = getTokenSourceForInputStream(input, "");
 //        setTokenSource(tokenSource);
 //        compiler.compile(tokenSource);
 //    }
@@ -1199,7 +1202,7 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q, PC, QC>
      *
      */
     @Override
-    public void doInit () throws LinkageException, IOException {
+    public void doInit() throws Exception {
         super.doInit();
 
         EXPANDING = getTermFactory().createIdentifier(HtEntityKind.PROTOCOL, "expanding");

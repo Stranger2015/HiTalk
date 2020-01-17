@@ -5,6 +5,7 @@ import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
 import static org.ltc.hitalk.term.HlOpSymbol.Associativity.fx;
@@ -17,8 +18,8 @@ import static org.ltc.hitalk.term.HlOpSymbol.isCorrectOrder;
  */
 public abstract class HlOperatorJoiner<T extends ITerm> {
 
-    private final ArrayDeque <HlOpSymbol> operators = new ArrayDeque <>();
-    private final ArrayDeque <T> operands = new ArrayDeque <>();
+    private final Deque<HlOpSymbol> operators = new ArrayDeque<>();
+    private final Deque<T> operands = new ArrayDeque<>();
 
     // 最後に追加された演算子のタイプ
     private Associativity associativity = fx;
@@ -26,7 +27,7 @@ public abstract class HlOperatorJoiner<T extends ITerm> {
     /**
      * 指定された演算子を受け付けるかどうかを調べます。
      */
-    public boolean accept ( Associativity associativity ) {
+    public boolean accept(Associativity associativity) {
         return isCorrectOrder(this.associativity, associativity);
     }
 
