@@ -614,23 +614,22 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
      * @return The head of this queue, or <tt>null</tt> if this queue is empty.
      */
     public PlToken peek() {
-        return null;
+        return poll();
     }
 
-    //    /**
-//     * reads next available token
-//     */
-//    Token readToken () throws InvalidTermException, IOException {
-//    }
+    /**
+     * Retrieves, but does not remove, the head of this queue, returning <tt>null</tt> if this queue is empty.
+     *
+     * @return The head of this queue, or <tt>null</tt> if this queue is empty.
+     */
     public PlToken readToken() throws Exception {
         return !getPushBackBuffer().isEmpty() ? getPushBackBuffer().poll() : readNextToken();
     }
 
     public PlToken readNextToken() throws Exception {
-        for (; ; ) {
-            skipWhitespaces();
-            NEXT
-        }
+        skipWhitespaces();
+        return getToken(true);
+    }
 ///**
 // * BNF for tuProlog
 // *
@@ -764,4 +763,3 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
 //    If true, the generic term representation (<functor>(<args> ... )) will be used for all terms.
 //    Otherwise (default),//    operators will be used where appropriate..
     }
-}

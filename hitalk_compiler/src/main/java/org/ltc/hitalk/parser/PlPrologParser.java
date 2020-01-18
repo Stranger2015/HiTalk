@@ -9,7 +9,6 @@ import org.ltc.hitalk.term.*;
 import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 import org.ltc.hitalk.term.HlOpSymbol.Fixity;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
-import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.HtFunctorName;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.Language;
@@ -20,8 +19,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.IntStream;
 
-import static java.lang.Integer.MAX_VALUE;
-import static java.util.EnumSet.of;
 import static java.util.Objects.requireNonNull;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.REPRESENTATION_ERROR;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
@@ -184,8 +181,8 @@ public class PlPrologParser implements IParser {
      */
     @Override
     public ITerm next() throws Exception {
-        PlToken token = (getLexer()).next(true);
-        return newTerm(token, of(TK_DOT));
+//      /  PlToken token = (getLexer()).next(true);
+        return nextTerm(true);
     }
 
     /**
@@ -228,115 +225,116 @@ public class PlPrologParser implements IParser {
         throw new ExecutionError(REPRESENTATION_ERROR, null);
     }
 
-    /**
-     * @param token
-     * @param terminators
-     * @return
-     * @throws IOException
-     * @throws ParseException
-     */
-    protected ITerm newTerm(PlToken token, EnumSet<TokenKind> terminators)
-            throws Exception {
-        logger.info(token.toString());
-        ITerm result = null;
-        boolean finished = false;
-        if (token.kind == TK_BOF) {
-            result = BEGIN_OF_FILE_ATOM;
-        } else if (token.kind == TK_EOF) {
-            result = END_OF_FILE_ATOM;
-        } else {
-            HlOperatorJoiner<ITerm> joiner = new HlOperatorJoiner<ITerm>() {
-                @Override
-                protected ITerm join(int notation, List<ITerm> args) {
-                    return new HtFunctor(notation, new ListTerm(args.size()));
-                }
-            };
-            outer:
-            for (int i = 0; ; ++i, token = getLexer().next(joiner.accept(x))) {
-                if (token.kind == TK_EOF) {
-                    throw new ParseException("Premature EOF");
-                }
-                if (token.kind.isAtom()) {
-                    if (false && i == 0 || joiner.accept(xf)) {
-                        for (TokenKind terminator : terminators) {
-                            if (token.kind == terminator) {
-                                result = i > 0 ? joiner.complete() : null;
-                                finished = true;
-                                break;
-                            }
-                        }
-                        if (finished) {
-                            break;
-                        }
-                    }
-                    logger.info(token.image);
-                    final Map<Fixity, HlOpSymbol> syms = getOptable().getOperatorsMatchingNameByFixity(token.image);
-                    for (HlOpSymbol right : syms.values()) {
-                        if (joiner.accept(right.getAssociativity())) {
-                            joiner.push(right);
-                            continue outer;
-                        }
-                    }
-                }
-                if (!joiner.accept(x)) {
-                    throw new ParseException("Impossible to resolve operator! token = " + token);
-                }
-                joiner.push(literal(token));
-            }
-        }
-
-        return result;
-    }
+//    /**
+//     * @param token
+//     * @param terminators
+//     * @return
+//     * @throws IOException
+//     * @throws ParseException
+//     */
+//    protected ITerm newTerm(PlToken token, EnumSet<TokenKind> terminators)
+//            throws Exception {
+//        logger.info(token.toString());
+//        ITerm result = null;
+//        boolean finished = false;
+//        if (token.kind == TK_BOF) {
+//            result = BEGIN_OF_FILE_ATOM;
+//        } else if (token.kind == TK_EOF) {
+//            result = END_OF_FILE_ATOM;
+//        } else {
+//            HlOperatorJoiner<ITerm> joiner = new HlOperatorJoiner<ITerm>() {
+//                @Override
+//                protected ITerm join(int notation, List<ITerm> args) {
+//                    return new HtFunctor(notation, new ListTerm(args.size()));
+//                }
+//            };
+//            outer:
+//            for (int i = 0; ; ++i, token = getLexer().next(joiner.accept(x))) {
+//                if (token.kind == TK_EOF) {
+//                    throw new ParseException("Premature EOF");
+//                }
+//                if (token.kind.isAtom()) {
+//                    if (joiner.accept(xf)) {
+//                        for (TokenKind terminator : terminators) {
+//                            if (token.kind == terminator) {
+//                                result = i > 0 ? joiner.complete() : null;
+//                                finished = true;
+//                                break;
+//                            }
+//                        }
+//                        if (finished) {
+//                            break;
+//                        }
+//                    }
+//                    logger.info(token.image);
+//                    final Map<Fixity, HlOpSymbol> syms = getOptable().getOperatorsMatchingNameByFixity(token.image);
+//                    for (HlOpSymbol right : syms.values()) {
+//                        if (joiner.accept(right.getAssociativity())) {
+//                            joiner.push(right);
+//                            continue outer;
+//                        }
+//                    }
+//                }
+//                logger.info(joiner.toString());
+//                if (!joiner.accept(x)) {
+//                    throw new ParseException("Impossible to resolve operator! token = " + token);
+//                }
+//                joiner.push(literal(token));
+//            }
+//        }
+//
+//        return result;
+//    }
 
     public PlLexer getLexer() {
         return (PlLexer) getTokenSource();
     }
 
-    /**
-     * @param token
-     * @return
-     * @throws IOException
-     * @throws ParseException
-     */
-    protected ITerm literal(PlToken token) throws Exception {
-        ITerm term = null;
-        switch (token.kind) {
-            case TK_VAR:
-                term = termFactory.newVariable(token.image);
-                break;
-            case TK_FUNCTOR_BEGIN:
-                term = compound(token.image);
-                break;
-            case TK_INTEGER_LITERAL:
-                term = termFactory.newAtomic(Integer.parseInt(token.image));
-                break;
-            case TK_FLOATING_POINT_LITERAL:
-                term = termFactory.newAtomic(Double.parseDouble(token.image));
-                break;
-            case TK_BOF:
-                term = BEGIN_OF_FILE_ATOM;
-                getTokenSource().setEncodingPermitted(true);
-                break;
-            case TK_EOF:
-                term = END_OF_FILE_ATOM;
-                popTokenSource();
-                break;
-            case TK_LPAREN:
-            case TK_LBRACKET:
-            case TK_LBRACE:
-//                term = readSequence(token.kind, token.image);
-                break;
-            case TK_QUOTED_NAME:
-            case TK_SYMBOLIC_NAME:
-            case TK_ATOM:
-                term = termFactory.newAtom(token.image);
-                break;
-            default:
-                throw new ParserException("Unexpected token: " + token);
-        }
-
-        return term;
-    }
+//    /**
+//     * @param token
+//     * @return
+//     * @throws IOException
+//     * @throws ParseException
+//     */
+//    protected ITerm literal(PlToken token) throws Exception {
+//        ITerm term = null;
+//        switch (token.kind) {
+//            case TK_VAR:
+//                term = termFactory.newVariable(token.image);
+//                break;
+//            case TK_FUNCTOR_BEGIN:
+//                term = compound(token.image);
+//                break;
+//            case TK_INTEGER_LITERAL:
+//                term = termFactory.newAtomic(Integer.parseInt(token.image));
+//                break;
+//            case TK_FLOATING_POINT_LITERAL:
+//                term = termFactory.newAtomic(Double.parseDouble(token.image));
+//                break;
+//            case TK_BOF:
+//                term = BEGIN_OF_FILE_ATOM;
+//                getTokenSource().setEncodingPermitted(true);
+//                break;
+//            case TK_EOF:
+//                term = END_OF_FILE_ATOM;
+//                popTokenSource();
+//                break;
+//            case TK_LPAREN:
+//            case TK_LBRACKET:
+//            case TK_LBRACE:
+////                term = readSequence(token.kind, token.image);
+//                break;
+//            case TK_QUOTED_NAME:
+//            case TK_SYMBOLIC_NAME:
+//            case TK_ATOM:
+//                term = termFactory.newAtom(token.image);
+//                break;
+//            default:
+//                throw new ParserException("Unexpected token: " + token);
+//        }
+//
+//        return term;
+//    }
 
     /**
      * @param kind
@@ -447,6 +445,12 @@ public class PlPrologParser implements IParser {
         return compound(name, args);
     }
 
+    /**
+     * @param name
+     * @param args
+     * @return
+     * @throws Exception
+     */
     protected IFunctor compound(String name, ListTerm args) throws Exception {
         final int iname = interner.internFunctorName(name, 0);
         return termFactory.newFunctor(iname, args);
@@ -466,13 +470,17 @@ public class PlPrologParser implements IParser {
         variableContext.clear();
 
         if (!tokenSourceStack.isEmpty() && tokenSourceStack.peek().isOpen()) {
-            return literal((getLexer()).getNextToken());
+            return expr(true);
         }
-
-        return literal(PlToken.newToken(TK_EOF));
+        popTokenSource();
+        return PlPrologParser.END_OF_FILE_ATOM;
     }
 
-    //    @Override
+    /**
+     * @param operatorName
+     * @param priority
+     * @param associativity
+     */
     public void setOperator(String operatorName, int priority, Associativity associativity) {
         Map<Fixity, HlOpSymbol> ops = operatorTable.getOperatorsMatchingNameByFixity(operatorName);
         if (ops == null || ops.isEmpty()) {
@@ -620,10 +628,8 @@ public class PlPrologParser implements IParser {
     }
 
     public String toString() {
-        final StringBuilder sb = new StringBuilder("PlPrologParser{");
-//        sb.append("tokenSourceStack=").append(tokenSourceStack);
-        sb.append('}');
-        return sb.toString();
+        //        sb.append("tokenSourceStack=").append(tokenSourceStack);
+        return "PlPrologParser{" + '}';
     }
 
     /**
@@ -666,37 +672,29 @@ public class PlPrologParser implements IParser {
      *                  (a period), <tt>false</tt> otherwise.
      */
     public ITerm nextTerm(boolean endNeeded) throws Exception {
-        try {
-            PlToken t = getLexer().readToken();
-            if (t.isBOF()) {
-                return BEGIN_OF_FILE_ATOM;
-            }
-            if (t.isEOF()) {
-                return END_OF_FILE_ATOM;
-            }
-            getLexer().unreadToken(t);
-            ITerm term = expr(false);
-            if (term == null) {
-                throw new IllegalStateException();
-            }
-            if (endNeeded && getLexer().readToken().kind == TK_DOT)
-//                throw new InvalidTermException("The term " + term + " is not ended with a period.");
-//
-//                term.resolveTerm();
-                return term;
-//        } catch (IOException ex) {
-//            throw new InvalidTermException("An I/O error occurred.");
-        } finally {
-
+        PlToken t = getLexer().readToken();
+        if (t.isBOF()) {
+            return BEGIN_OF_FILE_ATOM;
         }
-        return null;
+        if (t.isEOF()) {
+            return END_OF_FILE_ATOM;
+        }
+        getLexer().unreadToken(t);
+        ITerm term = expr(false);
+        if (term == null) {
+            throw new IllegalStateException();
+        }
+        if (endNeeded && getLexer().readToken().kind != TK_DOT) {
+            throw new ParserException("The term " + term + " is not ended with a period.");
+        }
+        return term;
     }
 //
 
     /**
      * Static service to get a term from its string representation
      */
-    public ITerm parseSingleTerm(String st) throws Exception, InvalidTermException {
+    public ITerm parseSingleTerm(String st) throws Exception {
         ITokenSource ts = ITokenSource.getITokenSourceForString(st);
         return parseSingleTerm(ts);
     }
@@ -739,7 +737,7 @@ public class PlPrologParser implements IParser {
 
         //{op(yfx,n) exprA(n-1) | op(yf,n)}*
         PlToken t = getLexer().readToken();
-        for (; t.isOperator(commaIsEndMarker); t = getLexer().readToken()) {
+        for (; isOperator(t, commaIsEndMarker); t = getLexer().readToken()) {
             int YFX = this.getOptable().getPriority(t.image, yfx);
             int YF = this.getOptable().getPriority(t.image, yf);
 
@@ -748,7 +746,6 @@ public class PlPrologParser implements IParser {
             if (YF < leftSide.getPriority() || YF > maxPriority) YF = -1;
             // if (YFX < leftSide.getPriority() && YFX > PlDynamicOperatorParser.OP_HIGH) YFX = -1;
             if (YFX < leftSide.getPriority() || YFX > maxPriority) YFX = -1;
-
             //YFX has getPriority() over YF
             if (YFX >= YF && YFX >= OP_LOW) {
                 IdentifiedTerm ta = exprA(YFX - 1, commaIsEndMarker);
@@ -774,7 +771,7 @@ public class PlPrologParser implements IParser {
         IdentifiedTerm left = (IdentifiedTerm) parseLeftSide(commaIsEndMarker, maxPriority);
         //2.left is followed by either xfx, xfy or xf operators, parse these
         PlToken token = getLexer().readToken();
-        for (; token.isOperator(commaIsEndMarker); token = getLexer().readToken()) {
+        for (; isOperator(token, commaIsEndMarker); token = getLexer().readToken()) {
             int XFX = getOptable().getPriority(token.image, xfx);
             int XFY = getOptable().getPriority(token.image, xfy);
             int XF = getOptable().getPriority(token.image, xf);
@@ -833,27 +830,39 @@ public class PlPrologParser implements IParser {
         return left;
     }
 
-    //    /**
-//     * Parses and returns a valid 'leftside' of an expression.
-//     * If the left side starts with a prefix, it consumes other expressions with a lower priority than itself.
-//     * If the left side does not have a prefix it must be an expr0.
-//     *
-//     * @param commaIsEndMarker used when the leftside is part of and argument list of expressions
-//     * @param maxPriority operators with a higher priority than this will effectivly end the expression
-//     * @return a wrapper of: 1. term correctly structured and 2. the priority of its root operator
-//     * @throws InvalidTermException
-//     */
+    private boolean isOperator(PlToken token, boolean commaIsEndMarker) {
+        final String name = token.getImage();
+        final Set<HlOpSymbol> ops = this.getOptable().getOperators(name);
+        for (HlOpSymbol op : ops) {
+            if (op.getTextName().equals(token.image)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Parses and returns a valid 'leftside' of an expression.
+     * If the left side starts with a prefix, it consumes other expressions with a lower priority than itself.
+     * If the left side does not have a prefix it must be an expr0.
+     *
+     * @param commaIsEndMarker used when the leftside is part of and argument list of expressions
+     * @param maxPriority      operators with a higher priority than this will effectivly end the expression
+     * @return a wrapper of: 1. term correctly structured and 2. the priority of its root operator
+     * @throws InvalidTermException
+     */
     private ITerm parseLeftSide(boolean commaIsEndMarker, int maxPriority) throws Exception {
 //        1. prefix expression
         PlToken token = getLexer().readToken();
-        if (token.isOperator(commaIsEndMarker)) {
+        if (isOperator(token, commaIsEndMarker)) {
             int FX = getOptable().getPriority(token.image, fx);
             int FY = getOptable().getPriority(token.image, fy);
 
             if (token.image.equals("-")) {
                 PlToken t = getLexer().readToken();
                 if (t.isNumber()) {
-//                    return termFactory.createNumber(token.image);
+                    return termFactory.createNumber(token.image);
                 } else {
                     getLexer().unreadToken(t);
                 }
@@ -1152,7 +1161,8 @@ public class PlPrologParser implements IParser {
                     break;
                 default:
                     throw new ParserException(String.format("The expression: %s\n" +
-                            "is not followed by either a ',' or '|' or ']'.", heads.get(heads.size() - 1)));
+                            "is not followed by either a ',' or '|' or ']'.", heads.isEmpty() ? "<no such>" :
+                            heads.get(heads.size() - 1)));
             }
         }
     }
@@ -1169,27 +1179,5 @@ public class PlPrologParser implements IParser {
 
     private ITerm expr(boolean commaIsEndMarker) throws Exception {
         return requireNonNull(exprA(OP_HIGH, commaIsEndMarker)).getResult();
-    }
-    // commodity methods to parse numbers
-
-    static Number parseInteger(String s) {
-        long num = Long.parseLong(s);
-        if (num > Integer.MIN_VALUE && num < MAX_VALUE) {
-            return (int) num;
-        } else {
-            return num;
-        }
-    }
-
-    static Double parseFloat(String s) {
-        return Double.parseDouble(s);
-    }
-
-    static Number createNumber(String s) {
-        try {
-            return parseInteger(s);
-        } catch (Exception e) {
-            return parseFloat(s);
-        }
     }
 }

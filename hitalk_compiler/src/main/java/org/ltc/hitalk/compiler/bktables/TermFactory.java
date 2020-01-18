@@ -18,6 +18,8 @@ import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.nio.file.Path;
 
+import static java.lang.Integer.MAX_VALUE;
+import static java.lang.Integer.MIN_VALUE;
 import static org.ltc.hitalk.term.ListTerm.NIL;
 
 /**
@@ -150,16 +152,24 @@ public class TermFactory implements ITermFactory {
         return new HtFunctor(interner.internFunctorName(name, arity));
     }
 
-    public NumberTerm createNumber(String s) {
-        return null;
+    // commodity methods to parse numbers
+
+    IntTerm parseInteger(String s) {
+        long num = Long.parseLong(s);
+        return newAtomic(num > MIN_VALUE && num < MAX_VALUE ? (int) num : Math.toIntExact(num));
     }
 
-//    public NumberTerm createNumber(String s) {
-//            try {
-//                return parseInteger(s);
-//            } catch (Exception e) {
-//                return parseFloat(s);
-//            }}
+    FloatTerm parseFloat(String s) {
+        return newAtomic(Double.parseDouble(s));
+    }
+
+    public NumberTerm createNumber(String s) {
+        try {
+            return parseInteger(s);
+        } catch (Exception e) {
+            return parseFloat(s);
+        }
+    }
 
     public HtVariable createVariable(String vname) {
         return new HtVariable(interner.internVariableName(vname), null, false);

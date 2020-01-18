@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.IntStream;
 
+import static java.util.Objects.requireNonNull;
 import static org.ltc.hitalk.term.HlOpSymbol.Fixity.*;
 
 /**
@@ -316,7 +317,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
     /**
      * Holds the parser state stack.
      */
-    private final Queue <Integer> stack = new StackQueue <>();
+    private final Queue<Integer> stack = new StackQueue<>();
 
     /**
      * Holds the parsers current state.
@@ -331,7 +332,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
     /**
      * Holds the output stack onto which terms are placed pending their consumption by rule reductions.
      */
-    private final Queue <ITerm> outputStack = new StackQueue <>();
+    private final Queue<ITerm> outputStack = new StackQueue<>();
 
     /**
      * Holds the current next term on the input sequence.
@@ -341,7 +342,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
     /**
      * Holds the table of defined operators by name and fixity.
      */
-    private final Map <String, EnumMap <Fixity, HlOpSymbol>> operators = new HashMap <>();
+    private final Map<String, EnumMap<Fixity, HlOpSymbol>> operators = new HashMap<>();
 
     /**
      * Parses a flat list of terms, which are literals, variables, functors, or operators into a tree in such a way that
@@ -352,7 +353,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
      * @throws HtSourceCodeException If the list of terms does not form a valid syntactical construction under the current
      *                               set of defined operators.
      */
-    public ITerm parseOperators ( ITerm[] terms ) throws HtSourceCodeException {
+    public ITerm parseOperators(ITerm[] terms) throws HtSourceCodeException {
         // Initialize the parsers state.
         stack.offer(0);
         state = 0;
@@ -399,7 +400,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
      * @param priority      The priority of the operator. Zero removes the operator.
      * @param associativity The associativity of the operator.
      */
-    public void setOperator ( int name, String textName, int priority, Associativity associativity ) {
+    public void setOperator(int name, String textName, int priority, Associativity associativity) {
         // Check that the name of the operator is valid.
 
         // Check that the priority of the operator is valid.
@@ -472,9 +473,25 @@ public class PlDynamicOperatorParser implements IOperatorTable {
         return new HashSet<>(map.values());
     }
 
+    /**
+     * @param image
+     * @param associativity
+     * @return
+     */
+    @Override
     public int getPriority(String image, Associativity associativity) {
-        Map<Fixity, HlOpSymbol> map;//= //todo getOperatorsMatchingNameByFixity(image);
-        return 0;
+        HlOpSymbol symbol = filter(getOperators(image), associativity);
+        return symbol == null ? 0 : symbol.getPriority();
+    }
+
+    private HlOpSymbol filter(Set<HlOpSymbol> operators, Associativity associativity) {
+        for (HlOpSymbol symbol : operators) {
+            if (symbol.getAssociativity() == associativity) {
+                return symbol;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -499,7 +516,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
      * @param fixities  The possible fixities to resolve the symbol to.
      * @return The candidate operator resolved to an actual operator.
      */
-    protected static HlOpSymbol checkAndResolveToFixity ( CandidateOperator candidate, Fixity... fixities )
+    protected static HlOpSymbol checkAndResolveToFixity(CandidateOperator candidate, Fixity... fixities)
             throws HtSourceCodeException {
         HlOpSymbol result = null;
 
@@ -529,7 +546,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
          * @throws HtSourceCodeException With an error location if the action cannot be performed because the input
          *                               sequence does not form a valid instance of the grammar.
          */
-        public abstract void apply () throws HtSourceCodeException;
+        public abstract void apply() throws HtSourceCodeException;
     }
 
     /**
@@ -547,7 +564,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
          *
          * @param toState The state to shift to.
          */
-        private ShiftAction ( int toState ) {
+        private ShiftAction(int toState) {
             this.toState = toState;
         }
 
@@ -555,7 +572,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
          * Performs a shift action. Changes to a new state, places the new state on the stack, consumes one input symbol
          * and places the symbol on the output stack.
          */
-        public void apply () {
+        public void apply() {
             state = toState;
             stack.offer(state);
             position++;
@@ -580,7 +597,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
          *
          * @param rule The rule number to reduce by.
          */
-        private ReduceAction ( int rule ) {
+        private ReduceAction(int rule) {
             this.ruleNum = rule;
         }
 
@@ -590,7 +607,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
          * @throws HtSourceCodeException With an error location if the action cannot be performed because the input
          *                               sequence does not form a valid instance of the grammar.
          */
-        public void apply () throws HtSourceCodeException {
+        public void apply() throws HtSourceCodeException {
             Action rule = rules[ruleNum];
             rule.apply();
 
@@ -620,7 +637,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
          * @param shift  The shift action to perform if a shift resolution is chosen.
          * @param reduce The reduce action to perform if a reduce resolution is chosen.
          */
-        private ResolveAction ( ShiftAction shift, ReduceAction reduce ) {
+        private ResolveAction(ShiftAction shift, ReduceAction reduce) {
             this.shift = shift;
             this.reduce = reduce;
         }
@@ -631,7 +648,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
          * @throws HtSourceCodeException With an error location if the action cannot be performed because the input
          *                               sequence does not form a valid instance of the grammar.
          */
-        public void apply () throws HtSourceCodeException {
+        public void apply() throws HtSourceCodeException {
             // This cast should not fail, as resolve is only called when the next symbol is a candidate operator.
             CandidateOperator nextCandidate = (CandidateOperator) nextTerm;
 
@@ -734,7 +751,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
          *
          * @param errorMessage The error message.
          */
-        private ErrorAction ( String errorMessage ) {
+        private ErrorAction(String errorMessage) {
             this.errorMessage = errorMessage;
         }
 
@@ -744,7 +761,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
          *
          * @throws HtSourceCodeException With an error location for the current parse term.
          */
-        public void apply () throws HtSourceCodeException {
+        public void apply() throws HtSourceCodeException {
             throw new HtSourceCodeException(errorMessage, null, null, null, nextTerm.getSourceCodePosition());
         }
     }
@@ -758,7 +775,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
         /**
          * Accepts the input sequence as valid.
          */
-        public void apply () {
+        public void apply() {
             // Advance one beyond the final position to indicate acceptance of the sentence as a valid instance of
             // the grammar.
             position++;
@@ -778,7 +795,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
         /**
          * Reduces by rule 1.
          */
-        public void apply () {
+        public void apply() {
             IntStream.range(0, NUM_SYMBOLS_RHS).forEachOrdered(i -> stack.poll());
         }
     }
@@ -800,7 +817,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
          * @throws HtSourceCodeException With an error location if the action cannot be performed because the input
          *                               sequence does not form a valid instance of the grammar.
          */
-        public void apply () throws HtSourceCodeException {
+        public void apply() throws HtSourceCodeException {
             // Consume from the state stack for the number of RHS symbols.
             IntStream.range(0, NUM_SYMBOLS_RHS).forEachOrdered(i -> stack.poll());
 
@@ -813,7 +830,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
             // Clone the operator symbol from the operator table before adding the unique source code position and
             // argument for this symbol instance.
             op = op.copySymbol();
-            op.setSourceCodePosition(Objects.requireNonNull(candidate).getSourceCodePosition());
+            op.setSourceCodePosition(requireNonNull(candidate).getSourceCodePosition());
             op.setArguments(new ITerm[]{t});
 
             // Place the fully parsed, promoted operator back onto the output stack.
@@ -838,7 +855,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
          * @throws HtSourceCodeException With an error location if the action cannot be performed because the input
          *                               sequence does not form a valid instance of the grammar.
          */
-        public void apply () throws HtSourceCodeException {
+        public void apply() throws HtSourceCodeException {
             // Consume from the state stack for the number of RHS symbols.
             for (int i = 0; i < NUM_SYMBOLS_RHS; i++) {
                 stack.poll();
@@ -877,7 +894,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
          * @throws HtSourceCodeException With an error location if the action cannot be performed because the input
          *                               sequence does not form a valid instance of the grammar.
          */
-        public void apply () throws HtSourceCodeException {
+        public void apply() throws HtSourceCodeException {
             // Consume from the state stack for the number of RHS symbols.
             IntStream.range(0, NUM_SYMBOLS_RHS).forEach(i -> stack.poll());
 
@@ -892,14 +909,14 @@ public class PlDynamicOperatorParser implements IOperatorTable {
             // argument for this symbol instance.
             // Note that the order of the arguments is swapped here, because they come off the stack backwards.
             op = op.copySymbol();
-            op.setSourceCodePosition(Objects.requireNonNull(candidate).getSourceCodePosition());
+            op.setSourceCodePosition(requireNonNull(candidate).getSourceCodePosition());
             op.setArguments(new ITerm[]{t2, t1});
 
             outputStack.offer(op);
         }
     }
 
-    public void toString0 ( StringBuilder sb ) {
+    public void toString0(StringBuilder sb) {
 
     }
 }

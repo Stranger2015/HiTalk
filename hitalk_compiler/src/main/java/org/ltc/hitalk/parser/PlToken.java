@@ -112,9 +112,9 @@ public class PlToken implements ISourceCodePosition {
         return kind == TK_BOF;
     }
 
-    public boolean isOperator(boolean commaIsEndMarker) {
-        return false;
-    }
+//    public boolean isOperator(boolean commaIsEndMarker) {
+//        return this.;
+//    }
 
     public boolean isNumber() {
         return false;
