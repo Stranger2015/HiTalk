@@ -42,7 +42,7 @@ public interface IPreCompiler extends IQueueHolder <PreCompilerTask>, IHitalkObj
 //     */
 //    @Override
 //    public void compile ( ITokenSource tokenSource, HtProperty... flags )
-//            throws IOException, HtSourceCodeException, ParseException {
+//            throws IOException, HtSourceCodeException, ParserException {
 //        getConsole().info("Compiling " + tokenSource.getPath() + "... ");
 //        /*
 //        // Set up a parser on the token source.
@@ -110,13 +110,6 @@ public interface IPreCompiler extends IQueueHolder <PreCompilerTask>, IHitalkObj
         final FunctorName functorName = interner.getDeinternedFunctorName(clause.getGoal(0).getName());
         return Objects.equals(functorName.getName(), directive.toString())/* && functorName.getArity() == 1*/;//fixme
     }
-
-//        parser.getTokenSource().setEncodingPermitted(false);
-
-//        /**
-//         * @param resolver
-//         */
-//        public void setResolver (IResolver < P, Q > resolver ){
 
     /**
      *

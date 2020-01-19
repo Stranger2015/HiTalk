@@ -117,6 +117,6 @@ class HtVersion {
 
     @Override
     public String toString () {
-        return format("version %d.%d.%db#%d%s%s", major, minor, patch, build, suffix, "");
+        return format("version %d.%d.%d, b#%d%s%s", major, minor, patch, build, suffix, "");
     }
 }

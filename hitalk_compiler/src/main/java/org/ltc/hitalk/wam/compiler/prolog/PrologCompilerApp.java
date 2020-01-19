@@ -25,7 +25,10 @@ import org.ltc.hitalk.entities.context.CompilationContext;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.LoadContext;
 import org.ltc.hitalk.interpreter.HtProduct;
-import org.ltc.hitalk.parser.*;
+import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.IParser;
+import org.ltc.hitalk.parser.ITokenSource;
+import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.wam.compiler.CompilerFactory;
 import org.ltc.hitalk.wam.compiler.ICompilerFactory;
@@ -64,10 +67,10 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
     protected CompilationContext compilationContext = new CompilationContext();
     protected LoadContext loadContext = new LoadContext(DEFAULT_PROPS);
     protected ExecutionContext executionContext = new ExecutionContext();
-    protected IProduct product = new HtProduct("Copyright (c) Anton Danilov 2018-2019, All rights reserved.",
+    protected IProduct product = new HtProduct("Copyright (c) Anton Danilov 2018-2020, All rights reserved.",
             language().getName() + " " + tool().getName(),
-            new HtVersion(0, 1, 0, 128, "", false));
-    protected ICompilerObserver <P, Q> observer;
+            new HtVersion(0, 1, 1, 224, "", false));
+    protected ICompilerObserver<P, Q> observer;
     protected IVafInterner interner;
 
     /**
@@ -163,7 +166,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
      * @return
      * @throws FileNotFoundException
      */
-    public HiTalkInputStream createInputHiTalkStream ( String fileName ) throws FileNotFoundException {
+    public HiTalkInputStream createInputHiTalkStream(String fileName) throws IOException {
         return new HiTalkInputStream(new File(fileName));
     }
 
@@ -294,7 +297,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
 
                     }
 
-                    public void onQueryCompilation ( Q sentence ) throws HtSourceCodeException {
+                    public void onQueryCompilation(Q sentence) {
 
                     }
                 });

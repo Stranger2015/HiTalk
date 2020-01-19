@@ -436,19 +436,25 @@ public class HiTalkOutputStream extends HiTalkStream {
         outputStream.close();
     }
 
-    protected void doOpen () throws FileNotFoundException {
+    protected void doOpen() throws FileNotFoundException {
 
     }
 
-    protected void init ( FileDescriptor fd ) throws IOException {
+    protected void init(FileDescriptor fd) throws IOException {
         setOutputStream(new FileOutputStream(fd));
     }
 
-    public void setOutputStream ( FileOutputStream outputStream ) {
+    /**
+     * @param outputStream
+     */
+    public void setOutputStream(FileOutputStream outputStream) {
         this.outputStream = outputStream;
     }
 
-    public FileOutputStream getOutputStream () {
+    /**
+     * @return
+     */
+    public FileOutputStream getOutputStream() {
         return outputStream;
     }
 }

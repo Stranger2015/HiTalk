@@ -1,6 +1,6 @@
 package org.ltc.hitalk.term;
 
-import org.ltc.hitalk.parser.ParseException;
+import org.ltc.hitalk.parser.ParserException;
 import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 
 import java.util.ArrayDeque;
@@ -34,7 +34,7 @@ public abstract class HlOperatorJoiner<T extends ITerm> {
     /**
      * 式の構成要素となる次の演算子を追加します。
      */
-    public void push ( HlOpSymbol operator ) throws ParseException {
+    public void push(HlOpSymbol operator) throws ParserException {
         resolve(operator.lprio);
         operators.push(operator);
         associativity = operator.getAssociativity();
@@ -51,7 +51,7 @@ public abstract class HlOperatorJoiner<T extends ITerm> {
     /**
      * 式の要素の追加を終了し、設定された式の構成要素から構文木を生成します。
      */
-    public T complete () throws ParseException {
+    public T complete() throws ParserException {
         resolve(Integer.MAX_VALUE);
         if (operands.size() != 1) {
             throw new IllegalStateException("operands.size() != 1");
@@ -59,12 +59,12 @@ public abstract class HlOperatorJoiner<T extends ITerm> {
         return operands.getLast();
     }
 
-    void resolve ( int priority ) throws ParseException {
+    void resolve(int priority) throws ParserException {
         while (!operators.isEmpty() && operators.peek().rprio <= priority) {
             if (operators.peek().rprio == priority) {
-                throw new ParseException("演算子の優先順位が衝突しました: " + operators.peek());
+                throw new ParserException("演算子の優先順位が衝突しました: " + operators.peek());
             }
-            ArrayList <T> args = new ArrayList <>(2);
+            ArrayList<T> args = new ArrayList<>(2);
             for (int i = operators.peek().getAssociativity().arity; i > 0; --i) {
                 args.add(0, operands.pop());
             }

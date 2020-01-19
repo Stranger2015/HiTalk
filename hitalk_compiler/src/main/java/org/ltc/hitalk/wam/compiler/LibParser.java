@@ -95,7 +95,7 @@ public class LibParser implements IParser {
 
     /**
      * @return
-     * @throws ParseException
+     * @throws ParserException
      * @throws IOException
      * @throws HtSourceCodeException
      */

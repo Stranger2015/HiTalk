@@ -128,11 +128,11 @@ public class PlToken implements ISourceCodePosition {
         TK_EOF(""),
         TK_DOT("."),
         TK_LPAREN("("),
-        TK_RPAREN(")"),
+        TK_RPAREN(")", "right parenthesis"),
         TK_LBRACKET("["),
-        TK_RBRACKET("]"),
+        TK_RBRACKET("]", "right bracket"),
         TK_LBRACE("{"),
-        TK_RBRACE("}"),
+        TK_RBRACE("}", "right brace"),
 
         TK_D_QUOTE("\""),
         TK_S_QUOTE("'"),
@@ -159,11 +159,18 @@ public class PlToken implements ISourceCodePosition {
         TK_COLON(":"),
         TK_CONS("|");
 
+        private String name;
+
         /**
          * @param image
          */
-        TokenKind(String image) {
+        TokenKind(String image, String name) {
             this.image = image;
+            this.name = name;
+        }
+
+        TokenKind(String image) {
+            this(image, "");
         }
 
         public boolean isAtom() {
@@ -181,6 +188,10 @@ public class PlToken implements ISourceCodePosition {
 
         public char getChar() {
             return image == null || image.isEmpty() ? 0 : image.charAt(0);
+        }
+
+        public String getName() {
+            return name;
         }
     }
 

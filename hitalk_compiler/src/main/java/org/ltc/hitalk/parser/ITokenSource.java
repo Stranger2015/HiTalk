@@ -20,7 +20,7 @@ public interface ITokenSource extends Source<PlToken>, PropertyChangeListener, C
      */
     void close() throws IOException;
 
-    static ITokenSource getITokenSourceForString(String string) throws FileNotFoundException {
+    static ITokenSource getITokenSourceForString(String string) throws IOException {
         HiTalkInputStream inputStream = new HiTalkInputStream(string);
         return new PlLexer(inputStream);
     }

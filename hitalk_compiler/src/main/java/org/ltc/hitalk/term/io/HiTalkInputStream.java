@@ -45,21 +45,21 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      * @param encoding
      * @param path
      */
-    public HiTalkInputStream ( Path path, String encoding ) throws IOException {
+    public HiTalkInputStream(Path path, String encoding) throws IOException {
         super(path, encoding, READ);
         final FileInputStream fis = new FileInputStream(path.toFile());
         setInputStream(fis);
     }
 
-    public HiTalkInputStream(FileDescriptor fd, int bufferSize) {
+    public HiTalkInputStream(FileDescriptor fd, int bufferSize) throws IOException {
 //        this.bufferSize = bufferSize;
-        this.fd = fd;
-        final FileInputStream fis = new FileInputStream(fd);
-        setInputStream(fis);
+        super(fd);
+//        final FileInputStream fis = new FileInputStream(fd);
+//        setInputStream(fis);
 //        setTokenSource(tokenSource);
     }
 
-    public HiTalkInputStream ( String path, int bufferSize ) throws IOException {
+    public HiTalkInputStream(String path, int bufferSize) throws IOException {
         super(Paths.get(path), defaultEncoding, READ);
     }
 
@@ -68,8 +68,8 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      * @param bufferSize
      * @throws FileNotFoundException
      */
-    public HiTalkInputStream ( File file, int bufferSize ) throws FileNotFoundException {
-//       this(file,bufferSize);
+    public HiTalkInputStream(File file, int bufferSize) throws IOException {
+        this(file.getAbsolutePath(), bufferSize);
         setInputStream(new FileInputStream(file));
     }
 
@@ -77,7 +77,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      * @param file
      * @throws FileNotFoundException
      */
-    public HiTalkInputStream ( File file ) throws FileNotFoundException {
+    public HiTalkInputStream(File file) throws IOException {
         this(file, defaultBufSize);
     }
 
@@ -85,13 +85,13 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      * @param string
      * @throws FileNotFoundException
      */
-    public HiTalkInputStream ( String string ) throws FileNotFoundException {
+    public HiTalkInputStream(String string) throws IOException {
         this(new File(string), defaultBufSize);
         final FileInputStream fis = new FileInputStream(string);
         setInputStream(fis);
     }
 
-    public HiTalkInputStream ( Path path, String s, StandardOpenOption read ) throws IOException {
+    public HiTalkInputStream(Path path, String s, StandardOpenOption read) throws IOException {
         super(path, s, read);
         setInputStream(new FileInputStream(path.toFile()));
     }
@@ -109,8 +109,8 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      * @throws NullPointerException    if cb is null
      * @throws ReadOnlyBufferException if cb is a read only buffer
      */
-    public int read ( @NotNull CharBuffer cb ) throws IOException {
-        return 0;
+    public int read(@NotNull CharBuffer cb) throws IOException {
+        return -1;
     }
 
     /**
@@ -119,7 +119,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      * @return
      * @throws IOException
      */
-    public int read () throws IOException {
+    public int read() throws IOException {
         reads++;
         return pushbackReader.read();
     }
@@ -133,7 +133,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      * @throws IOException If the pushback buffer is full,
      *                     or if some other I/O error occurs
      */
-    public void unread ( int c ) throws IOException {
+    public void unread(int c) throws IOException {
         if (reads-- < 0) {
             throw new IllegalStateException("reads == " + reads);
         }
@@ -160,7 +160,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      *
      * @throws IOException if an I/O error occurs
      */
-    public void close () throws IOException {
+    public void close() throws IOException {
         super.close();
         inputStream.close();
         isOpen = false;
@@ -224,11 +224,11 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
     /**
      * @return
      */
-    public FileInputStream getInputStream () {
+    public FileInputStream getInputStream() {
         return inputStream;
     }
 
-    protected void doOpen () throws FileNotFoundException {
+    protected void doOpen() throws FileNotFoundException {
         if (getInputStream() == null) {
             setInputStream(new FileInputStream(tokenSource.getPath()));
         }
@@ -236,7 +236,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
     }
 
     @Override
-    protected void init ( FileDescriptor fd ) throws IOException {
+    protected void init(FileDescriptor fd) {
         setInputStream(new FileInputStream(fd));
     }
 
@@ -247,7 +247,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      *            and the property that has changed.
      */
     //@Override
-    public void propertyChange ( PropertyChangeEvent evt ) {
+    public void propertyChange(PropertyChangeEvent evt) {
 
     }
 
@@ -255,27 +255,27 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      * @return
      */
     //@Override
-    public int getPropLength () {
+    public int getPropLength() {
         return 0;
     }
 
     //@Override
-    public void addListener ( PropertyChangeListener listener ) {
+    public void addListener(PropertyChangeListener listener) {
 
     }
 
     //@Override
-    public void removeListener ( PropertyChangeListener listener ) {
+    public void removeListener(PropertyChangeListener listener) {
 
     }
 
     //@Override
-    public void fireEvent ( IProperty property, ITerm value ) {
+    public void fireEvent(IProperty property, ITerm value) {
 
     }
 
     //@Override
-    public ITerm getValue ( Properties property ) {
+    public ITerm getValue(Properties property) {
         return null;
     }
 
@@ -284,32 +284,32 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      * @param value
      */
     //@Override
-    public void setValue ( Properties property, ITerm value ) {
+    public void setValue(Properties property, ITerm value) {
 
     }
 
     //@Override
-    public HiTalkStream copy () throws CloneNotSupportedException {
+    public HiTalkStream copy() throws CloneNotSupportedException {
         return null;
     }
 
-    public int getLineNumber () {
+    public int getLineNumber() {
         return lineNumber;
     }
 
-    public void setLineNumber ( int lineNumber ) {
+    public void setLineNumber(int lineNumber) {
         this.lineNumber = lineNumber;
     }
 
-    public int getColNumber () {
+    public int getColNumber() {
         return colNumber;
     }
 
-    public void setColNumber ( int colNumber ) {
+    public void setColNumber(int colNumber) {
         this.colNumber = colNumber;
     }
 
-    public boolean isBOFNotPassed () {
+    public boolean isBOFNotPassed() {
         return bof++ == 0;
     }
 
@@ -317,7 +317,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
         return tokenSource;
     }
 
-    public void toString0 ( StringBuilder sb ) {
+    public void toString0(StringBuilder sb) {
         super.toString0(sb);
         sb.append(", inputStream=").append(inputStream);
 //        sb.append(", pushbackReader=").append(pushbackReader);
@@ -325,7 +325,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
 //        sb.append(", reader=").append(reader);
     }
 
-    public boolean equals ( Object o ) {
+    public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
@@ -338,7 +338,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
         return getInputStream().equals(that.getInputStream());
     }
 
-    public int hashCode () {
+    public int hashCode() {
         return getInputStream().hashCode();
     }
 }

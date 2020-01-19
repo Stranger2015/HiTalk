@@ -115,7 +115,7 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
         this.inputStream = inputStream;
         inputStream.open();
 //     The first token is initialized to be empty, so that the first call to `poll` returns the first token.
-        final PlToken token = new PlToken(TK_BOF);
+        final PlToken firstToken = new PlToken(TK_BOF);
         encodingPermitted = true;
         resetSyntax();
 
@@ -158,12 +158,10 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
         // and it is also not possible to use StreamTokenizer#whitespaceChars for ' '
     }
 
-
     /**
      * @param encoding
-     * @throws IOException
      */
-    public void onEncodingChanged(String encoding) throws IOException {
+    public void onEncodingChanged(String encoding) {
 
     }
 
@@ -385,7 +383,7 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
                 } else {
                     token = getAtom(chr);
                     if (token == null) {//不正な文字=Illegal characters
-                        throw new ParseException(":Bad char `" + (char) chr + ":0x" + Integer.toHexString(chr) + "'.");
+                        throw new ParserException(":Bad char `" + (char) chr + ":0x" + Integer.toHexString(chr) + "'.");
                     }
                     if (EnumSet.of(TK_SYMBOLIC_NAME, TK_QUOTED_NAME, TK_ATOM).contains(token.kind)) {
                         if ((chr = read()) == '(') {
@@ -519,7 +517,7 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
     private String repeat1(String chars) throws Exception {
         String result = repeat(chars);
         if (result.isEmpty()) {
-            throw new ParseException("文字がありません。chars=\"" + chars + "\"");
+            throw new ParserException("文字がありません。chars=\"" + chars + "\"");
         }
 
         return result;

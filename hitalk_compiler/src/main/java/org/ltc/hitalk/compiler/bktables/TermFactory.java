@@ -192,9 +192,7 @@ public class TermFactory implements ITermFactory {
      */
     @Override
     public HtProperty createFlag ( String flagName, String flagValue ) {
-        int ffn = interner.internFunctorName(flagName, 0);
-        int ffv = interner.internFunctorName(flagValue, 0);
-        return null;//new Flag(ffn, new Functor(ffv, NIL));
+        return new HtProperty(flagName, new HtNonVar(flagValue));
     }
 
     /**
