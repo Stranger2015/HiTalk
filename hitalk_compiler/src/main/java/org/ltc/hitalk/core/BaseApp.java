@@ -4,6 +4,7 @@ import com.thesett.aima.logic.fol.LinkageException;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PredicateTable;
+import org.ltc.hitalk.compiler.VafInterner;
 import org.ltc.hitalk.compiler.bktables.*;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.utils.ISymbolTable;
@@ -41,162 +42,39 @@ import static org.ltc.hitalk.core.PrologBuiltIns.CURRENT_INPUT;
 @SuppressWarnings("ALL")
 public abstract
 class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
-
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
-    public final List <HiTalkStream> streams = new ArrayList <>();
-
     public final static AppContext appContext = new AppContext();
+    public final List<HiTalkStream> streams = new ArrayList<>();
 
-    public static AppContext getAppContext () {
-        return appContext;
-    }
-
-    /**
-     * @param i
-     * @return
-     */
-    public HiTalkStream getStream ( int i ) {
-        return streams.get(i);
-    }
-
-    /**
-     * @return
-     */
-    public HiTalkStream currentInput () {
-        return getStream(0);
-    }
-
-    /**
-     * @return
-     */
-    public HiTalkStream currentOutput () {
-        return getStream(1);
-    }
-
-    /**
-     * @return
-     */
-    public HiTalkStream currentError () {
-        return getStream(2);
-    }
-
-
-    /**
-     * @param parser
-     */
-    protected IVafInterner interner;
-
-    protected ITermFactory termFactory;
-    protected PlPrologParser parser;
-    protected IOperatorTable optable;
-    protected ICompiler <HtClause, HtPredicate, HtClause> compiler;
-    protected PredicateTable <HtPredicate> predicateTable;
-    protected ISymbolTable <Integer, String, Object> symbolTable;
-    protected IResolver <HtPredicate, HtClause> resolver;
-    protected Language language;
-
-    protected IConfig config;
-    protected IProduct product;
     protected final AtomicBoolean initialized = new AtomicBoolean(false);
     protected final AtomicBoolean started = new AtomicBoolean(false);
     protected final AtomicBoolean paused = new AtomicBoolean(false);
     protected final AtomicBoolean shuttingDown = new AtomicBoolean(false);
-
+    /**
+     * @param parser
+     */
+    protected IVafInterner interner;
+    protected ITermFactory termFactory;
+    protected PlPrologParser parser;
+    protected IOperatorTable optable;
+    protected ICompiler<HtClause, HtPredicate, HtClause> compiler;
+    protected PredicateTable<HtPredicate> predicateTable;
+    protected ISymbolTable<Integer, String, Object> symbolTable;
+    protected IResolver<HtPredicate, HtClause> resolver;
+    protected Language language;
+    protected IConfig config;
+    protected IProduct product;
     protected HiTalkDefaultBuiltIn defaultBuiltIn;
     protected Runnable target;
     protected String fileName;
     protected State state;
 
     /**
-     * @return
-     */
-    public HiTalkDefaultBuiltIn getDefaultBuiltIn () {
-        return defaultBuiltIn;
-    }
-
-    /**
-     * @param defaultBuiltIn
-     */
-    public void setDefaultBuiltIn ( HiTalkDefaultBuiltIn defaultBuiltIn ) {
-        this.defaultBuiltIn = defaultBuiltIn;
-    }
-
-    /**
-     * @return
-     */
-    @Override
-    public final Logger getLogger () {
-        return logger;
-    }
-
-    /**
-     * @return
-     */
-    @Override
-    public IConfig getConfig () {
-        return config;
-    }
-
-    /**
-     * @param config
-     */
-    public void setConfig ( IConfig config ) {
-        this.config = config;
-    }
-
-    /**
      *
      */
-    @Override
-    public void doClear () {
-        initialized.set(false);
-    }
-
-    /**
-     * @return
-     */
-    @Override
-    public boolean isInited () {
-        return initialized.get();
-    }
-
-    /**
-     * @param inited
-     * @throws LinkageException
-     * @throws IOException
-     */
-    @Override
-    public void setInited ( boolean inited ) throws LinkageException, IOException {
-        if (inited && !isInited()) {
-            init();
-        }
-    }
-
-    /**
-     * @param stream
-     * @return
-     */
-    public HiTalkStream addStream ( HiTalkStream stream ) {
-        streams.add(stream);
-        return stream;
-    }
-
-    /**
-     * @return
-     */
-    public List <HiTalkStream> getStreams () {
-        return streams;
-    }
-
-    public IResolver <HtPredicate, HtClause> getResolver () {
-        return resolver;// == null ? new HtResolutionEngine <>(getParser((), getInterner(), getCompiler()) : resolver;//todo
-    }
-
-    /**
-     *
-     */
-    public BaseApp () {
+    public BaseApp() {
+        appContext.setApp(this);
         try {
             streams.add(new HiTalkInputStream(in, 256));//  "current_input"
             streams.add(new HiTalkOutputStream(256, out));// "current_output"
@@ -208,12 +86,134 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
         }
     }
 
+    public static AppContext getAppContext() {
+        return appContext;
+    }
+
+    /**
+     * @param i
+     * @return
+     */
+    public HiTalkStream getStream(int i) {
+        return streams.get(i);
+    }
+
+    /**
+     * @return
+     */
+    public HiTalkStream currentInput() {
+        return getStream(0);
+    }
+
+    /**
+     * @return
+     */
+    public HiTalkStream currentOutput() {
+        return getStream(1);
+    }
+
+    /**
+     * @return
+     */
+    public HiTalkStream currentError() {
+        return getStream(2);
+    }
+
+    /**
+     * @return
+     */
+    public HiTalkDefaultBuiltIn getDefaultBuiltIn() {
+        return defaultBuiltIn;
+    }
+
+    /**
+     * @param defaultBuiltIn
+     */
+    public void setDefaultBuiltIn(HiTalkDefaultBuiltIn defaultBuiltIn) {
+        this.defaultBuiltIn = defaultBuiltIn;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public final Logger getLogger() {
+        return logger;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public IConfig getConfig() {
+        return config;
+    }
+
+    /**
+     * @param config
+     */
+    public void setConfig(IConfig config) {
+        this.config = config;
+    }
+
+    /**
+     *
+     */
+    @Override
+    public void doClear() {
+        initialized.set(false);
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public boolean isInited() {
+        return initialized.get();
+    }
+
+    /**
+     * @param inited
+     * @throws LinkageException
+     * @throws IOException
+     */
+    @Override
+    public void setInited(boolean inited) throws LinkageException, IOException {
+        if (inited && !isInited()) {
+            init();
+        }
+    }
+
+    /**
+     * @param stream
+     * @return
+     */
+    public HiTalkStream addStream(HiTalkStream stream) {
+        streams.add(stream);
+        return stream;
+    }
+
+    /**
+     * @return
+     */
+    public List<HiTalkStream> getStreams() {
+        return streams;
+    }
+
+    /**
+     * @return
+     */
+    public IResolver<HtPredicate, HtClause> getResolver() {
+        return resolver;
+    }
+
     /**
      *
      */
     @Override
     public void doInit() throws Exception {
         getLogger().info("Initializing... ");
+        appContext.setApp(this);
         initComponents();
         initialized.set(true);
     }
@@ -227,7 +227,7 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
      * @return
      */
     @Override
-    public boolean isStarted () {
+    public boolean isStarted() {
         return started.get();
     }
 
@@ -235,7 +235,7 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
      * @return
      */
     @Override
-    public void pause () {
+    public void pause() {
         paused.set(true);
     }
 
@@ -243,7 +243,7 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
      * @return
      */
     @Override
-    public boolean isPaused () {
+    public boolean isPaused() {
         return paused.get();
     }
 
@@ -251,7 +251,7 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
      *
      */
     @Override
-    public void resume () {
+    public void resume() {
         paused.set(false);
     }
 
@@ -259,12 +259,12 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
      * @return
      */
     @Override
-    public boolean isRunning () {
+    public boolean isRunning() {
         return false;
     }//todo
 
     @Override
-    public void abort () {///todo
+    public void abort() {///todo
 
     }
 
@@ -274,35 +274,49 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
 //    }
 
     @Override
-    public boolean isShuttingDown () {
+    public boolean isShuttingDown() {
         return shuttingDown.get();
     }
 
+    /**
+     * @param shuttingDown
+     */
+    public void setShuttingDown(boolean shuttingDown) {
+        this.shuttingDown.set(shuttingDown);
+    }
+
     @Override
-    public void interrupt () {//todo
+    public void interrupt() {//todo
 
     }
 
     @Override
-    public boolean isInterrupted () {
+    public boolean isInterrupted() {
         return false;
     }
 
     @Override
-    public State getState () {
+    public State getState() {
         return state;
     }//todo
 
     @Override
-    public Runnable getTarget () {
+    public Runnable getTarget() {
         return target;
+    }
+
+    /**
+     * @param target
+     */
+    public void setTarget(Runnable target) {
+        this.target = target;
     }
 
     /**
      * @return
      */
     @Override
-    public IVafInterner getInterner () {
+    public IVafInterner getInterner() {
         return interner;
     }
 
@@ -310,7 +324,7 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
      * @return
      */
     @Override
-    public ISymbolTable <Integer, String, Object> getSymbolTable () {
+    public ISymbolTable<Integer, String, Object> getSymbolTable() {
         return symbolTable;
     }
 
@@ -318,7 +332,7 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
      * @param symbolTable
      */
     @Override
-    public void setSymbolTable ( ISymbolTable <Integer, String, Object> symbolTable ) {
+    public void setSymbolTable(ISymbolTable<Integer, String, Object> symbolTable) {
         this.symbolTable = symbolTable;
         appContext.put(SYMBOL_TABLE, (IHitalkObject) symbolTable);
     }
@@ -327,33 +341,32 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
      * @return
      */
     @Override
-    public PlPrologParser getParser () {
+    public PlPrologParser getParser() {
         return parser;
-    }
-
-    /**
-     * @return
-     */
-    public IOperatorTable getOperatorTable () {
-        return optable;
     }
 
     /**
      * @param parser
      */
     @Override
-    public void setParser ( PlPrologParser parser ) {
+    public void setParser(PlPrologParser parser) {
         this.parser = parser;
         appContext.putIfAbsent(PARSER, (IHitalkObject) parser);
     }
 
     /**
-     * @param fileName
+     * @return
+     */
+    public IOperatorTable getOperatorTable() {
+        return optable;
+    }
+
+    /**
+     * @return
      */
     @Override
-    public void setFileName ( String fileName ) {
-        this.fileName = fileName;
-//        BaseApp.getAppContext().putIfAbsent(FILE_NAME, fileName);
+    public ITokenSource getTokenSource() {
+        return getParser().getTokenSource();
     }
 
     /**
@@ -368,49 +381,38 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
      * @return
      */
     @Override
-    public ITokenSource getTokenSource() {
-        return getParser().getTokenSource();
-    }
-
-    /**
-     * @param target
-     */
-    public void setTarget ( Runnable target ) {
-        this.target = target;
-    }
-
-    /**
-     * @return
-     */
-    @Override
-    public String getFileName () {
+    public String getFileName() {
         return fileName;
     }
 
     /**
-     * @return
+     * @param fileName
      */
-    public ITermFactory getTermFactory () {
-        return termFactory;
+    @Override
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
     /**
-     * @param shuttingDown
+     * @return
      */
-    public void setShuttingDown ( boolean shuttingDown ) {
-        this.shuttingDown.set(shuttingDown);
+    public ITermFactory getTermFactory() {
+        return termFactory;
     }
 
-    public PredicateTable <HtPredicate> getPredicateTable () {
+    public PredicateTable<HtPredicate> getPredicateTable() {
         return predicateTable;
     }
 
     /**
      *
      */
-    public static class AppContext extends HashMap <Components, IHitalkObject> {
+    public static class AppContext extends HashMap<Components, IHitalkObject> {
         private HiTalkInputStream inputStream;
         private ITokenSource tokenSource;
+        private IVafInterner interner;
+        private String[] nameSpace;
+        private IApplication app;
 
         /**
          * Creates an empty enum map with the specified key type.
@@ -419,14 +421,31 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
          * @param streams
          * @throws NullPointerException if <tt>keyType</tt> is null
          */
-        public AppContext () {
+        public AppContext() {
         }
 
-        public HiTalkInputStream currentInput () {
+        /**
+         * @return
+         */
+        public String[] getNameSpace() {
+            if (nameSpace == null) {
+                nameSpace = new String[2];
+                final String prefix = appContext.getApp().language().getName();
+                nameSpace[0] = prefix + "_Variable_namespace";
+                nameSpace[1] = prefix + "_Functor_namespace";
+            }
+
+            return nameSpace;
+        }
+
+        /**
+         * @return
+         */
+        public HiTalkInputStream currentInput() {
             return (HiTalkInputStream) get(CURRENT_INPUT);
         }
 
-        public PredicateTable getPredicateTable () {
+        public PredicateTable getPredicateTable() {
             return (PredicateTable) get(PRED_TABLE);
         }
 
@@ -439,113 +458,151 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
             return parser;
         }
 
-        public IVafInterner getInterner () {
-            return (IVafInterner) get(INTERNER);
+        /**
+         * @param vns
+         * @param fns
+         * @return
+         */
+        public IVafInterner getInterner() {
+            IVafInterner interner = (IVafInterner) get(INTERNER);
+            if (interner == null) {
+                interner = new VafInterner(getNameSpace());
+            }
+            putIfAbsent(INTERNER, interner);
+            return interner;
         }
 
-        public IResolver <HtPredicate, HtClause> getResolverPre () {
-            return (IResolver <HtPredicate, HtClause>) get(RESOLVER_PRE);
+        public IResolver<HtPredicate, HtClause> getResolverPre() {
+            return (IResolver<HtPredicate, HtClause>) get(RESOLVER_PRE);
         }
 
-        public IResolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> getResolverIC () {
-            return (IResolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>) get(RESOLVER_IC);
+        public IResolver<HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> getResolverIC() {
+            return (IResolver<HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>) get(RESOLVER_IC);
         }
 
-        public ISymbolTable <Integer, String, Object> getSymbolTable () {
-            return (ISymbolTable <Integer, String, Object>) get(SYMBOL_TABLE);
-        }
-
-        public ITermFactory getTermFactory () {
-            return (ITermFactory) get(TERM_FACTORY);
+        public ISymbolTable<Integer, String, Object> getSymbolTable() {
+            return (ISymbolTable<Integer, String, Object>) get(SYMBOL_TABLE);
         }
 
         /**
          * @return
          */
-        public IOperatorTable getOpTable () {
+        public ITermFactory getTermFactory() {
+            IHitalkObject tf = get(TERM_FACTORY);
+            if (tf == null) {
+                String[] ns = getNameSpace();
+                tf = new TermFactory(getInterner(ns));
+                putIfAbsent(TERM_FACTORY, tf);
+            }
+            return (ITermFactory) tf;
+        }
+
+        public void setTermFactory(IVafInterner interner) {
+            putIfAbsent(TERM_FACTORY, (IHitalkObject) new TermFactory(interner));
+        }
+
+        /**
+         * @return
+         */
+        public IOperatorTable getOpTable() {
             IOperatorTable table = (IOperatorTable) appContext.get(OP_TABLE);
             if (table == null) {
                 table = new PlDynamicOperatorParser();
                 setOpTable(table);
             }
+
             return table;
         }
 
-        private void setOpTable ( IOperatorTable table ) {
+        private void setOpTable(IOperatorTable table) {
             appContext.putIfAbsent(OP_TABLE, table);
         }
 
-        public PrologDefaultBuiltIn getDefaultBuiltIn () {
+        public PrologDefaultBuiltIn getDefaultBuiltIn() {
             return (PrologDefaultBuiltIn) get(DEFAULT_BUILTIN);
         }
 
-        public PrologBuiltInTransform getBuiltInTransform () {
+        public PrologBuiltInTransform getBuiltInTransform() {
             return (PrologBuiltInTransform) get(BUILTIN_TRANSFORM);
         }
 
-        public <PC, QC> void setObserverIC ( ICompilerObserver observer ) {
-            putIfAbsent(OBSERVER_IC, (IHitalkObject) observer);
-        }
-
-        public <PC, QC> ICompilerObserver <PC, QC> getObserverIC () {
-            final ICompilerObserver <PC, QC> observer = (ICompilerObserver <PC, QC>) get(OBSERVER_IC);
+        public <PC, QC> ICompilerObserver<PC, QC> getObserverIC() {
+            final ICompilerObserver<PC, QC> observer = (ICompilerObserver<PC, QC>) get(OBSERVER_IC);
             if (observer == null) {
                 setObserverIC(new ChainedCompilerObserver());
             }
-            return (ICompilerObserver <PC, QC>) get(OBSERVER_IC);
+            return (ICompilerObserver<PC, QC>) get(OBSERVER_IC);
         }
 
-        public <PC, QC> void setObserverPre ( ICompilerObserver observer ) {
+        public <PC, QC> void setObserverIC(ICompilerObserver observer) {
             putIfAbsent(OBSERVER_IC, (IHitalkObject) observer);
         }
 
-        public <PC, QC> ICompilerObserver <PC, QC> getObserverPre () {
-            final ICompilerObserver <PC, QC> observer = (ICompilerObserver <PC, QC>) get(OBSERVER_PRE);
+        public <PC, QC> ICompilerObserver<PC, QC> getObserverPre() {
+            final ICompilerObserver<PC, QC> observer = (ICompilerObserver<PC, QC>) get(OBSERVER_PRE);
             if (observer == null) {
-                setObserverPre(new ICompilerObserver <PC, QC>() {//fixme
-                    public void onCompilation ( PC sentence ) throws HtSourceCodeException {
+                setObserverPre(new ICompilerObserver<PC, QC>() {//fixme
+                    public void onCompilation(PC sentence) throws HtSourceCodeException {
 
                     }
 
-                    public void onQueryCompilation ( QC sentence ) throws HtSourceCodeException {
+                    public void onQueryCompilation(QC sentence) throws HtSourceCodeException {
 
                     }
                 });
             }
-            return (ICompilerObserver <PC, QC>) get(OBSERVER_PRE);
+            return (ICompilerObserver<PC, QC>) get(OBSERVER_PRE);
         }
 
+        public <PC, QC> void setObserverPre(ICompilerObserver observer) {
+            putIfAbsent(OBSERVER_IC, (IHitalkObject) observer);
+        }
 
-        public <T extends HtClause, P, Q, PC, QC> void setCompilerFactory ( ICompilerFactory <T, P, Q, PC, QC> cf ) {
+        public <T extends HtClause, P, Q, PC, QC> void setCompilerFactory(ICompilerFactory<T, P, Q, PC, QC> cf) {
             putIfAbsent(COMPILER_FACTORY, cf);
         }
 
-        public void setStream ( HiTalkStream stream ) {
-            putIfAbsent(STREAM, stream);
-        }
-
-        public void setTermFactory ( IVafInterner interner ) {
-            putIfAbsent(TERM_FACTORY, (IHitalkObject) new TermFactory(interner));
-        }
-
-        public void setInputStream ( HiTalkInputStream inputStream ) {
-            setStream(inputStream);
-        }
-
-        public HiTalkInputStream getInputStream () {
+        public HiTalkInputStream getInputStream() {
             return (HiTalkInputStream) getStream();
         }
 
-        private HiTalkStream getStream () {
+        public void setInputStream(HiTalkInputStream inputStream) {
+            setStream(inputStream);
+        }
+
+        private HiTalkStream getStream() {
             return (HiTalkStream) get(STREAM);
+        }
+
+        public void setStream(HiTalkStream stream) {
+            putIfAbsent(STREAM, stream);
         }
 
         public ITokenSource getTokenSource() {
             return tokenSource;
         }
 
-        protected void setOptable ( IOperatorTable optable ) {
+        protected void setOptable(IOperatorTable optable) {
             putIfAbsent(OP_TABLE, optable);
+        }
+
+        /**
+         * @param nameSpace
+         * @return
+         */
+        public IVafInterner getInterner(String[] nameSpace) {
+            if (interner == null) {
+                return new VafInterner(nameSpace[0], nameSpace[1]);
+            }
+            return interner;
+        }
+
+        public IApplication getApp() {
+            return app;
+        }
+
+        public void setApp(IApplication app) {
+            this.app = app;
         }
     }
 }

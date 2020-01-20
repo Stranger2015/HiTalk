@@ -53,14 +53,14 @@ import static org.ltc.hitalk.wam.compiler.Tools.Kind.COMPILER;
 /**
  *
  */
-public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp <T, P, Q, PC, QC> {
+public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp<T, P, Q, PC, QC> {
 
     public static final String DEFAULT_SCRATCH_DIRECTORY = "scratch";
     public static final HtProperty[] DEFAULT_PROPS = new HtProperty[]{
     };
 
     protected DefaultFileSystemManager fsManager;
-    protected PrologWAMCompiler <T, P, Q, PC, QC> wamCompiler;
+    protected PrologWAMCompiler<T, P, Q, PC, QC> wamCompiler;
     protected LibraryLoader loader = new LibraryLoader();
 
     protected Path scratchDirectory = Paths.get(DEFAULT_SCRATCH_DIRECTORY).toAbsolutePath();
@@ -71,12 +71,12 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
             language().getName() + " " + tool().getName(),
             new HtVersion(0, 1, 1, 224, "", false));
     protected ICompilerObserver<P, Q> observer;
-    protected IVafInterner interner;
+    protected IVafInterner interner = BaseApp.getAppContext().getInterner();
 
     /**
      * @return
      */
-    public IPreCompiler getPreCompiler () {
+    public IPreCompiler getPreCompiler() {
         return preCompiler;
     }
 
@@ -85,16 +85,18 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
     /**
      * @param fn
      */
-    public PrologCompilerApp ( String fn ) {
+    public PrologCompilerApp(String fn) {
         fileName = fn;
+        appContext.setApp(this);
     }
 
     /**
      * @param args
      */
-    public static void main ( String[] args ) {
+    public static void main(String[] args) {
         try {
-            IApplication application = new PrologCompilerApp <>(args[0]);
+            IApplication application = new PrologCompilerApp<>(args[0]);
+            getAppContext().setApp(application);
             application.init();
             application.start();
         } catch (Exception e) {
@@ -106,7 +108,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
     /**
      * @return
      */
-    public Language getLanguage () {
+    public Language getLanguage() {
         return language;
     }
 
@@ -115,14 +117,14 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
      * @return
      */
     @Override
-    public String namespace ( String varOrFunctor ) {
+    public String namespace(String varOrFunctor) {
         return "namespace " + varOrFunctor;
     }
 
     /**
      * @return
      */
-    public LoadContext getLoadContext () {
+    public LoadContext getLoadContext() {
         if (loadContext == null) {
             loadContext = new LoadContext(DEFAULT_PROPS);
         }
@@ -136,6 +138,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
     public void doInit() throws Exception {
         super.doInit();
 
+        appContext.setApp(this);
         compilationContext = new CompilationContext();
         loadContext = new LoadContext(DEFAULT_PROPS);
         executionContext = new ExecutionContext();
@@ -155,9 +158,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
                 language().getName() + "_Functor_Namespace"));
         appCtx.setInputStream(createInputHiTalkStream(fileName));
         appCtx.setTermFactory(appCtx.getInterner());
-//        appCtx.setOptable()
         setParser(new PlPrologParser());
-//        getParser().
         setWAMCompiler(cf.createWAMCompiler(language()));
     }
 
@@ -174,7 +175,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
      *
      */
     @Override
-    public void undoInit () {
+    public void undoInit() {
         getLogger().info("cancelled!");
         initialized.set(false);
     }
@@ -196,7 +197,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
     /**
      *
      */
-    protected void initVfs () {
+    protected void initVfs() {
         try {
             fsManager = new DefaultFileSystemManager();
 //            fsManager.setLogger((Log) logger);
@@ -228,7 +229,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
     /**
      *
      */
-    public void initialize () throws Exception {
+    public void initialize() throws Exception {
         initDirectives();
         cacheCompilerFlags();
         Path scratchDirectory = getScratchDirectory();
@@ -239,7 +240,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
 //        reportSettingsFile(result);
     }
 
-    private void reportSettingsFile ( Object result ) {
+    private void reportSettingsFile(Object result) {
 
     }
 
@@ -248,7 +249,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
      * @return
      * @throws IOException
      */
-    protected Object loadSettingsFile ( Path path ) throws Exception {
+    protected Object loadSettingsFile(Path path) throws Exception {
         // Create a token source to load the model rules from.
 //        InputStream input = getClass().getClassLoader().getResourceAsStream(BUILT_IN_LIB);
         logger.info("Loading settings...");
@@ -256,20 +257,20 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
         return path;
     }
 
-    private void startRuntimeThreading () {
+    private void startRuntimeThreading() {
 
 
     }
 
 
-    protected Object clone () throws CloneNotSupportedException {
+    protected Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
 
-    void cacheCompilerFlags () {
+    void cacheCompilerFlags() {
     }
 
-    protected void initDirectives () {
+    protected void initDirectives() {
 //        cond
 //        encodunf
     }
@@ -278,14 +279,14 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
      * @throws Exception
      */
     @Override
-    public void doStart () throws Exception {
+    public void doStart() throws Exception {
         getLogger().info("Starting... ");
         setTarget(() -> {
             try {
                 this.initialize();
-                getWAMCompiler().setInstructionCompiler(new PrologInstructionCompiler <>());
-                getWAMCompiler().setPreCompiler(new PrologPreCompiler <>());
-                getWAMCompiler().setCompilerObserver(new ICompilerObserver <P, Q>() {
+                getWAMCompiler().setInstructionCompiler(new PrologInstructionCompiler<>());
+                getWAMCompiler().setPreCompiler(new PrologPreCompiler<>());
+                getWAMCompiler().setCompilerObserver(new ICompilerObserver<P, Q>() {
                     public void onCompilation(ITokenSource tokenSource) throws Exception {
                         final List<HtClause> list = getWAMCompiler().getPreCompiler().preCompile(tokenSource, EnumSet.of(IF));
                         for (HtClause clause : list) {
@@ -293,7 +294,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
                         }
                     }
 
-                    public void onCompilation ( P sentence ) {
+                    public void onCompilation(P sentence) {
 
                     }
 
@@ -314,7 +315,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
     /**
      * @param interner
      */
-    public void setInterner ( IVafInterner interner ) {
+    public void setInterner(IVafInterner interner) {
         this.interner = interner;
         appContext.putIfAbsent(INTERNER, interner);
     }
@@ -322,14 +323,14 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
     /**
      * @return
      */
-    protected PrologWAMCompiler <T, P, Q, PC, QC> getWAMCompiler () {
+    protected PrologWAMCompiler<T, P, Q, PC, QC> getWAMCompiler() {
         return wamCompiler;
     }
 
     /**
      * @param compiler
      */
-    protected void setWAMCompiler ( PrologWAMCompiler <T, P, Q, PC, QC> compiler ) {
+    protected void setWAMCompiler(PrologWAMCompiler<T, P, Q, PC, QC> compiler) {
         this.wamCompiler = compiler;
         getAppContext().putIfAbsent(WAM_COMPILER, compiler);
     }
@@ -338,7 +339,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
      * @return
      */
     @Override
-    public IProduct product () {
+    public IProduct product() {
         return product;
     }
 
@@ -346,7 +347,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
      * @return
      */
     @Override
-    public Language language () {
+    public Language language() {
         return PROLOG;
     }
 
@@ -354,7 +355,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
      * @return
      */
     @Override
-    public Kind tool () {
+    public Kind tool() {
         return COMPILER;
     }
 
@@ -362,7 +363,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
      * @return
      * @throws Exception
      */
-    protected FileObject createScratchDirectory () throws Exception {
+    protected FileObject createScratchDirectory() throws Exception {
         FileSystemOptions fileSystemOptions = new FileSystemOptions();
         final FileObject scratchFolder = VFS.getManager().resolveFile(String.valueOf(getScratchDirectory().toFile()));
 //        fsManager = VFS.getManager();
@@ -373,27 +374,27 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
         return scratchFolder;
     }
 
-    public Path getScratchDirectory () {
+    public Path getScratchDirectory() {
         System.getProperty("user.home");
         return Paths.get(DEFAULT_SCRATCH_DIRECTORY).toAbsolutePath();
     }
 
     @Override
-    public void shutdown () {
+    public void shutdown() {
         fsManager.close();
     }
 
     /**
      * @return
      */
-    public ICompilerObserver <P, Q> getObserver () {
+    public ICompilerObserver<P, Q> getObserver() {
         return observer;
     }
 
     /**
      * @param observer
      */
-    public void setObserver ( ICompilerObserver <P, Q> observer ) {
+    public void setObserver(ICompilerObserver<P, Q> observer) {
         this.observer = observer;
     }
 }

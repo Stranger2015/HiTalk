@@ -11,7 +11,7 @@ import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
  */
 public
 class HtProperty implements IProperty {
-    private final ITerm[] values = new ITerm[0];
+    private ITerm[] values = new ITerm[0];
     //    protected HtType type;
     protected String name;
     protected ITerm value;
@@ -30,19 +30,13 @@ class HtProperty implements IProperty {
 
     }
 
-    public HtProperty(String alias, String atom, String[] values) {
-        this(alias, getAppContext().getTermFactory().newVariable(atom));
+    public HtProperty(String name, String value, String[] values) {
+        this(name, getAppContext().getTermFactory().newVariable(value));
+        this.values = new ITerm[values.length];
         for (int i = 0; i < values.length; i++) {
-            this.values[i] = getAppContext().getTermFactory().createFlag() values[i];
-
+            this.values[i] = getAppContext().getTermFactory().createAtom(values[i]);
         }
-        this.values = values;
     }
-
-//    public
-//    HtType getType () {
-//        return type;
-//    }
 
     /**
      * @return
@@ -73,7 +67,6 @@ class HtProperty implements IProperty {
      * @param value
      */
     public HtProperty(String name, ITerm value) {
-//        this.type = type;
         this.name = name;
         this.value = value;
     }

@@ -24,12 +24,12 @@ public class VafInterner implements IVafInterner {
     /**
      * Holds the interner that turns variable names into indexed integers.
      */
-    private final IdAttribute.IdAttributeFactory <String> variableInterningFactory;
+    private final IdAttribute.IdAttributeFactory<String> variableInterningFactory;
 
     /**
      * Holds the interner that turns functor names and arities into indexed integers.
      */
-    private final IdAttribute.IdAttributeFactory <FunctorName> functorInterningFactory;
+    private final IdAttribute.IdAttributeFactory<FunctorName> functorInterningFactory;
 
     /**
      * Creates an interner for variable and functor names, with the names created under the specified name spaces.
@@ -37,29 +37,34 @@ public class VafInterner implements IVafInterner {
      * @param variableNameSpace The name space for variables.
      * @param functorNameSpace  The name space for functors.
      */
-    public VafInterner ( String variableNameSpace, String functorNameSpace ) {
+    public VafInterner(String variableNameSpace, String functorNameSpace) {
         variableInterningFactory = IdAttribute.getFactoryForClass(variableNameSpace);
         functorInterningFactory = IdAttribute.getFactoryForClass(functorNameSpace);
+    }
+
+    public VafInterner(String[] nameSpace) {
+        this(nameSpace[0], nameSpace[1]);
+
     }
 
     /**
      * {@inheritDoc}
      */
-    public IdAttribute.IdAttributeFactory <FunctorName> getFunctorInterner () {
+    public IdAttribute.IdAttributeFactory<FunctorName> getFunctorInterner() {
         return functorInterningFactory;
     }
 
     /**
      * {@inheritDoc}
      */
-    public IdAttribute.IdAttributeFactory <String> getVariableInterner () {
+    public IdAttribute.IdAttributeFactory<String> getVariableInterner() {
         return variableInterningFactory;
     }
 
     /**
      * {@inheritDoc}
      */
-    public int internFunctorName ( String name, int numArgs ) {
+    public int internFunctorName(String name, int numArgs) {
         FunctorName functorName = new FunctorName(name, numArgs);
 
         return getFunctorInterner().createIdAttribute(functorName).ordinal();
@@ -68,21 +73,21 @@ public class VafInterner implements IVafInterner {
     /**
      * {@inheritDoc}
      */
-    public int internFunctorName ( FunctorName name ) {
+    public int internFunctorName(FunctorName name) {
         return getFunctorInterner().createIdAttribute(name).ordinal();
     }
 
     /**
      * {@inheritDoc}
      */
-    public int internVariableName ( String name ) {
+    public int internVariableName(String name) {
         return getVariableInterner().createIdAttribute(name).ordinal();
     }
 
     /**
      * {@inheritDoc}
      */
-    public String getVariableName ( int name ) {
+    public String getVariableName(int name) {
         if (name < 0) {
             return "_G" + (-name);
         } else {
@@ -93,53 +98,53 @@ public class VafInterner implements IVafInterner {
     /**
      * {@inheritDoc}
      */
-    public String getVariableName ( HtVariable variable ) {
+    public String getVariableName(HtVariable variable) {
         return getVariableName(variable.getName());
     }
 
     /**
      * {@inheritDoc}
      */
-    public FunctorName getDeinternedFunctorName ( int name ) {
+    public FunctorName getDeinternedFunctorName(int name) {
         return getFunctorInterner().getAttributeFromInt(name).getValue();
     }
 
     /**
      * {@inheritDoc}
      */
-    public String getFunctorName ( int name ) {
+    public String getFunctorName(int name) {
         return getFunctorInterner().getAttributeFromInt(name).getValue().getName();
     }
 
     /**
      * {@inheritDoc}
      */
-    public int getFunctorArity ( int name ) {
+    public int getFunctorArity(int name) {
         return getFunctorInterner().getAttributeFromInt(name).getValue().getArity();
     }
 
     /**
      * {@inheritDoc}
      */
-    public FunctorName getFunctorFunctorName ( IFunctor functor ) {
+    public FunctorName getFunctorFunctorName(IFunctor functor) {
         return getDeinternedFunctorName(functor.getName());
     }
 
     /**
      * {@inheritDoc}
      */
-    public String getFunctorName ( IFunctor functor ) {
+    public String getFunctorName(IFunctor functor) {
         return getFunctorName(functor.getName());
     }
 
     /**
      * {@inheritDoc}
      */
-    public int getFunctorArity ( IFunctor functor ) {
+    public int getFunctorArity(IFunctor functor) {
         return getFunctorArity(functor.getName());
     }
 
-    public void toString0 ( StringBuilder sb ) {
+    public void toString0(StringBuilder sb) {
 
     }
 }

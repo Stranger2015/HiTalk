@@ -60,12 +60,12 @@ import java.util.stream.IntStream;
  */
 public
 class HtPredicate extends HtBaseTerm implements ITerm, IPropertyOwner {
-    protected List <HtClause> l = new ArrayList <>();
+    protected List<HtClause> l;
     /**
      * The clauses that make up this predicate.
      */
 //    final protected HtPredicateDefinition l;
-    final protected List <PropertyChangeListener> listeners = new ArrayList <>();
+    final protected List<PropertyChangeListener> listeners = new ArrayList<>();
     private boolean builtIn;
 
     public boolean isHiLog () {

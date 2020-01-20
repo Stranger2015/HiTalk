@@ -620,14 +620,10 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
      *
      * @return The head of this queue, or <tt>null</tt> if this queue is empty.
      */
-    public PlToken readToken() throws Exception {
-        return !getPushBackBuffer().isEmpty() ? getPushBackBuffer().poll() : readNextToken();
+    public PlToken readToken(boolean valued) throws Exception {
+        return !getPushBackBuffer().isEmpty() ? getPushBackBuffer().poll() : getToken(valued);
     }
 
-    public PlToken readNextToken() throws Exception {
-        skipWhitespaces();
-        return getToken(true);
-    }
 ///**
 // * BNF for tuProlog
 // *

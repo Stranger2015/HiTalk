@@ -79,5 +79,4 @@ public interface ITokenSource extends Source<PlToken>, PropertyChangeListener, C
     boolean isOpen();
 
     String getPath();
-
 }

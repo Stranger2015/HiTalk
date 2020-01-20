@@ -115,7 +115,7 @@ public class PlPrologParser implements IParser {
      */
     public PlPrologParser() throws Exception {
         this(getAppContext().getInputStream(),
-                getAppContext().getInterner(),
+                getAppContext().getInterner(PROLOG.getNameSpace("Variables", "Functors")),
                 getAppContext().getTermFactory(),
                 getAppContext().getOpTable());
     }
@@ -617,12 +617,13 @@ public class PlPrologParser implements IParser {
      * @param endNeeded <tt>true</tt> if it is required to parse the end token
      *                  (a period), <tt>false</tt> otherwise.
      */
-    public ITerm nextTerm(boolean endNeeded) throws Exception {
-        PlToken t = getLexer().readToken();
+    public ITerm nextTerm(boolean valued, boolean endNeeded) throws Exception {
+        PlToken t = getLexer().readToken(valued);
         if (t.isBOF()) {
             return BEGIN_OF_FILE_ATOM;
         }
         if (t.isEOF()) {
+            popTokenSource();
             return END_OF_FILE_ATOM;
         }
         getLexer().unreadToken(t);
@@ -630,12 +631,12 @@ public class PlPrologParser implements IParser {
         if (term == null) {
             throw new IllegalStateException();
         }
-        if (endNeeded && getLexer().readToken().kind != TK_DOT) {
+        if (endNeeded && getLexer().readToken(valued).kind != TK_DOT) {
             throw new ParserException("The term " + term + " is not ended with a period.");
         }
+
         return term;
     }
-//
 
     /**
      * Static service to get a term from its string representation
@@ -652,11 +653,12 @@ public class PlPrologParser implements IParser {
     public ITerm parseSingleTerm(ITokenSource ts) throws Exception {
         try {
             setTokenSource(ts);
-            PlToken t = getLexer().readToken();
+            PlToken t = getLexer().readToken(true);
             if (t.isBOF()) {
                 return PlPrologParser.BEGIN_OF_FILE_ATOM;
             }
             if (t.isEOF()) {
+                popTokenSource();
                 return PlPrologParser.END_OF_FILE_ATOM;
             }
 
@@ -675,7 +677,6 @@ public class PlPrologParser implements IParser {
         }
     }
 
-
     private IdentifiedTerm exprA(int maxPriority, boolean commaIsEndMarker) throws Exception {
         IdentifiedTerm leftSide = exprB(maxPriority, commaIsEndMarker);
         if (leftSide == null) {
@@ -683,8 +684,8 @@ public class PlPrologParser implements IParser {
         }
 
         //{op(yfx,n) exprA(n-1) | op(yf,n)}*
-        PlToken t = getLexer().readToken();
-        for (; isOperator(t, commaIsEndMarker); t = getLexer().readToken()) {
+        PlToken t = getLexer().readToken(true);
+        for (; isOperator(t, commaIsEndMarker); t = getLexer().readToken(true)) {
             int YFX = this.getOptable().getPriority(t.image, yfx);
             int YF = this.getOptable().getPriority(t.image, yf);
             //YF and YFX has a higher priority than the left side expr and less then top limit
@@ -716,8 +717,8 @@ public class PlPrologParser implements IParser {
         //1. op(fx,n) exprA(n-1) | op(fy,n) exprA(n) | expr0
         IdentifiedTerm left = (IdentifiedTerm) parseLeftSide(commaIsEndMarker, maxPriority);
         //2.left is followed by either xfx, xfy or xf operators, parse these
-        PlToken token = getLexer().readToken();
-        for (; isOperator(token, commaIsEndMarker); token = getLexer().readToken()) {
+        PlToken token = getLexer().readToken(true);
+        for (; isOperator(token, commaIsEndMarker); token = getLexer().readToken(true)) {
             int XFX = getOptable().getPriority(token.image, xfx);
             int XFY = getOptable().getPriority(token.image, xfy);
             int XF = getOptable().getPriority(token.image, xf);

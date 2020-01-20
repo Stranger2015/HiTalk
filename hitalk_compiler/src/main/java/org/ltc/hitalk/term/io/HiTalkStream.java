@@ -141,6 +141,7 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     public static final int BB_ALLOC_SIZE = 32768;
+    public final static String[] EMPTY_STRING_ARRAY = new String[0];
 
     protected FileDescriptor fd;
     protected FileChannel channel;
@@ -151,45 +152,43 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
 
     protected PropertyOwner<HtProperty> owner = new PropertyOwner<>(createProperties());
 
+    /**
+     * ISO Input and Output Streams
+     * open/4
+     * open/3
+     * open_null_stream/1
+     * close/1
+     * close/2
+     * stream_property/2
+     * current_stream/3
+     * is_stream/1
+     * stream_pair/3
+     * set_stream_position/2
+     * stream_position_data/3
+     * seek/4
+     * set_stream/2
+     * set_prolog_IO/3
+     *
+     * @return
+     */
     protected HtProperty[] createProperties() {
         return new HtProperty[]{
-                new HtProperty("alias", "Atom"),
+                new HtProperty("alias", "Atom", EMPTY_STRING_ARRAY),
 //                SWI-Prolog extension to query the buffering mode of this stream. Buffering is one of full, line or false.
-                new HtProperty("buffer", "Buffering"),
-                new HtProperty("buffer_size", "Integer"),
-                new HtProperty("bom", "Bool"),
-                new HtProperty("close_on_abort", "Bool"),
-                new HtProperty("close_on_exec", "Bool"),
-                new HtProperty("encoding", "Encoding", "not", "at", "past"),
-                new HtProperty("end_of_stream", "E"),
-                new HtProperty("eof_action", "A"),
-
-//                *     If Stream is an input stream, unify E with one of the atoms . See also at_end_of_stream/[0,1].
-// *
-// * eof_action(A)
-//                *     Unify A with one of eof_code, reset or error. See open/4 for details.
-//                *
-// * file_name(Atom)
-//                *     If Stream is associated to a file, unify Atom to the name of this file.
-//                *
-// * file_no(Integer)
-//                *     If the stream is associated with a POSIX file descriptor, unify Integer with the descriptor number.
-//                *     SWI-Prolog extension used primarily for integration with foreign code. See also Sfileno() from SWI-Stream.h.
-//                *
-// * input
-//                *     True if Stream has mode read.
-// *
-// * locale(Locale)
-//                *     True when Locale is the current locale associated with the stream. See section 4.23.
-//                *
-// * mode(IOMode)
-//                *     Unify IOMode to the mode given to open/4 for opening the stream. Values are: read, write, append and
-//                *     the SWI-Prolog extension update.
-// *
-// * newline(NewlineMode)
-//                *     One of posix or dos. If dos, text streams will emit \r\n for \n and discard \r from input streams.
-// *     Default depends on the operating system.
-// *
+                new HtProperty("buffer", "Buffering", new String[]{"full", "line", "false"}),
+                new HtProperty("buffer_size", "Integer", EMPTY_STRING_ARRAY),
+                new HtProperty("bom", "Bool", EMPTY_STRING_ARRAY),
+                new HtProperty("close_on_abort", "Bool", EMPTY_STRING_ARRAY),
+                new HtProperty("close_on_exec", "Bool", EMPTY_STRING_ARRAY),
+                new HtProperty("encoding", "Encoding", EMPTY_STRING_ARRAY),
+                new HtProperty("end_of_stream", "E", new String[]{"not", "at", "past"}),
+                new HtProperty("eof_action", "A", new String[]{"eof_code", "reset", "error"}),//See open/4 for details.
+                new HtProperty("file_name", "Atom", EMPTY_STRING_ARRAY),//See open/4 for details.
+                new HtProperty("file_no", "Integer", EMPTY_STRING_ARRAY),//See open/4 for details.
+                new HtProperty("input", "", EMPTY_STRING_ARRAY),//See open/4 for details.
+                new HtProperty("locale", "Locale", EMPTY_STRING_ARRAY),//See open/4 for details.
+                new HtProperty("mode", "IOMode", new String[]{"read", "write", "append", "update"}),//See open/4 for details.
+                new HtProperty("newline", "NewlineMode", new String[]{"posix", "dos"}),//If dos, text streams will emit \r\n for \n and discard \r from input streams.
 // * nlink(-Count)
 //                *     Number of hard links to the file. This expresses the number of `names' the file has.
 //                *     Not supported on all operating systems and the value might be bogus. See the documentation of fstat()
@@ -261,7 +260,7 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
      * @param options
      * @throws IOException
      */
-    protected HiTalkStream ( Path path, StandardOpenOption... options ) throws IOException {
+    protected HiTalkStream(Path path, StandardOpenOption... options) throws IOException {
         this(path, defaultCharset().name(), options);
     }
 
@@ -269,19 +268,19 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
      * @param fd
      * @throws IOException
      */
-    public HiTalkStream ( FileDescriptor fd ) throws IOException {
+    public HiTalkStream(FileDescriptor fd) throws IOException {
         this.fd = fd;
         init(fd);
     }
 
-    protected HiTalkStream () {
+    protected HiTalkStream() {
     }
 
     /**
      * @param fd
      * @throws IOException
      */
-    protected abstract void init ( FileDescriptor fd ) throws IOException;
+    protected abstract void init(FileDescriptor fd) throws IOException;
 
     /**
      * This method gets called when a bound property is changed.
@@ -290,7 +289,7 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
      *            and the property that has changed.
      */
     @Override
-    public void propertyChange ( PropertyChangeEvent evt ) {
+    public void propertyChange(PropertyChangeEvent evt) {
 
     }
 
@@ -308,7 +307,7 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
      * @throws IOException if an I/O error occurs
      */
     @Override
-    public void close () throws IOException {
+    public void close() throws IOException {
         if (isOpen) {
             isOpen = false;
             channel.close();
@@ -319,7 +318,7 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
      * @return
      */
     @Override
-    public HtProperty[] getFlags () {
+    public HtProperty[] getFlags() {
         return new HtProperty[0];
     }
 
@@ -327,27 +326,27 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
      * @return
      */
     @Override
-    public int getPropLength () {
+    public int getPropLength() {
         return 0;
     }
 
     @Override
-    public void addListener ( PropertyChangeListener listener ) {
+    public void addListener(PropertyChangeListener listener) {
 
     }
 
     @Override
-    public void removeListener ( PropertyChangeListener listener ) {
+    public void removeListener(PropertyChangeListener listener) {
 
     }
 
     @Override
-    public void fireEvent ( IProperty property, ITerm value ) {
+    public void fireEvent(IProperty property, ITerm value) {
 
     }
 
     @Override
-    public ITerm getValue ( Properties property ) {
+    public ITerm getValue(Properties property) {
         return null;
     }
 
@@ -356,11 +355,11 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
      * @param value
      */
     @Override
-    public void setValue ( Properties property, ITerm value ) {
+    public void setValue(Properties property, ITerm value) {
 
     }
 
-    public final String toString () {
+    public final String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append(getClass().getSimpleName()).append('{');
         toString0(sb);
@@ -371,14 +370,14 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
     /**
      * @param sb
      */
-    public void toString0 ( StringBuilder sb ) {
+    public void toString0(StringBuilder sb) {
         sb.append(", fd=").append(fd);
 //        sb.append(", channel=").append(channel);
         sb.append(", currentCharset=").append(currentCharset);
         sb.append(", sd=").append(sd);
     }
 
-    public boolean isOpen () {
+    public boolean isOpen() {
         return isOpen;
     }
 }

@@ -21,7 +21,8 @@ public enum Language {
             PlPrologParser.class,
             PrologWAMCompiler.class,
             PrologPreCompiler.class,
-            PrologInstructionCompiler.class),
+            PrologInstructionCompiler.class
+    ),
     HITALK("HiTalk",
             HiTalkParser.class,
             HiTalkWAMCompiler.class,
@@ -51,7 +52,11 @@ public enum Language {
      * @param preCompilerClass
      * @param instrCompilerClass
      */
-    Language ( String name, Class <?> parserClass, Class <?> wamCompilerClass, Class <?> preCompilerClass, Class <?> instrCompilerClass ) {
+    Language(String name,
+             Class<?> parserClass,
+             Class<?> wamCompilerClass,
+             Class<?> preCompilerClass,
+             Class<?> instrCompilerClass) {
         this.name = name;
         this.parserClass = parserClass;
         this.wamCompilerClass = wamCompilerClass;
@@ -74,11 +79,18 @@ public enum Language {
         return wamCompilerClass;
     }
 
-    public Class <?> getPreCompilerClass () {
+    public Class<?> getPreCompilerClass() {
         return preCompilerClass;
     }
 
-    public Class <?> getInstrCompilerClass () {
+    public Class<?> getInstrCompilerClass() {
         return instrCompilerClass;
+    }
+
+    public String[] getNameSpace(String v, String f) {
+        final String[] ns = new String[2];
+        ns[0] = String.format("%s_%s_namespace", name, v);
+        ns[1] = String.format("%s_%s_namespace", name, f);
+        return ns;
     }
 }
