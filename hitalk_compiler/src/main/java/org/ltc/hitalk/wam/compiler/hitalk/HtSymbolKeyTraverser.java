@@ -19,16 +19,12 @@ import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.search.Operator;
 import com.thesett.common.util.StackQueue;
 import com.thesett.common.util.TraceIndenter;
-import com.thesett.common.util.doublemaps.SymbolKey;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.term.HtVariable;
-import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.term.IntTerm;
-import org.ltc.hitalk.term.ListTerm;
+import org.ltc.hitalk.term.*;
 import org.ltc.hitalk.wam.compiler.HtPositionalTermTraverser;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.printer.HtDelegatingAllTermsVisitor;
@@ -42,12 +38,12 @@ import java.util.Queue;
 import java.util.stream.IntStream;
 
 /**
- * SymbolKeyTraverser is a {@link com.thesett.aima.logic.fol.ClauseTraverser} and
+ * StringTraverser is a {@link com.thesett.aima.logic.fol.ClauseTraverser} and
  * {@link com.thesett.aima.logic.fol.FunctorTraverser}, that creates entries within a {@link SymbolTable} for every
- * clause or functor it visits, and sets up {@link com.thesett.common.util.doublemaps.SymbolKey}s on those terms, so
+ * clause or functor it visits, and sets up {@link com.thesett.common.util.doublemaps.SymbolKey on those terms, so
  * that they can directly link to any fields held against them in the symbol table.
  * <p>
- * <p/>SymbolKeyTraverser is an {@link IAllTermsVisitor} and like a
+ * <p/>StringTraverser is an {@link IAllTermsVisitor} and like a
  * {@link HtDelegatingAllTermsVisitor} accepts an optional delegate. All visit operations by
  * default defer onto the delegate.
  *
@@ -65,7 +61,7 @@ import java.util.stream.IntStream;
  */
 public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements IPositionalTermTraverser, IAllTermsVisitor {
 
-    /* private static final Logger log = Logger.getLogger(SymbolKeyTraverser.class.getName()); */
+    /* private static final Logger log = Logger.getLogger(StringTraverser.class.getName()); */
 
     /**
      * Holds the symbol table field which holds the number of clauses in each predicate.
@@ -95,7 +91,7 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
     /**
      * Holds the symbol name interner.
      */
-    protected final IVafInterner interner;
+    protected /*final*/ IVafInterner interner;
 
     /**
      * Holds the root symbol table.
@@ -131,18 +127,21 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
      * @param symbolTable The root symbol table for the term to be traversed.
      * @param delegate    An optional AllTermsVisitor to delegate to.
      */
-    public HtSymbolKeyTraverser ( IVafInterner interner, ISymbolTable <Integer, String, Object> symbolTable,
-                                  IAllTermsVisitor delegate ) {
+    public HtSymbolKeyTraverser(IVafInterner interner, ISymbolTable<Integer, String, Object> symbolTable,
+                                IAllTermsVisitor delegate) {
         this.delegate = delegate;
         this.rootSymbolTable = symbolTable;
         this.currentSymbolTable = symbolTable;
         this.interner = interner;
     }
 
+    public HtSymbolKeyTraverser() {
+    }
+
     /**
      * {@inheritDoc}
      */
-    public Iterator <Operator <ITerm>> traverse ( HtClause clause, boolean reverse ) {
+    public Iterator<Operator<ITerm>> traverse(HtClause clause, boolean reverse) {
         /*log.fine("Traversing clause " + clause.toString(interner, true, false));*/
 
         IFunctor head = clause.getHead();
@@ -151,29 +150,29 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
         Queue <Operator <ITerm>> queue = (!reverse) ? new StackQueue <>() : new LinkedList <>();
 
         // Create a nested scope in the symbol table for the clause, under its functor name/arity.
-        int predicateName;
+        Atom predicateName;
         int clauseIndex;
 
         if (clause.isQuery()) {
-            predicateName = -1;
+            predicateName = null;
         } else {
             predicateName = head.getName();
         }
 
-        Integer numberOfClauses = (Integer) rootSymbolTable.get(predicateName, CLAUSE_NO_SYMBOL_FIELD);
+//        Integer numberOfClauses = (Integer) rootSymbolTable.get(predicateName, CLAUSE_NO_SYMBOL_FIELD);
 
-        if (numberOfClauses == null) {
-            numberOfClauses = 0;
-        }
+//        if (numberOfClauses == null) {
+//            numberOfClauses = 0;
+//        }
 
-        rootSymbolTable.put(predicateName, CLAUSE_NO_SYMBOL_FIELD, numberOfClauses + 1);
+//        rootSymbolTable.put(predicateName, CLAUSE_NO_SYMBOL_FIELD, numberOfClauses + 1);
 
-        clauseIndex = numberOfClauses;
+//        clauseIndex = numberOfClauses;
 
-        ISymbolTable <Integer, String, Object> predicateScopedSymbolTable = rootSymbolTable.enterScope(predicateName);
+//        ISymbolTable <Integer, String, Object> predicateScopedSymbolTable = rootSymbolTable.enterScope(predicateName);
         /*log.fine(indenter.generateTraceIndent(2) + "Enter predicate scope " + predicateName);*/
 
-        clauseScopedSymbolTable = predicateScopedSymbolTable.enterScope(clauseIndex);
+//        clauseScopedSymbolTable = predicateScopedSymbolTable.enterScope(clauseIndex);
         /*log.fine(indenter.generateTraceIndent(2) + "Enter clause scope " + clauseIndex);*/
 
         // For the head functor, clear the top-level flag, set in head context.
@@ -259,8 +258,8 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
      */
     public void visit ( ITerm term ) {
         if (isEnteringContext()) {
-            SymbolKey key = currentSymbolTable.getSymbolKey(currentPosition);
-            term.setSymbolKey(key);
+            String key = currentSymbolTable.getString(currentPosition);
+            term.setString(key);
         }
 
         if (delegate != null) {
@@ -275,8 +274,8 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
      */
     public void visit ( HtVariable variable ) {
         if (isEnteringContext()) {
-            SymbolKey key = currentSymbolTable.getSymbolKey(variable.getId());
-            variable.setSymbolKey(key);
+            String key = currentSymbolTable.getString(variable.getId());
+            variable.setString(key);
 
             /*log.fine(variable.toString(interner, true, false) + " assigned " + key);*/
         } else if (isLeavingContext()) {
@@ -323,8 +322,8 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
      */
     public void visit ( IFunctor functor ) throws LinkageException {
         if (isEnteringContext()) {
-            SymbolKey key = currentSymbolTable.getSymbolKey(currentPosition);
-            functor.setSymbolKey(key);
+            String key = currentSymbolTable.getString(currentPosition);
+            functor.setString(key);
 
             /*log.fine(functor.toString(interner, true, false) + " assigned " + key);*/
         } else if (isLeavingContext()) {
@@ -341,8 +340,8 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
      */
     public void visit ( IntTerm literal ) {
         if (isEnteringContext()) {
-            SymbolKey key = currentSymbolTable.getSymbolKey(currentPosition);
-            literal.setSymbolKey(key);
+            String key = currentSymbolTable.getString(currentPosition);
+            literal.setString(key);
         } else if (isLeavingContext()) {
             literal.setTermTraverser(null);
         }
@@ -357,8 +356,8 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
      */
     public void visit ( HtLiteralType literal ) {
         if (isEnteringContext()) {
-            SymbolKey key = currentSymbolTable.getSymbolKey(currentPosition);
-            literal.setSymbolKey(key);
+            String key = currentSymbolTable.getString(currentPosition);
+            literal.setString(key);
         } else if (isLeavingContext()) {
             literal.setTermTraverser(null);
         }

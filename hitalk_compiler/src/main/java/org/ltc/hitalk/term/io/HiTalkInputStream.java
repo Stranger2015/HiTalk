@@ -1,9 +1,11 @@
 package org.ltc.hitalk.term.io;
 
 import org.jetbrains.annotations.NotNull;
+import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.IProperty;
 import org.ltc.hitalk.parser.ITokenSource;
 import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.wam.compiler.HtMethod;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -13,6 +15,7 @@ import java.nio.ReadOnlyBufferException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Map;
 import java.util.Properties;
 
 import static java.nio.file.StandardOpenOption.READ;
@@ -260,18 +263,35 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
     }
 
     //@Override
+    @Override
     public void addListener(PropertyChangeListener listener) {
 
     }
 
-    //@Override
+    @Override
     public void removeListener(PropertyChangeListener listener) {
 
     }
 
-    //@Override
+    @Override
     public void fireEvent(IProperty property, ITerm value) {
 
+    }
+
+    public HtProperty[] getProps() {
+        return new HtProperty[0];
+    }
+
+    public HtMethod[] getMethods() {
+        return new HtMethod[0];
+    }
+
+    public Map<String, HtMethod> getMmap() {
+        return null;
+    }
+
+    public Map<String, HtProperty> getMap() {
+        return null;
     }
 
     //@Override

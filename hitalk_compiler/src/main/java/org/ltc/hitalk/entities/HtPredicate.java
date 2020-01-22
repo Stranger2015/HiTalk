@@ -210,6 +210,7 @@ class HtPredicate extends HtBaseTerm implements ITerm, IPropertyOwner {
                     value,
                     property.getValue()));
         }
+        //todo
     }
 
     @Override

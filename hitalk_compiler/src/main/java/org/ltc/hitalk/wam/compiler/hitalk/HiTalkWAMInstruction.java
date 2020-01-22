@@ -25,7 +25,6 @@ import com.thesett.common.util.Pair;
 import com.thesett.common.util.Sizeable;
 import com.thesett.common.util.SizeableLinkedList;
 import com.thesett.common.util.SizeableList;
-import com.thesett.common.util.doublemaps.SymbolKey;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.IFunctor;
@@ -392,11 +391,11 @@ class HiTalkWAMInstruction implements Sizeable {
     /**
      * An optional list of entries for an indexing table.
      */
-    protected List <Pair <Integer, WAMLabel>> indexTable;
+    protected List<Pair<Integer, WAMLabel>> indexTable;
     /**
      * Holds the symbol key of the argument that is held in the first register of this instruction.
      */
-    private SymbolKey symbolKeyReg1;
+    private String symbolKeyReg1;
 
     /**
      * Holds the functor name of the argument that is assigned to the first register of this instruction.
@@ -440,7 +439,7 @@ class HiTalkWAMInstruction implements Sizeable {
 
         // Record the symbol keys of the term that resulted in the creation of the instruction, and are associated
         // with reg1 of the instruction.
-        symbolKeyReg1 = reg1Term.getSymbolKey();
+        symbolKeyReg1 = reg1Term.getString();
         functorNameReg1 = reg1Term.isFunctor() ? ((IFunctor) reg1Term).getName() : null;
     }
 
@@ -491,7 +490,7 @@ class HiTalkWAMInstruction implements Sizeable {
 
         // Record the symbol keys of the term that resulted in the creation of the instruction, and are associated
         // with reg1 of the instruction.
-        symbolKeyReg1 = reg1Term.getSymbolKey();
+        symbolKeyReg1 = reg1Term.getString();
         functorNameReg1 = reg1Term.isFunctor() ? ((IFunctor) reg1Term).getName() : null;
     }
 
@@ -694,8 +693,7 @@ class HiTalkWAMInstruction implements Sizeable {
      *
      * @return The symbol key, or <tt>null</tt> if none was associated with reg1.
      */
-    public
-    SymbolKey getSymbolKeyReg1 () {
+    public String getStringReg1() {
         return symbolKeyReg1;
     }
 

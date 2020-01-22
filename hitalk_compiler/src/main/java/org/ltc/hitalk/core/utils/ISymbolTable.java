@@ -16,7 +16,6 @@
 package org.ltc.hitalk.core.utils;
 
 import com.thesett.common.util.doublemaps.DoubleKeyedMap;
-import com.thesett.common.util.doublemaps.SymbolKey;
 import org.ltc.hitalk.core.IHitalkObject;
 
 /**
@@ -46,9 +45,9 @@ import org.ltc.hitalk.core.IHitalkObject;
  * artificial name, so that a nested child scope can be created under it.
  * <p>
  * <p/>The process of navigating down into nested scopes to set or recover values on symbols can be circumvented by the
- * use of a {@link SymbolKey}. A primary key into the current scope can produce a SymbolKey {@link #getSymbolKey}, which
- * can be used to directly navigate back to that symbol, in that same scope using the {@link #get(SymbolKey, Object)} or
- * {@link #put(SymbolKey, Object, Object)} methods on any scope on the symbol table.
+ * use of a {@link String}. A primary key into the current scope can produce a String {@link #getString}, which
+ * can be used to directly navigate back to that symbol, in that same scope using the {@link #get(String, Object)} or
+ * {@link #put(String, Object, Object)} methods on any scope on the symbol table.
  *
  * <pre><p/><table id="crc"><caption>CRC Card</caption>
  * <tr><th>Responsibilities<th>Collaborations
@@ -77,27 +76,27 @@ public interface ISymbolTable<K, L, E> extends DoubleKeyedMap <K, L, E>, IHitalk
     ISymbolTable <K, L, E> leaveScope ();
 
     /**
-     * Creates a {@link SymbolKey} for a symbol. This key is unique over a whole symbol table structure from the table
+     * Creates a {@link String} for a symbol. This key is unique over a whole symbol table structure from the table
      * root, over all nested scopes. Generally speaking this key may be used as a short-cut to a symbol without the need
      * to navigate through table scopes; the symbol key will automatically navigate back to this scope.
      *
      * @param key The symbol within the current scope, to create a unqiue symbol key for.
      * @return A unique symbol key for the symbol.
      */
-    SymbolKey getSymbolKey ( K key );
+    String getString(K key);
 
     /**
-     * Looks up a value for a field in the symbol table for a {@link SymbolKey}. The key may refer to any nested scope
+     * Looks up a value for a field in the symbol table for a {@link String}. The key may refer to any nested scope
      * from the table root, over all nested scopes.
      *
      * @param key   The symbol key to look up.
      * @param field The field to look up.
      * @return The field value at the symbol key, or <tt>null</tt> if none has been set.
      */
-    E get ( SymbolKey key, L field );
+    E get(String key, L field);
 
     /**
-     * Stores a value for a field in the symbol table for a {@link SymbolKey}. The key may refer to any nested scope
+     * Stores a value for a field in the symbol table for a {@link String}. The key may refer to any nested scope
      * from the table root, over all nested scopes.
      *
      * @param key   The symbol key to store against.
@@ -105,7 +104,7 @@ public interface ISymbolTable<K, L, E> extends DoubleKeyedMap <K, L, E>, IHitalk
      * @param value The value to store.
      * @return The previous value at the symbol key, or <tt>null</tt> if none was previously set.
      */
-    E put ( SymbolKey key, L field, E value );
+    E put(String key, L field, E value);
 
     /**
      * Clears all keys up to and including the specified key, from the specified field of the symbol table. This is
@@ -115,7 +114,7 @@ public interface ISymbolTable<K, L, E> extends DoubleKeyedMap <K, L, E>, IHitalk
      * @param key   The key to clear up to.
      * @param field The field to clear.
      */
-    void clearUpTo ( SymbolKey key, L field );
+    void clearUpTo(String key, L field);
 
     /**
      * Sets the low mark against a field of the table to the specified value, provided the value given is higher than
@@ -124,7 +123,7 @@ public interface ISymbolTable<K, L, E> extends DoubleKeyedMap <K, L, E>, IHitalk
      * @param key   The key to use as the new highest low mark.
      * @param field The field to move the mark on.
      */
-    void setLowMark ( SymbolKey key, L field );
+    void setLowMark(String key, L field);
 
     /**
      * Clears a field of the symbol table to its low mark.

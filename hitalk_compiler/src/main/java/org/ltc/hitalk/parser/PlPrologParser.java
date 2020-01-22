@@ -184,7 +184,7 @@ public class PlPrologParser implements IParser {
      */
     @Override
     public ITerm next() throws Exception {
-        return nextTerm(true);
+        return nextTerm(true, true);
     }
 
     /**
@@ -667,7 +667,7 @@ public class PlPrologParser implements IParser {
             if (term == null) {
                 throw new InvalidTermException("Term is null");
             }
-            if (!getLexer().readToken().isEOF()) {
+            if (!getLexer().readToken(true).isEOF()) {
                 throw new InvalidTermException("The entire string could not be read as one term");
             }
 //            term.resolveTerm();
@@ -801,7 +801,7 @@ public class PlPrologParser implements IParser {
      */
     private ITerm parseLeftSide(boolean commaIsEndMarker, int maxPriority) throws Exception {
 //        1. prefix expression
-        PlToken token = getLexer().readToken();
+        PlToken token = getLexer().readToken(true);
         if (isOperator(token, commaIsEndMarker)) {
             int FX = getOptable().getPriority(token.image, fx);
             int FY = getOptable().getPriority(token.image, fy);
@@ -810,7 +810,7 @@ public class PlPrologParser implements IParser {
             }
 
             if (token.image.equals("-")) {
-                PlToken t = getLexer().readToken();
+                PlToken t = getLexer().readToken(true);
                 if (t.isNumber()) {
                     return termFactory.createNumber(token.image);
                 } else {
@@ -837,13 +837,13 @@ public class PlPrologParser implements IParser {
                 if (FY >= OP_LOW) {
                     IdentifiedTerm found = exprA(FY, commaIsEndMarker); //op(fy,n) exprA(1200)  or   op(fy,n) exprA(n)
                     if (found != null)
-                        return new HlOpSymbol(FY, new HlOpSymbol(token.image, found.getResult()));
+                        return new IdentifiedTerm(FY, new HlOpSymbol(token.image, found.getResult()));
                 }
                 //FY has priority over FX, but FY failed
                 if (!haveAttemptedFX && FX >= OP_LOW) {
                     IdentifiedTerm found = exprA(FX - 1, commaIsEndMarker);    //op(fx, n) exprA(n - 1)
                     if (found != null) {
-                        return new HlOpSymbol(FX, new HlOpSymbol(token.image, found.getResult()));
+                        return new IdentifiedTerm(FX, new HlOpSymbol(token.image, found.getResult()));
                     }
                 }
             }
@@ -867,7 +867,7 @@ public class PlPrologParser implements IParser {
      * //
      */
     private ITerm expr0() throws Exception {
-        PlToken t1 = getLexer().readToken();
+        PlToken t1 = getLexer().readToken(true);
         switch (t1.kind) {
             case TK_BOF:
 //                setEnc
@@ -909,14 +909,21 @@ public class PlPrologParser implements IParser {
                 break;
             case TK_VAR:
                 return termFactory.newVariable(t1.image);
-
             case TK_FUNCTOR_BEGIN:
+                //  PlToken t = getLexer().readToken(true);
+                //if (t.kind == TK_LPAREN) {
+                final ListTerm l = expr0_arglist();
+                PlToken t = getLexer().readToken(true);
+                if (t.kind == TK_RPAREN) {
+                    return termFactory.newFunctor(interner.internFunctorName("", l.size()), l);
+                }
+
+                //  }
                 break;
             case TK_ATOM:
             case TK_SYMBOLIC_NAME:
             case TK_QUOTED_NAME:
 
-                break;
             case TK_DIGIT:
                 break;
             case TK_ANY_CHAR:
@@ -939,86 +946,6 @@ public class PlPrologParser implements IParser {
             default:
                 throw new IllegalStateException("Unexpected value: " + t1.kind);
         }
-//        switch (t1.kind) {
-//            case TK_BOF:
-//
-//            case TK_EOF:
-//                popTokenSource();
-//                return END_OF_FILE_ATOM;
-//            case TK_DOT:
-//                break;
-//            case TK_LPAREN:
-//                return expr0_arglist();
-////                break;
-//            case TK_RPAREN:
-//                break;
-//            case TK_LBRACKET:
-//                return expr0_list();
-////                break;
-//            case TK_RBRACKET:
-//                break;
-//            case TK_LBRACE:
-//                return expr0_bypass();
-////                break;
-//            case TK_RBRACE:
-//                break;
-//            case TK_D_QUOTE:
-//
-//
-//                if (isStringQDelim(t1.kind)) {
-//
-//                }
-//                break;
-//            case TK_S_QUOTE:
-//                break;
-//            case TK_B_QUOTE:
-//                break;
-//            case TK_INTEGER_LITERAL:
-//                break;
-//            case TK_DECIMAL_LITERAL:
-//                break;
-//            case TK_HEX_LITERAL:
-//                break;
-//            case TK_FLOATING_POINT_LITERAL:
-//                termFactory.createNumber(t1.image);
-//                break;
-//            case TK_DECIMAL_EXPONENT:
-//                break;
-//            case TK_CHARACTER_LITERAL:
-//                break;
-//            case TK_STRING_LITERAL:
-//                break;
-//            case TK_VAR:
-//                return termFactory.newVariable(t1.image);
-//            case TK_FUNCTOR_BEGIN:
-//            case TK_ATOM:
-//
-//            case TK_QUOTED_NAME:
-//
-//            case TK_SYMBOLIC_NAME:
-//
-//                break;
-//            case TK_DIGIT:
-//                break;
-//            case TK_ANY_CHAR:
-//                break;
-//            case TK_LOWERCASE:
-//                break;
-//            case TK_UPPERCASE:
-//                break;
-//            case TK_SYMBOL:
-//                break;
-//            case TK_COMMA:
-//                break;
-//            case TK_SEMICOLON:
-//                break;
-//            case TK_COLON:
-//                break;
-//            case TK_CONS:
-//                break;
-//            default:
-//                throw new IllegalStateException("Unexpected value: " + t1.kind);
-//        }
 //        if (t1.isType(PlLexer.INTEGER))
 //            return PlProlog.parseInteger(t1.image); //todo moved method to Number
 //
@@ -1028,69 +955,11 @@ public class PlPrologParser implements IParser {
 //        if (t1.isType(PlLexer.VARIABLE))
 //            return new Var(t1.image);             //todo switched to use the internal check for "_" in Var(String)
 //
-        PlToken t2 = getLexer().readToken();
-        switch (t2.kind) {
-            case TK_BOF:
-                break;
-            case TK_EOF:
-                break;
-            case TK_DOT:
-                break;
 
-            case TK_D_QUOTE:
-                break;
-            case TK_S_QUOTE:
-                break;
-            case TK_B_QUOTE:
-                break;
-            case TK_INTEGER_LITERAL:
-                break;
-            case TK_DECIMAL_LITERAL:
-                break;
-            case TK_HEX_LITERAL:
-                break;
-            case TK_FLOATING_POINT_LITERAL:
-                break;
-            case TK_DECIMAL_EXPONENT:
-                break;
-            case TK_CHARACTER_LITERAL:
-                break;
-            case TK_STRING_LITERAL:
-                break;
-            case TK_VAR:
-                return termFactory.newVariable(t1.image);
-            case TK_FUNCTOR_BEGIN:
-                break;
-            case TK_ATOM:
-            case TK_QUOTED_NAME:
-            case TK_SYMBOLIC_NAME:
-                break;
-            case TK_DIGIT:
-                break;
-            case TK_ANY_CHAR:
-                break;
-            case TK_LOWERCASE:
-                break;
-            case TK_UPPERCASE:
-                break;
-            case TK_SYMBOL:
-                break;
-            case TK_COMMA:
-                break;
-            case TK_SEMICOLON:
-                break;
-            case TK_COLON:
-                break;
-            case TK_CONS:
-                break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + t2.kind);
-        }
 //        if (t2.isType(PlLexer.RBRA)) {
 //            return new HtFunctor();
 //        }
 
-        getLexer().unreadToken(t2);
         ITerm term = expr0_list();
 //        if (getLexer().readToken().isType(PlLexer.RBRA)) {
 //            return term;
@@ -1140,7 +1009,7 @@ public class PlPrologParser implements IParser {
         ITerm tail = ListTerm.NIL;//  = expr(true);
         List<ITerm> heads = new ArrayList<>();
         for (; ; ) {
-            PlToken t = getLexer().readToken();
+            PlToken t = getLexer().readToken(true);
             if (t.kind == rDelim) {
                 return new ListTerm(kind, tail, heads.isEmpty() ?
                         EMPTY_TERM_ARRAY :

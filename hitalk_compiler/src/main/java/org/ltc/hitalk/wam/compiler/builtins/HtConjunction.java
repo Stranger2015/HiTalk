@@ -36,7 +36,7 @@ public class HtConjunction extends HiTalkBaseBuiltIn {
             IFunctor expression = (IFunctor) iTerm;
 
             Integer permVarsRemaining =
-                    (Integer) defaultBuiltIn.getSymbolTable().get(expression.getSymbolKey(), SYMKEY_PERM_VARS_REMAINING);
+                    (Integer) defaultBuiltIn.getSymbolTable().get(expression.getString(), SYMKEY_PERM_VARS_REMAINING);
 
             // Select a non-default built-in implementation to compile the functor with, if it is a built-in.
             IPrologBuiltIn builtIn;

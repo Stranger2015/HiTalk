@@ -1,6 +1,5 @@
 package org.ltc.hitalk.compiler;
 
-import com.thesett.common.util.doublemaps.SymbolKey;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
@@ -32,7 +31,7 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
 
     protected ISymbolTable <Integer, String, Object> scopeTable;
     protected int scope;
-    protected Deque <SymbolKey> predicatesInScope = new ArrayDeque <>();
+    protected Deque<String> predicatesInScope = new ArrayDeque<>();
     protected PlPrologParser parser;
     protected IResolver <P, Q> resolver;
     protected ICompilerObserver <P, Q> observer;//todo is that really to be here

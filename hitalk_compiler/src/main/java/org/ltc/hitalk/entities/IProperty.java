@@ -6,16 +6,16 @@ import org.ltc.hitalk.term.ITerm;
  *
  */
 public
-interface IProperty { //extends INameable {
-   /**
-    * @return
-    */
-   String getName ();
+interface IProperty {
+    /**
+     * @return
+     */
+    String getName();
 
-   /**
-    * @return
-    */
-   ITerm getValue ();
+    /**
+     * @return
+     */
+    ITerm getValue();
 
    /**
     * @param term

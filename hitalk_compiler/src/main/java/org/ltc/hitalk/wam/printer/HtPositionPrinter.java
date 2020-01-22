@@ -59,7 +59,7 @@
         void enterFunctor ( Functor functor ) {
             String head = traverser.isInHead() ? "/head" : "";
             String last = traverser.isLastBodyFunctor() ? "/last" : "";
-            String symKey = functor.getSymbolKey().toString();
+            String symKey = functor.getString().toString();
 
             if (traverser.isTopLevel()) {
                 addLineToRow("functor(" + symKey + ")" + head + last);
@@ -84,8 +84,8 @@
          */
         protected
         void enterVariable ( Variable variable ) {
-            Integer allocation = (Integer) symbolTable.get(variable.getSymbolKey(), "allocation");
-            String symKey = variable.getSymbolKey().toString();
+            Integer allocation = (Integer) symbolTable.get(variable.getString(), "allocation");
+            String symKey = variable.getString().toString();
 
             String allocString = "";
 

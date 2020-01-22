@@ -95,4 +95,15 @@ class Atom extends HtFunctor {
     public boolean isGround() {
         return true;
     }
+
+    /**
+     * @return
+     */
+    public int getArity() {
+        return 0;
+    }
+
+    public boolean isListTerm() {
+        return false;
+    }
 }

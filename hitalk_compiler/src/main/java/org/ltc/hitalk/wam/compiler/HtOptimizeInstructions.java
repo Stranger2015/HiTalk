@@ -19,7 +19,6 @@ import com.thesett.aima.logic.fol.FunctorName;
 import com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys;
 import com.thesett.aima.logic.fol.wam.optimizer.Matcher;
 import com.thesett.aima.logic.fol.wam.optimizer.StateMachine;
-import com.thesett.common.util.doublemaps.SymbolKey;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction;
@@ -265,7 +264,7 @@ public class HtOptimizeInstructions implements StateMachine <HiTalkWAMInstructio
      * @return <tt>true</tt> iff the term argument to the instruction was a singleton, non-argument position variable.
      */
     private boolean isVoidVariable ( HiTalkWAMInstruction instruction ) {
-        SymbolKey symbolKey = instruction.getSymbolKeyReg1();
+        String symbolKey = instruction.getStringReg1();
 
         if (symbolKey != null) {
             Integer count = (Integer) symbolTable.get(symbolKey, SymbolTableKeys.SYMKEY_VAR_OCCURRENCE_COUNT);
@@ -293,7 +292,7 @@ public class HtOptimizeInstructions implements StateMachine <HiTalkWAMInstructio
      * be returned if this information was not recorded, and cannot be determined.
      */
     private boolean isNonArg ( HiTalkWAMInstruction instruction ) {
-        SymbolKey symbolKey = instruction.getSymbolKeyReg1();
+        String symbolKey = instruction.getStringReg1();
 
         if (symbolKey != null) {
             Boolean nonArgPositionOnly = (Boolean) symbolTable.get(symbolKey, SymbolTableKeys.SYMKEY_FUNCTOR_NON_ARG);

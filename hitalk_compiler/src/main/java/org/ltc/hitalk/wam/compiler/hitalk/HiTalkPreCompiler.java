@@ -102,7 +102,7 @@ class HiTalkPreCompiler<T extends HtMethod, P, Q> extends PrologPreCompiler <T, 
     private void initializeSymbolTable ( ITerm clause ) {
         // Run the symbol key traverser over the clause, to ensure that all terms have their symbol keys correctly
         // set up.
-        HtSymbolKeyTraverser symbolKeyTraverser = new HtSymbolKeyTraverser(interner, symbolTable, null);
+        HtStringTraverser symbolKeyTraverser = new HtStringTraverser(interner, symbolTable, null);
         symbolKeyTraverser.setContextChangeVisitor(symbolKeyTraverser);
 
         HtTermWalker symWalker = new HtTermWalker(new DepthFirstBacktrackingSearch <>(), symbolKeyTraverser, symbolKeyTraverser);

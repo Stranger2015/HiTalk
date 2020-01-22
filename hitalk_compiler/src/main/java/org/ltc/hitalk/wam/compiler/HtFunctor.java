@@ -75,7 +75,7 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
     /**
      * @return
      */
-    public int getName () {
+    public Atom getName() {
         return 0;
     }
 

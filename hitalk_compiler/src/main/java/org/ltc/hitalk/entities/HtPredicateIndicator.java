@@ -3,6 +3,7 @@ package org.ltc.hitalk.entities;
 import com.thesett.aima.search.Operator;
 import org.ltc.enumus.Hierarchy;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.term.*;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.IFunctor;
@@ -15,7 +16,7 @@ import java.util.function.Function;
  *
  */
 public
-class HtPredicateIndicator extends HtBaseTerm {
+class HtPredicateIndicator extends HtBaseTerm implements IFunctor {
     //private final HtFunctor functor;
     protected HtFunctor delegate;
 
@@ -24,12 +25,16 @@ class HtPredicateIndicator extends HtBaseTerm {
      * @param arg1
      * @param arg2
      */
-    public HtPredicateIndicator ( IFunctor name, ITerm arg1, ITerm arg2 ) {
-        delegate = new HtFunctor(name.getName(), new ListTerm(name, arg1, arg2));
+    public HtPredicateIndicator(IFunctor name, ITerm arg1, ITerm arg2) {
+//        delegate = new HtFunctor(name.getName(), new ListTerm(name, arg1, arg2));fixme
     }
 
-    public HtPredicateIndicator ( IFunctor functor ) {
+    public HtPredicateIndicator(IFunctor functor) {
         this(functor, functor.getArgument(0), functor.getArgument(1));
+    }
+
+    public HtPredicateIndicator(IFunctor name, int arityMin, int arityMax) {
+
     }
 
     /**
@@ -38,8 +43,7 @@ class HtPredicateIndicator extends HtBaseTerm {
      * @return Always <tt>true</tt>.
      */
     @Override
-    public
-    boolean isFunctor () {
+    public boolean isFunctor() {
         return delegate.isFunctor();
     }
 
@@ -144,8 +148,12 @@ class HtPredicateIndicator extends HtBaseTerm {
      * @param index The index to set the argument for.
      * @param value The argument.
      */
-    public void setArgument ( int index, ITerm value ) {
+    public void setArgument(int index, ITerm value) {
         delegate.setArgument(index, value);
+    }
+
+    public void setArguments(ITerm[] terms) {
+
     }
 
     /**
@@ -153,9 +161,16 @@ class HtPredicateIndicator extends HtBaseTerm {
      *
      * @return The number of arguments that this functor takes.
      */
-    public
-    int getArity () {
+    public int getArity() {
         return delegate.getArity();
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public boolean isDefined() {
+        return false;
     }
 
     /**
@@ -163,8 +178,9 @@ class HtPredicateIndicator extends HtBaseTerm {
      *
      * @return This functors name.
      */
-    public IFunctor getName () {
-        return (IFunctor) getArgument(0);
+    public Atom getName() {
+//        return "P/N"(IFunctor) getArgument(0);
+        return BaseApp.getAppContext().getTermFactory().createAtom("'P/N'");
     }
 
     /**
@@ -282,10 +298,25 @@ class HtPredicateIndicator extends HtBaseTerm {
      *
      * @return A string reprenestation of this functors arguments.
      */
-    protected String toStringArguments () {
+    public String toStringArguments() {
         return delegate.toStringArguments();
     }
+
+    /**
+     * @return
+     */
+    public int getArityInt() {
+        return 0;
+    }
+
+    /**
+     * @return
+     */
+    public ITerm getArityTerm() {
+        return null;
+    }
 //
+
     /**
      *
      */

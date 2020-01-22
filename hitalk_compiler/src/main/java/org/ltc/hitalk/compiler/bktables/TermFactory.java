@@ -188,7 +188,7 @@ public class TermFactory implements ITermFactory {
      * @return
      */
     @Override
-    public IFunctor createAtom(String s) {
+    public Atom createAtom(String s) {
         int ffn = interner.internFunctorName(s, 0);
         return new HtFunctor(ffn, NIL);
     }

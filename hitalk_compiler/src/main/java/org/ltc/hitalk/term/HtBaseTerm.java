@@ -21,7 +21,6 @@ import com.thesett.aima.search.GoalState;
 import com.thesett.aima.search.Operator;
 import com.thesett.aima.search.TraversableState;
 import com.thesett.aima.search.util.backtracking.Reversable;
-import com.thesett.common.util.doublemaps.SymbolKey;
 import org.ltc.hitalk.parser.ISourceCodePosition;
 
 import java.util.Collections;
@@ -68,7 +67,7 @@ public abstract class HtBaseTerm extends TraversableState <ITerm> implements ITe
     /**
      * Holds this terms unique symbol key.
      */
-    protected SymbolKey symbolKey;
+    protected String symbolKey;
 
     /**
      * Holds a reversible operator to establish and restore state when traversing this term.
@@ -153,14 +152,14 @@ public abstract class HtBaseTerm extends TraversableState <ITerm> implements ITe
     /**
      * {@inheritDoc}
      */
-    public void setSymbolKey ( SymbolKey key ) {
+    public void setString(String key) {
         symbolKey = key;
     }
 
     /**
      * {@inheritDoc}
      */
-    public SymbolKey getSymbolKey () {
+    public String getString() {
         return symbolKey;
     }
 

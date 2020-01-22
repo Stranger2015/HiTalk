@@ -22,7 +22,6 @@ import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
 import com.thesett.aima.search.util.uninformed.BreadthFirstSearch;
 import com.thesett.common.util.SizeableLinkedList;
 import com.thesett.common.util.SizeableList;
-import com.thesett.common.util.doublemaps.SymbolKey;
 import org.ltc.hitalk.compiler.BaseCompiler;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.utils.ISymbolTable;
@@ -78,7 +77,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
     /**
      * Holds a list of all predicates encountered in the current scope.
      */
-    protected final Deque <SymbolKey> predicatesInScope = new ArrayDeque <>();
+    protected final Deque<String> predicatesInScope = new ArrayDeque<>();
 
     /**
      * This is used to keep track of the number of permanent variables.
@@ -423,7 +422,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
                 boolean isLastBody = i == (expressions.size() - 1);
                 boolean isFirstBody = i == 0;
 
-                Integer permVarsRemaining = (Integer) getSymbolTable().get(goal.getSymbolKey(), SYMKEY_PERM_VARS_REMAINING);
+                Integer permVarsRemaining = (Integer) getSymbolTable().get(goal.getString(), SYMKEY_PERM_VARS_REMAINING);
 
                 // Select a non-default built-in implementation to compile the functor with, if it is a built-in.
                 IPrologBuiltIn builtIn;
@@ -546,7 +545,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
                 /*log.fine("HtVariable " + variable + " is permanent, count = " + count);*/
 
                 int allocation = (numPermanentVars++ & (0xff)) | (STACK_ADDR << 8);
-                getSymbolTable().put(variable.getSymbolKey(), SYMKEY_ALLOCATION, allocation);
+                getSymbolTable().put(variable.getString(), SYMKEY_ALLOCATION, allocation);
 
                 // Check if the variable is the cut level variable, and cache its stack slot in 'cutLevelVarSlot', so that
                 // the clause compiler knows which variable to use for the get_level instruction.
@@ -565,7 +564,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
         int permVarsRemaining = 0;
 
         for (int i = permVarsRemainingCount.length - 1; i >= 0; i--) {
-            getSymbolTable().put(clause.getBody().getHead(i).getSymbolKey(), SYMKEY_PERM_VARS_REMAINING, permVarsRemaining);
+            getSymbolTable().put(clause.getBody().getHead(i).getString(), SYMKEY_PERM_VARS_REMAINING, permVarsRemaining);
             permVarsRemaining += permVarsRemainingCount[i];
         }
     }
@@ -580,8 +579,8 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
      */
     public void endScope () throws Exception {
         // Loop over all predicates in the current scope, found in the symbol table, and consume and compile them.
-        for (SymbolKey predicateKey = predicatesInScope.poll(); predicateKey != null; predicateKey = predicatesInScope.poll()) {
-            List <T> clauses = (List <T>) scopeTable.get(predicateKey, SYMKEY_PREDICATES);
+        for (String predicateKey = predicatesInScope.poll(); predicateKey != null; predicateKey = predicatesInScope.poll()) {
+            List<T> clauses = (List<T>) scopeTable.get(predicateKey, SYMKEY_PREDICATES);
 
             // Used to keep track of where within the predicate the current clause is.
             int size = clauses.size();
@@ -709,7 +708,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
             // For each functor encountered: get_struc.
             if (nextTerm.isFunctor()) {
                 IFunctor nextFunctor = (IFunctor) nextTerm;
-                int allocation = (Integer) getSymbolTable().get(nextFunctor.getSymbolKey(), SYMKEY_ALLOCATION);
+                int allocation = (Integer) getSymbolTable().get(nextFunctor.getString(), SYMKEY_ALLOCATION);
 
                 byte addrMode = (byte) ((allocation & 0xff00) >> 8);
                 byte address = (byte) (allocation & 0xff);
@@ -730,7 +729,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
 
                 for (int i = 0; i < numArgs; i++) {
                     ITerm nextArg = nextFunctor.getArgument(i);
-                    allocation = (Integer) getSymbolTable().get(nextArg.getSymbolKey(), SYMKEY_ALLOCATION);
+                    allocation = (Integer) getSymbolTable().get(nextArg.getString(), SYMKEY_ALLOCATION);
                     addrMode = (byte) ((allocation & 0xff00) >> 8);
                     address = (byte) (allocation & 0xff);
 
@@ -746,10 +745,10 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
                         instruction = new HiTalkWAMInstruction(UnifyVar, addrMode, address, nextArg);
 
                         // Record the way in which this variable was introduced into the clause.
-                        getSymbolTable().put(nextArg.getSymbolKey(), SYMKEY_VARIABLE_INTRO, VarIntroduction.Unify);
+                        getSymbolTable().put(nextArg.getString(), SYMKEY_VARIABLE_INTRO, VarIntroduction.Unify);
                     } else {
                         // Check if the variable is 'local' and use a local instruction on the first occurrence.
-                        VarIntroduction introduction = (VarIntroduction) getSymbolTable().get(nextArg.getSymbolKey(), SYMKEY_VARIABLE_INTRO);
+                        VarIntroduction introduction = (VarIntroduction) getSymbolTable().get(nextArg.getString(), SYMKEY_VARIABLE_INTRO);
 
                         if (defaultBuiltIn.isLocalVariable(introduction, addrMode)) {
                             /*log.fine("UNIFY_LOCAL_VAL " + ((addrMode == REG_ADDR) ? "X" : "Y") +
@@ -757,7 +756,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
 
                             instruction = new HiTalkWAMInstruction(UnifyLocalVal, addrMode, address, nextArg);
 
-                            getSymbolTable().put(nextArg.getSymbolKey(), SYMKEY_VARIABLE_INTRO, null);
+                            getSymbolTable().put(nextArg.getString(), SYMKEY_VARIABLE_INTRO, null);
                         } else {
                             /*log.fine("UNIFY_VAL " + ((addrMode == REG_ADDR) ? "X" : "Y") + address);*/
 
@@ -769,7 +768,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
                 }
             } else if (j < numOutermostArgs) {
                 ITerm nextVar = nextTerm;
-                int allocation = (Integer) getSymbolTable().get(nextVar.getSymbolKey(), SYMKEY_ALLOCATION);
+                int allocation = (Integer) getSymbolTable().get(nextVar.getString(), SYMKEY_ALLOCATION);
                 byte addrMode = (byte) ((allocation & 0xff00) >> 8);
                 byte address = (byte) (allocation & 0xff);
 
@@ -785,7 +784,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
                     instruction = new HiTalkWAMInstruction(GetVar, addrMode, address, (byte) (j & 0xff));
 
                     // Record the way in which this variable was introduced into the clause.
-                    getSymbolTable().put(nextVar.getSymbolKey(), SYMKEY_VARIABLE_INTRO, VarIntroduction.Get);
+                    getSymbolTable().put(nextVar.getString(), SYMKEY_VARIABLE_INTRO, VarIntroduction.Get);
                 } else {
                     /*log.fine("GET_VAL " + ((addrMode == REG_ADDR) ? "X" : "Y") + address + ", A" + j);*/
 
@@ -858,18 +857,18 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
          * <p/>Allocates unallocated variables to stack slots.
          */
         public void visit ( HtVariable variable ) {
-            if (getSymbolTable().get(variable.getSymbolKey(), SYMKEY_ALLOCATION) == null) {
+            if (getSymbolTable().get(variable.getString(), SYMKEY_ALLOCATION) == null) {
                 if (variable.isAnonymous()) {
                     //log.fine("Query variable " + variable + " is temporary.");
 
                     int allocation = (lastAllocatedTempReg++ & (0xff)) | (REG_ADDR << 8);
-                    getSymbolTable().put(variable.getSymbolKey(), SYMKEY_ALLOCATION, allocation);
+                    getSymbolTable().put(variable.getString(), SYMKEY_ALLOCATION, allocation);
                     varNames.put((byte) allocation, variable.getName());
                 } else {
                     /*log.fine("Query variable " + variable + " is permanent.");*/
 
                     int allocation = (numPermanentVars++ & (0xff)) | (HiTalkWAMInstruction.STACK_ADDR << 8);
-                    getSymbolTable().put(variable.getSymbolKey(), SYMKEY_ALLOCATION, allocation);
+                    getSymbolTable().put(variable.getString(), SYMKEY_ALLOCATION, allocation);
                     varNames.put((byte) allocation, variable.getName());
                 }
             }

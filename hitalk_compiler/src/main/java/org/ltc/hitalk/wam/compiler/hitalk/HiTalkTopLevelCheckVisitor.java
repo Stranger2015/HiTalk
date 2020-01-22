@@ -85,7 +85,7 @@ public class HiTalkTopLevelCheckVisitor extends HtBasePositionalVisitor implemen
      */
     protected void enterFunctor ( IFunctor functor ) {
         if (isTopLevel()) {
-            symbolTable.put(functor.getSymbolKey(), SYMKEY_TOP_LEVEL_FUNCTOR, true);
+            symbolTable.put(functor.getString(), SYMKEY_TOP_LEVEL_FUNCTOR, true);
         }
     }
 
@@ -105,7 +105,7 @@ public class HiTalkTopLevelCheckVisitor extends HtBasePositionalVisitor implemen
                 ITerm parentTerm = parentContext.getTerm();
 
                 if ((parentTerm instanceof HtConjunction) || (parentTerm instanceof HtDisjunction)) {
-                    Boolean isTopLevel = (Boolean) symbolTable.get(parentTerm.getSymbolKey(), SYMKEY_TOP_LEVEL_FUNCTOR);
+                    Boolean isTopLevel = (Boolean) symbolTable.get(parentTerm.getString(), SYMKEY_TOP_LEVEL_FUNCTOR);
 
                     return (isTopLevel == null) ? false : isTopLevel;
                 }

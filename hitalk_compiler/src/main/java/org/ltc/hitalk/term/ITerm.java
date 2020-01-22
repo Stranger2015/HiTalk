@@ -19,7 +19,6 @@ import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.search.Operator;
 import com.thesett.aima.search.util.backtracking.ReTraversable;
 import com.thesett.aima.search.util.backtracking.Reversable;
-import com.thesett.common.util.doublemaps.SymbolKey;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.parser.ISourceCodePosition;
 
@@ -179,14 +178,14 @@ public interface ITerm extends ReTraversable <ITerm>, Operator <ITerm> {
      *
      * @param key The symbol key for the term.
      */
-    void setSymbolKey ( SymbolKey key );
+    void setString(String key);
 
     /**
      * Gets this terms unique symbol key.
      *
      * @return This terms unique symbol key.
      */
-    SymbolKey getSymbolKey ();
+    String getString();
 
     /**
      * Frees all assigned variables in the term, leaving them unnassigned.
