@@ -1,14 +1,16 @@
 package org.ltc.hitalk.entities;
 
+import org.ltc.hitalk.term.HtNonVar;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HtMethodDef;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 /**
@@ -21,8 +23,8 @@ class PropertyOwner implements IPropertyOwner {
 
     final private List<PropertyChangeListener> listeners = new ArrayList<>();
 
-    protected Map<String, HtMethodDef> mmap = new HashMap<>();
-    protected Map<String, HtProperty> map = new HashMap<>();
+    protected Set<HtMethodDef> mset = new HashSet<>();
+    protected Set<HtProperty> set = new HashSet<>();
 
     public HtProperty[] getProps() {
         return props;
@@ -32,23 +34,19 @@ class PropertyOwner implements IPropertyOwner {
         return methods;
     }
 
-    public Map<String, HtMethodDef> getMmap() {
-        return mmap;
-    }
-
-    public Map<String, HtProperty> getMap() {
-        return map;
+    public Set<HtProperty> getSet() {
+        return set;
     }
 
     public PropertyOwner(HtProperty[] props,
                          HtMethodDef[] methods,
-                         Map<String, HtProperty> map,
-                         Map<String, HtMethodDef> mmap) {
+                         Set<HtProperty> set,
+                         Set<HtMethodDef> mset) {
 
         this.props = props;
         this.methods = methods;
-        this.map = map;
-        this.mmap = mmap;
+        this.set = set;
+        this.mset = mset;
     }
 
     /**
@@ -75,7 +73,7 @@ class PropertyOwner implements IPropertyOwner {
             listener.propertyChange(
                     new PropertyChangeEvent(
                             property,
-                            property.getName(),
+                            property.toString(),
                             newValue,
                             property.getValue()
                     )
@@ -87,20 +85,23 @@ class PropertyOwner implements IPropertyOwner {
      * @param propertyName
      * @return
      */
-    public ITerm getValue(String propertyName) {
-        return map.get(propertyName).getValue();
+    public HtNonVar getValue(IFunctor propertyName) {
+        for (HtProperty prop : set) {
+            if (prop.getName().equals(propertyName)) {
+                return prop.getValue();
+            }
+        }
+        return null;
     }
 
     /**
      * @param propertyName
      * @param value
-     * @return
      */
-    public ITerm setValue(String propertyName, ITerm value) {
+    public void setValue(IFunctor propertyName, HtNonVar value) {
         final HtProperty property = new HtProperty(propertyName, value);
-        map.put(propertyName, property);
+//        set.put(propertyName, property);
         fireEvent(property, value);
-        return property.getValue();
     }
 
     /**
@@ -109,7 +110,7 @@ class PropertyOwner implements IPropertyOwner {
     public PropertyOwner(HtMethodDef[] methods, HtProperty[] props) {
         this.props = props;
         this.methods = methods;
-        IntStream.range(0, props.length).forEachOrdered(i -> map.put(props[i].getName(), props[i]));
-        IntStream.range(0, methods.length).forEachOrdered(i -> mmap.put(methods[i].methodName, methods[i]));
+        IntStream.range(0, props.length).forEachOrdered(i -> set.put(props[i].getName(), props[i]));
+        IntStream.range(0, methods.length).forEachOrdered(i -> mset.put(methods[i].methodName, methods[i]));
     }
 }

@@ -5,7 +5,6 @@ import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.IProperty;
 import org.ltc.hitalk.parser.ITokenSource;
 import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.wam.compiler.HtMethod;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -54,14 +53,20 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
         setInputStream(fis);
     }
 
+    /**
+     * @param fd
+     * @param bufferSize
+     * @throws IOException
+     */
     public HiTalkInputStream(FileDescriptor fd, int bufferSize) throws IOException {
-//        this.bufferSize = bufferSize;
         super(fd);
-//        final FileInputStream fis = new FileInputStream(fd);
-//        setInputStream(fis);
-//        setTokenSource(tokenSource);
     }
 
+    /**
+     * @param path
+     * @param bufferSize
+     * @throws IOException
+     */
     public HiTalkInputStream(String path, int bufferSize) throws IOException {
         super(Paths.get(path), defaultEncoding, READ);
     }
@@ -282,21 +287,21 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
         return new HtProperty[0];
     }
 
-    public HtMethod[] getMethods() {
-        return new HtMethod[0];
+    public HtMethodDef[] getMethods() {
+        return new HtMethodDef[0];
     }
 
-    public Map<String, HtMethod> getMmap() {
+    public Map<String, HtMethodDef> getMmap() {
         return null;
     }
 
     public Map<String, HtProperty> getMap() {
-        return null;
+        return owner;
     }
 
-    //@Override
-    public ITerm getValue(Properties property) {
-        return null;
+    @Override
+    public ITerm getValue(String property) {
+        return owner.getValue(property);
     }
 
     /**
@@ -304,7 +309,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      * @param value
      */
     //@Override
-    public void setValue(Properties property, ITerm value) {
+    public void setValue(Properties property, Object value) {
 
     }
 

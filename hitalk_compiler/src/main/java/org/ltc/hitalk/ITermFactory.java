@@ -86,4 +86,6 @@ interface ITermFactory extends IHitalkObject {
     IFunctor newFunctor(String name, int arity);
 
     NumberTerm createNumber(String s);
+
+    HtNonVar createNonvar(HtNonVar value);
 }

@@ -4,7 +4,7 @@ import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HtMethodDef;
 
 import java.beans.PropertyChangeListener;
-import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -42,16 +42,15 @@ interface IPropertyOwner {
     /**
      * @param propertyName
      * @param value
-     * @return
      */
-    ITerm setValue(String propertyName, ITerm value);
+    void setValue(String propertyName, ITerm value);
 
     HtProperty[] getProps();
 
     HtMethodDef[] getMethods();
 
-    Map<String, HtMethodDef> getMmap();
+    Set<HtMethodDef> getMethodSet();
 
-    Map<String, HtProperty> getMap();
+    Set<HtProperty> getSet();
 
 }

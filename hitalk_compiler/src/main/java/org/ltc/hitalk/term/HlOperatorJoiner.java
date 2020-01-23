@@ -16,6 +16,7 @@ import static org.ltc.hitalk.term.HlOpSymbol.isCorrectOrder;
  *
  * @author shun
  */
+@Deprecated
 public abstract class HlOperatorJoiner<T extends ITerm> {
 
     private final Deque<HlOpSymbol> operators = new ArrayDeque<>();

@@ -6,6 +6,7 @@ import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.IProperty;
 import org.ltc.hitalk.entities.IPropertyOwner;
 import org.ltc.hitalk.entities.PropertyOwner;
+import org.ltc.hitalk.term.HtNonVar;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.Options.Option;
 import org.ltc.hitalk.wam.compiler.IFunctor;
@@ -26,8 +27,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static java.nio.charset.Charset.*;
 import static org.ltc.hitalk.core.BaseApp.appContext;
@@ -143,12 +142,12 @@ import static org.ltc.hitalk.core.BaseApp.appContext;
  * standard output handles are not connected to valid streams. In these cases write errors may be ignored on
  * user_error.
  */
-public abstract
+public abstract /*abstract*/
 class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable, Closeable, IHitalkObject {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     public static final int BB_ALLOC_SIZE = 32768;
-    public final static String[] EMPTY_STRING_ARRAY = new String[0];
+//    public final static String[] EMPTY_STRING_ARRAY = new String[0];
 
     protected FileDescriptor fd;
     protected FileChannel channel;
@@ -185,7 +184,8 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
     protected PropertyOwner createPropertyOwner() {
         HtProperty[] props = new HtProperty[]{
                 createProperty("alias", "Atom"),
-//                SWI-Prolog extension to query the buffering mode of this stream. Buffering is one of full, line or false.
+//                SWI-Prolog extension to query the buffering mode of this stream.
+//                Buffering is one of full, line or false.
                 createProperty("buffer", "Buffering", "full", "line", "false"),
                 createProperty("buffer_size", "Integer"),
                 createProperty("bom", "Bool"),
@@ -216,8 +216,8 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
                 createProperty("write_errors", "Atom", "error", "ignored")};// Atom is one of error (default) or ignore. The latter is intended to deal with service processes for which the
 //standard output handles are not connected to valid streams. In these cases write errors may be ignored on
 //user_error. See also set_stream/2.
-        final Map<String, HtProperty> map = IntStream.range(0, props.length).boxed().collect(Collectors
-                .toMap(i -> props[i].getName(), i -> props[i], (a, b) -> b));
+        final Set<HtProperty> map = new HashSet<>();
+        map.addAll(Arrays.asList(props));
 
         final IFunctor name;
         Predicate<IFunctor> body;
@@ -239,7 +239,7 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
         final HtMethodDef[] methods = new HtMethodDef[]{
                 createMethod("open/3", HiTalkStream::open_3_4, 3),
                 createMethod("open/4", HiTalkStream::open_3_4, 4,
-                        createOption("alias(Atom)",
+                        createOptions("alias(Atom)",
                                 "bom(Bool)",
                                 "buffer(Buffering)",
                                 "close_on_abort(Bool)",
@@ -250,7 +250,6 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
                                 "lock(LockingMode)",
                                 "type(Type)",
                                 "wait(Bool)"
-
                         )
                 ),//
                 createMethod("open_null_stream/1", HiTalkStream::open_null_stream_1, 1),
@@ -321,14 +320,10 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
         return new PropertyOwner(props, methods, map, mmap);
     }
 
-
-}
-
     /**
      *
      */
-
-    private static HtProperty createProperty(String name, Object value, String... values) {
+    private static HtProperty createProperty(IFunctor name, HtNonVar value, String... values) {
         return new HtProperty(name, name, values);
     }
 
@@ -416,6 +411,7 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
         Charset charset = isSupported(encoding) ? forName(encoding) : defaultCharset();
         CharsetDecoder decoder = charset.newDecoder();
         sd = StreamDecoder.forDecoder(channel, decoder, BB_ALLOC_SIZE);
+
     }
 
     /**
@@ -476,6 +472,13 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
         }
     }
 
+    /**
+     * @return
+     */
+    public int getPropLength() {
+        return owner.getPropLength();
+    }
+
     @Override
     public void addListener(PropertyChangeListener listener) {
         listeners.add(listener);
@@ -489,8 +492,8 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
     @Override
     public void fireEvent(IProperty property, ITerm value) {
         PropertyChangeEvent event = new PropertyChangeEvent(
-                property,
-                property.getName(),
+                this,
+                property.toString(),
                 value,
                 property.getValue()
         );
@@ -503,14 +506,30 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
         return getMap().get(propertyName).getValue();
     }
 
-    public ITerm setValue(String propertyName, ITerm newValue) {
+    public void setValue(String propertyName, ITerm newValue) {
         final HtProperty prop = createProperty(propertyName, newValue);
         final ITerm oldValue = getMap().get(propertyName).getValue();
-        new PropertyChangeEvent();
-        for (int i = 0; i < listeners.size(); i++) {
-            listeners.get(i).propertyChange();
-
+        final PropertyChangeEvent event = new PropertyChangeEvent(this, propertyName, newValue, newValue);
+        int bound = listeners.size();
+        for (int i = 0; i < bound; i++) {
+            listeners.get(i).propertyChange(event);
         }
+    }
+
+    public HtProperty[] getProps() {
+        return new HtProperty[0];
+    }
+
+    public HtMethodDef[] getMethods() {
+        return new HtMethodDef[0];
+    }
+
+    public Map<String, HtMethodDef> getMmap() {
+        return null;
+    }
+
+    public Map<String, HtProperty> getMap() {
+        return null;
     }
 
     public final String toString() {
