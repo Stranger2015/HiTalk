@@ -62,7 +62,7 @@ Standalone compiler + IDE.
     :- built_in.
 
     :- enumeration([
-        atomic, % /*scalar*/ :- true (by default)
+        atomic, % :- true (by default)
         list,
         compound    
     ]).
@@ -80,15 +80,7 @@ List syntax changes:
 <foo>( Arg_1 | RestArgs )
 <foo>(| Args_Itself )
 [| List_Itself]
-
-[Head |] is just [ Head | _ ]//???????
-````
-Predicate indicator - **P/N**
-
-BOF
-
-Encoding
-
-
-
+{}
+{G|Gs}
+{|Gs}
 ````
