@@ -167,7 +167,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
      * @return
      * @throws FileNotFoundException
      */
-    public HiTalkInputStream createInputHiTalkStream(String fileName) throws IOException {
+    public HiTalkInputStream createInputHiTalkStream(String fileName) throws Exception {
         return new HiTalkInputStream(new File(fileName));
     }
 
@@ -302,7 +302,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
 
                     }
                 });
-                getWAMCompiler().compile(fileName, loadContext.getFlags());
+                getWAMCompiler().compile(fileName, loadContext.getProps());
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new ExecutionError(PERMISSION_ERROR, null);

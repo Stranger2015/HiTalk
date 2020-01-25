@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.stream.IntStream;
 
 import static java.util.Objects.requireNonNull;
-import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
 import static org.ltc.hitalk.term.ListTerm.Kind.CLAUSE_BODY;
 
 /**
@@ -16,7 +15,7 @@ public class ListTerm extends HtBaseTerm {
     //    public static final ITerm TRUE = new ListTerm(Kind.TRUE);
     public static final ListTerm NIL = new ListTerm();
     protected Kind kind;//fixme encode in name
-    ITerm[] heads = EMPTY_TERM_ARRAY;
+    ITerm[] heads = ITerm.EMPTY_TERM_ARRAY;
     ITerm tail = NIL;
 
     /**

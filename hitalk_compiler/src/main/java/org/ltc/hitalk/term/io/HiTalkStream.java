@@ -1,6 +1,5 @@
 package org.ltc.hitalk.term.io;
 
-
 import org.ltc.hitalk.core.IHitalkObject;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.IProperty;
@@ -8,7 +7,6 @@ import org.ltc.hitalk.entities.IPropertyOwner;
 import org.ltc.hitalk.entities.PropertyOwner;
 import org.ltc.hitalk.term.HtNonVar;
 import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.term.io.Options.Option;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +28,7 @@ import java.util.function.Predicate;
 
 import static java.nio.charset.Charset.*;
 import static org.ltc.hitalk.core.BaseApp.appContext;
+import static org.ltc.hitalk.entities.PropertyOwner.createProperty;
 
 /**
  * open(+SrcDest, +Mode, --Stream)
@@ -181,24 +180,46 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
      *
      * @return
      */
-    protected PropertyOwner createPropertyOwner() {
+    protected PropertyOwner createPropertyOwner() throws Exception {
         HtProperty[] props = new HtProperty[]{
-                createProperty("alias", "Atom"),
+                createProperty("alias(Atom)", ""),
 //                SWI-Prolog extension to query the buffering mode of this stream.
 //                Buffering is one of full, line or false.
-                createProperty("buffer", "Buffering", "full", "line", "false"),
+                createProperty("buffer(Buffering).", "full", "line", "false"),
                 createProperty("buffer_size", "Integer"),
-                createProperty("bom", "Bool"),
-                createProperty("close_on_abort", "Bool"),
-                createProperty("close_on_exec", "Bool"),
-                createProperty("encoding", "Encoding"),
-                createProperty("end_of_stream", "E", "not", "at", "past"),
-                createProperty("eof_action", "A", "eof_code", "reset", "error"),//See open/4 for details.
-                createProperty("file_name", "Atom"),//See open/4 for details.
-                createProperty("file_no", "Integer"),//See open/4 for details.
-                createProperty("input", ""),//See open/4 for details.
-                createProperty("locale", "Locale"),//See open/4 for details.
-                createProperty("mode", "IOMode", "read", "write", "append", "update"),//See open/4 for details.
+                createProperty("bom(Bool)", "\ufeff"),//utf1i6
+                createProperty("close_on_abort(Bool)", "Bool"),
+                createProperty("close_on_exec(Bool)", "Bool"),
+                createProperty("encoding(Encoding)",
+                        "octet",
+                        "octet", //Default encoding for binary streams.
+                        // This causes the stream to be read and written fully untranslated.
+                        "ascii",//7-bit encoding in 8-bit bytes. //
+                        // Equivalent to iso_latin_1, but generates errors and warnings on encountering values above 127.
+                        "text",/* mbrtowc()*/
+                        "utf8",
+//          Multi-byte encoding of full UCS, compatible with ascii. See above.
+                        "unicode_be", // Unicode Big Endian. Reads input in pairs of bytes, most significant byte first.
+                        // Can only represent 16-bit characters.
+                        "unicode_le" //Unicode Little Endian. Reads input in pairs of bytes, least significant byte first.
+                        // Can only represent 16-bit characters.
+                ),
+
+//                Note that not all encodings can represent all characters.
+//                This implies that writing text to a stream may cause errors because the stream cannot represent these
+//                characters.
+//                The behaviour of a stream on these errors can be controlled using set_stream/2.
+//                Initially the terminal stream writes the characters using Prolog escape sequences while other streams
+//                generate an I/O exception.
+//        };
+//        C library default locale encoding for text files. Files are read and written using the C library functions  and wcrtomb(). This may be the same as one of the other locales, notably it may be the same as iso_latin_1 for Western languages and utf8 in a UTF-8 context.
+                createProperty("end_of_stream(E)", "not", "not", "at", "past"),
+                createProperty("eof_action", "A", "eof_code", "reset", "error"),
+                createProperty("file_name", "Atom"),
+                createProperty("file_no", "Integer"),
+                createProperty("input", ""),
+                createProperty("locale", "Locale"),
+                createProperty("mode", "IOMode", "read", "write", "append", "update"),
                 createProperty("newline", "NewlineMode", "posix", "dos"),//If dos, text streams will emit \r\n for \n and discard \r from input streams.
                 createProperty("nlink", "-Count"),
                 createProperty("output", "Bool"),//True if Stream has mode write, append or update.
@@ -212,12 +233,12 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
                 createProperty("timeout", "-Time"),//Time is the timeout currently associated with the stream. See set_stream/2 with the same option.
 //If no timeout is specified, Time is unified to the atom infinite.
                 createProperty("type", "Type", "text", "binary"),//Unify Bool with true if the position of the stream can be set (see seek/4). It is assumed the position can be set
-                createProperty("tty", "Bool"),// This property is reported with Bool equal to true if the stream is associated with a terminal.
-                createProperty("write_errors", "Atom", "error", "ignored")};// Atom is one of error (default) or ignore. The latter is intended to deal with service processes for which the
+                createProperty("tty()", "Bool"),// This property is reported with Bool equal to true if the stream is associated with a terminal.
+                createProperty("write_errors", "eeeoR ", "error", "ignored")};// Atom is one of error (default) or ignore. The latter is intended to deal with service processes for which the
 //standard output handles are not connected to valid streams. In these cases write errors may be ignored on
 //user_error. See also set_stream/2.
-        final Set<HtProperty> map = new HashSet<>();
-        map.addAll(Arrays.asList(props));
+        final Map<String, HtProperty> map = new HashMap<>();
+//        map.addAll(Arrays.asList(props));
 
         final IFunctor name;
         Predicate<IFunctor> body;
@@ -239,18 +260,18 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
         final HtMethodDef[] methods = new HtMethodDef[]{
                 createMethod("open/3", HiTalkStream::open_3_4, 3),
                 createMethod("open/4", HiTalkStream::open_3_4, 4,
-                        createOptions("alias(Atom)",
-                                "bom(Bool)",
-                                "buffer(Buffering)",
-                                "close_on_abort(Bool)",
-                                "create(+List)",
-                                "encoding(Encoding)",
-                                "eof_action(Action)",
-                                "locale(+Locale)",
-                                "lock(LockingMode)",
-                                "type(Type)",
-                                "wait(Bool)"
-                        )
+                        /*createOptions(*/"alias(Atom)",
+                        "bom(Bool)",
+                        "buffer(Buffering)",
+                        "close_on_abort(Bool)",
+                        "create(+List)",
+                        "encoding(Encoding)",
+                        "eof_action(Action)",
+                        "locale(+Locale)",
+                        "lock(LockingMode)",
+                        "type(Type)",
+                        "wait(Bool)"
+//                        )
                 ),//
                 createMethod("open_null_stream/1", HiTalkStream::open_null_stream_1, 1),
                 createMethod("close/1", HiTalkStream::close_1_2, 1),
@@ -320,17 +341,8 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
         return new PropertyOwner(props, methods, map, mmap);
     }
 
-    /**
-     *
-     */
-    private static HtProperty createProperty(IFunctor name, HtNonVar value, String... values) {
-        return new HtProperty(name, name, values);
-    }
-
-
     //===================================================================================================================
     private static boolean open_3_4(IFunctor functor) {
-
         return false;
     }
 
@@ -375,18 +387,18 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
     }
 
     //===================================================================================================================
-    private static HtMethodDef createMethod(String methodName, Predicate<IFunctor> body, int arity, Option... options) {
-        final HtMethodDef method = new HtMethodDef(methodName, body, arity, options);
-        method.methodName = methodName;
-        method.body = body;
-        method.arity = arity;
-        method.options = options;
-        String[] pid = methodName.split(methodName);
+    private HtMethodDef createMethod(String methodName, Predicate<IFunctor> body, int arity, String... options) {
+
+        String[] pid = methodName.split("/");
         final IFunctor functor = appContext.getTermFactory().newFunctor(pid[1], 2);
         functor.setArgument(0, appContext.getTermFactory().createAtom(pid[0]));
         functor.setArgument(1, appContext.getTermFactory().newAtomic(arity));
+        HtNonVar[] opts = new HtNonVar[options.length];
+        for (int i = 0; i < options.length; i++) {
+            opts[i] = appContext.getTermFactory().createNonvar(options[i]);
+        }
 
-        return method;
+        return new HtMethodDef(functor, arity, body, opts);
     }
 
     protected Charset currentCharset = defaultCharset();
@@ -399,14 +411,14 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
         }
     }
 
-    abstract protected void doOpen() throws FileNotFoundException;
+    abstract protected void doOpen() throws FileNotFoundException, FileNotFoundException;
 
     /**
      * @param path
      * @param encoding
      * @param options
      */
-    protected HiTalkStream(Path path, String encoding, StandardOpenOption... options) {
+    protected HiTalkStream(Path path, String encoding, StandardOpenOption... options) throws Exception {
         this.path = path;
         Charset charset = isSupported(encoding) ? forName(encoding) : defaultCharset();
         CharsetDecoder decoder = charset.newDecoder();
@@ -418,7 +430,7 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
      * @param path
      * @param options
      */
-    protected HiTalkStream(Path path, StandardOpenOption... options) {
+    protected HiTalkStream(Path path, StandardOpenOption... options) throws Exception {
         this(path, defaultCharset().name(), options);
     }
 
@@ -426,12 +438,12 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
      * @param fd
      * @throws IOException
      */
-    public HiTalkStream(FileDescriptor fd) throws IOException {
+    public HiTalkStream(FileDescriptor fd) throws Exception {
         this.fd = fd;
         init(fd);
     }
 
-    protected HiTalkStream() {
+    protected HiTalkStream() throws Exception {
     }
 
     /**
@@ -479,18 +491,28 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
         return owner.getPropLength();
     }
 
+    /**
+     * @param listener
+     */
     @Override
     public void addListener(PropertyChangeListener listener) {
         listeners.add(listener);
     }
 
+    /**
+     * @param listener
+     */
     @Override
     public void removeListener(PropertyChangeListener listener) {
         listeners.remove(listener);
     }
 
+    /**
+     * @param property
+     * @param value
+     */
     @Override
-    public void fireEvent(IProperty property, ITerm value) {
+    public void fireEvent(IProperty property, HtNonVar value) {
         PropertyChangeEvent event = new PropertyChangeEvent(
                 this,
                 property.toString(),
@@ -503,33 +525,24 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
     }
 
     public ITerm getValue(String propertyName) {
-        return getMap().get(propertyName).getValue();
+        return this.getPropMap().get(propertyName).getValue();
     }
 
-    public void setValue(String propertyName, ITerm newValue) {
-        final HtProperty prop = createProperty(propertyName, newValue);
-        final ITerm oldValue = getMap().get(propertyName).getValue();
-        final PropertyChangeEvent event = new PropertyChangeEvent(this, propertyName, newValue, newValue);
-        int bound = listeners.size();
-        for (int i = 0; i < bound; i++) {
-            listeners.get(i).propertyChange(event);
-        }
+    public void setValue(String propertyName, HtProperty newValue) {
+//        final HtProperty prop = createProperty(propertyName, String.valueOf(newValue));
+//        final ITerm oldValue = getMap().get(propertyName).getValue();
+//        final PropertyChangeEvent event = new PropertyChangeEvent(this, propertyName, oldValue, newValue);
+//        for (PropertyChangeListener listener : listeners) {
+//            listener.propertyChange(event);
+//        }
     }
 
     public HtProperty[] getProps() {
-        return new HtProperty[0];
+        return owner.getProps();
     }
 
     public HtMethodDef[] getMethods() {
-        return new HtMethodDef[0];
-    }
-
-    public Map<String, HtMethodDef> getMmap() {
-        return null;
-    }
-
-    public Map<String, HtProperty> getMap() {
-        return null;
+        return owner.getMethods();
     }
 
     public final String toString() {

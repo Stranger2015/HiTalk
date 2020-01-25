@@ -14,7 +14,7 @@ class Bypass extends HiTalkBaseBuiltIn {
      * @param functor        The functor to create a built-in for @code {}/1.
      * @param defaultBuiltIn The default built in, for standard compilation and interners and symbol tables.
      */
-    public Bypass ( IFunctor functor, HiTalkDefaultBuiltIn defaultBuiltIn ) {
+    public Bypass(IFunctor functor, HiTalkDefaultBuiltIn defaultBuiltIn) throws Exception {
         super(functor, defaultBuiltIn);
     }
 

@@ -15,7 +15,7 @@ import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.HtTermWalkers;
 import org.ltc.hitalk.wam.compiler.IFunctor;
-import org.ltc.hitalk.wam.compiler.hitalk.HtStringTraverser;
+import org.ltc.hitalk.wam.compiler.hitalk.HtSymbolKeyTraverser;
 import org.ltc.hitalk.wam.compiler.hitalk.HtTermWalker;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler.ClauseChainObserver;
 import org.ltc.hitalk.wam.task.ExecutionTask;
@@ -195,7 +195,7 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
         logger.debug("Initializing symbol table " + "( " + clause + ") ...");
         // Run the symbol key traverser over the clause, to ensure that all terms have their symbol keys correctly
         // set up.
-        HtStringTraverser symbolKeyTraverser = new HtStringTraverser(interner, symbolTable, null);
+        HtSymbolKeyTraverser symbolKeyTraverser = new HtSymbolKeyTraverser(interner, symbolTable, null);
         symbolKeyTraverser.setContextChangeVisitor(symbolKeyTraverser);
 
         HtTermWalker symWalker =

@@ -5,10 +5,10 @@ import org.ltc.hitalk.entities.PropertyOwner;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
 
-import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  *
@@ -27,13 +27,12 @@ public class HtTermReader extends PropertyOwner {
      */
     public HtTermReader(HtMethodDef[] methods,
                         HtProperty[] props,
-                        Set<HtProperty> set,
-                        Map<String, HtMethodDef> mmap) throws IOException {
-        super(props, methods, set, mmap);
+                        Map<String, HtProperty> map,
+                        Map<String, HtMethodDef> mmap) throws Exception {
+        super(props, methods, map, mmap);
         input = new HiTalkInputStream(
-                Paths.get((String) getMap().CO("file_name").getValue()),
-                (String) getMap().get("encoding").getValue());
-//        input.setInputStream(new FileInputStream(this.));
+                Paths.get(getPropMap().get("file_name").getValue().toString()),
+                getPropMap().get("encoding").getValue().toString());
         input.open();
     }
 
@@ -59,6 +58,11 @@ public class HtTermReader extends PropertyOwner {
         return null;
     }
 
-    private HtProperty[] createOptions(HtProperty... properties) {
+    private HtProperty[] createOptions(String... options) {
+        List<HtProperty> list = new ArrayList<>();
+        for (String option : options) {
+            list.add(PropertyOwner.createProperty("alias(Atom)", option));
+        }
+        return list.toArray(new HtProperty[list.size()]);
     }
 }

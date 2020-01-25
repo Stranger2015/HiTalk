@@ -2,6 +2,7 @@ package org.ltc.hitalk.core.algebra;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
@@ -30,7 +31,7 @@ public class Msg {
      * @param term2
      * @return
      */
-    public static ITerm msg ( ITerm term1, ITerm term2, Map <HtVariable, Pair <ITerm, ITerm>> dict ) {
+    public static ITerm msg(ITerm term1, ITerm term2, Map<HtVariable, Pair<ITerm, ITerm>> dict) throws Exception {
         ITerm result = null;
         if (term1.isVar() && (term1 == term2)) {
             result = updateDict((HtVariable) term1, term1, term2, dict);
@@ -77,7 +78,14 @@ public class Msg {
     private static ListTerm msgList ( ListTerm lt1, ListTerm lt2, Map <HtVariable, Pair <ITerm, ITerm>> dict ) {
         int len = Math.min(lt1.size(), lt2.size());
         final ListTerm lt = new ListTerm(len);
-        IntStream.range(0, len).forEachOrdered(i -> lt.setHead(i, msg(lt1, lt2, dict)));
+        IntStream.range(0, len).forEachOrdered(i -> {
+            try {
+                lt.setHead(i, msg(lt1, lt2, dict));
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new ExecutionError(ExecutionError.Kind.PERMISSION_ERROR, null);
+            }
+        });
         lt.newTail(lt1.size() != lt2.size());
 
         return lt;

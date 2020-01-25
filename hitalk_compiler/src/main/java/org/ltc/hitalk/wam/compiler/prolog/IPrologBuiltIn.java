@@ -33,10 +33,10 @@ interface IPrologBuiltIn {
      * @param bodyNumber  The body position within the containing clause.
      * @return A listing of the instructions for the clause body in the WAM instruction set.
      */
-    SizeableLinkedList <HiTalkWAMInstruction> compileBodyArguments ( IFunctor expression,
-                                                                     boolean isFirstBody,
-                                                                     FunctorName clauseName,
-                                                                     int bodyNumber );
+    SizeableLinkedList<HiTalkWAMInstruction> compileBodyArguments(IFunctor expression,
+                                                                  boolean isFirstBody,
+                                                                  FunctorName clauseName,
+                                                                  int bodyNumber) throws Exception;
 
     /**
      * Compiles a call to a body of a clause into an instruction listing in WAM.
@@ -49,9 +49,9 @@ interface IPrologBuiltIn {
      *                          for BaseApp trimming.
      * @return A list of instructions for the body call.
      */
-    SizeableLinkedList <HiTalkWAMInstruction> compileBodyCall ( IFunctor expression,
-                                                                boolean isFirstBody,
-                                                                boolean isLastBody,
-                                                                boolean chainRule,
-                                                                int permVarsRemaining );
+    SizeableLinkedList<HiTalkWAMInstruction> compileBodyCall(IFunctor expression,
+                                                             boolean isFirstBody,
+                                                             boolean isLastBody,
+                                                             boolean chainRule,
+                                                             int permVarsRemaining) throws Exception;
 }

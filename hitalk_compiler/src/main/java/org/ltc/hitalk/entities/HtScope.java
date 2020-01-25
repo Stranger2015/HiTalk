@@ -1,57 +1,16 @@
 package org.ltc.hitalk.entities;
 
-import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.parser.PrologAtoms;
 
-import java.beans.PropertyChangeListener;
-import java.util.Properties;
-
-import static org.ltc.hitalk.parser.PrologAtoms.*;
+import static org.ltc.hitalk.entities.HtScope.Kind.*;
 
 /**
  *
  */
 public
-class HtScope implements IPropertyOwner {
-
-    protected PropertyOwner owner;
-
-    /**
-     * @return
-     */
-    @Override
-    public int getPropLength () {
-        return owner.getPropLength();
-    }
-
-    @Override
-    public
-    void addListener ( PropertyChangeListener listener ) {
-        owner.addListener(listener);
-    }
-
-    @Override
-    public
-    void removeListener ( PropertyChangeListener listener ) {
-        owner.removeListener(listener);
-    }
-
-    @Override
-    public void fireEvent ( IProperty property, ITerm value ) {
-        owner.fireEvent(property, value);
-    }
-
-    @Override
-    public ITerm getValue ( Properties property ) {
-        return owner.getValue(property);
-    }
-
-    /**
-     * @param property
-     * @param value
-     */
-    @Override
-    public void setValue ( Properties property, ITerm value ) {
-        owner.setValue(property, value);
+class HtScope extends PropertyOwner {
+    public HtScope(HtProperty... properties) {
+        super(properties);
     }
 
     /**
@@ -85,8 +44,8 @@ class HtScope implements IPropertyOwner {
     /**
      * @param kind
      */
-    public
-    HtScope ( Kind kind, HtProperty[] properties ) {
+    public HtScope(Kind kind, HtProperty... properties) {
+        super(properties);
         this.kind = kind;
         this.properties = properties;
     }
@@ -95,32 +54,30 @@ class HtScope implements IPropertyOwner {
      * @param name
      * @param properties
      */
-    public
-    HtScope ( String name, HtProperty[] properties ) {
-        this.properties = properties;
+    public HtScope(String name, HtProperty... properties) {
+        super(properties);
         switch (name) {
-            case PUBLIC:
-                kind = Kind.PUBLIC;
+            case PrologAtoms.PUBLIC:
+                kind = PUBLIC;
                 break;
-            case PROTECTED:
-                kind = Kind.PROTECTED;
+            case PrologAtoms.PROTECTED:
+                kind = PROTECTED;
                 break;
-            case PRIVATE:
-                kind = Kind.PRIVATE;
+            case PrologAtoms.PRIVATE:
+                kind = PRIVATE;
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + name);
         }
     }
 
-    private final Kind kind;
-    private final HtProperty[] properties;
+    private Kind kind;
+    private HtProperty[] properties;
 
     /**
      * @return
      */
-    public
-    Kind getKind () {
+    public Kind getKind() {
         return kind;
     }
 }

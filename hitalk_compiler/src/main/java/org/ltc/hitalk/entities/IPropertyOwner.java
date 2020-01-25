@@ -1,16 +1,17 @@
 package org.ltc.hitalk.entities;
 
-import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.HtNonVar;
 import org.ltc.hitalk.term.io.HtMethodDef;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.beans.PropertyChangeListener;
-import java.util.Set;
+import java.util.Map;
 
 /**
  *
  */
 public
-interface IPropertyOwner {
+interface IPropertyOwner extends PropertyChangeListener {
 
     /**
      * @return
@@ -31,26 +32,25 @@ interface IPropertyOwner {
      * @param property
      * @param value
      */
-    void fireEvent(IProperty property, ITerm value);
+    void fireEvent(IProperty property, HtNonVar value);
 
     /**
      * @param propertyName
      * @return
      */
-    ITerm getValue(String propertyName);
+    HtNonVar getValue(IFunctor propertyName);
 
     /**
      * @param propertyName
      * @param value
      */
-    void setValue(String propertyName, ITerm value);
+    void setValue(IFunctor propertyName, HtNonVar value);
 
     HtProperty[] getProps();
 
     HtMethodDef[] getMethods();
 
-    Set<HtMethodDef> getMethodSet();
+    Map<String, HtMethodDef> getMethodMap();
 
-    Set<HtProperty> getSet();
-
+    Map<String, HtProperty> getPropMap();
 }

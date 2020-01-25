@@ -43,19 +43,19 @@
      */
     public class HtDisjunction extends HiTalkBaseBuiltIn {
 
-        public HtDisjunction ( IFunctor functor, HiTalkDefaultBuiltIn defaultBuiltIn ) {
+        public HtDisjunction(IFunctor functor, HiTalkDefaultBuiltIn defaultBuiltIn) throws Exception {
             super(functor, defaultBuiltIn);
         }
 
         /**
          * {@inheritDoc}
          */
-        public SizeableLinkedList <HiTalkWAMInstruction> compileBodyArguments ( IFunctor functor,
-                                                                                boolean isFirstBody,
-                                                                                FunctorName clauseName,
-                                                                                int bodyNumber ) {
-            SizeableLinkedList <HiTalkWAMInstruction> result = new SizeableLinkedList <>();
-            SizeableLinkedList <HiTalkWAMInstruction> instructions;
+        public SizeableLinkedList<HiTalkWAMInstruction> compileBodyArguments(IFunctor functor,
+                                                                             boolean isFirstBody,
+                                                                             FunctorName clauseName,
+                                                                             int bodyNumber) throws Exception {
+            SizeableLinkedList<HiTalkWAMInstruction> result = new SizeableLinkedList<>();
+            SizeableLinkedList<HiTalkWAMInstruction> instructions;
 
             // Invent some unique names for choice points within a clause.
             clauseName = new FunctorName(clauseName.getName() + "_" + bodyNumber, 0);

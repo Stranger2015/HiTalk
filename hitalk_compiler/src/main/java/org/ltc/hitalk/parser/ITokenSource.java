@@ -20,7 +20,7 @@ public interface ITokenSource extends Source<PlToken>, PropertyChangeListener, C
      */
     void close() throws IOException;
 
-    static ITokenSource getITokenSourceForString(String string) throws IOException {
+    static ITokenSource getITokenSourceForString(String string) throws Exception {
         HiTalkInputStream inputStream = new HiTalkInputStream(string);
         return new PlLexer(inputStream);
     }
@@ -48,7 +48,7 @@ public interface ITokenSource extends Source<PlToken>, PropertyChangeListener, C
      * @return
      * @throws IOException
      */
-    static ITokenSource getTokenSourceForIoFile(File file) throws IOException {
+    static ITokenSource getTokenSourceForIoFile(File file) throws Exception {
         HiTalkInputStream stream = new HiTalkInputStream(file);
         return new PlLexer(stream, file.getAbsolutePath());
     }
@@ -58,7 +58,7 @@ public interface ITokenSource extends Source<PlToken>, PropertyChangeListener, C
      * @return
      * @throws IOException
      */
-    static ITokenSource getTokenSourceForIoFileName(String fileName) throws IOException {
+    static ITokenSource getTokenSourceForIoFileName(String fileName) throws Exception {
         HiTalkInputStream stream = new HiTalkInputStream(Paths.get(fileName), "UTF-8", READ);
         return new PlLexer(stream, fileName);
     }

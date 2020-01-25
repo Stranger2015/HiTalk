@@ -12,19 +12,7 @@ package org.ltc.hitalk.entities;
  */
 public
 class HtPredicateAlias extends PropertyOwner {
-    //  private final static int PROPS_LENGTH = 5;
-//
-//    /**
-//     * @param props
-//     */
-//    public
-//    HtPredicateAlias ( Flag... props ) {
-//        super(props);
-//    }
-//
-//    @Override
-//    public
-//    String get ( Context.Kind.Loading basename ) {
-//        return null;
-//    }
+    public HtPredicateAlias(HtProperty[] properties) {
+        super(properties);
+    }
 }

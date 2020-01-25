@@ -15,7 +15,6 @@
  */
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.LinkageException;
 import org.ltc.hitalk.term.ITermVisitor;
 
 /**
@@ -34,7 +33,7 @@ public interface IFunctorVisitor extends ITermVisitor {
      *
      * @param functor The functor to visit.
      */
-    default void visit ( IFunctor functor ) throws LinkageException {
+    default void visit(IFunctor functor) throws Exception {
 
     }
 

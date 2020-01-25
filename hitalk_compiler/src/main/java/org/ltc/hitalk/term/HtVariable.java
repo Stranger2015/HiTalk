@@ -15,6 +15,7 @@
  */
 package org.ltc.hitalk.term;
 
+import com.thesett.common.util.doublemaps.SymbolKey;
 import org.ltc.hitalk.compiler.IVafInterner;
 
 import java.util.List;
@@ -61,6 +62,7 @@ public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingCon
      * Holds a unique id for the variable.
      */
     protected int id = varId.getAndIncrement();
+    private SymbolKey key;
 
     /**
      * Creates a new variable, the name does not have to be unique and the the variable can be free by supplying a null
@@ -358,8 +360,12 @@ public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingCon
      *
      * @return A string reprenestation of this variable.
      */
-    public String toString () {
-        return "Variable: [ name = " + name + ", substitution = " + ((substitution == null) ? "null" : substitution) +
+    public String toString() {
+        return "HtVariable: [ name = " + name + ", substitution = " + ((substitution == null) ? "null" : substitution) +
                 " ]";
+    }
+
+    public SymbolKey getSymbolKey() {
+        return key;
     }
 }

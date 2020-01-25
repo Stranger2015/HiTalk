@@ -18,17 +18,17 @@ public class HtConjunction extends HiTalkBaseBuiltIn {
      * @param functor        The functor to implement as a built-in.
      * @param defaultBuiltIn The default built in, for standard compilation and interners and symbol tables.
      */
-    public HtConjunction ( IFunctor functor, HiTalkDefaultBuiltIn defaultBuiltIn ) {
+    public HtConjunction(IFunctor functor, HiTalkDefaultBuiltIn defaultBuiltIn) throws Exception {
         super(functor, defaultBuiltIn);
     }
 
     /**
      * {@inheritDoc}
      */
-    public SizeableLinkedList <HiTalkWAMInstruction> compileBodyArguments ( IFunctor functor, boolean isFirstBody,
-                                                                            FunctorName clauseName, int bodyNumber ) {
-        SizeableLinkedList <HiTalkWAMInstruction> result = new SizeableLinkedList <>();
-        SizeableLinkedList <HiTalkWAMInstruction> instructions;
+    public SizeableLinkedList<HiTalkWAMInstruction> compileBodyArguments(IFunctor functor, boolean isFirstBody,
+                                                                         FunctorName clauseName, int bodyNumber) throws Exception {
+        SizeableLinkedList<HiTalkWAMInstruction> result = new SizeableLinkedList<>();
+        SizeableLinkedList<HiTalkWAMInstruction> instructions;
 
         ListTerm expressions = functor.getArguments();
 

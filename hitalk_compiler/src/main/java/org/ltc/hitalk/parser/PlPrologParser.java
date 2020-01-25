@@ -5,9 +5,12 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.parser.PlToken.TokenKind;
-import org.ltc.hitalk.term.*;
+import org.ltc.hitalk.term.HlOpSymbol;
 import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 import org.ltc.hitalk.term.HlOpSymbol.Fixity;
+import org.ltc.hitalk.term.HtVariable;
+import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.term.ListTerm.Kind;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.wam.compiler.HtFunctorName;
@@ -31,8 +34,8 @@ import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
 import static org.ltc.hitalk.parser.PrologAtoms.NIL;
 import static org.ltc.hitalk.parser.PrologAtoms.TRUE;
 import static org.ltc.hitalk.parser.PrologAtoms.*;
-import static org.ltc.hitalk.term.Atom.EMPTY_TERM_ARRAY;
 import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
+import static org.ltc.hitalk.term.ITerm.EMPTY_TERM_ARRAY;
 import static org.ltc.hitalk.term.ListTerm.Kind.*;
 import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
 
@@ -78,8 +81,8 @@ public class PlPrologParser implements IParser {
 
     public static final String BEGIN_OF_FILE = "begin_of_file";
     public static final String END_OF_FILE = "end_of_file";
-    public static final Atom END_OF_FILE_ATOM = getAppContext().getTermFactory().newAtom(END_OF_FILE);
-    public static final Atom BEGIN_OF_FILE_ATOM = getAppContext().getTermFactory().newAtom(BEGIN_OF_FILE);
+    public static final IFunctor END_OF_FILE_ATOM = getAppContext().getTermFactory().newAtom(END_OF_FILE);
+    public static final IFunctor BEGIN_OF_FILE_ATOM = getAppContext().getTermFactory().newAtom(BEGIN_OF_FILE);
     public static final String ANONYMOUS = "_";
 
     protected final Deque<ITokenSource> tokenSourceStack = new ArrayDeque<>();
@@ -670,7 +673,6 @@ public class PlPrologParser implements IParser {
             if (!getLexer().readToken(true).isEOF()) {
                 throw new InvalidTermException("The entire string could not be read as one term");
             }
-//            term.resolveTerm();
             return term;
         } catch (IOException | InvalidTermException ex) {
             throw new IOException("An I/O error occurred");

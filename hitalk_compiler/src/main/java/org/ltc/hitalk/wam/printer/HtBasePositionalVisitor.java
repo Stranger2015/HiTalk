@@ -86,7 +86,7 @@ class HtBasePositionalVisitor extends AbstractBaseMachine implements IAllTermsVi
      *
      * @param functor
      */
-    public void visit ( IFunctor functor ) throws LinkageException {
+    public void visit(IFunctor functor) throws Exception {
         if (traverser.isEnteringContext()) {
             enterFunctor(functor);
         } else if (traverser.isLeavingContext()) {
@@ -226,7 +226,7 @@ class HtBasePositionalVisitor extends AbstractBaseMachine implements IAllTermsVi
      *
      * @param functor The functor being entered.
      */
-    protected void enterFunctor ( IFunctor functor ) throws LinkageException {
+    protected void enterFunctor(IFunctor functor) throws Exception {
 
     }
 

@@ -1,9 +1,11 @@
 package org.ltc.hitalk.entities;
 
 import org.ltc.hitalk.term.HtNonVar;
+import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
-import static java.util.stream.IntStream.range;
+import java.util.function.Predicate;
+
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
 
 /**
@@ -14,47 +16,26 @@ class HtProperty implements IProperty {
     protected HtNonVar[] values;
     protected IFunctor name;
     protected HtNonVar value;
-//
-//    /**
-//     * @param terms
-//     */
-//    public HtProperty(ListTerm terms) {
-//
-//    }
 
-    public HtProperty(IFunctor name, HtNonVar value, HtNonVar... values) {
+    /**
+     * @param name
+     * @param arity
+     * @param body
+     * @param values
+     */
+    public HtProperty(IFunctor name, int arity, Predicate<IFunctor> body, HtNonVar... values) {
         this.name = name;
-
-        this.value = getAppContext().getTermFactory().createNonvar(value);
-        this.values = new HtNonVar[values.length];
-        range(0, values.length).forEach(i -> this.values[i] =
-                getAppContext().getTermFactory().createNonvar(values[i]));
+        this.values = values;
     }
 
-//    /**
-//     * @param name
-//     * @param newVariable
-//     */
-//    public HtProperty(String name, HtVariable newVariable) {
-//    }
-
-//    /**
-//     * @param name
-//     * @param value
-//     * @param values
-//     * @return
-//     */
-//    public static HtProperty createProperty(String name, String value, String... values) {
-//        return new HtProperty(name, value, values);
-//    }
-//
-    /**
-     *
-     */
-//    public static HtProperty createProperty(String name, String value) {
-//        return new HtProperty(name, value, EMPTY_STRING_ARRAY);
-//    }
-//
+    public HtProperty(String name, String... values) {
+        this.name = new HtFunctor(name);
+        this.values = new HtNonVar[values.length];
+        for (int i = 0; i < values.length; i++) {
+            this.values[i] = getAppContext().getTermFactory().createNonvar(values[i]);
+        }
+        this.value = getAppContext().getTermFactory().createNonvar(values.length == 0 ? "" : values[0]);
+    }
 
     /**
      * @return
@@ -107,5 +88,12 @@ class HtProperty implements IProperty {
     public HtProperty(IFunctor name, HtNonVar value) {
         this.name = name;
         this.value = value;
+    }
+
+    /**
+     * @return
+     */
+    public String getNameAsString() {
+        return name.toString();
     }
 }

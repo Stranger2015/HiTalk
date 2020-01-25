@@ -221,7 +221,7 @@ class HtEntity extends PropertyOwner {
     /**
      * @param kind
      */
-    protected HtEntity ( IFunctor functor, HtEntityKind kind, HtProperty... props ) {
+    protected HtEntity(IFunctor functor, HtEntityKind kind, HtProperty... props) throws Exception {
         super(props);
 
         this.identifier = new HtEntityIdentifier(functor, kind);

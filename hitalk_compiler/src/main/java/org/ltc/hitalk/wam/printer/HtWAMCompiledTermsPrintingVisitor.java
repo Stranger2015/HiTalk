@@ -131,7 +131,7 @@ class HtWAMCompiledTermsPrintingVisitor extends HtDelegatingAllTermsVisitor impl
     /**
      * {@inheritDoc}
      */
-    public void visit ( IFunctor functor ) throws LinkageException {
+    public void visit(IFunctor functor) throws Exception {
         for (IAllTermsVisitor printer : printers) {
             printer.visit(functor);
         }

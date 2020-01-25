@@ -41,6 +41,7 @@
 
  import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.*;
  import static org.ltc.hitalk.core.BaseApp.getAppContext;
+ import static org.ltc.hitalk.entities.HtEntityKind.*;
  import static org.ltc.hitalk.entities.IRelation.*;
 
  /**
@@ -639,7 +640,7 @@
          return true;
      }
 
-     public Path expandSourceFileName ( HtFunctor functor ) {
+     public Path expandSourceFileName(HtFunctor functor) throws Exception {
          String filename = interner.getFunctorName(functor);
 
          if (functor.isAtom()) {
@@ -658,8 +659,8 @@
       * @return
       */
      @SuppressWarnings("ToArrayCallWithZeroLengthArrayArgument")
-     public Path convertsToOsFileName ( HtFunctor functor ) {
-         List <String> names = new ArrayList <>();
+     public Path convertsToOsFileName(HtFunctor functor) throws Exception {
+         List<String> names = new ArrayList<>();
          for (; ; functor = (HtFunctor) functor.getArgument(0)) {
              String name = interner.getFunctorName(functor);
              if (functor.isAtom()) {
@@ -701,8 +702,8 @@
          return null;
      }
 
-     private Path expandPath ( HtFunctor sourceFileName ) {
-         List <String> names = new ArrayList <>();
+     private Path expandPath(HtFunctor sourceFileName) throws Exception {
+         List<String> names = new ArrayList<>();
          for (HtFunctor functor = sourceFileName; ; functor = (HtFunctor) functor.getArgument(0)) {
              String name = interner.getFunctorName(functor);
              if (functor.isAtom()) {
@@ -847,22 +848,22 @@
          return true;
      }
 
-     private boolean object_p ( HtFunctor functor ) {
+     private boolean object_p(HtFunctor functor) throws Exception {
          if (isEntityCompiling()) {
              throw new ExecutionError(PERMISSION_ERROR, null);
          }
-         entityCompiling = new HtEntityIdentifier(functor, HtEntityKind.OBJECT);
+         entityCompiling = new HtEntityIdentifier(functor, OBJECT);
          handleEntityRelations(functor, false);
 
          return true;
      }
 
      @SuppressWarnings("SuspiciousMethodCalls")
-     private void handleEntityRelations ( HtFunctor entityFunctor, boolean dynamic ) {
+     private void handleEntityRelations(HtFunctor entityFunctor, boolean dynamic) throws Exception {
          int arityMax = entityFunctor.getArityMin() + entityFunctor.getArityDelta();
 //         HtEntityKind entityKind = entityCompiling.getKind();
-         EnumSet <HtRelationKind> kinds = EnumSet.noneOf(HtRelationKind.class);
-         List <Set <IRelation>> relations = new ArrayList <>();
+         EnumSet<HtRelationKind> kinds = EnumSet.noneOf(HtRelationKind.class);
+         List<Set<IRelation>> relations = new ArrayList<>();
          for (int i = entityFunctor.getArityMin(); i < arityMax; i++) {
              HtFunctor relationFunctor = (HtFunctor) entityFunctor.getArgument(i);
              HtFunctor subEntityFunctor = (HtFunctor) relationFunctor.getArgument(0);
@@ -883,18 +884,17 @@
          }
      }
 
-     private void handleNormalizedRelations ( HtFunctor functor,//fixme
-                                              EnumSet <HtRelationKind> kinds,
-                                              List <Set <IRelation>> relations,
-                                              boolean dynamic ) {
+     private void handleNormalizedRelations(HtFunctor functor,//fixme
+                                            EnumSet<HtRelationKind> kinds,
+                                            List<Set<IRelation>> relations,
+                                            boolean dynamic) throws Exception {
 
          String name = interner.getFunctorName(functor);
 //         HtRelationKind relationKind = relationKindMap.get(name);
 
          HtRelationKind relationKind = HtRelationKind.EXTENDS_OBJECT;///default
          if (kinds.add(relationKind)) {
-             Set <IRelation> arr = new HashSet <>();
-//             List<List<IRelation>> newRelData = new ArrayList <>();
+             Set<IRelation> arr = new HashSet<>();
              relations.add(arr);
 
 //             newRelData.add(arr);
@@ -910,7 +910,7 @@
       * @param dynamic
       * @return
       */
-     private IRelation createRelation ( HtFunctor relationFunctor, HtRelationKind relationKind, boolean dynamic ) {
+     private IRelation createRelation(HtFunctor relationFunctor, HtRelationKind relationKind, boolean dynamic) throws Exception {
 
          HtProperty[] properties = new HtProperty[0];///todo
          HtScope scope = new HtScope(PUBLIC, properties);//default scope
@@ -974,11 +974,11 @@
          return entityCompiling != null;
      }
 
-     private boolean protocol_p ( HtFunctor functor ) {
+     private boolean protocol_p(HtFunctor functor) throws Exception {
          if (isEntityCompiling()) {
              throw new ExecutionError(PERMISSION_ERROR, null);
          }
-         entityCompiling = new HtEntityIdentifier(functor, HtEntityKind.PROTOCOL);
+         entityCompiling = new HtEntityIdentifier(functor, PROTOCOL);
          handleEntityRelations(functor, false);
 
          return true;
@@ -988,7 +988,7 @@
       * @param functor
       * @return
       */
-     protected boolean isEncodingDirective ( HtFunctor functor ) {
+     protected boolean isEncodingDirective(HtFunctor functor) throws Exception {
          boolean result = false;
          if (isDirective(functor)) {
              functor = (HtFunctor) functor.getArgument(0);
@@ -1002,15 +1002,15 @@
       * @param functor
       * @return
       */
-     private boolean isDirective ( HtFunctor functor ) {
+     private boolean isDirective(HtFunctor functor) throws Exception {
          return interner.getFunctorName(functor).equals(IMPLIES) && functor.getArity() == 1;
      }
 
-     private boolean category_p ( HtFunctor functor ) {
+     private boolean category_p(HtFunctor functor) throws Exception {
          if (isEntityCompiling()) {
              throw new ExecutionError(PERMISSION_ERROR, null);
          }
-         entityCompiling = new HtEntityIdentifier(functor, HtEntityKind.CATEGORY);
+         entityCompiling = new HtEntityIdentifier(functor, CATEGORY);
          handleEntityRelations(functor, false);
 
          return true;
@@ -1036,21 +1036,21 @@
          if (getObjectCounter().get() == 0) {
              throw new ExecutionError(PERMISSION_ERROR, null);
          }
-         return endEntity(HtEntityKind.OBJECT);
+         return endEntity(OBJECT);
      }
 
      private boolean end_protocol_p ( HtFunctor functor ) {
          if (getProtocolCounter().get() == 0) {
              throw new ExecutionError(PERMISSION_ERROR, null);
          }
-         return endEntity(HtEntityKind.PROTOCOL);
+         return endEntity(PROTOCOL);
      }
 
      private boolean end_category_p ( HtFunctor functor ) {
          if (getCategoryCounter().get() == 0) {
              throw new ExecutionError(PERMISSION_ERROR, null);
          }
-         return endEntity(HtEntityKind.CATEGORY);
+         return endEntity(CATEGORY);
      }
 
      boolean endEntity ( HtEntityKind entityKind ) {

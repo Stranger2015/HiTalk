@@ -2,6 +2,7 @@ package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.search.Operator;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.*;
 import org.ltc.hitalk.wam.printer.IFunctorTraverser;
 
@@ -49,9 +50,10 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
     }
 
     /**
-     *
+     * @param name
      */
-    public HtFunctor() {
+    public HtFunctor(String name) {
+
     }
 
     /**
@@ -65,6 +67,11 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
 
     }
 
+    public HtFunctor(IFunctor sym, ListTerm args, ListTerm nil, List<HtClause> selectedClauses) {
+
+
+    }
+
 //    /**
 //     * @param arguments
 //     */
@@ -75,6 +82,7 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
     /**
      * @return
      */
+    @Override
     public int getName() {
         return -1;
     }

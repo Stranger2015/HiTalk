@@ -16,10 +16,10 @@
     package org.ltc.hitalk.wam.printer;
 
     import com.thesett.aima.logic.fol.Functor;
-    import com.thesett.aima.logic.fol.Variable;
     import com.thesett.text.api.model.TextTableModel;
     import org.ltc.hitalk.compiler.IVafInterner;
     import org.ltc.hitalk.core.utils.ISymbolTable;
+    import org.ltc.hitalk.term.HtVariable;
 
     import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.STACK_ADDR;
 
@@ -59,7 +59,7 @@
         void enterFunctor ( Functor functor ) {
             String head = traverser.isInHead() ? "/head" : "";
             String last = traverser.isLastBodyFunctor() ? "/last" : "";
-            String symKey = functor.getString().toString();
+            String symKey = functor.getSymbolKey().toString();
 
             if (traverser.isTopLevel()) {
                 addLineToRow("functor(" + symKey + ")" + head + last);
@@ -82,10 +82,9 @@
         /**
          * {@inheritDoc}
          */
-        protected
-        void enterVariable ( Variable variable ) {
-            Integer allocation = (Integer) symbolTable.get(variable.getString(), "allocation");
-            String symKey = variable.getString().toString();
+        protected void enterVariable(HtVariable variable) {
+            Integer allocation = (Integer) symbolTable.get(String.valueOf(variable.getSymbolKey()), "allocation");
+            String symKey = variable.getSymbolKey().toString();
 
             String allocString = "";
 

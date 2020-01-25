@@ -11,7 +11,7 @@ public interface IFunctor extends ITerm, IRangedArity {
     /**
      * @return
      */
-    int getName ();
+    int getName() throws Exception;
 
     /**
      * @return

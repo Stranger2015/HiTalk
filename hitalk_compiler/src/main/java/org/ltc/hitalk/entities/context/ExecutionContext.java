@@ -1,6 +1,7 @@
 package org.ltc.hitalk.entities.context;
 
 import org.ltc.hitalk.entities.HtProperty;
+import org.ltc.hitalk.entities.context.Context.Kind.Loading;
 
 /**
  * execution_context(
@@ -47,15 +48,14 @@ class ExecutionContext extends Context {
     /**
      * @return
      */
-    @Override
+//    @Override
     public
     HtProperty[] getFlags () {
         return new HtProperty[0];
     }
 
     //    @Override
-    public
-    String get ( Kind.Loading basename ) {
+    public String get(Loading basename) {
         return null;
     }
 }

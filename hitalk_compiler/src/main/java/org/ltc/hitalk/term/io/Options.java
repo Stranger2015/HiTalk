@@ -34,10 +34,10 @@ public class Options extends PropertyOwner {
     /**
      *
      */
-    public static class Option extends HtMethodDef {
+    public static class Option extends HtProperty {
 
         public Option(String name, String... values) {
-            super(name, body, values);
+            super(name, values);
         }
     }
 }

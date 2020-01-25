@@ -16,6 +16,7 @@
 package org.ltc.hitalk.core.utils;
 
 import com.thesett.common.util.doublemaps.DoubleKeyedMap;
+import com.thesett.common.util.doublemaps.SymbolKey;
 import org.ltc.hitalk.core.IHitalkObject;
 
 /**
@@ -45,7 +46,7 @@ import org.ltc.hitalk.core.IHitalkObject;
  * artificial name, so that a nested child scope can be created under it.
  * <p>
  * <p/>The process of navigating down into nested scopes to set or recover values on symbols can be circumvented by the
- * use of a {@link String}. A primary key into the current scope can produce a String {@link #getString}, which
+ * use of a {@link String}. A primary key into the current scope can produce a String {@link SymbolKey}, which
  * can be used to directly navigate back to that symbol, in that same scope using the {@link #get(String, Object)} or
  * {@link #put(String, Object, Object)} methods on any scope on the symbol table.
  *
@@ -83,7 +84,7 @@ public interface ISymbolTable<K, L, E> extends DoubleKeyedMap <K, L, E>, IHitalk
      * @param key The symbol within the current scope, to create a unqiue symbol key for.
      * @return A unique symbol key for the symbol.
      */
-    String getString(K key);
+    SymbolKey getSymbolKey(K key);
 
     /**
      * Looks up a value for a field in the symbol table for a {@link String}. The key may refer to any nested scope

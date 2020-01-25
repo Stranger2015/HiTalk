@@ -56,7 +56,7 @@ class HtSourceClausePrinter extends HtBasePrinter {
     /**
      * {@inheritDoc}
      */
-    protected void enterFunctor ( IFunctor functor ) {
+    protected void enterFunctor(IFunctor functor) throws Exception {
         String showContextAs = interner.getFunctorName(functor) + (functor.isAtom() ? "" : "(");
 
         int delta = showContextAs.length();

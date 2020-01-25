@@ -72,9 +72,9 @@ class Specializer<C extends BodyCalls <C>> implements ISpecializer {
     protected List <PiCalls <?>> getInterestingCalls ( List <PiCalls <?>> calls, List <HtPredicate> predicates ) {
         PredicateTable <?> table = new PredicateTable();
         List <PiCalls <?>> result = new ArrayList <>();
-        for (PiCalls <?> piCalls : calls) {
+        for (PiCalls<?> piCalls : calls) {
             if (table.containsKey(piCalls.getName())) {
-                final List <HtClause> clauses = table.get(piCalls.getName()).getClauses();
+                final List<HtClause> clauses = table.get(piCalls.getName()).getClauses();
 //todo
             }
         }
@@ -82,12 +82,13 @@ class Specializer<C extends BodyCalls <C>> implements ISpecializer {
         return result;
     }
 
-    protected List <XPiCalls <C>> getInterestingIndeedCalls ( List <PiCalls <C>> calls, List <HtPredicate> predicates ) {
-        PredicateTable <?> table = new PredicateTable <>(predicates);
-        List <XPiCalls <C>> result = new ArrayList <>();
-        for (PiCalls <C> piCalls : calls) {
+    protected List<XPiCalls<C>> getInterestingIndeedCalls(List<PiCalls<C>> calls, List<HtPredicate> predicates)
+            throws Exception {
+        PredicateTable<?> table = new PredicateTable<>(predicates);
+        List<XPiCalls<C>> result = new ArrayList<>();
+        for (PiCalls<C> piCalls : calls) {
             if (table.containsKey(piCalls.getName())) {
-                final List <HtClause> clauses = table.get(piCalls.getName()).getClauses();
+                final List<HtClause> clauses = table.get(piCalls.getName()).getClauses();
 //todo
             }
         }
@@ -141,8 +142,8 @@ class Specializer<C extends BodyCalls <C>> implements ISpecializer {
      * @param clauses
      * @return
      */
-    public static @NotNull ListTerm findMsg ( ListTerm bodyCalls, List <HtClause> clauses ) {
-        final Map <HtVariable, Pair <ITerm, ITerm>> dict = new HashMap <>();
+    public static @NotNull ListTerm findMsg(ListTerm bodyCalls, List<HtClause> clauses) throws Exception {
+        final Map<HtVariable, Pair<ITerm, ITerm>> dict = new HashMap<>();
         for (final HtClause clause : clauses) {
             bodyCalls = (ListTerm) msg(bodyCalls, clause.getHead(), dict);
         }
@@ -170,12 +171,12 @@ class Specializer<C extends BodyCalls <C>> implements ISpecializer {
      * @param calls
      * @return
      */
-    protected List <BodyCalls <C>> mergeCalls0 ( List <BodyCall <C>> calls ) {
-        final List <BodyCalls <C>> merged = new ArrayList <>();
+    protected List<BodyCalls<C>> mergeCalls0(List<BodyCall<C>> calls) throws Exception {
+        final List<BodyCalls<C>> merged = new ArrayList<>();
         for (int i = 0; i < calls.size(); i++) {
-            BodyCall <C> call = calls.get(i);
-            List <ListTerm> sameSelect = new ArrayList <>();
-            final List <BodyCall <C>> rest = findAllDelete(calls, call.selectedClauses, sameSelect);
+            BodyCall<C> call = calls.get(i);
+            List<ListTerm> sameSelect = new ArrayList<>();
+            final List<BodyCall<C>> rest = findAllDelete(calls, call.selectedClauses, sameSelect);
             if (!rest.isEmpty()) {
                 call = rest.get(0);
             }
@@ -215,8 +216,8 @@ class Specializer<C extends BodyCalls <C>> implements ISpecializer {
         return other;
     }
 
-    protected ListTerm findMsgOfCalls ( ListTerm args, List <ListTerm> calls ) {
-        final Map <HtVariable, Pair <ITerm, ITerm>> dict = new HashMap <>();
+    protected ListTerm findMsgOfCalls(ListTerm args, List<ListTerm> calls) throws Exception {
+        final Map<HtVariable, Pair<ITerm, ITerm>> dict = new HashMap<>();
         for (final ListTerm call : calls) {
             args = (ListTerm) msg(args, call, dict);
         }
@@ -235,7 +236,7 @@ class Specializer<C extends BodyCalls <C>> implements ISpecializer {
     /*	whether it contains any partially instantiated arguments.	*/
     /*----------------------------------------------------------------------*/
 
-    public boolean isGivenTheSecondChance ( ListTerm callArgs, List <HtClause> selectedClauses ) {
+    public boolean isGivenTheSecondChance(ListTerm callArgs, List<HtClause> selectedClauses) throws Exception {
         final @NotNull ListTerm msg = findMsg(callArgs, selectedClauses);
         return sthBound(msg);
     }

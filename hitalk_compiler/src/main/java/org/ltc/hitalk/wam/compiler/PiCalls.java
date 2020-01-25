@@ -1,28 +1,31 @@
 package org.ltc.hitalk.wam.compiler;
 
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
+import org.ltc.hitalk.wam.compiler.BodyCall.BodyCalls;
 
 import java.util.List;
 
 /**
  *
  */
-public class PiCalls<C extends BodyCall.BodyCalls <C>> extends HtFunctor {
+public class PiCalls<C extends BodyCalls<C>> extends HtFunctor {
     /**
      *
      */
     protected boolean representable;
 
-    public PiCalls () {
+    public PiCalls(int name) {
+        super(name);
     }
 
     /**
      * @param name
      * @param args
      */
-    public PiCalls ( int name, ITerm[] args ) {
+    public PiCalls(int name, ITerm[] args) {
         super(name, new ListTerm(args));
     }
 
@@ -31,20 +34,26 @@ public class PiCalls<C extends BodyCall.BodyCalls <C>> extends HtFunctor {
      * @param args
      * @param arityDelta
      */
-    public PiCalls ( int name, int arityDelta, ITerm... args ) {
+    public PiCalls(int name, int arityDelta, ITerm... args) {
         super(name, arityDelta, new ListTerm(args));
+    }
+
+    public <C extends BodyCalls<C>> PiCalls(IFunctor sym, List<BodyCall<C>> calls, ListTerm args, List<HtClause> selectedClauses) {
+        super(sym, args, ListTerm.NIL, selectedClauses);
+
+
     }
 
     /**
      * @param <C>
      */
-    public static class XPiCalls<C extends BodyCall.BodyCalls <C>> extends PiCalls <C> {
+    public static class XPiCalls<C extends BodyCalls<C>> extends PiCalls<C> {
 
         /**
          * @param sym
          * @param calls
          */
-        public XPiCalls ( IFunctor sym, List <BodyCall.BodyCalls <C>> calls ) {
+        public XPiCalls(IFunctor sym, List<BodyCalls<C>> calls) throws Exception {
             super(sym.getName(), 0, 0);
         }
     }
@@ -52,11 +61,11 @@ public class PiCalls<C extends BodyCall.BodyCalls <C>> extends HtFunctor {
     /**
      * @return
      */
-    public List <BodyCall.BodyCalls <C>> getCalls () {
+    public List<BodyCalls<C>> getCalls() {
         return calls;
     }
 
-    protected List <BodyCall.BodyCalls <C>> calls;
+    protected List<BodyCalls<C>> calls;
 
     /**
      * @param name
@@ -126,7 +135,7 @@ public class PiCalls<C extends BodyCall.BodyCalls <C>> extends HtFunctor {
     /**
      * @param calls
      */
-    public void setCalls ( List <BodyCall.BodyCalls <C>> calls ) {
+    public void setCalls(List<BodyCalls<C>> calls) {
         this.calls = calls;
     }
 }

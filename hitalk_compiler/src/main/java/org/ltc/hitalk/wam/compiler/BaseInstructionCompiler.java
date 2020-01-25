@@ -137,7 +137,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
      * @param clause lause The clause to compile as a query.
      * @throws HtSourceCodeException If there is an error in the source code preventing its compilation.
      */
-    public void compileQuery ( HtClause clause ) throws HtSourceCodeException {
+    public void compileQuery(HtClause clause) throws Exception {
         if (!checkDirective(clause)) {
             handleDirective(clause);
             return;
@@ -147,7 +147,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
 
         // A mapping from top stack frame slots to interned variable names is built up in this.
         // This is used to track the stack positions that variables in a query are assigned to.
-        Map <Byte, Integer> varNames = new TreeMap <>();
+        Map<Byte, Integer> varNames = new TreeMap<>();
 
         // Used to keep track of registers as they are seen during compilation. The first time a variable is seen,
         // a variable is written onto the heap, subsequent times its value. The first time a functor is seen,
@@ -315,12 +315,12 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
      * @param multipleClauses   <tt>true</tt> iff the predicate contains >1 clause.
      * @param clauseNumber      The position of the clause within the predicate.
      */
-    protected void compileClause ( T clause,
-                                   P compiledPredicate,
-                                   boolean isFirst,
-                                   boolean isLast,
-                                   boolean multipleClauses,
-                                   int clauseNumber ) {
+    protected void compileClause(T clause,
+                                 P compiledPredicate,
+                                 boolean isFirst,
+                                 boolean isLast,
+                                 boolean multipleClauses,
+                                 int clauseNumber) throws Exception {
         // Used to build up the compiled clause in.
         HiTalkWAMCompiledClause result = new HiTalkWAMCompiledClause(clause.getHead(), clause.getBody(),
                 (HiTalkWAMCompiledPredicate) compiledPredicate);
@@ -673,9 +673,9 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
      * @param goal The clause head to compile.
      * @return A listing of the instructions for the clause head in the WAM instruction set.
      */
-    private SizeableLinkedList <HiTalkWAMInstruction> compileHead ( IFunctor goal ) {
+    private SizeableLinkedList<HiTalkWAMInstruction> compileHead(IFunctor goal) throws Exception {
         // Used to build up the results in.
-        SizeableLinkedList <HiTalkWAMInstruction> instructions = new SizeableLinkedList <>();
+        SizeableLinkedList<HiTalkWAMInstruction> instructions = new SizeableLinkedList<>();
 
         // Allocate argument registers on the body, to all functors as outermost arguments.
         // Allocate temporary registers on the body, to all terms not already allocated.
@@ -811,11 +811,11 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
      * @param bodyNumber  The body position within the containing clause.
      * @return A listing of the instructions for the clause body in the WAM instruction set.
      */
-    public SizeableLinkedList <HiTalkWAMInstruction> compileBodyArguments (
+    public SizeableLinkedList<HiTalkWAMInstruction> compileBodyArguments(
             IFunctor goal,
             boolean isFirstBody,
             FunctorName clauseName,
-            int bodyNumber ) {
+            int bodyNumber) throws Exception {
         return defaultBuiltIn.compileBodyArguments(goal, isFirstBody, clauseName, bodyNumber);
     }
 

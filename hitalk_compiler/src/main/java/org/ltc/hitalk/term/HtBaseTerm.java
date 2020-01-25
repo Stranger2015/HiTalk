@@ -21,6 +21,7 @@ import com.thesett.aima.search.GoalState;
 import com.thesett.aima.search.Operator;
 import com.thesett.aima.search.TraversableState;
 import com.thesett.aima.search.util.backtracking.Reversable;
+import com.thesett.common.util.doublemaps.SymbolKey;
 import org.ltc.hitalk.parser.ISourceCodePosition;
 
 import java.util.Collections;
@@ -308,11 +309,15 @@ public abstract class HtBaseTerm extends TraversableState <ITerm> implements ITe
     /**
      * {@inheritDoc}
      */
-    protected Object clone () throws CloneNotSupportedException {
+    protected Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
 
-    public String toString () {
+    public String toString() {
         return "";//oString(getAppContext().getInterner(), true, true);
+    }
+
+    public void setSymbolKey(SymbolKey key) {
+
     }
 }

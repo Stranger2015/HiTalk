@@ -74,13 +74,13 @@ public class PrologDefaultBuiltIn extends HtBaseMachine implements IPrologBuiltI
     /**
      * {@inheritDoc}
      */
-    public SizeableLinkedList <HiTalkWAMInstruction> compileBodyCall ( IFunctor expression,
-                                                                       boolean isFirstBody,
-                                                                       boolean isLastBody,
-                                                                       boolean chainRule,
-                                                                       int permVarsRemaining ) {
+    public SizeableLinkedList<HiTalkWAMInstruction> compileBodyCall(IFunctor expression,
+                                                                    boolean isFirstBody,
+                                                                    boolean isLastBody,
+                                                                    boolean chainRule,
+                                                                    int permVarsRemaining) throws Exception {
         // Used to build up the results in.
-        SizeableLinkedList <HiTalkWAMInstruction> instructions = new SizeableLinkedList <>();
+        SizeableLinkedList<HiTalkWAMInstruction> instructions = new SizeableLinkedList<>();
 
         // Generate the call or tail-call instructions, followed by the call address, which is f_n of the
         // called program.
@@ -104,13 +104,13 @@ public class PrologDefaultBuiltIn extends HtBaseMachine implements IPrologBuiltI
     /**
      * {@inheritDoc}
      */
-    public SizeableLinkedList <HiTalkWAMInstruction> compileBodyArguments (
+    public SizeableLinkedList<HiTalkWAMInstruction> compileBodyArguments(
             IFunctor expression,
             boolean isFirstBody,
             FunctorName clauseName,
-            int bodyNumber ) {
+            int bodyNumber) throws Exception {
         // Used to build up the results in.
-        SizeableLinkedList <HiTalkWAMInstruction> instructions = new SizeableLinkedList <>();
+        SizeableLinkedList<HiTalkWAMInstruction> instructions = new SizeableLinkedList<>();
 
         // Allocate argument registers on the body, to all functors as outermost arguments.
         // Allocate temporary registers on the body, to all terms not already allocated.

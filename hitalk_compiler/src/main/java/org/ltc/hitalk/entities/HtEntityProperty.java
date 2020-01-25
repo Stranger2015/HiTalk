@@ -1,10 +1,19 @@
 package org.ltc.hitalk.entities;
 
+import org.ltc.hitalk.term.HtNonVar;
+import org.ltc.hitalk.term.io.HtMethodDef;
+import org.ltc.hitalk.wam.compiler.IFunctor;
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.Map;
+
 import static org.ltc.hitalk.entities.HtEntityKind.ENTITY;
 import static org.ltc.hitalk.entities.HtEntityKind.OBJECT_OR_CATEGORY;
 
 public
-enum HtEntityProperty {
+enum HtEntityProperty implements IPropertyOwner {
+
     //    ENTITY
     ALIAS("predicate_indicator", "predicate_alias_property_list"),
     BUILT_IN,
@@ -43,19 +52,92 @@ enum HtEntityProperty {
     THREADED,
     ;
 
+    protected PropertyOwner owner = new PropertyOwner(getMethods(), getProps());
+
     private final HtEntityKind kind;
     private final String[] args;
 
-    HtEntityProperty () {
+    HtEntityProperty() {
         this(ENTITY);
     }
 
-    HtEntityProperty ( HtEntityKind kind, String... args ) {
+    HtEntityProperty(HtEntityKind kind, String... args) {
         this.kind = kind;
         this.args = args;
     }
 
-    HtEntityProperty ( String... args ) {
+    HtEntityProperty(String... args) {
         this(ENTITY, args);
+    }
+
+    /**
+     * @return
+     */
+    public int getPropLength() {
+        return 0;
+    }
+
+    /**
+     * @param listener
+     */
+    public void addListener(PropertyChangeListener listener) {
+
+    }
+
+    /**
+     * @param listener
+     */
+    public void removeListener(PropertyChangeListener listener) {
+
+    }
+
+    /**
+     * @param property
+     * @param value
+     */
+    public void fireEvent(IProperty property, HtNonVar value) {
+
+    }
+
+    /**
+     * @param propertyName
+     * @return
+     */
+    public HtNonVar getValue(IFunctor propertyName) {
+        return owner.getValue(propertyName);
+    }
+
+    /**
+     * @param propertyName
+     * @param value
+     */
+    public void setValue(IFunctor propertyName, HtNonVar value) {
+        owner.setValue(propertyName, value);
+    }
+
+    public HtProperty[] getProps() {
+        return owner.getProps();
+    }
+
+    public HtMethodDef[] getMethods() {
+        return owner.getMethods();
+    }
+
+    public Map<String, HtMethodDef> getMethodMap() {
+        return owner.getMethodMap();
+    }
+
+    public Map<String, HtProperty> getPropMap() {
+        return null;
+    }
+
+    /**
+     * This method gets called when a bound property is changed.
+     *
+     * @param evt A PropertyChangeEvent object describing the event source
+     *            and the property that has changed.
+     */
+    public void propertyChange(PropertyChangeEvent evt) {
+
     }
 }

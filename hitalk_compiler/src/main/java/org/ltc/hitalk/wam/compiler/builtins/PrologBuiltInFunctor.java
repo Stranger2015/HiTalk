@@ -1,5 +1,6 @@
 package org.ltc.hitalk.wam.compiler.builtins;
 
+import com.thesett.common.util.doublemaps.SymbolKey;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.prolog.IPrologBuiltIn;
@@ -19,7 +20,7 @@ class PrologBuiltInFunctor extends HtFunctor implements IPrologBuiltIn {
      *
      * @param functor The functor to create a built-in for.
      */
-    public PrologBuiltInFunctor ( IFunctor functor ) {
+    public PrologBuiltInFunctor(IFunctor functor) throws Exception {
         super(functor.getName(), functor.getArguments());
         this.functor = functor;
     }
@@ -36,8 +37,8 @@ class PrologBuiltInFunctor extends HtFunctor implements IPrologBuiltIn {
     /**
      * {@inheritDoc}
      */
-    public void setString(String key) {
-        functor.setString(key);
+    public void setSymbolKey(SymbolKey key) {
+        functor.setSymbolKey(key);
     }
 
     /**

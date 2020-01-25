@@ -44,17 +44,16 @@ class HiTalkBaseBuiltIn extends PrologBuiltInFunctor {
      * @param functor        The functor to create a built-in for.
      * @param defaultBuiltIn The default built in, for standard compilation and interners and symbol tables.
      */
-    protected HiTalkBaseBuiltIn ( IFunctor functor, HiTalkDefaultBuiltIn defaultBuiltIn ) {
+    protected HiTalkBaseBuiltIn(IFunctor functor, HiTalkDefaultBuiltIn defaultBuiltIn) throws Exception {
         super(functor);
-
         this.defaultBuiltIn = defaultBuiltIn;
     }
 
     /**
      * {@inheritDoc}
      */
-    public SizeableLinkedList <HiTalkWAMInstruction> compileBodyArguments ( IFunctor expression, boolean isFirstBody,
-                                                                            FunctorName clauseName, int bodyNumber ) {
+    public SizeableLinkedList<HiTalkWAMInstruction> compileBodyArguments(IFunctor expression, boolean isFirstBody,
+                                                                         FunctorName clauseName, int bodyNumber) throws Exception {
         return null;
     }
 

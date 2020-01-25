@@ -3,7 +3,6 @@ package org.ltc.hitalk.entities;
 import com.thesett.aima.search.Operator;
 import org.ltc.enumus.Hierarchy;
 import org.ltc.hitalk.compiler.IVafInterner;
-import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.term.*;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.IFunctor;
@@ -11,6 +10,8 @@ import org.ltc.hitalk.wam.compiler.IFunctor;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
+
+import static org.ltc.hitalk.core.BaseApp.getAppContext;
 
 /**
  *
@@ -178,9 +179,11 @@ class HtPredicateIndicator extends HtBaseTerm implements IFunctor {
      *
      * @return This functors name.
      */
-    public Atom getName() {
-//        return "P/N"(IFunctor) getArgument(0);
-        return BaseApp.getAppContext().getTermFactory().createAtom("'P/N'");
+    @Override
+    public int getName() throws Exception {
+        IFunctor t = (IFunctor) getAppContext().getParser().parseSingleTerm("P/N");
+        return t.getName();
+
     }
 
     /**

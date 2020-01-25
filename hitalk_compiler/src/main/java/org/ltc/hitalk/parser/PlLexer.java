@@ -189,6 +189,8 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
     public void propertyChange(PropertyChangeEvent event) {
         if (PrologAtoms.ENCODING.equals(event.getPropertyName())) {
             ITerm value = (ITerm) event.getNewValue();
+        } else if (event.getPropertyName().equals("file_name")) {
+            
         }
     }
 
@@ -279,7 +281,7 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
         int lineNumber = stream.getLineNumber();
         int colNumber = stream.getColNumber();
 
-        PlToken token = stream.isBOFNotPassed() ? PlToken.newToken(TK_BOF) : readToken();// getToken(valued);
+        PlToken token = stream.isBOFNotPassed() ? PlToken.newToken(TK_BOF) : readToken(valued);
 
         token.setBeginLine(lineNumber);
         token.setBeginColumn(colNumber);

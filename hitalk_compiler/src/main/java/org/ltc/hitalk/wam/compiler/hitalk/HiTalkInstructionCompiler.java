@@ -167,11 +167,11 @@ public class HiTalkInstructionCompiler<T extends HtMethod, PC, QC> extends Prolo
      * @return A list of instructions for the body call.
      */
 //    @Override
-    public SizeableLinkedList <HiTalkWAMInstruction> compileBodyCall ( IFunctor expression,
-                                                                       boolean isFirstBody,
-                                                                       boolean isLastBody,
-                                                                       boolean chainRule,
-                                                                       int permVarsRemaining ) {
+    public SizeableLinkedList<HiTalkWAMInstruction> compileBodyCall(IFunctor expression,
+                                                                    boolean isFirstBody,
+                                                                    boolean isLastBody,
+                                                                    boolean chainRule,
+                                                                    int permVarsRemaining) throws Exception {
         return defaultBuiltIn.compileBodyCall(expression, isFirstBody, isLastBody, chainRule, permVarsRemaining);
     }
 

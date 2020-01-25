@@ -1,5 +1,6 @@
 package org.ltc.hitalk.core.utils;
 
+import com.thesett.common.util.doublemaps.SymbolKey;
 import com.thesett.common.util.maps.CircularArrayMap;
 import com.thesett.common.util.maps.SequentialCuckooFunction;
 import com.thesett.common.util.maps.SequentialFunction;
@@ -232,32 +233,80 @@ public class HtSymbolTable<K, L, E> implements ISymbolTable <K, L, E> {
         int scopeSequenceKey = hashFunction.apply(new HtSymbolTable.CompositeKey <K>(parentSequenceKey, key));
 
         // Create a new child table for the symbol within this table at depth one greater than this.
-        return new HtSymbolTable <K, L, E>(this, fieldMap, hashFunction, depth, scopeSequenceKey);
+        return new HtSymbolTable<K, L, E>(this, fieldMap, hashFunction, depth, scopeSequenceKey);
     }
 
     /**
      * {@inheritDoc}
      */
-    public ISymbolTable <K, L, E> leaveScope () {
+    public ISymbolTable<K, L, E> leaveScope() {
         return parentScope;
     }
 
     /**
-     * {@inheritDoc}
+     * Looks up a value for a field in the symbol table for a {@link String}. The key may refer to any nested scope
+     * from the table root, over all nested scopes.
+     *
+     * @param key   The symbol key to look up.
+     * @param field The field to look up.
+     * @return The field value at the symbol key, or <tt>null</tt> if none has been set.
      */
-    public String getString(K key) {
-        // Create an entry in the sequence function for the key, if one does not already exist.
-        int scopeSequenceKey = hashFunction.apply(new HtSymbolTable.CompositeKey<K>(parentSequenceKey, key));
+    public E get(String key, L field) {
+        return null;
+    }
 
-        return new HtSymbolTable.StringImpl(scopeSequenceKey);
+    /**
+     * Stores a value for a field in the symbol table for a {@link String}. The key may refer to any nested scope
+     * from the table root, over all nested scopes.
+     *
+     * @param key   The symbol key to store against.
+     * @param field The field to store against.
+     * @param value The value to store.
+     * @return The previous value at the symbol key, or <tt>null</tt> if none was previously set.
+     */
+    public E put(String key, L field, E value) {
+        return null;
+    }
+
+    /**
+     * Clears all keys up to and including the specified key, from the specified field of the symbol table. This is
+     * effectively a garbage collection call on the symbol table to remove processed data from a field once it is no
+     * longer needed.
+     *
+     * @param key   The key to clear up to.
+     * @param field The field to clear.
+     */
+    public void clearUpTo(String key, L field) {
+
+    }
+
+    /**
+     * Sets the low mark against a field of the table to the specified value, provided the value given is higher than
+     * the current low mark.
+     *
+     * @param key   The key to use as the new highest low mark.
+     * @param field The field to move the mark on.
+     */
+    public void setLowMark(String key, L field) {
+
     }
 
     /**
      * {@inheritDoc}
      */
-    public E get(String key, L secondaryKey) {
+    public SymbolKey getSymbolKey(K key) {
+        // Create an entry in the sequence function for the key, if one does not already exist.
+        int scopeSequenceKey = hashFunction.apply(new HtSymbolTable.CompositeKey<K>(parentSequenceKey, key));
+
+        return new HtSymbolTable.SymbolKeyImpl(scopeSequenceKey);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public E get(SymbolKey key, L secondaryKey) {
         // Extract the sequence key from the symbol key.
-        int sequenceKey = ((HtSymbolTable.StringImpl) key).sequenceKey;
+        int sequenceKey = ((HtSymbolTable.SymbolKeyImpl) key).sequenceKey;
 
         // Check that the field for the secondary key exists, and return null if not.
         CircularArrayMap<E> field = fieldMap.get(secondaryKey);
@@ -273,9 +322,9 @@ public class HtSymbolTable<K, L, E> implements ISymbolTable <K, L, E> {
     /**
      * {@inheritDoc}
      */
-    public E put(String key, L secondaryKey, E value) {
+    public E put(SymbolKey key, L secondaryKey, E value) {
         // Extract the sequence key from the symbol key.
-        int sequenceKey = ((HtSymbolTable.StringImpl) key).sequenceKey;
+        int sequenceKey = ((HtSymbolTable.SymbolKeyImpl) key).sequenceKey;
 
         // Create the field column for the secondary key, if it does not already exist.
         CircularArrayMap<E> field = fieldMap.get(secondaryKey);
@@ -295,9 +344,9 @@ public class HtSymbolTable<K, L, E> implements ISymbolTable <K, L, E> {
     /**
      * {@inheritDoc}
      */
-    public void clearUpTo(String key, L secondaryKey) {
+    public void clearUpTo(SymbolKey key, L secondaryKey) {
         // Extract the sequence key from the symbol key, and clear the field up to it.
-        int sequenceKey = ((HtSymbolTable.StringImpl) key).sequenceKey;
+        int sequenceKey = ((HtSymbolTable.SymbolKeyImpl) key).sequenceKey;
         CircularArrayMap<E> field = fieldMap.get(secondaryKey);
 
         if (field != null) {
@@ -308,9 +357,9 @@ public class HtSymbolTable<K, L, E> implements ISymbolTable <K, L, E> {
     /**
      * {@inheritDoc}
      */
-    public void setLowMark(String key, L secondaryKey) {
+    public void setLowMark(SymbolKey key, L secondaryKey) {
         // Extract the sequence key from the symbol key, and low mark the field up to it.
-        int sequenceKey = ((HtSymbolTable.StringImpl) key).sequenceKey;
+        int sequenceKey = ((HtSymbolTable.SymbolKeyImpl) key).sequenceKey;
         CircularArrayMap<E> field = fieldMap.get(secondaryKey);
 
         if (field != null) {
@@ -371,7 +420,7 @@ public class HtSymbolTable<K, L, E> implements ISymbolTable <K, L, E> {
      * Implements the {@link String} as the sequence number assigned to a symbol by the sequencing function. This
      * index is used to directly look up values in the field tables.
      */
-    private static class StringImpl implements String {
+    private static class SymbolKeyImpl implements SymbolKey {
         /**
          * Holds the unique sequence key for a symbol.
          */
@@ -382,17 +431,17 @@ public class HtSymbolTable<K, L, E> implements ISymbolTable <K, L, E> {
          *
          * @param sequenceKey The sequence number for the key.
          */
-        private StringImpl(int sequenceKey) {
+        private SymbolKeyImpl(int sequenceKey) {
             this.sequenceKey = sequenceKey;
         }
 
         /**
-         * Prints the symbol key as a string, mainly for debugging purposes.
+         * Prints the symbol key as a SymbolKey, mainly for debugging purposes.
          *
          * @return The symbol key as a string.
          */
         public String toString () {
-            return "StringImpl: [ sequenceKey = " + sequenceKey + " ]";
+            return "SymbolKeyImpl: [ sequenceKey = " + sequenceKey + " ]";
         }
     }
 

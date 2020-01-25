@@ -104,7 +104,7 @@ class HtDelegatingAllTermsVisitor implements IAllTermsVisitor {
     }
 
     @Override
-    public void visit ( IFunctor functor ) throws LinkageException {
+    public void visit(IFunctor functor) throws Exception {
         if (delegate != null) {
             //literal.accept(delegate);
             delegate.visit(functor);

@@ -273,7 +273,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      * {@inheritDoc}
      */
     @Override
-    public FunctorName getFunctorFunctorName ( IFunctor functor ) {
+    public FunctorName getFunctorFunctorName(IFunctor functor) throws Exception {
         return interner.getFunctorFunctorName(functor);
     }
 
@@ -281,7 +281,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      * {@inheritDoc}
      */
     @Override
-    public String getFunctorName ( IFunctor functor ) {
+    public String getFunctorName(IFunctor functor) throws Exception {
         return interner.getFunctorName(functor);
     }
 
@@ -289,7 +289,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      * {@inheritDoc}
      */
     @Override
-    public int getFunctorArity(IFunctor functor) {
+    public int getFunctorArity(IFunctor functor) throws Exception {
         return interner.getFunctorArity(functor);
     }
 

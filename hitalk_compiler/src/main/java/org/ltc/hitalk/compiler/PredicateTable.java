@@ -24,16 +24,16 @@ class PredicateTable<P extends HtPredicate> extends HashMap <Integer, P> impleme
 
     }
 
-    public PredicateTable ( List <HtPredicate> predicates ) {
+    public PredicateTable(List<HtPredicate> predicates) throws Exception {
         for (HtPredicate predicate : predicates) {
-            List <HtClause> def = predicate.getClauses();
+            List<HtClause> def = predicate.getClauses();
             if (!predicate.isBuiltIn()) {
                 accept((P) def);
             }
         }
     }
 
-    private void accept ( P definition ) {
+    private void accept(P definition) throws Exception {
         final int key = definition.get(0).getHead().getName();
 
         put(key, definition);

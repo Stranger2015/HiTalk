@@ -15,10 +15,7 @@ import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static org.ltc.hitalk.parser.PrologAtoms.*;
 
@@ -123,9 +120,9 @@ public class TermUtilities {
      * @return A sequence of terms parsed as a term, then flattened back into a list seperated on commas.
      * @throws HtSourceCodeException If any of the extracted terms encountered do not extend the superclass.
      */
-    public static <T extends IFunctor> IFunctor[] flattenTerm ( IFunctor term, Class <T> superClass, String symbolToFlattenOn,
-                                                                IVafInterner interner ) throws HtSourceCodeException {
-        List <T> terms = new LinkedList <>();
+    public static <T extends IFunctor> IFunctor[] flattenTerm(IFunctor term, Class<T> superClass, String symbolToFlattenOn,
+                                                              IVafInterner interner) throws Exception {
+        List<T> terms = new ArrayList<>();
 
         // Used to hold the next term to examine as operators are flattened.
         ITerm nextTerm = term;
@@ -139,7 +136,7 @@ public class TermUtilities {
         // Walk down the terms matching symbols and flattening them into a list of terms.
         while (mayBeMoreCommas) {
             if (!nextTerm.isBracketed() && (nextTerm instanceof IFunctor) &&
-                    (symbolName == (((IFunctor) nextTerm).getName()))) {
+                    symbolName == (((IFunctor) nextTerm).getName())) {
                 IFunctor op = (IFunctor) nextTerm;
                 ITerm termToExtract = op.getArgument(0);
 
@@ -179,8 +176,8 @@ public class TermUtilities {
      * @param internedName The interned name of the symbol to flatten on.
      * @return A sequence of terms parsed as a term, then flattened back into a list seperated on commas.
      */
-    public static <T extends IFunctor> List <T> flattenTerm ( IFunctor term, Class <T> superClass, int internedName ) {
-        List <T> terms = new LinkedList <>();
+    public static <T extends IFunctor> List<T> flattenTerm(IFunctor term, Class<T> superClass, int internedName) throws Exception {
+        List<T> terms = new LinkedList<>();
 
         // Used to hold the next term to examine as operators are flattened.
         IFunctor nextTerm = term;
@@ -227,7 +224,7 @@ public class TermUtilities {
      * @return A clause for the term, or <tt>null</tt> if it cannot be converted.
      * @throws HtSourceCodeException If the term to convert to a clause does not form a valid clause.
      */
-    public static HtClause convertToClause ( ITerm term, IVafInterner interner ) throws HtSourceCodeException {
+    public static HtClause convertToClause(ITerm term, IVafInterner interner) throws Exception {
         // Check if the top level term is a query, an implication or neither and reduce the term into a clause
         // accordingly.
         if (term instanceof HlOpSymbol) {

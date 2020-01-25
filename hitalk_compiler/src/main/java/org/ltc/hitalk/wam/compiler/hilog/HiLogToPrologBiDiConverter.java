@@ -120,13 +120,13 @@ class HiLogToPrologBiDiConverter<T extends HtClause, P, Q, PC, QC> {
 //        this.transformer = transformer;
 //    }
 
-    private boolean hasHiLogApplyFunctorName ( ITerm term, int applyF ) {
+    private boolean hasHiLogApplyFunctorName(ITerm term, int applyF) throws Exception {
         return ((IFunctor) term).getName() == applyF;
     }
 
     private ITerm mapList ( TermTransformer transformer, ListTerm termList ) {
         boolean mustExit = false;
-        while (!isNil(termList) || !mustExit) {
+        while (true) {
 
             ITerm listHead;
             ITerm listTail = termList;
@@ -136,7 +136,7 @@ class HiLogToPrologBiDiConverter<T extends HtClause, P, Q, PC, QC> {
             ITerm temp_term;
         }
 
-        return null;
+//        final ITerm list=termList;//fixme
     }
 
 

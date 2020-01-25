@@ -2,9 +2,9 @@ package org.ltc.hitalk.term.io;
 
 import org.jetbrains.annotations.NotNull;
 import org.ltc.hitalk.entities.HtProperty;
-import org.ltc.hitalk.entities.IProperty;
 import org.ltc.hitalk.parser.ITokenSource;
-import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.HtNonVar;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -47,7 +47,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      * @param encoding
      * @param path
      */
-    public HiTalkInputStream(Path path, String encoding) throws IOException {
+    public HiTalkInputStream(Path path, String encoding) throws Exception {
         super(path, encoding, READ);
         final FileInputStream fis = new FileInputStream(path.toFile());
         setInputStream(fis);
@@ -58,7 +58,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      * @param bufferSize
      * @throws IOException
      */
-    public HiTalkInputStream(FileDescriptor fd, int bufferSize) throws IOException {
+    public HiTalkInputStream(FileDescriptor fd, int bufferSize) throws Exception {
         super(fd);
     }
 
@@ -67,7 +67,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      * @param bufferSize
      * @throws IOException
      */
-    public HiTalkInputStream(String path, int bufferSize) throws IOException {
+    public HiTalkInputStream(String path, int bufferSize) throws Exception {
         super(Paths.get(path), defaultEncoding, READ);
     }
 
@@ -76,7 +76,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      * @param bufferSize
      * @throws FileNotFoundException
      */
-    public HiTalkInputStream(File file, int bufferSize) throws IOException {
+    public HiTalkInputStream(File file, int bufferSize) throws Exception {
         this(file.getAbsolutePath(), bufferSize);
         setInputStream(new FileInputStream(file));
     }
@@ -85,7 +85,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      * @param file
      * @throws FileNotFoundException
      */
-    public HiTalkInputStream(File file) throws IOException {
+    public HiTalkInputStream(File file) throws Exception {
         this(file, defaultBufSize);
     }
 
@@ -93,13 +93,13 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      * @param string
      * @throws FileNotFoundException
      */
-    public HiTalkInputStream(String string) throws IOException {
+    public HiTalkInputStream(String string) throws Exception {
         this(new File(string), defaultBufSize);
         final FileInputStream fis = new FileInputStream(string);
         setInputStream(fis);
     }
 
-    public HiTalkInputStream(Path path, String s, StandardOpenOption read) throws IOException {
+    public HiTalkInputStream(Path path, String s, StandardOpenOption read) throws Exception {
         super(path, s, read);
         setInputStream(new FileInputStream(path.toFile()));
     }
@@ -256,51 +256,63 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      */
     //@Override
     public void propertyChange(PropertyChangeEvent evt) {
+        owner.propertyChange(evt);
 
     }
 
     /**
      * @return
      */
-    //@Override
+    @Override
     public int getPropLength() {
-        return 0;
+        return owner.getPropLength();
     }
 
-    //@Override
     @Override
     public void addListener(PropertyChangeListener listener) {
-
+        owner.addListener(listener);
     }
 
     @Override
     public void removeListener(PropertyChangeListener listener) {
-
+        owner.removeListener(listener);
     }
 
     @Override
-    public void fireEvent(IProperty property, ITerm value) {
-
+    /**
+     * @param propertyName
+     * @param value
+     */
+    public void setValue(IFunctor propertyName, HtNonVar value) {
+        owner.setValue(propertyName, value);
     }
 
     public HtProperty[] getProps() {
-        return new HtProperty[0];
+        return owner.getProps();
     }
 
     public HtMethodDef[] getMethods() {
-        return new HtMethodDef[0];
+        return owner.getMethods();
+    }
+
+    public Map<String, HtMethodDef> getMethodMap() {
+        return owner.getMethodMap();
+    }
+
+    public Map<String, HtProperty> getPropMap() {
+        return owner.getPropMap();
     }
 
     public Map<String, HtMethodDef> getMmap() {
-        return null;
+        return owner.getMethodMap();
     }
 
     public Map<String, HtProperty> getMap() {
-        return owner;
+        return owner.getPropMap();
     }
 
     @Override
-    public ITerm getValue(String property) {
+    public HtNonVar getValue(IFunctor property) {
         return owner.getValue(property);
     }
 

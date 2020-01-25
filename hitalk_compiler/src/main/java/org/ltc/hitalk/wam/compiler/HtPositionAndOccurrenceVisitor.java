@@ -102,7 +102,7 @@ public class HtPositionAndOccurrenceVisitor extends HtBasePositionalVisitor {
      * This is set at the end, so that subsequent calls to this will pick up the state of this flag at the point
      * immediately below a top-level functor.
      */
-    protected void enterFunctor ( IFunctor functor ) {
+    protected void enterFunctor(IFunctor functor) throws Exception {
         /*log.fine("Functor: " + functor.getName() + " <- " + symbolTable.getString(functor.getName()));*/
 
         // Only check position of occurrence for constants.
@@ -111,7 +111,7 @@ public class HtPositionAndOccurrenceVisitor extends HtBasePositionalVisitor {
             List<String> constantSymKeys = constants.get(functor.getName());
 
             if (constantSymKeys == null) {
-                constantSymKeys = new LinkedList <>();
+                constantSymKeys = new ArrayList<>();
                 constants.put(functor.getName(), constantSymKeys);
             }
 

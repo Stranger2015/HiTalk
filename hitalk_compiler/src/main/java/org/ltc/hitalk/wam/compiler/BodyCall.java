@@ -13,6 +13,7 @@ import java.util.List;
  */
 public class BodyCall<C extends BodyCall.BodyCalls <C>> extends PiCalls <C> {
     public BodyCall () {
+        this(-1);
     }
 
     /**
@@ -28,8 +29,12 @@ public class BodyCall<C extends BodyCall.BodyCalls <C>> extends PiCalls <C> {
      * @param name
      * @param args
      */
-    public BodyCall ( int name, ListTerm args ) {
+    public BodyCall(int name, ListTerm args) {
         super(name, args);
+    }
+
+    public BodyCall(int name) {
+        super(name);
     }
 //    public BodyCall ( ITerm msg, List <HtClause> selectedClauses, List <ListTerm> sameSelect ) {
 ////        this(msg, selectedClauses, sameSelect);
@@ -39,7 +44,7 @@ public class BodyCall<C extends BodyCall.BodyCalls <C>> extends PiCalls <C> {
     /**
      *
      */
-    public static class BodyCalls<C extends BodyCalls <C>> extends BodyCall <C> {
+    public static class BodyCalls<C extends BodyCalls<C>> extends BodyCall<C> {
 
         /**
          * @param sym
@@ -78,6 +83,7 @@ public class BodyCall<C extends BodyCall.BodyCalls <C>> extends PiCalls <C> {
                       ListTerm args,//fixme listterm
                       List <HtClause> selectedClauses ) {
 //        super(sym, calls,args,selectedClauses);
+        super(sym, calls, args, selectedClauses);
         this.args = args;
         this.selectedClauses = selectedClauses;
     }

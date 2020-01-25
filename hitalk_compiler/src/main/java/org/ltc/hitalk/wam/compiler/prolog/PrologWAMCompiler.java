@@ -201,7 +201,7 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
         /**
          * {@inheritDoc}
          */
-        public void onQueryCompilation ( Q clause ) throws HtSourceCodeException {
+        public void onQueryCompilation(Q clause) throws Exception {
             PrologWAMCompiler.this.instructionCompiler.compileQuery((HtClause) clause);
         }
     }

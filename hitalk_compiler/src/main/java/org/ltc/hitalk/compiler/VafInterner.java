@@ -126,21 +126,21 @@ public class VafInterner implements IVafInterner {
     /**
      * {@inheritDoc}
      */
-    public FunctorName getFunctorFunctorName(IFunctor functor) {
+    public FunctorName getFunctorFunctorName(IFunctor functor) throws Exception {
         return getDeinternedFunctorName(functor.getName());
     }
 
     /**
      * {@inheritDoc}
      */
-    public String getFunctorName(IFunctor functor) {
+    public String getFunctorName(IFunctor functor) throws Exception {
         return getFunctorName(functor.getName());
     }
 
     /**
      * {@inheritDoc}
      */
-    public int getFunctorArity(IFunctor functor) {
+    public int getFunctorArity(IFunctor functor) throws Exception {
         return getFunctorArity(functor.getName());
     }
 

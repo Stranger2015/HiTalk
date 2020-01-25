@@ -3,9 +3,7 @@ package org.ltc.hitalk.term.io;
 import org.ltc.hitalk.entities.HtProperty;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  *
@@ -321,11 +319,11 @@ public class HtPropertiesPool {
      * prompt1(+Prompt)
      * Sets the prompt for the next line to be read. Continuation lines will be read using the prompt defined by prompt/2.
      */
-    private Set<HtProperty> set = new HashSet<>();
+    private Map<String, HtProperty> map = new HashMap<>();
     private Map<Class<?>, HtProperty> map1 = new HashMap<>();
 
     public void add(HtProperty property) {
-        set.add(property);
+        map.put(property.getNameAsString(), property);
     }
 
     public void lookup(HtProperty property) {

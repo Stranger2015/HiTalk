@@ -1,6 +1,9 @@
 package org.ltc.hitalk.term.io;
 
 import org.jetbrains.annotations.NotNull;
+import org.ltc.hitalk.entities.HtProperty;
+import org.ltc.hitalk.term.HtNonVar;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 import sun.nio.cs.StreamEncoder;
 
 import java.io.*;
@@ -13,6 +16,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Map;
 
 import static java.nio.charset.Charset.*;
 
@@ -30,7 +34,8 @@ public class HiTalkOutputStream extends HiTalkStream {
      * @param options
      * @throws IOException
      */
-    public HiTalkOutputStream ( BufferedWriter output, Path path, String encoding, StandardOpenOption... options ) throws IOException {
+    public HiTalkOutputStream(BufferedWriter output, Path path, String encoding, StandardOpenOption... options)
+            throws Exception {
         super(path, encoding, options);
         this.output = output;
         Charset charset = isSupported(encoding) ? forName(encoding) : defaultCharset();//currentCharset;
@@ -38,8 +43,18 @@ public class HiTalkOutputStream extends HiTalkStream {
         StreamEncoder se = StreamEncoder.forEncoder(channel, encoder, BB_ALLOC_SIZE);
     }
 
-    public HiTalkOutputStream ( int i, FileDescriptor out ) {
+    public HiTalkOutputStream(int i, FileDescriptor out) throws Exception {
+        super();
         setOutputStream(new FileOutputStream(out));
+    }
+
+    /**
+     * @param path
+     * @param encoding
+     * @param options
+     */
+    protected HiTalkOutputStream(Path path, String encoding, StandardOpenOption... options) throws Exception {
+        super(path, encoding, options);
     }
 
     /**
@@ -47,7 +62,7 @@ public class HiTalkOutputStream extends HiTalkStream {
      * @throws IOException
      */
 //    @Override
-    public void write ( int b ) throws IOException {
+    public void write(int b) throws IOException {
         writeChar(b);
     }
 
@@ -456,5 +471,29 @@ public class HiTalkOutputStream extends HiTalkStream {
      */
     public FileOutputStream getOutputStream() {
         return outputStream;
+    }
+
+    /**
+     * @param propertyName
+     * @return
+     */
+    public HtNonVar getValue(IFunctor propertyName) {
+        return null;
+    }
+
+    /**
+     * @param propertyName
+     * @param value
+     */
+    public void setValue(IFunctor propertyName, HtNonVar value) {
+
+    }
+
+    public Map<String, HtMethodDef> getMethodMap() {
+        return null;
+    }
+
+    public Map<String, HtProperty> getPropMap() {
+        return null;
     }
 }

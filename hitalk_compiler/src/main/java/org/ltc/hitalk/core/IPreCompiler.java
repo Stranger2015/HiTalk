@@ -16,14 +16,16 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 
+import static org.ltc.hitalk.core.BaseApp.getAppContext;
+
 /**
  *
  */
-public interface IPreCompiler extends IQueueHolder <PreCompilerTask>, IHitalkObject {
+public interface IPreCompiler extends IQueueHolder<PreCompilerTask>, IHitalkObject {
     /**
      * @return
      */
-    Logger getLogger ();
+    Logger getLogger();
 //    /**
 //     * @param string
 //     * @param flags
@@ -98,7 +100,7 @@ public interface IPreCompiler extends IQueueHolder <PreCompilerTask>, IHitalkObj
      * @param delims
      * @return
      */
-    default boolean checkDirective ( HtClause clause, EnumSet <DirectiveKind> delims ) {
+    default boolean checkDirective(HtClause clause, EnumSet<DirectiveKind> delims) throws Exception {
         final IVafInterner interner = getInterner();
         if (!isDirective(clause)) {
             return false;
@@ -108,7 +110,7 @@ public interface IPreCompiler extends IQueueHolder <PreCompilerTask>, IHitalkObj
             return true;
         }
         final FunctorName functorName = interner.getDeinternedFunctorName(clause.getGoal(0).getName());
-        return Objects.equals(functorName.getName(), directive.toString())/* && functorName.getArity() == 1*/;//fixme
+        return Objects.equals(functorName.getName(), directive.toString());//fixme
     }
 
     /**
@@ -117,7 +119,7 @@ public interface IPreCompiler extends IQueueHolder <PreCompilerTask>, IHitalkObj
     void endScope ();
 
     default IVafInterner getInterner () {
-        return BaseApp.getAppContext().getInterner();
+        return getAppContext().getInterner();
     }
 
     void setCompilerObserver ( ClauseChainObserver clauseChainObserver );

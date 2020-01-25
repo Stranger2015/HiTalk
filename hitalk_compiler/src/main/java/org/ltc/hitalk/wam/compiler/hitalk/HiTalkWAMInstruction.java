@@ -431,7 +431,7 @@ class HiTalkWAMInstruction implements Sizeable {
      * @param fn       The functor argument.
      * @param reg1Term The term that is assigned or associated with reg1.
      */
-    public HiTalkWAMInstruction ( HiTalkWAMInstructionSet mnemonic, byte mode1, byte reg1, FunctorName fn, ITerm reg1Term ) {
+    public HiTalkWAMInstruction(HiTalkWAMInstructionSet mnemonic, byte mode1, byte reg1, FunctorName fn, ITerm reg1Term) throws Exception {
         this.mnemonic = mnemonic;
         this.mode1 = mode1;
         this.reg1 = reg1;
@@ -483,7 +483,7 @@ class HiTalkWAMInstruction implements Sizeable {
      * @param reg1     The single register argument.
      * @param reg1Term The term that is assigned or associated with reg1.
      */
-    public HiTalkWAMInstruction ( HiTalkWAMInstructionSet mnemonic, byte mode1, byte reg1, ITerm reg1Term ) {
+    public HiTalkWAMInstruction(HiTalkWAMInstructionSet mnemonic, byte mode1, byte reg1, ITerm reg1Term) throws Exception {
         this.mnemonic = mnemonic;
         this.mode1 = mode1;
         this.reg1 = reg1;

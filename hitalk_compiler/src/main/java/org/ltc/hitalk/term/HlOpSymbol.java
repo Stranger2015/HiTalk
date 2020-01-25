@@ -49,7 +49,7 @@ import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
  *
  * @author Rupert Smith
  */
-public class HlOpSymbol extends HtFunctor implements /*IOpSymbol,*/ Comparable<HlOpSymbol>, Cloneable {
+public class HlOpSymbol extends HtFunctor implements Comparable<HlOpSymbol>, Cloneable {
     private String name;
     private ITerm result;
     private ITerm result1;
@@ -85,6 +85,7 @@ public class HlOpSymbol extends HtFunctor implements /*IOpSymbol,*/ Comparable<H
 
     public HlOpSymbol(String name, ITerm result, ITerm result1) {
 
+        super(name);
         this.name = name;
         this.result = result;
         this.result1 = result1;
@@ -147,6 +148,13 @@ public class HlOpSymbol extends HtFunctor implements /*IOpSymbol,*/ Comparable<H
     }
 
     /**
+     * @return
+     */
+    public int getArity() {
+        return 0;
+    }
+
+    /**
      * Sets the arguments of this operator. It can be convenient to be able to set the outside of the constructor, for
      * example, when parsing may want to create the operator first and fill in its arguments later.
      *
@@ -160,6 +168,10 @@ public class HlOpSymbol extends HtFunctor implements /*IOpSymbol,*/ Comparable<H
         }
 
         this.args.setHeads(arguments);
+    }
+
+    public boolean isListTerm() {
+        return false;
     }
 
     /**

@@ -123,7 +123,7 @@ public interface IVafInterner extends IHitalkObject {
      * @param functor The functor to de-intern.
      * @return The de-interned functor names and arity.
      */
-    FunctorName getFunctorFunctorName ( IFunctor functor );
+    FunctorName getFunctorFunctorName(IFunctor functor) throws Exception;
 
     /**
      * De-internes a functor name from its intered form, and provides just the functors name without its arity.
@@ -131,7 +131,7 @@ public interface IVafInterner extends IHitalkObject {
      * @param functor The functor to de-intern.
      * @return The de-interned functors name.
      */
-    String getFunctorName ( IFunctor functor );
+    String getFunctorName(IFunctor functor) throws Exception;
 
     /**
      * De-internes a functor name from its intered form, and provides just the functors arity without its name.
@@ -139,5 +139,5 @@ public interface IVafInterner extends IHitalkObject {
      * @param functor The functor to de-intern.
      * @return The de-interned functors arity.
      */
-    int getFunctorArity ( IFunctor functor );
+    int getFunctorArity(IFunctor functor) throws Exception;
 }

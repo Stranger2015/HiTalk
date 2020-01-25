@@ -8,8 +8,11 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.interpreter.IPredicateTraverser;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.HtBaseTerm;
+import org.ltc.hitalk.term.HtNonVar;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ITermVisitor;
+import org.ltc.hitalk.term.io.HtMethodDef;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -190,41 +193,57 @@ class HtPredicate extends HtBaseTerm implements ITerm, IPropertyOwner {
     }
 
     @Override
-    public
-    void addListener ( PropertyChangeListener listener ) {
+    public void addListener(PropertyChangeListener listener) {
         listeners.add(listener);
     }
 
     @Override
-    public
-    void removeListener ( PropertyChangeListener listener ) {
+    public void removeListener(PropertyChangeListener listener) {
         listeners.remove(listener);
     }
 
-    @Override
-    public void fireEvent ( IProperty property, ITerm value ) {
-        for (PropertyChangeListener listener : listeners) {
-            listener.propertyChange(new PropertyChangeEvent(
-                    property,
-                    property.getName(),
-                    value,
-                    property.getValue()));
-        }
-        //todo
-    }
-
-    @Override
-    public ITerm getValue ( Properties property ) {
+    /**
+     * @param propertyName
+     * @return
+     */
+    public HtNonVar getValue(IFunctor propertyName) {
         return null;
     }
 
     /**
-     * @param property
+     * @param propertyName
      * @param value
      */
-    @Override
-    public void setValue ( Properties property, ITerm value ) {
+    public void setValue(IFunctor propertyName, HtNonVar value) {
 
+    }
+
+    public HtProperty[] getProps() {
+        return new HtProperty[0];
+    }
+
+    public HtMethodDef[] getMethods() {
+        return new HtMethodDef[0];
+    }
+
+    public Map<String, HtMethodDef> getMethodMap() {
+        return null;
+    }
+
+    public Map<String, HtProperty> getPropMap() {
+        return null;
+    }
+
+    @Override
+    public void fireEvent(IProperty property, HtNonVar value) {
+        for (PropertyChangeListener listener : listeners) {
+            listener.propertyChange(new PropertyChangeEvent(
+                    property,
+                    property.getName().toString(),
+                    value,
+                    property.getValue()));
+        }
+        //todo
     }
 
     /**
@@ -238,11 +257,21 @@ class HtPredicate extends HtBaseTerm implements ITerm, IPropertyOwner {
         return builtIn;
     }
 
-    public void setBuiltIn ( boolean builtIn ) {
+    public void setBuiltIn(boolean builtIn) {
         this.builtIn = builtIn;
     }
 
-    public HtClause get ( int i ) {
+    public HtClause get(int i) {
         return l.get(i);
+    }
+
+    /**
+     * This method gets called when a bound property is changed.
+     *
+     * @param evt A PropertyChangeEvent object describing the event source
+     *            and the property that has changed.
+     */
+    public void propertyChange(PropertyChangeEvent evt) {
+
     }
 }

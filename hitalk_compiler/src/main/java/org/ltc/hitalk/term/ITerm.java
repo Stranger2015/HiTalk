@@ -19,6 +19,7 @@ import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.search.Operator;
 import com.thesett.aima.search.util.backtracking.ReTraversable;
 import com.thesett.aima.search.util.backtracking.Reversable;
+import com.thesett.common.util.doublemaps.SymbolKey;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.parser.ISourceCodePosition;
 
@@ -81,12 +82,14 @@ import java.util.List;
  *
  * @author Rupert Smith
  */
-public interface ITerm extends ReTraversable <ITerm>, Operator <ITerm> {
+public interface ITerm extends ReTraversable<ITerm>, Operator<ITerm> {
+
+    ITerm[] EMPTY_TERM_ARRAY = new ITerm[0];
 
     /**
      * @return
      */
-    default boolean isList () {
+    default boolean isList() {
         return this instanceof ListTerm;
     }
 
@@ -299,4 +302,6 @@ public interface ITerm extends ReTraversable <ITerm>, Operator <ITerm> {
      * @return
      */
     boolean isQuery();
+
+    void setSymbolKey(SymbolKey key);
 }

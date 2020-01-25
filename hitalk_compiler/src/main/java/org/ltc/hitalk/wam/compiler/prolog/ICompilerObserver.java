@@ -26,5 +26,5 @@ public interface ICompilerObserver<T, Q> {
      * @param sentence The compiled query.
      * @throws HtSourceCodeException If there is an error in the compiled code that prevents its further processing.
      */
-    void onQueryCompilation ( Q sentence ) throws HtSourceCodeException;
+    void onQueryCompilation(Q sentence) throws Exception;
 }

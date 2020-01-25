@@ -19,16 +19,13 @@ interface ITermFactory extends IHitalkObject {
     /**
      * 整数値アトムを生成します。
      */
-    Atom newAtom(int value);
-
-    Atom newAtom(String value);
+    IFunctor newAtom(int value);
 
     /**
-     * 実数値アトムを生成します。
-     *
+     * @param value
      * @return
      */
-    FloatTerm newAtom(double value);
+    IFunctor newAtom(String value);
 
     /**
      * ひとつ以上の引数を持つ関数子を作成します。
@@ -46,10 +43,13 @@ interface ITermFactory extends IHitalkObject {
      * @param s
      * @return
      */
-    Atom createAtom(String s);
+    IFunctor createAtom(String s);
 
-//    Functor createCompound ( String s, Term[] head, Term tail );
-
+    /**
+     * @param flagName
+     * @param flagValue
+     * @return
+     */
     HtProperty createFlag(String flagName, String flagValue);
 
     /**
@@ -81,11 +81,11 @@ interface ITermFactory extends IHitalkObject {
      * @param functor
      * @return
      */
-    IFunctor createMostGeneral(IFunctor functor);
+    IFunctor createMostGeneral(IFunctor functor) throws Exception;
 
     IFunctor newFunctor(String name, int arity);
 
     NumberTerm createNumber(String s);
 
-    HtNonVar createNonvar(HtNonVar value);
+    HtNonVar createNonvar(String value);
 }

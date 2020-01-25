@@ -14,6 +14,8 @@ interface IProperty {
      */
     IFunctor getName();
 
+    String getNameAsString();
+
     /**
      * @return
      */

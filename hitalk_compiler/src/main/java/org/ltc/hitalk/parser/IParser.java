@@ -154,7 +154,7 @@ public interface IParser extends IHitalkObject {
      * @param t
      * @return
      */
-    default HtClause convert ( ITerm t ) throws HtSourceCodeException {
+    default HtClause convert(ITerm t) throws Exception {
         return convertToClause(t, getInterner());
     }
 }
