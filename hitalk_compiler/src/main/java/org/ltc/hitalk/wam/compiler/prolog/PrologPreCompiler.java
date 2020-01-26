@@ -10,15 +10,15 @@ import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.Directive.DirectiveKind;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtSourceCodeException;
-import org.ltc.hitalk.parser.ITokenSource;
+import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.wam.compiler.HtTermWalkers;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.hitalk.HtSymbolKeyTraverser;
 import org.ltc.hitalk.wam.compiler.hitalk.HtTermWalker;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler.ClauseChainObserver;
-import org.ltc.hitalk.wam.task.ExecutionTask;
 import org.ltc.hitalk.wam.task.PreCompilerTask;
 import org.ltc.hitalk.wam.task.TermExpansionTask;
 import org.slf4j.Logger;
@@ -46,13 +46,13 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
     /**
      * Holds the built in transformation.
      */
-    protected final PrologBuiltInTransform <T, P, Q> builtInTransform;
-    protected final IResolver <HtPredicate, HtClause> resolver;
-    protected ICompilerObserver <P, Q> observer;
+    protected final PrologBuiltInTransform<T, P, Q> builtInTransform;
+    protected final IResolver<HtPredicate, HtClause> resolver;
+    protected ICompilerObserver<P, Q> observer;
 
     //    protected final Deque <CompilerTask> compilerTaskQueue = new ArrayDeque <>();
     protected ClauseChainObserver clauseChainObserver;
-    protected final Deque <PreCompilerTask> taskQueue = new ArrayDeque <>();
+    protected final Deque<PreCompilerTask> taskQueue = new ArrayDeque<>();
 
 
     /**
@@ -61,12 +61,12 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
      * @param builtInTransform
      * @param resolver
      */
-    public PrologPreCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
-                               IVafInterner interner,
-                               PrologDefaultBuiltIn defaultBuiltIn,
-                               PrologBuiltInTransform <T, P, Q> builtInTransform,
-                               IResolver <HtPredicate, HtClause> resolver,
-                               PlPrologParser parser
+    public PrologPreCompiler(ISymbolTable<Integer, String, Object> symbolTable,
+                             IVafInterner interner,
+                             PrologDefaultBuiltIn defaultBuiltIn,
+                             PrologBuiltInTransform<T, P, Q> builtInTransform,
+                             IResolver<HtPredicate, HtClause> resolver,
+                             PlPrologParser parser
     ) {
         super(symbolTable, interner);
 
@@ -88,7 +88,7 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
     /**
      * @return
      */
-    public Deque <PreCompilerTask> getTaskQueue () {
+    public Deque<PreCompilerTask> getTaskQueue() {
         return taskQueue;
     }
 
@@ -96,12 +96,12 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
      * @return
      */
     @Override
-    public PlPrologParser getParser () {
+    public PlPrologParser getParser() {
         return parser;
     }
 
     @Override
-    public boolean isDirective ( HtClause clause ) {
+    public boolean isDirective(HtClause clause) {
         return false;
     }
 
@@ -109,12 +109,12 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
      *
      */
     @Override
-    public void endScope () {
+    public void endScope() {
 
     }
 
     @Override
-    public void setCompilerObserver ( ClauseChainObserver clauseChainObserver ) {
+    public void setCompilerObserver(ClauseChainObserver clauseChainObserver) {
         this.clauseChainObserver = clauseChainObserver;
     }
 
@@ -125,7 +125,7 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
      * @throws Exception
      */
     @Override
-    public List<HtClause> preCompile(ITokenSource tokenSource, EnumSet<DirectiveKind> delims) throws Exception {
+    public List<HtClause> preCompile(PlLexer tokenSource, EnumSet<DirectiveKind> delims) throws Exception {
         getLogger().info("Precompiling " + tokenSource.getPath() + " ...");
         final List<HtClause> list = new ArrayList<>();
         while (tokenSource.isOpen()) {
@@ -138,14 +138,12 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
                 getLogger().info("end_of_file");
                 getQueue().push(new TermExpansionTask(this, tokenSource, noneOf(DirectiveKind.class)));
                 getParser().popTokenSource();
-            } else if (t != null) {//?????????????
+            } else {//?????????????
                 preCompile(t);
                 HtClause c = getParser().convert(t);
                 if (!checkDirective(c, delims)) {
                     list.add(c);
                 }
-            } else {
-                logger.info("no term found!!");
             }
         }
 
@@ -156,7 +154,7 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
      * @param clause
      * @throws HtSourceCodeException
      */
-    public void preCompile ( T clause ) throws HtSourceCodeException {
+    public void preCompile(T clause) throws HtSourceCodeException {
         logger.debug("Precompiling " + "( " + clause + ") ...");
         if (clause.getT().getHead() == null) {
             final IFunctor goal = (IFunctor) clause.getBody().getHead(0);
@@ -169,7 +167,7 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
     /**
      * {@inheritDoc}
      */
-    public void preCompile ( ITerm clause ) throws Exception {
+    public void preCompile(ITerm clause) throws Exception {
         logger.debug("Precompiling " + "( " + clause + ") ...");
         substituteBuiltIns(clause);
         initializeSymbolTable(clause);
@@ -191,7 +189,7 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
      * @param clause The clause to initialise the symbol keys of.
      */
 
-    private void initializeSymbolTable ( ITerm clause ) {
+    private void initializeSymbolTable(ITerm clause) {
         logger.debug("Initializing symbol table " + "( " + clause + ") ...");
         // Run the symbol key traverser over the clause, to ensure that all terms have their symbol keys correctly
         // set up.
@@ -199,7 +197,7 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
         symbolKeyTraverser.setContextChangeVisitor(symbolKeyTraverser);
 
         HtTermWalker symWalker =
-                new HtTermWalker(new DepthFirstBacktrackingSearch <>(),
+                new HtTermWalker(new DepthFirstBacktrackingSearch<>(),
                         symbolKeyTraverser,
                         symbolKeyTraverser);
         symWalker.walk(clause);
@@ -210,7 +208,7 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
      *
      * @param clause The clause to top-level check.
      */
-    private void topLevelCheck ( ITerm clause ) {
+    private void topLevelCheck(ITerm clause) {
         logger.info("TopLevel checking " + "( " + clause + ") ...");
         HtTermWalker walk = HtTermWalkers.positionalWalker(
                 new HtTopLevelCheckVisitor(
@@ -225,7 +223,7 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
      *
      * @param clause The clause to transform.
      */
-    private void substituteBuiltIns ( ITerm clause ) {
+    private void substituteBuiltIns(ITerm clause) {
         logger.debug("Built-in's substitution " + "( " + clause + ") ...");
         HtTermWalker walk =
                 HtTermWalkers.positionalWalker(
@@ -269,17 +267,19 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
      * @param term
      * @return
      */
-    public List <ITerm> expandTerm ( ITerm term ) {
-        getQueue().push(new ExecutionTask(this));
-        return Objects.requireNonNull(getQueue().peek()).invoke(term);
+    public List<ITerm> expandTerm(ITerm term) throws Exception {
+        final EnumSet<DirectiveKind> kinds = EnumSet.noneOf(DirectiveKind.class);
+        getQueue().push(new TermExpansionTask(this, new PlLexer(new HiTalkInputStream("test.pl")), kinds));
+
+        return Collections.singletonList(term);
     }
 
     /**
      * @param term
      * @return
      */
-    public List <ITerm> callTermExpansion ( ITerm term ) {
-        final List <ITerm> l = new ArrayList <>();
+    public List<ITerm> callTermExpansion(ITerm term) {
+        final List<ITerm> l = new ArrayList<>();
 
         return l;
     }
@@ -288,7 +288,7 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
      * @param goal
      * @return
      */
-    public List <IFunctor> expandGoal ( IFunctor goal ) {
+    public List<IFunctor> expandGoal(IFunctor goal) {
         return callGoalExpansion(goal);
     }
 
@@ -296,36 +296,36 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
      * @param goal
      * @return
      */
-    private List <IFunctor> callGoalExpansion ( IFunctor goal ) {
-        final List <IFunctor> l = new ArrayList <>();
+    private List<IFunctor> callGoalExpansion(IFunctor goal) {
+        final List<IFunctor> l = new ArrayList<>();
         return l;
     }
 
-    public Logger getLogger () {
+    public Logger getLogger() {
         return logger;
     }
 
     /**
      * @return
      */
-    public Deque <PreCompilerTask> getQueue () {
+    public Deque<PreCompilerTask> getQueue() {
         return taskQueue;
     }
 
     /**
      * @param item
      */
-    public void push ( PreCompilerTask item ) {
+    public void push(PreCompilerTask item) {
 
     }
 
     /**
      * @param item
      */
-    public void remove ( PreCompilerTask item ) {
+    public void remove(PreCompilerTask item) {
 
     }
 
-    public void toString0 ( StringBuilder sb ) {
+    public void toString0(StringBuilder sb) {
     }
 }

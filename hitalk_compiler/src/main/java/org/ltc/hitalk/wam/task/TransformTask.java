@@ -5,7 +5,7 @@ import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
 import org.ltc.hitalk.parser.Directive.DirectiveKind;
-import org.ltc.hitalk.parser.ITokenSource;
+import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.transformers.ITransformer;
 import org.ltc.hitalk.wam.transformers.TransformInfo;
@@ -29,9 +29,9 @@ class TransformTask extends PreCompilerTask implements ITransformer {
      * @param kind
      */
     protected TransformTask(IPreCompiler preCompiler,
-                            ITokenSource tokenSource,
+                            PlLexer tokenSource,
                             EnumSet<DirectiveKind> kind) {
-        super(preCompiler, tokenSource, kind);
+        super(tokenSource, preCompiler, kind);
     }
 
     protected ITransformer transformer;

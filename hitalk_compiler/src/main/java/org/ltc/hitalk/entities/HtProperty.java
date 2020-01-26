@@ -13,6 +13,9 @@ import static org.ltc.hitalk.core.BaseApp.getAppContext;
  */
 public
 class HtProperty implements IProperty {
+    private String s;
+    private String v;
+    private String[] options;
     protected HtNonVar[] values;
     protected IFunctor name;
     protected HtNonVar value;
@@ -26,15 +29,32 @@ class HtProperty implements IProperty {
     public HtProperty(IFunctor name, int arity, Predicate<IFunctor> body, HtNonVar... values) {
         this.name = name;
         this.values = values;
+        if (values.length > 0) {
+
+        }
     }
 
     public HtProperty(String name, String... values) {
         this.name = new HtFunctor(name);
         this.values = new HtNonVar[values.length];
         for (int i = 0; i < values.length; i++) {
-            this.values[i] = getAppContext().getTermFactory().createNonvar(values[i]);
+
         }
         this.value = getAppContext().getTermFactory().createNonvar(values.length == 0 ? "" : values[0]);
+    }
+
+    public String getS() {
+        return s;
+    }
+
+    public String getV() {
+        return v;
+    }
+
+    public HtProperty(String s, String v, String... options) {
+        this.s = s;
+        this.v = v;
+        this.options = options;
     }
 
     /**

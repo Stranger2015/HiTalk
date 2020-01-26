@@ -3,27 +3,30 @@ package org.ltc.hitalk.parser;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
-import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.interpreter.TokenBuffer;
 import org.ltc.hitalk.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
 
 import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.*;
+import java.nio.file.Paths;
 import java.util.EnumSet;
 import java.util.Objects;
 
+import static java.nio.file.StandardOpenOption.READ;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
+import static org.ltc.hitalk.entities.PropertyOwner.createProperty;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
 import static org.ltc.hitalk.parser.Quotemeta.decode;
 
 /**
  * @author shun
  */
-public class PlLexer extends StreamTokenizer implements ITokenSource {
+public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
     public static final String PUNCTUATION = ";,!|.";
-    public static final String SPECIAL = "#$&*+-/:<=>?@\\^~";//quotes??
+    public static final String SPECIAL = "#$&*+-/:<=>?@\\^~";
     public static final String PARENTHESES = "(){}[]";
     public static final String DELIMITERS = "\"'`";
 
@@ -63,13 +66,14 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
      */
     public PlLexer(InputStream is) throws FileNotFoundException {
         super(is);
+        pushBackBuffer = new TokenBuffer(inputStream);
     }
 
     public TokenBuffer getPushBackBuffer() {
         return pushBackBuffer;
     }
 
-    protected TokenBuffer pushBackBuffer = new TokenBuffer();
+    protected TokenBuffer pushBackBuffer;
     /**
      * Holds the tokenizer that supplies the next token on demand.
      */
@@ -85,12 +89,18 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
      */
     public PlLexer(Reader r) throws FileNotFoundException {
         super(r);
+        pushBackBuffer = new TokenBuffer(inputStream);
     }
 
+    /**
+     * @param stream
+     * @param path
+     * @throws FileNotFoundException
+     */
     public PlLexer(HiTalkInputStream stream, String path) throws FileNotFoundException {
         super(stream.getReader());
         setPath(path);
-
+        pushBackBuffer = new TokenBuffer(inputStream);
     }
 
     public void toString0(StringBuilder sb) {
@@ -111,9 +121,12 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
      */
     public PlLexer(HiTalkInputStream inputStream) throws FileNotFoundException {
         super(inputStream.getInputStream());
+        inputStream.removeListener(inputStream.getTokenSource());
         inputStream.setTokenSource(this);
         this.inputStream = inputStream;
+        pushBackBuffer = new TokenBuffer(inputStream);
         inputStream.open();
+
 //     The first token is initialized to be empty, so that the first call to `poll` returns the first token.
         final PlToken firstToken = new PlToken(TK_BOF);
         encodingPermitted = true;
@@ -159,20 +172,6 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
     }
 
     /**
-     * @param encoding
-     */
-    public void onEncodingChanged(String encoding) {
-
-    }
-
-    /**
-     * @param b
-     */
-    public void setEncodingPermitted(boolean b) {
-        encodingPermitted = b;
-    }
-
-    /**
      * @param path
      */
     void setPath(String path) {
@@ -190,17 +189,9 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
         if (PrologAtoms.ENCODING.equals(event.getPropertyName())) {
             ITerm value = (ITerm) event.getNewValue();
         } else if (event.getPropertyName().equals("file_name")) {
-            
+            setPath((String) event.getNewValue());
         }
     }
-
-//    /**
-//     * @return
-//     */
-//    @Override
-//    public boolean isOpen () {
-//        return getInputStream().isOpen();
-//    }
 
     /**
      * @return
@@ -213,7 +204,7 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
      * @param encodingChanged
      */
     public void setEncodingChanged(boolean encodingChanged) {
-
+        this.encodingChanged = encodingChanged;
     }
 
     /**
@@ -227,7 +218,10 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
      * @return
      */
     public HiTalkInputStream getInputStream() {
-        return inputStream == null ? BaseApp.getAppContext().getInputStream() : inputStream;
+
+        setPath(createProperty("file_name",
+                "c:\\Users\\Anthony_2\\IdeaProjects\\WAM\\hitalk_compiler\\src\\main\\resources\\empty.pl", "").getV());
+        return inputStream == null ? getAppContext().getInputStream() : inputStream;
     }
 
     /**
@@ -240,38 +234,10 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
     /**
      * @return
      */
-    @Override
+//    @Override
     public String getPath() {
         return path;
     }
-
-//    /**
-//     * @param l
-//     * @param r
-//     * @return
-//     */
-//    public static boolean isMergeable ( String l, String r ) {
-//        return isTokenBoundary(l.charAt(l.length() - 1), r.charAt(0));
-//    }
-
-//    /**
-//     * Checks whether a token boundary can be between two specified characters.
-//     */
-//    public static boolean isTokenBoundary ( char l, char r ) {
-//        return isPrologIdentifierPart(l) != isPrologIdentifierPart(r) ||
-//                isTokenBoundary(l) || isTokenBoundary(r);
-//    }
-//
-//    /**
-//     * @param c
-//     * @return
-//     */
-//    public static boolean isTokenBoundary(char c) {
-//        return isWhitespace(c) ||
-//                PARENTHESES.indexOf(c) != -1 ||
-//                PUNCTUATION.indexOf(c) != -1 ||
-//                DELIMITERS.indexOf(c) != -1;
-//    }
 
     /**
      * @param valued
@@ -311,18 +277,34 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
         return getInputStream().read();
     }
 
+    /**
+     * @param c
+     * @return
+     */
     public static boolean isLowerCase(char c) {
         return "abcdefghijklmnopqrstuvwxyz".indexOf(c) != -1;
     }
 
+    /**
+     * @param c
+     * @return
+     */
     public static boolean isUpperCase(char c) {
         return "ABCDEFGHIJKLMNOPQRSTUVWXYZ_".indexOf(c) != -1;
     }
 
+    /**
+     * @param c
+     * @return
+     */
     public static boolean isDigit(char c) {
         return "0123456789".indexOf(c) != -1;
     }
 
+    /**
+     * @param c
+     * @return
+     */
     public static boolean isLetterOrDigit(char c) {
         return isUpperCase(c) || isLowerCase(c) || isDigit(c);
     }
@@ -351,6 +333,9 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
         return isLetterOrDigit((char) c);
     }
 
+    /**
+     * @param token
+     */
     public void unreadToken(PlToken token) {
         pushBackBuffer.pushBack(token);
     }
@@ -446,15 +431,26 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
         return null;
     }
 
+    /**
+     * @param s
+     * @return
+     */
     private boolean isValidOperator(String s) {
         return !optable.getOperators(s).isEmpty();
     }
 
+    /**
+     * @param start
+     * @return
+     */
     private static boolean isOperatorStart(int start) {
-//        return SPPECIAL.indexOf(start) != -1;
         return isOperatorPart(start);
     }
 
+    /**
+     * @param chr
+     * @return
+     */
     private static boolean isOperatorPart(int chr) {
         return SPECIAL.indexOf(chr) != -1 || PUNCTUATION.indexOf(chr) != -1;
     }
@@ -626,6 +622,53 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
         return !getPushBackBuffer().isEmpty() ? getPushBackBuffer().poll() : getToken(valued);
     }
 
+    static PlLexer getPlLexerForString(String string) throws Exception {
+        HiTalkInputStream inputStream = new HiTalkInputStream(string);
+
+        final PlLexer lexer = new PlLexer(inputStream);
+        ;
+        inputStream.addListener(lexer);
+        return lexer;
+    }
+
+    static PlLexer getPlLexerForStdin() throws FileNotFoundException {
+        HiTalkInputStream stream = getAppContext().currentInput();
+        stream.setInputStream(new FileInputStream(FileDescriptor.in));
+
+        return new PlLexer(stream, "stdin");
+    }
+
+    /**
+     * @param encoding
+     * @throws IOException
+     */
+//    void onEncodingChanged(String encoding) throws IOException;
+
+    /**
+     * @param b
+     */
+//    void setEncodingPermitted(boolean b);
+
+    /**
+     * @param file
+     * @return
+     * @throws IOException
+     */
+    public static PlLexer getTokenSourceForIoFile(File file) throws Exception {
+        HiTalkInputStream stream = new HiTalkInputStream(file);
+        return new PlLexer(stream, file.getAbsolutePath());
+    }
+
+    /**
+     * @param fileName
+     * @return
+     * @throws IOException
+     */
+    public static PlLexer getTokenSourceForIoFileName(String fileName) throws Exception {
+        HiTalkInputStream stream = new HiTalkInputStream(Paths.get(fileName), "UTF-8", READ);
+        return new PlLexer(stream, fileName);
+    }
+
 ///**
 // * BNF for tuProlog
 // *
@@ -758,4 +801,4 @@ public class PlLexer extends StreamTokenizer implements ITokenSource {
 //ignore_ops(Bool)
 //    If true, the generic term representation (<functor>(<args> ... )) will be used for all terms.
 //    Otherwise (default),//    operators will be used where appropriate..
-    }
+}

@@ -365,15 +365,15 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
      * @return
      */
     @Override
-    public ITokenSource getTokenSource() {
+    public PlLexer getTokenSource() {
         return getParser().getTokenSource();
     }
 
     /**
      * @param tokenSource
      */
-    @Override
-    public void setTokenSource(ITokenSource tokenSource) {
+//    @Override
+    public void setTokenSource(PlLexer tokenSource) {
         getParser().setTokenSource(tokenSource);
     }
 
@@ -409,7 +409,7 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
      */
     public static class AppContext extends HashMap<Components, IHitalkObject> {
         private HiTalkInputStream inputStream;
-        private ITokenSource tokenSource;
+        private PlLexer tokenSource;
         private IVafInterner interner;
         private String[] nameSpace;
         private IApplication app;
@@ -578,7 +578,7 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
             putIfAbsent(STREAM, stream);
         }
 
-        public ITokenSource getTokenSource() {
+        public PlLexer getTokenSource() {
             return tokenSource;
         }
 

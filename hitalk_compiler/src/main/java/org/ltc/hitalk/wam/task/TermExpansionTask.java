@@ -3,7 +3,7 @@ package org.ltc.hitalk.wam.task;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.parser.Directive.DirectiveKind;
-import org.ltc.hitalk.parser.ITokenSource;
+import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.builtins.Bypass;
@@ -20,9 +20,9 @@ public class TermExpansionTask extends PreCompilerTask {
     protected final Deque <PreCompilerTask> tasks = new ArrayDeque <>();
 
     public TermExpansionTask(IPreCompiler preCompiler,
-                             ITokenSource tokenSource,
+                             PlLexer tokenSource,
                              EnumSet<DirectiveKind> kind) {
-        super(preCompiler, tokenSource, kind);
+        super(tokenSource, preCompiler, kind);
     }
 
     /**
@@ -62,7 +62,7 @@ public class TermExpansionTask extends PreCompilerTask {
          * @param tokenSource
          */
         public CondCompilationTask(IPreCompiler preCompiler,
-                                   ITokenSource tokenSource,
+                                   PlLexer tokenSource,
                                    EnumSet<DirectiveKind> kind) {
             super(preCompiler, tokenSource, kind);
 

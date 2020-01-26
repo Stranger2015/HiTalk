@@ -27,7 +27,7 @@ import org.ltc.hitalk.entities.context.LoadContext;
 import org.ltc.hitalk.interpreter.HtProduct;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.IParser;
-import org.ltc.hitalk.parser.ITokenSource;
+import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.wam.compiler.CompilerFactory;
@@ -287,7 +287,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
                 getWAMCompiler().setInstructionCompiler(new PrologInstructionCompiler<>());
                 getWAMCompiler().setPreCompiler(new PrologPreCompiler<>());
                 getWAMCompiler().setCompilerObserver(new ICompilerObserver<P, Q>() {
-                    public void onCompilation(ITokenSource tokenSource) throws Exception {
+                    public void onCompilation(PlLexer tokenSource) throws Exception {
                         final List<HtClause> list = getWAMCompiler().getPreCompiler().preCompile(tokenSource, EnumSet.of(IF));
                         for (HtClause clause : list) {
                             getWAMCompiler().getInstructionCompiler().compile(clause);

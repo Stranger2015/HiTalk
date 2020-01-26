@@ -4,7 +4,7 @@ import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtSourceCodeException;
-import org.ltc.hitalk.parser.ITokenSource;
+import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.hitalk.ILogicCompiler;
 import org.slf4j.Logger;
@@ -14,11 +14,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ltc.hitalk.parser.PlLexer.getTokenSourceForIoFile;
+
 /**
  * @param <P>
  * @param <Q>
  */
-public interface ICompiler<T extends HtClause, P, Q> extends ILogicCompiler <T, P, Q> {
+public interface ICompiler<T extends HtClause, P, Q> extends ILogicCompiler<T, P, Q> {
     HtProperty[] EMPTY_FLAG_ARRAY = new HtProperty[0];
 
     /**
@@ -44,14 +46,14 @@ public interface ICompiler<T extends HtClause, P, Q> extends ILogicCompiler <T, 
      * @throws IOException
      */
     default List <HtClause> compileFile ( String fn, HtProperty... flags ) throws Exception {
-        return compile(ITokenSource.getTokenSourceForIoFile(new File(fn)), flags);
+        return compile(getTokenSourceForIoFile(new File(fn)), flags);
     }
 
     /**
      * @param tokenSource
      * @param flags
      */
-    List<HtClause> compile(ITokenSource tokenSource, HtProperty... flags) throws Exception;
+    List<HtClause> compile(PlLexer tokenSource, HtProperty... flags) throws Exception;
 
     /**
      * @return

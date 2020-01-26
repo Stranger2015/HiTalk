@@ -3,14 +3,13 @@ package org.ltc.hitalk.wam.task;
 import com.thesett.aima.logic.fol.LinkageException;
 import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.entities.HtPredicate;
+import org.ltc.hitalk.parser.Directive.DirectiveKind;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.wam.compiler.prolog.IExecutionTask;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 /**
  *
@@ -22,8 +21,8 @@ public class ExecutionTask extends PreCompilerTask implements IExecutionTask {
     /**
      * @param preCompiler
      */
-    public ExecutionTask ( IPreCompiler preCompiler ) {
-        super(preCompiler);
+    public ExecutionTask(PlLexer lexer, IPreCompiler preCompiler, EnumSet<DirectiveKind> kind) {
+        super(lexer, preCompiler, kind);
     }
 
     /**

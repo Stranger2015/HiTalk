@@ -26,7 +26,7 @@ public interface IParser extends IHitalkObject {
     /**
      * @param parser
      */
-    default void setParser ( PlPrologParser parser ) {
+    default void setParser(PlPrologParser parser) {
         if (parser.getClass() == getParser().getClass()) {
             throw new IllegalStateException(
                     String.format("INTERNAL ERROR:%s#setParser()", parser.getClass().getSimpleName()));
@@ -38,65 +38,65 @@ public interface IParser extends IHitalkObject {
     /**
      * @param parser
      */
-    default void doSetParser ( PlPrologParser parser ) {
+    default void doSetParser(PlPrologParser parser) {
         getParser().setParser(parser);
     }
 
     /**
      * @return
      */
-    default HiTalkStream getStream () {
+    default HiTalkStream getStream() {
         return getParser().getStream();
     }
 
     /**
      * @param stream
      */
-    default void setStream ( HiTalkStream stream ) {
+    default void setStream(HiTalkStream stream) {
         getParser().setStream(stream);
     }
 
-    IVafInterner getInterner ();
+    IVafInterner getInterner();
 
-    void setInterner ( IVafInterner interner );
+    void setInterner(IVafInterner interner);
 
-    ITermFactory getFactory ()//fixme
+    ITermFactory getFactory()//fixme
     ;
 
-    IOperatorTable getOptable ()//fixme
+    IOperatorTable getOptable()//fixme
     ;
 
-    void setOptable ( IOperatorTable optable );
+    void setOptable(IOperatorTable optable);
 
     /**
      * @param op
      */
-    default void setOperator ( HlOpSymbol op ) {
+    default void setOperator(HlOpSymbol op) {
         getParser().setOperator(op);
     }
 
     /**
      * @return
      */
-    Language language ();
+    Language language();
 
     /**
      * @return
      * @throws HtSourceCodeException
      */
-    ITerm parse () throws Exception;
+    ITerm parse() throws Exception;
 
     /**
      * @return
      */
-    default ITokenSource getTokenSource() {
+    default PlLexer getTokenSource() {
         return getParser().getTokenSource();
     }
 
     /**
      * @param source
      */
-    default void setTokenSource(ITokenSource source) {
+    default void setTokenSource(PlLexer source) {
         if (source.isOpen()) {
             getParser().setTokenSource(source);
         }
@@ -105,10 +105,14 @@ public interface IParser extends IHitalkObject {
     /**
      * @return
      */
-    default ITokenSource popTokenSource() throws IOException {
-        final ITokenSource ts = getParser().popTokenSource();
+    default PlLexer popTokenSource() throws IOException {
+        PlLexer ts = getTokenSource();
+        ts.getInputStream().removeListener(ts);
+        ts = getParser().popTokenSource();
+        ts.getInputStream().addListener(ts);
         ts.close();
         return ts;
+
     }
 
     /**
@@ -116,19 +120,19 @@ public interface IParser extends IHitalkObject {
      * @param priority
      * @param associativity
      */
-    default void internOperator ( String name, int priority, Associativity associativity ) {
+    default void internOperator(String name, int priority, Associativity associativity) {
         getParser().internOperator(name, priority, associativity);
     }
 
     /**
      *
      */
-    void initializeBuiltIns ();
+    void initializeBuiltIns();
 
     /**
      * @param factory
      */
-    default void setTermFactory ( ITermFactory factory ) {
+    default void setTermFactory(ITermFactory factory) {
         getParser().setTermFactory(factory);
     }
 
@@ -136,17 +140,17 @@ public interface IParser extends IHitalkObject {
      * @return
      * @throws IOException
      */
-    ITerm next () throws Exception;
+    ITerm next() throws Exception;
 
     /**
      * @return
      */
-    HtClause parseClause () throws Exception;
+    HtClause parseClause() throws Exception;
 
     /**
      * @return
      */
-    default HtClause sentence () {
+    default HtClause sentence() {
         return getParser().sentence();
     }
 

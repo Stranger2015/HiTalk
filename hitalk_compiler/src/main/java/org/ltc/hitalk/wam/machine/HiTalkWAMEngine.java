@@ -11,11 +11,13 @@ import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  *
  */
 public
-class HiTalkWAMEngine<T extends HtClause, P, Q, PC, QC> extends HtResolutionEngine <T, P, Q, PC, QC> {
+class HiTalkWAMEngine<T extends HtClause, P, Q, PC, QC> extends HtResolutionEngine<T, P, Q, PC, QC> {
 
     protected final Logger log = LoggerFactory.getLogger(getClass().getSimpleName());
 
@@ -68,22 +70,21 @@ class HiTalkWAMEngine<T extends HtClause, P, Q, PC, QC> extends HtResolutionEngi
 
         // Create a token source to load the model rules from.
         InputStream input = getClass().getClassLoader().getResourceAsStream(BUILT_IN_LIB);
-        ITokenSource tokenSource = null;
+        PlLexer tokenSource = null;
 
         // Set up a parser on the token source.
         IParser libParser = new HiTalkParser();
-        libParser.setTokenSource(tokenSource);
+        libParser.setTokenSource(requireNonNull(tokenSource));
 
         // Load the built-ins into the domain.
         try {
             while (true) {
                 HtClause sentence = libParser.sentence();
-
                 if (sentence == null) {
                     break;
                 }
 
-                compiler.compile((T) sentence);
+                compiler.compile(sentence);
             }
 
             compiler.endScope();

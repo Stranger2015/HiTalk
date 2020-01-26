@@ -5,7 +5,7 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.parser.Directive;
 import org.ltc.hitalk.parser.Directive.DirectiveKind;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.ITokenSource;
+import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler.ClauseChainObserver;
 import org.ltc.hitalk.wam.task.PreCompilerTask;
@@ -87,7 +87,7 @@ public interface IPreCompiler extends IQueueHolder<PreCompilerTask>, IHitalkObje
      * @return
      * @throws Exception
      */
-    List<HtClause> preCompile(ITokenSource tokenSource, EnumSet<DirectiveKind> delims) throws Exception;
+    List<HtClause> preCompile(PlLexer tokenSource, EnumSet<DirectiveKind> delims) throws Exception;
 
     Deque <PreCompilerTask> getQueue ();
 

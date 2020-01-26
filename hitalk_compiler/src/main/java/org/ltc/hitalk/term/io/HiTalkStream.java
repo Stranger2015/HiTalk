@@ -6,7 +6,6 @@ import org.ltc.hitalk.entities.IProperty;
 import org.ltc.hitalk.entities.IPropertyOwner;
 import org.ltc.hitalk.entities.PropertyOwner;
 import org.ltc.hitalk.term.HtNonVar;
-import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,13 +21,13 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.function.Predicate;
 
 import static java.nio.charset.Charset.*;
 import static org.ltc.hitalk.core.BaseApp.appContext;
-import static org.ltc.hitalk.entities.PropertyOwner.createProperty;
 
 /**
  * open(+SrcDest, +Mode, --Stream)
@@ -142,11 +141,10 @@ import static org.ltc.hitalk.entities.PropertyOwner.createProperty;
  * user_error.
  */
 public abstract /*abstract*/
-class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable, Closeable, IHitalkObject {
+class HiTalkStream extends PropertyOwner implements PropertyChangeListener, Cloneable, Closeable, IHitalkObject {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     public static final int BB_ALLOC_SIZE = 32768;
-//    public final static String[] EMPTY_STRING_ARRAY = new String[0];
 
     protected FileDescriptor fd;
     protected FileChannel channel;
@@ -155,11 +153,24 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
 
     protected boolean isOpen;
 
-    protected IPropertyOwner owner = createPropertyOwner();
+    protected IPropertyOwner owner = this;
     private List<PropertyChangeListener> listeners = new ArrayList<>();
-    private String methodName;
-    private Predicate<IFunctor> body;
-    private int arity;
+
+    //    private String methodName;
+//    private Predicate<IFunctor> body;
+//    private int arity;
+//
+    public HiTalkStream(HtProperty... properties) {
+        super(properties);
+    }
+
+    /**
+     * @param methods
+     * @param props
+     */
+    public HiTalkStream(HtMethodDef[] methods, HtProperty[] props) {
+        super(methods, props);
+    }
 
     /**
      * ISO Input and Output Streams
@@ -180,16 +191,16 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
      *
      * @return
      */
-    protected PropertyOwner createPropertyOwner() throws Exception {
+    protected IPropertyOwner createPropertyOwner() {
         HtProperty[] props = new HtProperty[]{
                 createProperty("alias(Atom)", ""),
 //                SWI-Prolog extension to query the buffering mode of this stream.
 //                Buffering is one of full, line or false.
                 createProperty("buffer(Buffering).", "full", "line", "false"),
-                createProperty("buffer_size", "Integer"),
+                createProperty("buffer_size(Integer)", ""),
                 createProperty("bom(Bool)", "\ufeff"),//utf1i6
-                createProperty("close_on_abort(Bool)", "Bool"),
-                createProperty("close_on_exec(Bool)", "Bool"),
+                createProperty("close_on_abort(Bool)", ""),
+                createProperty("close_on_exec(Bool)", ""),
                 createProperty("encoding(Encoding)",
                         "octet",
                         "octet", //Default encoding for binary streams.
@@ -212,37 +223,47 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
 //                Initially the terminal stream writes the characters using Prolog escape sequences while other streams
 //                generate an I/O exception.
 //        };
-//        C library default locale encoding for text files. Files are read and written using the C library functions  and wcrtomb(). This may be the same as one of the other locales, notably it may be the same as iso_latin_1 for Western languages and utf8 in a UTF-8 context.
+//        C library default locale encoding for text files. Files are read and written using the C library functions  and wcrtomb().
+//        This may be the same as one of the other locales, notably it may be the same as iso_latin_1 for Western
+//        languages and utf8 in a UTF-8 context.
                 createProperty("end_of_stream(E)", "not", "not", "at", "past"),
-                createProperty("eof_action", "A", "eof_code", "reset", "error"),
-                createProperty("file_name", "Atom"),
-                createProperty("file_no", "Integer"),
-                createProperty("input", ""),
-                createProperty("locale", "Locale"),
-                createProperty("mode", "IOMode", "read", "write", "append", "update"),
-                createProperty("newline", "NewlineMode", "posix", "dos"),//If dos, text streams will emit \r\n for \n and discard \r from input streams.
-                createProperty("nlink", "-Count"),
-                createProperty("output", "Bool"),//True if Stream has mode write, append or update.
-                createProperty("position", "Pos"),// Unify Pos with the current stream position. A stream position is an opaque term whose fields can be extracted using stream_position_data/3. See also set_stream_position/2.
-                createProperty("reposition", "Bool"),//Unify Bool with true if the position of the stream can be set (see seek/4). It is assumed the position can be set
+                createProperty("eof_action(A)", "eof_code", "eof_code", "reset", "error"),
+                createProperty("file_name(Atom)", ""),
+                createProperty("file_no(Integer)", ""),
+                createProperty("input(Bool)", ""),
+                createProperty("locale(Locale)", ""),
+                createProperty("mode(IOMode)", "", "read", "write", "append", "update"),
+                createProperty("newline(NewlineMode)", "", "posix", "dos"),//If dos, text streams will emit \r\n for \n and discard \r from input streams.
+                createProperty("nlink(-Count)", ""),
+                createProperty("output(Bool)", "Bool"),//True if Stream has mode write, append or update.
+                createProperty("position(Pos)", "Pos"),// Unify Pos with the current stream position. A stream position is an opaque term whose fields can be extracted using stream_position_data/3. See also set_stream_position/2.
+                createProperty("reposition(Bool)", "Bool"),//Unify Bool with true if the position of the stream can be set (see seek/4). It is assumed the position can be set
 //if the stream has a seek-function and is not based on a POSIX file descriptor that is not associated to a regular file.
-                createProperty("representation_errors", "Mode", "prolog", "error"),//Determines behaviour of character output if the stream cannot represent a character. For example, an ISO Latin-1 stream cannot represent Cyrillic characters. The behaviour is one of error (throw an I/O error exception),
+                createProperty("representation_errors(Mode)", "",
+                        "prolog", "error"),//Determines behaviour of character output if the stream cannot
+                // represent a character.
+                // For example, an ISO Latin-1 stream cannot represent Cyrillic characters. The behaviour is one of
+                // error (throw an I/O error exception),
 //prolog (write \...\ escape code) or xml (write &#...; XML character entity).
 //The initial mode is prolog for the user streams and error for all other streams.
 //See also section 2.20.1 and set_stream/2.
-                createProperty("timeout", "-Time"),//Time is the timeout currently associated with the stream. See set_stream/2 with the same option.
+                createProperty("timeout(-Time)", ""),//Time is the timeout currently associated with the stream.
+                // See set_stream/2 with the same option.
+
 //If no timeout is specified, Time is unified to the atom infinite.
-                createProperty("type", "Type", "text", "binary"),//Unify Bool with true if the position of the stream can be set (see seek/4). It is assumed the position can be set
-                createProperty("tty()", "Bool"),// This property is reported with Bool equal to true if the stream is associated with a terminal.
-                createProperty("write_errors", "eeeoR ", "error", "ignored")};// Atom is one of error (default) or ignore. The latter is intended to deal with service processes for which the
+                createProperty("type(Type)", "",
+                        "text",
+                        "binary"),//Unify Bool with true if the position of the stream can be set (see seek/4).
+                // It is assumed the position can be set
+                createProperty("tty(Bool)", "Bool"),// This property is reported with Bool equal to true if the stream is associated with a terminal.
+                createProperty("write_errors(Errors)", "error ", "error", "ignored")};// Atom is one of error (default) or ignore. The latter is intended to deal with service processes for which the
 //standard output handles are not connected to valid streams. In these cases write errors may be ignored on
 //user_error. See also set_stream/2.
         final Map<String, HtProperty> map = new HashMap<>();
-//        map.addAll(Arrays.asList(props));
 
-        final IFunctor name;
-        Predicate<IFunctor> body;
-        final int arity;
+//        final IFunctor name;
+//        Predicate<IFunctor> body;
+//        final int arity;
 
 
         // open_null_stream/1
@@ -302,9 +323,14 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
 //                buffer(Buffering)
 //        Defines output buffering. The atom full (default) defines full buffering, line buffering by line, and false implies the stream is fully unbuffered. Smaller buffering is useful if another process or the user is waiting for the output as it is being produced. See also flush_output/[0,1]. This option is not an ISO option.
 //                close_on_abort(Bool)
-//        If true (default), the stream is closed on an abort (see abort/0). If false, the stream is not closed. If it is an output stream, however, it will be flushed. Useful for logfiles and if the stream is associated to a process (using the pipe/1 construct).
+//        If true (default), the stream is closed on an abort (see abort/0). If false, the stream is not closed.
+//        If it is an output stream, however, it will be flushed. Useful for logfiles and if the stream is associated to
+//        a process (using the pipe/1 construct).
 //                create(+List)
-//        Specifies how a new file is created when opening in write, append or update mode. Currently, List is a list of atoms that describe the permissions of the created file.89 Defined values are below. Not recognised values are silently ignored, allowing for adding platform specific extensions to this set.
+//        Specifies how a new file is created when opening in write, append or update mode. Currently, List is a list
+//        of atoms that describe the permissions of the created file.
+//        Defined values are below. Not recognised values are silently ignored, allowing for adding platform specific
+//        extensions to this set.
 //
 //                read
 //        Allow read access to the file.
@@ -317,23 +343,39 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
 //        all
 //        Allow any access provided by the OS.
 //
-//                Note that if List is empty, the created file has no associated access permissions. The create options map to the POSIX mode option of open(), where read map to 0444, write to 0222 and execute to 0111. On POSIX systems, the final permission is defined as (mode & ~umask).
+//                Note that if List is empty, the created file has no associated access permissions.
+//                The create options map to the POSIX mode option of open(), where read map to 0444, write to 0222 and
+//                execute to 0111. On POSIX systems, the final permission is defined as (mode & ~umask).
+
 //                encoding(Encoding)
-//        Define the encoding used for reading and writing text to this stream. The default encoding for type text is derived from the Prolog flag encoding. For binary streams the default encoding is octet. For details on encoding issues, see section 2.20.1.
+//        Define the encoding used for reading and writing text to this stream. The default encoding for type text is
+//        derived from the Prolog flag encoding. For binary streams the default encoding is octet. For details on
+//        encoding issues, see section 2.20.1.
 //                eof_action(Action)
-//        Defines what happens if the end of the input stream is reached. The default value for Action is eof_code, which makes get0/1 and friends return -1, and read/1 and friends return the atom end_of_file. Repetitive reading keeps yielding the same result. Action error is like eof_code, but repetitive reading will raise an error. With action reset, Prolog will examine the file again and return more data if the file has grown.
+//        Defines what happens if the end of the input stream is reached. The default value for Action is eof_code,
+//        which makes get0/1 and friends return -1, and read/1 and friends return the atom end_of_file.
+//        Repetitive reading keeps yielding the same result. Action error is like eof_code, but repetitive reading will
+//        raise an error. With action reset, Prolog will examine the file again and return more data if the file has grown.
 //        locale(+Locale)
 //        Set the locale that is used by notably format/2 for output on this stream. See section 4.23.
 //                lock(LockingMode)
-//        Try to obtain a lock on the open file. Default is none, which does not lock the file. The value read or shared means other processes may read the file, but not write it. The value write or exclusive means no other process may read or write the file.
+//        Try to obtain a lock on the open file. Default is none, which does not lock the file.
+//        The value read or shared means other processes may read the file, but not write it. The value write or
+//        exclusive means no other process may read or write the file.
 //
-//                Locks are acquired through the POSIX function fcntl() using the command F_SETLKW, which makes a blocked call wait for the lock to be released. Please note that fcntl() locks are advisory and therefore only other applications using the same advisory locks honour your lock. As there are many issues around locking in Unix, especially related to NFS (network file system), please study the fcntl() manual page before trusting your locks!
+//                Locks are acquired through the POSIX function fcntl() using the command F_SETLKW, which makes
+//                a blocked call wait for the lock to be released. Please note that fcntl() locks are advisory and
+//                therefore only other applications using the same advisory locks honour your lock. As there are many
+//                issues around locking in Unix, especially related to NFS (network file system), please study the
+//                fcntl() manual page before trusting your locks!
 //
 //                The lock option is a SWI-Prolog extension.
 //
-//        Using type text (default), Prolog will write a text file in an operating system compatible way. Using type binary the bytes will be read or written without any translation. See also the option encoding.
+//        Using type text (default), Prolog will write a text file in an operating system compatible way.
+//        Using type binary the bytes will be read or written without any translation. See also the option encoding.
 //                wait(Bool)
-//        This option can be combined with the lock option. If false (default true), the open call returns immediately with an exception if the file is locked. The exception has the format permission_error(lock, source_sink, SrcDest).
+//        This option can be combined with the lock option. If false (default true), the open call returns immediately
+//        with an exception if the file is locked. The exception has the format permission_error(lock, source_sink, SrcDest).
 //
 //        The option reposition is not supported in SWI-Prolog. All streams connected to a file may be repositioned.
 
@@ -411,7 +453,7 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
         }
     }
 
-    abstract protected void doOpen() throws FileNotFoundException, FileNotFoundException;
+    abstract protected void doOpen() throws FileNotFoundException;
 
     /**
      * @param path
@@ -419,6 +461,7 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
      * @param options
      */
     protected HiTalkStream(Path path, String encoding, StandardOpenOption... options) throws Exception {
+        this();
         this.path = path;
         Charset charset = isSupported(encoding) ? forName(encoding) : defaultCharset();
         CharsetDecoder decoder = charset.newDecoder();
@@ -439,11 +482,9 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
      * @throws IOException
      */
     public HiTalkStream(FileDescriptor fd) throws Exception {
+        this();
         this.fd = fd;
         init(fd);
-    }
-
-    protected HiTalkStream() throws Exception {
     }
 
     /**
@@ -460,7 +501,9 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
      */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-
+        if (evt.getPropertyName().equals("file_name")) {
+            path = Paths.get(evt.getNewValue().toString());
+        }
     }
 
     /**
@@ -524,11 +567,11 @@ class HiTalkStream implements IPropertyOwner, PropertyChangeListener, Cloneable,
         }
     }
 
-    public ITerm getValue(String propertyName) {
-        return this.getPropMap().get(propertyName).getValue();
+    public HtNonVar getValue(IFunctor propertyName) {
+        return this.getPropMap().get(propertyName.toString()).getValue();
     }
 
-    public void setValue(String propertyName, HtProperty newValue) {
+    public void setValue(IFunctor propertyName, HtNonVar newValue) {
 //        final HtProperty prop = createProperty(propertyName, String.valueOf(newValue));
 //        final ITerm oldValue = getMap().get(propertyName).getValue();
 //        final PropertyChangeEvent event = new PropertyChangeEvent(this, propertyName, oldValue, newValue);

@@ -85,7 +85,7 @@ public class PlPrologParser implements IParser {
     public static final IFunctor BEGIN_OF_FILE_ATOM = getAppContext().getTermFactory().newAtom(BEGIN_OF_FILE);
     public static final String ANONYMOUS = "_";
 
-    protected final Deque<ITokenSource> tokenSourceStack = new ArrayDeque<>();
+    protected final Deque<PlLexer> tokenSourceStack = new ArrayDeque<>();
 
     protected IOperatorTable operatorTable;
     protected IVafInterner interner;
@@ -201,28 +201,30 @@ public class PlPrologParser implements IParser {
      * @return
      */
     @Override
-    public ITokenSource getTokenSource() {
+    public PlLexer getTokenSource() {
         return tokenSourceStack.peek();
     }
 
     /**
      * @param source
      */
-    public void setTokenSource(ITokenSource source) {
-        logger.info("Adding ts " + requireNonNull(source.getPath(), "ts PATH=REQ NON NULL" + source.isOpen()));
-        if (!tokenSourceStack.contains(source) && source.isOpen()) {
-            tokenSourceStack.push(source);
+    public void setTokenSource(PlLexer source) {
+        if (source.isOpen()) {
+            logger.info("Adding ts " + requireNonNull(source.getPath(), "ts PATH=REQ NON NULL" + source.isOpen()));
+            if (!tokenSourceStack.contains(source) && source.isOpen()) {
+                tokenSourceStack.push(source);
+            }
+            logger.info("declined  Adding dup ts " + source.getPath());
         }
-        logger.info("declined  Adding dup ts " + source.getPath());
     }
 
     /**
      * @return
      */
     @Override
-    public ITokenSource popTokenSource() throws IOException {
+    public PlLexer popTokenSource() throws IOException {
         if (!tokenSourceStack.isEmpty()) {
-            final ITokenSource ts = tokenSourceStack.pop();
+            final PlLexer ts = tokenSourceStack.pop();
             ts.close();
             return ts;
         }
@@ -292,7 +294,7 @@ public class PlPrologParser implements IParser {
 //    }
 
     public PlLexer getLexer() {
-        return (PlLexer) getTokenSource();
+        return getTokenSource();
     }
 
 //    protected ITerm literal(PlToken token) throws Exception {
@@ -645,7 +647,7 @@ public class PlPrologParser implements IParser {
      * Static service to get a term from its string representation
      */
     public ITerm parseSingleTerm(String st) throws Exception {
-        ITokenSource ts = ITokenSource.getITokenSourceForString(st);
+        PlLexer ts = PlLexer.getPlLexerForString(st);
         return parseSingleTerm(ts);
     }
 
@@ -653,7 +655,7 @@ public class PlPrologParser implements IParser {
      * Static service to get a term from its string representation,
      * providing a specific operator manager
      */
-    public ITerm parseSingleTerm(ITokenSource ts) throws Exception {
+    public ITerm parseSingleTerm(PlLexer ts) throws Exception {
         try {
             setTokenSource(ts);
             PlToken t = getLexer().readToken(true);

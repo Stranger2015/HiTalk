@@ -83,7 +83,7 @@ public class PrologPreprocessor<T extends HtClause, P, Q, TC extends ITerm, TT e
      * @param term
      * @return
      */
-    public List <ITerm> expandTerm ( ITerm term ) {
+    public List<ITerm> expandTerm(ITerm term) throws Exception {
         return super.expandTerm(term);
     }
 

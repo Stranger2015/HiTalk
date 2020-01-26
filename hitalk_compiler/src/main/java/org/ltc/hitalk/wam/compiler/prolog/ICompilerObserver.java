@@ -1,14 +1,14 @@
 package org.ltc.hitalk.wam.compiler.prolog;
 
 import org.ltc.hitalk.parser.HtSourceCodeException;
-import org.ltc.hitalk.parser.ITokenSource;
+import org.ltc.hitalk.parser.PlLexer;
 
 /**
  * @param <T>
  * @param <Q>
  */
 public interface ICompilerObserver<T, Q> {
-    default void onCompilation(ITokenSource tokenSource) throws Exception {
+    default void onCompilation(PlLexer tokenSource) throws Exception {
 
     }
 

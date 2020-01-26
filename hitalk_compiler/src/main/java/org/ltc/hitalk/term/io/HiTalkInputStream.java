@@ -2,7 +2,7 @@ package org.ltc.hitalk.term.io;
 
 import org.jetbrains.annotations.NotNull;
 import org.ltc.hitalk.entities.HtProperty;
-import org.ltc.hitalk.parser.ITokenSource;
+import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.term.HtNonVar;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
@@ -15,7 +15,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
-import java.util.Properties;
 
 import static java.nio.file.StandardOpenOption.READ;
 import static org.apache.commons.lang3.CharEncoding.UTF_8;
@@ -33,12 +32,12 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
     protected FileInputStream inputStream;
     protected PushbackReader pushbackReader;
     private int bof;
-    private ITokenSource tokenSource;
+    private PlLexer tokenSource;
 
     private int reads;
     private int lineNumber;
     private int colNumber;
-    private LineNumberReader reader;//=new LineNumberReader();
+    private LineNumberReader reader;
 
     /**
      * Creates a buffering character-input stream that uses a default-sized
@@ -151,7 +150,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
     /**
      * @param tokenSource
      */
-    public void setTokenSource(ITokenSource tokenSource) {
+    public void setTokenSource(PlLexer tokenSource) {
         this.tokenSource = tokenSource;
     }
 
@@ -240,6 +239,8 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
         if (getInputStream() == null) {
             setInputStream(new FileInputStream(tokenSource.getPath()));
         }
+//        IVafInterner interner= BaseApp.appContext.getInterner();
+//        String fn = interner.getFunctorName(getPropMap().get("file_name").getValue());
         isOpen = true;
     }
 
@@ -254,10 +255,9 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      * @param evt A PropertyChangeEvent object describing the event source
      *            and the property that has changed.
      */
-    //@Override
+    @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        owner.propertyChange(evt);
-
+        super.propertyChange(evt);
     }
 
     /**
@@ -268,29 +268,40 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
         return owner.getPropLength();
     }
 
+    /**
+     * @param listener
+     */
     @Override
     public void addListener(PropertyChangeListener listener) {
-        owner.addListener(listener);
+        super.addListener(listener);
     }
 
+    /**
+     * @param listener
+     */
     @Override
     public void removeListener(PropertyChangeListener listener) {
-        owner.removeListener(listener);
+        super.removeListener(listener);
     }
 
-    @Override
     /**
      * @param propertyName
      * @param value
      */
+    @Override
     public void setValue(IFunctor propertyName, HtNonVar value) {
         owner.setValue(propertyName, value);
     }
 
+    /**
+     * @return
+     */
+    @Override
     public HtProperty[] getProps() {
         return owner.getProps();
     }
 
+    @Override
     public HtMethodDef[] getMethods() {
         return owner.getMethods();
     }
@@ -303,31 +314,14 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
         return owner.getPropMap();
     }
 
-    public Map<String, HtMethodDef> getMmap() {
-        return owner.getMethodMap();
-    }
-
-    public Map<String, HtProperty> getMap() {
-        return owner.getPropMap();
-    }
-
     @Override
     public HtNonVar getValue(IFunctor property) {
         return owner.getValue(property);
     }
 
-    /**
-     * @param property
-     * @param value
-     */
     //@Override
-    public void setValue(Properties property, Object value) {
-
-    }
-
-    //@Override
-    public HiTalkStream copy() throws CloneNotSupportedException {
-        return null;
+    public HiTalkStream copy() {
+        return null;//FIXME
     }
 
     public int getLineNumber() {
@@ -350,16 +344,13 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
         return bof++ == 0;
     }
 
-    public ITokenSource getTokenSource() {
+    public PlLexer getTokenSource() {
         return tokenSource;
     }
 
     public void toString0(StringBuilder sb) {
         super.toString0(sb);
         sb.append(", inputStream=").append(inputStream);
-//        sb.append(", pushbackReader=").append(pushbackReader);
-        //sb.append(", tokenSource=").append(tokenSource);
-//        sb.append(", reader=").append(reader);
     }
 
     public boolean equals(Object o) {

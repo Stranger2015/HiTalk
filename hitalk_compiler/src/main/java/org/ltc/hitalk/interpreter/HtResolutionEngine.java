@@ -26,7 +26,7 @@ import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtSourceCodeException;
-import org.ltc.hitalk.parser.ITokenSource;
+import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
@@ -134,7 +134,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      */
     public void consultInputStream ( HiTalkInputStream stream ) throws Exception {
         // Create a token source to read from the specified input stream.
-        ITokenSource tokenSource = stream.getTokenSource();
+        PlLexer tokenSource = stream.getTokenSource();
         getParser().setTokenSource(tokenSource);
 
         // Consult the type checking rules and add them to the knowledge base.
@@ -380,7 +380,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
     }
 
     @Override
-    public List<HtClause> compile(ITokenSource tokenSource, HtProperty... flags) throws Exception {
+    public List<HtClause> compile(PlLexer tokenSource, HtProperty... flags) throws Exception {
         return compiler.compile(tokenSource, flags);
     }
 

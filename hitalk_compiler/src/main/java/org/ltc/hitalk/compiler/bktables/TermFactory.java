@@ -7,6 +7,7 @@ import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
 import org.ltc.hitalk.entities.HtProperty;
+import org.ltc.hitalk.entities.PropertyOwner;
 import org.ltc.hitalk.entities.context.Context;
 import org.ltc.hitalk.entities.context.LoadContext;
 import org.ltc.hitalk.parser.PlPrologParser;
@@ -129,8 +130,8 @@ public class TermFactory implements ITermFactory {
     }
 
     @Override
-    public HtProperty createFlag(String scratch_directory, Path scratchDir) {
-        return new HtProperty(scratch_directory, scratchDir.toString());
+    public String createFlag(String scratch_directory, Path scratchDir) {//fixme
+        return PropertyOwner.createProperty(scratch_directory, scratchDir.toString(), "").getV();
     }
 
     public IFunctor createMostGeneral(IFunctor functor) throws Exception {

@@ -20,10 +20,7 @@ import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.context.Context;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.LoadContext;
-import org.ltc.hitalk.parser.HiTalkParser;
-import org.ltc.hitalk.parser.HtSourceCodeException;
-import org.ltc.hitalk.parser.IParser;
-import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.parser.*;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.wam.compiler.*;
 import org.ltc.hitalk.wam.compiler.hilog.HiLogCompilerApp;
@@ -45,7 +42,6 @@ import static java.lang.System.in;
 import static org.ltc.hitalk.compiler.bktables.BkTableKind.LOADED_ENTITIES;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.RESOURCE_ERROR;
-import static org.ltc.hitalk.parser.ITokenSource.getTokenSourceForIoFileName;
 import static org.ltc.hitalk.term.ListTerm.NIL;
 import static org.ltc.hitalk.wam.compiler.Language.HITALK;
 
@@ -411,7 +407,7 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q, PC, QC>
                 //between backend Prolog compilers
                 getTermFactory().createFlag("clean", "on"),
                 //use a scratch directory where we expect to have writing permission
-                getTermFactory().createFlag("scratch_directory", scratchDir),
+//                getTermFactory().createFlag("scratch_directory", scratchDir),
                 //optimize entity code, allowing static binding to this entity resource
                 getTermFactory().createFlag("optimize", "on"),
                 //don't print any messages on the compilation and loading of these entities
@@ -928,14 +924,14 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q, PC, QC>
     }
 
     public void compile ( String fileName, HtProperty[] flags ) throws Exception {
-        wamCompiler.compile(getTokenSourceForIoFileName(fileName), flags);
+        wamCompiler.compile(PlLexer.getTokenSourceForIoFileName(fileName), flags);
 
     }
     //logtalkCompile(@list(sourceFile_name))
 
     //compiles to disk a source file or list of sogurce files using default flags
 
-    //top-level calls use the current working directory for resolving any relativeae
+    //top-level calls use the current working directory for resolving any relative
     //source file paths while compiled calls in a source file use the source file
     //directory by default
 

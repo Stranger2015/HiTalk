@@ -75,7 +75,7 @@ interface ITermFactory extends IHitalkObject {
 
     ListTerm newListTerm(Kind kind, ITerm... headTail);
 
-    HtProperty createFlag(String scratch_directory, Path scratchDir);
+    String createFlag(String scratch_directory, Path scratchDir);
 
     /**
      * @param functor

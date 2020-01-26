@@ -7,7 +7,7 @@ import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtSourceCodeException;
-import org.ltc.hitalk.parser.ITokenSource;
+import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
@@ -98,12 +98,11 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
      */
     @Override
     public List <HtClause> compile ( String fileName, HtProperty... flags ) throws Exception {
-        ITokenSource ts = ITokenSource.getTokenSourceForIoFileName(fileName);
+        PlLexer ts = PlLexer.getTokenSourceForIoFileName(fileName);
         return compile(ts, flags);
     }
 
-    @Override
-    public List<HtClause> compile(ITokenSource tokenSource, HtProperty... flags) throws Exception {
+    public List<HtClause> compile(PlLexer tokenSource, HtProperty... flags) throws Exception {
         getConsole().info("PreCompiling " + tokenSource.getPath() + "... ");
         final List<HtClause> list = new ArrayList<>();
         parser.setTokenSource(tokenSource);

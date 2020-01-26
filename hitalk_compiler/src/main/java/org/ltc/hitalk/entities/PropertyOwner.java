@@ -37,7 +37,7 @@ class PropertyOwner implements IPropertyOwner {
      * @return
      */
     public static HtProperty createProperty(String s, String v, String... options) {
-        return new HtProperty(s, options);
+        return new HtProperty(s, v, options);
     }
 
     public HtProperty[] getProps() {

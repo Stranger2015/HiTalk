@@ -6,7 +6,7 @@ import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtSourceCodeException;
-import org.ltc.hitalk.parser.ITokenSource;
+import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.BaseInstructionCompiler;
 
@@ -77,8 +77,8 @@ public class PrologInstructionCompiler<T extends HtClause, PC, QC> extends BaseI
         return list;
     }
 
-    @Override
-    public List<HtClause> compile(ITokenSource tokenSource, HtProperty... flags) throws HtSourceCodeException {
+    //    @Override
+    public List<HtClause> compile(PlLexer tokenSource, HtProperty... flags) throws HtSourceCodeException {
         logger.info("Precompiling (" + tokenSource.getPath() + ") ...");
 //        clauseNumber
 

@@ -21,8 +21,6 @@ public class HtTermWriter extends PropertyOwner implements PropertyChangeListene
     /**
      * @param out
      * @param path
-     * @param encUoding
-     * @param options
      * @throws IOException
      */
 //    public HtTermWriter ( BufferedWriter output, Path path, String encoding, StandardOpenOption... options ) throws IOException {

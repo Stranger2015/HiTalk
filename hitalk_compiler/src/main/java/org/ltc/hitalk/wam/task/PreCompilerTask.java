@@ -3,7 +3,7 @@ package org.ltc.hitalk.wam.task;
 import org.ltc.hitalk.core.IHitalkObject;
 import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.parser.Directive.DirectiveKind;
-import org.ltc.hitalk.parser.ITokenSource;
+import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.IPendingTasks;
 import org.slf4j.Logger;
@@ -17,37 +17,29 @@ import static java.lang.String.format;
  *
  */
 abstract public
-class PreCompilerTask implements IPendingTasks, IInvokable <ITerm>, IHitalkObject {
+class PreCompilerTask implements IPendingTasks, IInvokable<ITerm>, IHitalkObject {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
-    protected final ITokenSource tokenSource;
+    protected final PlLexer tokenSource;
     protected final IPreCompiler preCompiler;
-    protected final EnumSet <DirectiveKind> kind;
+    protected final EnumSet<DirectiveKind> kind;
 
-    public PreCompilerTask ( IPreCompiler preCompiler ) {
+    public PreCompilerTask(PlLexer tokenSource, IPreCompiler preCompiler, EnumSet<DirectiveKind> kind) {
+        this.tokenSource = tokenSource;
         this.preCompiler = preCompiler;
-        kind = EnumSet.noneOf(DirectiveKind.class);
-        tokenSource = null;
+        this.kind = kind;
     }
 
-    public ITerm getInput () {
+    public ITerm getInput() {
         return input;
     }
 
-    public Deque <ITerm> getOutput () {
+    public Deque<ITerm> getOutput() {
         return output;
     }
 
     protected ITerm input;
     protected final Deque <ITerm> output = new ArrayDeque <>();
-
-    public PreCompilerTask(IPreCompiler preCompiler,
-                           ITokenSource tokenSource,
-                           EnumSet<DirectiveKind> kind) {
-        this.preCompiler = preCompiler;
-        this.tokenSource = tokenSource;
-        this.kind = kind;
-    }
 
     /**
      * @param term
