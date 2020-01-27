@@ -16,7 +16,7 @@
 package org.ltc.hitalk.compiler.bktables;
 
 import org.ltc.hitalk.core.IHitalkObject;
-import org.ltc.hitalk.term.HlOpSymbol;
+import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 
 import java.util.Map;
@@ -52,9 +52,9 @@ public interface IOperatorTable extends IHitalkObject {
      * @param name The name of the operator to find.
      * @return An array of matching operators, or <tt>null</tt> if none can be found.
      */
-    Map<Fixity, HlOpSymbol> getOperatorsMatchingNameByFixity(String name);
+    Map<Fixity, PlPrologParser.IdentifiedTerm> getOperatorsMatchingNameByFixity(String name);
 
-    Set<HlOpSymbol> getOperators(String name);
+    Set<PlPrologParser.IdentifiedTerm> getOperators(String name);
 
     int getPriority(String image, Associativity associativity);
 }

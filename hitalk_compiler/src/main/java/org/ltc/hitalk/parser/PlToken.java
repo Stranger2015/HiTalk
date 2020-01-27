@@ -1,5 +1,7 @@
 package org.ltc.hitalk.parser;
 
+import org.ltc.hitalk.core.utils.AbstractIterator;
+
 import static org.ltc.hitalk.parser.PlToken.TokenKind.TK_BOF;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.TK_EOF;
 
@@ -159,6 +161,7 @@ public class PlToken implements ISourceCodePosition {
         TK_COLON(":"),
         TK_CONS("|");
 
+        public static AbstractIterator<Object> map;
         private String name;
 
         /**

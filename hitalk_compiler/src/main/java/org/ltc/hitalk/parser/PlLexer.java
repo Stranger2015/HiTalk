@@ -345,7 +345,7 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
      * @return
      * @throws Exception
      */
-    private PlToken getToken(boolean valued) throws Exception {
+    public PlToken getToken(boolean valued) throws Exception {
         PlToken token = null;
         try {
             skipWhitespaces();
@@ -626,28 +626,16 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
         HiTalkInputStream inputStream = new HiTalkInputStream(string);
 
         final PlLexer lexer = new PlLexer(inputStream);
-        ;
         inputStream.addListener(lexer);
         return lexer;
     }
 
-    static PlLexer getPlLexerForStdin() throws FileNotFoundException {
-        HiTalkInputStream stream = getAppContext().currentInput();
-        stream.setInputStream(new FileInputStream(FileDescriptor.in));
-
-        return new PlLexer(stream, "stdin");
-    }
-
-    /**
-     * @param encoding
-     * @throws IOException
-     */
-//    void onEncodingChanged(String encoding) throws IOException;
-
-    /**
-     * @param b
-     */
-//    void setEncodingPermitted(boolean b);
+//    static PlLexer getPlLexerForStdin() throws FileNotFoundException {
+//        HiTalkInputStream stream = getAppContext().currentInput();
+//        stream.setInputStream(new FileInputStream(FileDescriptor.in));
+//
+//        return new PlLexer(stream, "stdin");
+//    }
 
     /**
      * @param file

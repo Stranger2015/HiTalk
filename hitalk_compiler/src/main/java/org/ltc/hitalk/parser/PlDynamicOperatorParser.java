@@ -18,6 +18,7 @@ package org.ltc.hitalk.parser;
 import com.thesett.common.util.Queue;
 import com.thesett.common.util.StackQueue;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
+import org.ltc.hitalk.parser.PlPrologParser.IdentifiedTerm;
 import org.ltc.hitalk.term.CandidateOperator;
 import org.ltc.hitalk.term.HlOpSymbol;
 import org.ltc.hitalk.term.HlOpSymbol.Associativity;
@@ -322,7 +323,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
     /**
      * Holds the parsers current state.
      */
-    private int state;
+    private int state = gotoTable[stack.peek()];
 
     /**
      * Holds the parsers current position within the input sequence of terms.
@@ -342,7 +343,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
     /**
      * Holds the table of defined operators by name and fixity.
      */
-    private final Map<String, EnumMap<Fixity, HlOpSymbol>> operators = new HashMap<>();
+    private final Map<String, EnumMap<Fixity, IdentifiedTerm>> operators = new HashMap<>();
 
     /**
      * Parses a flat list of terms, which are literals, variables, functors, or operators into a tree in such a way that
@@ -406,11 +407,11 @@ public class PlDynamicOperatorParser implements IOperatorTable {
         // Check that the priority of the operator is valid.
         if (priority > 0 && (priority <= 1200)) {
 
-            HlOpSymbol opSymbol = new HlOpSymbol(name, textName, associativity, priority);
+            IdentifiedTerm opSymbol = new IdentifiedTerm(name, textName, associativity, priority);
 
             // Consult the defined operators to see if there are any already defined that match the name of the
             // new definition, otherwise a map of operators by fixity needs to be created.
-            EnumMap<Fixity, HlOpSymbol> operatorMap = operators.get(textName);
+            EnumMap<Fixity, IdentifiedTerm> operatorMap = operators.get(textName);
 
             // Check if the priority is non-zero in which case the operator is being added or redefined.
             if (priority > 0) {
@@ -463,13 +464,13 @@ public class PlDynamicOperatorParser implements IOperatorTable {
      * @param name The interned name of the operator to find.
      * @return An array of matching operators, or <tt>null</tt> if none can be found.
      */
-    public Map<Fixity, HlOpSymbol> getOperatorsMatchingNameByFixity(String name) {
-        final Map<Fixity, HlOpSymbol> map = operators.get(name);
+    public Map<Fixity, IdentifiedTerm> getOperatorsMatchingNameByFixity(String name) {
+        final EnumMap<Fixity, IdentifiedTerm> map = operators.get(name);
         return map == null ? Collections.emptyMap() : map;
     }
 
-    public Set<HlOpSymbol> getOperators(String s) {
-        final Map<Fixity, HlOpSymbol> map = getOperatorsMatchingNameByFixity(s);
+    public Set<IdentifiedTerm> getOperators(String s) {
+        final Map<Fixity, IdentifiedTerm> map = getOperatorsMatchingNameByFixity(s);
         return new HashSet<>(map.values());
     }
 
@@ -484,7 +485,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
         return symbol == null ? 0 : symbol.getPriority();
     }
 
-    private HlOpSymbol filter(Set<HlOpSymbol> operators, Associativity associativity) {
+    private HlOpSymbol filter(Set<IdentifiedTerm> operators, Associativity associativity) {
         for (HlOpSymbol symbol : operators) {
             if (symbol.getAssociativity() == associativity) {
                 return symbol;
