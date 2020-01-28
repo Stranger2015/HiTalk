@@ -1,15 +1,15 @@
 package org.ltc.hitalk.term;
 
 import org.ltc.hitalk.parser.ParserException;
-import org.ltc.hitalk.term.HlOpSymbol.Associativity;
+import org.ltc.hitalk.term.IdentifiedTerm.Associativity;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
-import static org.ltc.hitalk.term.HlOpSymbol.Associativity.fx;
-import static org.ltc.hitalk.term.HlOpSymbol.isCorrectOrder;
+import static org.ltc.hitalk.term.IdentifiedTerm.Associativity.fx;
+import static org.ltc.hitalk.term.IdentifiedTerm.isCorrectOrder;
 
 /**
  * 演算子優先順位解析を行います。
@@ -19,7 +19,7 @@ import static org.ltc.hitalk.term.HlOpSymbol.isCorrectOrder;
 @Deprecated
 public abstract class HlOperatorJoiner<T extends ITerm> {
 
-    private final Deque<HlOpSymbol> operators = new ArrayDeque<>();
+    private final Deque<IdentifiedTerm> operators = new ArrayDeque<>();
     private final Deque<T> operands = new ArrayDeque<>();
 
     // 最後に追加された演算子のタイプ
@@ -35,7 +35,7 @@ public abstract class HlOperatorJoiner<T extends ITerm> {
     /**
      * 式の構成要素となる次の演算子を追加します。
      */
-    public void push(HlOpSymbol operator) throws ParserException {
+    public void push(IdentifiedTerm operator) throws ParserException {
         resolve(operator.lprio);
         operators.push(operator);
         associativity = operator.getAssociativity();

@@ -6,7 +6,6 @@ import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
@@ -18,6 +17,9 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+
+import static org.ltc.hitalk.parser.PlPrologParser.BEGIN_OF_FILE;
+import static org.ltc.hitalk.parser.PlPrologParser.END_OF_FILE;
 
 /**
  * @param <P>
@@ -86,7 +88,7 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
     }
 
     @Override
-    public void compileDcgRule ( DcgRule rule ) throws HtSourceCodeException {
+    public void compileDcgRule(DcgRule rule) {
 
     }
 
@@ -108,13 +110,13 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
         parser.setTokenSource(tokenSource);
         while (tokenSource.isOpen()) {
             ITerm t = parser.next();
-            if (t == PlPrologParser.BEGIN_OF_FILE_ATOM) {
+            if (t == BEGIN_OF_FILE) {
 //                getTaskQueue().push(new TermExpansionTask(this, Collections::singletonList,
 //                        EnumSet.of(ENCODING))); //read until
                 continue;
             }
-            if (t == PlPrologParser.END_OF_FILE_ATOM) {
-//if (parser.getTokenSource().getStream())
+            if (t == END_OF_FILE) {
+                //                getTaskQueue().push(new TermExpansionTask(this, Collections::singletonList,
                 parser.popTokenSource();
                 break;
             }

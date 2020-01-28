@@ -63,7 +63,7 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
         this.name = name;
     }
 
-    public HtFunctor(int yf, HlOpSymbol symbol) {
+    public HtFunctor(int yf, IdentifiedTerm symbol) {
 
     }
 

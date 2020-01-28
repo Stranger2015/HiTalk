@@ -67,6 +67,7 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
     public PlLexer(InputStream is) throws FileNotFoundException {
         super(is);
         pushBackBuffer = new TokenBuffer(inputStream);
+        pushBackBuffer.pushBack(PlToken.newToken(TK_BOF));
     }
 
     public TokenBuffer getPushBackBuffer() {
@@ -78,6 +79,7 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
      * Holds the tokenizer that supplies the next token on demand.
      */
     protected IVafInterner interner;
+
     private boolean encodingChanged;
     private String path;
 
@@ -99,6 +101,7 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
      */
     public PlLexer(HiTalkInputStream stream, String path) throws FileNotFoundException {
         super(stream.getReader());
+
         setPath(path);
         pushBackBuffer = new TokenBuffer(inputStream);
     }
@@ -113,7 +116,6 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
     public void close() throws IOException {
         getInputStream().close();
     }
-//
 
     /**
      * @param inputStream
@@ -128,7 +130,7 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
         inputStream.open();
 
 //     The first token is initialized to be empty, so that the first call to `poll` returns the first token.
-        final PlToken firstToken = new PlToken(TK_BOF);
+//        final PlToken firstToken = new PlToken(TK_BOF);
         encodingPermitted = true;
         resetSyntax();
 
@@ -191,6 +193,8 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
         } else if (event.getPropertyName().equals("file_name")) {
             setPath((String) event.getNewValue());
         }
+        setEncodingChanged(isEncodingPermitted());
+        encodingPermitted = false;
     }
 
     /**
@@ -409,6 +413,7 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
                 do {
                     val.append((char) chr);
                 } while (isPrologIdentifierPart(chr = read()));
+
                 ungetc(chr);
             } else if (isVarStart((char) start)) {
                 return new PlToken(TK_VAR, val.toString());
@@ -420,12 +425,11 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
             }
 //            return new PlToken(ATOM, val.toString());
 //        }        // 'アトム' = atom
-
         ungetc(chr);
-
         if (!val.toString().isEmpty()) {
             return new PlToken(TK_ATOM, val.toString());
         }
+
         ungetc(chr);
 
         return null;
@@ -647,6 +651,13 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
         return new PlLexer(stream, file.getAbsolutePath());
     }
 
+    public String
+    toString() {
+        final String sb = "PlLexer{" + "path='" + path + '\'' +
+                '}';
+        return sb;
+    }
+
     /**
      * @param fileName
      * @return
@@ -656,137 +667,4 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
         HiTalkInputStream stream = new HiTalkInputStream(Paths.get(fileName), "UTF-8", READ);
         return new PlLexer(stream, fileName);
     }
-
-///**
-// * BNF for tuProlog
-// *
-// * part 1: Lexer
-// *      digit ::= 0 .. 9
-// *      lc_letter ::= a .. z
-// *      uc_letter ::= A .. Z | _
-// *      symbol ::= \ | $ | & | ^ | @ | # | . | , | : | ; | = | < | > | + | - | * | / | ~
-//
-// *      letter ::= digit | lc_letter | uc_letter
-// *      integer ::= { digit }+
-// *      float ::= { digit }+ . { digit }+ [ E|e [ +|- ] { digit }+ ]
-// *                                                                           // TODO Update BNF for quotes?
-// *      atom ::= lc_letter { letter }* | !
-// *      variable ::= uc_letter { letter }*
-// *
-// * from the super class, the super.nextToken() returns and updates the following relevant fields:
-// * - if the next token is a collection of wordChars,
-// * the type returned is TT_WORD and the value is put into the field sval.
-// * - if the next token is an ordinary char,
-// * the type returned is the same as the unicode int value of the ordinary character
-// * - other characters should be handled as ordinary characters.
-// */
-//class Tokenizer extends StreamTokenizer implements Serializable {
-//
-//    static final int TYPEMASK = 0x00FF;
-//    static final int ATTRMASK = 0xFF00;
-//    static final int LPAR = 0x0001;
-//    static final int RPAR = 0x0002;
-//    static final int LBRA = 0x0003;
-//    static final int RBRA = 0x0004;
-//    static final int BAR = 0x0005;
-//    static final int INTEGER = 0x0006;
-//    static final int FLOAT = 0x0007;
-//    static final int ATOM = 0x0008;
-//    static final int VARIABLE = 0x0009;
-//    static final int SQ_SEQUENCE = 0x000A;
-//    static final int DQ_SEQUENCE = 0x000B;
-//    static final int END = 0x000D;
-//    static final int LBRA2 = 0x000E;
-//    static final int RBRA2 = 0x000F;
-//    static final int FUNCTOR = 0x0100;
-//    static final int OPERATOR = 0x0200;
-//    static final int EOF = 0x1000;
-//
-//    static final char[] GRAPHIC_CHARS = {'\\', '$', '&', '?', '^', '@', '#', '.', ',', ':', ';', '=', '<', '>', '+', '-', '*', '/', '~'};
-//
-//    static {
-//        Arrays.sort(Tokenizer.GRAPHIC_CHARS);  // must be done to ensure correct behavior of Arrays.binarySearch
-//    }
-//
-//    //used to enable pushback from the parser. Not in any way connected with pushBack2 and super.pushBack().
-//    private LinkedList tokenList = new LinkedList();
-//
-//    //used in the double lookahead check that . following ints is a fraction marker or end marker (pushback() only works on one level)
-//    private PushBack pushBack2 = null;
-//
-//    public Tokenizer ( String text ) {
-//        this(new StringReader(text));
-//    }
-//
-//    /**
-//     * creating a tokenizer for the source stream
-//     */
-//    public Tokenizer ( Reader text ) {
-//        super(text);
-//
-//        // Prepare the tokenizer for Prolog-style tokenizing rules
-//
-//    }
-//
-//
-//    /**
-//     * puts back token to be read again
-//     */
-//    void unreadToken ( Token token ) {
-//        tokenList.addFirst(token);
-//    }
-//
-
-//
-//    /**
-//     * @param typec
-//     * @param svalc
-//     * @return the intValue of the next character token, -1 if invalid
-//     * todo needs a lookahead if typec is \
-//     */
-//    private static int isCharacterCodeConstantToken ( int typec, String svalc ) {
-//        if (svalc != null) {
-//            if (svalc.length() == 1)
-//                return (int) svalc.charAt(0);
-//            if (svalc.length() > 1) {
-//// TODO the following charachters is not implemented:
-////                * 1 meta escape sequence (* 6.4.2.1 *) todo
-////                * 1 control escape sequence (* 6.4.2.1 *)
-////                * 1 octal escape sequence (* 6.4.2.1 *)
-////                * 1 hexadecimal escape sequence (* 6.4.2.1 *)
-//                return -1;
-//            }
-//        }
-//        if (typec == ' ' ||                       // space char (* 6.5.4 *)
-//                Arrays.binarySearch(GRAPHIC_CHARS, (char) typec) >= 0)  // graphic char (* 6.5.1 *)
-////        	TODO solo char (* 6.5.3 *)
-//            return typec;
-//
-//        return -1;
-//    }
-//
-//    private static boolean isWhite ( int type ) {
-//        return type == ' ' || type == '\r' || type == '\n' || type == '\t' || type == '\f';
-//    }
-//
-//    /**
-//     * used to implement lookahead for two tokens, super.pushBack() only handles one pushBack..
-//     */
-//    private static class PushBack {
-//        int typea;
-//        String svala;
-//
-//        public PushBack ( int i, String s ) {
-//            typea = i;
-//            svala = s;
-//        }
-//    }
-//}
-// fullstop(Bool)
-//    If true (default false), add a fullstop token to the output.
-//    The dot is preceeded by a space if needed and followed by a space (default) or newline if the nl(true) option is
-//    also given.
-//ignore_ops(Bool)
-//    If true, the generic term representation (<functor>(<args> ... )) will be used for all terms.
-//    Otherwise (default),//    operators will be used where appropriate..
 }

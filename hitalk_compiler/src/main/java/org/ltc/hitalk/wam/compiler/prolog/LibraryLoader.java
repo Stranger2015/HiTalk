@@ -2,13 +2,15 @@ package org.ltc.hitalk.wam.compiler.prolog;
 
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.PlLexer;
-import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.LibParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
+
+import static org.ltc.hitalk.parser.PlPrologParser.BEGIN_OF_FILE;
+import static org.ltc.hitalk.parser.PlPrologParser.END_OF_FILE;
 
 /**
  *
@@ -31,9 +33,9 @@ public class LibraryLoader {
         // Load the built-ins into the domain
         while (tokenSource.isOpen()) {
             final ITerm term = libParser.parse();
-            if (term == PlPrologParser.BEGIN_OF_FILE_ATOM) {
+            if (term == BEGIN_OF_FILE) {
                 logger.info("begin_of_file");
-            } else if (term == PlPrologParser.END_OF_FILE_ATOM) {
+            } else if (term == END_OF_FILE) {
                 logger.info("end_of_file");
                 libParser.popTokenSource();
             } else {

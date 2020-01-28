@@ -4,9 +4,9 @@ import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.core.IHitalkObject;
-import org.ltc.hitalk.term.HlOpSymbol;
-import org.ltc.hitalk.term.HlOpSymbol.Associativity;
 import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.IdentifiedTerm;
+import org.ltc.hitalk.term.IdentifiedTerm.Associativity;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.Language;
 
@@ -71,7 +71,7 @@ public interface IParser extends IHitalkObject {
     /**
      * @param op
      */
-    default void setOperator(HlOpSymbol op) {
+    default void setOperator(IdentifiedTerm op) {
         getParser().setOperator(op);
     }
 

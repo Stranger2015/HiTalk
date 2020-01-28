@@ -136,7 +136,6 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
     /**
      * @return
      */
-    @Override
     public final Logger getLogger() {
         return logger;
     }

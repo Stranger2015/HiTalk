@@ -18,12 +18,11 @@ package org.ltc.hitalk.parser;
 import com.thesett.common.util.Queue;
 import com.thesett.common.util.StackQueue;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
-import org.ltc.hitalk.parser.PlPrologParser.IdentifiedTerm;
 import org.ltc.hitalk.term.CandidateOperator;
-import org.ltc.hitalk.term.HlOpSymbol;
-import org.ltc.hitalk.term.HlOpSymbol.Associativity;
-import org.ltc.hitalk.term.HlOpSymbol.Fixity;
 import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.IdentifiedTerm;
+import org.ltc.hitalk.term.IdentifiedTerm.Associativity;
+import org.ltc.hitalk.term.IdentifiedTerm.Fixity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +30,7 @@ import java.util.*;
 import java.util.stream.IntStream;
 
 import static java.util.Objects.requireNonNull;
-import static org.ltc.hitalk.term.HlOpSymbol.Fixity.*;
+import static org.ltc.hitalk.term.IdentifiedTerm.Fixity.*;
 
 /**
  * PlDynamicOperatorParser is a 'deferred decision parser' that can be used to parse Prolog with dynamically defined
@@ -172,7 +171,7 @@ import static org.ltc.hitalk.term.HlOpSymbol.Fixity.*;
  * non-associative then the choice is ambigious so an error is reported.
  * <p>
  * <p/>The parser is further complicated by the fact that operators can be overloaded in Prolog. This means that each
- * {@link CandidateOperator} encountered can map onto multiple {@link HlOpSymbol} definitions and a choice as to which one
+ * {@link CandidateOperator} encountered can map onto multiple {@link IdentifiedTerm} definitions and a choice as to which one
  * is used must be made in the context of the position in which is encountered. Consider the following sequences of
  * symbols when and operator/operator conflict is encountered:
  *
@@ -183,7 +182,7 @@ import static org.ltc.hitalk.term.HlOpSymbol.Fixity.*;
  * <p/>Where alpha and beta are sequences of symbols, possibly empty. Now consider for the empty or non-empty values of
  * alpha and beta, what fixities of operator are possible for OpA and OpB. Note that OpA and OpB must be prefix,
  * postfix, or infix and cannot be an constant atom, because operators as constant atoms must be bracketed in ISO
- * Prolog, and will therefore have already been resolved from a {@link CandidateOperator} to an {@link HlOpSymbol}.
+ * Prolog, and will therefore have already been resolved from a {@link CandidateOperator} to an {@link IdentifiedTerm}.
  *
  * <pre><p/><table><caption>Possibly Fixity Combinations</caption>
  * <tr><td> alpha = not_empty, beta = not_empty <td> (OpA = in, OpB = post) or (OpA = in, OpB = in)
@@ -206,7 +205,7 @@ import static org.ltc.hitalk.term.HlOpSymbol.Fixity.*;
  * <tr><td> Add new operators to the table following ISO Prolog rules.
  * <tr><td> Find all candidate operators matching a given name.
  * <tr><td> Parse sequences of terms and candidate operators using ISO Prolog rules.
- *     <td> {@link ITerm}, {@link CandidateOperator}, {@link HlOpSymbol}.
+ *     <td> {@link ITerm}, {@link CandidateOperator}, {@link IdentifiedTerm}.
  * </table></pre>
  *
  * @author Rupert Smith
@@ -223,12 +222,12 @@ public class PlDynamicOperatorParser implements IOperatorTable {
      */
     private enum Symbol {
         /**
-         * A term which is not a {@link CandidateOperator}. It may be a previously resolved {@link HlOpSymbol} though.
+         * A term which is not a {@link CandidateOperator}. It may be a previously resolved {@link IdentifiedTerm} though.
          */
         Term,
 
         /**
-         * A symbol which is a {@link CandidateOperator} to be resovled onto an {@link HlOpSymbol}.
+         * A symbol which is a {@link CandidateOperator} to be resovled onto an {@link IdentifiedTerm}.
          */
         Op,
 
@@ -323,7 +322,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
     /**
      * Holds the parsers current state.
      */
-    private int state = gotoTable[stack.peek()];
+    private Integer state = gotoTable[0];
 
     /**
      * Holds the parsers current position within the input sequence of terms.
@@ -364,7 +363,6 @@ public class PlDynamicOperatorParser implements IOperatorTable {
         // Consume the terms from left to right.
         for (position = 0; position <= terms.length; ) {
             Symbol nextSymbol;
-
             // Decide what the next symbol to parse is; candidate op, term or final.
             if (position < terms.length) {
                 nextTerm = terms[position];
@@ -414,41 +412,29 @@ public class PlDynamicOperatorParser implements IOperatorTable {
             EnumMap<Fixity, IdentifiedTerm> operatorMap = operators.get(textName);
 
             // Check if the priority is non-zero in which case the operator is being added or redefined.
-            if (priority > 0) {
-                if (operatorMap == null) {
-                    operatorMap = new EnumMap<>(Fixity.class);
-                    operators.put(textName, operatorMap);
-                }
+            if (operatorMap == null) {
+                operatorMap = new EnumMap<>(Fixity.class);
+                operators.put(textName, operatorMap);
+            }
 
-                // Check if the operators fixity to see if further rules regarding simultaneous definition of post and
-                // infix operators need to be applied.
-                if (opSymbol.isPostfix()) {
-                    // Postfix, so check if an infix definition already exists, which is not allowed.
-                    if (operatorMap.containsKey(In)) {
-                        throw new IllegalArgumentException(
-                                "Cannot define a postfix operator when an infix one with the same name already exists.");
-                    }
-                } else if (opSymbol.isInfix()) {
-                    // Infix, so check if a postfix definition already exists, which is not allowed.
-                    if (operatorMap.containsKey(Post)) {
-                        throw new IllegalArgumentException(
-                                "Cannot define an infix operator when an postfix one with the same name already exists.");
-                    }
+            // Check if the operators fixity to see if further rules regarding simultaneous definition of post and
+            // infix operators need to be applied.
+            if (opSymbol.isPostfix()) {
+                // Postfix, so check if an infix definition already exists, which is not allowed.
+                if (operatorMap.containsKey(In)) {
+                    throw new IllegalArgumentException(
+                            "Cannot define a postfix operator when an infix one with the same name already exists.");
                 }
-
-                // Add the operator to the table replacing any previous definition of the same fixity.
-                operatorMap.put(opSymbol.getFixity(), opSymbol);
-            } else {
-                // The priority is zero, in which case the operator is to be removed.
-                if ((operatorMap != null) && opSymbol.isPrefix()) {
-                    // Remove it from the prefix table, if it exists there.
-                    operatorMap.remove(Pre);
-                } else if ((operatorMap != null) && (opSymbol.isPostfix() || opSymbol.isInfix())) {
-                    // Remove it from the postfix/infix table, if it exists there.
-                    operatorMap.remove(Post);
-                    operatorMap.remove(In);
+            } else if (opSymbol.isInfix()) {
+                // Infix, so check if a postfix definition already exists, which is not allowed.
+                if (operatorMap.containsKey(Post)) {
+                    throw new IllegalArgumentException(
+                            "Cannot define an infix operator when an postfix one with the same name already exists.");
                 }
             }
+
+            // Add the operator to the table replacing any previous definition of the same fixity.
+            operatorMap.put(opSymbol.getFixity(), opSymbol);
         } else if (priority == 0) {
 //
         } else if (priority == -1) {
@@ -481,12 +467,12 @@ public class PlDynamicOperatorParser implements IOperatorTable {
      */
     @Override
     public int getPriority(String image, Associativity associativity) {
-        HlOpSymbol symbol = filter(getOperators(image), associativity);
-        return symbol == null ? 0 : symbol.getPriority();
+        IdentifiedTerm symbol = filter(getOperators(image), associativity);
+        return symbol == null ? -1 : symbol.getPriority();
     }
 
-    private HlOpSymbol filter(Set<IdentifiedTerm> operators, Associativity associativity) {
-        for (HlOpSymbol symbol : operators) {
+    private IdentifiedTerm filter(Set<IdentifiedTerm> operators, Associativity associativity) {
+        for (IdentifiedTerm symbol : operators) {
             if (symbol.getAssociativity() == associativity) {
                 return symbol;
             }
@@ -517,9 +503,9 @@ public class PlDynamicOperatorParser implements IOperatorTable {
      * @param fixities  The possible fixities to resolve the symbol to.
      * @return The candidate operator resolved to an actual operator.
      */
-    protected static HlOpSymbol checkAndResolveToFixity(CandidateOperator candidate, Fixity... fixities)
+    protected static IdentifiedTerm checkAndResolveToFixity(CandidateOperator candidate, Fixity... fixities)
             throws HtSourceCodeException {
-        HlOpSymbol result = null;
+        IdentifiedTerm result = null;
 
         for (Fixity fixity : fixities) {
             result = candidate.getPossibleOperators().get(fixity);
@@ -695,8 +681,8 @@ public class PlDynamicOperatorParser implements IOperatorTable {
 
             // Based on the form of the symbol sequence preceding the next symbol, work out which combination
             // of operator fixities in uniquely possible, and resolve the candidate operators onto that combination.
-            HlOpSymbol lastOp;
-            HlOpSymbol nextOp;
+            IdentifiedTerm lastOp;
+            IdentifiedTerm nextOp;
 
             if (alpha && beta) {
                 lastOp = checkAndResolveToFixity(lastCandidate, In);
@@ -826,7 +812,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
             ITerm t = outputStack.poll();
             CandidateOperator candidate = (CandidateOperator) outputStack.poll();
 
-            HlOpSymbol op = checkAndResolveToFixity(candidate, Pre);
+            IdentifiedTerm op = checkAndResolveToFixity(candidate, Pre);
 
             // Clone the operator symbol from the operator table before adding the unique source code position and
             // argument for this symbol instance.
@@ -866,7 +852,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
             CandidateOperator candidate = (CandidateOperator) outputStack.poll();
             ITerm t = outputStack.poll();
 
-            HlOpSymbol op = checkAndResolveToFixity(candidate, Post);
+            IdentifiedTerm op = checkAndResolveToFixity(candidate, Post);
 
             // Clone the operator symbol from the operator table before adding the unique source code position and
             // argument for this symbol instance.
@@ -904,7 +890,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
             CandidateOperator candidate = (CandidateOperator) outputStack.poll();
             ITerm t2 = outputStack.poll();
 
-            HlOpSymbol op = checkAndResolveToFixity(candidate, In);
+            IdentifiedTerm op = checkAndResolveToFixity(candidate, In);
 
             // Clone the operator symbol from the operator table before adding the unique source code position and
             // argument for this symbol instance.

@@ -12,7 +12,7 @@ import org.ltc.hitalk.wam.compiler.Language;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.ltc.hitalk.term.HlOpSymbol.Associativity.fx;
+import static org.ltc.hitalk.term.IdentifiedTerm.Associativity.fx;
 import static org.ltc.hitalk.wam.compiler.Language.HILOG;
 
 /**

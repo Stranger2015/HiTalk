@@ -7,7 +7,7 @@ import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.wam.compiler.Language;
 
 import static org.ltc.hitalk.parser.PrologAtoms.*;
-import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
+import static org.ltc.hitalk.term.IdentifiedTerm.Associativity.*;
 import static org.ltc.hitalk.wam.compiler.Language.HITALK;
 
 /**

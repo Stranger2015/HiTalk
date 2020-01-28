@@ -1,6 +1,8 @@
 package org.ltc.hitalk.parser;
 
-public class ParserException extends RuntimeException {
+import java.io.IOException;
+
+public class ParserException extends IOException {
 
     final private int row;
     final private int col;

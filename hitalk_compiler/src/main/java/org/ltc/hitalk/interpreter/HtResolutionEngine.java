@@ -39,7 +39,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.ltc.hitalk.term.HlOpSymbol.Associativity;
+import static org.ltc.hitalk.parser.PlPrologParser.END_OF_FILE;
+import static org.ltc.hitalk.term.IdentifiedTerm.Associativity;
 
 /**
  * ResolutionEngine combines together a logic {@link Parser}, a {@link IVafInterner} that acts as a symbol
@@ -141,7 +142,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
         while (tokenSource.isOpen()) {
             ITerm term = getParser().parse();
 
-            if (term == PlPrologParser.END_OF_FILE_ATOM) {
+            if (term == END_OF_FILE) {
                 break;
             }
         }

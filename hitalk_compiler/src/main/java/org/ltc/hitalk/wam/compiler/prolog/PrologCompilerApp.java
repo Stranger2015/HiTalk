@@ -16,6 +16,7 @@ import org.ltc.hitalk.compiler.bktables.IApplication;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.IProduct;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
+import org.ltc.hitalk.compiler.bktables.error.StopRequestException;
 import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.core.HtVersion;
 import org.ltc.hitalk.core.IPreCompiler;
@@ -99,10 +100,15 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
             getAppContext().setApp(application);
             application.init();
             application.start();
-        } catch (Exception e) {
+        } catch (StopRequestException e) {
+            shutdown();
+        } catch (IOException e) {
             e.printStackTrace();
             throw new ExecutionError(PERMISSION_ERROR, null);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
     }
 
     /**
@@ -258,10 +264,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
     }
 
     private void startRuntimeThreading() {
-
-
     }
-
 
     protected Object clone() throws CloneNotSupportedException {
         return super.clone();
@@ -379,9 +382,13 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
         return Paths.get(DEFAULT_SCRATCH_DIRECTORY).toAbsolutePath();
     }
 
-    @Override
-    public void shutdown() {
-        fsManager.close();
+    /**
+     *
+     */
+//    @Override
+    public static void shutdown() {
+        /*fsManager.close()*/
+        ;
     }
 
     /**

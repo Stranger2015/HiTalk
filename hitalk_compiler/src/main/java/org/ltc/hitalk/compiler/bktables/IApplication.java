@@ -24,7 +24,9 @@ public interface IApplication extends Runnable, IConfigurable {
     /**
      * @return
      */
-    Logger getLogger ();
+    static Logger getLogger() {
+        return null;
+    }
 
     /**
      * @return
@@ -156,23 +158,31 @@ public interface IApplication extends Runnable, IConfigurable {
     /**
      * @return
      */
-    boolean isRunning ();
+    boolean isRunning();
 
     /**
      *
      */
-    void abort ();
+    void abort();
 
     /**
      *
      */
-    void shutdown ();
+    static void shutdown() {
+        doShutdown();
+    }
 
     /**
      *
+     */
+    static void doShutdown() {
+        getLogger().info("Application is shutting down ...");
+    }
+
+    /**
      * @return
      */
-    boolean isShuttingDown ();
+    boolean isShuttingDown();
 
     /**
      *

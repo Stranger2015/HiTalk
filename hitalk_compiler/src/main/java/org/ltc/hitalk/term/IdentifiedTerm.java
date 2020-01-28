@@ -15,15 +15,13 @@
  */
 package org.ltc.hitalk.term;
 
-
 import org.jetbrains.annotations.NotNull;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 
 import java.util.EnumSet;
 
 import static java.lang.String.format;
-import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
-
+import static org.ltc.hitalk.term.IdentifiedTerm.Associativity.*;
 
 /**
  * Operators in first order logic, connect terms into compound units composed of many terms under the semantics of the
@@ -49,8 +47,7 @@ import static org.ltc.hitalk.term.HlOpSymbol.Associativity.*;
  *
  * @author Rupert Smith
  */
-public class HlOpSymbol extends HtFunctor implements Comparable<HlOpSymbol>, Cloneable {
-    private String name;
+public class IdentifiedTerm extends HtFunctor implements Comparable<IdentifiedTerm>, Cloneable {
     private ITerm result;
     private ITerm result1;
     /**
@@ -68,6 +65,7 @@ public class HlOpSymbol extends HtFunctor implements Comparable<HlOpSymbol>, Clo
      */
     protected Associativity associativity;
 
+//    private String name;
     /**
      * Holds the priority of this operator.
      */
@@ -79,28 +77,49 @@ public class HlOpSymbol extends HtFunctor implements Comparable<HlOpSymbol>, Clo
      * @param associativity
      * @param priority
      */
-    public HlOpSymbol(int name, String textName, Associativity associativity, int priority) {
+    public IdentifiedTerm(int name, String textName, Associativity associativity, int priority) {
         this(name, textName, associativity, priority, true);
     }
 
-    public HlOpSymbol(String name, ITerm result, ITerm result1) {
-
-        super(name);
-        this.name = name;
+    /**
+     * @param name
+     * @param priority
+     * @param result
+     * @param result1
+     */
+    public IdentifiedTerm(String name, int priority, ITerm result, ITerm result1) {
+        super(-1);
+        this.textName = name;
+//        this(name, priority, result,result1);
+        this.priority = priority;
         this.result = result;
         this.result1 = result1;
     }
 
-    public HlOpSymbol(String name, ITerm result) {
-        this(name, result, null);
+    public IdentifiedTerm(String name, ITerm result) {
+        this(name, null, -1, result, null);
     }
 
-    public HlOpSymbol(int name, String textName, Associativity associativity, int priority, boolean b, ITerm term) {
-        this(name, textName, associativity, priority);
+    public IdentifiedTerm(String image,
+                          Associativity assoc,
+                          int priority,
+                          ITerm result,
+                          ITerm result1) {
+        this(image, priority, result, result1);
     }
 
-    public HlOpSymbol(int name, ITerm result) {
-        this(name, "", xfx, 1200, true, null);
+    /**
+     * @param image
+     * @param yf
+     * @param yf1
+     * @param result
+     */
+    public IdentifiedTerm(String image, Associativity yf, int yf1, ITerm result) {
+        this(image, yf, yf1, result, null);
+    }
+
+    public IdentifiedTerm(String name) {
+        this(name, null, -1, null, null);
     }
 
     public boolean isBuiltIn() {
@@ -114,7 +133,7 @@ public class HlOpSymbol extends HtFunctor implements Comparable<HlOpSymbol>, Clo
      * @param associativity Specifies the associativity of the operator.
      * @param priority      The operators priority.
      */
-    public HlOpSymbol(int name, String textName, Associativity associativity, int priority, boolean builtIn) {
+    public IdentifiedTerm(int name, String textName, Associativity associativity, int priority, boolean builtIn) {
         super(name, new ListTerm(associativity.arity));
         this.priority = priority;
         this.builtIn = builtIn;
@@ -315,9 +334,9 @@ public class HlOpSymbol extends HtFunctor implements Comparable<HlOpSymbol>, Clo
      *
      * @return A shallow copy of the symbol.
      */
-    public HlOpSymbol copySymbol() {
+    public IdentifiedTerm copySymbol() {
         try {
-            return (HlOpSymbol) clone();
+            return (IdentifiedTerm) clone();
         } catch (CloneNotSupportedException e) {
             throw new IllegalStateException("Got a CloneNotSupportedException but clone is defined on Operator and " +
                     "should not fail.", e);
@@ -385,8 +404,16 @@ public class HlOpSymbol extends HtFunctor implements Comparable<HlOpSymbol>, Clo
      * @throws ClassCastException   if the specified object's type prevents it
      *                              from being compared to this object.
      */
-    public int compareTo(@NotNull HlOpSymbol o) {
+    public int compareTo(@NotNull IdentifiedTerm o) {
         return 0;
+    }
+
+    public ITerm getResult() {
+        return result;
+    }
+
+    public ITerm getResult1() {
+        return result1;
     }
 
     /**
