@@ -1,9 +1,6 @@
 package org.ltc.hitalk.parser;
 
-import org.ltc.hitalk.core.utils.AbstractIterator;
-
 import static org.ltc.hitalk.parser.PlToken.TokenKind.TK_BOF;
-import static org.ltc.hitalk.parser.PlToken.TokenKind.TK_EOF;
 
 /**
  * Describes the input token stream.
@@ -78,7 +75,7 @@ public class PlToken implements ISourceCodePosition {
     public PlToken(TokenKind kind) {
         this.kind = kind;
         image = kind.getImage();
-        if (!image.isEmpty()) {
+        if (image != null && !image.isEmpty()) {
             endColumn = beginColumn + image.length();
         }
         if (kind == TK_BOF) {
@@ -91,7 +88,7 @@ public class PlToken implements ISourceCodePosition {
      * @param kind
      * @param image
      */
-    public PlToken ( TokenKind kind, String image ) {
+    public PlToken(TokenKind kind, String image) {
         this(kind);
         this.image = image;
     }
@@ -106,17 +103,6 @@ public class PlToken implements ISourceCodePosition {
     /**
      * @return
      */
-    public boolean isEOF() {
-        return kind == TK_EOF;
-    }
-
-    public boolean isBOF() {
-        return kind == TK_BOF;
-    }
-
-//    public boolean isOperator(boolean commaIsEndMarker) {
-//        return this.;
-//    }
 
     public boolean isNumber() {
         return false;
@@ -161,26 +147,24 @@ public class PlToken implements ISourceCodePosition {
         TK_COLON(":"),
         TK_CONS("|");
 
-        public static AbstractIterator<Object> map;
         private String name;
+        private String image;
 
         /**
          * @param image
          */
-        TokenKind(String image, String name) {
+        TokenKind(String image) {
             this.image = image;
-            this.name = name;
         }
 
-        TokenKind(String image) {
-            this(image, "");
+        TokenKind(String name, String image) {
+            this.name = name;
+            this.image = image;
         }
 
         public boolean isAtom() {
             return this == TK_ATOM || this == TK_SYMBOLIC_NAME || this == TK_QUOTED_NAME;
         }
-
-        private String image;
 
         /**
          * @return
@@ -253,7 +237,7 @@ public class PlToken implements ISourceCodePosition {
      * to the following switch statement. Then you can cast matchedToken
      * variable to the appropriate type and use it in your lexical actions.
      */
-    public static PlToken newToken ( TokenKind tokenKind ) {
+    public static PlToken newToken(TokenKind tokenKind) {
         return new PlToken(tokenKind, tokenKind.getImage());
     }
 }

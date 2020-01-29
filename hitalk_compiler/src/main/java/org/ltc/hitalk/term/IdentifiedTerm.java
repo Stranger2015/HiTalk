@@ -118,6 +118,29 @@ public class IdentifiedTerm extends HtFunctor implements Comparable<IdentifiedTe
         this(image, yf, yf1, result, null);
     }
 
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof IdentifiedTerm)) {
+            return false;
+        }
+        final IdentifiedTerm that = (IdentifiedTerm) o;
+
+        if (getPriority() != that.getPriority()) {
+            return false;
+        }
+        return getAssociativity() == that.getAssociativity();
+    }
+
+    public int hashCode() {
+        int result2 = super.hashCode();
+        result2 = 31 * result2 + getTextName().hashCode();
+        result2 = 31 * result2 + (getAssociativity() != null ? getAssociativity().hashCode() : 0);
+        result2 = 31 * result2 + getPriority();
+        return result2;
+    }
+
     public IdentifiedTerm(String name) {
         this(name, null, -1, null, null);
     }

@@ -9,7 +9,6 @@ import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.Directive.DirectiveKind;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
@@ -130,14 +129,15 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
         final List<HtClause> list = new ArrayList<>();
         while (tokenSource.isOpen()) {
             ITerm t = getParser().next();
-            if (t.equals(BEGIN_OF_FILE)) {
+            if (t == BEGIN_OF_FILE) {
                 getLogger().info("begin_of_file");
                 getQueue().push(new TermExpansionTask(this, tokenSource, EnumSet.of(ENCODING)));
 //                continue;
-            } else if (t.equals(END_OF_FILE)) {
+            } else if (t == END_OF_FILE) {
                 getLogger().info("end_of_file");
                 getQueue().push(new TermExpansionTask(this, tokenSource, noneOf(DirectiveKind.class)));
                 getParser().popTokenSource();
+                return list;
             } else {//?????????????
                 preCompile(t);
                 HtClause c = getParser().convert(t);
@@ -148,20 +148,6 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
         }
 
         return list;
-    }
-
-    /**
-     * @param clause
-     * @throws HtSourceCodeException
-     */
-    public void preCompile(T clause) throws HtSourceCodeException {
-        logger.debug("Precompiling " + "( " + clause + ") ...");
-        if (clause.getT().getHead() == null) {
-            final IFunctor goal = (IFunctor) clause.getBody().getHead(0);
-//            if (checkDirective(goal, )) {
-//                parser.getTokenSource().setEncodingPermitted(false);
-//            }
-        }
     }
 
     /**
@@ -279,9 +265,7 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
      * @return
      */
     public List<ITerm> callTermExpansion(ITerm term) {
-        final List<ITerm> l = new ArrayList<>();
-
-        return l;
+        return getQueue().pop().invoke(term);
     }
 
     /**
@@ -298,6 +282,7 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
      */
     private List<IFunctor> callGoalExpansion(IFunctor goal) {
         final List<IFunctor> l = new ArrayList<>();
+
         return l;
     }
 

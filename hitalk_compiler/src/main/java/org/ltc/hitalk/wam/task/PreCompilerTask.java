@@ -24,22 +24,33 @@ class PreCompilerTask implements IPendingTasks, IInvokable<ITerm>, IHitalkObject
     protected final IPreCompiler preCompiler;
     protected final EnumSet<DirectiveKind> kind;
 
+    /**
+     * @param tokenSource
+     * @param preCompiler
+     * @param kind
+     */
     public PreCompilerTask(PlLexer tokenSource, IPreCompiler preCompiler, EnumSet<DirectiveKind> kind) {
         this.tokenSource = tokenSource;
         this.preCompiler = preCompiler;
         this.kind = kind;
     }
 
+    /**
+     * @return
+     */
     public ITerm getInput() {
         return input;
     }
 
+    /**
+     * @return
+     */
     public Deque<ITerm> getOutput() {
         return output;
     }
 
     protected ITerm input;
-    protected final Deque <ITerm> output = new ArrayDeque <>();
+    protected final Deque<ITerm> output = new ArrayDeque<>();
 
     /**
      * @param term

@@ -107,8 +107,8 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
             throw new ExecutionError(PERMISSION_ERROR, null);
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ExecutionError();
         }
-
     }
 
     /**
@@ -387,8 +387,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
      */
 //    @Override
     public static void shutdown() {
-        /*fsManager.close()*/
-        ;
+
     }
 
     /**

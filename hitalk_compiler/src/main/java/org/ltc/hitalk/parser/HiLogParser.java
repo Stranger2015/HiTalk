@@ -4,6 +4,7 @@ import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.TermFactory;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.wam.compiler.IFunctor;
@@ -32,6 +33,16 @@ public class HiLogParser extends PlPrologParser {
      * @param interner  the  interner for variable and functor names.
      */
     protected Set<IFunctor> hilogFunctors = new HashSet<>();
+
+    /**
+     * Static service to get a term from its string representation,
+     * providing a specific operator manager
+     *
+     * @param ts
+     */
+    public ITerm parseSingleTerm(PlLexer ts) throws Exception {
+        return super.parseSingleTerm(ts);
+    }
 
     /**
      * @param stream

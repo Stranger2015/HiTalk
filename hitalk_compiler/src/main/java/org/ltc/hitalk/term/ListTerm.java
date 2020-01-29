@@ -3,6 +3,7 @@ package org.ltc.hitalk.term;
 import org.ltc.hitalk.compiler.IVafInterner;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.IntStream;
 
 import static java.util.Objects.requireNonNull;
@@ -64,6 +65,10 @@ public class ListTerm extends HtBaseTerm {
         this(Kind.LIST, tail, toArray);
     }
 
+    public ListTerm(ListTerm.Kind kind, List<ITerm> heads, ITerm tail) {
+
+    }
+
     /**
      * @return
      */
@@ -123,19 +128,8 @@ public class ListTerm extends HtBaseTerm {
      * @return
      */
     public ITerm getHead ( int i ) {
-//        if (size() == i) {
-//            return TRUE;
-//        }
         return getHeads()[i];
     }
-//
-//    /**
-//     * @return
-//     */
-//    @Override
-//    public int getArity () {
-//        return 0;//fixme
-//    }
 
     /**
      * @return
@@ -265,7 +259,9 @@ public class ListTerm extends HtBaseTerm {
         HILOG_APPLY,
         INLINE_GOAL,
         OTHER(),
-        CLAUSE_BODY(), ARGS;
+        CLAUSE_BODY(),
+        ARGS,
+        BLOCK;
 
 //        private IFunctor goal;
 

@@ -1,10 +1,10 @@
 package org.ltc.hitalk.parser;
 
+
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.interpreter.TokenBuffer;
-import org.ltc.hitalk.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
 
@@ -19,7 +19,6 @@ import static java.nio.file.StandardOpenOption.READ;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
 import static org.ltc.hitalk.entities.PropertyOwner.createProperty;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
-import static org.ltc.hitalk.parser.Quotemeta.decode;
 
 /**
  * @author shun
@@ -33,6 +32,8 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
     protected HiTalkInputStream inputStream;
     protected boolean encodingPermitted;
     protected IOperatorTable optable = getAppContext().getOpTable();
+
+    private PlToken lastToken;
 
     /**
      * Creates a stream tokenizer that parses the specified input
@@ -56,7 +57,6 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
      * @param is an input stream.
      * @see BufferedReader
      * @see InputStreamReader
-     * @see StreamTokenizer#StreamTokenizer(Reader)
      * @deprecated As of JDK version 1.1, the preferred way to tokenize an
      * input stream is to convert it into a character stream, for example:
      * <blockquote><pre>
@@ -64,10 +64,9 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
      *   StreamTokenizer st = new StreamTokenizer(r);
      * </pre></blockquote>
      */
-    public PlLexer(InputStream is) throws FileNotFoundException {
+    public PlLexer(InputStream is) {
         super(is);
         pushBackBuffer = new TokenBuffer(inputStream);
-        pushBackBuffer.pushBack(PlToken.newToken(TK_BOF));
     }
 
     public TokenBuffer getPushBackBuffer() {
@@ -130,7 +129,7 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
         inputStream.open();
 
 //     The first token is initialized to be empty, so that the first call to `poll` returns the first token.
-//        final PlToken firstToken = new PlToken(TK_BOF);
+        lastToken = new PlToken(TK_BOF);
         encodingPermitted = true;
         resetSyntax();
 
@@ -224,7 +223,7 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
     public HiTalkInputStream getInputStream() {
 
         setPath(createProperty("file_name",
-                "c:\\Users\\Anthony_2\\IdeaProjects\\WAM\\hitalk_compiler\\src\\main\\resources\\empty.pl", "").getV());
+                "c:\\Users\\Anthony_2\\IdeaProjects\\WAM\\hitalk_compiler\\src\\main\\resources\\test.pl", "").getV());
         return inputStream == null ? getAppContext().getInputStream() : inputStream;
     }
 
@@ -251,23 +250,23 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
         int lineNumber = stream.getLineNumber();
         int colNumber = stream.getColNumber();
 
-        PlToken token = stream.isBOFNotPassed() ? PlToken.newToken(TK_BOF) : readToken(valued);
+        lastToken = stream.isBOFNotPassed() ? PlToken.newToken(TK_BOF) : readToken(valued);
 
-        token.setBeginLine(lineNumber);
-        token.setBeginColumn(colNumber);
-        token.setEndLine(lineNumber);
-        token.setEndColumn(colNumber + token.image.length());//FUNCTOR_BEGIN =  "atom("
+        lastToken.setBeginLine(lineNumber);
+        lastToken.setBeginColumn(colNumber);
+        lastToken.setEndLine(lineNumber);
+        lastToken.setEndColumn(colNumber + lastToken.image.length());//FUNCTOR_BEGIN =  "atom("
 
-        return token;
+        return lastToken;
     }
 
     /**
      * @param c
      * @return
      */
-    private TokenKind calcTokenKind(int c) {
-        TokenKind result = null;
-        for (TokenKind value : values()) {
+    private PlToken.TokenKind calcTokenKind(int c) {
+        PlToken.TokenKind result = null;
+        for (PlToken.TokenKind value : PlToken.TokenKind.values()) {
             if (value.getChar() == c) {
                 result = value;
                 break;
@@ -350,35 +349,35 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
      * @throws Exception
      */
     public PlToken getToken(boolean valued) throws Exception {
-        PlToken token = null;
+//        PlToken token = null;
         try {
             skipWhitespaces();
             int chr = read();
             if (chr == -1) {
-                token = PlToken.newToken(TK_EOF);
+                lastToken = PlToken.newToken(TK_EOF);
             } else if (valued) {
                 // 括弧など
                 if ("([{".indexOf(chr) != -1) {
-                    token = new PlToken(Objects.requireNonNull(calcTokenKind(chr)));
+                    lastToken = new PlToken(Objects.requireNonNull(calcTokenKind(chr)));
                 } else if (chr == '-' || chr == '+') {
                     int c = read();
                     if (isDigit((char) c)) {
-                        token = getNumber(c, new String(new char[]{(char) chr}));
+                        lastToken = getNumber(c, new String(new char[]{(char) chr}));
                     } else {
                         ungetc(c);
                     }
                 } else if (isDigit((char) chr)) {
-                    token = getNumber(chr, "");
+                    lastToken = getNumber(chr, "");
                 } else if ("}])".indexOf(chr) != -1) {
-                    token = new PlToken(calcTokenKind(chr), String.valueOf((char) chr));
+                    lastToken = new PlToken(calcTokenKind(chr), String.valueOf((char) chr));
                 } else {
-                    token = getAtom(chr);
-                    if (token == null) {//不正な文字=Illegal characters
+                    lastToken = getAtom(chr);
+                    if (lastToken == null) {//不正な文字=Illegal characters
                         throw new ParserException(":Bad char `" + (char) chr + ":0x" + Integer.toHexString(chr) + "'.");
                     }
-                    if (EnumSet.of(TK_SYMBOLIC_NAME, TK_QUOTED_NAME, TK_ATOM).contains(token.kind)) {
+                    if (EnumSet.of(TK_SYMBOLIC_NAME, TK_QUOTED_NAME, TK_ATOM).contains(lastToken.kind)) {
                         if ((chr = read()) == '(') {
-                            token = new PlToken(TK_FUNCTOR_BEGIN, token.image);//fixme
+                            lastToken = new PlToken(TK_FUNCTOR_BEGIN, lastToken.image);//fixme
                         } else {
                             ungetc(chr);
                         }
@@ -387,10 +386,10 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
             }
 
         } catch (EOFException e) {
-            token = PlToken.newToken(TK_EOF);
+            lastToken = PlToken.newToken(TK_EOF);
         }
 
-        return token;
+        return lastToken;
     }
 
     private PlToken getAtom(int chr) throws Exception {
@@ -403,6 +402,7 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
             do {
                 val.append((char) chr);
             } while (isOperatorPart(chr = read()));
+
             ungetc(chr);
             if (isValidOperator(val.toString())) {
                 return new PlToken(TK_SYMBOLIC_NAME, val.toString());
@@ -421,7 +421,7 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
                 while ((chr = read()) != '\'') {
                     val.append((char) chr);
                 }
-                return new PlToken(TK_QUOTED_NAME, decode(val.toString()));
+                return new PlToken(TK_QUOTED_NAME, Quotemeta.decode(val.toString()));
             }
 //            return new PlToken(ATOM, val.toString());
 //        }        // 'アトム' = atom
@@ -429,7 +429,6 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
         if (!val.toString().isEmpty()) {
             return new PlToken(TK_ATOM, val.toString());
         }
-
         ungetc(chr);
 
         return null;
@@ -488,7 +487,7 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
         } else {
             number += (char) chr + repeat("0123456789");
         }
-        TokenKind kind = TK_INTEGER_LITERAL;
+        PlToken.TokenKind kind = TK_INTEGER_LITERAL;
         chr = read();
         if (chr == '.') {
             if (!isDigit((char) (chr = read()))) {
@@ -613,17 +612,8 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
      *
      * @return The head of this queue, or <tt>null</tt> if this queue is empty.
      */
-    public PlToken peek() {
-        return poll();
-    }
-
-    /**
-     * Retrieves, but does not remove, the head of this queue, returning <tt>null</tt> if this queue is empty.
-     *
-     * @return The head of this queue, or <tt>null</tt> if this queue is empty.
-     */
     public PlToken readToken(boolean valued) throws Exception {
-        return !getPushBackBuffer().isEmpty() ? getPushBackBuffer().poll() : getToken(valued);
+        return lastToken = !getPushBackBuffer().isEmpty() ? getPushBackBuffer().poll() : getToken(valued);
     }
 
     static PlLexer getPlLexerForString(String string) throws Exception {
@@ -631,15 +621,9 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
 
         final PlLexer lexer = new PlLexer(inputStream);
         inputStream.addListener(lexer);
+
         return lexer;
     }
-
-//    static PlLexer getPlLexerForStdin() throws FileNotFoundException {
-//        HiTalkInputStream stream = getAppContext().currentInput();
-//        stream.setInputStream(new FileInputStream(FileDescriptor.in));
-//
-//        return new PlLexer(stream, "stdin");
-//    }
 
     /**
      * @param file
@@ -653,9 +637,7 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
 
     public String
     toString() {
-        final String sb = "PlLexer{" + "path='" + path + '\'' +
-                '}';
-        return sb;
+        return "PlLexer{ path='" + path + "'}";
     }
 
     /**
@@ -666,5 +648,19 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
     public static PlLexer getTokenSourceForIoFileName(String fileName) throws Exception {
         HiTalkInputStream stream = new HiTalkInputStream(Paths.get(fileName), "UTF-8", READ);
         return new PlLexer(stream, fileName);
+    }
+
+    /**
+     * @return
+     */
+    public PlToken getLastToken() {
+        return lastToken;
+    }
+
+    /**
+     * @param lastToken
+     */
+    public void setLastToken(PlToken lastToken) {
+        this.lastToken = lastToken;
     }
 }

@@ -1,12 +1,13 @@
 package org.ltc.hitalk.interpreter;
 
-
 import org.ltc.hitalk.parser.PlToken;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
 
-import java.io.FileNotFoundException;
 import java.util.ArrayDeque;
 import java.util.Deque;
+
+import static org.ltc.hitalk.interpreter.PlTokenStatus.POLLED;
+import static org.ltc.hitalk.interpreter.PlTokenStatus.PUSHED_BACK;
 
 /**
  * Used to buffer tokens.
@@ -15,6 +16,8 @@ public class TokenBuffer/* extends PlLexer implements Sink<PlToken>*/ {
     private final HiTalkInputStream stream;
     //    private final String path;
     private Deque<PlToken> tokens = new ArrayDeque<>();
+    private Deque<PlToken> history = new ArrayDeque<>();
+    private Deque<PlTokenStatus> statuses = new ArrayDeque<PlTokenStatus>();
 
     /**
      * Creates a stream tokenizer that parses the specified input
@@ -35,7 +38,6 @@ public class TokenBuffer/* extends PlLexer implements Sink<PlToken>*/ {
      * <li>C-style and C++-style comments are not recognized.
      * </ul>
      *
-     //     * @param is an input stream.
      * @deprecated As of JDK version 1.1, the preferred way to tokenize an
      * input stream is to convert it into a character stream, for example:
      * <blockquote><pre>
@@ -43,29 +45,9 @@ public class TokenBuffer/* extends PlLexer implements Sink<PlToken>*/ {
      *   StreamTokenizer st = new StreamTokenizer(r);
      * </pre></blockquote>
      */
-//    public TokenBuffer(InputStream is) throws FileNotFoundException {
-//    }
-
-//    /**
-//     * Create a tokenizer that parses the given character stream.
-//     *
-//     * @param r a Reader object providing the input stream.
-//     * @since JDK1.1
-//     */
-//    public TokenBuffer(Reader r) throws FileNotFoundException {
-//    }
-//
-//    public TokenBuffer(HiTalkInputStream stream, String path) throws FileNotFoundException {
-//        this.stream = stream;
-//        this.path = path;
-//    }
-
-    /**
-     * @param inputStream
-     * @throws FileNotFoundException
-     */
-    public TokenBuffer(HiTalkInputStream inputStream) throws FileNotFoundException {
+    public TokenBuffer(HiTalkInputStream inputStream) {
         this.stream = inputStream;
+        pushBack(PlToken.newToken(PlToken.TokenKind.TK_BOF));
     }
 
     /**
@@ -80,7 +62,10 @@ public class TokenBuffer/* extends PlLexer implements Sink<PlToken>*/ {
      * @return
      */
     public PlToken poll () {
-        return tokens.poll();
+        final PlToken t = tokens.poll();
+        history.push(PlToken.newToken(t.kind));
+        statuses.push(POLLED);
+        return t;
     }
 
     /**
@@ -103,6 +88,8 @@ public class TokenBuffer/* extends PlLexer implements Sink<PlToken>*/ {
      */
     public void pushBack(PlToken token) {
         tokens.push(token);
+        history.push(token);
+        statuses.push(PUSHED_BACK);
     }
 
     /**

@@ -1,8 +1,9 @@
 package org.ltc.hitalk.parser;
 
-import java.io.IOException;
+import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
+import org.ltc.hitalk.wam.compiler.HtFunctorName;
 
-public class ParserException extends IOException {
+public class ParserException extends ExecutionError {
 
     final private int row;
     final private int col;
@@ -20,7 +21,7 @@ public class ParserException extends IOException {
      *                later retrieval by the {@link #getMessage()} method.
      */
     public ParserException(String message, int row, int col) {
-        super(message);
+        super(Kind.SYNTAX_ERROR, new HtFunctorName(message, col, row));
         this.row = row;
         this.col = col;
     }

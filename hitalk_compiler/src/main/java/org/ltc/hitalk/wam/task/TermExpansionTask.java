@@ -32,20 +32,6 @@ public class TermExpansionTask extends PreCompilerTask {
         return tasks;
     }
 
-    /**
-     * @param item
-     */
-    public void push ( PreCompilerTask item ) {
-
-    }
-
-    /**
-     * @param item
-     */
-    public void remove ( PreCompilerTask item ) {
-
-    }
-
     public void toString0 ( StringBuilder sb ) {
     }
 
@@ -56,7 +42,6 @@ public class TermExpansionTask extends PreCompilerTask {
 
         protected final PlPrologParser parser;
         protected final IVafInterner interner;
-
 
         /**
          * @param tokenSource
