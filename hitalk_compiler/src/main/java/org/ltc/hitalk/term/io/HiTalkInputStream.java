@@ -273,6 +273,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      */
     @Override
     public void addListener(PropertyChangeListener listener) {
+        logger.info("Adding listener " + listener);
         super.addListener(listener);
     }
 
@@ -281,6 +282,8 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      */
     @Override
     public void removeListener(PropertyChangeListener listener) {
+        logger.info("Removing listener " + listener);
+
         super.removeListener(listener);
     }
 

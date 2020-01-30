@@ -24,17 +24,17 @@ import java.util.*;
 import java.util.stream.IntStream;
 
 import static java.util.Objects.requireNonNull;
-import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.EXISTENCE_ERROR;
+import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.SYNTAX_ERROR;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
 import static org.ltc.hitalk.core.utils.TermUtilities.convertToClause;
 import static org.ltc.hitalk.parser.PlDynamicOperatorParser.OP_HIGH;
 import static org.ltc.hitalk.parser.PlDynamicOperatorParser.OP_LOW;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
-import static org.ltc.hitalk.parser.PrologAtoms.NIL;
 import static org.ltc.hitalk.parser.PrologAtoms.TRUE;
 import static org.ltc.hitalk.parser.PrologAtoms.*;
 import static org.ltc.hitalk.term.IdentifiedTerm.Associativity.*;
 import static org.ltc.hitalk.term.ListTerm.Kind.*;
+import static org.ltc.hitalk.term.ListTerm.NIL;
 import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
 
 /**
@@ -42,6 +42,7 @@ import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
  */
 public class PlPrologParser implements IParser {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
+
     final EnumSet<TokenKind> rDelims = EnumSet.of(TK_COMMA, TK_CONS);
 
     public enum ParserState {
@@ -62,7 +63,7 @@ public class PlPrologParser implements IParser {
     protected final Deque<PlLexer> tokenSourceStack = new ArrayDeque<>();
 
     protected IOperatorTable operatorTable;
-    protected IVafInterner interner;
+    protected static IVafInterner interner;
     protected ITermFactory termFactory;
 
     /**
@@ -71,7 +72,8 @@ public class PlPrologParser implements IParser {
     protected Map<Integer, HtVariable> variableContext = new HashMap<>();
     protected IdentifiedTerm operator;
 
-    private ITerm lastTerm;
+    protected ITerm lastTerm;
+    protected ITerm lastSequence;
 
     private int braces;
     private int parentheses;
@@ -91,7 +93,7 @@ public class PlPrologParser implements IParser {
                           ITermFactory factory,
                           IOperatorTable optable) throws Exception {
         setTokenSource(new PlLexer(inputStream));
-        this.interner = interner;
+        PlPrologParser.interner = interner;
         this.termFactory = factory;
         this.operatorTable = optable;
     }
@@ -130,7 +132,7 @@ public class PlPrologParser implements IParser {
      */
     @Override
     public void setInterner(IVafInterner interner) {
-        this.interner = interner;
+        PlPrologParser.interner = interner;
     }
 
     /**
@@ -146,7 +148,8 @@ public class PlPrologParser implements IParser {
      */
     @Override
     public IOperatorTable getOptable() {
-        return operatorTable == null ? new PlDynamicOperatorParser() : operatorTable;
+        return operatorTable == null ?
+                new PlDynamicOperatorParser() : operatorTable;
     }
 
     /**
@@ -202,6 +205,7 @@ public class PlPrologParser implements IParser {
             logger.info("Adding ts " + requireNonNull(source.getPath(), "" + source.isOpen()));
             if (!tokenSourceStack.contains(source) && source.isOpen()) {
                 tokenSourceStack.push(source);
+                state = ParserState.START;
             } else {
                 logger.info("Declined adding dup ts " + source.getPath());
             }
@@ -214,7 +218,11 @@ public class PlPrologParser implements IParser {
     @Override
     public PlLexer popTokenSource() throws IOException {
         if (!tokenSourceStack.isEmpty()) {
-            final PlLexer ts = tokenSourceStack.pop();
+            PlLexer ts = tokenSourceStack.peek();
+            ts.getInputStream().removeListener(ts);
+            ts = tokenSourceStack.pop();
+            ts.getInputStream().addListener(ts);
+
             logger.info("Popping TS " + ts + "... ");
             ts.close();
             if (tokenSourceStack.isEmpty()) {
@@ -278,8 +286,7 @@ public class PlPrologParser implements IParser {
      * @throws ParserException
      */
     protected IFunctor compound(String name) throws Exception {
-        ListTerm args = null;//readSequence(/*name.equals(IMPLIES),*/ TK_RPAREN, false);
-        return compound(name, args);
+        return compound(name, NIL);
     }
 
     /**
@@ -326,7 +333,6 @@ public class PlPrologParser implements IParser {
             operatorTable.setOperator(name, operatorName, priority, associativity);
         }
     }
-
 
     /**
      * @param associativity
@@ -445,7 +451,7 @@ public class PlPrologParser implements IParser {
         // Intern all built in names.
 //        interner.internFunctorName(ARGLIST_NIL, 0);
 
-        interner.internFunctorName(NIL, 0);
+        interner.internFunctorName(PrologAtoms.NIL, 0);
 //        interner.internFunctorName(new HtFunctorName(CONS, 1, 2));
 
         interner.internFunctorName(TRUE, 0);
@@ -510,7 +516,7 @@ public class PlPrologParser implements IParser {
         if (t.kind == TK_BOF) {
             return BEGIN_OF_FILE;
         }
-        if (t.kind == TK_EOF) {
+        if (t.kind == TK_EOF) {//error!!!!!!!!!!
             popTokenSource();
             return END_OF_FILE;
         }
@@ -587,7 +593,8 @@ public class PlPrologParser implements IParser {
             if (YFX >= YF && YFX >= OP_LOW) {
                 IdentifiedTerm ta = exprA(YFX - 1, delims);
                 if (ta != null) {
-                    leftSide = new IdentifiedTerm(t.image,
+                    leftSide = new IdentifiedTerm(
+                            t.image,
                             yfx,
                             YFX,
                             leftSide.getResult(),
@@ -833,8 +840,8 @@ public class PlPrologParser implements IParser {
      * @return
      * @throws Exception
      */
-    private ITerm readSequence(Kind kind, EnumSet<TokenKind> rDelims) throws Exception {
-        ITerm tail = ListTerm.NIL;
+    protected ITerm readSequence(Kind kind, EnumSet<TokenKind> rDelims) throws Exception {
+        ITerm tail = NIL;
         List<ITerm> heads = new ArrayList<>();
         for (; ; ) {
             PlToken t = getLexer().readToken(true);
@@ -843,36 +850,38 @@ public class PlPrologParser implements IParser {
             } else {
                 switch (t.kind) {
                     case TK_EOF:
-                        throw new ExecutionError(EXISTENCE_ERROR, new HtFunctorName("Premature EOF", -1));
+                        throw new ExecutionError(SYNTAX_ERROR, new HtFunctorName("Premature EOF", -1));
                     case TK_LPAREN:
                         parentheses++;
-                        lastTerm = (getLexer().getLastToken().kind == TK_FUNCTOR_BEGIN) ? expr0_arglist() : expr0_block();
+                        lastTerm = (getLexer().getLastToken().kind == TK_FUNCTOR_BEGIN) ?
+                                expr0_arglist() : expr0_block();
 //                        getLexer().unreadToken(t);
                         break;
                     case TK_RPAREN:
                         if (--parentheses < 0) {
-                            return lastTerm;
+                            throw new ParserException("Extra rparen");
                         }
+                        return lastSequence;
                     case TK_LBRACKET:
                         brackets++;
-                        lastTerm = expr0_list();
+                        lastTerm = lastSequence = expr0_list();
 //                        getLexer().unreadToken(t);
                         break;
                     case TK_RBRACKET:
                         if (--brackets < 0) {
                             throw new ParserException("Extra rbracket");
                         }
-                        return lastTerm;
+                        return lastSequence;
                     case TK_LBRACE:
                         braces++;
-                        lastTerm = expr0_bypass();
+                        lastTerm = lastSequence = expr0_bypass();
 //                        getLexer().unreadToken(t);
                         break;
                     case TK_RBRACE:
                         if (--braces < 0) {
                             throw new ParserException("Extra rbrace");
                         }
-                        return lastTerm;
+                        return lastSequence;
                     case TK_D_QUOTE:
                         if (++dquotes % 2 != 0) {
                             if (options(TK_D_QUOTE)) {
@@ -908,16 +917,16 @@ public class PlPrologParser implements IParser {
                         return lastTerm;
                     case TK_VAR:
                         lastTerm = termFactory.newVariable(t.image);
-                        return lastTerm;
+                        return handleFunctor(lastTerm);
                     case TK_FUNCTOR_BEGIN:
-                        lastTerm = compound(t.image);
-                        return lastTerm;
+                        lastTerm = compound(t.image, (ListTerm) lastSequence);
+                        return handleFunctor(lastTerm);
                     case TK_INTEGER_LITERAL:
                         lastTerm = termFactory.newAtomic(Integer.parseInt(t.image));
-                        return lastTerm;
+                        return handleFunctor(lastTerm);
                     case TK_FLOATING_POINT_LITERAL:
                         lastTerm = termFactory.newAtomic(Double.parseDouble(t.image));
-                        return lastTerm;
+                        return handleFunctor(lastTerm);
 //                  case TK_CHARACTER_LITERAL:
 //                        break;
 //                    case TK_STRING_LITERAL:
@@ -950,6 +959,10 @@ public class PlPrologParser implements IParser {
                 }
             }
         }
+    }
+
+    protected ITerm handleFunctor(ITerm term) throws Exception {
+        return term;
     }
 
     /**

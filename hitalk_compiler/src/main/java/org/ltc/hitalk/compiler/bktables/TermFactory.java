@@ -3,7 +3,6 @@ package org.ltc.hitalk.compiler.bktables;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.NumberTerm;
 import org.ltc.hitalk.compiler.IVafInterner;
-import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
 import org.ltc.hitalk.entities.HtProperty;
@@ -21,6 +20,7 @@ import java.nio.file.Path;
 
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.MIN_VALUE;
+import static org.ltc.hitalk.core.BaseApp.getAppContext;
 import static org.ltc.hitalk.core.utils.TermUtilities.getLast;
 import static org.ltc.hitalk.term.ListTerm.NIL;
 
@@ -49,6 +49,10 @@ public class TermFactory implements ITermFactory {
 //            }
 //        }
         return newAtom(interner.internFunctorName(value, 0));
+    }
+
+    public IFunctor newFunctor(String name, ListTerm args) {
+        return newFunctor(interner.internFunctorName(name, args.size()), args);
     }
 
     /**
@@ -81,10 +85,15 @@ public class TermFactory implements ITermFactory {
         return new HtFunctor(name, args);
     }
 
+    /**
+     * @param vns
+     * @param fns
+     * @return
+     */
     public IVafInterner getInterner(String vns, String fns) {
         if (interner == null) {
             final String[] ns = new String[]{vns, fns};
-            interner = BaseApp.getAppContext().getInterner(ns);
+            interner = getAppContext().getInterner(ns);
         }
         return interner;
     }
@@ -102,19 +111,6 @@ public class TermFactory implements ITermFactory {
         );
     }
 
-    /**
-     * Prologの項(term)を作成します。
-     *
-     * @author shun
-     */
-
-//    private Kind kind;
-//    private ITerm[] headTail;
-
-    /**
-     * 文字列アトムを生成します。
-     */
-//        public abstract Term newAtom ( String value );
     public IFunctor newAtom(TokenKind ldelim, TokenKind rdelim) {
         String s = String.format("%s%s", ldelim.getImage(), rdelim.getImage());
         return new HtFunctor(interner.internFunctorName(s, 0), NIL);
@@ -143,8 +139,19 @@ public class TermFactory implements ITermFactory {
     }
 
     @Override
-    public IFunctor newFunctor(String name, int arity) {
-        return new HtFunctor(interner.internFunctorName(name, arity));
+    public IFunctor newFunctor(ITerm name, ListTerm args) throws Exception {
+        IFunctor result;
+        if (name.isAtom()) {
+            return new HtFunctor(((IFunctor) name).getName(), args);
+        }
+        return newHiLogFunctor(name, args);
+    }
+
+    public IFunctor newHiLogFunctor(ITerm name, ListTerm args) {
+        final ITerm[] heads = args.getHeads();
+        final ITerm tail = args.getTail();//var or list
+        ListTerm newArgs = new ListTerm();
+        return null;
     }
 
     // commodity methods to parse numbers
@@ -214,14 +221,14 @@ public class TermFactory implements ITermFactory {
         return null;
     }
 
-    @Override
-    public IFunctor newFunctor(int hilogApply, ITerm name, ListTerm args) {
-        ITerm[] headTail = args.getHeads();
-        ITerm[] nameHeadTail = new ITerm[headTail.length + 1];
-        System.arraycopy(headTail, 0, nameHeadTail, 1, headTail.length);
-        nameHeadTail[0] = name;
-        return new HtFunctor(hilogApply, new ListTerm(nameHeadTail));
-    }
+//    @Override
+//    public IFunctor newFunctor(int hilogApply, ITerm name, ListTerm args) {
+//        ITerm[] headTail = args.getHeads();
+//        ITerm[] nameHeadTail = new ITerm[headTail.length + 1];
+//        System.arraycopy(headTail, 0, nameHeadTail, 1, headTail.length);
+//        nameHeadTail[0] = name;
+//        return new HtFunctor(hilogApply, new ListTerm(nameHeadTail));
+//    }
 
     @Override
     public IntTerm newAtomic(int i) {

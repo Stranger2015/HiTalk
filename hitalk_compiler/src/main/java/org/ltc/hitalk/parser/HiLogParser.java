@@ -7,13 +7,20 @@ import org.ltc.hitalk.compiler.bktables.TermFactory;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
+import org.ltc.hitalk.wam.compiler.HtFunctor;
+import org.ltc.hitalk.wam.compiler.HtFunctorName;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.Language;
 
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.ltc.hitalk.core.BaseApp.getAppContext;
+import static org.ltc.hitalk.parser.PlToken.TokenKind.TK_LPAREN;
+import static org.ltc.hitalk.parser.PlToken.TokenKind.TK_RPAREN;
 import static org.ltc.hitalk.term.IdentifiedTerm.Associativity.fx;
+import static org.ltc.hitalk.term.ListTerm.Kind.ARGS;
+import static org.ltc.hitalk.term.ListTerm.NIL;
 import static org.ltc.hitalk.wam.compiler.Language.HILOG;
 
 /**
@@ -21,28 +28,15 @@ import static org.ltc.hitalk.wam.compiler.Language.HILOG;
  */
 public class HiLogParser extends PlPrologParser {
 
-    public static final String HILOG_APPLY = "$hilog_apply";
-    public static int hilogApply = -2;
-    public static final IFunctor HILOG_APPLY_FUNCTOR = new HlApplyFunctor(hilogApply, 1, 0);
+    protected static final String HILOG_APPLY_STRING = "$hilog_apply";
+    public static final HtFunctor HILOG_APPLY = new HiLogFunctor(new HtFunctorName(HILOG_APPLY_STRING, 1), NIL);
 
     /**
-     * Builds a
-     * public
-     * prolog parser on a token source to be parsed.
+     * Builds a public prolog parser on a token source to be parsed.
      *
      * @param interner  the  interner for variable and functor names.
      */
-    protected Set<IFunctor> hilogFunctors = new HashSet<>();
-
-    /**
-     * Static service to get a term from its string representation,
-     * providing a specific operator manager
-     *
-     * @param ts
-     */
-    public ITerm parseSingleTerm(PlLexer ts) throws Exception {
-        return super.parseSingleTerm(ts);
-    }
+    protected final Set<IFunctor> hilogFunctors = new HashSet<>();
 
     /**
      * @param stream
@@ -55,15 +49,18 @@ public class HiLogParser extends PlPrologParser {
                        TermFactory termFactory,
                        IOperatorTable optable) throws Exception {
         super(stream, interner, termFactory, optable);
-
-        hilogApply = interner.internFunctorName(HILOG_APPLY, 0);
     }
 
     /**
      *
      */
     public HiLogParser() throws Exception {
-        super();
+        this(
+                getAppContext().getInputStream(),
+                getAppContext().getInterner(HILOG.getNameSpace("Variables", "Functors")),
+                getAppContext().getTermFactory(),
+                getAppContext().getOpTable()
+        );
     }
 
     /**
@@ -79,30 +76,400 @@ public class HiLogParser extends PlPrologParser {
         super(inputStream, interner, factory, optable);
     }
 
-    @Override
-    protected IFunctor compound ( String name, ListTerm args ) throws Exception {
-        // hilog p/_ q/_, pi_N/N, pi_1/1, piA1_A2/1-2.
-        final IFunctor result = hilogFunctors.contains(termFactory.newFunctor(name, args.size())) ?
-                termFactory.newFunctor(hilogApply, name, args) :
-                super.compound(name, args);// :- hilog p, q, pi/N =>
-
-        return result;
+    /**
+     * @return
+     */
+    public ITerm parse() throws Exception {
+        return super.parse();
     }
 
+    /**
+     * @return
+     */
+    public ITerm next() throws Exception {
+        return super.next();
+    }
+
+    /**
+     * Parses a single terms, or atom (a name with arity zero), as a sentence in first order logic. The sentence will
+     * be parsed in a fresh variable context, to ensure its variables are scoped to within the term only. The sentence
+     * does not have to be terminated by a full stop. This method is not generally used by Prolog, but is provided as a
+     * convenience to languages over terms, rather than clauses.
+     *
+     * @return A term parsed in a fresh variable context.
+     */
+    public ITerm termSentence() throws Exception {
+        return super.termSentence();
+    }
+
+//    @Override
+//    protected IFunctor compound(String name, ListTerm args) throws Exception {
+//        // hilog p/_ q/_, pi_N/N, pi_1/1, piA1_A2/1-2.
+//        final IFunctor result = hilogFunctors.contains(termFactory.newFunctor(name, args.size())) ?
+//                termFactory.newHilogFunctor(name, args) :
+//                super.compound(name, args);// :- hilog p, q, pi/N =>
+//
+//        return result;
+//    }
+
     @Override
-    public Language language () {
+    public Language language() {
         return HILOG;
     }
 
     /**
      * Interns and inserts into  the  operator table all  of   the  built in operators and functors in Prolog.
      */
-    public void initializeBuiltIns () {
+    public void initializeBuiltIns() {
         super.initializeBuiltIns();
 
         internOperator(PrologAtoms.HILOG, 1150, fx);
     }
+
+//    % :- use_module(library(basics)).
+//
+//            %   h_read(?Answer).
+//
+//    h_read(Answer) :- h_read(Answer,_).
+//
+//            %   h_read(?Answer, ?Variables)
+//%   reads a term from the current input stream and unifies it with
+//%   Answer.  Variables is bound to a list of [Atom=Variable] pairs.
+//
+//            h_read(Answer, Variables) :-
+//    repeat,
+//    h_read_tokens(Tokens, Variables),
+//            (   h_read(Tokens, 1200, Term, LeftOver), h_read_all(LeftOver)
+//            ),
+//            !,
+//    Answer = Term.
+//
+//
+//%   h_read_all(+Tokens)
+//%   checks that there are no unparsed tokens left over.
+//
+//            h_read_all([]) :- !.
+//    h_read_all(S) :-
+//    h_read_syntax_error(['operator expected after expression'], S).
+//
+//
+//            %   h_read_expect(Token, TokensIn, TokensOut)
+//%   reads the next token, checking that it is the one expected, and
+//%   giving an error message if it is not.  It is used to look for
+//            %   right brackets of various sorts, as they're all we can be sure of.
+//
+//    h_read_expect(Token, [Token|Rest], Rest) :- !.
+//    h_read_expect(Token, S0, _) :-
+//    h_read_syntax_error([Token,'or operator expected'], S0).
+//
+//
+//            %   I want to experiment with having the operator information held as
+//%   ordinary Prolog facts.  For the moment the following predicates
+//%   remain as interfaces to curr_op.
+//%   h_read_prefixop(O -> Self, Rarg)
+//            %   h_read_postfixop(O -> Larg, Self)
+//            %   h_read_infixop(O -> Larg, Self, Rarg)
+//
+//
+//    h_read_prefixop(Op, Prec, Prec) :-
+//    h_read_curr_op(Prec, fy, Op), !.
+//    h_read_prefixop(Op, Prec, Less) :-
+//    h_read_curr_op(Prec, fx, Op), !,
+//    Less is Prec-1.
+//
+//
+//    h_read_postfixop(Op, Prec, Prec) :-
+//    h_read_curr_op(Prec, yf, Op), !.
+//    h_read_postfixop(Op, Less, Prec) :-
+//    h_read_curr_op(Prec, xf, Op), !, Less is Prec-1.
+//
+//
+//    h_read_infixop(Op, Less, Prec, Less) :-
+//    h_read_curr_op(Prec, xfx, Op), !, Less is Prec-1.
+//    h_read_infixop(Op, Less, Prec, Prec) :-
+//    h_read_curr_op(Prec, xfy, Op), !, Less is Prec-1.
+//    h_read_infixop(Op, Prec, Prec, Less) :-
+//    h_read_curr_op(Prec, yfx, Op), !, Less is Prec-1.
+//
+//
+//    h_read_ambigop(F, L1, O1, R1, L2, O2) :-
+//    h_read_postfixop(F, L2, O2),
+//    h_read_infixop(F, L1, O1, R1), !.
+//
+//
+//            %   h_read(+TokenList, +Precedence, -Term, -LeftOver)
+//%   parses a Token List in a context of given Precedence,
+//%   returning a Term and the unread Left Over tokens.
+//
+//    h_read([Token|RestTokens], Precedence, Term, LeftOver) :-
+//      h_read(Token, RestTokens, Precedence, Term, LeftOver).
+
+//    h_read([], _, _, _) :-
+//    h_read_syntax_error(['expression expected'], []).
+//
+//
+//            %   h_read(+Token, +RestTokens, +Precedence, -Term, -LeftOver)
+//
+//% changed for HiLog
+//    h_read(var(Variable,_), ['('|S1], Precedence, Answer, S) :- !,
+
+    /**
+     * =..(Term,[apply,Variable,Arg1|RestArgs])
+     * =..(Term,[apply,Functor,Arg1|RestArgs])
+     * =..(Term,[apply,Integer,Arg1|RestArgs])
+     * apply('.',Arg1,RestArgs)
+     *
+     * @param term
+     * @return
+     * @throws Exception
+     */
+    @Override
+    protected ITerm handleFunctor(ITerm term) throws Exception {
+        PlToken t = getLexer().readToken(true);
+        if (t.kind == TK_LPAREN) {
+            lastSequence = readSequence(ARGS, rDelims);//',' , '|' , ')'
+            getLexer().unreadToken(t);//pushBack )
+            t = getLexer().readToken(true);
+            if (t.kind == TK_RPAREN) {
+                return lastTerm = termFactory.newFunctor(term, (ListTerm) lastSequence);
+            }
+        }
+
+        return term;
+    }
 }
+
+//    h_read(S1, 999, Arg1, S2),
+//    h_read_args(S2, RestArgs, S3), !,
+//            =..(Term,[apply,Variable,Arg1|RestArgs]),
+//    h_read_exprtl0(S3,Term,Precedence,Answer,S).
+//
+//    h_read(var(Variable,_), S0, Precedence, Answer, S) :- !,
+//       h_read_exprtl0(S0, Variable, Precedence, Answer, S).
+//
+//    h_read(atom(-), [integer(Integer)|S1], Precedence, Answer, S) :-
+//    Negative is -Integer, !,
+//    h_read_exprtl0(S1, Negative, Precedence, Answer, S).
+//
+//            % changed for HiLog
+//    h_read(atom(Functor), ['('|S1], Precedence, Answer, S) :- !,
+//    h_read(S1, 999, Arg1, S2),
+//    h_read_args(S2, RestArgs, S3),
+//        =..(Term,[apply,Functor,Arg1|RestArgs]), !,
+//    h_read_exprtl0(S3, Term, Precedence, Answer, S).
+//
+//    h_read(atom(Functor), S0, Precedence, Answer, S) :-
+//    h_read_prefixop(Functor, Prec, Right), !,
+//    h_read_aft_pref_op(Functor, Prec, Right, S0, Precedence, Answer, S).
+//
+//    h_read(atom(Atom), S0, Precedence, Answer, S) :- !,
+//    h_read_exprtl0(S0, Atom, Precedence, Answer, S).
+//
+//            % added for HiLog
+//    h_read(integer(Integer), ['('|S1], Precedence, Answer, S) :- !,
+//    h_read(S1, 999, Arg1, S2),
+//    h_read_args(S2, RestArgs, S3),
+//        =..(Term,[apply,Integer,Arg1|RestArgs]), !,
+//    h_read_exprtl0(S3, Term, Precedence, Answer, S).
+//
+//    h_read(integer(Integer), S0, Precedence, Answer, S) :- !,
+//    h_read_exprtl0(S0, Integer, Precedence, Answer, S).
+//
+//    h_read('[', [']'|S1], Precedence, Answer, S) :- !,
+//    h_read_exprtl0(S1, [], Precedence, Answer, S).
+//
+//            % HiLog list
+//    h_read('[', S1, Precedence, Answer, S) :- !,
+//    h_read(S1, 999, Arg1, S2),
+//    h_read_list(S2, RestArgs, S3), !,
+//    h_read_exprtl0(S3, apply('.',Arg1,RestArgs), Precedence, Answer, S).
+//
+//    h_read('(', S1, Precedence, Answer, S) :- !,
+//    h_read(S1, 1200, Term, S2),
+//    h_read_expect(')', S2, S3), !,
+//    h_read_exprtl0(S3, Term, Precedence, Answer, S).
+//
+//    h_read(' (', S1, Precedence, Answer, S) :- !,
+//    h_read(S1, 1200, Term, S2),
+//    h_read_expect(')', S2, S3), !,
+//    h_read_exprtl0(S3, Term, Precedence, Answer, S).
+//
+//    h_read('{', ['}'|S1], Precedence, Answer, S) :- !,
+//    h_read_exprtl0(S1, '{}', Precedence, Answer, S).
+//
+//    h_read('{', S1, Precedence, Answer, S) :- !,
+//    h_read(S1, 1200, Term, S2),
+//    h_read_expect('}', S2, S3), !,
+//    h_read_exprtl0(S3, '{}'(Term), Precedence, Answer, S).
+//
+//    h_read(string(List), S0, Precedence, Answer, S) :- !,
+//    h_read_exprtl0(S0, List, Precedence, Answer, S).
+//
+//    h_read(Token, S0, _, _, _) :-
+//    h_read_syntax_error([Token,'cannot start an expression'], S0).
+//
+//
+//            %   h_read_args(+Tokens, -TermList, -LeftOver)
+//%   parses {',' expr(999)} ')' and returns a list of terms.
+//
+//    h_read_args([Tok|S1], Term, S) :- h_read_args1(Tok,Term,S,S1), !.
+//    h_read_args(S, _, _) :-
+//    h_read_syntax_error([', or ) expected in arguments'], S).
+//
+//
+//    h_read_args1(',',[Term|Rest],S,S1) :-
+//    h_read(S1, 999, Term, S2), !,
+//    h_read_args(S2, Rest, S).
+//    h_read_args1(')',[],S,S).
+//
+//
+//
+//            %   h_read_list(+Tokens, -TermList, -LeftOver)
+//%   parses {',' expr(999)} ['|' expr(999)] ']' and returns a list of terms.
+//
+//    h_read_list([Tok|S1],Term,S) :- h_read_list1(Tok,Term,S,S1), !.
+//    h_read_list(S, _, _) :-
+//    h_read_syntax_error([', | or ] expected in list'], S).
+//
+//
+//            %HiLog
+//    h_read_list1(',',apply('.',Term,Rest),S,S1) :-
+//    h_read(S1, 999, Term, S2), !,
+//    h_read_list(S2, Rest, S).
+//    h_read_list1('|',Rest,S,S1) :-
+//    h_read(S1, 999, Rest, S2), !,
+//    h_read_expect(']', S2, S).
+//    h_read_list1(']',[],S,S).
+//
+//
+//            %   h_read_aft_pref_op(+Op, +Prec, +ArgPrec, +Rest, +Precedence, -Ans, -LeftOver)
+//
+//    h_read_aft_pref_op(Op, Oprec, _Aprec, S0, Precedence, _, _) :-
+//    Precedence < Oprec, !,
+//    h_read_syntax_error(['prefix operator',Op,'in context with precedence '
+//            ,Precedence], S0).
+//
+//    h_read_aft_pref_op(Op, Oprec, _Aprec, S0, Precedence, Answer, S) :-
+//    h_read_peepop(S0, S1),
+//    h_read_prefix_is_atom(S1, Oprec), % can't cut but would like to
+//    h_read_exprtl(S1, Oprec, Op, Precedence, Answer, S).
+//
+//            % changed for HiLog
+//    h_read_aft_pref_op(Op, Oprec, Aprec, S1, Precedence, Answer, S) :-
+//    h_read(S1, Aprec, Arg, S2),
+//        =..(Term,[apply,Op,Arg]), !,
+//    h_read_exprtl(S2, Oprec, Term, Precedence, Answer, S).
+//
+//
+//            %   The next clause fixes a bug concerning "mop dop(1,2)" where
+//%   mop is monadic and dop dyadic with higher Prolog priority.
+//
+//    h_read_peepop([atom(F),'('|S1], [atom(F),'('|S1]) :- !.
+//    h_read_peepop([atom(F)|S1], [infixop(F,L`,P,R)|S1]) :-
+//    h_read_infixop(F, L, P, R).
+//    h_read_peepop([atom(F)|S1], [postfixop(F,L,P)|S1]) :-
+//    h_read_postfixop(F, L, P).
+//    h_read_peepop(S0, S0).
+//
+//
+//            %   h_read_prefix_is_atom(+TokenList, +Precedence)
+//%   is true when the right context TokenList of a prefix operator
+//%   of result precedence Precedence forces it to be treated as an
+//%   atom, e.g. (- = X), p(-), [+], and so on.
+//
+//            h_read_prefix_is_atom([Token|_], Precedence) :-
+//    h_read_prefix_is_atom(Token, Precedence).
+//
+//    h_read_prefix_is_atom(infixop(_,L,_,_), P) :- L >= P.
+//            h_read_prefix_is_atom(postfixop(_,L,_), P) :- L >= P.
+//            h_read_prefix_is_atom(')', _).
+//    h_read_prefix_is_atom(']', _).
+//    h_read_prefix_is_atom('}', _).
+//    h_read_prefix_is_atom('|', P) :- 1100 >= P.
+//            h_read_prefix_is_atom(',', P) :- 1000 >= P.
+//            h_read_prefix_is_atom([],  _).
+//
+//
+//            %   h_read_exprtl0(+Tokens, +Term, +Prec, -Answer, -LeftOver)
+//%   is called by read/4 after it has read a primary (the Term).
+//            %   It checks for following postfix or infix operators.
+//
+//            h_read_exprtl0([Tok|S1], Term, Precedence, Answer, S) :-
+//    h_read_exprtl01(Tok,Term,Precedence,Answer,S,S1), !.
+//    h_read_exprtl0(S, Term, _, Term, S).
+//
+//
+//    h_read_exprtl01(atom(F), Term, Precedence, Answer,S,S1) :-
+//    h_read_ambigop(F, L1, O1, R1, L2, O2), !,
+//            ( h_read_exprtl([infixop(F,L1,O1,R1)|S1],0,Term,Precedence,Answer,S)
+//    ; h_read_exprtl([postfixop(F,L2,O2) |S1],0,Term,Precedence,Answer,S)
+//            ).
+//    h_read_exprtl01(atom(F), Term, Precedence, Answer, S,S1) :-
+//    h_read_infixop(F, L1, O1, R1), !,
+//    h_read_exprtl([infixop(F,L1,O1,R1)|S1],0,Term,Precedence,Answer,S).
+//    h_read_exprtl01(atom(F),Term,Precedence,Answer,S,S1) :-
+//    h_read_postfixop(F, L2, O2), !,
+//    h_read_exprtl([postfixop(F,L2,O2) |S1],0,Term,Precedence,Answer,S).
+//            % HiLog and
+//    h_read_exprtl01(',', Term, Precedence, Answer, S,S1) :-
+//    Precedence >= 1000, !,
+//    h_read(S1, 1000, Next, S2), !,
+//    h_read_exprtl(S2, 1000, apply(',',Term,Next), Precedence, Answer, S).
+//            % HiLog or
+//    h_read_exprtl01('|', Term, Precedence, Answer, S,S1) :-
+//    Precedence >= 1100, !,
+//    h_read(S1, 1100, Next, S2), !,
+//    h_read_exprtl(S2, 1100, apply(';',Term,Next), Precedence, Answer, S).
+//            % for HiLog
+//    h_read_exprtl01('(', Term, Precedence, Answer, S,S1) :-
+//            !,
+//    h_read(S1, 999, Arg1, S2),
+//    h_read_args(S2, RestArgs, S3),
+//	=..(HiLogTerm,[apply,Term,Arg1|RestArgs]),
+//    h_read_exprtl0(S3, HiLogTerm, Precedence, Answer, S).
+//    h_read_exprtl01(Thing, _, _, _, _,S1) :-
+//    h_read_cfexpr(Thing, Culprit), !,
+//    h_read_syntax_error([Culprit,'follows expression'], [Thing|S1]).
+//
+//
+//    h_read_cfexpr(atom(_),       atom).
+//    h_read_cfexpr(var(_,_),      variable).
+//    h_read_cfexpr(integer(_),    integer).
+//    h_read_cfexpr(string(_),     string).
+//    h_read_cfexpr(' (',          bracket).
+//    h_read_cfexpr('(',           bracket).
+//    h_read_cfexpr('[',           bracket).
+//    h_read_cfexpr('{',           bracket).
+//
+//
+//
+//    h_read_exprtl([Tok|S1], C, Term, Precedence, Answer, S) :-
+//    h_read_exprtl1(Tok,C,Term,Precedence,Answer,S,S1), !.
+//    h_read_exprtl(S, _, Term, _, Term, S).
+//
+//            % changed for HiLog
+//    h_read_exprtl1(infixop(F,L,O,R), C, Term, Precedence, Answer, S, S1) :-
+//    Precedence >= O, C =< L, !,
+//    h_read(S1, R, Other, S2),
+//        =..(Expr,[apply,F,Term,Other]), /*!,*/
+//    h_read_exprtl(S2, O, Expr, Precedence, Answer, S).
+//    h_read_exprtl1(postfixop(F,L,O), C, Term, Precedence, Answer, S, S1) :-
+//    Precedence >= O, C =< L, !,
+//            =..(Expr,[apply,F,Term]),
+//    h_read_peepop(S1, S2),
+//    h_read_exprtl(S2, O, Expr, Precedence, Answer, S).
+//            % HiLog and
+//    h_read_exprtl1(',', C, Term, Precedence, Answer, S, S1) :-
+//    Precedence >= 1000, C < 1000, !,
+//    h_read(S1, 1000, Next, S2), /*!,*/
+//    h_read_exprtl(S2, 1000, apply(',',Term,Next), Precedence, Answer, S).
+//            % HiLog or
+//    h_read_exprtl1('|', C, Term, Precedence, Answer, S, S1) :-
+//    Precedence >= 1100, C < 1100, !,
+//    h_read(S1, 1100, Next, S2), /*!,*/
+//    h_read_exprtl(S2, 1100, apply(';',Term,Next), Precedence, Answer, S).
+//
+//    }
 //%% Copyright (C) 1990 SUNY at Stony Brook
 //
 //        hilog :-

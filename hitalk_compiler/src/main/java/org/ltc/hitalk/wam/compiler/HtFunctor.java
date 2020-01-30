@@ -2,39 +2,43 @@ package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.search.Operator;
 import org.ltc.hitalk.compiler.IVafInterner;
-import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.*;
 import org.ltc.hitalk.wam.printer.IFunctorTraverser;
 
 import java.util.*;
 import java.util.stream.IntStream;
 
+import static org.ltc.hitalk.core.BaseApp.getAppContext;
+import static org.ltc.hitalk.term.ListTerm.NIL;
+
 /**
  *
  */
 public class HtFunctor extends HtBaseTerm implements IFunctor {
+    //    private final String string;
+//    private final int arity;
     protected int name;
 
     /**
      * view of arguments
      */
-    protected ListTerm args = ListTerm.NIL;
+    protected ListTerm args = NIL;
 
     /**
      * @param name
-     * @param arityMin
-     * @param arityDelta
+     * @param name
+     * @param args
      */
-    public HtFunctor ( int name, int arityMin, int arityDelta ) {
-        this.name = name;
-        setArityRange(arityMin, arityDelta);
+    public HtFunctor(int hilogApply, ITerm name, ListTerm args) {
+        this(hilogApply, new ListTerm(1));
+//        setArityRange(name, args);
     }
 
     /**
      * @param name
      * @param args
      */
-    public HtFunctor ( int name, ListTerm args ) {
+    public HtFunctor(int name, ListTerm args) {
         this.name = name;
         this.args = args;//name heads tail
     }
@@ -44,7 +48,7 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
      * @param args
      * @param arityDelta
      */
-    public HtFunctor ( int name, int arityDelta, ListTerm args ) {
+    public HtFunctor(int name, int arityDelta, ListTerm args) {
         this(name, args);
         setArityRange(args.size(), arityDelta);
     }
@@ -53,7 +57,7 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
      * @param name
      */
     public HtFunctor(String name) {
-
+        this(getAppContext().getInterner().internFunctorName(name, 0), NIL);
     }
 
     /**
@@ -63,22 +67,6 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
         this.name = name;
     }
 
-    public HtFunctor(int yf, IdentifiedTerm symbol) {
-
-    }
-
-    public HtFunctor(IFunctor sym, ListTerm args, ListTerm nil, List<HtClause> selectedClauses) {
-
-
-    }
-
-//    /**
-//     * @param arguments
-//     */
-//    public HtFunctor ( ITerm... arguments ) {
-//
-//    }
-
     /**
      * @return
      */
@@ -87,13 +75,20 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
         return -1;
     }
 
+    /**
+     * @return
+     */
     @Override
-    public ListTerm getArguments () {
+    public ListTerm getArguments() {
         return args;
     }
 
+    /**
+     * @param i
+     * @return
+     */
     @Override
-    public ITerm getArgument ( int i ) {
+    public ITerm getArgument(int i) {
         return args.getHead(i);
     }
 
@@ -101,7 +96,7 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
      * @return
      */
     @Override
-    public boolean isDefined () {
+    public boolean isDefined() {
         return false;
     }
 
@@ -109,7 +104,7 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
      * @return
      */
     @Override
-    public int getArityInt () {
+    public int getArityInt() {
         return getArity();
     }
 
@@ -117,14 +112,14 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
      * @return
      */
     @Override
-    public ITerm getArityTerm () {
+    public ITerm getArityTerm() {
         return null;
     }
 
     /**
      * @return
      */
-    public boolean isHiLog () {
+    public boolean isHiLog() {
         return false;
     }
 
@@ -132,7 +127,7 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
      * @return
      */
     @Override
-    public ITerm getValue () {
+    public ITerm getValue() {
         return this;
     }
 
@@ -142,7 +137,7 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
      * in leaf positions of the term.
      */
     @Override
-    public void free () {
+    public void free() {
         for (ITerm arg : args.getHeads()) {
             arg.free();
         }
@@ -157,7 +152,7 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
      * @param term The term to compare with this one for structural equality.
      * @return <tt>true</tt> if the two terms are structurally eqaul, <tt>false</tt> otherwise.
      */
-    public boolean structuralEquals ( ITerm term ) {
+    public boolean structuralEquals(ITerm term) {
         ITerm comparator = term.getValue();
 
         if (this == comparator) {
@@ -200,7 +195,7 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
      * @param that The object to compare to.
      * @return <tt>true</tt> if the comparator has the same name and arity as this one, <tt>false</tt> otherwise.
      */
-    public boolean equals ( Object that ) {
+    public boolean equals(Object that) {
         if (this == that) {
             return true;
         }
@@ -220,7 +215,7 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
      *
      * @return A hash code based on the name and arity.
      */
-    public int hashCode () {
+    public int hashCode() {
         int result = name;
         result = (31 * result) + args.getHeads().length;
 
@@ -234,16 +229,16 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
      * @param reverse Set, if the children should be presented in reverse order.
      * @return The sub-terms of a compound term.
      */
-    public Iterator <Operator <ITerm>> getChildren ( boolean reverse ) {
+    public Iterator<Operator<ITerm>> getChildren(boolean reverse) {
         if ((traverser != null) && (traverser instanceof IFunctorTraverser)) {
             return ((IFunctorTraverser) traverser).traverse(this, reverse);
         } else {
             if (args == null) {
                 return Collections.emptyIterator();
             } else if (!reverse) {
-                return Arrays.asList((Operator <ITerm>[]) args.getHeads()).iterator();
+                return Arrays.asList((Operator<ITerm>[]) args.getHeads()).iterator();
             } else {
-                List <Operator <ITerm>> argList = new LinkedList <>();
+                List<Operator<ITerm>> argList = new LinkedList<>();
 
                 for (int i = args.getHeads().length - 1; i >= 0; i--) {
                     argList.add(args.getHeads()[i]);
@@ -259,7 +254,7 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
      *
      * @return A copy of this term, with entirely independent variables to the term it was copied from.
      */
-    public IFunctor queryConversion () {
+    public IFunctor queryConversion() {
         /*log.fine("public Functor queryConversion(): called)");*/
 
         IFunctor copy = (IFunctor) super.queryConversion();
@@ -273,7 +268,7 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
     /**
      * {@inheritDoc}
      */
-    public void accept ( ITermVisitor visitor ) {
+    public void accept(ITermVisitor visitor) {
         if (visitor instanceof IFunctorVisitor) {
             visitor.visit(this);
         } else {
@@ -284,8 +279,8 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
     /**
      * {@inheritDoc}
      */
-    public List <ITerm> acceptTransformer ( ITermTransformer transformer ) {
-        List <ITerm> result = transformer instanceof IFunctorTransformer ? transformer.transform(this) :
+    public List<ITerm> acceptTransformer(ITermTransformer transformer) {
+        List<ITerm> result = transformer instanceof IFunctorTransformer ? transformer.transform(this) :
                 super.acceptTransformer(transformer);
 
         //        IntStream.range(0, args.size()).forEachOrdered(i -> FIXME
@@ -298,7 +293,7 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
      * {@inheritDoc}
      */
     @Override
-    public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
+    public String toString(IVafInterner interner, boolean printVarName, boolean printBindings) {
 //        if (getName() < 0) {
 //            return "internal_built_in";
 //        }
@@ -327,7 +322,7 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
      * @return A string reprenestation of this functors arguments.
      */
     @Override
-    public String toStringArguments () {
+    public String toStringArguments() {
         StringBuilder result = new StringBuilder();
 
         if (args.size() > 0) {
@@ -344,11 +339,11 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
         return result.toString();
     }
 
-    public void setArgument ( int i, ITerm term ) {
+    public void setArgument(int i, ITerm term) {
 
     }
 
-    public void setArguments ( ITerm[] terms ) {
+    public void setArguments(ITerm[] terms) {
 
     }
 }

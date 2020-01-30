@@ -67,7 +67,7 @@ interface ITermFactory extends IHitalkObject {
      */
     HtProperty createFlag(String name, ITerm... args);
 
-    IFunctor newFunctor(int hilogApply, ITerm name, ListTerm args);
+//    IFunctor newFunctor(int hilogApply, ITerm name, ListTerm args);
 
     IntTerm newAtomic(int i);
 
@@ -83,9 +83,13 @@ interface ITermFactory extends IHitalkObject {
      */
     IFunctor createMostGeneral(IFunctor functor) throws Exception;
 
-    IFunctor newFunctor(String name, int arity);
+    IFunctor newFunctor(ITerm name, ListTerm args) throws Exception;
 
     NumberTerm createNumber(String s);
 
     HtNonVar createNonvar(String value);
+
+    IFunctor newFunctor(String name, ListTerm args);
+
+    IFunctor newHiLogFunctor(ITerm name, ListTerm args);
 }
