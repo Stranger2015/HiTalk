@@ -9,7 +9,7 @@ import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.PropertyOwner;
 import org.ltc.hitalk.entities.context.Context;
 import org.ltc.hitalk.entities.context.LoadContext;
-import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.parser.HiLogFunctor;
 import org.ltc.hitalk.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.*;
 import org.ltc.hitalk.term.ListTerm.Kind;
@@ -17,11 +17,15 @@ import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.MIN_VALUE;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
-import static org.ltc.hitalk.core.utils.TermUtilities.getLast;
+import static org.ltc.hitalk.parser.HiLogParser.HILOG_APPLY_INT;
+import static org.ltc.hitalk.parser.PlPrologParser.ANONYMOUS;
 import static org.ltc.hitalk.term.ListTerm.NIL;
 
 /**
@@ -71,7 +75,7 @@ public class TermFactory implements ITermFactory {
      */
     @Override
     public IFunctor newFunctor(int hilogApply, String name, ListTerm listTerm) {
-        int arity = listTerm.getHeads().length - 1;
+        int arity = listTerm.getHeads().size() - 1;
         return newFunctor(interner.internFunctorName(name, arity), listTerm);
     }
 
@@ -107,12 +111,12 @@ public class TermFactory implements ITermFactory {
         return new HtVariable(
                 interner.internVariableName(value),
                 null,
-                value.equals(PlPrologParser.ANONYMOUS)
+                value.equals(ANONYMOUS)
         );
     }
 
-    public IFunctor newAtom(TokenKind ldelim, TokenKind rdelim) {
-        String s = String.format("%s%s", ldelim.getImage(), rdelim.getImage());
+    public IFunctor newAtom(TokenKind lDelim, TokenKind rDelim) {
+        String s = String.format("%s%s", lDelim.getImage(), rDelim.getImage());
         return new HtFunctor(interner.internFunctorName(s, 0), NIL);
     }
 
@@ -122,7 +126,7 @@ public class TermFactory implements ITermFactory {
 //        this.headTail = headTail;
 //        if (headTail.length ==1){ //[|VarOrList] []
 
-        return new ListTerm(headTail);
+        return new ListTerm(Arrays.asList(headTail));
     }
 
     @Override
@@ -134,24 +138,31 @@ public class TermFactory implements ITermFactory {
         return newFunctor(functor.getName(), functor.getArity());
     }
 
+    /**
+     * @param name
+     * @param arity
+     * @return
+     */
     public IFunctor newFunctor(int name, int arity) {
         return new HtFunctor(name, new ListTerm(arity));
     }
 
     @Override
-    public IFunctor newFunctor(ITerm name, ListTerm args) throws Exception {
-        IFunctor result;
-        if (name.isAtom()) {
-            return new HtFunctor(((IFunctor) name).getName(), args);
-        }
-        return newHiLogFunctor(name, args);
+    public IFunctor newFunctor(ITerm name, ListTerm args) {
+        return newHiLogFunctor(args.addHeads(name, new IntTerm(HILOG_APPLY_INT)));
     }
 
+    @Override
     public IFunctor newHiLogFunctor(ITerm name, ListTerm args) {
-        final ITerm[] heads = args.getHeads();
-        final ITerm tail = args.getTail();//var or list
-        ListTerm newArgs = new ListTerm();
-        return null;
+        final List<ITerm> heads = new ArrayList<>(args.getHeads());
+        heads.add(name);
+        heads.add(new IntTerm(HILOG_APPLY_INT));
+
+        return new HiLogFunctor(new ListTerm(heads));
+    }
+
+    public IFunctor newHiLogFunctor(List<ITerm> namesHeads) {
+        return new HiLogFunctor(new ListTerm(new ArrayList<>(namesHeads)));
     }
 
     // commodity methods to parse numbers
@@ -209,7 +220,7 @@ public class TermFactory implements ITermFactory {
      * @return
      */
     public HtEntityIdentifier createIdentifier(HtEntityKind kind, String name, ITerm... args) {
-        return new HtEntityIdentifier(interner.internFunctorName(name, 0), new ListTerm(args), kind);
+        return new HtEntityIdentifier(interner.internFunctorName(name, 0), new ListTerm(Arrays.asList(args)), kind);
     }
 
     /**
@@ -218,7 +229,7 @@ public class TermFactory implements ITermFactory {
      * @return
      */
     public HtProperty createFlag(String name, ITerm... args) {
-        return null;
+        return PropertyOwner.createProperty(name, "");//fixme
     }
 
 //    @Override
@@ -256,9 +267,13 @@ public class TermFactory implements ITermFactory {
         return new ListTerm(kind, tail, terms);
     }
 
+    public ITerm getLast(List<ITerm> heads) {
+        return heads.get(heads.size() - 1);
+    }
+
     //    @Override
     public HtProperty createProperty(String name, String value) {
-        return null;
+        return PropertyOwner.createProperty(name, value);
     }
 
     /**
@@ -297,7 +312,6 @@ public class TermFactory implements ITermFactory {
                         createProperty("coinduction_stack", ""),
                         createProperty("context_stack", "")};
                 break;
-
             default:
                 throw new IllegalStateException("Unexpected value: " + kind);
         }

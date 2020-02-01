@@ -21,6 +21,7 @@ import com.thesett.aima.search.util.backtracking.ReTraversable;
 import com.thesett.aima.search.util.backtracking.Reversable;
 import com.thesett.common.util.doublemaps.SymbolKey;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.parser.HiLogFunctor;
 import org.ltc.hitalk.parser.ISourceCodePosition;
 
 import java.util.Iterator;
@@ -98,59 +99,54 @@ public interface ITerm extends ReTraversable<ITerm>, Operator<ITerm> {
      *
      * @return <tt>true</tt> if this term is a number, <tt>false</tt> otherwise.
      */
-    boolean isNumber ();
+    boolean isNumber();
 
     /**
      * Reports whether or not this term is a functor.
      *
      * @return <tt>true</tt> if this term is a functor, <tt>false</tt> otherwise.
      */
-    boolean isFunctor ();
+    boolean isFunctor();
 
     /**
      * Reports whether or not this term is a variable.
      *
      * @return <tt>true</tt> if this term is a variable, <tt>false</tt> otherwise.
      */
-    boolean isVar ();
+    boolean isVar();
 
     /**
      * Reports whether or not this term is a constant (a number of a functor of arity zero).
      *
      * @return <tt>true</tt> if this term is constant, <tt>false</tt> otherwise.
      */
-    boolean isConstant ();
+    boolean isConstant();
 
     /**
      * Reports whether or not this term is compound (a functor of arity one or more).
      *
      * @return <tt>true</tt> if this term is compound, <tt>fals</tt> otherwise.
      */
-    boolean isCompound ();
+    boolean isCompound();
 
     /**
      * Reports whether or not this term is an atom (a functor of arity zero).
      *
      * @return <tt>true</tt> if this term is an atom, <tt>false</tt> otherwise.
      */
-    boolean isAtom ();
+    boolean isAtom();
 
     /**
      * Reports whether or not this term is a ground term.
      *
      * @return <tt>true</tt> if this term is a ground term, <tt>false</tt> othewise.
      */
-    boolean isGround ();
+    boolean isGround();
 
     /**
      * @return
      */
-    boolean isHiLog ();
-
-    /**
-     * @return
-     */
-    boolean isJavaObject ();
+    boolean isJavaObject();
 
     /**
      * Gets the actual value of a term, which is either the term itself, or in the case of variables, the value that is
@@ -158,7 +154,7 @@ public interface ITerm extends ReTraversable<ITerm>, Operator<ITerm> {
      *
      * @return The term itself, or the assigned value for variables.
      */
-    default ITerm getValue () {
+    default ITerm getValue() {
         return this;
     }
 
@@ -167,14 +163,14 @@ public interface ITerm extends ReTraversable<ITerm>, Operator<ITerm> {
      *
      * @return This terms allocation cell. A value of -1 means unnassigned.
      */
-    int getAllocation ();
+    int getAllocation();
 
     /**
      * Sets this terms allocation cell. This may be of use during compilation.
      *
      * @param alloc The terms allocation cell.
      */
-    void setAllocation ( int alloc );
+    void setAllocation(int alloc);
 
     /**
      * Associates a symbol key with this term, that is unique within all scopes of a symbol table.
@@ -193,14 +189,14 @@ public interface ITerm extends ReTraversable<ITerm>, Operator<ITerm> {
     /**
      * Frees all assigned variables in the term, leaving them unnassigned.
      */
-    void free ();
+    void free();
 
     /**
      * Makes a clone of the term, converting its variables to refer directly to their storage cells.
      *
      * @return A copy of this term, with entirely independent variables to the term it was copied from.
      */
-    ITerm queryConversion ();
+    ITerm queryConversion();
 
     /**
      * Allows a reversable operator to be set upon the term, so that context can be established or cleared as terms are
@@ -208,14 +204,14 @@ public interface ITerm extends ReTraversable<ITerm>, Operator<ITerm> {
      *
      * @param reversible The reversable operator to use on the term.
      */
-    void setReversible ( Reversable reversible );
+    void setReversible(Reversable reversible);
 
     /**
      * Allows a term traverser to supply search operators over terms to be set.
      *
      * @param traverser The traverser to supply search operators over terms.
      */
-    void setTermTraverser ( TermTraverser traverser );
+    void setTermTraverser(TermTraverser traverser);
 
     /**
      * Provides an iterator over the child terms, if there are any. Only functors are compound, and build across a list
@@ -224,7 +220,7 @@ public interface ITerm extends ReTraversable<ITerm>, Operator<ITerm> {
      * @param reverse Set, if the children should be presented in reverse order.
      * @return The sub-terms of a compound term.
      */
-    Iterator <Operator <ITerm>> getChildren ( boolean reverse );
+    Iterator<Operator<ITerm>> getChildren(boolean reverse);
 
     /**
      * Provides the source code position that this term was parsed from.
@@ -232,14 +228,14 @@ public interface ITerm extends ReTraversable<ITerm>, Operator<ITerm> {
      * @return The source code position that this term was parsed from. May be <tt>null</tt> if no position has been
      * associated.
      */
-    ISourceCodePosition getSourceCodePosition ();
+    ISourceCodePosition getSourceCodePosition();
 
     /**
      * Associates a source code position with this term.
      *
      * @param sourceCodePosition The source code position that this term was parsed from.
      */
-    void setSourceCodePosition ( ISourceCodePosition sourceCodePosition );
+    void setSourceCodePosition(ISourceCodePosition sourceCodePosition);
 
     /**
      * Reports whether this term is the top-level term in a bracketed expression, and therefore requires no fruther
@@ -247,23 +243,21 @@ public interface ITerm extends ReTraversable<ITerm>, Operator<ITerm> {
      *
      * @return <tt>true</tt> if this term is bracketed, <tt>false</tt> if not.
      */
-    boolean isBracketed ();
+    boolean isBracketed();
 
     /**
      * Sets the bracketed status of this term.
      *
      * @param bracketed The bracketed status of this term.
      */
-    void setBracketed ( boolean bracketed );
+    void setBracketed(boolean bracketed);
 
     /**
      * Accepts a term visitor.
      *
      * @param visitor The term visitor to accept.
      */
-    void accept ( ITermVisitor visitor );
-
-//    void accept ( ITermVisitor visitor, );
+    void accept(ITermVisitor visitor);
 
     /**
      * Applies a term to term transformation function over the term tree, recursively from this point downwards. This is
@@ -273,7 +267,7 @@ public interface ITerm extends ReTraversable<ITerm>, Operator<ITerm> {
      * @param transformer The transformation function to apply.
      * @return The transformed term tree.
      */
-    List <ITerm> acceptTransformer ( ITermTransformer transformer );
+    List<ITerm> acceptTransformer(ITermTransformer transformer);
 
     /**
      * Pretty prints a term relative to the symbol namings provided by the specified interner.
@@ -285,7 +279,7 @@ public interface ITerm extends ReTraversable<ITerm>, Operator<ITerm> {
      *                      variables name without any binding should be printed.
      * @return A pretty printed string containing the term.
      */
-    String toString ( IVafInterner interner, boolean printVarName, boolean printBindings );
+    String toString(IVafInterner interner, boolean printVarName, boolean printBindings);
 
     /**
      * Compares this term for structural equality with another. Two terms are structurally equal if they are the same
@@ -303,5 +297,22 @@ public interface ITerm extends ReTraversable<ITerm>, Operator<ITerm> {
      */
     boolean isQuery();
 
+    /**
+     * @param key
+     */
     void setSymbolKey(SymbolKey key);
+
+//    /**
+//     * @return
+//     */
+//    int getInt();
+//
+//    /**
+//     * @return
+//     */
+//    float getFloat();
+
+    default boolean isHiLog() {
+        return this instanceof HiLogFunctor;
+    }
 }

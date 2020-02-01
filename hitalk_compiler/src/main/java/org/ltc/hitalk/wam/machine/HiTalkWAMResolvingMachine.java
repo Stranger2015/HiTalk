@@ -34,8 +34,9 @@ import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import static java.util.stream.IntStream.range;
 import static org.ltc.hitalk.term.ListTerm.NIL;
 import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.REF;
 import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.STR;
@@ -380,18 +381,13 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
                 int arity = functorName.getArity();
 
                 // Loop over all of the functors arguments, recursively decoding them.
-                List <ITerm> list = new ArrayList <>();
-                for (int i = 0; i < arity; i++) {
-                    ITerm iTerm = decodeHeap(val + 1 + i, variableContext);
-                    list.add(iTerm);
-                }
-                ITerm[] arguments = list.toArray(new ITerm[list.size()]);
+                List<ITerm> list = IntStream.range(0, arity).mapToObj(i -> decodeHeap(val + 1 + i, variableContext)).collect(Collectors.toList());
+                //                ITerm[] arguments = list.toArray(new ITerm[list.size()]);
 
                 // Create a new functor to hold the decoded data.
-                result = new HtFunctor(f, new ListTerm(arguments));
+                result = new HtFunctor(f, new ListTerm(list));
                 break;
             }
-
             case HiTalkWAMInstruction.CON: {
                 //Decode f/n from the CON data.
                 int f = val & 0x3fffffff;
@@ -407,11 +403,15 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
                 int f = internFunctorName(functorName);
                 // Fill in this functors name and arity and allocate storage space for its arguments.
                 int arity = functorName.getArity();
-                ITerm[] arguments = range(0, arity)
-                        .mapToObj(i -> decodeHeap(val + i, variableContext)).toArray(ITerm[]::new);
-                // Loop over all of the functors arguments, recursively decoding them.
+                List<ITerm> list = new ArrayList<>();
+                for (int i = 0; i < arity; i++) {
+                    ITerm iTerm = decodeHeap(val + i, variableContext);
+                    list.add(iTerm);
+                }
+//                ITerm[] arguments = list.toArray(new ITerm[0]);
+//                 Loop over all of the functors arguments, recursively decoding them.
                 // Create a new functor to hold the decoded data.
-                result = new HtFunctor(f, new ListTerm(arguments));
+                result = new HtFunctor(f, new ListTerm(list));
                 break;
             }
             default:

@@ -431,7 +431,7 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
         }
         ungetc(chr);
 
-        return null;
+        return lastToken;
     }
 
     /**

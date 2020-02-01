@@ -657,7 +657,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
         ListTerm body = clause.getBody();
 
         if (body != null) {
-            final ITerm[] heads = body.getHeads();
+            final List<ITerm> heads = body.getHeads();
             for (final ITerm iTerm : heads) {
                 final IFunctor functor = (IFunctor) iTerm;
                 int arity = functor.getArity();

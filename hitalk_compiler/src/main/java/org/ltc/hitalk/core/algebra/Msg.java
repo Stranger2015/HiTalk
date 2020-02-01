@@ -6,6 +6,7 @@ import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
+import org.ltc.hitalk.parser.HiLogFunctor;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
@@ -15,7 +16,7 @@ import org.ltc.hitalk.wam.compiler.IFunctor;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-import static org.ltc.hitalk.parser.HiLogParser.hilogApply;
+import static java.util.Arrays.asList;
 
 /**
  *
@@ -50,16 +51,16 @@ public class Msg {
             IFunctor f2 = (IFunctor) term2;
             //f(Xn) f(Yn)
             if (f1.getName() == f2.getName() && f1.getName() >= 0) {
-                result = new HtFunctor(f1.getName(), f1.getArity(), 0);
+                result = new HtFunctor(f1.getName(), ListTerm.NIL);
             } else if (f1.isHiLog() && f2.isHiLog()) {
                 final ITerm name1 = f1.getArguments().getHead(0);
                 final ITerm name2 = f2.getArguments().getHead(0);
                 final ITerm name = msg(name1, name2, dict);
                 final ListTerm lt = msgList(f1.getArguments(), f2.getArguments(), dict);
-                result = new HtFunctor(hilogApply, new ListTerm(name, lt));
+                result = new HiLogFunctor(lt.addHead(name));
             } else {
-                result = new HtFunctor(hilogApply, new ListTerm(updateDictNewVar(f1, f2, dict)));
-                /* new ListTerm(LIST, calls.getHeads())*/
+                result = new HiLogFunctor(new ListTerm(asList(updateDictNewVar(f1, f2, dict))));
+                /* new ListTerm(LIST, calls.getHeads()*/
             }
         } else if (term1.isList() && term2.isList()) {
             ListTerm lt1 = (ListTerm) term1;

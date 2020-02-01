@@ -17,6 +17,7 @@ import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.util.*;
 
+import static java.util.Arrays.asList;
 import static org.ltc.hitalk.parser.PrologAtoms.*;
 
 /**
@@ -234,14 +235,14 @@ public class TermUtilities {
                 IFunctor[] flattenedArgs = flattenTerm((IFunctor) symbol.getArgument(1),
                         IFunctor.class, COMMA, interner);
 
-                return new HtClause((IFunctor) symbol.getArgument(0), new ListTerm(flattenedArgs));
+                return new HtClause((IFunctor) symbol.getArgument(0), new ListTerm(asList(flattenedArgs)));
             } else if (QUERY.equals(symbol.getTextName())) {
                 IFunctor[] flattenedArgs = flattenTerm((IFunctor) symbol.getArgument(0),
                         IFunctor.class,
                         COMMA,
                         interner);
 
-                return new HtClause(null, new ListTerm(flattenedArgs));
+                return new HtClause(null, new ListTerm(asList(flattenedArgs)));
             }
         }
         if (term != null) {
@@ -285,7 +286,7 @@ public class TermUtilities {
      * @param a
      * @return
      */
-    public static ITerm getLast ( ITerm[] a ) {
+    public static ITerm getLast(ITerm[] a) {
         return a[a.length - 1];
     }
 }

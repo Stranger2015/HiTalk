@@ -246,8 +246,7 @@ class Specializer<C extends BodyCalls <C>> implements ISpecializer {
      * @return
      */
     protected boolean sthBound ( ListTerm msg ) {
-        final ITerm[] heads = msg.getHeads();
-        for (final ITerm head : heads) {
+        for (final ITerm head : msg.getHeads()) {
             if (!head.isVar()) {//chk value??
                 return true;
             }

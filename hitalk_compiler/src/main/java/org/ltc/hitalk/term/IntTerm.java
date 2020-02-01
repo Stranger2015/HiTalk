@@ -45,13 +45,17 @@ public class IntTerm extends NumberTerm implements ITerm {
         return false;
     }
 
+    public int getInt() {
+        return 0;
+    }
+
     @Override
-    public boolean isNumber () {
+    public boolean isNumber() {
         return true;
     }
 
     @Override
-    public boolean isConstant () {
+    public boolean isConstant() {
         return true;
     }
 

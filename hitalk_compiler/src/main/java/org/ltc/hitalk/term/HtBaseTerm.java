@@ -317,6 +317,7 @@ public abstract class HtBaseTerm extends TraversableState <ITerm> implements ITe
         return "";//oString(getAppContext().getInterner(), true, true);
     }
 
+    @Override
     public void setSymbolKey(SymbolKey key) {
 
     }

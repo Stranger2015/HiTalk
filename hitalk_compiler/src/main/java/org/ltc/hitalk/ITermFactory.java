@@ -9,6 +9,7 @@ import org.ltc.hitalk.term.ListTerm.Kind;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.nio.file.Path;
+import java.util.List;
 
 /**
  *
@@ -92,4 +93,10 @@ interface ITermFactory extends IHitalkObject {
     IFunctor newFunctor(String name, ListTerm args);
 
     IFunctor newHiLogFunctor(ITerm name, ListTerm args);
+
+    /**
+     * @param namesHeads
+     * @return
+     */
+    IFunctor newHiLogFunctor(List<ITerm> namesHeads);
 }

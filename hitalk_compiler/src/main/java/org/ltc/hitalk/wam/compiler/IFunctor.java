@@ -11,12 +11,17 @@ public interface IFunctor extends ITerm, IRangedArity {
     /**
      * @return
      */
+    int getHeadsOffset();
+
+    /**
+     * @return
+     */
     int getName() throws Exception;
 
     /**
      * @return
      */
-    ListTerm getArguments ();
+    ListTerm getArguments();
 
     /**
      * @param i

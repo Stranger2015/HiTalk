@@ -8,6 +8,8 @@ import org.ltc.hitalk.wam.compiler.BodyCall.BodyCalls;
 
 import java.util.List;
 
+import static java.util.Arrays.asList;
+
 /**
  *
  */
@@ -24,18 +26,10 @@ public class PiCalls<C extends BodyCalls<C>> extends HtFunctor {
     /**
      * @param name
      * @param args
-     */
-    public PiCalls(int name, ITerm[] args) {
-        super(name, new ListTerm(args));
-    }
-
-    /**
-     * @param name
-     * @param args
      * @param arityDelta
      */
     public PiCalls(int name, int arityDelta, ITerm... args) {
-        super(name, arityDelta, new ListTerm(args));
+        super(name, arityDelta, new ListTerm(asList(args)));
     }
 
     public <C extends BodyCalls<C>> PiCalls(IFunctor sym, List<BodyCall<C>> calls, ListTerm args, List<HtClause> selectedClauses) {
@@ -73,15 +67,14 @@ public class PiCalls<C extends BodyCalls<C>> extends HtFunctor {
      * @param arityDelta
      */
     public PiCalls ( int name, int arityMin, int arityDelta ) {
-        super(name, arityMin, arityDelta);
+        super(name);
     }
 
     /**
-     * @param name
      * @param args
      */
-    public PiCalls ( int name, ListTerm args ) {
-        this(name, args.getHeads().length, 0);//fixme
+    public PiCalls(ListTerm args) {
+        super(args);//fixme
     }
 
     /**

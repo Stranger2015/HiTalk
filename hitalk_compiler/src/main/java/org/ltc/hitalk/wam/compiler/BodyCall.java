@@ -30,9 +30,12 @@ public class BodyCall<C extends BodyCall.BodyCalls <C>> extends PiCalls <C> {
      * @param args
      */
     public BodyCall(int name, ListTerm args) {
-        super(name, args);
+        super(args.addHead(name));
     }
 
+    /**
+     * @param name
+     */
     public BodyCall(int name) {
         super(name);
     }

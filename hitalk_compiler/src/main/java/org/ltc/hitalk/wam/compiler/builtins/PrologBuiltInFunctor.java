@@ -37,6 +37,7 @@ class PrologBuiltInFunctor extends HtFunctor implements IPrologBuiltIn {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void setSymbolKey(SymbolKey key) {
         functor.setSymbolKey(key);
     }

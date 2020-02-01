@@ -175,6 +175,13 @@ class HtPredicateIndicator extends HtBaseTerm implements IFunctor {
     }
 
     /**
+     * @return
+     */
+    public int getHeadsOffset() {
+        return 1;
+    }
+
+    /**
      * Reports the name of this functor, or of the set that it denotes.
      *
      * @return This functors name.

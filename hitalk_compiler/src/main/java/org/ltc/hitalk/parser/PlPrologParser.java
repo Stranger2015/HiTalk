@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.IntStream;
 
 import static java.util.Objects.requireNonNull;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.SYNTAX_ERROR;
@@ -363,8 +362,9 @@ public class PlPrologParser implements IParser {
     }
 
     public void op(int priority, Associativity associativity, String... operatorNames) {
-        IntStream.range(0, operatorNames.length).forEachOrdered(i ->
-                op(operatorNames[i], priority, associativity));
+        for (final String operatorName : operatorNames) {
+            op(operatorName, priority, associativity);
+        }
     }
 
     /**
@@ -659,7 +659,7 @@ public class PlPrologParser implements IParser {
                             XFX,
                             left.getResult(),
                             found.getResult());
-                    continue;
+//                    continue;
                 } else {
                     haveAttemptedXFX = true;
                 }
@@ -714,13 +714,8 @@ public class PlPrologParser implements IParser {
     private boolean isOperator(PlToken token, EnumSet<TokenKind> delims) {
         final String name = token.getImage();
         final Set<IdentifiedTerm> ops = this.getOptable().getOperators(name);
-        for (IdentifiedTerm op : ops) {
-            if (op.getTextName().equals(name)) {
-                return true;
-            }
-        }
 
-        return false;
+        return ops.stream().anyMatch(op -> op.getTextName().equals(name));
     }
 
     /**
@@ -961,8 +956,28 @@ public class PlPrologParser implements IParser {
         }
     }
 
+    /**
+     * @param term
+     * @return
+     * @throws Exception
+     */
     protected ITerm handleFunctor(ITerm term) throws Exception {
-        return term;
+        PlToken t = getLexer().readToken(true);
+        if (t.kind == TK_LPAREN) {
+            if (term.isAtom()) {
+                lastSequence = readSequence(ARGS, rDelims);//',' , '|' , ')'
+                getLexer().unreadToken(t);//pushBack )
+                t = getLexer().readToken(true);
+                if (t.kind == TK_RPAREN) {
+                    return lastTerm = termFactory.newFunctor(term, (ListTerm) lastSequence);
+                }
+            } else {
+                lastSequence = expr0_block();
+                // lastSequence=readSequence(BLOCK, expr0_block())
+            }
+        }
+
+        return lastTerm;
     }
 
     /**
