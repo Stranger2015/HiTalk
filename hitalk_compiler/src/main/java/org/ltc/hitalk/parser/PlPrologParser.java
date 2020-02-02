@@ -985,7 +985,7 @@ public class PlPrologParser implements IParser {
      * @return
      */
     public StringTerm readString(TokenKind tkDQuote) {
-        return new StringTerm();
+        return new StringTerm(0);
     }
 
     /**

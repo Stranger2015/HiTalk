@@ -171,6 +171,7 @@ public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingCon
         return (t != this) && t.isGround();
     }
 
+    @Override
     public boolean isHiLog () {
         return false;
     }

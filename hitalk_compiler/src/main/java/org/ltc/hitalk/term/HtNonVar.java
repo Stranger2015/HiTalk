@@ -9,6 +9,7 @@ public class HtNonVar extends HtBaseTerm {
     /**
      * @return
      */
+    @Override
     public boolean isHiLog() {
         return false;
     }

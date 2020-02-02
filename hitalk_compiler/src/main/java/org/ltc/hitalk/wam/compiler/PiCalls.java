@@ -1,14 +1,12 @@
 package org.ltc.hitalk.wam.compiler;
 
-import org.ltc.hitalk.parser.HtClause;
+
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.BodyCall.BodyCalls;
 
 import java.util.List;
-
-import static java.util.Arrays.asList;
 
 /**
  *
@@ -24,19 +22,50 @@ public class PiCalls<C extends BodyCalls<C>> extends HtFunctor {
     }
 
     /**
-     * @param name
-     * @param args
+     * @param arityMin
      * @param arityDelta
+     * @return
      */
-    public PiCalls(int name, int arityDelta, ITerm... args) {
-        super(name, arityDelta, new ListTerm(asList(args)));
+    public int setArityRange(int arityMin, int arityDelta) {
+        return 0;
     }
 
-    public <C extends BodyCalls<C>> PiCalls(IFunctor sym, List<BodyCall<C>> calls, ListTerm args, List<HtClause> selectedClauses) {
-        super(sym, args, ListTerm.NIL, selectedClauses);
-
-
+    /**
+     * @return
+     */
+    public int getArityMin() {
+        return 0;
     }
+
+    /**
+     * @return
+     */
+    public int getArityMax() {
+        return 0;
+    }
+
+    /**
+     * @return
+     */
+    public int getArityDelta() {
+        return 0;
+    }
+
+    /**
+     * @param args
+     */
+//    public PiCalls(int name, int arityDelta, ITerm... args) {
+////        super(name, arityDelta, new ListTerm(asList(args)));
+//    }
+
+//    public <C extends BodyCalls<C>> PiCalls(IFunctor sym,
+//                                            List<BodyCall<C>> calls,
+//                                            ListTerm args,
+//                                            List<HtClause> selectedClauses) {
+////        super(sym, args, ListTerm.NIL, selectedClauses);
+//
+//
+//    }
 
     /**
      * @param <C>
@@ -49,6 +78,23 @@ public class PiCalls<C extends BodyCalls<C>> extends HtFunctor {
          */
         public XPiCalls(IFunctor sym, List<BodyCalls<C>> calls) throws Exception {
             super(sym.getName(), 0, 0);
+        }
+
+        public void setArguments(List<ITerm> terms) {
+
+        }
+
+        public boolean isListTerm() {
+            return false;
+        }
+
+        /**
+         * @param arityMin
+         * @param arityDelta
+         * @return
+         */
+        public int setArityRange(int arityMin, int arityDelta) {
+            return 0;
         }
     }
 
@@ -110,18 +156,26 @@ public class PiCalls<C extends BodyCalls<C>> extends HtFunctor {
      * @return
      */
     @Override
-    public String toStringArguments () {
+    public String toStringArguments() {
         return toString();//fixme
+    }
+
+    public void setArguments(List<ITerm> terms) {
+
+    }
+
+    public boolean isListTerm() {
+        return false;
     }
 
     /**
      * @return
      */
-    public boolean isRepresentable () {
+    public boolean isRepresentable() {
         return representable;
     }
 
-    public void setMgCalls ( HtVariable var ) {
+    public void setMgCalls(HtVariable var) {
         this.setArgument(0, var);
     }
 

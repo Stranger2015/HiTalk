@@ -27,6 +27,7 @@ public class FloatTerm extends NumberTerm implements ITerm {
         return false;
     }
 
+    @Override
     public boolean isHiLog () {
         return false;
     }

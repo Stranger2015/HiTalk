@@ -71,6 +71,7 @@ class HtPredicate extends HtBaseTerm implements ITerm, IPropertyOwner {
     final protected List<PropertyChangeListener> listeners = new ArrayList<>();
     private boolean builtIn;
 
+    @Override
     public boolean isHiLog () {
         return false;
     }

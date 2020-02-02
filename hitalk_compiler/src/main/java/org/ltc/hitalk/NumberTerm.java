@@ -4,16 +4,20 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.term.HtBaseTerm;
 
 public class NumberTerm extends HtBaseTerm {
-    private int image;
+    protected int image;
 
     public NumberTerm(int image) {
-
         this.image = image;
+    }
+
+    public boolean isNumber() {
+        return true;
     }
 
     /**
      * @return
      */
+    @Override
     public boolean isHiLog() {
         return false;
     }

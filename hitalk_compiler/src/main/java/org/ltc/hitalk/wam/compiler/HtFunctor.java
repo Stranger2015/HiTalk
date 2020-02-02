@@ -2,24 +2,23 @@ package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.search.Operator;
 import org.ltc.hitalk.compiler.IVafInterner;
-import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.*;
 import org.ltc.hitalk.wam.printer.IFunctorTraverser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.IntStream;
 
 import static java.util.Collections.emptyIterator;
-import static java.util.Collections.singletonList;
-import static org.ltc.hitalk.core.BaseApp.getAppContext;
 import static org.ltc.hitalk.term.ListTerm.NIL;
 
 /**
  *
  */
 public class HtFunctor extends HtBaseTerm implements IFunctor {
+    protected int name;
 
     /**
      * view of arguments
@@ -42,53 +41,32 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
         this.args = args;//name heads tail
     }
 
-//    /**
-//     * @param args
-//     * @param arityDelta
-//     */
-//    public HtFunctor(int arityDelta, ListTerm args) {
-//        this(name, args);
-//        setArityRange(args.size(), arityDelta);
-//    }
-//
-
-    /**
-     * @param name
-     */
-    public HtFunctor(String name) {
-        this(new ListTerm(getAppContext().getInterner().internFunctorName(name, 0)));
-    }
-
     /**
      * @param name
      */
     public HtFunctor(int name) {
-        final IntTerm n = new IntTerm(name);
-        new ListTerm(singletonList(n));
+        this(name, NIL);
     }
 
     public HtFunctor(HtFunctor functor, ITerm name, ListTerm args) {
         this.args = new ListTerm((args.addHead(functor, name)));
     }
 
-    public HtFunctor(IFunctor sym, ListTerm args, ListTerm nil, List<HtClause> selectedClauses) {
-
-    }
-
     public HtFunctor(int name, ListTerm args) {
-        this.args = new ListTerm(singletonList(args.addHead(name)));
+        this.name = name;
+        this.args = args;
     }
-
-    public HtFunctor(int name, int arityDelta, ListTerm listTerm) {
-
-
-    }
+//
+//    public HtFunctor(int name, int arityDelta, ListTerm listTerm) {
+//
+//
+//    }
 
     /**
      * @return
      */
     public int getHeadsOffset() {
-        return 1;
+        return 0;
     }
 
     /**
@@ -96,15 +74,15 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
      */
     @Override
     public int getName() {
-        return ((IntTerm) args.getHeads().get(getHeadsOffset())).getInt();
+        return name;
     }
 
     /**
      * @return
      */
     @Override
-    public ListTerm getArguments() {
-        return args;
+    public List<ITerm> getArguments() {
+        return args.getHeads();
     }
 
     /**
@@ -113,7 +91,7 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
      */
     @Override
     public ITerm getArgument(int i) {
-        return args.getHead(i);
+        return args.getHead(i + getHeadsOffset());
     }
 
     /**
@@ -143,6 +121,7 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
     /**
      * @return
      */
+    @Override
     public boolean isHiLog() {
         return false;
     }
@@ -279,7 +258,7 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
         /*log.fine("public Functor queryConversion(): called)");*/
 
         IFunctor copy = (IFunctor) super.queryConversion();
-        copy.setArguments(new ITerm[args.size()]);
+        copy.setArguments(Arrays.asList(new ITerm[args.size()]));
         IntStream.range(0, args.size()).forEachOrdered(i ->
                 copy.setArgument(i, queryConversion()));
 
@@ -301,7 +280,8 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
      * {@inheritDoc}
      */
     public List<ITerm> acceptTransformer(ITermTransformer transformer) {
-        List<ITerm> result = transformer instanceof IFunctorTransformer ? transformer.transform(this) :
+        List<ITerm> result = transformer instanceof IFunctorTransformer ?
+                transformer.transform(this) :
                 super.acceptTransformer(transformer);
 
         //        IntStream.range(0, args.size()).forEachOrdered(i -> FIXME
@@ -361,10 +341,22 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
     }
 
     public void setArgument(int i, ITerm term) {
-
+        args.getHeads().set(i + getHeadsOffset(), term);
     }
 
-    public void setArguments(ITerm[] terms) {
+    /**
+     * @param terms
+     */
+    public void setArguments(List<ITerm> terms) {
+        args.getHeads().clear();
+        args.getHeads().addAll(terms);
+    }
 
+    /**
+     * @param terms
+     */
+    public void setArguments(ListTerm terms) {
+        args.getHeads().clear();
+        args.getHeads().addAll(terms.getHeads());//todo check ofs!!!
     }
 }

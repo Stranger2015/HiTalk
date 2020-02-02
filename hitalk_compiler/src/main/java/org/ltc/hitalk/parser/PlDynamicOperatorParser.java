@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.IntStream;
 
+import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static org.ltc.hitalk.term.IdentifiedTerm.Fixity.*;
 
@@ -436,9 +437,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
             // Add the operator to the table replacing any previous definition of the same fixity.
             operatorMap.put(opSymbol.getFixity(), opSymbol);
         } else if (priority == 0) {
-//
-        } else if (priority == -1) {
-
+            priority = -1;
         } else {
             throw new IllegalArgumentException("Operator priority must be between 0 and 1200 inclusive.");
         }
@@ -455,6 +454,10 @@ public class PlDynamicOperatorParser implements IOperatorTable {
         return map == null ? Collections.emptyMap() : map;
     }
 
+    /**
+     * @param s
+     * @return
+     */
     public Set<IdentifiedTerm> getOperators(String s) {
         final Map<Fixity, IdentifiedTerm> map = getOperatorsMatchingNameByFixity(s);
         return new HashSet<>(map.values());
@@ -818,7 +821,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
             // argument for this symbol instance.
             op = op.copySymbol();
             op.setSourceCodePosition(requireNonNull(candidate).getSourceCodePosition());
-            op.setArguments(new ITerm[]{t});
+            op.setArguments(singletonList(t));
 
             // Place the fully parsed, promoted operator back onto the output stack.
             outputStack.offer(op);
@@ -858,7 +861,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
             // argument for this symbol instance.
             op = op.copySymbol();
             op.setSourceCodePosition(candidate.getSourceCodePosition());
-            op.setArguments(new ITerm[]{t});
+            op.setArguments(Collections.singletonList(t));
 
             outputStack.offer(op);
         }
@@ -897,7 +900,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
             // Note that the order of the arguments is swapped here, because they come off the stack backwards.
             op = op.copySymbol();
             op.setSourceCodePosition(requireNonNull(candidate).getSourceCodePosition());
-            op.setArguments(new ITerm[]{t2, t1});
+            op.setArguments(Arrays.asList(t2, t1));
 
             outputStack.offer(op);
         }
@@ -907,4 +910,3 @@ public class PlDynamicOperatorParser implements IOperatorTable {
 
     }
 }
-

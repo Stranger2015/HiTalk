@@ -53,10 +53,10 @@ public class Msg {
             if (f1.getName() == f2.getName() && f1.getName() >= 0) {
                 result = new HtFunctor(f1.getName(), ListTerm.NIL);
             } else if (f1.isHiLog() && f2.isHiLog()) {
-                final ITerm name1 = f1.getArguments().getHead(0);
-                final ITerm name2 = f2.getArguments().getHead(0);
+                final ITerm name1 = f1.getArguments().get(f1.getHeadsOffset());//fixme
+                final ITerm name2 = f2.getArguments().get(f2.getHeadsOffset());//fixme
                 final ITerm name = msg(name1, name2, dict);
-                final ListTerm lt = msgList(f1.getArguments(), f2.getArguments(), dict);
+                final ListTerm lt = msgList(f1.getArgs(), f2.getArgs(), dict);
                 result = new HiLogFunctor(lt.addHead(name));
             } else {
                 result = new HiLogFunctor(new ListTerm(asList(updateDictNewVar(f1, f2, dict))));

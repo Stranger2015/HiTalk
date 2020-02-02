@@ -47,8 +47,8 @@ import org.ltc.hitalk.core.IHitalkObject;
  * <p>
  * <p/>The process of navigating down into nested scopes to set or recover values on symbols can be circumvented by the
  * use of a {@link String}. A primary key into the current scope can produce a String {@link SymbolKey}, which
- * can be used to directly navigate back to that symbol, in that same scope using the {@link #get(String, Object)} or
- * {@link #put(String, Object, Object)} methods on any scope on the symbol table.
+ * can be used to directly navigate back to that symbol, in that same scope using the  or
+ * {@link #put(SymbolKey, Object, Object)} methods on any scope on the symbol table.
  *
  * <pre><p/><table id="crc"><caption>CRC Card</caption>
  * <tr><th>Responsibilities<th>Collaborations
@@ -94,7 +94,7 @@ public interface ISymbolTable<K, L, E> extends DoubleKeyedMap <K, L, E>, IHitalk
      * @param field The field to look up.
      * @return The field value at the symbol key, or <tt>null</tt> if none has been set.
      */
-    E get(String key, L field);
+    E get(SymbolKey key, L field);
 
     /**
      * Stores a value for a field in the symbol table for a {@link String}. The key may refer to any nested scope
@@ -105,7 +105,7 @@ public interface ISymbolTable<K, L, E> extends DoubleKeyedMap <K, L, E>, IHitalk
      * @param value The value to store.
      * @return The previous value at the symbol key, or <tt>null</tt> if none was previously set.
      */
-    E put(String key, L field, E value);
+    E put(SymbolKey key, L field, E value);
 
     /**
      * Clears all keys up to and including the specified key, from the specified field of the symbol table. This is
@@ -124,7 +124,7 @@ public interface ISymbolTable<K, L, E> extends DoubleKeyedMap <K, L, E>, IHitalk
      * @param key   The key to use as the new highest low mark.
      * @param field The field to move the mark on.
      */
-    void setLowMark(String key, L field);
+    void setLowMark(SymbolKey key, L field);
 
     /**
      * Clears a field of the symbol table to its low mark.

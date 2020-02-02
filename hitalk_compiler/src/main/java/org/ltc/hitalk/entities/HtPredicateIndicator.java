@@ -18,7 +18,7 @@ import static org.ltc.hitalk.core.BaseApp.getAppContext;
  */
 public
 class HtPredicateIndicator extends HtBaseTerm implements IFunctor {
-    //private final HtFunctor functor;
+
     protected HtFunctor delegate;
 
     /**
@@ -92,6 +92,7 @@ class HtPredicateIndicator extends HtBaseTerm implements IFunctor {
         return delegate.isGround();
     }
 
+    @Override
     public boolean isHiLog () {
         return false;
     }
@@ -139,7 +140,7 @@ class HtPredicateIndicator extends HtBaseTerm implements IFunctor {
      *
      * @return All of this functors arguments, possibly <tt>null</tt>.
      */
-    public ListTerm getArguments () {
+    public List<ITerm> getArguments() {
         return delegate.getArguments();
     }
 
@@ -151,6 +152,14 @@ class HtPredicateIndicator extends HtBaseTerm implements IFunctor {
      */
     public void setArgument(int index, ITerm value) {
         delegate.setArgument(index, value);
+    }
+
+    public void setArguments(List<ITerm> terms) {
+
+    }
+
+    public ListTerm getArgs() {
+        return g;
     }
 
     public void setArguments(ITerm[] terms) {

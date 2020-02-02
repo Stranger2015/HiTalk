@@ -1,7 +1,7 @@
 package org.ltc.hitalk.entities;
 
 import org.ltc.hitalk.term.HtNonVar;
-import org.ltc.hitalk.wam.compiler.HtFunctor;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.util.function.Predicate;
@@ -34,13 +34,15 @@ class HtProperty implements IProperty {
         }
     }
 
-    public HtProperty(String name, String... values) {
-        this.name = new HtFunctor(name);
+    public HtProperty(String name, String... values) throws Exception {
+        ITerm t =
+                this.name = (IFunctor) getAppContext().getParser().parseSingleTerm(name);
         this.values = new HtNonVar[values.length];
-        for (int i = 0; i < values.length; i++) {
-
-        }
-        this.value = getAppContext().getTermFactory().createNonvar(values.length == 0 ? "" : values[0]);
+//        for (int i = 0, valuesLength = values.length; i < valuesLength; i++) {
+//            final String item = values[i];
+//            this.values[i] = (IFunctor) getAppContext().getParser().parseSingleTerm(item);
+//        }
+        this.value = (HtNonVar) getAppContext().getParser().parseSingleTerm(values.length == 0 ? "_" : values[0]);
     }
 
     public String getS() {

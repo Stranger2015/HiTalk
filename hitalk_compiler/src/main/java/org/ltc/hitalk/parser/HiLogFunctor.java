@@ -1,10 +1,11 @@
 package org.ltc.hitalk.parser;
 
+import com.thesett.common.util.doublemaps.SymbolKey;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 
-import static org.ltc.hitalk.parser.HiLogParser.HILOG_APPLY;
+import static org.ltc.hitalk.parser.HiLogParser.HILOG_APPLY_INT;
 
 /**
  *
@@ -15,33 +16,31 @@ public class HiLogFunctor extends HtFunctor {
      * @param args
      */
     public HiLogFunctor(ITerm name, ListTerm args) {
-        super(args.addHead(HILOG_APPLY).addHead(name));
+        super(HILOG_APPLY_INT, args.addHead(name));
     }
 
     /**
      * @return
      */
     public int getHeadsOffset() {
-        return 2;
+        return 1;
     }
 
     /**
+     *
      */
     public HiLogFunctor(ListTerm args) {
-        super(args);
-    }
-
-    /**
-     * @return
-     */
-    public ListTerm getArguments() {
-        return super.getArguments();
+        super(HILOG_APPLY_INT, args);
     }
 
     /**
      * @return
      */
     public int getName() {
-        return super.getName();
+        return HILOG_APPLY_INT;
+    }
+
+    public void setSymbolKey(SymbolKey key) {
+        super.setSymbolKey(key);
     }
 }

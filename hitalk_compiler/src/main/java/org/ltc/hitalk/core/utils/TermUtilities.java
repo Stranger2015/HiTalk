@@ -40,7 +40,7 @@ public class TermUtilities {
      * @param original
      * @return
      */
-    public static ITerm[] copyOf ( ITerm[] original, int ofs ) {
+    public static ITerm[] copyOf(ITerm[] original, int ofs) {
         int newLength = original.length + 1;
         final ITerm[] copy = new ITerm[newLength];
         System.arraycopy(original, 0, copy, ofs, original.length);
@@ -52,7 +52,7 @@ public class TermUtilities {
      * @param elem
      * @return
      */
-    public static ITerm[] prepend ( ITerm elem, ITerm[] original ) {
+    public static ITerm[] prepend(ITerm elem, ITerm[] original) {
         Objects.requireNonNull(original);
         final ITerm[] copy = copyOf(original, 1);
         copy[0] = elem;
@@ -65,7 +65,7 @@ public class TermUtilities {
      * @param elem
      * @return
      */
-    public static ITerm[] append ( ITerm[] original, ITerm elem ) {
+    public static ITerm[] append(ITerm[] original, ITerm elem) {
         Objects.requireNonNull(original);
         final ITerm[] copy = copyOf(original, 0);
         copy[copy.length - 1] = elem;
@@ -79,13 +79,13 @@ public class TermUtilities {
      * @param query The term to calculate the free non-anonymous variable set from.
      * @return A set of variables that are free and non-anonymous in the term.
      */
-    public static Set <HtVariable> findFreeVariables ( ITerm query ) {
-        QueueBasedSearchMethod <ITerm, ITerm> freeVarSearch = new DepthFirstSearch <>();
+    public static Set<HtVariable> findFreeVariables(ITerm query) {
+        QueueBasedSearchMethod<ITerm, ITerm> freeVarSearch = new DepthFirstSearch<>();
         freeVarSearch.reset();
         freeVarSearch.addStartState(query);
         freeVarSearch.setGoalPredicate(new FreeVarPredicate());
 
-        return (Set <HtVariable>) (Set) Searches.setOf(freeVarSearch);
+        return (Set<HtVariable>) (Set) Searches.setOf(freeVarSearch);
     }
 
     /**
@@ -95,13 +95,13 @@ public class TermUtilities {
      * @param query The term to calculate the free non-anonymous variable set from.
      * @return A set of variables that are free and non-anonymous in the term.
      */
-    public static Set <HtVariable> findFreeNonAnonVariables ( ITerm query ) {
-        QueueBasedSearchMethod <ITerm, ITerm> freeVarSearch = new DepthFirstSearch <>();
+    public static Set<HtVariable> findFreeNonAnonVariables(ITerm query) {
+        QueueBasedSearchMethod<ITerm, ITerm> freeVarSearch = new DepthFirstSearch<>();
         freeVarSearch.reset();
         freeVarSearch.addStartState(query);
         freeVarSearch.setGoalPredicate(new FreeNonAnonVarPredicate());
 
-        return (Set <HtVariable>) (Set) Searches.setOf(freeVarSearch);
+        return (Set<HtVariable>) (Set) Searches.setOf(freeVarSearch);
     }
 
     /**
@@ -246,7 +246,7 @@ public class TermUtilities {
             }
         }
         if (term != null) {
-            return new HtClause((IFunctor) term, new ListTerm());
+            return new HtClause((IFunctor) term, new ListTerm(Collections.emptyList()));
         } else {
             throw new HtSourceCodeException("Only functor can be as a clause head", null, null, null, null
                     /*  requireNonNull(term).getSourceCodePosition()*/);
@@ -258,8 +258,8 @@ public class TermUtilities {
      * @param term2
      * @return
      */
-    public static boolean unify ( ITerm term1, ITerm term2 ) {
-        final ListTerm lt = new ListTerm(2);
+    public static boolean unify(ITerm term1, ITerm term2) {
+        final ListTerm lt = new ListTerm(Arrays.asList(term1, term2));
         lt.setHead(0, term1);
         lt.setHead(1, term2);
 
@@ -272,11 +272,8 @@ public class TermUtilities {
      * @param term2
      * @return
      */
-    public static boolean term_expansion ( ITerm term1, ITerm term2 ) {
-        final ListTerm lt = new ListTerm(2);
-        lt.setHead(0, term1);
-        lt.setHead(1, term2);
-
+    public static boolean term_expansion(ITerm term1, ITerm term2) {
+        final ListTerm lt = new ListTerm(asList(term1, term2));
         PrologBuiltIns.TERM_EXPANSION.getBuiltInDef().accept(lt);
 
         return PrologBuiltIns.getBooleanResult();
@@ -289,6 +286,12 @@ public class TermUtilities {
     public static ITerm getLast(ITerm[] a) {
         return a[a.length - 1];
     }
+
+    /**
+     * @param a
+     * @return
+     */
+    public static ITerm getLast(List<ITerm> a) {
+        return a.get(a.size() - 1);
+    }
 }
-
-

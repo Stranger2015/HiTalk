@@ -96,6 +96,7 @@ public class HtClause extends HtBaseTerm implements ITerm, ISubroutine, IHitalkO
         return getBody().size();
     }
 
+    @Override
     public boolean isHiLog () {
         return false;
     }

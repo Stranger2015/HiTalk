@@ -68,7 +68,7 @@ public abstract class HtBaseTerm extends TraversableState <ITerm> implements ITe
     /**
      * Holds this terms unique symbol key.
      */
-    protected String symbolKey;
+    protected SymbolKey symbolKey;
 
     /**
      * Holds a reversible operator to establish and restore state when traversing this term.
@@ -153,14 +153,7 @@ public abstract class HtBaseTerm extends TraversableState <ITerm> implements ITe
     /**
      * {@inheritDoc}
      */
-    public void setString(String key) {
-        symbolKey = key;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public String getString() {
+    public SymbolKey getSymbolKey() {
         return symbolKey;
     }
 

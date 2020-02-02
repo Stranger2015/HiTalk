@@ -47,12 +47,18 @@ public class TermFactory implements ITermFactory {
      */
     @Override
     public IFunctor newAtom(String value) {
-//        if (value.charAt(0) == '\'') {
-//            if (value.charAt(value.length() - 1) == '\'') {
-//
-//            }
-//        }
         return newAtom(interner.internFunctorName(value, 0));
+    }
+
+    /**
+     * ひとつ以上の引数を持つ関数子を作成します。
+     *
+     * @param hilogApply
+     * @param value
+     * @param args
+     */
+    public IFunctor newFunctor(int hilogApply, String value, ListTerm args) {
+        return null;
     }
 
     public IFunctor newFunctor(String name, ListTerm args) {
@@ -69,14 +75,13 @@ public class TermFactory implements ITermFactory {
     }
 
     /**
-     * @param hilogApply
      * @param name
      * @return
      */
     @Override
-    public IFunctor newFunctor(int hilogApply, String name, ListTerm listTerm) {
+    public IFunctor newHiLogFunctor(String name, ListTerm listTerm) {
         int arity = listTerm.getHeads().size() - 1;
-        return newFunctor(interner.internFunctorName(name, arity), listTerm);
+        return newHiLogFunctor(new IntTerm(interner.internFunctorName(name, arity)), listTerm);
     }
 
     /**
@@ -129,7 +134,6 @@ public class TermFactory implements ITermFactory {
         return new ListTerm(Arrays.asList(headTail));
     }
 
-    @Override
     public String createFlag(String scratch_directory, Path scratchDir) {//fixme
         return PropertyOwner.createProperty(scratch_directory, scratchDir.toString(), "").getV();
     }
@@ -147,10 +151,10 @@ public class TermFactory implements ITermFactory {
         return new HtFunctor(name, new ListTerm(arity));
     }
 
-    @Override
-    public IFunctor newFunctor(ITerm name, ListTerm args) {
-        return newHiLogFunctor(args.addHeads(name, new IntTerm(HILOG_APPLY_INT)));
-    }
+//    @Override
+//    public IFunctor newFunctor(ITerm name, ListTerm args) {
+//        return newHiLogFunctor(args.addHeads(name, new IntTerm(HILOG_APPLY_INT)));
+//    }
 
     @Override
     public IFunctor newHiLogFunctor(ITerm name, ListTerm args) {
@@ -251,8 +255,13 @@ public class TermFactory implements ITermFactory {
         return new FloatTerm((float) f);
     }
 
-    public ListTerm newListTerm(Kind kind, ITerm... headTail) {
-        return new ListTerm(kind, NIL, headTail);//fixme
+    /**
+     * @param kind
+     * @param headTail
+     * @return
+     */
+    public ListTerm newListTerm(Kind kind, List<ITerm> headTail) {
+        return new ListTerm(kind, headTail);//fixme
     }
 
     /**
@@ -262,9 +271,9 @@ public class TermFactory implements ITermFactory {
      */
 //    @Override
     public ListTerm newListTerm(Kind kind, ListTerm terms) {
-        final ITerm tail = terms.size() == 0 ? NIL : getLast(terms.getHeads());
+//        final ITerm tail = terms.size() == 0 ? NIL : getLast(terms.getHeads());
 
-        return new ListTerm(kind, tail, terms);
+        return new ListTerm(kind, terms);
     }
 
     public ITerm getLast(List<ITerm> heads) {

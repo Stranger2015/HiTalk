@@ -5,10 +5,8 @@ import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.term.*;
-import org.ltc.hitalk.term.ListTerm.Kind;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
-import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -33,6 +31,18 @@ interface ITermFactory extends IHitalkObject {
      */
     IFunctor newFunctor(int hilogApply, String value, ListTerm args);
 
+    /**
+     * @param name
+     * @param listTerm
+     * @return
+     */
+    IFunctor newHiLogFunctor(String name, ListTerm listTerm);
+
+    /**
+     * @param value
+     * @param args
+     * @return
+     */
     IFunctor newFunctor(int value, ListTerm args);
 
     /**
@@ -68,23 +78,17 @@ interface ITermFactory extends IHitalkObject {
      */
     HtProperty createFlag(String name, ITerm... args);
 
-//    IFunctor newFunctor(int hilogApply, ITerm name, ListTerm args);
-
     IntTerm newAtomic(int i);
 
     FloatTerm newAtomic(double f);
 
-    ListTerm newListTerm(Kind kind, ITerm... headTail);
-
-    String createFlag(String scratch_directory, Path scratchDir);
+    ListTerm newListTerm(ListTerm.Kind kind, List<ITerm> headTail);
 
     /**
      * @param functor
      * @return
      */
     IFunctor createMostGeneral(IFunctor functor) throws Exception;
-
-    IFunctor newFunctor(ITerm name, ListTerm args) throws Exception;
 
     NumberTerm createNumber(String s);
 

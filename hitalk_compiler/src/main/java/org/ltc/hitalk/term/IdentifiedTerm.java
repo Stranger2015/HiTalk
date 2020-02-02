@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 
 import java.util.EnumSet;
+import java.util.List;
 
 import static java.lang.String.format;
 import static org.ltc.hitalk.term.IdentifiedTerm.Associativity.*;
@@ -202,9 +203,9 @@ public class IdentifiedTerm extends HtFunctor implements Comparable<IdentifiedTe
      * @param arguments The arguments the operator is applied to.
      */
     @Override
-    public void setArguments(ITerm[] arguments) {
+    public void setArguments(List<ITerm> arguments) {
         // Check that there is at least one and at most two arguments.
-        if ((arguments.length < 1) || (arguments.length > 2)) {
+        if ((arguments.size() < 1) || (arguments.size() > 2)) {
             throw new IllegalArgumentException("An operator has minimum 1 and maximum 2 arguments.");
         }
 
@@ -213,6 +214,10 @@ public class IdentifiedTerm extends HtFunctor implements Comparable<IdentifiedTe
 
     public boolean isListTerm() {
         return false;
+    }
+
+    public ListTerm getArgs() {
+        return args;
     }
 
     /**
@@ -436,6 +441,13 @@ public class IdentifiedTerm extends HtFunctor implements Comparable<IdentifiedTe
 
     public ITerm getResult1() {
         return result1;
+    }
+
+    /**
+     * @return
+     */
+    public boolean isList() {
+        return false;
     }
 
     /**

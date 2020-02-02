@@ -46,7 +46,7 @@ public class IntTerm extends NumberTerm implements ITerm {
     }
 
     public int getInt() {
-        return 0;
+        return image;
     }
 
     @Override
@@ -67,11 +67,17 @@ public class IntTerm extends NumberTerm implements ITerm {
     /**
      * @return
      */
-    public boolean isJavaObject () {
+    @Override
+    public boolean isJavaObject() {
         return false;
     }
 
-    public ITerm getChildStateForOperator ( Operator <ITerm> op ) {
+    /**
+     * @param op
+     * @return
+     */
+    @Override
+    public ITerm getChildStateForOperator(Operator<ITerm> op) {
         return null;
     }//fixme
 }

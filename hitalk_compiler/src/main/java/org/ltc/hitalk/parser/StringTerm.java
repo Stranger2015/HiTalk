@@ -1,12 +1,19 @@
 package org.ltc.hitalk.parser;
 
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
 
 public class StringTerm extends ListTerm {
+
+    public StringTerm(int arity) {
+        super(arity);
+    }
+
     /**
      * @return
      */
+    @Override
     public boolean isHiLog() {
         return false;
     }
@@ -23,6 +30,16 @@ public class StringTerm extends ListTerm {
      */
     public boolean isList() {
         return true;
+    }
+
+    /**
+     * Gets the actual value of a term, which is either the term itself, or in the case of variables, the value that is
+     * currently assigned to the variable.
+     *
+     * @return The term itself, or the assigned value for variables.
+     */
+    public ITerm getValue() {
+        return this;
     }
 
     /**

@@ -16,6 +16,7 @@ public class JavaObjectTerm extends HtBaseTerm {
     /**
      * @return
      */
+    @Override
     public boolean isHiLog () {
         return false;
     }

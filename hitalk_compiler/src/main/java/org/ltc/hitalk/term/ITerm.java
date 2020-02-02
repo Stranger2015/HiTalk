@@ -177,14 +177,14 @@ public interface ITerm extends ReTraversable<ITerm>, Operator<ITerm> {
      *
      * @param key The symbol key for the term.
      */
-    void setString(String key);
+    void setSymbolKey(SymbolKey key);
 
     /**
      * Gets this terms unique symbol key.
      *
      * @return This terms unique symbol key.
      */
-    String getString();
+    SymbolKey getSymbolKey();
 
     /**
      * Frees all assigned variables in the term, leaving them unnassigned.
@@ -298,20 +298,8 @@ public interface ITerm extends ReTraversable<ITerm>, Operator<ITerm> {
     boolean isQuery();
 
     /**
-     * @param key
+     * @return
      */
-    void setSymbolKey(SymbolKey key);
-
-//    /**
-//     * @return
-//     */
-//    int getInt();
-//
-//    /**
-//     * @return
-//     */
-//    float getFloat();
-
     default boolean isHiLog() {
         return this instanceof HiLogFunctor;
     }

@@ -1,35 +1,38 @@
 package org.ltc.hitalk.term;
 
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.core.utils.TermUtilities;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.IntStream;
 
-import static java.util.Arrays.asList;
-import static org.ltc.hitalk.term.ListTerm.Kind.CLAUSE_BODY;
+import static java.util.Collections.emptyList;
 
 /**
  *
  */
 public class ListTerm extends HtBaseTerm {
-    public static final ListTerm NIL = new ListTerm();
+    public static final ListTerm NIL = new ListTerm(emptyList());
+
     protected Kind kind;//fixme encode in name
     final List<ITerm> heads = new ArrayList<>();
-    ITerm tail = NIL;
 
-    /**
-     * @param length
-     */
-    public ListTerm(int length) {
-        this(length == 0 ? Kind.NIL : Kind.LIST);
+    public ListTerm(int arity) {
+        this.heads.addAll(Arrays.asList(new ITerm[arity]));
+    }
+
+    public ListTerm(Kind kind, ListTerm terms) {
+        this.kind = kind;
         heads.clear();
-        for (int i = 0; i < length; i++) {
-            HtVariable htVariable = new HtVariable();
-            heads.add(htVariable);
-        }
+        heads.addAll(terms.getHeads());
+    }
+
+    public ListTerm(Kind kind, List<ITerm> headTail) {
+        this.kind = kind;
+        heads.clear();
+        heads.addAll(headTail);
     }
 
     /**
@@ -76,23 +79,12 @@ public class ListTerm extends HtBaseTerm {
      * @param heads
      */
     public ListTerm(final List<ITerm> heads) {
-        this(heads.size());
+//        this(heads.size());
         int bound = this.getHeads().size();
-        IntStream.range(0, bound).forEach(i -> this.heads.set(i, heads.get(i)));
-    }
-
-    /**
-     *
-     */
-    public ListTerm() {//fixme redundant
-        this(0);
-    }
-
-    /**
-     * @param kind
-     */
-    public ListTerm(Kind kind) {
-        this.kind = kind;
+        for (int i = 0; i < bound; i++) {
+            this.heads.add(heads.get(i));
+        }
+        this.heads.add(NIL);
     }
 
     /**
@@ -100,40 +92,21 @@ public class ListTerm extends HtBaseTerm {
      * @param tail
      * @param heads
      */
-    public ListTerm(Kind kind, ITerm tail, ITerm... heads) {
-        this(kind);
-        setHeads((heads.length > 0) ? Arrays.copyOf(heads, heads.length - 1) : EMPTY_TERM_ARRAY);
-        this.tail = tail;
-    }
-
-    public ListTerm(ITerm tail, ITerm[] toArray) {
-        this(Kind.LIST, tail, toArray);
-    }
-
     public ListTerm(Kind kind, List<ITerm> heads, ITerm tail) {
-
         this.kind = kind;
-        this.heads.clear();
-        this.heads.addAll(heads);
-        this.tail = tail;
+        heads.add(tail);
+        setHeads(heads);
+
     }
+
 
     /**
-     * @return
+     * @param heads
+     * @param tail
      */
-    public Kind getKind() {
-        return kind;
+    public ListTerm(List<ITerm> heads, ITerm tail) {
+        this(Kind.LIST, heads, tail);
     }
-
-//    /**
-//     * args = name + heads + tail
-//     *
-//     * @return
-//     */
-//    public ITerm newTail () {
-//        ITerm[] args = getArguments();
-//        return args[args.length - 1];
-//    }
 
     /**
      * args = name + heads + tail
@@ -141,16 +114,6 @@ public class ListTerm extends HtBaseTerm {
      * @return
      */
     public List<ITerm> getHeads() {
-//        ITerm[] args = getArguments();
-//        if (args.length <= 1) {
-//            return EMPTY_TERM_ARRAY;
-//        } else {
-//            int headsLen = arguments.length - 2;
-//            ITerm[] heads = new ITerm[headsLen];
-//            System.arraycopy(arguments, 1, heads, 0, headsLen);
-//
-//            return heads;
-//        }
         return heads;
     }
 
@@ -172,7 +135,7 @@ public class ListTerm extends HtBaseTerm {
      * @return
      */
     public ITerm getTail() {
-        return tail;
+        return TermUtilities.getLast(heads);
     }
 
     /**
@@ -202,7 +165,8 @@ public class ListTerm extends HtBaseTerm {
     }
 
     private boolean isConjunction(ITerm term) {
-        return (term.isList() && ((ListTerm) term).getKind() == CLAUSE_BODY);
+//        return (term.isList() && ((ListTerm) term).getKind() == CLAUSE_BODY);
+        return true;//tidi
     }
 
     /**
@@ -290,9 +254,9 @@ public class ListTerm extends HtBaseTerm {
         return isOpen ? new HtVariable() : NIL;
     }
 
-    public void setHeads(ITerm[] heads) {
+    public void setHeads(List<ITerm> heads) {
         this.heads.clear();
-        this.heads.addAll(asList(heads));
+        this.heads.addAll(heads);
     }
 
     /**

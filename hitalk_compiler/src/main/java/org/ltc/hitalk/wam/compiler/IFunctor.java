@@ -4,6 +4,8 @@ import com.thesett.aima.logic.fol.TermTraverser;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
 
+import java.util.List;
+
 /**
  *
  */
@@ -21,7 +23,7 @@ public interface IFunctor extends ITerm, IRangedArity {
     /**
      * @return
      */
-    ListTerm getArguments();
+    List<ITerm> getArguments();
 
     /**
      * @param i
@@ -42,13 +44,15 @@ public interface IFunctor extends ITerm, IRangedArity {
 
     boolean isDefined ();
 
-    String toStringArguments ();
+    String toStringArguments();
 
-    void setArgument ( int i, ITerm term );
+    void setArgument(int i, ITerm term);
 
-    void setArguments ( ITerm[] terms );
+    void setArguments(List<ITerm> terms);
 
-    default boolean isListTerm () {
+    default boolean isListTerm() {
         return false;
     }
+
+    ListTerm getArgs();
 }
