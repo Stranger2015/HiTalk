@@ -28,11 +28,11 @@ public class LogtalkWAMCompiler<T extends HtMethod, P, Q, PC, QC> extends Prolog
      * @param observer
      * @param transpiler
      */
-    public LogtalkWAMCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
-                                IVafInterner interner,
-                                PlPrologParser parser,
-                                ICompilerObserver <P, Q> observer,
-                                LogtalkTranspiler <T, P, Q> transpiler ) {
+    public LogtalkWAMCompiler(ISymbolTable<Integer, String, Object> symbolTable,
+                              IVafInterner interner,
+                              PlPrologParser parser,
+                              ICompilerObserver<P, Q> observer,
+                              LogtalkTranspiler<T, P, Q> transpiler) {
         super(symbolTable, interner, parser, observer);
         this.transpiler = transpiler;
     }

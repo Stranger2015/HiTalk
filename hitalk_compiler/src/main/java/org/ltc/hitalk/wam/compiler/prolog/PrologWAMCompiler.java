@@ -38,7 +38,7 @@ import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
  */
 @SuppressWarnings("rawtypes")
 public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
-        extends BaseCompiler <T, P, Q> implements IHitalkObject {
+        extends BaseCompiler<T, P, Q> implements IHitalkObject {
 
     /**
      * Creates a base machine over the specified symbol table.
@@ -46,13 +46,13 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
      * @param symbolTable The symbol table for the machine.
      * @param interner    The interner for the machine.
      */
-    public PrologWAMCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
-                               IVafInterner interner,
-                               PlPrologParser parser,
-                               ICompilerObserver <P, Q> observer ) {
+    public PrologWAMCompiler(ISymbolTable<Integer, String, Object> symbolTable,
+                             IVafInterner interner,
+                             PlPrologParser parser,
+                             ICompilerObserver<P, Q> observer) {
         super(symbolTable, interner, parser, observer);
 
-        ICompilerFactory <T, P, Q, PC, QC> cf = new CompilerFactory <>();
+        ICompilerFactory<T, P, Q, PC, QC> cf = new CompilerFactory<>();
 //        final PrologDefaultBuiltIn defaultBuiltIn = new PrologDefaultBuiltIn(symbolTable, interner);
         this.preCompiler = cf.createPreCompiler(PROLOG);
         setInstructionCompiler(cf.createInstrCompiler(PROLOG));
@@ -63,27 +63,27 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
     /**
      * @param preCompiler
      */
-    public void setPreCompiler ( IPreCompiler preCompiler ) {
+    public void setPreCompiler(IPreCompiler preCompiler) {
         this.preCompiler = preCompiler;
     }
 
     /**
      * @param instructionCompiler
      */
-    public void setInstructionCompiler ( BaseInstructionCompiler <T, PC, QC> instructionCompiler ) {
+    public void setInstructionCompiler(BaseInstructionCompiler<T, PC, QC> instructionCompiler) {
         this.instructionCompiler = instructionCompiler;
     }
 
     protected IPreCompiler preCompiler;
-    protected BaseInstructionCompiler <T, PC, QC> instructionCompiler;
+    protected BaseInstructionCompiler<T, PC, QC> instructionCompiler;
 
     /**
      *
      */
-    public PrologWAMCompiler () {
+    public PrologWAMCompiler() {
         final AppContext appCtx = getAppContext();
 
-        ICompilerFactory <T, P, Q, PC, QC> cf = new CompilerFactory <>();
+        ICompilerFactory<T, P, Q, PC, QC> cf = new CompilerFactory<>();
         appCtx.setCompilerFactory(cf);
         this.preCompiler = cf.createPreCompiler(PROLOG);
         setInstructionCompiler(cf.createInstrCompiler(PROLOG));
@@ -95,13 +95,13 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
      * @throws HtSourceCodeException
      */
     @Override
-    public void endScope () throws Exception {
+    public void endScope() throws Exception {
         preCompiler.endScope();
         instructionCompiler.endScope();
     }
 
     @Override
-    public void compile ( T clause, HtProperty... flags ) throws HtSourceCodeException {
+    public void compile(T clause, HtProperty... flags) throws HtSourceCodeException {
 //        instructionCompiler.compile(clause, flags);
     }
 
@@ -111,12 +111,12 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
      * @throws IOException
      * @throws HtSourceCodeException
      */
-    public List <HtClause> compileFiles ( List <String> fnl ) throws Exception {
+    public List<HtClause> compileFiles(List<String> fnl) throws Exception {
         return compileFiles(fnl, EMPTY_FLAG_ARRAY);
     }
 
-    public List <HtClause> compileFiles ( List <String> fnl, HtProperty... flags ) throws Exception {
-        List <HtClause> list = new ArrayList <>();
+    public List<HtClause> compileFiles(List<String> fnl, HtProperty... flags) throws Exception {
+        List<HtClause> list = new ArrayList<>();
         for (String fn : fnl) {
             list = compileFile(fn, flags);
         }
@@ -128,7 +128,7 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
      * @param flags
      * @throws IOException
      */
-    public List <HtClause> compileFile ( String fn, HtProperty... flags ) throws Exception {
+    public List<HtClause> compileFile(String fn, HtProperty... flags) throws Exception {
         return null;
     }
 
@@ -148,25 +148,25 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
      *
      * @param observer The compiler output observer.
      */
-    public void setCompilerObserver ( ICompilerObserver <P, Q> observer ) {
-        instructionCompiler.setCompilerObserver((ICompilerObserver <PC, QC>) observer);
+    public void setCompilerObserver(ICompilerObserver<P, Q> observer) {
+        instructionCompiler.setCompilerObserver((ICompilerObserver<PC, QC>) observer);
     }
 
     /**
      * @return
      */
-    public IPreCompiler getPreCompiler () {
+    public IPreCompiler getPreCompiler() {
         return preCompiler;
     }
 
-    public void compileQuery ( Q query ) {
+    public void compileQuery(Q query) {
 
     }
 
     /**
      * @param resolver
      */
-    public void setResolver ( IResolver <P, Q> resolver ) {
+    public void setResolver(IResolver<P, Q> resolver) {
 
     }
 
@@ -175,26 +175,26 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
      * @throws HtSourceCodeException
      */
     @Override
-    public void compile ( HtClause clause ) throws HtSourceCodeException {
+    public void compile(HtClause clause) throws HtSourceCodeException {
         logger.info("Compiling clause ...");
     }
 
-    public void toString0 ( StringBuilder sb ) {
+    public void toString0(StringBuilder sb) {
 
     }
 
-    public BaseInstructionCompiler <T, PC, QC> getInstructionCompiler () {
+    public BaseInstructionCompiler<T, PC, QC> getInstructionCompiler() {
         return instructionCompiler;
     }
 
     /**
      * Chains compilation completion events onto the instruction compiler.
      */
-    public class ClauseChainObserver implements ICompilerObserver <T, Q> {
+    public class ClauseChainObserver implements ICompilerObserver<T, Q> {
         /**
          * {@inheritDoc}
          */
-        public void onCompilation ( T clause ) throws Exception {
+        public void onCompilation(T clause) throws Exception {
             PrologWAMCompiler.this.instructionCompiler.compile(clause);
         }
 

@@ -59,7 +59,7 @@ import org.ltc.hitalk.core.IHitalkObject;
  *
  * @author Rupert Smith
  */
-public interface ISymbolTable<K, L, E> extends DoubleKeyedMap <K, L, E>, IHitalkObject {
+public interface ISymbolTable<K/* extends SymbolKey*/, L, E> extends DoubleKeyedMap<K, L, E>, IHitalkObject {
 
     /**
      * Creates a new table or navigates to an existing table scoped within the specified symbol.
@@ -67,7 +67,7 @@ public interface ISymbolTable<K, L, E> extends DoubleKeyedMap <K, L, E>, IHitalk
      * @param key The symbol within the current scope, to access a nested scope within.
      * @return The symbol table for the nested scope.
      */
-    ISymbolTable <K, L, E> enterScope ( K key );
+    ISymbolTable<K, L, E> enterScope(K key);
 
     /**
      * Leaves the scope of the current parent symbol, for the parent scope in which it resides.
@@ -94,7 +94,7 @@ public interface ISymbolTable<K, L, E> extends DoubleKeyedMap <K, L, E>, IHitalk
      * @param field The field to look up.
      * @return The field value at the symbol key, or <tt>null</tt> if none has been set.
      */
-    E get(SymbolKey key, L field);
+    E get(SymbolKey key, String field);
 
     /**
      * Stores a value for a field in the symbol table for a {@link String}. The key may refer to any nested scope
@@ -115,7 +115,7 @@ public interface ISymbolTable<K, L, E> extends DoubleKeyedMap <K, L, E>, IHitalk
      * @param key   The key to clear up to.
      * @param field The field to clear.
      */
-    void clearUpTo(String key, L field);
+    void clearUpTo(SymbolKey key, L field);
 
     /**
      * Sets the low mark against a field of the table to the specified value, provided the value given is higher than
@@ -124,21 +124,21 @@ public interface ISymbolTable<K, L, E> extends DoubleKeyedMap <K, L, E>, IHitalk
      * @param key   The key to use as the new highest low mark.
      * @param field The field to move the mark on.
      */
-    void setLowMark(SymbolKey key, L field);
+    void setLowMark(SymbolKey key, String field);
 
     /**
      * Clears a field of the symbol table to its low mark.
      *
      * @param field The field to clear up to the low mark.
      */
-    void clearUpToLowMark ( L field );
+    void clearUpToLowMark(String field );
 
     /**
      * Provides the nested scoping depth of this symbol table. The root table is at depth zero.
      *
      * @return The nested scoping depth of this symbol table.
      */
-    int getDepth ();
+    int getDepth();
 
     /**
      * Provides an iterable over all elements of a given field of the symbol table.
@@ -146,5 +146,11 @@ public interface ISymbolTable<K, L, E> extends DoubleKeyedMap <K, L, E>, IHitalk
      * @param field The field to iterate over.
      * @return An iterable over the specified field, or <tt>null</tt> if no matching field can be found.
      */
-    Iterable <E> getValues ( L field );
+    Iterable<E> getValues(L field);
+
+    E put(K symbolKey, L symkeyVariableIntro, E put);
+
+//    E put(String symbolKey, Integer symkeyVariableIntro, E put);
+
+//    E put(E symbolKey, E symkeyVariableIntro, E put);
 }

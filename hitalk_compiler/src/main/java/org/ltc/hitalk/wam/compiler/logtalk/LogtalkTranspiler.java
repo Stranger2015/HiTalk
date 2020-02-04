@@ -28,10 +28,10 @@ public class LogtalkTranspiler<M extends HtMethod, P, Q> extends BaseCompiler <M
      * @param parser
      * @param observer
      */
-    protected LogtalkTranspiler ( ISymbolTable <Integer, String, Object> symbolTable,
-                                  IVafInterner interner,
-                                  PlPrologParser parser,
-                                  ICompilerObserver <P, Q> observer ) {
+    protected LogtalkTranspiler(ISymbolTable<Integer, String, Object> symbolTable,
+                                IVafInterner interner,
+                                PlPrologParser parser,
+                                ICompilerObserver<P, Q> observer) {
         super(symbolTable, interner, parser, observer);
     }
 

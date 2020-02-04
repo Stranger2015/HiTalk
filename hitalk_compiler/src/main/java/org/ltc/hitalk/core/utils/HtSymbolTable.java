@@ -51,12 +51,11 @@ public class HtSymbolTable<K, L, E> implements ISymbolTable <K, L, E> {
     private final int parentSequenceKey;
 
     public HtSymbolTable () {
-        fieldMap = new LinkedHashMap <L, CircularArrayMap <E>>();
-        hashFunction = new SequentialCuckooFunction <CompositeKey <K>>();
+        fieldMap = new LinkedHashMap<>();
+        hashFunction = new SequentialCuckooFunction<>();
         parentSequenceKey = -1;
         depth = 0;
     }
-
 
     /**
      * Creates a child symbol table within the scope of the specified parent table. The child table shares the fields
@@ -68,8 +67,11 @@ public class HtSymbolTable<K, L, E> implements ISymbolTable <K, L, E> {
      * @param depth             The lexical depth of the parent table.
      * @param parentSequenceKey The base key path that leads to this scope.
      */
-    private HtSymbolTable ( HtSymbolTable <K, L, E> parentScope, Map <L, CircularArrayMap <E>> fieldMap,
-                            SequentialFunction <HtSymbolTable.CompositeKey <K>> hashFunction, int depth, int parentSequenceKey ) {
+    private HtSymbolTable(HtSymbolTable<K, L, E> parentScope,
+                          Map<L, CircularArrayMap<E>> fieldMap,
+                          SequentialFunction<CompositeKey<K>> hashFunction,
+                          int depth,
+                          int parentSequenceKey) {
         this.fieldMap = fieldMap;
         this.hashFunction = hashFunction;
         this.parentScope = parentScope;
@@ -84,8 +86,8 @@ public class HtSymbolTable<K, L, E> implements ISymbolTable <K, L, E> {
      */
     public void clear () {
         // Clea all fields and records from the table.
-        fieldMap = new LinkedHashMap <L, CircularArrayMap <E>>();
-        hashFunction = new SequentialCuckooFunction <HtSymbolTable.CompositeKey <K>>();
+        fieldMap = new LinkedHashMap<>();
+        hashFunction = new SequentialCuckooFunction<>();
     }
 
     /**
@@ -114,8 +116,8 @@ public class HtSymbolTable<K, L, E> implements ISymbolTable <K, L, E> {
         }
 
         // Check that the symbol exists in the table.
-        HtSymbolTable.CompositeKey <K> compositeKey = new HtSymbolTable.CompositeKey <K>(parentSequenceKey, primaryKey);
-        HtSymbolTable <K, L, E> nextParentScope = parentScope;
+        CompositeKey<K> compositeKey = new CompositeKey<>(parentSequenceKey, primaryKey);
+        HtSymbolTable<K, L, E> nextParentScope = parentScope;
 
         while (true) {
             if (hashFunction.containsKey(compositeKey)) {
@@ -123,7 +125,7 @@ public class HtSymbolTable<K, L, E> implements ISymbolTable <K, L, E> {
             }
 
             if (nextParentScope != null) {
-                compositeKey = new HtSymbolTable.CompositeKey(nextParentScope.parentSequenceKey, primaryKey);
+                compositeKey = new CompositeKey<>(nextParentScope.parentSequenceKey, primaryKey);
                 nextParentScope = nextParentScope.parentScope;
             } else {
                 return false;
@@ -138,18 +140,20 @@ public class HtSymbolTable<K, L, E> implements ISymbolTable <K, L, E> {
 
     /**
      * {@inheritDoc}
+     *
+     * @return
      */
-    public E put ( K primaryKey, L secondaryKey, E value ) {
+    public E put(K primaryKey, L secondaryKey, E value) {
         // Create the field column for the secondary key, if it does not already exist.
-        CircularArrayMap <E> field = fieldMap.get(secondaryKey);
+        CircularArrayMap<E> field = fieldMap.get(secondaryKey);
 
         if (field == null) {
-            field = new CircularArrayMap <E>(DEFAULT_INITIAL_FIELD_SIZE);
+            field = new CircularArrayMap<>(DEFAULT_INITIAL_FIELD_SIZE);
             fieldMap.put(secondaryKey, field);
         }
 
         // Create the mapping for the symbol if it does not already exist.
-        Integer index = hashFunction.apply(new HtSymbolTable.CompositeKey <K>(parentSequenceKey, primaryKey));
+        Integer index = hashFunction.apply(new CompositeKey<>(parentSequenceKey, primaryKey));
 
         // Insert the new value for the field into the field map.
         E oldValue = field.put(index, value);
@@ -170,8 +174,8 @@ public class HtSymbolTable<K, L, E> implements ISymbolTable <K, L, E> {
         }
 
         // Check that the symbol exists in the table.
-        HtSymbolTable.CompositeKey <K> compositeKey = new HtSymbolTable.CompositeKey <K>(parentSequenceKey, primaryKey);
-        HtSymbolTable <K, L, E> nextParentScope = parentScope;
+        CompositeKey<K> compositeKey = new CompositeKey<>(parentSequenceKey, primaryKey);
+        HtSymbolTable<K, L, E> nextParentScope = parentScope;
 
         while (true) {
             if (hashFunction.containsKey(compositeKey)) {
@@ -179,7 +183,7 @@ public class HtSymbolTable<K, L, E> implements ISymbolTable <K, L, E> {
             }
 
             if (nextParentScope != null) {
-                compositeKey = new HtSymbolTable.CompositeKey(nextParentScope.parentSequenceKey, primaryKey);
+                compositeKey = new HtSymbolTable.CompositeKey<>(nextParentScope.parentSequenceKey, primaryKey);
                 nextParentScope = nextParentScope.parentScope;
             } else {
                 return null;
@@ -194,7 +198,7 @@ public class HtSymbolTable<K, L, E> implements ISymbolTable <K, L, E> {
      * {@inheritDoc}
      */
     public E remove ( K primaryKey, L secondaryKey ) {
-        HtSymbolTable.CompositeKey <K> compositeKey = new HtSymbolTable.CompositeKey <K>(parentSequenceKey, primaryKey);
+        CompositeKey<K> compositeKey = new CompositeKey<>(parentSequenceKey, primaryKey);
 
         // Check that the symbol exists in the table, and return null if not.
         if (!hashFunction.containsKey(compositeKey)) {
@@ -230,10 +234,10 @@ public class HtSymbolTable<K, L, E> implements ISymbolTable <K, L, E> {
      */
     public ISymbolTable <K, L, E> enterScope ( K key ) {
         // Create an entry in the sequence function for the key, if one does not already exist.
-        int scopeSequenceKey = hashFunction.apply(new HtSymbolTable.CompositeKey <K>(parentSequenceKey, key));
+        int scopeSequenceKey = hashFunction.apply(new CompositeKey<>(parentSequenceKey, key));
 
         // Create a new child table for the symbol within this table at depth one greater than this.
-        return new HtSymbolTable<K, L, E>(this, fieldMap, hashFunction, depth, scopeSequenceKey);
+        return new HtSymbolTable<>(this, fieldMap, hashFunction, depth, scopeSequenceKey);
     }
 
     /**
@@ -251,9 +255,9 @@ public class HtSymbolTable<K, L, E> implements ISymbolTable <K, L, E> {
      * @param field The field to look up.
      * @return The field value at the symbol key, or <tt>null</tt> if none has been set.
      */
-    public E get(String key, L field) {
-        return null;
-    }
+//    public E get(SymbolKey key, L field) {
+//        return null;
+//    }//todo
 
     /**
      * Stores a value for a field in the symbol table for a {@link String}. The key may refer to any nested scope
@@ -264,10 +268,6 @@ public class HtSymbolTable<K, L, E> implements ISymbolTable <K, L, E> {
      * @param value The value to store.
      * @return The previous value at the symbol key, or <tt>null</tt> if none was previously set.
      */
-    public E put(String key, L field, E value) {
-        return null;
-    }
-
     /**
      * Clears all keys up to and including the specified key, from the specified field of the symbol table. This is
      * effectively a garbage collection call on the symbol table to remove processed data from a field once it is no
@@ -276,9 +276,6 @@ public class HtSymbolTable<K, L, E> implements ISymbolTable <K, L, E> {
      * @param key   The key to clear up to.
      * @param field The field to clear.
      */
-    public void clearUpTo(String key, L field) {
-
-    }
 
     /**
      * Sets the low mark against a field of the table to the specified value, provided the value given is higher than
@@ -287,7 +284,7 @@ public class HtSymbolTable<K, L, E> implements ISymbolTable <K, L, E> {
      * @param key   The key to use as the new highest low mark.
      * @param field The field to move the mark on.
      */
-    public void setLowMark(String key, L field) {
+    public void setLowMark(SymbolKey key, L field) {
 
     }
 
@@ -296,17 +293,17 @@ public class HtSymbolTable<K, L, E> implements ISymbolTable <K, L, E> {
      */
     public SymbolKey getSymbolKey(K key) {
         // Create an entry in the sequence function for the key, if one does not already exist.
-        int scopeSequenceKey = hashFunction.apply(new HtSymbolTable.CompositeKey<K>(parentSequenceKey, key));
+        int scopeSequenceKey = hashFunction.apply(new HtSymbolTable.CompositeKey<>(parentSequenceKey, key));
 
-        return new HtSymbolTable.SymbolKeyImpl(scopeSequenceKey);
+        return new SymbolKeyImpl(scopeSequenceKey);
     }
 
     /**
      * {@inheritDoc}
      */
-    public E get(SymbolKey key, L secondaryKey) {
+    public E get(SymbolKey key, String secondaryKey) {
         // Extract the sequence key from the symbol key.
-        int sequenceKey = ((HtSymbolTable.SymbolKeyImpl) key).sequenceKey;
+        int sequenceKey = ((SymbolKeyImpl) key).sequenceKey;
 
         // Check that the field for the secondary key exists, and return null if not.
         CircularArrayMap<E> field = fieldMap.get(secondaryKey);
@@ -324,7 +321,7 @@ public class HtSymbolTable<K, L, E> implements ISymbolTable <K, L, E> {
      */
     public E put(SymbolKey key, L secondaryKey, E value) {
         // Extract the sequence key from the symbol key.
-        int sequenceKey = ((HtSymbolTable.SymbolKeyImpl) key).sequenceKey;
+        int sequenceKey = ((SymbolKeyImpl) key).sequenceKey;
 
         // Create the field column for the secondary key, if it does not already exist.
         CircularArrayMap<E> field = fieldMap.get(secondaryKey);
@@ -346,7 +343,7 @@ public class HtSymbolTable<K, L, E> implements ISymbolTable <K, L, E> {
      */
     public void clearUpTo(SymbolKey key, L secondaryKey) {
         // Extract the sequence key from the symbol key, and clear the field up to it.
-        int sequenceKey = ((HtSymbolTable.SymbolKeyImpl) key).sequenceKey;
+        int sequenceKey = ((SymbolKeyImpl) key).sequenceKey;
         CircularArrayMap<E> field = fieldMap.get(secondaryKey);
 
         if (field != null) {
@@ -357,9 +354,9 @@ public class HtSymbolTable<K, L, E> implements ISymbolTable <K, L, E> {
     /**
      * {@inheritDoc}
      */
-    public void setLowMark(SymbolKey key, L secondaryKey) {
+    public void setLowMark(SymbolKey key, String secondaryKey) {
         // Extract the sequence key from the symbol key, and low mark the field up to it.
-        int sequenceKey = ((HtSymbolTable.SymbolKeyImpl) key).sequenceKey;
+        int sequenceKey = ((SymbolKeyImpl) key).sequenceKey;
         CircularArrayMap<E> field = fieldMap.get(secondaryKey);
 
         if (field != null) {
@@ -369,9 +366,11 @@ public class HtSymbolTable<K, L, E> implements ISymbolTable <K, L, E> {
 
     /**
      * {@inheritDoc}
+     *
+     * @param secondaryKey
      */
-    public void clearUpToLowMark ( L secondaryKey ) {
-        CircularArrayMap <E> field = fieldMap.get(secondaryKey);
+    public void clearUpToLowMark(String secondaryKey) {
+        CircularArrayMap<E> field = fieldMap.get(secondaryKey);
 
         if (field != null) {
             field.clearUpToLowMark();
@@ -395,16 +394,16 @@ public class HtSymbolTable<K, L, E> implements ISymbolTable <K, L, E> {
     /**
      * {@inheritDoc}
      */
-    public String toString () {
-        StringBuffer result =
-                new StringBuffer("HtSymbolTable: [ count = ").append(count).append(", depth = ").append(depth).append(
+    public String toString() {
+        StringBuilder result =
+                new StringBuilder("HtSymbolTable: [ count = ").append(count).append(", depth = ").append(depth).append(
                         ", [ ");
 
-        for (Iterator <Map.Entry <L, CircularArrayMap <E>>> iterator = fieldMap.entrySet().iterator(); iterator.hasNext(); ) {
-            Map.Entry <L, CircularArrayMap <E>> entry = iterator.next();
+        for (Iterator<Map.Entry<L, CircularArrayMap<E>>> iterator = fieldMap.entrySet().iterator(); iterator.hasNext(); ) {
+            Map.Entry<L, CircularArrayMap<E>> entry = iterator.next();
 
             L key = entry.getKey();
-            CircularArrayMap <E> array = entry.getValue();
+            CircularArrayMap<E> array = entry.getValue();
 
             result.append(key).append(".sizeof() = ").append(array.sizeof()).append(iterator.hasNext() ? ", " : " ");
         }
@@ -496,11 +495,11 @@ public class HtSymbolTable<K, L, E> implements ISymbolTable <K, L, E> {
                 return true;
             }
 
-            if (!(o instanceof HtSymbolTable.CompositeKey)) {
+            if (!(o instanceof CompositeKey)) {
                 return false;
             }
 
-            HtSymbolTable.CompositeKey that = (HtSymbolTable.CompositeKey) o;
+            CompositeKey that = (CompositeKey) o;
 
             return (parentSequenceKey == that.parentSequenceKey) &&
                     !((key != null) ? (!key.equals(that.key)) : (that.key != null));

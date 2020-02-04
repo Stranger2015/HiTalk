@@ -44,7 +44,12 @@ public class SuperCompiler extends PrologPreCompiler <HtClause, HtPredicate, HtC
      * @param resolver
      * @param parser
      */
-    public SuperCompiler ( ISymbolTable <Integer, String, Object> symbolTable, IVafInterner interner, PrologDefaultBuiltIn defaultBuiltIn, PrologBuiltInTransform <HtClause, HtPredicate, HtClause> builtInTransform, IResolver <HtPredicate, HtClause> resolver, PlPrologParser parser ) {
+    public SuperCompiler(ISymbolTable<Integer, String, Object> symbolTable,
+                         IVafInterner interner,
+                         PrologDefaultBuiltIn defaultBuiltIn,
+                         PrologBuiltInTransform<HtClause, HtPredicate, HtClause> builtInTransform,
+                         IResolver<HtPredicate, HtClause> resolver,
+                         PlPrologParser parser) {
         super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, parser);
     }
 

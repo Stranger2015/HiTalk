@@ -49,7 +49,7 @@ class HtWAMCompiledTermsPrintingVisitor extends HtDelegatingAllTermsVisitor impl
     /**
      * The symbol table.
      */
-    protected final ISymbolTable <Integer, String, Object> symbolTable;
+    protected final ISymbolTable<Integer, String, Object> symbolTable;
 
     /**
      * Holds the string buffer to pretty print the results into.
@@ -59,7 +59,7 @@ class HtWAMCompiledTermsPrintingVisitor extends HtDelegatingAllTermsVisitor impl
     /**
      * Holds a list of all column printers to apply.
      */
-    Collection <IAllTermsVisitor> printers = new ArrayList <>();
+    Collection<IAllTermsVisitor> printers = new ArrayList<>();
 
     /**
      * Holds the table model to render the output to.
@@ -73,9 +73,9 @@ class HtWAMCompiledTermsPrintingVisitor extends HtDelegatingAllTermsVisitor impl
      * @param symbolTable The symbol table for the compilation.
      * @param result      A string buffer to place the results in.
      */
-    public HtWAMCompiledTermsPrintingVisitor ( IVafInterner interner,
-                                               ISymbolTable <Integer, String, Object> symbolTable,
-                                               StringBuilder result ) {
+    public HtWAMCompiledTermsPrintingVisitor(IVafInterner interner,
+                                             ISymbolTable<Integer, String, Object> symbolTable,
+                                             StringBuilder result) {
         super(null);
         this.interner = interner;
         this.result = result;
@@ -85,15 +85,16 @@ class HtWAMCompiledTermsPrintingVisitor extends HtDelegatingAllTermsVisitor impl
 
     /**
      * Creates an AllTermsVisitor that by default delegates all visit operations to the specified delegate.
-     * @param delegate The delegate, may be <tt>null</tt> if none is to be used.
+     *
+     * @param delegate    The delegate, may be <tt>null</tt> if none is to be used.
      * @param interner
      * @param symbolTable
      * @param result
      */
-    public HtWAMCompiledTermsPrintingVisitor ( IAllTermsVisitor delegate,
-                                               IVafInterner interner,
-                                               ISymbolTable <Integer, String, Object> symbolTable,
-                                               StringBuilder result ) {
+    public HtWAMCompiledTermsPrintingVisitor(IAllTermsVisitor delegate,
+                                             IVafInterner interner,
+                                             ISymbolTable<Integer, String, Object> symbolTable,
+                                             StringBuilder result) {
         super(delegate);
         this.interner = interner;
         this.symbolTable = symbolTable;
@@ -104,15 +105,14 @@ class HtWAMCompiledTermsPrintingVisitor extends HtDelegatingAllTermsVisitor impl
      * {@inheritDoc}
      */
     @Override
-    public void setPositionalTraverser ( IPositionalTermTraverser traverser ) {
+    public void setPositionalTraverser(IPositionalTermTraverser traverser) {
         this.traverser = traverser;
     }
 
     /**
      * {@inheritDoc}
      */
-    public
-    void visit ( HtPredicate predicate ) {
+    public void visit(HtPredicate predicate) {
         printers.forEach(printer -> printer.visit(predicate));
         super.visit(predicate);
     }
@@ -120,7 +120,7 @@ class HtWAMCompiledTermsPrintingVisitor extends HtDelegatingAllTermsVisitor impl
     /**
      * {@inheritDoc}
      */
-    public void visit ( HtClause clause ) throws LinkageException {
+    public void visit(HtClause clause) throws LinkageException {
         for (IAllTermsVisitor printer : printers) {
             printer.visit(clause);
         }
@@ -142,7 +142,7 @@ class HtWAMCompiledTermsPrintingVisitor extends HtDelegatingAllTermsVisitor impl
     /**
      * {@inheritDoc}
      */
-    public void visit ( HtVariable variable ) {
+    public void visit(HtVariable variable) {
         printers.forEach(printer -> printer.visit(variable));
 
         super.visit(variable);
@@ -151,8 +151,7 @@ class HtWAMCompiledTermsPrintingVisitor extends HtDelegatingAllTermsVisitor impl
     /**
      * Sets up the stack of column printers.
      */
-    protected
-    void initializePrinters () {
+    protected void initializePrinters() {
         int maxColumns = 0;
 
         printers.add(new HtSourceClausePrinter(symbolTable, interner, traverser, maxColumns++, printTable));
@@ -166,8 +165,7 @@ class HtWAMCompiledTermsPrintingVisitor extends HtDelegatingAllTermsVisitor impl
     /**
      * Assembles the accumulated output in all rows and columns into a table. The table is appended onto {@link #result}
      */
-    protected
-    void printTable () {
+    protected void printTable() {
         for (int i = 0; i < printTable.getRowCount(); i++) {
             for (int j = 0; j < printTable.getColumnCount(); j++) {
                 String valueToPrint = printTable.get(j, i);

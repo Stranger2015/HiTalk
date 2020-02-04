@@ -1,5 +1,6 @@
 package org.ltc.hitalk.compiler;
 
+import com.thesett.common.util.doublemaps.SymbolKey;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
@@ -27,26 +28,26 @@ import static org.ltc.hitalk.parser.PlPrologParser.END_OF_FILE;
  */
 abstract
 public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
-        implements ICompiler <T, P, Q> {
+        implements ICompiler<T, P, Q> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
-    protected ISymbolTable <Integer, String, Object> scopeTable;
+    protected ISymbolTable<Integer, String, Object> scopeTable;
     protected int scope;
-    protected Deque<String> predicatesInScope = new ArrayDeque<>();
+    protected Deque<SymbolKey> predicatesInScope = new ArrayDeque<>();
     protected PlPrologParser parser;
-    protected IResolver <P, Q> resolver;
-    protected ICompilerObserver <P, Q> observer;//todo is that really to be here
+    protected IResolver<P, Q> resolver;
+    protected ICompilerObserver<P, Q> observer;//todo is that really to be here
 
     /**
      * @param symbolTable
      * @param interner
      * @param parser
      */
-    protected BaseCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
-                             IVafInterner interner,
-                             PlPrologParser parser,
-                             ICompilerObserver <P, Q> observer ) {
+    protected BaseCompiler(ISymbolTable<Integer, String, Object> symbolTable,
+                           IVafInterner interner,
+                           PlPrologParser parser,
+                           ICompilerObserver<P, Q> observer) {
 
         super(symbolTable, interner);
 
@@ -57,7 +58,7 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
     /**
      *
      */
-    public BaseCompiler () {
+    public BaseCompiler() {
         super();
     }
 
@@ -66,24 +67,24 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
      *
      * @param observer The compiler output observer.
      */
-    public void setCompilerObserver ( ICompilerObserver <P, Q> observer ) {
+    public void setCompilerObserver(ICompilerObserver<P, Q> observer) {
         this.observer = observer;
     }
 
     /**
      * @return
      */
-    public IResolver <P, Q> getResolver () {
+    public IResolver<P, Q> getResolver() {
         return resolver;
     }
 
     @Override
-    public Logger getConsole () {
+    public Logger getConsole() {
         return logger;
     }
 
     @Override
-    public PlPrologParser getParser () {
+    public PlPrologParser getParser() {
         return parser;
     }
 
@@ -99,7 +100,7 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
      * @throws Exception
      */
     @Override
-    public List <HtClause> compile ( String fileName, HtProperty... flags ) throws Exception {
+    public List<HtClause> compile(String fileName, HtProperty... flags) throws Exception {
         PlLexer ts = PlLexer.getTokenSourceForIoFileName(fileName);
         return compile(ts, flags);
     }
@@ -127,7 +128,7 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
         return list;
     }
 
-    public ICompilerObserver <P, Q> getObserver () {
+    public ICompilerObserver<P, Q> getObserver() {
         return observer;
     }
 }

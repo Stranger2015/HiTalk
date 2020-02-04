@@ -296,7 +296,7 @@ public class PlPrologParser implements IParser {
      */
     protected IFunctor compound(String name, ListTerm args) throws Exception {
         final int iname = interner.internFunctorName(name, 0);
-        return termFactory.newFunctor(iname, args);
+        return termFactory.newFunctor(args);
     }
 
     /**
@@ -969,7 +969,9 @@ public class PlPrologParser implements IParser {
                 getLexer().unreadToken(t);//pushBack )
                 t = getLexer().readToken(true);
                 if (t.kind == TK_RPAREN) {
-                    return lastTerm = termFactory.newFunctor(term, (ListTerm) lastSequence);
+                    if (term.isAtom()) {
+                        return lastTerm = termFactory.newFunctor((IFunctor) term, (ListTerm) lastSequence);
+                    }
                 }
             } else {
                 lastSequence = expr0_block();

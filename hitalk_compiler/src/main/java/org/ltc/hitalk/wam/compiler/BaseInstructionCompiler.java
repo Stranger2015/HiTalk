@@ -65,9 +65,9 @@ import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.STACK_ADDR
  * @author Rupert Smith
  */
 public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
-        extends BaseCompiler <T, P, Q> {
+        extends BaseCompiler<T, P, Q> {
 
-    protected ICompilerObserver <P, Q> observer;
+    protected ICompilerObserver<P, Q> observer;
     protected final PrologDefaultBuiltIn defaultBuiltIn;
 
     /**
@@ -99,21 +99,21 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
     /**
      * Holds the current nested compilation scope symbol table.
      */
-    protected ISymbolTable <Integer, String, Object> scopeTable;
-    protected Collection <Integer> seenRegisters;
+    protected ISymbolTable<Integer, String, Object> scopeTable;
+    protected Collection<Integer> seenRegisters;
     protected int lastAllocatedTempReg;
 
     /**
      * @return
      */
-    public Deque <PreCompilerTask> getTasks () {
+    public Deque<PreCompilerTask> getTasks() {
         return tasks;
     }
 
     /**
      *
      */
-    public final Deque <PreCompilerTask> tasks = new ArrayDeque <>();
+    public final Deque<PreCompilerTask> tasks = new ArrayDeque<>();
 
     /**
      * Creates a base machine over the specified symbol table.
@@ -121,11 +121,11 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
      * @param symbolTable The symbol table for the machine.
      * @param interner    The interner for the machine.
      */
-    public BaseInstructionCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
-                                     IVafInterner interner,
-                                     PrologDefaultBuiltIn defaultBuiltIn,
-                                     ICompilerObserver <P, Q> observer,
-                                     PlPrologParser parser ) {
+    public BaseInstructionCompiler(ISymbolTable<Integer, String, Object> symbolTable,
+                                   IVafInterner interner,
+                                   PrologDefaultBuiltIn defaultBuiltIn,
+                                   ICompilerObserver<P, Q> observer,
+                                   PlPrologParser parser) {
         super(symbolTable, interner, parser, observer);
         optimizer = new HiTalkWAMOptimizer(symbolTable, interner);
         this.defaultBuiltIn = defaultBuiltIn;
@@ -153,7 +153,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
         // Used to keep track of registers as they are seen during compilation. The first time a variable is seen,
         // a variable is written onto the heap, subsequent times its value. The first time a functor is seen,
         // its structure is written onto the heap, subsequent times it is compared with.
-        seenRegisters = new TreeSet <>();
+        seenRegisters = new TreeSet<>();
 
         // This is used to keep track of the next temporary register available to allocate.
         lastAllocatedTempReg = findMaxArgumentsInClause(clause);
@@ -167,12 +167,12 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
 
         // These are used to generate pre and post instructions for the clause, for example, for the creation and
         // clean-up of stack frames.
-        SizeableList <HiTalkWAMInstruction> preFixInstructions = new SizeableLinkedList <>();
-        SizeableList <HiTalkWAMInstruction> postFixInstructions = new SizeableLinkedList <>();
+        SizeableList<HiTalkWAMInstruction> preFixInstructions = new SizeableLinkedList<>();
+        SizeableList<HiTalkWAMInstruction> postFixInstructions = new SizeableLinkedList<>();
 
         // Find all the free non-anonymous variables in the clause.
-        Set <HtVariable> freeVars = TermUtilities.findFreeNonAnonVariables(clause.getT());
-        Set <Integer> freeVarNames = new TreeSet <>();
+        Set<HtVariable> freeVars = TermUtilities.findFreeNonAnonVariables(clause.getT());
+        Set<Integer> freeVarNames = new TreeSet<>();
 
         for (HtVariable var : freeVars) {
             freeVarNames.add(var.getName());
@@ -215,7 +215,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
 
             // The 'isFirstBody' parameter is only set to true, when this is the first functor of a rule, which it
             // never is for a query.
-            SizeableLinkedList <HiTalkWAMInstruction> instructions = builtIn.compileBodyArguments(goal, false, fn, i);
+            SizeableLinkedList<HiTalkWAMInstruction> instructions = builtIn.compileBodyArguments(goal, false, fn, i);
             result.addInstructions(goal, instructions);
 
             // Queries are never chain rules, and as all permanent variables are preserved, bodies are never called
@@ -239,7 +239,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
         observer.onQueryCompilation((Q) result);
     }
 
-    private void handleDirective ( HtClause clause ) {
+    private void handleDirective(HtClause clause) {
 
     }
 
@@ -248,13 +248,13 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
      *
      * @param clause The clause to check the variable occurrence and position of occurrence within.
      */
-    private void gatherPositionAndOccurrenceInfo ( ITerm clause ) {
+    private void gatherPositionAndOccurrenceInfo(ITerm clause) {
         IPositionalTermTraverser positionalTraverser = new HtPositionalTermTraverser();
         HtPositionAndOccurrenceVisitor positionAndOccurrenceVisitor =
                 new HtPositionAndOccurrenceVisitor(getSymbolTable(), interner, positionalTraverser);
         positionalTraverser.setContextChangeVisitor(positionAndOccurrenceVisitor);
 
-        HtTermWalker walker = new HtTermWalker(new DepthFirstBacktrackingSearch <>(), positionalTraverser,
+        HtTermWalker walker = new HtTermWalker(new DepthFirstBacktrackingSearch<>(), positionalTraverser,
                 positionAndOccurrenceVisitor);
 
         walker.walk(clause);
@@ -265,7 +265,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
      *
      * @param query The compiled query to pretty print.
      */
-    private void displayCompiledQuery ( ITerm query ) {
+    private void displayCompiledQuery(ITerm query) {
         // Pretty print the clause.
         StringBuilder result = new StringBuilder();
 
@@ -285,7 +285,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
      * @param clause   The clause to allocate registers for.
      * @param varNames A map of permanent variables to variable names to record the allocations in.
      */
-    private void allocatePermanentQueryRegisters ( ITerm clause, Map <Byte, Integer> varNames ) {
+    private void allocatePermanentQueryRegisters(ITerm clause, Map<Byte, Integer> varNames) {
         // Allocate local variable slots for all variables in a query.
         QueryRegisterAllocatingVisitor allocatingVisitor = new QueryRegisterAllocatingVisitor(getSymbolTable(),
                 varNames,
@@ -294,11 +294,11 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
         HtPositionalTermTraverser positionalTraverser = new HtPositionalTermTraverser();
         positionalTraverser.setContextChangeVisitor(allocatingVisitor);
 
-        HtTermWalker walker = new HtTermWalker(new DepthFirstBacktrackingSearch <>(), positionalTraverser, allocatingVisitor);
+        HtTermWalker walker = new HtTermWalker(new DepthFirstBacktrackingSearch<>(), positionalTraverser, allocatingVisitor);
         walker.walk(clause);
     }
 
-    private boolean checkDirective ( HtClause clause ) {
+    private boolean checkDirective(HtClause clause) {
         if (clause instanceof Directive) {
             IFunctor body = ((Directive) clause).getDef();
             final Directive.DirectiveKind kind = ((Directive) clause).getKind();
@@ -335,7 +335,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
         // Used to keep track of registers as they are seen during compilation. The first time a variable is seen,
         // a variable is written onto the heap, subsequent times its value. The first time a functor is seen,
         // its structure is written onto the heap, subsequent times it is compared with.
-        seenRegisters = new TreeSet <>();
+        seenRegisters = new TreeSet<>();
 
         // This is used to keep track of the next temporary register available to allocate.
         lastAllocatedTempReg = findMaxArgumentsInClause(clause);
@@ -349,12 +349,12 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
 
         // These are used to generate pre and post instructions for the clause, for example, for the creation and
         // clean-up of stack frames.
-        SizeableList <HiTalkWAMInstruction> preFixInstructions = new SizeableLinkedList <>();
-        SizeableList <HiTalkWAMInstruction> postFixInstructions = new SizeableLinkedList <>();
+        SizeableList<HiTalkWAMInstruction> preFixInstructions = new SizeableLinkedList<>();
+        SizeableList<HiTalkWAMInstruction> postFixInstructions = new SizeableLinkedList<>();
 
         // Find all the free non-anonymous variables in the clause.
-        Set <HtVariable> freeVars = TermUtilities.findFreeNonAnonVariables(clause);
-        Collection <Integer> freeVarNames = new TreeSet <>();
+        Set<HtVariable> freeVars = TermUtilities.findFreeNonAnonVariables(clause);
+        Collection<Integer> freeVarNames = new TreeSet<>();
 
         for (HtVariable var : freeVars) {
             freeVarNames.add(var.getName());
@@ -410,7 +410,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
         // Compile the clause head.
         IFunctor goal = clause.getHead();
 
-        SizeableLinkedList <HiTalkWAMInstruction> instructions = compileHead(goal);
+        SizeableLinkedList<HiTalkWAMInstruction> instructions = compileHead(goal);
         result.addInstructions(goal, instructions);
 
         // Compile all of the conjunctive parts of the body of the clause, if there are any.
@@ -471,21 +471,21 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
      *
      * @param clause The clause to allocate registers for.
      */
-    private void allocatePermanentProgramRegisters ( HtClause clause ) {
+    private void allocatePermanentProgramRegisters(HtClause clause) {
         // A bag to hold variable occurrence counts in.
-        Map <HtVariable, Integer> variableCountBag = new HashMap <>();
+        Map<HtVariable, Integer> variableCountBag = new HashMap<>();
 
         // A mapping from variables to the body number in which they appear last.
-        Map <HtVariable, Integer> lastBodyMap = new HashMap <>();
+        Map<HtVariable, Integer> lastBodyMap = new HashMap<>();
 
         // Holds the variable that are in the head and first clause body argument.
-        Collection <HtVariable> firstGroupVariables = new HashSet <>();
+        Collection<HtVariable> firstGroupVariables = new HashSet<>();
 
         // Get the occurrence counts of variables in all clauses after the initial head and first body grouping.
         // In the same pass, pick out which body variables last occur in.
         if ((clause.getBody() != null)) {
             for (int i = clause.getBody().size() - 1; i >= 1; i--) {
-                Set <HtVariable> groupVariables = TermUtilities.findFreeVariables(clause.getBody().getHead(i));
+                Set<HtVariable> groupVariables = TermUtilities.findFreeVariables(clause.getBody().getHead(i));
 
                 // Add all their counts to the bag and update their last occurrence positions.
                 for (HtVariable variable : groupVariables) {
@@ -508,12 +508,12 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
 
         // Get the set of variables in the head and first clause body argument.
         if (clause.getHead() != null) {
-            Set <HtVariable> headVariables = TermUtilities.findFreeVariables(clause.getHead());
+            Set<HtVariable> headVariables = TermUtilities.findFreeVariables(clause.getHead());
             firstGroupVariables.addAll(headVariables);
         }
 
         if ((clause.getBody() != null) && (clause.getBody().size() > 0)) {
-            Set <HtVariable> firstArgVariables = TermUtilities.findFreeVariables(clause.getBody().getHead(0));
+            Set<HtVariable> firstArgVariables = TermUtilities.findFreeVariables(clause.getBody().getHead(0));
             firstGroupVariables.addAll(firstArgVariables);
         }
 
@@ -528,8 +528,8 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
         }
 
         // Sort the variables by reverse position of last occurrence.
-        List <Map.Entry <HtVariable, Integer>> lastBodyList = new ArrayList <>(lastBodyMap.entrySet());
-        lastBodyList.sort(( o1, o2 ) -> o2.getValue().compareTo(o1.getValue()));
+        List<Map.Entry<HtVariable, Integer>> lastBodyList = new ArrayList<>(lastBodyMap.entrySet());
+        lastBodyList.sort((o1, o2) -> o2.getValue().compareTo(o1.getValue()));
 
         // Holds counts of permanent variable last appearances against the body in which they last occur.
         int[] permVarsRemainingCount = new int[(clause.getBody() != null) ? clause.getBody().size() : 0];
@@ -537,7 +537,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
         // Search the count bag for all variable occurrences greater than one, and assign them to stack slots.
         // The variables are examined by reverse position of last occurrence, to ensure that later variables
         // are assigned to lower permanent allocation slots for BaseApp trimming purposes.
-        for (Map.Entry <HtVariable, Integer> entry : lastBodyList) {
+        for (Map.Entry<HtVariable, Integer> entry : lastBodyList) {
             HtVariable variable = entry.getKey();
             Integer count = variableCountBag.get(variable);
             int body = entry.getValue();
@@ -565,20 +565,21 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
         int permVarsRemaining = 0;
 
         for (int i = permVarsRemainingCount.length - 1; i >= 0; i--) {
-            getSymbolTable().put(clause.getBody().getHead(i).getSymbolKey(), SYMKEY_PERM_VARS_REMAINING, permVarsRemaining);
+            getSymbolTable().put(clause.getBody().getHead(i).getSymbolKey(),
+                    SYMKEY_PERM_VARS_REMAINING,
+                    permVarsRemaining);
             permVarsRemaining += permVarsRemainingCount[i];
         }
     }
 
-    private boolean isCutLevelVariable ( HtVariable variable ) {
-
+    private boolean isCutLevelVariable(HtVariable variable) {
         return false;
     }
 
     /**
      * {@inheritDoc}
      */
-    public void endScope () throws Exception {
+    public void endScope() throws Exception {
         // Loop over all predicates in the current scope, found in the symbol table, and consume and compile them.
         for (SymbolKey predicateKey = predicatesInScope.poll(); predicateKey != null; predicateKey = predicatesInScope.poll()) {
             List<T> clauses = (List<T>) scopeTable.get(predicateKey, SYMKEY_PREDICATES);
@@ -591,7 +592,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
             // Used to build up the compiled predicate in.
             P result = null;
 
-            for (Iterator <T> iterator = clauses.iterator(); iterator.hasNext(); iterator.remove()) {
+            for (Iterator<T> iterator = clauses.iterator(); iterator.hasNext(); iterator.remove()) {
                 T clause = iterator.next();
 
                 if (result == null) {
@@ -619,7 +620,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
         scope++;
     }
 
-    private P createResult ( int name ) {
+    private P createResult(int name) {
         return (P) new HiTalkWAMCompiledPredicate(name);
     }
 
@@ -628,10 +629,11 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
      *
      * @param predicate The compiled predicate to pretty print.
      */
-    private void displayCompiledPredicate ( P predicate ) {
+    private void displayCompiledPredicate(P predicate) {
         // Pretty print the clause.
         StringBuilder result = new StringBuilder();
-        IPositionalTermVisitor displayVisitor = new HtWAMCompiledPredicatePrintingVisitor(getSymbolTable(), interner, result);
+        IPositionalTermVisitor displayVisitor =
+                new HtWAMCompiledPredicatePrintingVisitor(getSymbolTable(), interner, result);
 
         HtTermWalkers.positionalWalker(displayVisitor).walk((ITerm) predicate);
 
@@ -646,7 +648,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
      * @param clause The clause to determine the highest number of arguments within.
      * @return The highest number of arguments within any top-level functor in the clause.
      */
-    private int findMaxArgumentsInClause ( HtClause clause ) {
+    private int findMaxArgumentsInClause(HtClause clause) {
         int result = 0;
 
         IFunctor head = clause.getHead();
@@ -685,11 +687,11 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
 
         // Program instructions are generated in the same order as the registers are assigned, the postfix
         // ordering used for queries is not needed.
-        BreadthFirstSearch <ITerm, ITerm> outInSearch = new BreadthFirstSearch <>();
+        BreadthFirstSearch<ITerm, ITerm> outInSearch = new BreadthFirstSearch<>();
         outInSearch.reset();
         outInSearch.addStartState(goal);
 
-        Iterator <ITerm> treeWalker = allSolutions(outInSearch);
+        Iterator<ITerm> treeWalker = allSolutions(outInSearch);
 
         // Skip the outermost functor.
         treeWalker.next();
@@ -749,7 +751,10 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
                         getSymbolTable().put(nextArg.getSymbolKey(), SYMKEY_VARIABLE_INTRO, VarIntroduction.Unify);
                     } else {
                         // Check if the variable is 'local' and use a local instruction on the first occurrence.
-                        VarIntroduction introduction = (VarIntroduction) getSymbolTable().get(nextArg.getSymbolKey(), SYMKEY_VARIABLE_INTRO);
+                        VarIntroduction introduction = (VarIntroduction) getSymbolTable()
+                                .get(
+                                        nextArg.getSymbolKey(),
+                                        SYMKEY_VARIABLE_INTRO);
 
                         if (defaultBuiltIn.isLocalVariable(introduction, addrMode)) {
                             /*log.fine("UNIFY_LOCAL_VAL " + ((addrMode == REG_ADDR) ? "X" : "Y") +
@@ -760,7 +765,6 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
                             getSymbolTable().put(nextArg.getSymbolKey(), SYMKEY_VARIABLE_INTRO, null);
                         } else {
                             /*log.fine("UNIFY_VAL " + ((addrMode == REG_ADDR) ? "X" : "Y") + address);*/
-
                             instruction = new HiTalkWAMInstruction(UnifyVal, addrMode, address, nextArg);
                         }
                     }
@@ -830,12 +834,12 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
         /**
          * The symbol table.
          */
-        protected final ISymbolTable <Integer, String, Object> symbolTable;
+        protected final ISymbolTable<Integer, String, Object> symbolTable;
 
         /**
          * Holds a map of permanent variables to variable names to record the allocations in.
          */
-        private final Map <Byte, Integer> varNames;
+        private final Map<Byte, Integer> varNames;
 
         /**
          * Creates a query variable allocator.
@@ -844,9 +848,9 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
          * @param varNames    A map of permanent variables to variable names to record the allocations in.
          * @param delegate    The term visitor that this delegates to.
          */
-        public QueryRegisterAllocatingVisitor ( ISymbolTable <Integer, String, Object> symbolTable,
-                                                Map <Byte, Integer> varNames,
-                                                IAllTermsVisitor delegate ) {
+        public QueryRegisterAllocatingVisitor(ISymbolTable<Integer, String, Object> symbolTable,
+                                              Map<Byte, Integer> varNames,
+                                              IAllTermsVisitor delegate) {
             super(delegate);
             this.symbolTable = symbolTable;
             this.varNames = varNames;
@@ -857,7 +861,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
          * <p>
          * <p/>Allocates unallocated variables to stack slots.
          */
-        public void visit ( HtVariable variable ) {
+        public void visit(HtVariable variable) {
             if (getSymbolTable().get(variable.getSymbolKey(), SYMKEY_ALLOCATION) == null) {
                 if (variable.isAnonymous()) {
                     //log.fine("Query variable " + variable + " is temporary.");

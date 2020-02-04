@@ -26,7 +26,7 @@ class PiCallsCollector implements Collector <PiCalls <?>, List <PiCalls <?>>, Pi
     private final PredicateTable <HtPredicate> predicateTable;
     private final PiCallsCollectorVisitor pccv;
     private final IVafInterner interner;
-    private final ISymbolTable <Integer, String, Object> symbolTable;
+    private final ISymbolTable<Integer, String, Object> symbolTable;
 
     private final Supplier <List <PiCalls <?>>> supplier;
     private final BiConsumer <List <PiCalls <?>>, PiCalls <?>> accumulator;
@@ -117,7 +117,7 @@ class PiCallsCollector implements Collector <PiCalls <?>, List <PiCalls <?>>, Pi
     /**
      * @return
      */
-    public PredicateTable getPredicateTable () {
+    public PredicateTable<HtPredicate> getPredicateTable() {
         return predicateTable;
     }
 

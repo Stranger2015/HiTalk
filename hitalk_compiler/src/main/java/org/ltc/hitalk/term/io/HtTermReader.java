@@ -5,6 +5,7 @@ import org.ltc.hitalk.entities.PropertyOwner;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
 
+import java.beans.PropertyChangeListener;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.Map;
 /**
  *
  */
-public class HtTermReader extends PropertyOwner {
+public class HtTermReader extends PropertyOwner implements PropertyChangeListener {
 
     HiTalkInputStream input;
     //    HtProperty[] properties;//options

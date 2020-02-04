@@ -55,12 +55,12 @@ public class HiLogPreprocessor<T extends HtClause, P, Q, TC extends ITerm, TT ex
      * @param resolver
      * @param parser
      */
-    public HiLogPreprocessor ( ISymbolTable <Integer, String, Object> symbolTable,
-                               IVafInterner interner,
-                               PrologDefaultBuiltIn defaultBuiltIn,
-                               PrologBuiltInTransform builtInTransform,
-                               IResolver resolver,
-                               PlPrologParser parser ) {
+    public HiLogPreprocessor(ISymbolTable<Integer, String, Object> symbolTable,
+                             IVafInterner interner,
+                             PrologDefaultBuiltIn defaultBuiltIn,
+                             PrologBuiltInTransform builtInTransform,
+                             IResolver resolver,
+                             PlPrologParser parser) {
         super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, parser);
     }
 }

@@ -41,27 +41,26 @@ class HtWAMCompiledQueryPrintingVisitor extends HtWAMCompiledTermsPrintingVisito
      * @param symbolTable The symbol table for the compilation.
      * @param result      A string buffer to place the results in.
      */
-    public HtWAMCompiledQueryPrintingVisitor ( ISymbolTable <Integer, String, Object> symbolTable,
-                                               IVafInterner interner,
-                                               StringBuilder result ) {
+    public HtWAMCompiledQueryPrintingVisitor(ISymbolTable<Integer, String, Object> symbolTable,
+                                             IVafInterner interner,
+                                             StringBuilder result) {
         super(interner, symbolTable, result);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void visit ( HtClause clause ) throws LinkageException {
+    public void visit(HtClause clause) throws LinkageException {
         if (traverser.isEnteringContext()) {
             initializePrinters();
-        }
-        else if (traverser.isLeavingContext()) {
+        } else if (traverser.isLeavingContext()) {
             printTable();
         }
 
         super.visit(clause);
     }
 
-    public void visit ( ITerm term ) {
+    public void visit(ITerm term) {
 
     }
 }

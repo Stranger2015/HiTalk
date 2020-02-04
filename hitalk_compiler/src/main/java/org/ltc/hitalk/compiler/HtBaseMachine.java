@@ -22,7 +22,7 @@ public abstract class HtBaseMachine {
     /**
      * Holds the machines symbol table.
      */
-    protected ISymbolTable <Integer, String, Object> symbolTable;
+    protected ISymbolTable<Integer, String, Object> symbolTable;
 
     /**
      * Holds the machines symbol name interner.
@@ -35,7 +35,7 @@ public abstract class HtBaseMachine {
      * @param symbolTable The symbol table for the machine.
      * @param interner    The interner for the machine.
      */
-    public HtBaseMachine ( ISymbolTable <Integer, String, Object> symbolTable, IVafInterner interner ) {
+    public HtBaseMachine(ISymbolTable<Integer, String, Object> symbolTable, IVafInterner interner) {
         this.symbolTable = symbolTable;
         this.interner = interner;
     }
@@ -45,7 +45,7 @@ public abstract class HtBaseMachine {
      *
      * @return The symbol table.
      */
-    public ISymbolTable <Integer, String, Object> getSymbolTable () {
+    public ISymbolTable<Integer, String, Object> getSymbolTable() {
         return symbolTable;
     }
 
@@ -54,7 +54,7 @@ public abstract class HtBaseMachine {
      *
      * @return The interner.
      */
-    public IVafInterner getInterner () {
+    public IVafInterner getInterner() {
         return interner;
     }
 }

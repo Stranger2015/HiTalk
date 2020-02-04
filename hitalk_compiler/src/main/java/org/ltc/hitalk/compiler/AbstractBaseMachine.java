@@ -15,7 +15,6 @@
  */
 package org.ltc.hitalk.compiler;
 
-import org.ltc.hitalk.core.Components;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +46,7 @@ public abstract class AbstractBaseMachine {
     /**
      * Holds the machines symbol table.
      */
-    protected ISymbolTable <Integer, String, Object> symbolTable;
+    protected ISymbolTable<Integer, String, Object> symbolTable;
 
     /**
      * Holds the machines symbol name interner.
@@ -60,21 +59,21 @@ public abstract class AbstractBaseMachine {
      * @param symbolTable The symbol table for the machine.
      * @param interner    The interner for the machine.
      */
-    public AbstractBaseMachine ( ISymbolTable <Integer, String, Object> symbolTable,
-                                 IVafInterner interner ) {
+    public AbstractBaseMachine(ISymbolTable<Integer, String, Object> symbolTable,
+                               IVafInterner interner) {
         getAppContext().putIfAbsent(SYMBOL_TABLE, symbolTable);
-        getAppContext().putIfAbsent(Components.INTERNER, symbolTable);
+        getAppContext().putIfAbsent(INTERNER, interner);
 
         this.symbolTable = symbolTable;
         this.interner = interner;
     }
 
-    public AbstractBaseMachine () {
+    public AbstractBaseMachine() {
 
     }
 
-    private static ISymbolTable <Integer, String, Object> get () {
-        return (ISymbolTable <Integer, String, Object>) getAppContext().get(SYMBOL_TABLE);
+    private static ISymbolTable<Integer, String, Object> get() {
+        return (ISymbolTable<Integer, String, Object>) getAppContext().get(SYMBOL_TABLE);
     }
 
     /**
@@ -82,7 +81,7 @@ public abstract class AbstractBaseMachine {
      *
      * @return The symbol table.
      */
-    public ISymbolTable <Integer, String, Object> getSymbolTable () {
+    public ISymbolTable<Integer, String, Object> getSymbolTable() {
         return Optional.ofNullable(symbolTable).orElseGet(AbstractBaseMachine::get);
     }
 
@@ -91,7 +90,7 @@ public abstract class AbstractBaseMachine {
      *
      * @return The interner.
      */
-    public IVafInterner getInterner () {
+    public IVafInterner getInterner() {
         return interner == null ? (IVafInterner) getAppContext().get(INTERNER) : interner;
     }
 }

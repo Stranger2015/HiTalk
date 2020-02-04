@@ -16,6 +16,10 @@ import static java.util.Collections.emptyList;
 public class ListTerm extends HtBaseTerm {
     public static final ListTerm NIL = new ListTerm(emptyList());
 
+    public Kind getKind() {
+        return kind;
+    }
+
     protected Kind kind;//fixme encode in name
     final List<ITerm> heads = new ArrayList<>();
 

@@ -97,26 +97,25 @@ public abstract class MetaInterpreterVisitor<T extends HtClause, P, Q, PC, QC> e
     }
 
     /**
-     * @param dottedPair
      * @throws LinkageException
      */
     @Override
-    protected void enterListTerm ( ListTerm dottedPair ) throws LinkageException {
-        for (int i = 0, headsSize = dottedPair.size(); i <= headsSize; i++) {
-            switch (dottedPair.getKind()) {
+    protected void enterListTerm(ListTerm listTerm) throws LinkageException {
+        for (int i = 0, headsSize = listTerm.size(); i <= headsSize; i++) {
+            switch (listTerm.getKind()) {
                 case NOT:
-                    dottedPair.getHead(i).accept(this);
+                    listTerm.getHead(i).accept(this);
                     break;
                 case AND://fall down
                 case OR:
                 case IF:
-                    dottedPair.getHead(i).accept(this);
-                    dottedPair.getHead(i + 1).accept(this);
+                    listTerm.getHead(i).accept(this);
+                    listTerm.getHead(i + 1).accept(this);
                     break;
                 case GOAL:
-                    IFunctor goal = (IFunctor) dottedPair.getHead(i);
+                    IFunctor goal = (IFunctor) listTerm.getHead(i);
                     if (goal.isDefined()) {
-                        final Set <PiCalls <?>> hbSet = new HashSet <>();
+                        final Set<PiCalls<?>> hbSet = new HashSet<>();
                         lookupGoal((PiCalls) goal, hbSet);
                     }
                     break;

@@ -1,6 +1,7 @@
 package org.ltc.hitalk.wam.compiler;
 
 import com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys;
+import com.thesett.common.util.doublemaps.SymbolKey;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.parser.HtClause;
@@ -12,8 +13,11 @@ import org.ltc.hitalk.wam.printer.IPositionalTermTraverser;
 
 import java.util.*;
 
+import static com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys.SYMKEY_FUNCTOR_NON_ARG;
+import static com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys.SYMKEY_VAR_LAST_ARG_FUNCTOR;
+
 public class HtPositionAndOccurrenceVisitor extends HtBasePositionalVisitor {
-    public IPositionalTermTraverser getPositionalTraverser () {
+    public IPositionalTermTraverser getPositionalTraverser() {
         return positionalTraverser;
     }
 
@@ -26,7 +30,7 @@ public class HtPositionAndOccurrenceVisitor extends HtBasePositionalVisitor {
 //        this.positionalTraverser = positionalTraverser;
 //    }
 
-    /** Used for debugging. */
+    // Used for debugging.
     /* private static final Logger log = Logger.getLogger(PositionAndOccurrenceVisitor.class.getName()); */
 
     /**
@@ -37,12 +41,12 @@ public class HtPositionAndOccurrenceVisitor extends HtBasePositionalVisitor {
     /**
      * Holds a set of all constants encountered.
      */
-    private final Map<Integer, List<String>> constants = new HashMap<>();
+    private final Map<Integer, List<SymbolKey>> constants = new HashMap<>();
 
     /**
      * Holds a set of all constants found to be in argument positions.
      */
-    private final Collection <Integer> argumentConstants = new HashSet <>();
+    private final Collection<Integer> argumentConstants = new HashSet<>();
 
     /**
      * Creates a positional visitor.
@@ -51,10 +55,10 @@ public class HtPositionAndOccurrenceVisitor extends HtBasePositionalVisitor {
      * @param symbolTable The compiler symbol table.
      * @param traverser   The positional context traverser.
      */
-    public HtPositionAndOccurrenceVisitor (
-            ISymbolTable <Integer, String, Object> symbolTable,
+    public HtPositionAndOccurrenceVisitor(
+            ISymbolTable<Integer, String, Object> symbolTable,
             IVafInterner interner,
-            IPositionalTermTraverser traverser ) {
+            IPositionalTermTraverser traverser) {
         super(symbolTable, interner, traverser);
     }
 
@@ -63,22 +67,22 @@ public class HtPositionAndOccurrenceVisitor extends HtBasePositionalVisitor {
      * <p>
      * <p/>Counts variable occurrences and detects if the variable ever appears in an argument position.
      */
-    protected void enterVariable ( HtVariable variable ) {
+    protected void enterVariable(HtVariable variable) {
         // Initialize the count to one or add one to an existing count.
-        Integer count = (Integer) symbolTable.get(variable.getString(), SymbolTableKeys.SYMKEY_VAR_OCCURRENCE_COUNT);
+        Integer count = (Integer) symbolTable.get(variable.getSymbolKey(), SymbolTableKeys.SYMKEY_VAR_OCCURRENCE_COUNT);
         count = (count == null) ? 1 : (count + 1);
-        symbolTable.put(variable.getString(), SymbolTableKeys.SYMKEY_VAR_OCCURRENCE_COUNT, count);
+        symbolTable.put(variable.getSymbolKey(), SymbolTableKeys.SYMKEY_VAR_OCCURRENCE_COUNT, count);
 
         /*log.fine("Variable " + variable + " has count " + count + ".");*/
 
         // Get the nonArgPosition flag, or initialize it to true.
         Boolean nonArgPositionOnly =
-                (Boolean) symbolTable.get(variable.getString(), SymbolTableKeys.SYMKEY_VAR_NON_ARG);
+                (Boolean) symbolTable.get(variable.getSymbolKey(), SymbolTableKeys.SYMKEY_VAR_NON_ARG);
         nonArgPositionOnly = (nonArgPositionOnly == null) ? true : nonArgPositionOnly;
 
         // Clear the nonArgPosition flag if the variable occurs in an argument position.
         nonArgPositionOnly = inTopLevelFunctor(traverser) ? false : nonArgPositionOnly;
-        symbolTable.put(variable.getString(), SymbolTableKeys.SYMKEY_VAR_NON_ARG, nonArgPositionOnly);
+        symbolTable.put(variable.getSymbolKey(), SymbolTableKeys.SYMKEY_VAR_NON_ARG, nonArgPositionOnly);
 
         /*log.fine("Variable " + variable + " nonArgPosition is " + nonArgPositionOnly + ".");*/
 
@@ -87,9 +91,9 @@ public class HtPositionAndOccurrenceVisitor extends HtBasePositionalVisitor {
         // If not in an argument position, clear any parent functor recorded against the variable, as this current
         // last position of occurrence is not purely in argument position.
         if (inTopLevelFunctor(traverser)) {
-            symbolTable.put(variable.getString(), SymbolTableKeys.SYMKEY_VAR_LAST_ARG_FUNCTOR, topLevelBodyFunctor);
+            symbolTable.put(variable.getSymbolKey(), SYMKEY_VAR_LAST_ARG_FUNCTOR, topLevelBodyFunctor);
         } else {
-            symbolTable.put(variable.getString(), SymbolTableKeys.SYMKEY_VAR_LAST_ARG_FUNCTOR, null);
+            symbolTable.put(variable.getSymbolKey(), SYMKEY_VAR_LAST_ARG_FUNCTOR, null);
         }
     }
 
@@ -103,19 +107,19 @@ public class HtPositionAndOccurrenceVisitor extends HtBasePositionalVisitor {
      * immediately below a top-level functor.
      */
     protected void enterFunctor(IFunctor functor) throws Exception {
-        /*log.fine("Functor: " + functor.getName() + " <- " + symbolTable.getString(functor.getName()));*/
+        /*log.fine("Functor: " + functor.getName() + " <- " + symbolTable.getSymbolKey(functor.getName()));*/
 
         // Only check position of occurrence for constants.
         if (functor.getArity() == 0) {
             // Add the constant to the set of all constants encountered.
-            List<String> constantSymKeys = constants.get(functor.getName());
+            List<SymbolKey> constantSymKeys = constants.get(functor.getName());
 
             if (constantSymKeys == null) {
                 constantSymKeys = new ArrayList<>();
                 constants.put(functor.getName(), constantSymKeys);
             }
 
-            constantSymKeys.add(functor.getString());
+            constantSymKeys.add(functor.getSymbolKey());
 
             // If the constant ever appears in argument position, take note of this.
             if (inTopLevelFunctor(traverser)) {
@@ -134,15 +138,15 @@ public class HtPositionAndOccurrenceVisitor extends HtBasePositionalVisitor {
      *
      * @param clause The clause being left.
      */
-    protected void leaveClause ( HtClause clause ) {
+    protected void leaveClause(HtClause clause) {
         // Remove the set of constants appearing in argument positions, from the set of all constants, to derive
         // the set of constants that appear in non-argument positions only.
         constants.keySet().removeAll(argumentConstants);
 
         // Set the nonArgPosition flag on all symbol keys for all constants that only appear in non-arg positions.
-        for (List<String> symbolKeys : constants.values()) {
-            for (String symbolKey : symbolKeys) {
-                symbolTable.put(symbolKey, SymbolTableKeys.SYMKEY_FUNCTOR_NON_ARG, true);
+        for (List<SymbolKey> symbolKeys : constants.values()) {
+            for (SymbolKey symbolKey : symbolKeys) {
+                symbolTable.put(symbolKey, SYMKEY_FUNCTOR_NON_ARG, true);
             }
         }
     }
@@ -153,7 +157,7 @@ public class HtPositionAndOccurrenceVisitor extends HtBasePositionalVisitor {
      * @param context The position context to examine.
      * @return <tt>true</tt> iff the current position is immediately within a top-level functor.
      */
-    private boolean inTopLevelFunctor ( IPositionalContext context ) {
+    private boolean inTopLevelFunctor(IPositionalContext context) {
         IPositionalContext parentContext = context.getParentContext();
 
         return parentContext.isTopLevel() || isTopLevel(parentContext);
@@ -166,14 +170,14 @@ public class HtPositionAndOccurrenceVisitor extends HtBasePositionalVisitor {
      * @param context The position context to examine.
      * @return <tt>true</tt> iff the current position is a top-level functor.
      */
-    private boolean isTopLevel ( IPositionalContext context ) {
+    private boolean isTopLevel(IPositionalContext context) {
         ITerm term = context.getTerm();
 
-        if (term.getString() == null) {
+        if (term.getSymbolKey() == null) {
             return false;
         }
 
-        Boolean isTopLevel = (Boolean) symbolTable.get(term.getString(), SymbolTableKeys.SYMKEY_TOP_LEVEL_FUNCTOR);
+        Boolean isTopLevel = (Boolean) symbolTable.get(term.getSymbolKey(), SymbolTableKeys.SYMKEY_TOP_LEVEL_FUNCTOR);
 
         return (isTopLevel == null) ? false : isTopLevel;
     }

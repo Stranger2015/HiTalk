@@ -100,17 +100,17 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
     /**
      * Holds the root symbol table.
      */
-    protected ISymbolTable <Integer, String, Object> rootSymbolTable;
+    protected ISymbolTable<Integer, String, Object> rootSymbolTable;
 
     /**
      * Holds the current symbol table for the position within the term.
      */
-    protected ISymbolTable <Integer, String, Object> currentSymbolTable;
+    protected ISymbolTable<Integer, String, Object> currentSymbolTable;
 
     /**
      * Holds the symbol table for the current clause.
      */
-    private ISymbolTable <Integer, String, Object> clauseScopedSymbolTable;
+    private ISymbolTable<Integer, String, Object> clauseScopedSymbolTable;
 
     /**
      * Holds the current positional context within a surrounding term that has child elements. The elements are always
@@ -151,7 +151,7 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
         IFunctor head = clause.getHead();
         ListTerm body = clause.getBody();
 
-        Queue <Operator <ITerm>> queue = (!reverse) ? new StackQueue <>() : new LinkedList <>();
+        Queue<Operator<ITerm>> queue = (!reverse) ? new StackQueue<>() : new LinkedList<>();
 
         // Create a nested scope in the symbol table for the clause, under its functor name/arity.
         IFunctor predicateName;
@@ -209,12 +209,12 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
     /**
      * {@inheritDoc}
      */
-    public Iterator <Operator <ITerm>> traverse ( IFunctor functor, boolean reverse ) {
+    public Iterator<Operator<ITerm>> traverse(IFunctor functor, boolean reverse) {
         /*log.fine("Traversing functor " + functor.toString(interner, true, false));*/
 
-        Queue <Operator <ITerm>> queue = (!reverse) ? new StackQueue <>() : new LinkedList <>();
+        Queue<Operator<ITerm>> queue = (!reverse) ? new StackQueue<>() : new LinkedList<>();
 
-        ListTerm arguments = functor.getArguments();
+        ListTerm arguments = functor.getArgs();
 
         // For a top-level functor clear top-level flag, so that child functors are not taken as top-level.
 //            if (arguments != null) {
@@ -225,7 +225,7 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
             // within it. Therefore it always uses its unique id relative to the root symbol table for the
             // clause as its contextual position. Other terms use their position path and are relative to the
             // the current positions symbol table.
-            ISymbolTable <Integer, String, Object> contextSymbolTable;
+            ISymbolTable<Integer, String, Object> contextSymbolTable;
 
             if (argument.isVar()) {
                 contextSymbolTable = clauseScopedSymbolTable.enterScope(CLAUSE_FREEVAR_INDEX);
@@ -260,7 +260,7 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
      * <p/>Assigns symbol keys to non-variable terms, based on the positional path to the term within its containing
      * clause.
      */
-    public void visit ( ITerm term ) {
+    public void visit(ITerm term) {
         if (isEnteringContext()) {
             SymbolKey key = currentSymbolTable.getSymbolKey(currentPosition);
             term.setSymbolKey(key);
@@ -276,7 +276,7 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
      * <p>
      * <p/>Assigns symbol keys to variables, based on the variables id.
      */
-    public void visit ( HtVariable variable ) {
+    public void visit(HtVariable variable) {
         if (isEnteringContext()) {
             SymbolKey key = currentSymbolTable.getSymbolKey(variable.getId());
             variable.setSymbolKey(key);
@@ -294,7 +294,7 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
     /**
      * {@inheritDoc}
      */
-    public void visit ( HtPredicate predicate ) {
+    public void visit(HtPredicate predicate) {
         if (isEnteringContext()) {
             super.visit(predicate);
         } else if (isLeavingContext()) {
@@ -309,7 +309,7 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
     /**
      * {@inheritDoc}
      */
-    public void visit ( HtClause clause ) throws LinkageException {
+    public void visit(HtClause clause) throws LinkageException {
         if (isEnteringContext()) {
             super.visit(clause);
         } else if (isLeavingContext()) {
@@ -342,7 +342,7 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
     /**
      * {@inheritDoc}
      */
-    public void visit ( IntTerm literal ) {
+    public void visit(IntTerm literal) {
         if (isEnteringContext()) {
             SymbolKey key = currentSymbolTable.getSymbolKey(currentPosition);
             literal.setSymbolKey(key);
@@ -358,7 +358,7 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
     /**
      * {@inheritDoc}
      */
-    public void visit ( HtLiteralType literal ) {
+    public void visit(HtLiteralType literal) {
         if (isEnteringContext()) {
             SymbolKey key = currentSymbolTable.getSymbolKey(currentPosition);
             literal.setSymbolKey(key);
@@ -371,7 +371,7 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
         }
     }
 
-    public void visit ( ListTerm listTerm ) throws LinkageException {
+    public void visit(ListTerm listTerm) throws LinkageException {
 
     }
 
@@ -390,12 +390,12 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
         /**
          * The root symbol table that contains the new context to be established.
          */
-        private final ISymbolTable <Integer, String, Object> contextSymbolTable;
+        private final ISymbolTable<Integer, String, Object> contextSymbolTable;
 
         /**
          * Used to retain the previous symbol table if overwritten by a new one.
          */
-        private ISymbolTable <Integer, String, Object> previousSymbolTable;
+        private ISymbolTable<Integer, String, Object> previousSymbolTable;
 
         /**
          * The new positional context to establish.
@@ -420,8 +420,8 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
          * @param position    The new positional context to establish.
          * @param delegate    A stackable operator to chain onto this one.
          */
-        private ContextOperator ( ISymbolTable <Integer, String, Object> symbolTable, int position,
-                                  StackableOperator delegate ) {
+        private ContextOperator(ISymbolTable<Integer, String, Object> symbolTable, int position,
+                                StackableOperator delegate) {
             super(delegate);
 
             contextSymbolTable = symbolTable;
@@ -436,7 +436,7 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
          *                    symbol table should be used (default).
          * @param delegate    A stackable operator to chain onto this one.
          */
-        private ContextOperator ( ISymbolTable <Integer, String, Object> symbolTable, StackableOperator delegate ) {
+        private ContextOperator(ISymbolTable<Integer, String, Object> symbolTable, StackableOperator delegate) {
             super(delegate);
 
             contextSymbolTable = symbolTable;
@@ -447,7 +447,7 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
         /**
          * {@inheritDoc}
          */
-        public void applyOperator () {
+        public void applyOperator() {
             previousSymbolTable = currentSymbolTable;
             previousPosition = currentPosition;
 
@@ -469,7 +469,7 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
         /**
          * {@inheritDoc}
          */
-        public void undoOperator () {
+        public void undoOperator() {
             super.undoOperator();
 
             currentSymbolTable = previousSymbolTable;

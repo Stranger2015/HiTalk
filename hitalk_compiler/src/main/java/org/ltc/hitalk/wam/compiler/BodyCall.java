@@ -85,8 +85,7 @@ public class BodyCall<C extends BodyCall.BodyCalls <C>> extends PiCalls <C> {
                       List <BodyCall <C>> calls,
                       ListTerm args,//fixme listterm
                       List <HtClause> selectedClauses ) {
-//        super(sym, calls,args,selectedClauses);
-        super(sym, calls, args, selectedClauses);
+        super(sym, calls);
         this.args = args;
         this.selectedClauses = selectedClauses;
     }

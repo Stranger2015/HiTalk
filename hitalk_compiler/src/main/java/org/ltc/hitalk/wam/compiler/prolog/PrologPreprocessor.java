@@ -42,12 +42,12 @@ public class PrologPreprocessor<T extends HtClause, P, Q, TC extends ITerm, TT e
      * @param symbolTable The symbol table for the machine.
      * @param interner    The interner for the machine.
      */
-    public PrologPreprocessor ( ISymbolTable <Integer, String, Object> symbolTable,
-                                IVafInterner interner,
-                                PrologDefaultBuiltIn defaultBuiltIn,
-                                PrologBuiltInTransform <T, P, Q> builtInTransform,
-                                IResolver <HtPredicate, HtClause> resolver,
-                                PlPrologParser parser ) {
+    public PrologPreprocessor(ISymbolTable<Integer, String, Object> symbolTable,
+                              IVafInterner interner,
+                              PrologDefaultBuiltIn defaultBuiltIn,
+                              PrologBuiltInTransform<T, P, Q> builtInTransform,
+                              IResolver<HtPredicate, HtClause> resolver,
+                              PlPrologParser parser) {
 
         super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, parser);
     }

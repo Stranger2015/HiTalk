@@ -18,11 +18,11 @@ public class HiLogInstructionCompiler<T extends HtClause, P, Q> extends PrologIn
      * @param observer
      * @param parser
      */
-    public HiLogInstructionCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
-                                      IVafInterner interner,
-                                      PrologDefaultBuiltIn defaultBuiltIn,
-                                      ICompilerObserver <P, Q> observer,
-                                      PlPrologParser parser ) {
+    public HiLogInstructionCompiler(ISymbolTable<Integer, String, Object> symbolTable,
+                                    IVafInterner interner,
+                                    PrologDefaultBuiltIn defaultBuiltIn,
+                                    ICompilerObserver<P, Q> observer,
+                                    PlPrologParser parser) {
         super(symbolTable, interner, defaultBuiltIn, observer, parser);
     }
 

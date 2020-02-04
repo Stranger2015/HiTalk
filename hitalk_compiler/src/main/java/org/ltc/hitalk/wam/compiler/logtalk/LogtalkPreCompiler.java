@@ -21,12 +21,12 @@ public class LogtalkPreCompiler<T extends HtMethod, P, Q> extends PrologPreCompi
      * @param resolver
      * @param parser
      */
-    public LogtalkPreCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
-                                IVafInterner interner,
-                                PrologDefaultBuiltIn defaultBuiltIn,
-                                PrologBuiltInTransform <T, P, Q> builtInTransform,
-                                IResolver <HtPredicate, HtClause> resolver,
-                                PlPrologParser parser ) {
+    public LogtalkPreCompiler(ISymbolTable<Integer, String, Object> symbolTable,
+                              IVafInterner interner,
+                              PrologDefaultBuiltIn defaultBuiltIn,
+                              PrologBuiltInTransform<T, P, Q> builtInTransform,
+                              IResolver<HtPredicate, HtClause> resolver,
+                              PlPrologParser parser) {
         super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, parser);
     }
 }

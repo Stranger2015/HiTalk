@@ -99,7 +99,7 @@ class Specializer<C extends BodyCalls <C>> implements ISpecializer {
     protected List <HtClause> findSelectedClauses ( ListTerm args, List <HtClause> clauses ) {
         List <HtClause> list = new ArrayList <>();
         for (HtClause clause : clauses) {
-            if (unifiesMnl(args, clause.getHead().getArguments())) {
+            if (unifiesMnl(args, clause.getHead().getArgs())) {
                 list.add(clause);
             }
         }

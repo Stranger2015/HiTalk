@@ -147,11 +147,11 @@ public class HiTalkInstructionCompiler<T extends HtMethod, PC, QC> extends Prolo
      * @param defaultBuiltIn
      * @param parser
      */
-    public HiTalkInstructionCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
-                                       IVafInterner interner,
-                                       HiTalkDefaultBuiltIn defaultBuiltIn,
-                                       ICompilerObserver <PC, QC> observer,
-                                       PlPrologParser parser ) {
+    public HiTalkInstructionCompiler(ISymbolTable<Integer, String, Object> symbolTable,
+                                     IVafInterner interner,
+                                     HiTalkDefaultBuiltIn defaultBuiltIn,
+                                     ICompilerObserver<PC, QC> observer,
+                                     PlPrologParser parser) {
         super(symbolTable, interner, defaultBuiltIn, observer, parser);
     }
 

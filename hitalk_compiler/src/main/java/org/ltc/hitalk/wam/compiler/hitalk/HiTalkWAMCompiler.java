@@ -40,10 +40,10 @@ public class HiTalkWAMCompiler<T extends HtMethod, P, Q, PC, QC> extends PrologW
      * @param interner
      * @param parser
      */
-    public HiTalkWAMCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
-                               IVafInterner interner,
-                               PlPrologParser parser,
-                               ICompilerObserver <P, Q> observer ) {
+    public HiTalkWAMCompiler(ISymbolTable<Integer, String, Object> symbolTable,
+                             IVafInterner interner,
+                             PlPrologParser parser,
+                             ICompilerObserver<P, Q> observer) {
         super(symbolTable, interner, parser, observer);
     }
 }

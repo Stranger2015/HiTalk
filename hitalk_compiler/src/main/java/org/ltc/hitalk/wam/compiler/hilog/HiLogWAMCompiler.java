@@ -24,10 +24,10 @@ public class HiLogWAMCompiler<T extends HtClause, P, Q, PC, QC> extends PrologWA
      * @param parser
      * @param observer
      */
-    public HiLogWAMCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
-                              IVafInterner interner,
-                              PlPrologParser parser,
-                              ICompilerObserver <P, Q> observer ) {
+    public HiLogWAMCompiler(ISymbolTable<Integer, String, Object> symbolTable,
+                            IVafInterner interner,
+                            PlPrologParser parser,
+                            ICompilerObserver<P, Q> observer) {
         super(symbolTable, interner, parser, observer);
     }
 

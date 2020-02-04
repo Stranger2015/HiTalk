@@ -33,7 +33,7 @@ class HtEntityIdentifier extends HtFunctor {
      * @param kind
      */
     public HtEntityIdentifier(IFunctor functor, HtEntityKind kind) throws Exception {
-        this(functor.getName(), functor.getArguments(), kind);
+        this(functor.getName(), functor.getArgs(), kind);
     }
 
     /**

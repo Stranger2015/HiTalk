@@ -62,10 +62,10 @@ public class HiTalkTopLevelCheckVisitor extends HtBasePositionalVisitor implemen
      * @param symbolTable The compiler symbol table.
      * @param traverser   The positional context traverser.
      */
-    public HiTalkTopLevelCheckVisitor (
-            ISymbolTable <Integer, String, Object> symbolTable,
+    public HiTalkTopLevelCheckVisitor(
+            ISymbolTable<Integer, String, Object> symbolTable,
             IVafInterner interner,
-            IPositionalTermTraverser traverser ) {
+            IPositionalTermTraverser traverser) {
 
         super(symbolTable, interner, traverser);
     }
@@ -74,7 +74,7 @@ public class HiTalkTopLevelCheckVisitor extends HtBasePositionalVisitor implemen
      * {@inheritDoc}
      */
     @Override
-    public void setPositionalTraverser ( IPositionalTermTraverser traverser ) {
+    public void setPositionalTraverser(IPositionalTermTraverser traverser) {
         this.traverser = traverser;
     }
 
@@ -83,9 +83,9 @@ public class HiTalkTopLevelCheckVisitor extends HtBasePositionalVisitor implemen
      * <p>
      * <p/>Sets the top-level flag on a functor, if appropriate.
      */
-    protected void enterFunctor ( IFunctor functor ) {
+    protected void enterFunctor(IFunctor functor) {
         if (isTopLevel()) {
-            symbolTable.put(functor.getString(), SYMKEY_TOP_LEVEL_FUNCTOR, true);
+            symbolTable.put(functor.getSymbolKey(), SYMKEY_TOP_LEVEL_FUNCTOR, true);
         }
     }
 
@@ -95,7 +95,7 @@ public class HiTalkTopLevelCheckVisitor extends HtBasePositionalVisitor implemen
      *
      * @return <tt>true</tt> iff the current position is considered to be top-level.
      */
-    private boolean isTopLevel () {
+    private boolean isTopLevel() {
         if (traverser.isTopLevel()) {
             return true;
         } else {
@@ -105,7 +105,7 @@ public class HiTalkTopLevelCheckVisitor extends HtBasePositionalVisitor implemen
                 ITerm parentTerm = parentContext.getTerm();
 
                 if ((parentTerm instanceof HtConjunction) || (parentTerm instanceof HtDisjunction)) {
-                    Boolean isTopLevel = (Boolean) symbolTable.get(parentTerm.getString(), SYMKEY_TOP_LEVEL_FUNCTOR);
+                    Boolean isTopLevel = (Boolean) symbolTable.get(parentTerm.getSymbolKey(), SYMKEY_TOP_LEVEL_FUNCTOR);
 
                     return (isTopLevel == null) ? false : isTopLevel;
                 }
@@ -115,19 +115,19 @@ public class HiTalkTopLevelCheckVisitor extends HtBasePositionalVisitor implemen
         return false;
     }
 
-    public void visit ( HtPredicate predicate ) {
+    public void visit(HtPredicate predicate) {
 
     }
 
-    public void visit ( IFunctor functor ) throws LinkageException {
+    public void visit(IFunctor functor) throws LinkageException {
 
     }
 
-    public void visit ( HtClause clause ) throws LinkageException {
+    public void visit(HtClause clause) throws LinkageException {
 
     }
 
-    public void visit ( ListTerm listTerm ) throws LinkageException {
+    public void visit(ListTerm listTerm) throws LinkageException {
 
     }
 }

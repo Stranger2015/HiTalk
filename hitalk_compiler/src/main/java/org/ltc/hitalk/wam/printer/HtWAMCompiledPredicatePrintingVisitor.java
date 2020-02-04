@@ -13,22 +13,20 @@ class HtWAMCompiledPredicatePrintingVisitor extends HtWAMCompiledTermsPrintingVi
      * @param symbolTable The symbol table for the compilation.
      * @param result      A string buffer to place the results in.
      */
-    public HtWAMCompiledPredicatePrintingVisitor (
-            ISymbolTable <Integer, String, Object> symbolTable,
+    public HtWAMCompiledPredicatePrintingVisitor(
+            ISymbolTable<Integer, String, Object> symbolTable,
             IVafInterner interner,
-            StringBuilder result ) {
+            StringBuilder result) {
         super(interner, symbolTable, result);
     }
 
     /**
      * {@inheritDoc}
      */
-    public
-    void visit ( HtPredicate predicate ) {
+    public void visit(HtPredicate predicate) {
         if (traverser.isEnteringContext()) {
             initializePrinters();
-        }
-        else if (traverser.isLeavingContext()) {
+        } else if (traverser.isLeavingContext()) {
             printTable();
         }
 

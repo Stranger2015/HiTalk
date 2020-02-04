@@ -48,6 +48,7 @@
                                    IVafInterner interner,
                                    IPositionalTermTraverser traverser,
                                    int i, TextTableModel printTable ) {
+
             super(symbolTable, interner, traverser, i, printTable);
 
         }
@@ -83,7 +84,7 @@
          * {@inheritDoc}
          */
         protected void enterVariable(HtVariable variable) {
-            Integer allocation = (Integer) symbolTable.get(String.valueOf(variable.getSymbolKey()), "allocation");
+            Integer allocation = (Integer) symbolTable.get(variable.getSymbolKey(), "allocation");
             String symKey = variable.getSymbolKey().toString();
 
             String allocString = "";

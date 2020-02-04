@@ -19,17 +19,16 @@ public class HiLogPreCompiler<T extends HtClause, P, Q> extends PrologPreCompile
      * @param resolver
      * @param parser
      */
-    public HiLogPreCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
-                              IVafInterner interner,
-                              PrologDefaultBuiltIn defaultBuiltIn,
-                              PrologBuiltInTransform <T, P, Q> builtInTransform,
-                              IResolver <HtPredicate, HtClause> resolver,
-                              PlPrologParser parser ) {
+    public HiLogPreCompiler(ISymbolTable<Integer, String, Object> symbolTable,
+                            IVafInterner interner,
+                            PrologDefaultBuiltIn defaultBuiltIn,
+                            PrologBuiltInTransform<T, P, Q> builtInTransform,
+                            IResolver<HtPredicate, HtClause> resolver,
+                            PlPrologParser parser) {
         super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, parser);
     }
 
     public HiLogPreCompiler() throws Exception {
         super();
-//        this();//todo
     }
 }

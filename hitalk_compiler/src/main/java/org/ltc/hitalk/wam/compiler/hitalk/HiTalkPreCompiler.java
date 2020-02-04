@@ -28,13 +28,14 @@ import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.HtMethod;
-import org.ltc.hitalk.wam.compiler.HtTermWalkers;
 import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltInTransform;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
 
 import java.util.List;
+
+import static org.ltc.hitalk.wam.compiler.HtTermWalkers.positionalWalker;
 
 /**
  * PreCompiler transforms clauses for compilation, substituting built-ins for any built-ins in the source expressions to
@@ -64,12 +65,12 @@ class HiTalkPreCompiler<T extends HtMethod, P, Q> extends PrologPreCompiler <T, 
      * @param parser
      * @param resolver
      */
-    public HiTalkPreCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
-                               IVafInterner interner,
-                               PrologBuiltInTransform <T, P, Q> builtInTransform,
-                               PrologDefaultBuiltIn defaultBuiltIn,
-                               IResolver <HtPredicate, HtClause> resolver,
-                               PlPrologParser parser ) {
+    public HiTalkPreCompiler(ISymbolTable<Integer, String, Object> symbolTable,
+                             IVafInterner interner,
+                             PrologBuiltInTransform<T, P, Q> builtInTransform,
+                             PrologDefaultBuiltIn defaultBuiltIn,
+                             IResolver<HtPredicate, HtClause> resolver,
+                             PlPrologParser parser) {
         super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, parser);
     }
 
@@ -115,7 +116,7 @@ class HiTalkPreCompiler<T extends HtMethod, P, Q> extends PrologPreCompiler <T, 
      * @param clause The clause to top-level check.
      */
     private void topLevelCheck ( ITerm clause ) {
-        HtTermWalker walk = HtTermWalkers.positionalWalker(new HiTalkTopLevelCheckVisitor(symbolTable, interner, null));
+        HtTermWalker walk = positionalWalker(new HiTalkTopLevelCheckVisitor(symbolTable, interner, null));
         walk.walk(clause);
     }
 

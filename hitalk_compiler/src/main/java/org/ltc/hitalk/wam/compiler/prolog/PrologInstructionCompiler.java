@@ -37,11 +37,11 @@ public class PrologInstructionCompiler<T extends HtClause, PC, QC> extends BaseI
      * @param defaultBuiltIn
      * @param observer
      */
-    public PrologInstructionCompiler ( ISymbolTable <Integer, String, Object> symbolTable,
-                                       IVafInterner interner,
-                                       PrologDefaultBuiltIn defaultBuiltIn,
-                                       ICompilerObserver <PC, QC> observer,
-                                       PlPrologParser parser ) {
+    public PrologInstructionCompiler(ISymbolTable<Integer, String, Object> symbolTable,
+                                     IVafInterner interner,
+                                     PrologDefaultBuiltIn defaultBuiltIn,
+                                     ICompilerObserver<PC, QC> observer,
+                                     PlPrologParser parser) {
         super(symbolTable, interner, defaultBuiltIn, observer, parser);
     }
 

@@ -44,7 +44,7 @@ class HiTalkWAMOptimizer implements IOptimizer {
     /**
      * The symbol table.
      */
-    protected final ISymbolTable <Integer, String, Object> symbolTable;
+    protected final ISymbolTable<Integer, String, Object> symbolTable;
 
     /**
      * Holds the variable and functor name interner for the machine.
@@ -57,7 +57,7 @@ class HiTalkWAMOptimizer implements IOptimizer {
      * @param symbolTable The symbol table to get instruction analysis information from.
      * @param interner    The variable and functor name interner for the machine.
      */
-    public HiTalkWAMOptimizer ( ISymbolTable <Integer, String, Object> symbolTable, IVafInterner interner ) {
+    public HiTalkWAMOptimizer(ISymbolTable<Integer, String, Object> symbolTable, IVafInterner interner) {
         this.symbolTable = symbolTable;
         this.interner = interner;
     }
@@ -69,8 +69,8 @@ class HiTalkWAMOptimizer implements IOptimizer {
      * the optimized version.
      */
     @Override
-    public <T extends IWAMOptimizeableListing> T apply ( T listing ) {
-        SizeableList <HiTalkWAMInstruction> optListing = optimize(listing.getInstructions());
+    public <T extends IWAMOptimizeableListing> T apply(T listing) {
+        SizeableList<HiTalkWAMInstruction> optListing = optimize(listing.getInstructions());
         listing.setOptimizedInstructions(optListing);
 
         return listing;
@@ -91,13 +91,13 @@ class HiTalkWAMOptimizer implements IOptimizer {
      * @param instructions The instructions to optimize.
      * @return An list of optimized instructions.
      */
-    private SizeableList <HiTalkWAMInstruction> optimize ( List <HiTalkWAMInstruction> instructions ) {
-        StateMachine <HiTalkWAMInstruction, HiTalkWAMInstruction> optimizeConstants =
+    private SizeableList<HiTalkWAMInstruction> optimize(List<HiTalkWAMInstruction> instructions) {
+        StateMachine<HiTalkWAMInstruction, HiTalkWAMInstruction> optimizeConstants =
                 new HtOptimizeInstructions(symbolTable, interner);
-        Iterable <HiTalkWAMInstruction> matcher =
-                new Matcher <>(instructions.iterator(), optimizeConstants);
+        Iterable<HiTalkWAMInstruction> matcher =
+                new Matcher<>(instructions.iterator(), optimizeConstants);
 
-        SizeableList <HiTalkWAMInstruction> result = new SizeableLinkedList <>();
+        SizeableList<HiTalkWAMInstruction> result = new SizeableLinkedList<>();
 
         for (HiTalkWAMInstruction instruction : matcher) {
             result.add(instruction);
@@ -106,7 +106,7 @@ class HiTalkWAMOptimizer implements IOptimizer {
         return result;
     }
 
-    public <P> P apply ( P result ) {
+    public <P> P apply(P result) {
         return result;
     }
 }

@@ -11,17 +11,16 @@ import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
 
 public
 class HtUnoptimizedByteCodePrinter extends HtBasePrinter {
-    public HtUnoptimizedByteCodePrinter ( ISymbolTable <Integer, String, Object> symbolTable,
-                                          IVafInterner interner,
-                                          IPositionalTermTraverser traverser, int i, TextTableModel printTable ) {
+    public HtUnoptimizedByteCodePrinter(ISymbolTable<Integer, String, Object> symbolTable,
+                                        IVafInterner interner,
+                                        IPositionalTermTraverser traverser, int i, TextTableModel printTable) {
         super(symbolTable, interner, traverser, i, printTable);
     }
 
     /**
      * {@inheritDoc}
      */
-    protected
-    void enterPredicate ( HtPredicate predicate ) {
+    protected void enterPredicate(HtPredicate predicate) {
         if (predicate instanceof HiTalkWAMCompiledPredicate) {
             IWAMOptimizeableListing compiledPredicate = (HiTalkWAMCompiledPredicate) predicate;
 
@@ -35,8 +34,7 @@ class HtUnoptimizedByteCodePrinter extends HtBasePrinter {
     /**
      * {@inheritDoc}
      */
-    protected
-    void enterClause ( HtClause clause ) {
+    protected void enterClause(HtClause clause) {
         if (clause instanceof HiTalkWAMCompiledQuery) {
             IWAMOptimizeableListing query = (HiTalkWAMCompiledQuery) clause;
 

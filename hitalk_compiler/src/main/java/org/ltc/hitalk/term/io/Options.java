@@ -36,7 +36,7 @@ public class Options extends PropertyOwner {
      */
     public static class Option extends HtProperty {
 
-        public Option(String name, String... values) {
+        public Option(String name, String... values) throws Exception {
             super(name, values);
         }
     }

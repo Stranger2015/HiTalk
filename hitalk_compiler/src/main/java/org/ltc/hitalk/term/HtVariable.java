@@ -62,7 +62,7 @@ public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingCon
      * Holds a unique id for the variable.
      */
     protected int id = varId.getAndIncrement();
-    private SymbolKey key;
+    protected SymbolKey key;
 
     /**
      * Creates a new variable, the name does not have to be unique and the the variable can be free by supplying a null

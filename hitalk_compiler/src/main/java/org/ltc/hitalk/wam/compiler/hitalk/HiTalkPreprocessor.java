@@ -51,12 +51,12 @@ public class HiTalkPreprocessor<T extends HtMethod, P, Q, TT extends TransformTa
      * @param interner    The interner for the machine.
      * @param resolver
      */
-    public HiTalkPreprocessor ( ISymbolTable <Integer, String, Object> symbolTable,
-                                IVafInterner interner,
-                                PrologBuiltInTransform <T, P, Q> builtInTransform,
-                                PrologDefaultBuiltIn defaultBuiltIn,
-                                IResolver <HtPredicate, HtClause> resolver,
-                                PlPrologParser parser )
+    public HiTalkPreprocessor(ISymbolTable<Integer, String, Object> symbolTable,
+                              IVafInterner interner,
+                              PrologBuiltInTransform<T, P, Q> builtInTransform,
+                              PrologDefaultBuiltIn defaultBuiltIn,
+                              IResolver<HtPredicate, HtClause> resolver,
+                              PlPrologParser parser)
             throws LinkageException {
 
         super(symbolTable, interner, builtInTransform, defaultBuiltIn, resolver, parser);

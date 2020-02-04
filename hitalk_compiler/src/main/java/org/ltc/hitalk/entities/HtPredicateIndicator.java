@@ -54,8 +54,7 @@ class HtPredicateIndicator extends HtBaseTerm implements IFunctor {
      * @return <tt>true</tt> if this functor has arity zero, <tt>false</tt> otherwise.
      */
     @Override
-    public
-    boolean isConstant () {
+    public boolean isConstant() {
         return delegate.isConstant();
     }
 
@@ -65,8 +64,7 @@ class HtPredicateIndicator extends HtBaseTerm implements IFunctor {
      * @return <tt>true</tt> if this funtor has arity more than zero, <tt>fals</tt> otherwise.
      */
     @Override
-    public
-    boolean isCompound () {
+    public boolean isCompound() {
         return delegate.isCompound();
     }
 
@@ -76,8 +74,7 @@ class HtPredicateIndicator extends HtBaseTerm implements IFunctor {
      * @return <tt>true</tt> if this functor has arity zero, <tt>false</tt> otherwise.
      */
     @Override
-    public
-    boolean isAtom () {
+    public boolean isAtom() {
         return delegate.isAtom();
     }
 
@@ -88,19 +85,19 @@ class HtPredicateIndicator extends HtBaseTerm implements IFunctor {
      * @return <tt>true</tt> if this functor is a ground term, <tt>false</tt> othewise.
      */
     @Override
-    public boolean isGround () {
+    public boolean isGround() {
         return delegate.isGround();
     }
 
     @Override
-    public boolean isHiLog () {
+    public boolean isHiLog() {
         return false;
     }
 
     /**
      * @return
      */
-    public boolean isJavaObject () {
+    public boolean isJavaObject() {
         return false;
     }
 
@@ -110,7 +107,7 @@ class HtPredicateIndicator extends HtBaseTerm implements IFunctor {
      * in leaf positions of the term.
      */
     @Override
-    public void free () {
+    public void free() {
         delegate.free();
     }
 
@@ -121,7 +118,7 @@ class HtPredicateIndicator extends HtBaseTerm implements IFunctor {
      * @return The functor itself.
      */
     @Override
-    public ITerm getValue () {
+    public ITerm getValue() {
         return delegate.getValue();
     }
 
@@ -131,7 +128,7 @@ class HtPredicateIndicator extends HtBaseTerm implements IFunctor {
      * @param index The index to get the argument for.
      * @return The argument.
      */
-    public ITerm getArgument ( int index ) {
+    public ITerm getArgument(int index) {
         return delegate.getArgument(index);
     }
 
@@ -155,15 +152,11 @@ class HtPredicateIndicator extends HtBaseTerm implements IFunctor {
     }
 
     public void setArguments(List<ITerm> terms) {
-
+        delegate.setArguments(terms);
     }
 
     public ListTerm getArgs() {
-        return g;
-    }
-
-    public void setArguments(ITerm[] terms) {
-
+        return delegate.getArgs();
     }
 
     /**
@@ -212,7 +205,7 @@ class HtPredicateIndicator extends HtBaseTerm implements IFunctor {
      * @return <tt>true</tt> if the two terms are structurally eqaul, <tt>false</tt> otherwise.
      */
     @Override
-    public boolean structuralEquals ( ITerm term ) {
+    public boolean structuralEquals(ITerm term) {
         return delegate.structuralEquals(term);
     }
 
@@ -230,8 +223,7 @@ class HtPredicateIndicator extends HtBaseTerm implements IFunctor {
      * @return <tt>true</tt> if the comparator has the same name and arity as this one, <tt>false</tt> otherwise.
      */
     @Override
-    public
-    boolean equals ( Object comparator ) {
+    public boolean equals(Object comparator) {
         return delegate.equals(comparator);
     }
 
@@ -242,8 +234,7 @@ class HtPredicateIndicator extends HtBaseTerm implements IFunctor {
      * @return A hash code based on the name and arity.
      */
     @Override
-    public
-    int hashCode () {
+    public int hashCode() {
         return delegate.hashCode();
     }
 
@@ -255,7 +246,7 @@ class HtPredicateIndicator extends HtBaseTerm implements IFunctor {
      * @return The sub-terms of a compound term.
      */
     @Override
-    public Iterator <Operator <ITerm>> getChildren ( boolean reverse ) {
+    public Iterator<Operator<ITerm>> getChildren(boolean reverse) {
         return delegate.getChildren(reverse);
     }
 
@@ -265,7 +256,7 @@ class HtPredicateIndicator extends HtBaseTerm implements IFunctor {
      * @return A copy of this term, with entirely independent variables to the term it was copied from.
      */
     @Override
-    public IFunctor queryConversion () {
+    public IFunctor queryConversion() {
         return delegate.queryConversion();
     }
 
@@ -275,8 +266,7 @@ class HtPredicateIndicator extends HtBaseTerm implements IFunctor {
      * @return A string representation of this functor.
      */
     @Override
-    public
-    String toString () {
+    public String toString() {
         return delegate.toString();
     }
 
@@ -286,7 +276,7 @@ class HtPredicateIndicator extends HtBaseTerm implements IFunctor {
      * @param visitor
      */
     @Override
-    public void accept ( ITermVisitor visitor ) {
+    public void accept(ITermVisitor visitor) {
         delegate.accept(visitor);
     }
 
@@ -296,7 +286,7 @@ class HtPredicateIndicator extends HtBaseTerm implements IFunctor {
      * @param transformer
      */
 //    @Override
-    public List <ITerm> acceptTransformer ( ITermTransformer transformer ) {
+    public List<ITerm> acceptTransformer(ITermTransformer transformer) {
         return delegate.acceptTransformer(transformer);
     }
 
@@ -308,7 +298,7 @@ class HtPredicateIndicator extends HtBaseTerm implements IFunctor {
      * @param printBindings
      */
 //    @Override
-    public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
+    public String toString(IVafInterner interner, boolean printVarName, boolean printBindings) {
         return delegate.toString(interner, printVarName, printBindings);
     }
 
@@ -345,8 +335,7 @@ class HtPredicateIndicator extends HtBaseTerm implements IFunctor {
          * @param type
          * @param parentAccessor
          */
-        public
-        HtProperties ( Class type, Function parentAccessor ) {
+        public HtProperties(Class type, Function parentAccessor) {
             super(type, parentAccessor);
         }
     }

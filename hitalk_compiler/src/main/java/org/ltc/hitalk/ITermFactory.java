@@ -39,11 +39,10 @@ interface ITermFactory extends IHitalkObject {
     IFunctor newHiLogFunctor(String name, ListTerm listTerm);
 
     /**
-     * @param value
      * @param args
      * @return
      */
-    IFunctor newFunctor(int value, ListTerm args);
+    IFunctor newFunctor(ListTerm args);
 
     /**
      * 変数を作成します。
@@ -103,4 +102,6 @@ interface ITermFactory extends IHitalkObject {
      * @return
      */
     IFunctor newHiLogFunctor(List<ITerm> namesHeads);
+
+    IFunctor newFunctor(IFunctor term, ListTerm args) throws Exception;
 }

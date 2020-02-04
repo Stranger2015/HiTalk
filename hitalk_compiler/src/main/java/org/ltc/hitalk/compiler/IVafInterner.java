@@ -15,11 +15,12 @@
  */
 package org.ltc.hitalk.compiler;
 
-import com.thesett.aima.attribute.impl.IdAttribute;
+import com.thesett.aima.attribute.impl.IdAttribute.IdAttributeFactory;
 import com.thesett.aima.logic.fol.FunctorName;
 import com.thesett.aima.logic.fol.Variable;
 import org.ltc.hitalk.core.IHitalkObject;
 import org.ltc.hitalk.term.HtVariable;
+import org.ltc.hitalk.wam.compiler.HtFunctorName;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 /**
@@ -41,14 +42,14 @@ public interface IVafInterner extends IHitalkObject {
      *
      * @return The interning factory for variables in the machine.
      */
-    IdAttribute.IdAttributeFactory <String> getVariableInterner ();
+    IdAttributeFactory<String> getVariableInterner();
 
     /**
      * Gets the interning factory for functors in the machine.
      *
      * @return The interning factory for functors in the machine.
      */
-    IdAttribute.IdAttributeFactory <FunctorName> getFunctorInterner ();
+    IdAttributeFactory<HtFunctorName> getFunctorInterner();
 
     /**
      * Interns a functor name to an integer id. A functor is uniquely identified by a name and its arity. Two functors
@@ -67,7 +68,7 @@ public interface IVafInterner extends IHitalkObject {
      * @param name The name and arity of the functor to intern.
      * @return An interned id for the functor.
      */
-    int internFunctorName ( FunctorName name );
+    int internFunctorName(HtFunctorName name);
 
     /**
      * Interns a variable name to an integer id.
@@ -99,7 +100,7 @@ public interface IVafInterner extends IHitalkObject {
      * @param name The interned functor name.
      * @return The de-interned functor names and arity.
      */
-    FunctorName getDeinternedFunctorName ( int name );
+    HtFunctorName getDeinternedFunctorName(int name);
 
     /**
      * De-internes a functor name from its intered form, and provides just the functors name without its arity.
@@ -123,7 +124,7 @@ public interface IVafInterner extends IHitalkObject {
      * @param functor The functor to de-intern.
      * @return The de-interned functor names and arity.
      */
-    FunctorName getFunctorFunctorName(IFunctor functor) throws Exception;
+    HtFunctorName getFunctorFunctorName(IFunctor functor) throws Exception;
 
     /**
      * De-internes a functor name from its intered form, and provides just the functors name without its arity.

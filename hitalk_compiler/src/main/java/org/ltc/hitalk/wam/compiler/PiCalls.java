@@ -21,6 +21,10 @@ public class PiCalls<C extends BodyCalls<C>> extends HtFunctor {
         super(name);
     }
 
+    public <C extends BodyCalls<C>> PiCalls(IFunctor sym, List<BodyCall<C>> calls) {
+        super(sym, calls);
+    }
+
     /**
      * @param arityMin
      * @param arityDelta

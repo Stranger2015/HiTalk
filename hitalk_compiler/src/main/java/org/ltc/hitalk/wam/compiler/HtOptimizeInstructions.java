@@ -19,6 +19,7 @@ import com.thesett.aima.logic.fol.FunctorName;
 import com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys;
 import com.thesett.aima.logic.fol.wam.optimizer.Matcher;
 import com.thesett.aima.logic.fol.wam.optimizer.StateMachine;
+import com.thesett.common.util.doublemaps.SymbolKey;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction;
@@ -39,7 +40,7 @@ import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.HiTalkWAMI
  *
  * @author Rupert Smith
  */
-public class HtOptimizeInstructions implements StateMachine <HiTalkWAMInstruction, HiTalkWAMInstruction> {
+public class HtOptimizeInstructions implements StateMachine<HiTalkWAMInstruction, HiTalkWAMInstruction> {
 
     /**
      * Builds an instruction optimizer.
@@ -47,8 +48,8 @@ public class HtOptimizeInstructions implements StateMachine <HiTalkWAMInstructio
      * @param symbolTable The symbol table to get instruction analysis from.
      * @param interner    The functor and variable name interner.
      */
-    public HtOptimizeInstructions ( ISymbolTable <Integer, String, Object> symbolTable,
-                                    IVafInterner interner ) {
+    public HtOptimizeInstructions(ISymbolTable<Integer, String, Object> symbolTable,
+                                  IVafInterner interner) {
         this.symbolTable = symbolTable;
         this.interner = interner;
     }
@@ -76,7 +77,7 @@ public class HtOptimizeInstructions implements StateMachine <HiTalkWAMInstructio
     /**
      * Holds the matcher that is driving this state machine.
      */
-    private Matcher <HiTalkWAMInstruction, HiTalkWAMInstruction> matcher;
+    private Matcher<HiTalkWAMInstruction, HiTalkWAMInstruction> matcher;
 
     /**
      * Holds the current state machine state.
@@ -86,12 +87,12 @@ public class HtOptimizeInstructions implements StateMachine <HiTalkWAMInstructio
     /**
      * Holds a buffer of pending instructions to output.
      */
-    private final Deque <HiTalkWAMInstruction> buffer = new LinkedList <>();
+    private final Deque<HiTalkWAMInstruction> buffer = new LinkedList<>();
 
     /**
      * The symbol table.
      */
-    protected final ISymbolTable <Integer, String, Object> symbolTable;
+    protected final ISymbolTable<Integer, String, Object> symbolTable;
 
     /**
      * Holds the variable and functor name interner for the machine.
@@ -106,7 +107,7 @@ public class HtOptimizeInstructions implements StateMachine <HiTalkWAMInstructio
     /**
      * {@inheritDoc}
      */
-    public void apply ( HiTalkWAMInstruction next ) {
+    public void apply(HiTalkWAMInstruction next) {
         shift(next);
 
         // Anonymous or singleton variable optimizations.
@@ -224,14 +225,14 @@ public class HtOptimizeInstructions implements StateMachine <HiTalkWAMInstructio
     /**
      * {@inheritDoc}
      */
-    public void end () {
+    public void end() {
         flush();
     }
 
     /**
      * {@inheritDoc}
      */
-    public void setMatcher ( Matcher <HiTalkWAMInstruction, HiTalkWAMInstruction> matcher ) {
+    public void setMatcher(Matcher<HiTalkWAMInstruction, HiTalkWAMInstruction> matcher) {
         this.matcher = matcher;
     }
 
@@ -242,7 +243,7 @@ public class HtOptimizeInstructions implements StateMachine <HiTalkWAMInstructio
      * @return <tt>true</tt> iff the term argument to an instruction was a constant. <tt>false</tt> will be returned if
      * this information was not recorded, and cannot be determined.
      */
-    public boolean isConstant ( HiTalkWAMInstruction instruction ) {
+    public boolean isConstant(HiTalkWAMInstruction instruction) {
         Integer name = instruction.getFunctorNameReg1();
 
         if (name != null) {
@@ -263,8 +264,8 @@ public class HtOptimizeInstructions implements StateMachine <HiTalkWAMInstructio
      * @param instruction The instruction to test.
      * @return <tt>true</tt> iff the term argument to the instruction was a singleton, non-argument position variable.
      */
-    private boolean isVoidVariable ( HiTalkWAMInstruction instruction ) {
-        String symbolKey = instruction.getStringReg1();
+    private boolean isVoidVariable(HiTalkWAMInstruction instruction) {
+        final SymbolKey symbolKey = instruction.getSymbolKeyReg1();
 
         if (symbolKey != null) {
             Integer count = (Integer) symbolTable.get(symbolKey, SymbolTableKeys.SYMKEY_VAR_OCCURRENCE_COUNT);
@@ -291,8 +292,8 @@ public class HtOptimizeInstructions implements StateMachine <HiTalkWAMInstructio
      * @return <tt>true</tt> iff the term argument to an instruction was in a non-argument position. <tt>false</tt> will
      * be returned if this information was not recorded, and cannot be determined.
      */
-    private boolean isNonArg ( HiTalkWAMInstruction instruction ) {
-        String symbolKey = instruction.getStringReg1();
+    private boolean isNonArg(HiTalkWAMInstruction instruction) {
+        final SymbolKey symbolKey = instruction.getSymbolKeyReg1();
 
         if (symbolKey != null) {
             Boolean nonArgPositionOnly = (Boolean) symbolTable.get(symbolKey, SymbolTableKeys.SYMKEY_FUNCTOR_NON_ARG);
@@ -310,7 +311,7 @@ public class HtOptimizeInstructions implements StateMachine <HiTalkWAMInstructio
      *
      * @param n The number of instructions to discard.
      */
-    private void discard ( int n ) {
+    private void discard(int n) {
         for (int i = 0; i < n; i++) {
             buffer.pollLast();
         }
@@ -321,14 +322,14 @@ public class HtOptimizeInstructions implements StateMachine <HiTalkWAMInstructio
      *
      * @param instruction The instruction to add.
      */
-    private void shift ( HiTalkWAMInstruction instruction ) {
+    private void shift(HiTalkWAMInstruction instruction) {
         buffer.offer(instruction);
     }
 
     /**
      * Flushes the output buffer.
      */
-    private void flush () {
+    private void flush() {
         matcher.sinkAll(buffer);
     }
 }

@@ -55,7 +55,7 @@ public class PrologDefaultBuiltIn extends HtBaseMachine implements IPrologBuiltI
     /**
      * This is used to keep track of registers as they are seen.
      */
-    protected Collection <Integer> seenRegisters = new TreeSet <>();
+    protected Collection<Integer> seenRegisters = new TreeSet<>();
 
     /**
      * Used to keep track of the temporary register assignment across multiple functors within a clause.
@@ -68,8 +68,8 @@ public class PrologDefaultBuiltIn extends HtBaseMachine implements IPrologBuiltI
      * @param symbolTable The symbol table for the machine.
      * @param interner    The interner for the machine.
      */
-    public PrologDefaultBuiltIn ( ISymbolTable <Integer, String, Object> symbolTable,
-                                  IVafInterner interner ) {
+    public PrologDefaultBuiltIn(ISymbolTable<Integer, String, Object> symbolTable,
+                                IVafInterner interner) {
         super(symbolTable, interner);
     }
 
@@ -183,12 +183,12 @@ public class PrologDefaultBuiltIn extends HtBaseMachine implements IPrologBuiltI
                 // refers to. A postfix traversal of the functors in the term to compile is used to achieve this, as
                 // child functors in a head will be visited first.
                 // Walk over the query term in post-fix order, picking out just the functors.
-                QueueBasedSearchMethod <ITerm, ITerm> postfixSearch = new PostFixSearch <>();
+                QueueBasedSearchMethod<ITerm, ITerm> postfixSearch = new PostFixSearch<>();
                 postfixSearch.reset();
                 postfixSearch.addStartState(nextOutermostArg);
                 postfixSearch.setGoalPredicate(new HtFunctorTermPredicate());
 
-                Iterator <ITerm> treeWalker = allSolutions(postfixSearch);
+                Iterator<ITerm> treeWalker = allSolutions(postfixSearch);
 
                 // For each functor encountered: put_struc.
                 while (treeWalker.hasNext()) {
@@ -274,7 +274,7 @@ public class PrologDefaultBuiltIn extends HtBaseMachine implements IPrologBuiltI
      *
      * @param expression The clause head functor to allocate argument registers to.
      */
-    public void allocateArgumentRegisters ( IFunctor expression ) {
+    public void allocateArgumentRegisters(IFunctor expression) {
         // Assign argument registers to functors appearing directly in the argument of the outermost functor.
         // Variables are never assigned directly to argument registers.
         int reg = 0;
@@ -298,15 +298,15 @@ public class PrologDefaultBuiltIn extends HtBaseMachine implements IPrologBuiltI
      *
      * @param expression The expression to walk over.
      */
-    public void allocateTemporaryRegisters ( ITerm expression ) {
+    public void allocateTemporaryRegisters(ITerm expression) {
         // Need to assign registers to the whole syntax tree, working in from the outermost functor. The outermost
         // functor itself is not assigned to a register in l3 (only in l0). Functors already directly assigned to
         // argument registers will not be re-assigned by this, variables as arguments will be assigned.
-        SearchMethod <ITerm> outInSearch = new BreadthFirstSearch <>();
+        SearchMethod<ITerm> outInSearch = new BreadthFirstSearch<>();
         outInSearch.reset();
         outInSearch.addStartState(expression);
 
-        Iterator <ITerm> treeWalker = allSolutions(outInSearch);
+        Iterator<ITerm> treeWalker = allSolutions(outInSearch);
 
         // Discard the outermost functor from the variable allocation.
         treeWalker.next();
@@ -340,7 +340,7 @@ public class PrologDefaultBuiltIn extends HtBaseMachine implements IPrologBuiltI
      * @param addrMode     The addressing mode of the variable, permanent variables are stack allocated.
      * @return <tt>true</tt> iff the variable is unsafe.
      */
-    public boolean isLocalVariable ( VarIntroduction introduction, byte addrMode ) {
+    public boolean isLocalVariable(VarIntroduction introduction, byte addrMode) {
         if (STACK_ADDR == addrMode) {
             return (introduction == VarIntroduction.Get) || (introduction == Put);
         } else {
@@ -357,7 +357,7 @@ public class PrologDefaultBuiltIn extends HtBaseMachine implements IPrologBuiltI
      * @return <tt>true</tt> iff this is the last body functor that the variable appears in and does so only in argument
      * position.
      */
-    private boolean isLastBodyTermInArgPositionOnly ( ITerm var, IFunctor body ) {
+    private boolean isLastBodyTermInArgPositionOnly(ITerm var, IFunctor body) {
         return body == symbolTable.get(var.getSymbolKey(), SymbolTableKeys.SYMKEY_VAR_LAST_ARG_FUNCTOR);
     }
 }

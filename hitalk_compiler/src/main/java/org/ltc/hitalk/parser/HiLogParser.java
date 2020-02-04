@@ -234,7 +234,7 @@ public class HiLogParser extends PlPrologParser {
             getLexer().unreadToken(t);//pushBack )
             t = getLexer().readToken(true);
             if (t.kind == TK_RPAREN) {
-                return lastTerm = termFactory.newFunctor(term, (ListTerm) lastSequence);
+                return lastTerm = termFactory.newHiLogFunctor(term, (ListTerm) lastSequence);
             }
             throw new ParserException("MIssing r paren");
         }

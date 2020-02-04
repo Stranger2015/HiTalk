@@ -95,7 +95,7 @@
                 }
 
                 Integer permVarsRemaining =
-                        (Integer) defaultBuiltIn.getSymbolTable().get(expression.getString(),
+                        (Integer) defaultBuiltIn.getSymbolTable().get(expression.getSymbolKey(),
                                 SYMKEY_PERM_VARS_REMAINING);
 
                 // Select a non-default built-in implementation to compile the functor with, if it is a built-in.
@@ -155,10 +155,10 @@
          */
         private void gatherDisjunctions ( HtDisjunction disjunction, List <ITerm> expressions ) {
             // Left argument.
-            gatherDisjunctionsExploreArgument(disjunction.getArguments().getHead(0), expressions);
+            gatherDisjunctionsExploreArgument(disjunction.getArgs().getHead(0), expressions);
 
             // Right argument.
-            gatherDisjunctionsExploreArgument(disjunction.getArguments().getHead(1), expressions);
+            gatherDisjunctionsExploreArgument(disjunction.getArgs().getHead(1), expressions);
         }
 
         /**

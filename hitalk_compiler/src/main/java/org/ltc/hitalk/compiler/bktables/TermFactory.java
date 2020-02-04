@@ -62,7 +62,7 @@ public class TermFactory implements ITermFactory {
     }
 
     public IFunctor newFunctor(String name, ListTerm args) {
-        return newFunctor(interner.internFunctorName(name, args.size()), args);
+        return newFunctor(args);
     }
 
     /**
@@ -85,13 +85,12 @@ public class TermFactory implements ITermFactory {
     }
 
     /**
-     * @param name
      * @param args
      * @return
      */
     @Override
-    public IFunctor newFunctor(int name, ListTerm args) {
-        return new HtFunctor(name, args);
+    public IFunctor newFunctor(ListTerm args) {
+        return new HtFunctor(args);
     }
 
     /**
@@ -167,6 +166,10 @@ public class TermFactory implements ITermFactory {
 
     public IFunctor newHiLogFunctor(List<ITerm> namesHeads) {
         return new HiLogFunctor(new ListTerm(new ArrayList<>(namesHeads)));
+    }
+
+    public IFunctor newFunctor(IFunctor term, ListTerm args) {
+        return newFunctor(args.addHead(term));
     }
 
     // commodity methods to parse numbers

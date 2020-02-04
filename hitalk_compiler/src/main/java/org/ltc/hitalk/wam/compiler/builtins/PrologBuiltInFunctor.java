@@ -21,7 +21,7 @@ class PrologBuiltInFunctor extends HtFunctor implements IPrologBuiltIn {
      * @param functor The functor to create a built-in for.
      */
     public PrologBuiltInFunctor(IFunctor functor) throws Exception {
-        super(functor.getName(), functor.getArguments());
+        super(functor.getName(), functor.getArgs());
         this.functor = functor;
     }
 
@@ -45,8 +45,8 @@ class PrologBuiltInFunctor extends HtFunctor implements IPrologBuiltIn {
     /**
      * {@inheritDoc}
      */
-    public String getString() {
-        return functor.getString();
+    public SymbolKey getSymbolKey() {
+        return functor.getSymbolKey();
     }
 }
 
