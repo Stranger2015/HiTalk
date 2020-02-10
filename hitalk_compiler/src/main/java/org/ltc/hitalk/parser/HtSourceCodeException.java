@@ -15,8 +15,6 @@
  */
 package org.ltc.hitalk.parser;
 
-import com.thesett.common.error.UserReadableException;
-
 /**
  * HtSourceCodeException represents an error condition that relates to a location with a text source file, and it is also
  * a user readable exception, as typically such exceptions will be reported back to the user to correct.
@@ -31,7 +29,8 @@ import com.thesett.common.error.UserReadableException;
  *
  * @author Rupert Smith
  */
-public class HtSourceCodeException extends UserReadableException {
+public class HtSourceCodeException extends ParserException {
+
     /**
      * Holds the error position within a source file that this error relates to.
      */
@@ -49,7 +48,11 @@ public class HtSourceCodeException extends UserReadableException {
      */
     public HtSourceCodeException ( String message, Throwable cause, String key, String userMessage,
                                    ISourceCodePosition position ) {
-        super(message, cause, key, userMessage);
+        super(message);
+
+        this.cause = cause;
+        this.key = key;
+        this.userMessage = userMessage;
 
         this.sourceCodePosition = position;
     }

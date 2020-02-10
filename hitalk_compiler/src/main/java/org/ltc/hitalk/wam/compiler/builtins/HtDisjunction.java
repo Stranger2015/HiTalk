@@ -15,10 +15,10 @@
      */
     package org.ltc.hitalk.wam.compiler.builtins;
 
-    import com.thesett.aima.logic.fol.FunctorName;
-    import com.thesett.aima.logic.fol.wam.compiler.WAMLabel;
     import com.thesett.common.util.SizeableLinkedList;
     import org.ltc.hitalk.term.ITerm;
+    import org.ltc.hitalk.wam.compiler.HtFunctorName;
+    import org.ltc.hitalk.wam.compiler.HtWAMLabel;
     import org.ltc.hitalk.wam.compiler.IFunctor;
     import org.ltc.hitalk.wam.compiler.hitalk.HiTalkDefaultBuiltIn;
     import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction;
@@ -52,23 +52,23 @@
          */
         public SizeableLinkedList<HiTalkWAMInstruction> compileBodyArguments(IFunctor functor,
                                                                              boolean isFirstBody,
-                                                                             FunctorName clauseName,
+                                                                             HtFunctorName clauseName,
                                                                              int bodyNumber) throws Exception {
             SizeableLinkedList<HiTalkWAMInstruction> result = new SizeableLinkedList<>();
             SizeableLinkedList<HiTalkWAMInstruction> instructions;
 
             // Invent some unique names for choice points within a clause.
-            clauseName = new FunctorName(clauseName.getName() + "_" + bodyNumber, 0);
+            clauseName = new HtFunctorName(clauseName.getName() + "_" + bodyNumber, 0);
 
-            FunctorName choicePointRootName = new FunctorName(clauseName.getName() + "_ilc", 0);
-            FunctorName continuationPointName = new FunctorName(clauseName.getName() + "_cnt", 0);
+            HtFunctorName choicePointRootName = new HtFunctorName(clauseName.getName() + "_ilc", 0);
+            HtFunctorName continuationPointName = new HtFunctorName(clauseName.getName() + "_cnt", 0);
 
             // Labels the continuation point to jump to, when a choice point succeeds.
-            WAMLabel continueLabel = new WAMLabel(continuationPointName, 0);
+            HtWAMLabel continueLabel = new HtWAMLabel(continuationPointName, 0);
 
             // Do a loop over the children of this disjunction, and any child disjunctions encountered. This could be a
             // search? or just recursive exploration. I think it will need to be a DFS.
-            List <ITerm> expressions = new ArrayList <>();
+            List<ITerm> expressions = new ArrayList<>();
             gatherDisjunctions((HtDisjunction) functor, expressions);
 
             for (int i = 0; i < expressions.size(); i++) {
@@ -78,10 +78,10 @@
                 boolean isLast = i == (expressions.size() - 1);
 
                 // Labels the entry point to each choice point.
-                WAMLabel entryLabel = new WAMLabel(choicePointRootName, i);
+                HtWAMLabel entryLabel = new HtWAMLabel(choicePointRootName, i);
 
                 // Label for the entry point to the next choice point, to backtrack to.
-                WAMLabel retryLabel = new WAMLabel(choicePointRootName, i + 1);
+                HtWAMLabel retryLabel = new HtWAMLabel(choicePointRootName, i + 1);
 
                 if (isFirst && !isLast) {
                     // try me else.

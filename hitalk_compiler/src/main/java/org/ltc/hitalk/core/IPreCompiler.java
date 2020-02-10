@@ -1,12 +1,12 @@
 package org.ltc.hitalk.core;
 
-import com.thesett.aima.logic.fol.FunctorName;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.parser.Directive;
 import org.ltc.hitalk.parser.Directive.DirectiveKind;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.wam.compiler.HtFunctorName;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler.ClauseChainObserver;
 import org.ltc.hitalk.wam.task.PreCompilerTask;
 import org.slf4j.Logger;
@@ -109,7 +109,8 @@ public interface IPreCompiler extends IQueueHolder<PreCompilerTask>, IHitalkObje
         if (delims.contains(directive.getKind())) {
             return true;
         }
-        final FunctorName functorName = interner.getDeinternedFunctorName(clause.getGoal(0).getName());
+
+        HtFunctorName functorName = interner.getDeinternedFunctorName(clause.getGoal(0).getName());
         return Objects.equals(functorName.getName(), directive.toString());//fixme
     }
 

@@ -15,8 +15,6 @@
  */
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.FunctorName;
-import com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys;
 import com.thesett.aima.logic.fol.wam.optimizer.Matcher;
 import com.thesett.aima.logic.fol.wam.optimizer.StateMachine;
 import com.thesett.common.util.doublemaps.SymbolKey;
@@ -26,9 +24,12 @@ import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction;
 
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.stream.IntStream;
 
+import static com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys.*;
 import static java.lang.Boolean.TRUE;
 import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.HiTalkWAMInstructionSet.*;
+import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.STACK_ADDR;
 
 /**
  * Performs an optimization pass for specialized constant instructions.
@@ -71,7 +72,7 @@ public class HtOptimizeInstructions implements StateMachine<HiTalkWAMInstruction
         /**
          * SetVar to SetVoid elimination.
          */
-        SVE;
+        SVE
     }
 
     /**
@@ -148,7 +149,7 @@ public class HtOptimizeInstructions implements StateMachine<HiTalkWAMInstruction
         else if ((UnifyVar == next.getMnemonic()) && isConstant(next) && isNonArg(next)) {
             discard(1);
 
-            FunctorName functorName = interner.getDeinternedFunctorName(next.getFunctorNameReg1());
+            HtFunctorName functorName = interner.getDeinternedFunctorName(next.getFunctorNameReg1());
             HiTalkWAMInstruction unifyConst = new HiTalkWAMInstruction(UnifyConstant, functorName);
             shift(unifyConst);
             flush();
@@ -185,7 +186,7 @@ public class HtOptimizeInstructions implements StateMachine<HiTalkWAMInstruction
         } else if ((SetVal == next.getMnemonic()) && isConstant(next) && isNonArg(next)) {
             discard(1);
 
-            FunctorName functorName = interner.getDeinternedFunctorName(next.getFunctorNameReg1());
+            HtFunctorName functorName = interner.getDeinternedFunctorName(next.getFunctorNameReg1());
             HiTalkWAMInstruction setConst = new HiTalkWAMInstruction(SetConstant, functorName);
             shift(setConst);
             flush();
@@ -195,8 +196,7 @@ public class HtOptimizeInstructions implements StateMachine<HiTalkWAMInstruction
         }
 
         // List optimizations.
-        else if ((GetStruc == next.getMnemonic()) &&
-                ("cons".equals(next.getFn().getName()) && (next.getFn().getArity() == 2))) {
+        else if (GetStruc == next.getMnemonic() && "cons".equals(next.getFn().getName()) && next.getFn().getArity() == 2) {
             discard(1);
 
             HiTalkWAMInstruction getList = new HiTalkWAMInstruction(GetList, next.getMode1(), next.getReg1());
@@ -204,8 +204,8 @@ public class HtOptimizeInstructions implements StateMachine<HiTalkWAMInstruction
             state = HtOptimizeInstructions.State.NM;
 
             /*log.fine(next + " -> " + getList);*/
-        } else if ((PutStruc == next.getMnemonic()) &&
-                ("cons".equals(next.getFn().getName()) && (next.getFn().getArity() == 2))) {
+        } else if (PutStruc == next.getMnemonic() &&
+                "cons".equals(next.getFn().getName()) && next.getFn().getArity() == 2) {
             discard(1);
 
             HiTalkWAMInstruction putList = new HiTalkWAMInstruction(PutList, next.getMode1(), next.getReg1());
@@ -247,11 +247,9 @@ public class HtOptimizeInstructions implements StateMachine<HiTalkWAMInstruction
         Integer name = instruction.getFunctorNameReg1();
 
         if (name != null) {
-            FunctorName functorName = interner.getDeinternedFunctorName(name);
+            HtFunctorName functorName = interner.getDeinternedFunctorName(name);
 
-            if (functorName.getArity() == 0) {
-                return true;
-            }
+            return functorName.getArity() == 0;
         }
 
         return false;
@@ -268,18 +266,16 @@ public class HtOptimizeInstructions implements StateMachine<HiTalkWAMInstruction
         final SymbolKey symbolKey = instruction.getSymbolKeyReg1();
 
         if (symbolKey != null) {
-            Integer count = (Integer) symbolTable.get(symbolKey, SymbolTableKeys.SYMKEY_VAR_OCCURRENCE_COUNT);
-            Boolean nonArgPositionOnly = (Boolean) symbolTable.get(symbolKey, SymbolTableKeys.SYMKEY_VAR_NON_ARG);
-            Integer allocation = (Integer) symbolTable.get(symbolKey, SymbolTableKeys.SYMKEY_ALLOCATION);
+            Integer count = (Integer) symbolTable.get(symbolKey, SYMKEY_VAR_OCCURRENCE_COUNT);
+            Boolean nonArgPositionOnly = (Boolean) symbolTable.get(symbolKey, SYMKEY_VAR_NON_ARG);
+            Integer allocation = (Integer) symbolTable.get(symbolKey, SYMKEY_ALLOCATION);
 
             boolean singleton = (count != null) && count.equals(1);
-            boolean nonArgPosition = (nonArgPositionOnly != null) && TRUE.equals(nonArgPositionOnly);
+            boolean nonArgPosition = nonArgPositionOnly != null && TRUE.equals(nonArgPositionOnly);
             boolean permanent =
-                    (allocation != null) && ((byte) ((allocation & 0xff00) >> 8) == HiTalkWAMInstruction.STACK_ADDR);
+                    (allocation != null) && ((byte) ((allocation & 0xff00) >> 8) == STACK_ADDR);
 
-            if (singleton && nonArgPosition && !permanent) {
-                return true;
-            }
+            return singleton && nonArgPosition && !permanent;
         }
 
         return false;
@@ -296,11 +292,9 @@ public class HtOptimizeInstructions implements StateMachine<HiTalkWAMInstruction
         final SymbolKey symbolKey = instruction.getSymbolKeyReg1();
 
         if (symbolKey != null) {
-            Boolean nonArgPositionOnly = (Boolean) symbolTable.get(symbolKey, SymbolTableKeys.SYMKEY_FUNCTOR_NON_ARG);
+            Boolean nonArgPositionOnly = (Boolean) symbolTable.get(symbolKey, SYMKEY_FUNCTOR_NON_ARG);
 
-            if (TRUE.equals(nonArgPositionOnly)) {
-                return true;
-            }
+            return TRUE.equals(nonArgPositionOnly);
         }
 
         return false;
@@ -312,9 +306,7 @@ public class HtOptimizeInstructions implements StateMachine<HiTalkWAMInstruction
      * @param n The number of instructions to discard.
      */
     private void discard(int n) {
-        for (int i = 0; i < n; i++) {
-            buffer.pollLast();
-        }
+        IntStream.range(0, n).forEach(i -> buffer.pollLast());
     }
 
     /**

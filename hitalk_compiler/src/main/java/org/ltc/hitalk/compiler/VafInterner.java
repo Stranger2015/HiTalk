@@ -16,8 +16,8 @@
 package org.ltc.hitalk.compiler;
 
 import com.thesett.aima.attribute.impl.IdAttribute;
-import com.thesett.aima.logic.fol.FunctorName;
 import org.ltc.hitalk.term.HtVariable;
+import org.ltc.hitalk.wam.compiler.HtFunctorName;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 public class VafInterner implements IVafInterner {
@@ -29,7 +29,7 @@ public class VafInterner implements IVafInterner {
     /**
      * Holds the interner that turns functor names and arities into indexed integers.
      */
-    private final IdAttribute.IdAttributeFactory<FunctorName> functorInterningFactory;
+    private final IdAttribute.IdAttributeFactory<HtFunctorName> functorInterningFactory;
 
     /**
      * Creates an interner for variable and functor names, with the names created under the specified name spaces.
@@ -50,8 +50,20 @@ public class VafInterner implements IVafInterner {
     /**
      * {@inheritDoc}
      */
-    public IdAttribute.IdAttributeFactory<FunctorName> getFunctorInterner() {
+    public IdAttribute.IdAttributeFactory<HtFunctorName> getFunctorInterner() {
         return functorInterningFactory;
+    }
+
+    /**
+     * Interns a functor name to an integer id. A functor is uniquely identified by a name and its arity. Two functors
+     * with the same name but different arity are actually different functors.
+     *
+     * @param name    The textual name of the functor.
+     * @param numArgs The number of arguments that the functor takes.
+     * @return An interned id for the functor.
+     */
+    public int internFunctorName(String name, int numArgs) {
+        return 0;
     }
 
     /**
@@ -64,16 +76,22 @@ public class VafInterner implements IVafInterner {
     /**
      * {@inheritDoc}
      */
-    public int internFunctorName(String name, int numArgs) {
-        FunctorName functorName = new FunctorName(name, numArgs);
-
-        return getFunctorInterner().createIdAttribute(functorName).ordinal();
-    }
+//    public int internFunctorName(String name, int numArgs) {
+//        FunctorName functorName = new FunctorName(name, numArgs);
+//
+//        return getFunctorInterner().createIdAttribute(functorName).ordinal();
+//    }
 
     /**
+     * Interns a functor name to an integer id. A functor is uniquely identified by a name and its arity. Two functors
+     * with the same name but different arity are actually different functors.
+     *
+     * @param name The name and arity of the functor to intern.
+     * @return An interned id for the functor.
+     * <p>
      * {@inheritDoc}
      */
-    public int internFunctorName(FunctorName name) {
+    public int internFunctorName(HtFunctorName name) {
         return getFunctorInterner().createIdAttribute(name).ordinal();
     }
 
@@ -105,7 +123,7 @@ public class VafInterner implements IVafInterner {
     /**
      * {@inheritDoc}
      */
-    public FunctorName getDeinternedFunctorName(int name) {
+    public HtFunctorName getDeinternedFunctorName(int name) {
         return getFunctorInterner().getAttributeFromInt(name).getValue();
     }
 
@@ -126,7 +144,7 @@ public class VafInterner implements IVafInterner {
     /**
      * {@inheritDoc}
      */
-    public FunctorName getFunctorFunctorName(IFunctor functor) throws Exception {
+    public HtFunctorName getFunctorFunctorName(IFunctor functor) throws Exception {
         return getDeinternedFunctorName(functor.getName());
     }
 

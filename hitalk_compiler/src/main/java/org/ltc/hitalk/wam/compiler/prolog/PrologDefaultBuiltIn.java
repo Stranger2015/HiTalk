@@ -1,7 +1,5 @@
 package org.ltc.hitalk.wam.compiler.prolog;
 
-import com.thesett.aima.logic.fol.FunctorName;
-import com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys;
 import com.thesett.aima.search.QueueBasedSearchMethod;
 import com.thesett.aima.search.SearchMethod;
 import com.thesett.aima.search.util.uninformed.BreadthFirstSearch;
@@ -11,6 +9,7 @@ import org.ltc.hitalk.compiler.HtBaseMachine;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.wam.compiler.HtFunctorName;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction;
 
@@ -18,12 +17,13 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.TreeSet;
 
-import static com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys.SYMKEY_VARIABLE_INTRO;
+import static com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys.*;
 import static com.thesett.aima.search.util.Searches.allSolutions;
 import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.HiTalkWAMInstructionSet.*;
 import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.REG_ADDR;
 import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.STACK_ADDR;
 import static org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn.VarIntroduction.Put;
+import static org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn.VarIntroduction.Set;
 
 public class PrologDefaultBuiltIn extends HtBaseMachine implements IPrologBuiltIn {
 
@@ -104,12 +104,22 @@ public class PrologDefaultBuiltIn extends HtBaseMachine implements IPrologBuiltI
     }
 
     /**
-     * {@inheritDoc}
+     * Compiles the arguments to a call to a body of a clause into an instruction listing in WAM.
+     * <p>
+     * <p/>The name of the clause containing the body, and the position of the body within this clause are passed as
+     * arguments, mainly so that these coordinates can be used to help make any labels generated within the generated
+     * code unique.
+     *
+     * @param expression  The clause body to compile.
+     * @param isFirstBody <tt>true</tt> iff this is the first body of a program clause.
+     * @param clauseName  The name of the clause within which this body appears.
+     * @param bodyNumber  The body position within the containing clause.
+     * @return A listing of the instructions for the clause body in the WAM instruction set.
      */
     public SizeableLinkedList<HiTalkWAMInstruction> compileBodyArguments(
             IFunctor expression,
             boolean isFirstBody,
-            FunctorName clauseName,
+            HtFunctorName clauseName,
             int bodyNumber) throws Exception {
         // Used to build up the results in.
         SizeableLinkedList<HiTalkWAMInstruction> instructions = new SizeableLinkedList<>();
@@ -129,7 +139,7 @@ public class PrologDefaultBuiltIn extends HtBaseMachine implements IPrologBuiltI
 
         for (int j = 0; j < numOutermostArgs; j++) {
             ITerm nextOutermostArg = expression.getArgument(j);
-            int allocation = (Integer) symbolTable.get(nextOutermostArg.getSymbolKey(), SymbolTableKeys.SYMKEY_ALLOCATION);
+            int allocation = (Integer) symbolTable.get(nextOutermostArg.getSymbolKey(), SYMKEY_ALLOCATION);
 
             byte addrMode = (byte) ((allocation & 0xff00) >> 8);
             byte address = (byte) (allocation & 0xff);
@@ -167,7 +177,7 @@ public class PrologDefaultBuiltIn extends HtBaseMachine implements IPrologBuiltI
                     instructions.add(instruction);
 
                     symbolTable.put(nextOutermostArg.getSymbolKey(),
-                            SymbolTableKeys.SYMKEY_VAR_LAST_ARG_FUNCTOR,
+                            SYMKEY_VAR_LAST_ARG_FUNCTOR,
                             null);
                 } else {
                     /*log.fine("PUT_VAL " + ((addrMode == REG_ADDR) ? "X" : "Y") + address + ", A" + j);*/
@@ -193,7 +203,7 @@ public class PrologDefaultBuiltIn extends HtBaseMachine implements IPrologBuiltI
                 // For each functor encountered: put_struc.
                 while (treeWalker.hasNext()) {
                     IFunctor nextFunctor = (IFunctor) treeWalker.next();
-                    allocation = (Integer) symbolTable.get(nextFunctor.getSymbolKey(), SymbolTableKeys.SYMKEY_ALLOCATION);
+                    allocation = (Integer) symbolTable.get(nextFunctor.getSymbolKey(), SYMKEY_ALLOCATION);
                     addrMode = (byte) ((allocation & 0xff00) >> 8);
                     address = (byte) (allocation & 0xff);
 
@@ -214,7 +224,7 @@ public class PrologDefaultBuiltIn extends HtBaseMachine implements IPrologBuiltI
 
                     for (int i = 0; i < numArgs; i++) {
                         ITerm nextArg = nextFunctor.getArgument(i);
-                        allocation = (Integer) symbolTable.get(nextArg.getSymbolKey(), SymbolTableKeys.SYMKEY_ALLOCATION);
+                        allocation = (Integer) symbolTable.get(nextArg.getSymbolKey(), SYMKEY_ALLOCATION);
                         addrMode = (byte) ((allocation & 0xff00) >> 8);
                         address = (byte) (allocation & 0xff);
 
@@ -227,7 +237,7 @@ public class PrologDefaultBuiltIn extends HtBaseMachine implements IPrologBuiltI
                             instruction = new HiTalkWAMInstruction(SetVar, addrMode, address, nextArg);
 
                             // Record the way in which this variable was introduced into the clause.
-                            symbolTable.put(nextArg.getSymbolKey(), SYMKEY_VARIABLE_INTRO, VarIntroduction.Set);
+                            symbolTable.put(nextArg.getSymbolKey(), SYMKEY_VARIABLE_INTRO, Set);
                         } else {
                             // Check if the variable is 'local' and use a local instruction on the first occurrence.
                             VarIntroduction introduction = (VarIntroduction) symbolTable.get(nextArg.getSymbolKey(),
@@ -286,7 +296,7 @@ public class PrologDefaultBuiltIn extends HtBaseMachine implements IPrologBuiltI
                 /*log.fine("X" + lastAllocatedTempReg + " = " + interner.getFunctorFunctorName((Functor) term));*/
 
                 int allocation = (reg & 0xff) | (REG_ADDR << 8);
-                symbolTable.put(term.getSymbolKey(), SymbolTableKeys.SYMKEY_ALLOCATION, allocation);
+                symbolTable.put(term.getSymbolKey(), SYMKEY_ALLOCATION, allocation);
             }
         }
     }
@@ -315,9 +325,9 @@ public class PrologDefaultBuiltIn extends HtBaseMachine implements IPrologBuiltI
         while (treeWalker.hasNext()) {
             ITerm term = treeWalker.next();
 
-            if (symbolTable.get(term.getSymbolKey(), SymbolTableKeys.SYMKEY_ALLOCATION) == null) {
+            if (symbolTable.get(term.getSymbolKey(), SYMKEY_ALLOCATION) == null) {
                 int allocation = (lastAllocatedTempReg++ & 0xff) | (REG_ADDR << 8);
-                symbolTable.put(term.getSymbolKey(), SymbolTableKeys.SYMKEY_ALLOCATION, allocation);
+                symbolTable.put(term.getSymbolKey(), SYMKEY_ALLOCATION, allocation);
             }
         }
     }
@@ -358,6 +368,6 @@ public class PrologDefaultBuiltIn extends HtBaseMachine implements IPrologBuiltI
      * position.
      */
     private boolean isLastBodyTermInArgPositionOnly(ITerm var, IFunctor body) {
-        return body == symbolTable.get(var.getSymbolKey(), SymbolTableKeys.SYMKEY_VAR_LAST_ARG_FUNCTOR);
+        return body == symbolTable.get(var.getSymbolKey(), SYMKEY_VAR_LAST_ARG_FUNCTOR);
     }
 }

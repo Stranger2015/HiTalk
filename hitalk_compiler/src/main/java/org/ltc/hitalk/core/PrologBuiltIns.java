@@ -1,16 +1,8 @@
 package org.ltc.hitalk.core;
 
-import com.thesett.aima.logic.fol.LinkageException;
-import org.ltc.hitalk.compiler.IVafInterner;
-import org.ltc.hitalk.entities.HtPredicate;
-import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.ListTerm;
-import org.ltc.hitalk.wam.compiler.HtFunctor;
 
-import java.util.Collections;
 import java.util.function.Consumer;
-
-import static org.ltc.hitalk.core.BaseApp.getAppContext;
 
 /**
  *
@@ -18,41 +10,28 @@ import static org.ltc.hitalk.core.BaseApp.getAppContext;
 public
 enum PrologBuiltIns {
 
-    PUBLIC("public", listTerm -> {
+    PUBLIC("public", PrologBuiltIns::_public),
 
-    }),
+    PROTECTED("protected", PrologBuiltIns::_protected),
 
-    PROTECTED("protected", listTerm -> {
-    }),
+    PRIVATE("private", PrologBuiltIns::_private),
 
-    PRIVATE("private", listTerm -> {
-    }),
+    INCLUDE("include", PrologBuiltIns::include),
 
-    INCLUDE("include", listTerm -> {
-    }),
-
-    MULTIFILE("multifile", listTerm -> {
-    }),
-    DISCONTIGUOUS("discontiguous", listTerm -> {
-    }),
-    DYNAMIC("dynamic", listTerm -> {
-    }),
-    STATIC("static", listTerm -> {
-    }),
-    HILOG("hilog", listTerm -> {
-    }),
-    ENCODING("encoding", listTerm -> {
-    }),
+    MULTIFILE("multifile", PrologBuiltIns::multifile),
+    DISCONTIGUOUS("discontiguous", PrologBuiltIns::discontiguous),
+    DYNAMIC("dynamic", PrologBuiltIns::dynamic),
+    STATIC("static", PrologBuiltIns::_static),
+    HILOG("hilog", PrologBuiltIns::hilog),
+    ENCODING("encoding", PrologBuiltIns::encoding),
     TEXT("text", listTerm -> {
     }),
     ISO_LATIN_1("iso_latin_1", listTerm -> {
     }),
     UTF8("utf8", listTerm -> {
     }),
-    EXPAND_TERM("expand_term", listTerm -> {
-    }),
-    EXPAND_GOAL("expand_goal", listTerm -> {
-    }),
+    EXPAND_TERM("expand_term", PrologBuiltIns::expand_term),
+    EXPAND_GOAL("expand_goal", PrologBuiltIns::expand_goal),
     LOGTALK_LIBRARY_PATH("logtalk_library_path", listTerm -> {
     }),
 
@@ -73,14 +52,10 @@ enum PrologBuiltIns {
     }),
     SEMICOLON(";", listTerm -> {
     }),
-    CUT("!", listTerm -> {
-    }),
-    IMPLIES(":-", listTerm -> {
-    }),
-    DCG_IMPLIES("-->", listTerm -> {
-    }),
-    IF("->", listTerm -> {
-    }),
+    CUT("!", PrologBuiltIns::cut),
+    IMPLIES(":-", PrologBuiltIns::implies),
+    DCG_IMPLIES("-->", PrologBuiltIns::dcg_imnplies),
+    IF("->", PrologBuiltIns::if_then),
     IF_STAR("*->", listTerm -> {
     }),
     PLUS("+", listTerm -> {
@@ -112,52 +87,21 @@ enum PrologBuiltIns {
     BYPASS("{}", listTerm -> {
     }),
 
-    INITIALIZATION("initialization", listTerm -> {
-    }),
+    INITIALIZATION("initialization", PrologBuiltIns::initialization),
 
-    OP("op", listTerm -> {
-    }),
-    CURRENT_OP("current_op", listTerm -> {
-    }),
+    OP("op", PrologBuiltIns::op),
+    CURRENT_OP("current_op", PrologBuiltIns::current_op),
 
-    TRUE("true", listTerm -> {
-    }),
-    FAIL("fail", listTerm -> {
-    }),
-    FALSE("false", listTerm -> {
-    }),
-    NOT("\\+", listTerm -> {
-    }),
-    UNIFIES("=", listTerm -> {
-        final IResolver<HtPredicate, HtClause> resolver = getAppContext().getResolverPre();//
-        final IVafInterner interner = getAppContext().getInterner();
-        final HtFunctor eqf = new HtFunctor(interner.internFunctorName("=", 2), new ListTerm(2));// fixme
-        final HtClause query = new HtClause(null, new ListTerm(Collections.singletonList(eqf)));
-        eqf.setArgument(0, listTerm.getHead(0));
-        eqf.setArgument(1, listTerm.getHead(1));
-
-        try {
-            resolver.reset();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            resolver.setQuery(query);
-        } catch (LinkageException e) {
-            e.printStackTrace();
-        }
-        final boolean result = resolver.resolve() != null;
-    }),
-    UNIV("=..", listTerm -> {
-    }),
-    IS("is", listTerm -> {
-    }),
-    NON_UNIFIES("\\=", listTerm -> {
-    }),
-    ASSIGN(":=", listTerm -> {
-    }),
-    CALL("call", listTerm -> {
-    }),
+    TRUE("true", PrologBuiltIns::_true),
+    FAIL("fail", PrologBuiltIns::fail),
+    FALSE("false", PrologBuiltIns::_false),
+    NOT("\\+", PrologBuiltIns::not),
+    UNIFIES("=", PrologBuiltIns::unify),
+    UNIV("=..", PrologBuiltIns::univ),
+    IS("is", PrologBuiltIns::is),
+    NON_UNIFIES("\\=", PrologBuiltIns::not_unify),
+    ASSIGN(":=", PrologBuiltIns::assign),
+    CALL("call", PrologBuiltIns::call),
     OBJECT("object", listTerm -> {
     }),
     NIL("nil", listTerm -> {
@@ -243,10 +187,8 @@ enum PrologBuiltIns {
     READ("read", listTerm -> {
     }),
 
-    CURRENT_INPUT("current_input", listTerm -> {
-    }),
-    CURRENT_OUTPUT("current_output", listTerm -> {
-    }),
+    CURRENT_INPUT("current_input", PrologBuiltIns::current_input),
+    CURRENT_OUTPUT("current_output", PrologBuiltIns::current_output),
 
     USER_INPUT("user_input", listTerm -> {
     }),
@@ -306,11 +248,95 @@ enum PrologBuiltIns {
 
     });
 
+    private static void call(ListTerm listTerm) {
+    }
+
+    private static void assign(ListTerm listTerm) {
+
+    }
+
+    private static void not_unify(ListTerm listTerm) {
+
+    }
+
+    private static void is(ListTerm listTerm) {
+
+    }
+
+    private static void univ(ListTerm listTerm) {
+
+    }
+
+    private static void unify(ListTerm listTerm) {
+
+    }
+
+    private static void not(ListTerm listTerm) {
+
+    }
+
+    private static void _false(ListTerm listTerm) {
+
+    }
+
+    private static void expand_goal(ListTerm listTerm) {
+
+    }
+
+    private static void expand_term(ListTerm listTerm) {
+
+
+    }
+
+    private static void include(ListTerm listTerm) {
+
+    }
+
+    private static void _private(ListTerm listTerm) {
+
+    }
+
+    private static void _protected(ListTerm listTerm) {
+
+    }
+
+    private static void _public(ListTerm listTerm) {
+    }
+
+    private static void fail(ListTerm listTerm) {
+
+    }
+
+    private static void _true(ListTerm listTerm) {
+    }
+
+    private static void current_op(ListTerm listTerm) {
+
+
+    }
+
+    private static void op(ListTerm listTerm) {
+
+    }
+
+    private static void initialization(ListTerm listTerm) {
+
+    }
+
+    private static void current_output(ListTerm listTerm) {
+
+    }
+
+    private static void current_input(ListTerm listTerm) {
+
+
+    }
+
     private static boolean booleanResult;
     private final String name;
-    private final Consumer <ListTerm> builtInDef;
+    private final Consumer<ListTerm> builtInDef;
 
-    public static boolean getBooleanResult () {
+    public static boolean getBooleanResult() {
         return booleanResult;
     }
 
@@ -318,15 +344,45 @@ enum PrologBuiltIns {
     /**
      * @param name
      */
-    PrologBuiltIns ( String name, Consumer <ListTerm> impl ) {
+    PrologBuiltIns(String name, Consumer<ListTerm> impl) {
         this.name = name;
         this.builtInDef = impl;
+    }
+
+    private static void multifile(ListTerm listTerm) {
+    }
+
+    private static void discontiguous(ListTerm listTerm) {
+    }
+
+    private static void dynamic(ListTerm listTerm) {
+    }
+
+    private static void _static(ListTerm listTerm) {
+    }
+
+    private static void hilog(ListTerm listTerm) {
+    }
+
+    private static void encoding(ListTerm listTerm) {
+    }
+
+    private static void cut(ListTerm listTerm) {
+    }
+
+    private static void implies(ListTerm listTerm) {
+    }
+
+    private static void dcg_imnplies(ListTerm listTerm) {
+    }
+
+    private static void if_then(ListTerm listTerm) {
     }
 
     /**
      * @return
      */
-    public String getName () {
+    public String getName() {
         return name;
     }
 

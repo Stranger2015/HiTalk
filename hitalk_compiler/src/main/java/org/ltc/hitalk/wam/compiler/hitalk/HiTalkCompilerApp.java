@@ -42,7 +42,6 @@ import static java.lang.System.in;
 import static org.ltc.hitalk.compiler.bktables.BkTableKind.LOADED_ENTITIES;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.RESOURCE_ERROR;
-import static org.ltc.hitalk.term.ListTerm.NIL;
 import static org.ltc.hitalk.wam.compiler.Language.HITALK;
 
 /**
@@ -275,7 +274,7 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q, PC, QC>
     /**
      * @param fileName
      */
-    public HiTalkCompilerApp ( String fileName ) {
+    public HiTalkCompilerApp(String fileName) throws Exception {
         super(fileName);
     }
 
@@ -313,15 +312,13 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q, PC, QC>
      * @return
      */
     protected HtProperty[] createFlags ( LoadContext loadContext, String scratchDirectory ) {
-        HtProperty[] flags = new HtProperty[]{///todo flags
-                getTermFactory().createFlag("basename", fileName),//FIXME PARSE
-                getTermFactory().createFlag("directory", fileName),//FIXME PARSE
-                getTermFactory().createFlag("entity_identifier", new HtFunctor(-1, NIL)),//FIXME PARSE
-                getTermFactory().createFlag("file", fileName),//FIXME PARSE
-                getTermFactory().createFlag("basename", fileName),//FIXME PARSE
+        return new HtProperty[]{///todo flags
+//                getTermFactory().createFlag("basename", fileName),//FIXME PARSE
+//                getTermFactory().createFlag("directory", fileName),//FIXME PARSE
+//                getTermFactory().createFlag("entity_identifier", new HtFunctor(-1, NIL)),//FIXME PARSE
+//                getTermFactory().createFlag("file", fileName),//FIXME PARSE
+//                getTermFactory().createFlag("basename", fileName),//FIXME PARSE
         };
-
-        return flags;
     }
 
     /**

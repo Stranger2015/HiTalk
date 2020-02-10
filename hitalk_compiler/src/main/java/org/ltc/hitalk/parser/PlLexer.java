@@ -5,6 +5,7 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.interpreter.TokenBuffer;
+import org.ltc.hitalk.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
 
@@ -16,6 +17,7 @@ import java.util.EnumSet;
 import java.util.Objects;
 
 import static java.nio.file.StandardOpenOption.READ;
+import static org.apache.commons.lang3.CharEncoding.UTF_8;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
 import static org.ltc.hitalk.entities.PropertyOwner.createProperty;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
@@ -88,7 +90,7 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
      * @param r a Reader object providing the input stream.
      * @since JDK1.1
      */
-    public PlLexer(Reader r) throws FileNotFoundException {
+    public PlLexer(Reader r) {
         super(r);
         pushBackBuffer = new TokenBuffer(inputStream);
     }
@@ -96,17 +98,16 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
     /**
      * @param stream
      * @param path
-     * @throws FileNotFoundException
      */
-    public PlLexer(HiTalkInputStream stream, String path) throws FileNotFoundException {
-        super(stream.getReader());
+    public PlLexer(HiTalkInputStream stream, String path) throws IOException {
+        this(stream);
 
         setPath(path);
         pushBackBuffer = new TokenBuffer(inputStream);
     }
 
     public void toString0(StringBuilder sb) {
-
+//sb.append();
     }
 
     /**
@@ -120,10 +121,11 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
      * @param inputStream
      * @throws FileNotFoundException
      */
-    public PlLexer(HiTalkInputStream inputStream) throws FileNotFoundException {
-        super(inputStream.getInputStream());
-        inputStream.removeListener(inputStream.getTokenSource());
+    public PlLexer(HiTalkInputStream inputStream) throws IOException {
+//        super(new LineNumberReader(new FileReader()));
+//        inputStream.removeListener(inputStream.getTokenSource());
         inputStream.setTokenSource(this);
+        inputStream.addListener(this);
         this.inputStream = inputStream;
         pushBackBuffer = new TokenBuffer(inputStream);
         inputStream.open();
@@ -264,9 +266,9 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
      * @param c
      * @return
      */
-    private PlToken.TokenKind calcTokenKind(int c) {
-        PlToken.TokenKind result = null;
-        for (PlToken.TokenKind value : PlToken.TokenKind.values()) {
+    private TokenKind calcTokenKind(int c) {
+        TokenKind result = null;
+        for (TokenKind value : TokenKind.values()) {
             if (value.getChar() == c) {
                 result = value;
                 break;
@@ -487,7 +489,7 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
         } else {
             number += (char) chr + repeat("0123456789");
         }
-        PlToken.TokenKind kind = TK_INTEGER_LITERAL;
+        TokenKind kind = TK_INTEGER_LITERAL;
         chr = read();
         if (chr == '.') {
             if (!isDigit((char) (chr = read()))) {
@@ -646,7 +648,7 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
      * @throws IOException
      */
     public static PlLexer getTokenSourceForIoFileName(String fileName) throws Exception {
-        HiTalkInputStream stream = new HiTalkInputStream(Paths.get(fileName), "UTF-8", READ);
+        HiTalkInputStream stream = new HiTalkInputStream(Paths.get(fileName), UTF_8, READ);
         return new PlLexer(stream, fileName);
     }
 

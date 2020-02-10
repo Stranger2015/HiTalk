@@ -7,6 +7,8 @@ public class ParserException extends ExecutionError {
 
     final private int row;
     final private int col;
+    protected String key;
+    protected String userMessage;
 
     public ParserException(String s) {
         this(s, 0, 0);

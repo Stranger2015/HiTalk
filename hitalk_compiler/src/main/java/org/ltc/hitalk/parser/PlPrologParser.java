@@ -296,7 +296,7 @@ public class PlPrologParser implements IParser {
      */
     protected IFunctor compound(String name, ListTerm args) throws Exception {
         final int iname = interner.internFunctorName(name, 0);
-        return termFactory.newFunctor(args);
+        return termFactory.newFunctor(name, args);
     }
 
     /**

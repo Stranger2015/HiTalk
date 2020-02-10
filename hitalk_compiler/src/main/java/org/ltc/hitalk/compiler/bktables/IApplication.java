@@ -14,6 +14,7 @@ import org.ltc.hitalk.wam.compiler.Tools;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 
@@ -299,7 +300,7 @@ public interface IApplication extends Runnable, IConfigurable {
     /**
      * @return
      */
-    String getFileName ();
+    Path getFileName();
 
     /**
      * @param tokenSource

@@ -2,68 +2,59 @@ package org.ltc.hitalk.term.io;
 
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.PropertyOwner;
+import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
 
-import java.beans.PropertyChangeListener;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  *
  */
-public class HtTermReader extends PropertyOwner implements PropertyChangeListener {
-
-    HiTalkInputStream input;
-    //    HtProperty[] properties;//options
-    PlPrologParser parser;
+public class HtTermReader extends HtTermIO {
+    private HiTalkInputStream stream;
+    protected PlPrologParser parser;
 
     /**
-     * @param props
-     * @param methods
-     * @param map
-     * @param mmap
+     *
      */
-    public HtTermReader(HtMethodDef[] methods,
-                        HtProperty[] props,
-                        Map<String, HtProperty> map,
-                        Map<String, HtMethodDef> mmap) throws Exception {
-        super(props, methods, map, mmap);
-        input = new HiTalkInputStream(
-                Paths.get(getPropMap().get("file_name").getValue().toString()),
-                getPropMap().get("encoding").getValue().toString());
-        input.open();
+    public HtTermReader(Path path, HiTalkInputStream stream, PlPrologParser parser) throws Exception {
+        super(path, stream);
+        this.stream = stream;
+        this.parser = parser;
+//       input = new HiTalkInputStream(path, HiTalkInputStream.defaultEncoding);
+//                Paths.get(getPropMap().get("file_name").getValue().toString()),
+//                getPropMap().get("encoding").getValue().toString());
+        stream.open();
     }
 
-    /**
-     * @param methods
-     * @param props
-     */
-    public HtTermReader(HtMethodDef[] methods, HtProperty[] props) {
-        super(methods, props);
-
-
-    }
-
-    public ITerm readTerm() {
+    public ITerm readTerm() throws Exception {
         final HtProperty[] properties = new HtProperty[]{
 
         };
-        return readTerm(input, properties);
+        return readTerm(stream, properties);
     }
 
-    public ITerm readTerm(HiTalkInputStream input, HtProperty... options) {
+    public ITerm readTerm(HiTalkInputStream input, HtProperty... options) throws Exception {
         createOptions();
-        return null;
+        PlLexer lexer = new PlLexer(input);
+        parser.setTokenSource(lexer);
+        return parser.parse();
     }
 
-    private HtProperty[] createOptions(String... options) {
+    private void createOptions(String... options) {
         List<HtProperty> list = new ArrayList<>();
         for (String option : options) {
             list.add(PropertyOwner.createProperty("alias(Atom)", option));
         }
-        return list.toArray(new HtProperty[list.size()]);
+    }
+
+    /**
+     * @param sb
+     */
+    public void toString0(StringBuilder sb) {
+
     }
 }

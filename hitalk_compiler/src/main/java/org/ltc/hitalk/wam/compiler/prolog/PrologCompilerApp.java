@@ -31,12 +31,13 @@ import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
+import org.ltc.hitalk.term.io.HtTermReader;
+import org.ltc.hitalk.term.io.HtTermWriter;
 import org.ltc.hitalk.wam.compiler.CompilerFactory;
 import org.ltc.hitalk.wam.compiler.ICompilerFactory;
 import org.ltc.hitalk.wam.compiler.Language;
 import org.ltc.hitalk.wam.compiler.Tools.Kind;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -44,6 +45,7 @@ import java.nio.file.Paths;
 import java.util.EnumSet;
 import java.util.List;
 
+import static org.apache.commons.lang3.CharEncoding.UTF_8;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.core.Components.INTERNER;
 import static org.ltc.hitalk.core.Components.WAM_COMPILER;
@@ -59,6 +61,9 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
     public static final String DEFAULT_SCRATCH_DIRECTORY = "scratch";
     public static final HtProperty[] DEFAULT_PROPS = new HtProperty[]{
     };
+
+    protected HtTermReader termReader;
+    protected HtTermWriter termWriter;// = new HtTermWriter();
 
     protected DefaultFileSystemManager fsManager;
     protected PrologWAMCompiler<T, P, Q, PC, QC> wamCompiler;
@@ -86,9 +91,12 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
     /**
      * @param fn
      */
-    public PrologCompilerApp(String fn) {
-        fileName = fn;
+    public PrologCompilerApp(String fn) throws Exception {
+        fileName = Paths.get(fn).toAbsolutePath();
         appContext.setApp(this);
+        termReader = new HtTermReader(fileName,
+                new HiTalkInputStream(fileName, UTF_8),
+                appContext.getParser());
     }
 
     /**
@@ -162,9 +170,10 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
         setInterner(new VafInterner(
                 language().getName() + "_Variable_Namespace",
                 language().getName() + "_Functor_Namespace"));
-        appCtx.setInputStream(createInputHiTalkStream(fileName));
+        appCtx.setInputStream(createHiTalkInputStream(fileName));
         appCtx.setTermFactory(appCtx.getInterner());
         setParser(new PlPrologParser());
+        appCtx.setTermReader(new HtTermReader(fileName, appCtx.getInputStream(), getParser()));
         setWAMCompiler(cf.createWAMCompiler(language()));
     }
 
@@ -173,8 +182,8 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
      * @return
      * @throws FileNotFoundException
      */
-    public HiTalkInputStream createInputHiTalkStream(String fileName) throws Exception {
-        return new HiTalkInputStream(new File(fileName));
+    public HiTalkInputStream createHiTalkInputStream(Path fileName) throws Exception {
+        return new HiTalkInputStream(fileName, HiTalkInputStream.defaultEncoding);
     }
 
     /**
@@ -305,7 +314,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
 
                     }
                 });
-                getWAMCompiler().compile(fileName, loadContext.getProps());
+                getWAMCompiler().compile((T) fileName, loadContext.getProps());
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new ExecutionError(PERMISSION_ERROR, null);

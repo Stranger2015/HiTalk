@@ -5,6 +5,7 @@ import org.ltc.hitalk.entities.HtEntityIdentifier;
 import org.ltc.hitalk.entities.HtEntityKind;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.term.*;
+import org.ltc.hitalk.wam.compiler.HtFunctorName;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.util.List;
@@ -39,10 +40,11 @@ interface ITermFactory extends IHitalkObject {
     IFunctor newHiLogFunctor(String name, ListTerm listTerm);
 
     /**
+     * @param term
      * @param args
      * @return
      */
-    IFunctor newFunctor(ListTerm args);
+    IFunctor newFunctor(IFunctor term, ListTerm args);
 
     /**
      * 変数を作成します。
@@ -87,7 +89,7 @@ interface ITermFactory extends IHitalkObject {
      * @param functor
      * @return
      */
-    IFunctor createMostGeneral(IFunctor functor) throws Exception;
+    IFunctor createMostGeneral(HtFunctorName functor) throws Exception;
 
     NumberTerm createNumber(String s);
 
@@ -103,5 +105,5 @@ interface ITermFactory extends IHitalkObject {
      */
     IFunctor newHiLogFunctor(List<ITerm> namesHeads);
 
-    IFunctor newFunctor(IFunctor term, ListTerm args) throws Exception;
+    IFunctor newHiLogFunctor(IFunctor name, ListTerm args);
 }

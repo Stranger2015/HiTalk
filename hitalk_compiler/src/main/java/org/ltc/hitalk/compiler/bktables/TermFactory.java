@@ -14,6 +14,7 @@ import org.ltc.hitalk.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.*;
 import org.ltc.hitalk.term.ListTerm.Kind;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
+import org.ltc.hitalk.wam.compiler.HtFunctorName;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.nio.file.Path;
@@ -24,7 +25,7 @@ import java.util.List;
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.MIN_VALUE;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
-import static org.ltc.hitalk.parser.HiLogParser.HILOG_APPLY_INT;
+import static org.ltc.hitalk.parser.HiLogParser.HILOG_APPLY_STRING;
 import static org.ltc.hitalk.parser.PlPrologParser.ANONYMOUS;
 import static org.ltc.hitalk.term.ListTerm.NIL;
 
@@ -62,7 +63,8 @@ public class TermFactory implements ITermFactory {
     }
 
     public IFunctor newFunctor(String name, ListTerm args) {
-        return newFunctor(args);
+        int n = interner.internFunctorName(name, args.size());
+        return new HtFunctor(n, args);
     }
 
     /**
@@ -81,15 +83,16 @@ public class TermFactory implements ITermFactory {
     @Override
     public IFunctor newHiLogFunctor(String name, ListTerm listTerm) {
         int arity = listTerm.getHeads().size() - 1;
-        return newHiLogFunctor(new IntTerm(interner.internFunctorName(name, arity)), listTerm);
+        return newHiLogFunctor(new HtFunctor(interner.internFunctorName(name, arity)), listTerm);
     }
 
     /**
+     * @param term
      * @param args
      * @return
      */
     @Override
-    public IFunctor newFunctor(ListTerm args) {
+    public IFunctor newFunctor(IFunctor term, ListTerm args) {
         return new HtFunctor(args);
     }
 
@@ -137,8 +140,14 @@ public class TermFactory implements ITermFactory {
         return PropertyOwner.createProperty(scratch_directory, scratchDir.toString(), "").getV();
     }
 
-    public IFunctor createMostGeneral(IFunctor functor) throws Exception {
-        return newFunctor(functor.getName(), functor.getArity());
+    public IFunctor createMostGeneral(HtFunctorName functor) throws Exception {
+        final int fname = interner.internFunctorName(HILOG_APPLY_STRING, 1);
+        return newFunctor(fname, functor.getArity());
+    }
+
+    public IFunctor createMostGeneralHiLog(IFunctor functor) throws Exception {
+        List<ITerm> heads = functor.getArguments();
+        return newHiLogFunctor(functor.getArgs().getHeads().get(0), newListTerm(Kind.ARGS, heads));
     }
 
     /**
@@ -159,27 +168,30 @@ public class TermFactory implements ITermFactory {
     public IFunctor newHiLogFunctor(ITerm name, ListTerm args) {
         final List<ITerm> heads = new ArrayList<>(args.getHeads());
         heads.add(name);
-        heads.add(new IntTerm(HILOG_APPLY_INT));
-
         return new HiLogFunctor(new ListTerm(heads));
     }
 
     public IFunctor newHiLogFunctor(List<ITerm> namesHeads) {
         return new HiLogFunctor(new ListTerm(new ArrayList<>(namesHeads)));
     }
+//
+//    public IFunctor newFunctor(IFunctor term, ListTerm args) {
+//        return newFunctor(args.addHead(term));
+//    }
 
-    public IFunctor newFunctor(IFunctor term, ListTerm args) {
-        return newFunctor(args.addHead(term));
+    public IFunctor newHiLogFunctor(IFunctor name, ListTerm args) {
+        args.getHeads().add(0, name);
+        return new HiLogFunctor(args);
     }
 
     // commodity methods to parse numbers
 
-    IntTerm parseInteger(String s) {
+    public IntTerm parseInteger(String s) {
         long num = Long.parseLong(s);
         return newAtomic(num > MIN_VALUE && num < MAX_VALUE ? (int) num : Math.toIntExact(num));
     }
 
-    FloatTerm parseFloat(String s) {
+    public FloatTerm parseFloat(String s) {
         return newAtomic(Double.parseDouble(s));
     }
 

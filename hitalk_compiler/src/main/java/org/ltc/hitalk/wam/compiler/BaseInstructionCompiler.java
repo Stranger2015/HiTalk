@@ -15,9 +15,7 @@
  */
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.logic.fol.FunctorName;
 import com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys;
-import com.thesett.aima.logic.fol.wam.compiler.WAMLabel;
 import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
 import com.thesett.aima.search.util.uninformed.BreadthFirstSearch;
 import com.thesett.common.util.SizeableLinkedList;
@@ -204,7 +202,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
         ListTerm expressions = clause.getT().getBody();
 
         // The current query does not have a name, so invent one for it.
-        FunctorName fn = new FunctorName("tq", 0);
+        HtFunctorName fn = new HtFunctorName("tq", 0);
 
         for (int i = 0; i < expressions.size(); i++) {
             IFunctor goal = (IFunctor) expressions.getHead(i);
@@ -368,11 +366,11 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
         gatherPositionAndOccurrenceInfo(clause);
 
         // Labels the entry point to each choice point.
-        FunctorName fn = interner.getFunctorFunctorName(clause.getHead());
-        WAMLabel entryLabel = new WAMLabel(fn, clauseNumber);
+        HtFunctorName fn = interner.getFunctorFunctorName(clause.getHead());
+        HtWAMLabel entryLabel = new HtWAMLabel(fn, clauseNumber);
 
         // Label for the entry point to the next choice point, to backtrack to.
-        WAMLabel retryLabel = new WAMLabel(fn, clauseNumber + 1);
+        HtWAMLabel retryLabel = new HtWAMLabel(fn, clauseNumber + 1);
 
         // Create choice point instructions for the clause, depending on its position within the containing predicate.
         // The choice point instructions are only created when a predicate is built from multiple clauses, as otherwise
@@ -819,7 +817,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
     public SizeableLinkedList<HiTalkWAMInstruction> compileBodyArguments(
             IFunctor goal,
             boolean isFirstBody,
-            FunctorName clauseName,
+            HtFunctorName clauseName,
             int bodyNumber) throws Exception {
         return defaultBuiltIn.compileBodyArguments(goal, isFirstBody, clauseName, bodyNumber);
     }

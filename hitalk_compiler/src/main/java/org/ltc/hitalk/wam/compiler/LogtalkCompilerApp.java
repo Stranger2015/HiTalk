@@ -11,7 +11,7 @@ public class LogtalkCompilerApp<T extends HtMethod, P, Q, PC, QC> extends Prolog
     /**
      * @param fn
      */
-    public LogtalkCompilerApp ( String fn ) {
+    public LogtalkCompilerApp(String fn) throws Exception {
         super(fn);
     }
 

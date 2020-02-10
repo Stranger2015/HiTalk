@@ -5,7 +5,6 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.TermFactory;
 import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.term.IntTerm;
 import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.wam.compiler.IFunctor;
@@ -14,7 +13,6 @@ import org.ltc.hitalk.wam.compiler.Language;
 import java.util.HashSet;
 import java.util.Set;
 
-import static java.util.Collections.singletonList;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.TK_LPAREN;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.TK_RPAREN;
@@ -32,7 +30,7 @@ public class HiLogParser extends PlPrologParser {
     public static final int HILOG_APPLY_INT = getAppContext().getInterner().internFunctorName(HILOG_APPLY_STRING, 1);
 
     public static final IFunctor HILOG_APPLY =
-            getAppContext().getTermFactory().newHiLogFunctor(singletonList(new IntTerm(HILOG_APPLY_INT)));
+            getAppContext().getTermFactory().newHiLogFunctor(HILOG_APPLY_STRING, new ListTerm(1));
 
     /**
      * Builds a public prolog parser on a token source to be parsed.

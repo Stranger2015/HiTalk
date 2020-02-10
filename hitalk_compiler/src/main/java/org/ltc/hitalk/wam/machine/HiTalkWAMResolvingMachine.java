@@ -16,7 +16,6 @@
 
 package org.ltc.hitalk.wam.machine;
 
-import com.thesett.aima.logic.fol.FunctorName;
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.wam.compiler.WAMCallPoint;
 import org.ltc.hitalk.compiler.IVafInterner;
@@ -26,6 +25,7 @@ import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
+import org.ltc.hitalk.wam.compiler.HtFunctorName;
 import org.ltc.hitalk.wam.compiler.IWAMResolvingMachineDPIMonitor;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
@@ -375,7 +375,7 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
                 /*log.fine("f = " + f);*/
 
                 // Look up and initialize this functor name from the symbol table.
-                FunctorName functorName = getDeinternedFunctorName(f);
+                HtFunctorName functorName = getDeinternedFunctorName(f);
 
                 // Fill in this functors name and arity and allocate storage space for its arguments.
                 int arity = functorName.getArity();
@@ -399,16 +399,13 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
                 break;
             }
             case HiTalkWAMInstruction.LIS: {
-                FunctorName functorName = new FunctorName("cons", 2);
+                HtFunctorName functorName = new HtFunctorName("cons", 2);
                 int f = internFunctorName(functorName);
                 // Fill in this functors name and arity and allocate storage space for its arguments.
                 int arity = functorName.getArity();
-                List<ITerm> list = new ArrayList<>();
-                for (int i = 0; i < arity; i++) {
-                    ITerm iTerm = decodeHeap(val + i, variableContext);
-                    list.add(iTerm);
-                }
-//                ITerm[] arguments = list.toArray(new ITerm[0]);
+                List<ITerm> list = IntStream.range(0, arity).mapToObj(i ->
+                        decodeHeap(val + i, variableContext)).collect(Collectors.toList());
+                //                ITerm[] arguments = list.toArray(new ITerm[0]);
 //                 Loop over all of the functors arguments, recursively decoding them.
                 // Create a new functor to hold the decoded data.
                 result = new HtFunctor(f, new ListTerm(list));

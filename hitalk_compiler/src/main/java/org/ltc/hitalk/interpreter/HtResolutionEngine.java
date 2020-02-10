@@ -16,7 +16,6 @@
 package org.ltc.hitalk.interpreter;
 
 import com.thesett.aima.attribute.impl.IdAttribute;
-import com.thesett.aima.logic.fol.FunctorName;
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.Parser;
 import com.thesett.common.util.Filterator;
@@ -31,6 +30,7 @@ import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
+import org.ltc.hitalk.wam.compiler.HtFunctorName;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 import org.slf4j.Logger;
@@ -207,7 +207,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
     /**
      * {@inheritDoc}
      */
-    public IdAttribute.IdAttributeFactory <FunctorName> getFunctorInterner () {
+    public IdAttribute.IdAttributeFactory<HtFunctorName> getFunctorInterner() {
         return interner.getFunctorInterner();
     }
 
@@ -221,7 +221,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
     /**
      * {@inheritDoc}
      */
-    public int internFunctorName ( FunctorName name ) {
+    public int internFunctorName(HtFunctorName name) {
         return interner.internFunctorName(name);
     }
 
@@ -250,7 +250,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      * {@inheritDoc}
      */
     @Override
-    public FunctorName getDeinternedFunctorName ( int name ) {
+    public HtFunctorName getDeinternedFunctorName(int name) {
         return interner.getDeinternedFunctorName(name);
     }
 
@@ -274,7 +274,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      * {@inheritDoc}
      */
     @Override
-    public FunctorName getFunctorFunctorName(IFunctor functor) throws Exception {
+    public HtFunctorName getFunctorFunctorName(IFunctor functor) throws Exception {
         return interner.getFunctorFunctorName(functor);
     }
 

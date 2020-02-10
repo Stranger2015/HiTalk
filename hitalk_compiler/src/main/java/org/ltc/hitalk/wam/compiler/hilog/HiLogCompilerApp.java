@@ -16,7 +16,7 @@ public class HiLogCompilerApp<T extends HtClause, P, Q, PC, QC> extends PrologCo
     /**
      * @param fn
      */
-    public HiLogCompilerApp ( String fn ) {
+    public HiLogCompilerApp(String fn) throws Exception {
         super(fn);
     }
 

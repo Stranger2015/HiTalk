@@ -13,6 +13,7 @@ import java.util.function.Consumer;
  */
 public
 class HiTalkEngine<T extends HtClause, P, Q, PC, QC> extends HtResolutionEngine <T, P, Q, PC, QC> {
+
     private final IResolver <P, Q> resolver;
 
 //    protected final Logger logger = Logger.getLogger(getClass().getSimpleName());

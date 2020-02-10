@@ -15,7 +15,6 @@
   */
  package org.ltc.hitalk.compiler;
 
- import com.thesett.aima.logic.fol.FunctorName;
  import com.thesett.aima.logic.fol.Term;
  import com.thesett.aima.logic.fol.wam.builtins.BuiltInFunctor;
  import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
@@ -25,10 +24,7 @@
  import org.ltc.hitalk.term.ITerm;
  import org.ltc.hitalk.term.ListTerm;
  import org.ltc.hitalk.term.io.HiTalkStream;
- import org.ltc.hitalk.wam.compiler.DirectiveClause;
- import org.ltc.hitalk.wam.compiler.HtFunctor;
- import org.ltc.hitalk.wam.compiler.HtMethod;
- import org.ltc.hitalk.wam.compiler.IFunctor;
+ import org.ltc.hitalk.wam.compiler.*;
  import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltInTransform;
  import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
  import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
@@ -877,7 +873,7 @@
                  }
              } else */
              if (entityFunctor.getArityDelta() != 0) {
-                 FunctorName name = interner.getDeinternedFunctorName(entityFunctor.getName());
+                 HtFunctorName name = interner.getDeinternedFunctorName(entityFunctor.getName());
                  relationFunctor = (HtFunctor) entityFunctor.getArgument(1);
                  createRelation(relationFunctor, null, dynamic);
              }

@@ -79,7 +79,7 @@ public class HiTalkOutputStream extends HiTalkStream {
      * @param b the data.
      * @throws IOException if an I/O error occurs.
      */
-    public void write ( @NotNull byte[] b ) throws IOException {
+    public void write(@NotNull byte[] b) throws IOException {
 
     }
 
@@ -103,7 +103,7 @@ public class HiTalkOutputStream extends HiTalkStream {
      * @param len the number of bytes to write.
      * @throws IOException if an I/O error occurs.
      */
-    public void write ( @NotNull byte[] b, int off, int len ) throws IOException {
+    public void write(@NotNull byte[] b, int off, int len) throws IOException {
 
     }
 
@@ -122,7 +122,7 @@ public class HiTalkOutputStream extends HiTalkStream {
      * @param v the boolean to be written.
      * @throws IOException if an I/O error occurs.
      */
-    public void writeBoolean ( boolean v ) throws IOException {
+    public void writeBoolean(boolean v) throws IOException {
 
     }
 
@@ -141,7 +141,7 @@ public class HiTalkOutputStream extends HiTalkStream {
      * @param v the byte value to be written.
      * @throws IOException if an I/O error occurs.
      */
-    public void writeByte ( int v ) throws IOException {
+    public void writeByte(int v) throws IOException {
 
     }
 
@@ -163,7 +163,7 @@ public class HiTalkOutputStream extends HiTalkStream {
      * @param v the <code>short</code> value to be written.
      * @throws IOException if an I/O error occurs.
      */
-    public void writeShort ( int v ) throws IOException {
+    public void writeShort(int v) throws IOException {
 
     }
 
@@ -186,7 +186,7 @@ public class HiTalkOutputStream extends HiTalkStream {
      * @param v the <code>char</code> value to be written.
      * @throws IOException if an I/O error occurs.
      */
-    public void writeChar ( int v ) throws IOException {
+    public void writeChar(int v) throws IOException {
 
     }
 
@@ -209,7 +209,7 @@ public class HiTalkOutputStream extends HiTalkStream {
      * @param v the <code>int</code> value to be written.
      * @throws IOException if an I/O error occurs.
      */
-    public void writeInt ( int v ) throws IOException {
+    public void writeInt(int v) throws IOException {
 
     }
 
@@ -237,7 +237,7 @@ public class HiTalkOutputStream extends HiTalkStream {
      * @param v the <code>long</code> value to be written.
      * @throws IOException if an I/O error occurs.
      */
-    public void writeLong ( long v ) throws IOException {
+    public void writeLong(long v) throws IOException {
 
     }
 
@@ -258,7 +258,7 @@ public class HiTalkOutputStream extends HiTalkStream {
      * @param v the <code>float</code> value to be written.
      * @throws IOException if an I/O error occurs.
      */
-    public void writeFloat ( float v ) throws IOException {
+    public void writeFloat(float v) throws IOException {
 
     }
 
@@ -279,7 +279,7 @@ public class HiTalkOutputStream extends HiTalkStream {
      * @param v the <code>double</code> value to be written.
      * @throws IOException if an I/O error occurs.
      */
-    public void writeDouble ( double v ) throws IOException {
+    public void writeDouble(double v) throws IOException {
 
     }
 
@@ -303,7 +303,7 @@ public class HiTalkOutputStream extends HiTalkStream {
      * @param s the string of bytes to be written.
      * @throws IOException if an I/O error occurs.
      */
-    public void writeBytes ( @NotNull String s ) throws IOException {
+    public void writeBytes(@NotNull String s) throws IOException {
 
     }
 
@@ -325,7 +325,7 @@ public class HiTalkOutputStream extends HiTalkStream {
      * @param s the string value to be written.
      * @throws IOException if an I/O error occurs.
      */
-    public void writeChars ( @NotNull String s ) throws IOException {
+    public void writeChars(@NotNull String s) throws IOException {
 
     }
 
@@ -381,7 +381,7 @@ public class HiTalkOutputStream extends HiTalkStream {
      * @param s the string value to be written.
      * @throws IOException if an I/O error occurs.
      */
-    public void writeUTF ( @NotNull String s ) throws IOException {
+    public void writeUTF(@NotNull String s) throws IOException {
 
     }
 
@@ -424,7 +424,7 @@ public class HiTalkOutputStream extends HiTalkStream {
      *                                     interrupt status
      * @throws IOException                 If some other I/O error occurs
      */
-    public int write ( ByteBuffer src ) throws IOException {
+    public int write(ByteBuffer src) throws IOException {
         return 0;
     }
 
@@ -445,7 +445,7 @@ public class HiTalkOutputStream extends HiTalkStream {
      *
      * @throws IOException If an I/O error occurs
      */
-    public void close () throws IOException {
+    public void close() throws IOException {
         super.close();
         outputStream.flush();
         outputStream.close();

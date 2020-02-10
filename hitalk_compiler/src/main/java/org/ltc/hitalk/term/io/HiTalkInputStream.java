@@ -11,11 +11,14 @@ import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.nio.CharBuffer;
 import java.nio.ReadOnlyBufferException;
+import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
 
+import static java.nio.file.Files.newByteChannel;
+import static java.nio.file.Files.newInputStream;
 import static java.nio.file.StandardOpenOption.READ;
 import static org.apache.commons.lang3.CharEncoding.UTF_8;
 
@@ -29,7 +32,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
 
 //    private final int bufferSize;
 
-    protected FileInputStream inputStream;
+    protected InputStream inputStream;
     protected PushbackReader pushbackReader;
     private int bof;
     private PlLexer tokenSource;
@@ -50,6 +53,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
         super(path, encoding, READ);
         final FileInputStream fis = new FileInputStream(path.toFile());
         setInputStream(fis);
+
     }
 
     /**
@@ -221,9 +225,11 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
     /**
      * @param inputStream
      */
-    public void setInputStream(FileInputStream inputStream) {
+    public void setInputStream(InputStream inputStream) throws IOException {
         this.inputStream = inputStream;
-        channel = inputStream.getChannel();
+        channel = inputStream instanceof FileInputStream ?
+                ((FileInputStream) inputStream).getChannel() :
+                (FileChannel) newByteChannel(path, READ);
         reader = new LineNumberReader(new BufferedReader(new InputStreamReader(inputStream), defaultBufSize));
         pushbackReader = new PushbackReader(reader, 4);
     }
@@ -231,21 +237,19 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
     /**
      * @return
      */
-    public FileInputStream getInputStream() {
+    public InputStream getInputStream() {
         return inputStream;
     }
 
-    protected void doOpen() throws FileNotFoundException {
+    protected void doOpen() throws IOException {
         if (getInputStream() == null) {
-            setInputStream(new FileInputStream(tokenSource.getPath()));
+            setInputStream(newInputStream(path, READ));
         }
-//        IVafInterner interner= BaseApp.appContext.getInterner();
-//        String fn = interner.getFunctorName(getPropMap().get("file_name").getValue());
         isOpen = true;
     }
 
     @Override
-    protected void init(FileDescriptor fd) {
+    protected void init(FileDescriptor fd) throws IOException {
         setInputStream(new FileInputStream(fd));
     }
 

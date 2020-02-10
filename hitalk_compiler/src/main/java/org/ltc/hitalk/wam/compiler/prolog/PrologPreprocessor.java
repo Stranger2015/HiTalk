@@ -34,8 +34,6 @@ import java.util.List;
 public class PrologPreprocessor<T extends HtClause, P, Q, TC extends ITerm, TT extends TransformTask>
         extends PrologPreCompiler <T, P, Q> {
 
-//    protected final List <TT> components = new ArrayList <>();
-
     /**
      * Creates a base machine over the specified symbol table.
      *

@@ -1,5 +1,6 @@
 package org.ltc.hitalk.compiler.bktables.error;
 
+import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.wam.compiler.HtFunctorName;
 
 /**
@@ -7,7 +8,15 @@ import org.ltc.hitalk.wam.compiler.HtFunctorName;
  */
 public
 class ExecutionError extends RuntimeException {
+    protected Throwable cause;
+
     public ExecutionError() {
+    }
+
+    public ExecutionError(Kind kind, String s, HtSourceCodeException cause) {
+        this(kind, new HtFunctorName(s, 0));
+
+        this.cause = cause;
     }
 
     public Kind getKind() {
@@ -26,15 +35,17 @@ class ExecutionError extends RuntimeException {
         EXISTENCE_ERROR("Existence error"),
         DOMAIN_ERROR("Domain error"),
         INSTANTIATION_ERROR("Instantiation error"),
-        RESOURCE_ERROR("Resource error"), REPRESENTATION_ERROR("Representation error"), SYNTAX_ERROR("Syntax error"),
+        RESOURCE_ERROR("Resource error"),
+        REPRESENTATION_ERROR("Representation error"),
+        SYNTAX_ERROR("Syntax error"),
         ;
-//        OBJECT_CREATION_ERROR();
+        //        OBJECT_CREATION_ERROR();
         private final String kindString;
 
         /**
          * @param kindString
          */
-        Kind ( String kindString ) {
+        Kind(String kindString) {
             this.kindString = kindString;
         }
 

@@ -16,7 +16,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.Closeable;
 import java.io.FileDescriptor;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
@@ -141,7 +140,7 @@ import static org.ltc.hitalk.core.BaseApp.appContext;
  * standard output handles are not connected to valid streams. In these cases write errors may be ignored on
  * user_error.
  */
-public abstract /*abstract*/
+public abstract
 class HiTalkStream extends PropertyOwner implements PropertyChangeListener, Cloneable, Closeable, IHitalkObject {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
@@ -149,7 +148,8 @@ class HiTalkStream extends PropertyOwner implements PropertyChangeListener, Clon
 
     protected FileDescriptor fd;
     protected FileChannel channel;
-
+    //
+//    InputStream inputStream;
     protected EnumSet<StandardOpenOption> options = EnumSet.noneOf(StandardOpenOption.class);
 
     protected boolean isOpen;
@@ -157,10 +157,6 @@ class HiTalkStream extends PropertyOwner implements PropertyChangeListener, Clon
     protected IPropertyOwner owner = this;
     private List<PropertyChangeListener> listeners = new ArrayList<>();
 
-    //    private String methodName;
-//    private Predicate<IFunctor> body;
-//    private int arity;
-//
     public HiTalkStream(HtProperty... properties) {
         super(properties);
     }
@@ -446,13 +442,13 @@ class HiTalkStream extends PropertyOwner implements PropertyChangeListener, Clon
     protected StreamDecoder sd;
     protected Path path;
 
-    public final void open() throws FileNotFoundException {
+    public final void open() throws IOException {
         if (!isOpen) {
             doOpen();
         }
     }
 
-    abstract protected void doOpen() throws FileNotFoundException;
+    abstract protected void doOpen() throws IOException;
 
     /**
      * @param path

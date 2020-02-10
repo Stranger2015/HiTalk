@@ -18,10 +18,12 @@ public enum Components {
     PREPROC,
     RESOLVER_IC,
     RESOLVER_PRE,
-    STREAM,
+    INPUT_STREAM,
     SYMBOL_TABLE,
     TERM_FACTORY,
     TOOL,
     TRANSFORMER,
     WAM_COMPILER,
+    OUTPUT_STREAM,
+    CURRENT_INPUT0,
 }

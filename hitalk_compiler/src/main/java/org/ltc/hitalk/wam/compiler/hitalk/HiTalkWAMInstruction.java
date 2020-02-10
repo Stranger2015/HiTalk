@@ -16,10 +16,8 @@ package org.ltc.hitalk.wam.compiler.hitalk;
  * limitations under the License.
  */
 
-import com.thesett.aima.logic.fol.FunctorName;
 import com.thesett.aima.logic.fol.LinkageException;
 import com.thesett.aima.logic.fol.wam.compiler.WAMCallPoint;
-import com.thesett.aima.logic.fol.wam.compiler.WAMLabel;
 import com.thesett.aima.logic.fol.wam.machine.WAMCodeView;
 import com.thesett.common.util.Pair;
 import com.thesett.common.util.Sizeable;
@@ -28,6 +26,8 @@ import com.thesett.common.util.SizeableList;
 import com.thesett.common.util.doublemaps.SymbolKey;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.wam.compiler.HtFunctorName;
+import org.ltc.hitalk.wam.compiler.HtWAMLabel;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
 
@@ -352,7 +352,7 @@ class HiTalkWAMInstruction implements Sizeable {
     /**
      * The optional address label of the instruction.
      */
-    protected WAMLabel label;
+    protected HtWAMLabel label;
     /**
      * The instruction.
      */
@@ -372,27 +372,27 @@ class HiTalkWAMInstruction implements Sizeable {
     /**
      * Holds the functor argument to the instruction.
      */
-    protected FunctorName fn;
+    protected HtFunctorName fn;
     /**
      * An optional target address label.
      */
-    protected WAMLabel target1;
+    protected HtWAMLabel target1;
     /**
      * An optional target address label.
      */
-    protected WAMLabel target2;
+    protected HtWAMLabel target2;
     /**
      * An optional target address label.
      */
-    protected WAMLabel target3;
+    protected HtWAMLabel target3;
     /**
      * An optional target address label.
      */
-    protected WAMLabel target4;
+    protected HtWAMLabel target4;
     /**
      * An optional list of entries for an indexing table.
      */
-    protected List<Pair<Integer, WAMLabel>> indexTable;
+    protected List<Pair<Integer, HtWAMLabel>> indexTable;
     /**
      * Holds the symbol key of the argument that is held in the first register of this instruction.
      */
@@ -432,7 +432,11 @@ class HiTalkWAMInstruction implements Sizeable {
      * @param fn       The functor argument.
      * @param reg1Term The term that is assigned or associated with reg1.
      */
-    public HiTalkWAMInstruction(HiTalkWAMInstructionSet mnemonic, byte mode1, byte reg1, FunctorName fn, ITerm reg1Term) throws Exception {
+    public HiTalkWAMInstruction(HiTalkWAMInstructionSet mnemonic,
+                                byte mode1,
+                                byte reg1,
+                                HtFunctorName fn,
+                                ITerm reg1Term) throws Exception {
         this.mnemonic = mnemonic;
         this.mode1 = mode1;
         this.reg1 = reg1;
@@ -452,8 +456,7 @@ class HiTalkWAMInstruction implements Sizeable {
      * @param reg1     The register argument.
      * @param fn       The functor argument.
      */
-    public
-    HiTalkWAMInstruction ( HiTalkWAMInstructionSet mnemonic, byte mode1, byte reg1, FunctorName fn ) {
+    public HiTalkWAMInstruction(HiTalkWAMInstructionSet mnemonic, byte mode1, byte reg1, HtFunctorName fn) {
         this.mnemonic = mnemonic;
         this.mode1 = mode1;
         this.reg1 = reg1;
@@ -528,8 +531,7 @@ class HiTalkWAMInstruction implements Sizeable {
      * @param mnemonic The instruction mnemonic.
      * @param fn       The functor argument.
      */
-    public
-    HiTalkWAMInstruction ( HiTalkWAMInstructionSet mnemonic, FunctorName fn ) {
+    public HiTalkWAMInstruction(HiTalkWAMInstructionSet mnemonic, HtFunctorName fn) {
         this.mnemonic = mnemonic;
         this.fn = fn;
     }
@@ -541,8 +543,7 @@ class HiTalkWAMInstruction implements Sizeable {
      * @param reg1     The single register argument.
      * @param fn       The functor argument.
      */
-    public
-    HiTalkWAMInstruction ( HiTalkWAMInstructionSet mnemonic, byte reg1, FunctorName fn ) {
+    public HiTalkWAMInstruction(HiTalkWAMInstructionSet mnemonic, byte reg1, HtFunctorName fn) {
         this.mnemonic = mnemonic;
         this.reg1 = reg1;
         this.fn = fn;
@@ -555,8 +556,7 @@ class HiTalkWAMInstruction implements Sizeable {
      * @param mnemonic The instruction mnemonic.
      * @param fn       The functor argument.
      */
-    public
-    HiTalkWAMInstruction ( WAMLabel label, HiTalkWAMInstructionSet mnemonic, WAMLabel fn ) {
+    public HiTalkWAMInstruction(HtWAMLabel label, HiTalkWAMInstructionSet mnemonic, HtWAMLabel fn) {
         this.label = label;
         this.mnemonic = mnemonic;
         this.target1 = fn;
@@ -568,8 +568,7 @@ class HiTalkWAMInstruction implements Sizeable {
      * @param label    The instructions address label.
      * @param mnemonic The instruction mnemonic.
      */
-    public
-    HiTalkWAMInstruction ( WAMLabel label, HiTalkWAMInstructionSet mnemonic ) {
+    public HiTalkWAMInstruction(HtWAMLabel label, HiTalkWAMInstructionSet mnemonic) {
         this.label = label;
         this.mnemonic = mnemonic;
     }
@@ -603,10 +602,10 @@ class HiTalkWAMInstruction implements Sizeable {
             Integer label = codeView.getNameForAddress(ip);
 
             if (label != null) {
-                FunctorName name = interner.getDeinternedFunctorName(label);
+                HtFunctorName name = interner.getDeinternedFunctorName(label);
 
-                if (name instanceof WAMLabel) {
-                    instruction.label = (WAMLabel) name;
+                if (name instanceof HtWAMLabel) {
+                    instruction.label = (HtWAMLabel) name;
                 }
             }
 
@@ -624,8 +623,7 @@ class HiTalkWAMInstruction implements Sizeable {
      * @param label The label to print.
      * @return A pretty version of the label.
      */
-    private static
-    String labelToString ( WAMLabel label ) {
+    private static String labelToString(HtWAMLabel label) {
         return ((label != null) ? label.toPrettyString() : "");
     }
 
@@ -713,8 +711,7 @@ class HiTalkWAMInstruction implements Sizeable {
      *
      * @return The functor argument to which the instruction applies, or <tt>null <tt>if there is none.
      */
-    public
-    FunctorName getFn () {
+    public HtFunctorName getFn() {
         return fn;
     }
 
@@ -723,8 +720,7 @@ class HiTalkWAMInstruction implements Sizeable {
      *
      * @param fn The functor argument to which the instruction applies.
      */
-    public
-    void setFn ( FunctorName fn ) {
+    public void setFn(HtFunctorName fn) {
         this.fn = fn;
     }
 
@@ -733,8 +729,7 @@ class HiTalkWAMInstruction implements Sizeable {
      *
      * @return The target label argument to which the instruction applies, or <tt>null <tt>if there is none.
      */
-    public
-    WAMLabel getTarget1 () {
+    public HtWAMLabel getTarget1() {
         return target1;
     }
 
@@ -743,8 +738,7 @@ class HiTalkWAMInstruction implements Sizeable {
      *
      * @return The label for the instruction, or <tt>null</tt> if none is set.
      */
-    public
-    WAMLabel getLabel () {
+    public HtWAMLabel getLabel() {
         return label;
     }
 
@@ -789,15 +783,20 @@ class HiTalkWAMInstruction implements Sizeable {
          * Instruction to write out a struc onto the heap.
          */
         PutStruc(PUT_STRUC, "put_struc", 7, 0xb) {
-            /** {@inheritDoc} */
-            protected void disassembleArguments ( HiTalkWAMInstruction instruction, int ip, ByteBuffer codeBuf, IVafInterner interner ) {
+            /**
+             * {@inheritDoc}
+             */
+            protected void disassembleArguments(HiTalkWAMInstruction instruction,
+                                                int ip,
+                                                ByteBuffer codeBuf,
+                                                IVafInterner interner) {
                 disassembleReg1Fn(codeBuf, ip, instruction, interner);
             }
 
             /** {@inheritDoc} */
             public
-            void emitCode ( HiTalkWAMInstruction instruction, ByteBuffer codeBuf, HiTalkWAMMachine machine ) {
-                emitCodeReg1Fn(codeBuf, code, instruction, (IVafInterner) machine);
+            void emitCode ( HiTalkWAMInstruction instruction, ByteBuffer codeBuf, HiTalkWAMMachine machine) {
+                emitCodeReg1Fn(codeBuf, code, instruction, machine);
             }
 
             /** {@inheritDoc} */
@@ -833,8 +832,8 @@ class HiTalkWAMInstruction implements Sizeable {
 
             /** {@inheritDoc} */
             public
-            void emitCode ( HiTalkWAMInstruction instruction, ByteBuffer codeBuf, HiTalkWAMMachine machine ) {
-                emitCodeReg1Fn(codeBuf, code, instruction, (IVafInterner) machine);
+            void emitCode ( HiTalkWAMInstruction instruction, ByteBuffer codeBuf, HiTalkWAMMachine machine) {
+                emitCodeReg1Fn(codeBuf, code, instruction, machine);
             }
 
             /** {@inheritDoc} */
@@ -1292,8 +1291,8 @@ class HiTalkWAMInstruction implements Sizeable {
 
             /** {@inheritDoc} */
             public
-            String toString ( HiTalkWAMInstruction instruction ) {
-                WAMLabel label = instruction.target1;
+            String toString ( HiTalkWAMInstruction instruction) {
+                HtWAMLabel label = instruction.target1;
 
                 return pretty + " " + ((label != null) ? label.toPrettyString() : "");
             }
@@ -1327,8 +1326,8 @@ class HiTalkWAMInstruction implements Sizeable {
 
             /** {@inheritDoc} */
             public
-            String toString ( HiTalkWAMInstruction instruction ) {
-                WAMLabel label = instruction.target1;
+            String toString ( HiTalkWAMInstruction instruction) {
+                HtWAMLabel label = instruction.target1;
 
                 return pretty + " " + ((label != null) ? label.toPrettyString() : "");
             }
@@ -1392,8 +1391,8 @@ class HiTalkWAMInstruction implements Sizeable {
 
             /** {@inheritDoc} */
             public
-            String toString ( HiTalkWAMInstruction instruction ) {
-                WAMLabel label = instruction.target1;
+            String toString ( HiTalkWAMInstruction instruction) {
+                HtWAMLabel label = instruction.target1;
 
                 return pretty + " " + ((label != null) ? label.toPrettyString() : "");
             }
@@ -1429,8 +1428,8 @@ class HiTalkWAMInstruction implements Sizeable {
 
             /** {@inheritDoc} */
             public
-            String toString ( HiTalkWAMInstruction instruction ) {
-                WAMLabel label = instruction.target1;
+            String toString ( HiTalkWAMInstruction instruction) {
+                HtWAMLabel label = instruction.target1;
 
                 return pretty + " " + ((label != null) ? label.toPrettyString() : "");
             }
@@ -1661,8 +1660,8 @@ class HiTalkWAMInstruction implements Sizeable {
 
             /** {@inheritDoc} */
             public
-            String toString ( HiTalkWAMInstruction instruction ) {
-                WAMLabel label = instruction.target1;
+            String toString ( HiTalkWAMInstruction instruction) {
+                HtWAMLabel label = instruction.target1;
 
                 return pretty + " " + ((label != null) ? label.toPrettyString() : "");
             }

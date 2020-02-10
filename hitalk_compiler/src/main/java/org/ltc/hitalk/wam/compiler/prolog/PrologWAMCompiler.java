@@ -17,9 +17,9 @@ import org.ltc.hitalk.wam.compiler.ICompilerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 
+import static java.util.EnumSet.of;
 import static org.ltc.hitalk.core.BaseApp.AppContext;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
 import static org.ltc.hitalk.parser.Directive.DirectiveKind.IF;
@@ -128,8 +128,9 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
      * @param flags
      * @throws IOException
      */
+    @Override
     public List<HtClause> compileFile(String fn, HtProperty... flags) throws Exception {
-        return null;
+        return compile(PlLexer.getTokenSourceForIoFileName(fn));
     }
 
     /**
@@ -138,9 +139,9 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
      * @throws IOException
      * @throws HtSourceCodeException
      */
-//    @Override
+    @Override
     public List<HtClause> compile(PlLexer tokenSource, HtProperty... flags) throws Exception {
-        return preCompiler.preCompile(tokenSource, EnumSet.of(IF));
+        return preCompiler.preCompile(tokenSource, of(IF));
     }
 
     /**
