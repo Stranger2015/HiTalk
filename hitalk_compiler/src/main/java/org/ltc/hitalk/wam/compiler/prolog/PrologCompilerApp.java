@@ -38,14 +38,12 @@ import org.ltc.hitalk.wam.compiler.ICompilerFactory;
 import org.ltc.hitalk.wam.compiler.Language;
 import org.ltc.hitalk.wam.compiler.Tools.Kind;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.EnumSet;
 import java.util.List;
 
-import static org.apache.commons.lang3.CharEncoding.UTF_8;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.core.Components.INTERNER;
 import static org.ltc.hitalk.core.Components.WAM_COMPILER;
@@ -77,7 +75,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
             language().getName() + " " + tool().getName(),
             new HtVersion(0, 1, 1, 224, "", false));
     protected ICompilerObserver<P, Q> observer;
-    protected IVafInterner interner = BaseApp.getAppContext().getInterner();
+    protected IVafInterner interner = getAppContext().getInterner();
 
     /**
      * @return
@@ -95,7 +93,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
         fileName = Paths.get(fn).toAbsolutePath();
         appContext.setApp(this);
         termReader = new HtTermReader(fileName,
-                new HiTalkInputStream(fileName, UTF_8),
+                BaseApp.appContext.createHiTalkInputStream(fileName/*, "UTF-8"*/),
                 appContext.getParser());
     }
 
@@ -170,20 +168,11 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
         setInterner(new VafInterner(
                 language().getName() + "_Variable_Namespace",
                 language().getName() + "_Functor_Namespace"));
-        appCtx.setInputStream(createHiTalkInputStream(fileName));
+        appCtx.setInputStream(appContext.createHiTalkInputStream(fileName));
         appCtx.setTermFactory(appCtx.getInterner());
         setParser(new PlPrologParser());
         appCtx.setTermReader(new HtTermReader(fileName, appCtx.getInputStream(), getParser()));
         setWAMCompiler(cf.createWAMCompiler(language()));
-    }
-
-    /**
-     * @param fileName
-     * @return
-     * @throws FileNotFoundException
-     */
-    public HiTalkInputStream createHiTalkInputStream(Path fileName) throws Exception {
-        return new HiTalkInputStream(fileName, HiTalkInputStream.defaultEncoding);
     }
 
     /**

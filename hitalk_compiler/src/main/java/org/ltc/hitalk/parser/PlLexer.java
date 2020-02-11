@@ -12,12 +12,13 @@ import org.ltc.hitalk.term.io.HiTalkInputStream;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.*;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.EnumSet;
 import java.util.Objects;
 
-import static java.nio.file.StandardOpenOption.READ;
-import static org.apache.commons.lang3.CharEncoding.UTF_8;
+import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.RESOURCE_ERROR;
+import static org.ltc.hitalk.core.BaseApp.appContext;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
 import static org.ltc.hitalk.entities.PropertyOwner.createProperty;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
@@ -25,7 +26,7 @@ import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
 /**
  * @author shun
  */
-public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
+public class PlLexer implements PropertyChangeListener/*, Stream<PlToken>, Iterator<PlToken> */ {
     public static final String PUNCTUATION = ";,!|.";
     public static final String SPECIAL = "#$&*+-/:<=>?@\\^~";
     public static final String PARENTHESES = "(){}[]";
@@ -36,40 +37,45 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
     protected IOperatorTable optable = getAppContext().getOpTable();
 
     private PlToken lastToken;
+    private HiTalkInputStream stream;
 
-    /**
-     * Creates a stream tokenizer that parses the specified input
-     * stream. The stream tokenizer is initialized to the following
-     * default state:
-     * <ul>
-     * <li>All byte values {@code 'A'} through {@code 'Z'},
-     *     {@code 'a'} through {@code 'z'}, and
-     *     {@code '\u005Cu00A0'} through {@code '\u005Cu00FF'} are
-     *     considered to be alphabetic.
-     * <li>All byte values {@code '\u005Cu0000'} through
-     *     {@code '\u005Cu0020'} are considered to be white space.
-     * <li>{@code '/'} is a comment character.
-     * <li>Single quote {@code '\u005C''} and double quote {@code '"'}
-     *     are string quote characters.
-     * <li>Numbers are parsed.
-     * <li>Ends of lines are treated as white space, not as separate tokens.
-     * <li>C-style and C++-style comments are not recognized.
-     * </ul>
-     *
-     * @param is an input stream.
-     * @see BufferedReader
-     * @see InputStreamReader
-     * @deprecated As of JDK version 1.1, the preferred way to tokenize an
-     * input stream is to convert it into a character stream, for example:
-     * <blockquote><pre>
-     *   Reader r = new BufferedReader(new InputStreamReader(is));
-     *   StreamTokenizer st = new StreamTokenizer(r);
-     * </pre></blockquote>
-     */
-    public PlLexer(InputStream is) {
-        super(is);
-        pushBackBuffer = new TokenBuffer(inputStream);
+    public static PlLexer getTokenSourceForInputStream(InputStream input, String s) {
+        return null;
     }
+
+//    /**
+//     * Creates a stream tokenizer that parses the specified input
+//     * stream. The stream tokenizer is initialized to the following
+//     * default state:
+//     * <ul>
+//     * <li>All byte values {@code 'A'} through {@code 'Z'},
+//     *     {@code 'a'} through {@code 'z'}, and
+//     *     {@code '\u005Cu00A0'} through {@code '\u005Cu00FF'} are
+//     *     considered to be alphabetic.
+//     * <li>All byte values {@code '\u005Cu0000'} through
+//     *     {@code '\u005Cu0020'} are considered to be white space.
+//     * <li>{@code '/'} is a comment character.
+//     * <li>Single quote {@code '\u005C''} and double quote {@code '"'}
+//     *     are string quote characters.
+//     * <li>Numbers are parsed.
+//     * <li>Ends of lines are treated as white space, not as separate tokens.
+//     * <li>C-style and C++-style comments are not recognized.
+//     * </ul>
+//     *
+//     * @param is an input stream.
+//     * @see BufferedReader
+//     * @see InputStreamReader
+//     * @deprecated As of JDK version 1.1, the preferred way to tokenize an
+//     * input stream is to convert it into a character stream, for example:
+//     * <blockquote><pre>
+//     *   Reader r = new BufferedReader(new InputStreamReader(is));
+//     *   StreamTokenizer st = new StreamTokenizer(r);
+//     * </pre></blockquote>
+//     */
+//    public PlLexer(InputStream is) {
+//        super(is);
+//        pushBackBuffer = new TokenBuffer(inputStream);
+//    }
 
     public TokenBuffer getPushBackBuffer() {
         return pushBackBuffer;
@@ -82,48 +88,33 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
     protected IVafInterner interner;
 
     private boolean encodingChanged;
-    private String path;
-
-    /**
-     * Create a tokenizer that parses the given character stream.
-     *
-     * @param r a Reader object providing the input stream.
-     * @since JDK1.1
-     */
-    public PlLexer(Reader r) {
-        super(r);
-        pushBackBuffer = new TokenBuffer(inputStream);
-    }
-
-    /**
-     * @param stream
-     * @param path
-     */
-    public PlLexer(HiTalkInputStream stream, String path) throws IOException {
-        this(stream);
-
-        setPath(path);
-        pushBackBuffer = new TokenBuffer(inputStream);
-    }
+    private Path path;
 
     public void toString0(StringBuilder sb) {
 //sb.append();
     }
 
     /**
-     * @throws IOException
+     *
      */
-    public void close() throws IOException {
-        getInputStream().close();
+    public void close() {
+        try {
+            getInputStream().close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new ExecutionError(RESOURCE_ERROR, "I/O Error.", e);
+        }
     }
 
     /**
      * @param inputStream
+     * @param path
      * @throws FileNotFoundException
      */
-    public PlLexer(HiTalkInputStream inputStream) throws IOException {
+    public PlLexer(HiTalkInputStream inputStream, Path path) throws IOException {
 //        super(new LineNumberReader(new FileReader()));
 //        inputStream.removeListener(inputStream.getTokenSource());
+        setPath(path);
         inputStream.setTokenSource(this);
         inputStream.addListener(this);
         this.inputStream = inputStream;
@@ -133,51 +124,13 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
 //     The first token is initialized to be empty, so that the first call to `poll` returns the first token.
         lastToken = new PlToken(TK_BOF);
         encodingPermitted = true;
-        resetSyntax();
-
-        // letters
-        wordChars('a', 'z');
-        wordChars('A', 'Z');
-        wordChars('_', '_');
-        wordChars('0', '9'); // need to parse numbers as special words
-
-        ordinaryChar('!');
-
-        // symbols
-        ordinaryChar('\\');
-        ordinaryChar('$');
-        ordinaryChar('&');
-        ordinaryChar('^');
-        ordinaryChar('@');
-        ordinaryChar('#');
-        ordinaryChar(',');
-        ordinaryChar('.');
-        ordinaryChar(':');
-        ordinaryChar(';');
-        ordinaryChar('=');
-        ordinaryChar('<');
-        ordinaryChar('>');
-        ordinaryChar('+');
-        ordinaryChar('-');
-        ordinaryChar('*');
-        ordinaryChar('/');
-        ordinaryChar('~');
-
-        // quotes
-        ordinaryChar('\''); // must be parsed individually to handles \\ in quotes and character code constants
-        ordinaryChar('\"'); // same as above?
-        ordinaryChar('`'); // same as above?
-
-        // comments
-        ordinaryChar('%');
-        // it is not possible to enable StreamTokenizer#slashStarComments and % as a StreamTokenizer#commentChar
-        // and it is also not possible to use StreamTokenizer#whitespaceChars for ' '
+//        resetSyntax();
     }
 
     /**
      * @param path
      */
-    void setPath(String path) {
+    void setPath(Path path) {
         this.path = path;
     }
 
@@ -192,7 +145,7 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
         if (PrologAtoms.ENCODING.equals(event.getPropertyName())) {
             ITerm value = (ITerm) event.getNewValue();
         } else if (event.getPropertyName().equals("file_name")) {
-            setPath((String) event.getNewValue());
+            setPath(Paths.get((String) event.getNewValue()));
         }
         setEncodingChanged(isEncodingPermitted());
         encodingPermitted = false;
@@ -224,8 +177,9 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
      */
     public HiTalkInputStream getInputStream() {
 
-        setPath(createProperty("file_name",
-                "c:\\Users\\Anthony_2\\IdeaProjects\\WAM\\hitalk_compiler\\src\\main\\resources\\test.pl", "").getV());
+        setPath(Paths.get(createProperty("file_name",
+                "c:\\Users\\Anthony_2\\IdeaProjects\\WAM\\hitalk_compiler\\src\\main\\resources\\test.pl",
+                "").getV()));
         return inputStream == null ? getAppContext().getInputStream() : inputStream;
     }
 
@@ -240,7 +194,7 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
      * @return
      */
 //    @Override
-    public String getPath() {
+    public Path getPath() {
         return path;
     }
 
@@ -595,19 +549,19 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
         return next(true);
     }
 
-    /**
-     * Retrieves and removes the head of this queue, or <tt>null</tt> if this queue is empty.
-     *
-     * @return The head of this queue, or <tt>null</tt> if this queue is empty.
-     */
-    public PlToken poll() {
-        try {
-            return getNextToken();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new ExecutionError(ExecutionError.Kind.PERMISSION_ERROR, null);
-        }
-    }
+//    /**
+//     * Retrieves and removes the head of this queue, or <tt>null</tt> if this queue is empty.
+//     *
+//     * @return The head of this queue, or <tt>null</tt> if this queue is empty.
+//     */
+//    public PlToken poll() {
+//        try {
+//            return getNextToken();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            throw new ExecutionError(ExecutionError.Kind.PERMISSION_ERROR, null);
+//        }
+//    }
 
     /**
      * Retrieves, but does not remove, the head of this queue, returning <tt>null</tt> if this queue is empty.
@@ -618,10 +572,11 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
         return lastToken = !getPushBackBuffer().isEmpty() ? getPushBackBuffer().poll() : getToken(valued);
     }
 
-    static PlLexer getPlLexerForString(String string) throws Exception {
-        HiTalkInputStream inputStream = new HiTalkInputStream(string);
+    public static PlLexer getPlLexerForString(String string) throws Exception {
+        Path path = Paths.get(string);
+        HiTalkInputStream inputStream = appContext.createHiTalkInputStream(path);
 
-        final PlLexer lexer = new PlLexer(inputStream);
+        final PlLexer lexer = new PlLexer(inputStream, path);
         inputStream.addListener(lexer);
 
         return lexer;
@@ -633,8 +588,9 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
      * @throws IOException
      */
     public static PlLexer getTokenSourceForIoFile(File file) throws Exception {
-        HiTalkInputStream stream = new HiTalkInputStream(file);
-        return new PlLexer(stream, file.getAbsolutePath());
+        Path path = file.toPath();
+        HiTalkInputStream stream = appContext.createHiTalkInputStream(path);
+        return new PlLexer(stream, path);
     }
 
     public String
@@ -648,8 +604,8 @@ public class PlLexer extends StreamTokenizer implements PropertyChangeListener {
      * @throws IOException
      */
     public static PlLexer getTokenSourceForIoFileName(String fileName) throws Exception {
-        HiTalkInputStream stream = new HiTalkInputStream(Paths.get(fileName), UTF_8, READ);
-        return new PlLexer(stream, fileName);
+        HiTalkInputStream stream = appContext.createHiTalkInputStream(Paths.get(fileName));
+        return new PlLexer(stream, Paths.get(fileName));
     }
 
     /**

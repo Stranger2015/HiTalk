@@ -23,6 +23,7 @@ import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -35,6 +36,7 @@ import static java.io.FileDescriptor.*;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.EXISTENCE_ERROR;
 import static org.ltc.hitalk.core.Components.*;
 import static org.ltc.hitalk.core.PrologBuiltIns.CURRENT_OUTPUT;
+import static org.ltc.hitalk.term.io.HiTalkInputStream.defaultEncoding;
 
 /**
  *
@@ -86,6 +88,9 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
         }
     }
 
+    /**
+     * @return
+     */
     public static AppContext getAppContext() {
         return appContext;
     }
@@ -212,7 +217,7 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
     @Override
     public void doInit() throws Exception {
         getLogger().info("Initializing... ");
-        appContext.setApp(this);
+//        appContext.setApp(this);
         initComponents();
         initialized.set(true);
     }
@@ -272,6 +277,9 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
 //
 //    }
 
+    /**
+     * @return
+     */
     @Override
     public boolean isShuttingDown() {
         return shuttingDown.get();
@@ -284,21 +292,33 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
         this.shuttingDown.set(shuttingDown);
     }
 
+    /**
+     *
+     */
     @Override
     public void interrupt() {//todo
 
     }
 
+    /**
+     * @return
+     */
     @Override
     public boolean isInterrupted() {
         return false;
     }
 
+    /**
+     * @return
+     */
     @Override
     public State getState() {
         return state;
     }//todo
 
+    /**
+     * @return
+     */
     @Override
     public Runnable getTarget() {
         return target;
@@ -501,6 +521,7 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
                 interner = new VafInterner(getNameSpace());
             }
             putIfAbsent(INTERNER, interner);
+
             return interner;
         }
 
@@ -730,6 +751,38 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
          */
         public HtTermReader getTermReader() {
             return termReader;
+        }
+
+        /**
+         * @param fileName
+         * @return
+         * @throws FileNotFoundException
+         */
+        public HiTalkInputStream createHiTalkInputStream(Path fileName) throws Exception {
+            final HiTalkInputStream stream = new HiTalkInputStream(fileName, defaultEncoding);
+            put(INPUT_STREAM, stream);
+            streams.add(stream);//add on open/???
+            return stream;
+        }
+
+        /**
+         * @param fileName
+         * @return
+         * @throws FileNotFoundException
+         */
+        public HiTalkOutputStream createHiTalkOutputStream(Path fileName) throws Exception {
+            final HiTalkOutputStream stream = new HiTalkOutputStream(fileName);
+            put(OUTPUT_STREAM, stream);
+            streams.add(stream);//add on open/???
+            return stream;
+        }
+
+        /**
+         * @param i
+         * @return
+         */
+        public HiTalkStream getStreams(int i) {
+            return streams.get(i);
         }
     }
 }

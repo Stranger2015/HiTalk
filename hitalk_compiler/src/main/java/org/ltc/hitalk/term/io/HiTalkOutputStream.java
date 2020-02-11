@@ -32,10 +32,8 @@ public class HiTalkOutputStream extends HiTalkStream {
      * @param path
      * @param encoding
      * @param options
-     * @throws IOException
      */
-    public HiTalkOutputStream(BufferedWriter output, Path path, String encoding, StandardOpenOption... options)
-            throws Exception {
+    public HiTalkOutputStream(BufferedWriter output, Path path, String encoding, StandardOpenOption... options) {
         super(path, encoding, options);
         this.output = output;
         Charset charset = isSupported(encoding) ? forName(encoding) : defaultCharset();//currentCharset;
@@ -43,7 +41,7 @@ public class HiTalkOutputStream extends HiTalkStream {
         StreamEncoder se = StreamEncoder.forEncoder(channel, encoder, BB_ALLOC_SIZE);
     }
 
-    public HiTalkOutputStream(int i, FileDescriptor out) throws Exception {
+    public HiTalkOutputStream(int i, FileDescriptor out) {
         super();
         setOutputStream(new FileOutputStream(out));
     }
@@ -53,8 +51,12 @@ public class HiTalkOutputStream extends HiTalkStream {
      * @param encoding
      * @param options
      */
-    protected HiTalkOutputStream(Path path, String encoding, StandardOpenOption... options) throws Exception {
+    protected HiTalkOutputStream(Path path, String encoding, StandardOpenOption... options) {
         super(path, encoding, options);
+    }
+
+    public HiTalkOutputStream(Path fileName) throws Exception {
+        super(fileName);
     }
 
     /**

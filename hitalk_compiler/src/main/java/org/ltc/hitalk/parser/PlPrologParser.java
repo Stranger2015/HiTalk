@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.*;
 
 import static java.util.Objects.requireNonNull;
@@ -44,6 +45,9 @@ public class PlPrologParser implements IParser {
 
     final EnumSet<TokenKind> rDelims = EnumSet.of(TK_COMMA, TK_CONS);
 
+    /**
+     *
+     */
     public enum ParserState {
         START,
 
@@ -90,8 +94,9 @@ public class PlPrologParser implements IParser {
     public PlPrologParser(HiTalkInputStream inputStream,
                           IVafInterner interner,
                           ITermFactory factory,
-                          IOperatorTable optable) throws Exception {
-        setTokenSource(new PlLexer(inputStream));
+                          IOperatorTable optable)
+            throws Exception {
+        setTokenSource(new PlLexer(inputStream, Paths.get("")));
         PlPrologParser.interner = interner;
         this.termFactory = factory;
         this.operatorTable = optable;
@@ -116,11 +121,17 @@ public class PlPrologParser implements IParser {
     public void toString0(StringBuilder sb) {
     }
 
+    /**
+     * @return
+     */
     @Override
     public PlPrologParser getParser() {
         return this;
     }
 
+    /**
+     * @return
+     */
     @Override
     public IVafInterner getInterner() {
         return interner;

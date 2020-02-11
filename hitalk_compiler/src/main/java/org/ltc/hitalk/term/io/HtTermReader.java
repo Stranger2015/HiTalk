@@ -39,7 +39,7 @@ public class HtTermReader extends HtTermIO {
 
     public ITerm readTerm(HiTalkInputStream input, HtProperty... options) throws Exception {
         createOptions();
-        PlLexer lexer = new PlLexer(input);
+        PlLexer lexer = new PlLexer(input, path);
         parser.setTokenSource(lexer);
         return parser.parse();
     }

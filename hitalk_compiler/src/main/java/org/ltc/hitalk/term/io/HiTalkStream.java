@@ -148,25 +148,41 @@ class HiTalkStream extends PropertyOwner implements PropertyChangeListener, Clon
 
     protected FileDescriptor fd;
     protected FileChannel channel;
-    //
-//    InputStream inputStream;
     protected EnumSet<StandardOpenOption> options = EnumSet.noneOf(StandardOpenOption.class);
 
     protected boolean isOpen;
 
     protected IPropertyOwner owner = this;
-    private List<PropertyChangeListener> listeners = new ArrayList<>();
+    protected List<PropertyChangeListener> listeners = new ArrayList<>();
 
-    public HiTalkStream(HtProperty... properties) {
-        super(properties);
+    /**
+     * @param path
+     * @param charset
+     * @param option
+     * @param properties
+     */
+    protected HiTalkStream(Path path, String charset, StandardOpenOption[] option, HtProperty... properties) {
+
+        this.path = path;
+//        this.defcharset = charset;
+        this.option = option;
+//        this.properties = properties;
+    }
+
+    /**
+     * @param properties
+     */
+    protected HiTalkStream(HtProperty... properties) {
+        this(new HtMethodDef[0], properties);
     }
 
     /**
      * @param methods
      * @param props
      */
-    public HiTalkStream(HtMethodDef[] methods, HtProperty[] props) {
-        super(methods, props);
+    protected HiTalkStream(HtMethodDef[] methods, HtProperty... props) {
+        super(props);
+
     }
 
     /**
@@ -441,6 +457,9 @@ class HiTalkStream extends PropertyOwner implements PropertyChangeListener, Clon
     protected Charset currentCharset = defaultCharset();
     protected StreamDecoder sd;
     protected Path path;
+    //    private final String charset;
+    protected StandardOpenOption[] option;
+//    private final HtProperty[] properties;
 
     public final void open() throws IOException {
         if (!isOpen) {
@@ -455,8 +474,8 @@ class HiTalkStream extends PropertyOwner implements PropertyChangeListener, Clon
      * @param encoding
      * @param options
      */
-    protected HiTalkStream(Path path, String encoding, StandardOpenOption... options) throws Exception {
-        this();
+    protected HiTalkStream(Path path, String encoding, StandardOpenOption... options) {
+        this(path, encoding, options, new HtProperty[0]);
         this.path = path;
         Charset charset = isSupported(encoding) ? forName(encoding) : defaultCharset();
         CharsetDecoder decoder = charset.newDecoder();

@@ -12,7 +12,6 @@ import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.wam.compiler.HtTermWalkers;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.hitalk.HtSymbolKeyTraverser;
@@ -255,7 +254,8 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
      */
     public List<ITerm> expandTerm(ITerm term) throws Exception {
         final EnumSet<DirectiveKind> kinds = EnumSet.noneOf(DirectiveKind.class);
-        getQueue().push(new TermExpansionTask(this, new PlLexer(new HiTalkInputStream("test.pl")), kinds));
+        final PlLexer ts = PlLexer.getTokenSourceForIoFileName("");
+        getQueue().push(new TermExpansionTask(this, ts, kinds));
 
         return Collections.singletonList(term);
     }

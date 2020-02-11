@@ -27,7 +27,7 @@ import static org.apache.commons.lang3.CharEncoding.UTF_8;
  */
 public class HiTalkInputStream extends HiTalkStream implements Readable {
 
-    public final static int defaultBufSize = 8192;
+    public static final int defaultBufSize = 8192;
     public static final String defaultEncoding = UTF_8;
 
 //    private final int bufferSize;

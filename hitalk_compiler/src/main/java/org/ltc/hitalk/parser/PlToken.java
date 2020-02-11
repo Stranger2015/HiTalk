@@ -147,6 +147,7 @@ public class PlToken implements ISourceCodePosition {
         TK_COLON(":"),
         TK_CONS("|");
 
+        public static final PlToken BOF = PlToken.newToken(TK_BOF);
         private String name;
         private String image;
 

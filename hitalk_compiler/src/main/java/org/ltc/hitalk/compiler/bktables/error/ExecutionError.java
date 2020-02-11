@@ -1,6 +1,5 @@
 package org.ltc.hitalk.compiler.bktables.error;
 
-import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.wam.compiler.HtFunctorName;
 
 /**
@@ -13,7 +12,7 @@ class ExecutionError extends RuntimeException {
     public ExecutionError() {
     }
 
-    public ExecutionError(Kind kind, String s, HtSourceCodeException cause) {
+    public ExecutionError(Kind kind, String s, Throwable cause) {
         this(kind, new HtFunctorName(s, 0));
 
         this.cause = cause;

@@ -31,6 +31,9 @@ class PropertyOwner implements IPropertyOwner {
         this(properties, new HtMethodDef[0], new HashMap<>(), new HashMap<>());
     }
 
+    public PropertyOwner() {
+    }
+
     /**
      * @param s
      * @param options

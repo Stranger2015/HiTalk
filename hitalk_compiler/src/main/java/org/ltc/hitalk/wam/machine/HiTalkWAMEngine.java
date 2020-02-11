@@ -6,18 +6,16 @@ import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.parser.*;
-import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.wam.compiler.HtFunctorName;
 import org.ltc.hitalk.wam.compiler.HtMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 
-import static org.apache.commons.lang3.CharEncoding.UTF_8;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind;
+import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.RESOURCE_ERROR;
 
 /**
  *
@@ -77,12 +75,19 @@ class HiTalkWAMEngine<T extends HtMethod, P, Q, PC, QC> extends HtResolutionEngi
         // Create a token source to load the model rules from.
         InputStream input = getClass().getClassLoader().getResourceAsStream(BUILT_IN_LIB);
         if (input == null) {
-            throw new ExecutionError(Kind.RESOURCE_ERROR, new HtFunctorName(BUILT_IN_LIB, 0));
+            throw new ExecutionError(RESOURCE_ERROR, new HtFunctorName(BUILT_IN_LIB, 0));
         } else {
-            PlLexer tokenSource = new PlLexer(new HiTalkInputStream(Paths.get(BUILT_IN_LIB), UTF_8, StandardOpenOption.READ));
-            // Set up a parser on the token source.
+            /**
+             * @param fileName
+             * @return
+             * @throws FileNotFoundException
+             */
+            PlLexer tokenSource = PlLexer.getTokenSourceForInputStream(input, BUILT_IN_LIB);
+//            HiTalkInputStream stream= appContext.createHiTalkInputStream(Paths.get(BUILT_IN_LIB));
+//            PlLexer tokenSource = new PlLexer(stream);
+//            stream.setTokenSource(tokenSource);
             IParser libParser = new HiTalkParser();
-            libParser.setTokenSource(tokenSource);
+            libParser.setTokenSource(tokenSource);       // Set up a parser on the token source.
             // Load the built-ins into the domain.
             try {
                 while (true) {
