@@ -11,7 +11,6 @@ import org.ltc.hitalk.wam.compiler.HtMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind;
@@ -77,11 +76,6 @@ class HiTalkWAMEngine<T extends HtMethod, P, Q, PC, QC> extends HtResolutionEngi
         if (input == null) {
             throw new ExecutionError(RESOURCE_ERROR, new HtFunctorName(BUILT_IN_LIB, 0));
         } else {
-            /**
-             * @param fileName
-             * @return
-             * @throws FileNotFoundException
-             */
             PlLexer tokenSource = PlLexer.getTokenSourceForInputStream(input, BUILT_IN_LIB);
 //            HiTalkInputStream stream= appContext.createHiTalkInputStream(Paths.get(BUILT_IN_LIB));
 //            PlLexer tokenSource = new PlLexer(stream);

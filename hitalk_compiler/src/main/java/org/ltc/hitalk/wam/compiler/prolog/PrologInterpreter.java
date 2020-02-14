@@ -95,27 +95,31 @@ public class PrologInterpreter<T extends HtClause, P, Q, PC, QC>
      * @return
      */
     @Override
-    public PlPrologParser getParser () {
+    public PlPrologParser getParser() {
         return parser;
     }
 
-    public IVafInterner getInterner () {
+    @Override
+    public IVafInterner getInterner() {
         return parser.getInterner();
     }
 
-    public void setInterner ( IVafInterner interner ) {
+    @Override
+    public void setInterner(IVafInterner interner) {
         parser.setInterner(interner);
     }
 
-    public ITermFactory getFactory () {
+    @Override
+    public ITermFactory getFactory() {
         return null;
     }
 
-    public IOperatorTable getOptable () {
+    public IOperatorTable getOptable() {
         return null;
     }
 
-    public void setOptable ( IOperatorTable optable ) {
+    @Override
+    public void setOptable(IOperatorTable optable) {
 
     }
 
@@ -123,7 +127,7 @@ public class PrologInterpreter<T extends HtClause, P, Q, PC, QC>
      * @return
      */
     @Override
-    public Language language () {
+    public Language language() {
         return parser.language();
     }
 

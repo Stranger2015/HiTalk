@@ -113,6 +113,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      *
      * @return The resolution engines interner.
      */
+    @Override
     public IVafInterner getInterner () {
         return interner;
     }

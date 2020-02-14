@@ -74,31 +74,35 @@ public class InteractiveParser implements IParser {
     /**
      * @return
      */
-    public PlPrologParser getParser () {
+    public PlPrologParser getParser() {
         return parser;
     }
 
-    public IVafInterner getInterner () {
+    @Override
+    public IVafInterner getInterner() {
         return parser.getInterner();
     }
 
-    public void setInterner ( IVafInterner interner ) {
+    @Override
+    public void setInterner(IVafInterner interner) {
         parser.setInterner(interner);
     }
 
-    public ITermFactory getFactory () {
+    @Override
+    public ITermFactory getFactory() {
         return parser.getFactory();
     }
 
-    public IOperatorTable getOptable () {
+    public IOperatorTable getOptable() {
         return parser.getOptable();
     }
 
-    public void setOptable ( IOperatorTable optable ) {
+    @Override
+    public void setOptable(IOperatorTable optable) {
         parser.setOptable(optable);
     }
 
-    public void toString0 ( StringBuilder sb ) {
+    public void toString0(StringBuilder sb) {
 
     }
 }

@@ -20,14 +20,14 @@ public class HtTermReader extends HtTermIO {
     /**
      *
      */
-    public HtTermReader(Path path, HiTalkInputStream stream, PlPrologParser parser) throws Exception {
-        super(path, stream);
-        this.stream = stream;
+    public HtTermReader(Path path, PlLexer lexer, PlPrologParser parser) throws Exception {
+        super(path, lexer.getInputStream());
         this.parser = parser;
+        this.parser.setTokenSource(lexer);
 //       input = new HiTalkInputStream(path, HiTalkInputStream.defaultEncoding);
 //                Paths.get(getPropMap().get("file_name").getValue().toString()),
 //                getPropMap().get("encoding").getValue().toString());
-        stream.open();
+        lexer.getInputStream().open();
     }
 
     public ITerm readTerm() throws Exception {
@@ -39,8 +39,8 @@ public class HtTermReader extends HtTermIO {
 
     public ITerm readTerm(HiTalkInputStream input, HtProperty... options) throws Exception {
         createOptions();
-        PlLexer lexer = new PlLexer(input, path);
-        parser.setTokenSource(lexer);
+//        PlLexer lexer = new PlLexer(input, path);
+//        parser.setTokenSource(lexer);
         return parser.parse();
     }
 

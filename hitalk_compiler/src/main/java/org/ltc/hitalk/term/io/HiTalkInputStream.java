@@ -102,9 +102,14 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
         setInputStream(fis);
     }
 
-    public HiTalkInputStream(Path path, String s, StandardOpenOption read) throws Exception {
-        super(path, s, read);
+    public HiTalkInputStream(Path path, String encoding, StandardOpenOption read) throws Exception {
+        super(path, encoding, read);
         setInputStream(new FileInputStream(path.toFile()));
+    }
+
+    public HiTalkInputStream(InputStream input, Path path) throws Exception {
+        this(path, "UTF-8", READ);
+        setInputStream(input);
     }
 
     /**

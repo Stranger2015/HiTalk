@@ -21,12 +21,12 @@ public interface IParser extends IHitalkObject {
     /**
      * @return
      */
-    PlPrologParser getParser();
+    HtPrologParser getParser();
 
     /**
      * @param parser
      */
-    default void setParser(PlPrologParser parser) {
+    default void setParser(HtPrologParser parser) {
         if (parser.getClass() == getParser().getClass()) {
             throw new IllegalStateException(
                     String.format("INTERNAL ERROR:%s#setParser()", parser.getClass().getSimpleName()));
@@ -38,7 +38,7 @@ public interface IParser extends IHitalkObject {
     /**
      * @param parser
      */
-    default void doSetParser(PlPrologParser parser) {
+    default void doSetParser(HtPrologParser parser) {
         getParser().setParser(parser);
     }
 
@@ -56,16 +56,31 @@ public interface IParser extends IHitalkObject {
         getParser().setStream(stream);
     }
 
+    /**
+     * @return
+     */
     IVafInterner getInterner();
 
+    /**
+     * @param interner
+     */
     void setInterner(IVafInterner interner);
 
+    /**
+     * @return
+     */
     ITermFactory getFactory()//fixme
     ;
 
+    /**
+     * @return
+     */
     IOperatorTable getOptable()//fixme
     ;
 
+    /**
+     * @param optable
+     */
     void setOptable(IOperatorTable optable);
 
     /**
@@ -140,7 +155,7 @@ public interface IParser extends IHitalkObject {
      * @return
      * @throws IOException
      */
-    ITerm next() throws Exception;
+    ITerm expr() throws Exception;
 
     /**
      * @return

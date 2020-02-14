@@ -484,6 +484,15 @@ public class PlDynamicOperatorParser implements IOperatorTable {
         return null;
     }
 
+    IdentifiedTerm getOperator(String name, Associativity associativity) {
+        for (IdentifiedTerm op : getOperators(name)) {
+            if (op.getAssociativity() == associativity) {
+                return op;
+            }
+        }
+        return null;
+    }
+
     /**
      * Prints the current state of this parser as a string, mainly for debugging purposes.
      *

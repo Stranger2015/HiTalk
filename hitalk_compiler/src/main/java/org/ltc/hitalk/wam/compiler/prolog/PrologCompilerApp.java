@@ -48,6 +48,7 @@ import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISS
 import static org.ltc.hitalk.core.Components.INTERNER;
 import static org.ltc.hitalk.core.Components.WAM_COMPILER;
 import static org.ltc.hitalk.parser.Directive.DirectiveKind.IF;
+import static org.ltc.hitalk.parser.PlLexer.getTokenSourceForPath;
 import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
 import static org.ltc.hitalk.wam.compiler.Tools.Kind.COMPILER;
 
@@ -73,7 +74,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
     protected ExecutionContext executionContext = new ExecutionContext();
     protected IProduct product = new HtProduct("Copyright (c) Anton Danilov 2018-2020, All rights reserved.",
             language().getName() + " " + tool().getName(),
-            new HtVersion(0, 1, 1, 224, "", false));
+            new HtVersion(0, 1, 1, 378, "", false));
     protected ICompilerObserver<P, Q> observer;
     protected IVafInterner interner = getAppContext().getInterner();
 
@@ -93,7 +94,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
         fileName = Paths.get(fn).toAbsolutePath();
         appContext.setApp(this);
         termReader = new HtTermReader(fileName,
-                BaseApp.appContext.createHiTalkInputStream(fileName/*, "UTF-8"*/),
+                getTokenSourceForPath(fileName/*, "UTF-8"*/),
                 appContext.getParser());
     }
 
@@ -168,10 +169,10 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
         setInterner(new VafInterner(
                 language().getName() + "_Variable_Namespace",
                 language().getName() + "_Functor_Namespace"));
-        appCtx.setInputStream(appContext.createHiTalkInputStream(fileName));
+//        appCtx.setInputStream(appContext.createHiTalkInputStream(fileName));
         appCtx.setTermFactory(appCtx.getInterner());
         setParser(new PlPrologParser());
-        appCtx.setTermReader(new HtTermReader(fileName, appCtx.getInputStream(), getParser()));
+        appCtx.setTermReader(new HtTermReader(fileName, getTokenSourceForPath(fileName), getParser()));
         setWAMCompiler(cf.createWAMCompiler(language()));
     }
 
@@ -295,15 +296,21 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
                         }
                     }
 
+                    /**
+                     * @param sentence The compiled form of the sentence.
+                     */
                     public void onCompilation(P sentence) {
 
                     }
 
+                    /**
+                     * @param sentence The compiled query.
+                     */
                     public void onQueryCompilation(Q sentence) {
 
                     }
                 });
-                getWAMCompiler().compile((T) fileName, loadContext.getProps());
+                getWAMCompiler().compile(getTokenSourceForPath(fileName), loadContext.getProps());
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new ExecutionError(PERMISSION_ERROR, null);

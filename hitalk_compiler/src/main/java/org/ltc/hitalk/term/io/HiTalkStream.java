@@ -456,6 +456,11 @@ class HiTalkStream extends PropertyOwner implements PropertyChangeListener, Clon
 
     protected Charset currentCharset = defaultCharset();
     protected StreamDecoder sd;
+
+    public Path getPath() {
+        return path;
+    }
+
     protected Path path;
     //    private final String charset;
     protected StandardOpenOption[] option;

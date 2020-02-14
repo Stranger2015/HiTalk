@@ -40,6 +40,7 @@ import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
 /**
  * @author shun
  */
+@Deprecated
 public class PlPrologParser implements IParser {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
@@ -48,13 +49,13 @@ public class PlPrologParser implements IParser {
     /**
      *
      */
-    public enum ParserState {
-        START,
-
-        FINISH
-    }
-
-    ParserState state = ParserState.START;
+//    public enum ParserState {
+//        START,
+//
+//        FINISH
+//    }
+//
+//    ParserState state = ParserState.START;
     final Map<TokenKind, Class<?>> map = new HashMap<>();
 
     public static final String BEGIN_OF_FILE_STRING = "begin_of_file";

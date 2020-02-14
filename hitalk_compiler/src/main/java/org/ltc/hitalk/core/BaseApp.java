@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -783,6 +784,16 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
          */
         public HiTalkStream getStreams(int i) {
             return streams.get(i);
+        }
+
+        /**
+         * @param input
+         * @param path
+         * @return
+         * @throws Exception
+         */
+        public HiTalkInputStream createHiTalkInputStream(InputStream input, Path path) throws Exception {
+            return new HiTalkInputStream(input, path);
         }
     }
 }

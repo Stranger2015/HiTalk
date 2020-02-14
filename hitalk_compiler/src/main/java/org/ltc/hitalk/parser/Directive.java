@@ -16,24 +16,38 @@ public class Directive extends HtClause {
 
     public enum DirectiveKind {
         //        CONDITIONAL_COMPILATION,
-        IF(functor -> {
-        }),
-        ELSE(functor -> {
-        }),
-        ELIF(functor -> {
-        }),
-        ENDIF(functor -> {
-        }),
+        DK_IF(DirectiveKind::_if),
+        DK_ELSE(DirectiveKind::_else),
+        DK_ELIF(DirectiveKind::elif),
+        DK_ENDIF(DirectiveKind::endif),
 
-        ENCODING(functor -> {
-        }),
-        INCLUDE(functor -> {
-        }),
-        OP(functor -> {
-        }),
+        DK_ENCODING(DirectiveKind::encoding),
+        DK_INCLUDE(DirectiveKind::include),
+        DK_OP(DirectiveKind::op),
         ;
 
-        DirectiveKind ( Consumer <IFunctor> handler ) {
+        DirectiveKind(Consumer<IFunctor> handler) {
+        }
+
+        private static void op(IFunctor functor) {
+        }
+
+        private static void include(IFunctor functor) {
+        }
+
+        private static void encoding(IFunctor functor) {
+        }
+
+        private static void endif(IFunctor functor) {
+        }
+
+        private static void elif(IFunctor functor) {
+        }
+
+        private static void _else(IFunctor functor) {
+        }
+
+        private static void _if(IFunctor functor) {
         }
     }
 

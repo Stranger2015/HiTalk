@@ -23,6 +23,7 @@ import static java.util.EnumSet.of;
 import static org.ltc.hitalk.core.BaseApp.AppContext;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
 import static org.ltc.hitalk.parser.Directive.DirectiveKind.IF;
+import static org.ltc.hitalk.parser.PlLexer.getTokenSourceForIoFileName;
 import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
 
 /**
@@ -100,6 +101,11 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
         instructionCompiler.endScope();
     }
 
+    /**
+     * @param clause
+     * @param flags
+     * @throws HtSourceCodeException
+     */
     @Override
     public void compile(T clause, HtProperty... flags) throws HtSourceCodeException {
 //        instructionCompiler.compile(clause, flags);
@@ -130,7 +136,7 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
      */
     @Override
     public List<HtClause> compileFile(String fn, HtProperty... flags) throws Exception {
-        return compile(PlLexer.getTokenSourceForIoFileName(fn));
+        return compile(getTokenSourceForIoFileName(fn));
     }
 
     /**

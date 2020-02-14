@@ -28,6 +28,7 @@ import static java.util.EnumSet.noneOf;
 import static org.ltc.hitalk.core.BaseApp.appContext;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
 import static org.ltc.hitalk.parser.Directive.DirectiveKind.ENCODING;
+import static org.ltc.hitalk.parser.Directive.DirectiveKind.IF;
 import static org.ltc.hitalk.parser.PlPrologParser.BEGIN_OF_FILE;
 import static org.ltc.hitalk.parser.PlPrologParser.END_OF_FILE;
 
@@ -130,7 +131,7 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
             ITerm t = getParser().next();
             if (t == BEGIN_OF_FILE) {
                 getLogger().info("begin_of_file");
-                getQueue().push(new TermExpansionTask(this, tokenSource, EnumSet.of(ENCODING)));
+                getQueue().push(new TermExpansionTask(this, tokenSource, EnumSet.of(IF, ENCODING)));
 //                continue;
             } else if (t == END_OF_FILE) {
                 getLogger().info("end_of_file");
