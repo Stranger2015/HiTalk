@@ -223,26 +223,6 @@ public class PlPrologParser implements IParser {
         }
     }
 
-    /**
-     * @return
-     */
-    @Override
-    public PlLexer popTokenSource() throws IOException {
-        if (!tokenSourceStack.isEmpty()) {
-            PlLexer ts = tokenSourceStack.peek();
-            ts.getInputStream().removeListener(ts);
-            ts = tokenSourceStack.pop();
-            ts.getInputStream().addListener(ts);
-
-            logger.info("Popping TS " + ts + "... ");
-            ts.close();
-            if (tokenSourceStack.isEmpty()) {
-                state = ParserState.FINISH;
-            }
-            return ts;
-        }
-        return null;
-    }
 
     /**
      * @return

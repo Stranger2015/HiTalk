@@ -11,6 +11,7 @@ public class PlToken implements ISourceCodePosition {
      * The string image of the token.
      */
     public String image;
+    private boolean spacesOccurred;
 
     @Override
     public void setBeginLine(int beginLine) {
@@ -103,9 +104,19 @@ public class PlToken implements ISourceCodePosition {
     /**
      * @return
      */
-
     public boolean isNumber() {
         return false;
+    }
+
+    /**
+     * @param spacesOccurred
+     */
+    public void setSpacesOccured(boolean spacesOccurred) {
+        this.spacesOccurred = spacesOccurred;
+    }
+
+    public boolean isSpacesOccurred() {
+        return spacesOccurred;
     }
 
     /**

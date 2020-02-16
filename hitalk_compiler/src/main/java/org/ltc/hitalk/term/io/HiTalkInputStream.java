@@ -129,6 +129,10 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
         return -1;
     }
 
+    public int getReads() {
+        return reads;
+    }
+
     /**
      * Read the byte from input stream
      *

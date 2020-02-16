@@ -1,4 +1,4 @@
-package org.ltc.hitalk.parser;
+                package org.ltc.hitalk.parser;
 
 
 import org.ltc.hitalk.compiler.IVafInterner;
@@ -23,36 +23,39 @@ import static org.ltc.hitalk.core.BaseApp.getAppContext;
 import static org.ltc.hitalk.entities.PropertyOwner.createProperty;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
 
-/**
- * @author shun
- */
-public class PlLexer implements PropertyChangeListener/*, Stream<PlToken>, Iterator<PlToken> */ {
-    public static final String PUNCTUATION = ";,!|.";
-    public static final String SPECIAL = "#$&*+-/:<=>?@\\^~";
-    public static final String PARENTHESES = "(){}[]";
-    public static final String DELIMITERS = "\"'`";
+                /**
+                 * @author shun
+                 */
+                public class PlLexer implements PropertyChangeListener {
+                    public static final String PUNCTUATION = ";,!|.";
+                    public static final String SPECIAL = "#$&*+-/:<=>?@\\^~";
+                    public static final String PARENTHESES = "(){}[]";
+                    public static final String DELIMITERS = "\"'`";
 
-    protected HiTalkInputStream inputStream;
-    protected boolean encodingPermitted;
-    protected IOperatorTable optable = getAppContext().getOpTable();
+                    protected HiTalkInputStream inputStream;
+                    protected boolean encodingPermitted;
+                    protected IOperatorTable optable = getAppContext().getOpTable();
 
-    private PlToken lastToken;
+                    private PlToken lastToken;
 
-    public static PlLexer getTokenSourceForInputStream(InputStream input, String s) throws Exception {
-        Path path = Paths.get(s);
-        HiTalkInputStream stream = appContext.createHiTalkInputStream(input, path);
-        return new PlLexer(stream, path);
-    }
+                    public static PlLexer getTokenSourceForInputStream(InputStream input, String s) throws Exception {
+                        Path path = Paths.get(s);
+                        HiTalkInputStream stream = appContext.createHiTalkInputStream(input, path);
+                        return new PlLexer(stream, path);
+                    }
 
-    public TokenBuffer getPushBackBuffer() {
-        return pushBackBuffer;
-    }
+                    /**
+                     * @return
+                     */
+                    public TokenBuffer getPushBackBuffer() {
+                        return pushBackBuffer;
+                    }
 
-    protected TokenBuffer pushBackBuffer;
-    /**
-     * Holds the tokenizer that supplies the next token on demand.
-     */
-    protected IVafInterner interner;
+                    protected TokenBuffer pushBackBuffer;
+                    /**
+                     * Holds the tokenizer that supplies the next token on demand.
+                     */
+                    protected IVafInterner interner;
 
     private boolean encodingChanged;
     private Path path;
@@ -89,7 +92,6 @@ public class PlLexer implements PropertyChangeListener/*, Stream<PlToken>, Itera
 //     The first token is initialized to be empty, so that the first call to `poll` returns the first token.
         lastToken = new PlToken(TK_BOF);
         encodingPermitted = true;
-//        resetSyntax();
     }
 
     /**
@@ -270,8 +272,9 @@ public class PlLexer implements PropertyChangeListener/*, Stream<PlToken>, Itera
      * @throws Exception
      */
     public PlToken getToken(boolean valued) throws Exception {
+        boolean spacesOccurred = false;
         try {
-            skipWhitespaces();
+            spacesOccurred = skipWhitespaces();
             int chr = read();
             if (chr == -1) {
                 lastToken = PlToken.newToken(TK_EOF);
@@ -307,6 +310,8 @@ public class PlLexer implements PropertyChangeListener/*, Stream<PlToken>, Itera
         } catch (EOFException e) {
             lastToken = PlToken.newToken(TK_EOF);
         }
+
+        lastToken.setSpacesOccured(spacesOccurred);
 
         return lastToken;
     }
@@ -455,34 +460,39 @@ public class PlLexer implements PropertyChangeListener/*, Stream<PlToken>, Itera
         return result.toString();
     }
 
-    /**
-     * @throws Exception
-     */
-    private void skipWhitespaces() throws Exception {
-        for (; ; ) {
-            int chr = read();
-            if (!isWhitespace((char) chr)) {
-                if (chr == '%') {
-                    getInputStream().readLine();
-                    continue;
-                }
-                if (chr == '/') {
-                    int c = read();
-                    if (c == '*') {
+                    /**
+                     * @return
+                     * @throws Exception
+                     */
+                    private boolean skipWhitespaces() throws Exception {
+                        int spaces = 0;
+                        final int mark1 = inputStream.getReads();
+                        for (; ; ) {
+                            int chr = read();
+                            if (!isWhitespace((char) chr)) {
+                                if (chr == '%') {
+                                    getInputStream().readLine();
+                                    continue;
+                                }
+                                if (chr == '/') {
+                                    int c = read();
+                                    if (c == '*') {
                         while (true) {
                             if (read() == '*' && read() == '/') {
                                 break;
                             }
                         }
-                        continue;
+                                        continue;
+                                    }
+                                    ungetc(c);
+                                }
+                                ungetc(chr);
+                                break;
+                            }
+                        }
+
+                        return inputStream.getReads() - mark1 > 0;
                     }
-                    ungetc(c);
-                }
-                ungetc(chr);
-                break;
-            }
-        }
-    }
 
     /**
      * @param c
