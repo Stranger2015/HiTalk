@@ -9,7 +9,10 @@ import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.IdentifiedTerm;
 import org.ltc.hitalk.term.IdentifiedTerm.Associativity;
+import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
+import org.ltc.hitalk.wam.compiler.HtFunctor;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.Language;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,10 +22,10 @@ import java.util.*;
 
 import static java.util.EnumSet.of;
 import static java.util.Objects.requireNonNull;
+import static org.ltc.hitalk.core.BaseApp.appContext;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
 import static org.ltc.hitalk.core.utils.TermUtilities.convertToClause;
-import static org.ltc.hitalk.parser.Directive.DirectiveKind.DK_ENCODING;
-import static org.ltc.hitalk.parser.Directive.DirectiveKind.DK_IF;
+import static org.ltc.hitalk.parser.Directive.DirectiveKind.*;
 import static org.ltc.hitalk.parser.HtPrologParser.ParserState.*;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
 import static org.ltc.hitalk.parser.PlToken.newToken;
@@ -320,16 +323,18 @@ public class HtPrologParser implements IParser {
     }
 
     // * BNF part 2: Parser
+    //================================================================================================================
     // * term ::=
     //      exprA(1200)
-
+    //============================
     // * exprA(n) ::=
     //      exprB(n) { op(yfx,n) exprA(n-1) | op(yf,n) }*
-
+//============================
     // * exprB(n) ::=
     //      exprC(n-1) { op(xfx,n) exprA(n-1) | op(xfy,n) exprA(n) | op(xf,n) }*
-
+//
     // * // exprC is called parseLeftSide in the code
+    //============================
     // * exprC(n) ::=
     //      '-' integer | '-' float |
     //      op( fx,n ) exprA(n-1) |
@@ -337,7 +342,7 @@ public class HtPrologParser implements IParser {
     // *    op( fy,n ) exprA(n) |
     // *    op( hy,n ) exprA(n) |
     // *               exprA(n)
-
+    //=================================================================================================================
     //  expr_A0 ::=
     //      integer |
     //      float |
@@ -345,28 +350,26 @@ public class HtPrologParser implements IParser {
     //      variable |
     //      list     |
     //      functor
-
+    //============================
     // functor ::= functorName args
-
-    //    fnctorName ::=  expr_A0
-    //
-//     args ;;= '(' sequence ')' |
-//     list ::= '[' sequence ']' |
-
-    //    '('  { exprA(1200) }* ')'  //block
-    //    '{'  { exprA(1200) }* '}'
-
-    //    op(type,n) ::=
-    //      atom | { symbol }+
-//
-//      sequence ::=
-//          [ heads, tail ]
-
-//      heads ::=
-//            [ exprA(1200) { ',' exprA(1200) }* ]
-
-//      tail ::=
-//            [ '|' (variable | List) ]
+    //============================
+    // fnctorName ::= expr_A0
+    // ============================
+    // args ;;= '(' sequence ')'
+    //----------------------------
+    // list ::= '[' sequence ']'
+//===========================
+//     block ::= '('  { exprA(1200) }* ')'  //block
+//============================
+//     bypass_blk ::= '{' { exprA(1200) }* '}'
+//============================
+//     op(type,n) ::= atom | { symbol }+
+//============================
+//     sequence ::= [ heads, tail ]
+//============================
+//     heads ::= [ exprA(1200) { ',' exprA(1200) }* ]
+//============================
+//     tail ::=  [ '|' (variable | list) ]
 
     /**
      * @return
@@ -374,25 +377,39 @@ public class HtPrologParser implements IParser {
      */
     @Override
     public ITerm expr() throws Exception {
-        PlToken token = PlToken.newToken(TK_BOF);//getLexer().getToken(true);
+        PlToken token = PlToken.newToken(TK_BOF);
         EnumSet<Associativity> assocs = of(x);
-        EnumSet<DirectiveKind> directiveKinds = of(DK_IF, DK_ENCODING);
+        EnumSet<DirectiveKind> directiveKinds = of(DK_IF, DK_ENCODING, DK_HILOG);
         EnumSet<TokenKind> rDelims = of(TK_DOT);
-        StateRecord currentState = createState(START, assocs, directiveKinds, rDelims, MAX_PRIORITY, token);
-        states.push(currentState);
+        newState(START, assocs, directiveKinds, rDelims, MAX_PRIORITY, token);
         lastTerm = BEGIN_OF_FILE;
         for (; ; ) {
             switch (states.peek().getParserState()) {
                 case START:
-                    currentState = createExpr_AState(of(DK_IF, DK_ENCODING), of(TK_DOT), currPriority, token);
+                    newState(EXPR_A,
+                            of(yfx, yf),
+                            of(DK_IF, DK_ENCODING, DK_HILOG),
+                            of(TK_DOT),
+                            currPriority,
+                            token);
                     break;
                 case EXPR_A:
-                    currentState = createExpr_BState(of(DK_IF), of(TK_DOT), currPriority, token);
+                    newState(EXPR_B,
+                            of(xfx, xfy, xf),
+                            of(DK_IF),
+                            of(TK_DOT),
+                            currPriority,
+                            token);
                     break;
                 case EXPR_A_EXIT://========================
                     break;
                 case EXPR_B:
-                    currentState = createExpr_CState(of(DK_IF), of(TK_DOT), currPriority, token);
+                    newState(EXPR_C,
+                            of(fx, fy, hx, hy),
+                            of(DK_IF, DK_HILOG),
+                            of(TK_DOT),
+                            currPriority - 1,
+                            token);
                     break;
                 case EXPR_B_EXIT://========================
                     break;
@@ -403,27 +420,147 @@ public class HtPrologParser implements IParser {
                             lastTerm = tryOperators(token.image, EnumSet.of(fx), currPriority - 1);
                         }
                     }
-                    currentState = createState(EXPR_A,
-                            of(fx, fy),
+                    newState(EXPR_A,
+                            of(fx, fy, hx, hy),
                             of(DK_IF),
                             of(TK_DOT),
                             MAX_PRIORITY,
-                            token);
+                            token
+                    );
                     break;
                 case EXPR_C_EXIT://=======================
                     break;
                 case EXPR_A0:
-                    break;
+                    token = getLexer().getToken(true);
+                    switch (token.kind) {
+                        switch (token.kind) {
+                            case TK_BOF:
+                                lastTerm = BEGIN_OF_FILE;
+                                break;
+                            case TK_EOF:
+                                lastTerm = END_OF_FILE;
+                                popTokenSource();
+                                break;
+                            case TK_DOT:
+//                            createState(FINISH);
+                                break;
+                            case TK_LPAREN:
+                                if (isFunctorBegin()) {
+                                    directiveKinds = of(DK_IF);
+                                    rDelims = of(TK_RPAREN);
+                                    newState(EXPR_A0_ARGS,
+                                            of(x),
+                                            directiveKinds,
+                                            this.rDelims,
+                                            MAX_PRIORITY,
+                                            token);
+                                    if (lastTerm.isHiLog()) {
+                                        lastTerm == termFactory.newHiLogFunctor(lastTerm, new ListTerm(xxx));
+                                    } else if (lastTerm.isAtom()) {
+                                        int name = ((IFunctor) lastTerm).getName();
+                                        int arity = ((IFunctor) lastTerm).getArity();
+                                        lastTerm = new HtFunctor(name, new ListTerm(arity));
+                                    } else {
+                                        throw new ParserException("Possibly undeclared HILOG term ->%s<- ", token);
+                                    }
+                                } else {
+                                    lastTerm = readBlock();
+                                }
+                                break;
+                            case TK_LBRACKET:
+                                rDelims.add(TK_RBRACKET);
+                                newState(EXPR_A0_LIST,
+                                        of(x),
+                                        of(DK_IF),
+                                        of(TK_DOT),
+                                        MAX_PRIORITY,
+                                        token);
+                                break;
+                            case TK_LBRACE:
+                                rDelims = of(TK_COMMA, TK_RBRACE);
+                                newState(EXPR_A,
+                                        assocs,
+                                        directiveKinds,
+                                        rDelims,
+                                        MAX_PRIORITY,
+                                        token);
+                                break;
+                            case TK_RBRACE:
+                            case TK_RBRACKET:
+                            case TK_RPAREN:
+                                states.pop();
+                                break;
+                            case TK_D_QUOTE:
+
+                            case TK_S_QUOTE:
+                            case TK_B_QUOTE:
+                                break;
+                            case TK_INTEGER_LITERAL:
+                                break;
+                            case TK_DECIMAL_LITERAL:
+                                break;
+                            case TK_HEX_LITERAL:
+                                break;
+                            case TK_FLOATING_POINT_LITERAL:
+                                break;
+                            case TK_DECIMAL_EXPONENT:
+                                break;
+                            case TK_CHARACTER_LITERAL:
+                                break;
+                            case TK_STRING_LITERAL:
+                                break;
+                            case TK_VAR:
+                                lastTerm = termFactory.newVariable(token.image);
+                                continue;
+//                        case TK_FUNCTOR_BEGIN:
+//                            continue;
+                            case TK_ATOM:
+                            case TK_QUOTED_NAME:
+                            case TK_SYMBOLIC_NAME:
+                                lastTerm = new HtFunctor(appContext.getInterner().internFunctorName(token.image, 0));
+                                break;
+                            case TK_DIGIT:
+                                break;
+                            case TK_ANY_CHAR:
+                                break;
+                            case TK_LOWERCASE:
+                                break;
+                            case TK_UPPERCASE:
+                                break;
+                            case TK_SYMBOL:
+                                break;
+                            case TK_COMMA:
+                                break;
+                            case TK_SEMICOLON:
+                                break;
+                            case TK_COLON:
+                                break;
+                            case TK_CONS:
+                                break;
+                        }
+                        break;
+                        case EXPR_A0_BRACKET:
+                            break;
+                        case EXPR_A0_BRACKET_EXIT://===========================
+                            break;
+                        case EXPR_A0_BRACE:
+                            break;
+                        case EXPR_A0_BRACE_EXIT://=============================
+                            break;
+                        case FINISH:
+//                    createState(PlToken.newToken(TK_EOF);
+                            break;
+                        default:
+                            throw new IllegalStateException("Unexpected value: " + states.peek().getParserState());
+                    }
                 case EXPR_A0_ARGS:
-//                    states.push(currentState);
                     rDelims = of(TK_COMMA, TK_CONS, TK_RPAREN);
-//                    currentState = createState(EXPR_A0_HEADS);
                     while (true) {
                         token = getLexer().getToken(true);
                         if (rDelims.contains(token.kind)) {
                             break;
                         }
-                        createState(EXPR_A,
+                        newState(EXPR_A,
                                 of(x),
                                 of(DK_IF),
                                 of(TK_RPAREN, TK_RBRACE, TK_RBRACKET),
@@ -432,7 +569,7 @@ public class HtPrologParser implements IParser {
                     }
                     break;
                 case EXPR_A0_HEADS:
-                    currentState = createState(
+                    newState(
                             EXPR_A0_TAIL,
                             of(yfx, yf),
                             of(DK_IF),
@@ -444,14 +581,15 @@ public class HtPrologParser implements IParser {
                     token = getLexer().getToken(true);
                     if (EnumSet.of(TK_VAR, TK_LBRACKET).contains(token.kind)) {
                         if (token.kind == TK_LBRACKET) {
-                            states.push(currentState);
+                            final StateRecord listState;
+                            states.push(listState);
                         }
                     }
                     break;
                 case EXPR_A0_LIST:
                     states.push(currentState);
                     rDelims = of(TK_COMMA, TK_CONS, TK_RBRACKET);
-//                    currentState = createState(EXPR_A0_HEADS);
+//                    createState(EXPR_A0_HEADS);
                     break;
                 case EXPR_A0_BYPASS:
                     states.push(currentState);
@@ -459,122 +597,20 @@ public class HtPrologParser implements IParser {
                     break;
                 case EXPR_A0_BLOCK:
                     token = getLexer().getToken(true);
-                    switch (token.kind) {
-                        case TK_BOF:
-                            lastTerm = BEGIN_OF_FILE;
-                            break;
-                        case TK_EOF:
-                            lastTerm = END_OF_FILE;
-                            popTokenSource();
-                            break;
-                        case TK_DOT:
-//                            createState(FINISH);
-                            break;
-                        case TK_LPAREN:
-                            if (isFunctorBegin()) {
-                                directiveKinds = of(DK_IF);
-                                this.rDelims = of(TK_RPAREN);
-                                states.push(currentState);
-                                currentState = createState(
-                                        EXPR_A0_ARGS,
-                                        of(x),
-                                        directiveKinds,
-                                        this.rDelims,
-                                        MAX_PRIORITY,
-                                        token);
-                            } else {
-                                lastTerm = readBlock();
-                            }
-                            break;
-                        case TK_LBRACKET:
-                            this.rDelims.add(TK_RBRACKET);
-                            currentState = createState(
-                                    EXPR_A0_LIST,
-                                    of(x),
-                                    of(DK_IF),
-                                    of(TK_DOT),
-                                    MAX_PRIORITY,
-                                    token);
 
-                        case TK_LBRACE:
-                            this.rDelims = of(TK_COMMA, TK_RBRACE);
-                            currentState = createState(
-                                    EXPR_A,
-                                    assocs,
-                                    directiveKinds,
-                                    rDelims,
-                                    MAX_PRIORITY,
-                                    token);
-                            break;
-                        case TK_RBRACE:
-                        case TK_RBRACKET:
-                        case TK_RPAREN:
-                            currentState = states.pop();
-                            break;
-                        case TK_D_QUOTE:
-                        case TK_S_QUOTE:
-                        case TK_B_QUOTE:
-                            break;
-                        case TK_INTEGER_LITERAL:
-                            break;
-                        case TK_DECIMAL_LITERAL:
-                            break;
-                        case TK_HEX_LITERAL:
-                            break;
-                        case TK_FLOATING_POINT_LITERAL:
-                            break;
-                        case TK_DECIMAL_EXPONENT:
-                            break;
-                        case TK_CHARACTER_LITERAL:
-                            break;
-                        case TK_STRING_LITERAL:
-                            break;
-                        case TK_VAR:
-                            lastTerm = termFactory.newVariable(token.image);
-                            continue;
-                        case TK_FUNCTOR_BEGIN:
-                            continue;
-                        case TK_ATOM:
-                        case TK_QUOTED_NAME:
-                        case TK_SYMBOLIC_NAME:
-                            break;
-                        case TK_DIGIT:
-                            break;
-                        case TK_ANY_CHAR:
-                            break;
-                        case TK_LOWERCASE:
-                            break;
-                        case TK_UPPERCASE:
-                            break;
-                        case TK_SYMBOL:
-                            break;
-                        case TK_COMMA:
-                            break;
-                        case TK_SEMICOLON:
-                            break;
-                        case TK_COLON:
-                            break;
-                        case TK_CONS:
-                            break;
-                    }
-                    break;
-                case EXPR_A0_BRACKET:
-                    break;
-                case EXPR_A0_BRACKET_EXIT://===========================
-                    break;
-                case EXPR_A0_BRACE:
-                    break;
-                case EXPR_A0_BRACE_EXIT://=============================
-                    break;
-                case FINISH:
-//                    createState(PlToken.newToken(TK_EOF);
-                    break;
-                default:
-                    throw new IllegalStateException("Unexpected value: " + states.peek().getParserState());
             }
         }
+    }
 
-        return lastTerm;
+    private StateRecord newState(ParserState exprA,
+                                 EnumSet<Associativity> assocs,
+                                 EnumSet<DirectiveKind> dk,
+                                 EnumSet<TokenKind> tk,
+                                 int currPriority,
+                                 PlToken token) {
+        final StateRecord sr = createState(exprA, assocs, dk, tk, currPriority, token);
+        states.push(sr);
+        return sr;
     }
 
     /**
@@ -590,30 +626,6 @@ public class HtPrologParser implements IParser {
     public boolean isFunctorBegin() {
         final PlToken token = getLexer().getLastToken();
         return token.kind == TK_LPAREN && token.isSpacesOccurred();
-    }
-
-
-    private StateRecord createExpr_CState(EnumSet<DirectiveKind> dkIf, EnumSet<TokenKind> tkDot, int currPriority, PlToken token) {
-        return null;
-    }
-
-    private StateRecord createExpr_BState(EnumSet<DirectiveKind> dkIf, EnumSet<TokenKind> tkDot, int currPriority, PlToken token) {
-        return null;
-    }
-
-    private StateRecord createExpr_AState(EnumSet<DirectiveKind> dkIf, EnumSet<TokenKind> tkDot, int currPriority, PlToken token) {
-        return null;
-    }
-
-    private StateRecord createExpr_A0_ExitState() {
-        return null;
-    }
-
-    private StateRecord createExprAState(EnumSet<DirectiveKind> directiveKinds,
-                                         EnumSet<TokenKind> tokenKinds,
-                                         int currPriority,
-                                         PlToken token) {
-        return null;
     }
 
     private ITerm readBlock() {

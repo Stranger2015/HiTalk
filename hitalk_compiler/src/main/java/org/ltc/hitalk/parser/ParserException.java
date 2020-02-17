@@ -3,10 +3,11 @@ package org.ltc.hitalk.parser;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.wam.compiler.HtFunctorName;
 
-public class ParserException extends ExecutionError {
+import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.SYNTAX_ERROR;
 
-    final private int row;
-    final private int col;
+public class ParserException extends ExecutionError {
+    private int row;
+    private int col;
     protected String key;
     protected String userMessage;
 
@@ -23,9 +24,18 @@ public class ParserException extends ExecutionError {
      *                later retrieval by the {@link #getMessage()} method.
      */
     public ParserException(String message, int row, int col) {
-        super(Kind.SYNTAX_ERROR, new HtFunctorName(message, col, row));
+        super(SYNTAX_ERROR, new HtFunctorName(message, col, row));
         this.row = row;
         this.col = col;
+    }
+
+    /**
+     * @param format
+     * @param token
+     * @param objs
+     */
+    public ParserException(String format, PlToken token, Object... objs) {
+        super(SYNTAX_ERROR, new HtFunctorName(String.format(format, objs), token.beginColumn, token.beginLine));
     }
 //    /**
 //     * Constructs a new runtime exception with the specified detail message.

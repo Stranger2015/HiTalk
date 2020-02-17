@@ -55,8 +55,9 @@ public class IdentifiedTerm extends HtFunctor implements Comparable<IdentifiedTe
      *
      */
     protected boolean builtIn;
-    public int lprio;
-    public int rprio;
+
+    public int leftPriority;
+    public int rightPriority;
     /**
      * Holds the raw text name of this operator.
      */
@@ -114,8 +115,20 @@ public class IdentifiedTerm extends HtFunctor implements Comparable<IdentifiedTe
      * @param yf1
      * @param result
      */
-    public IdentifiedTerm(String image, Associativity yf, int yf1, ITerm result) {
+    public IdentifiedTerm(String image,
+                          Associativity yf,
+                          int yf1,
+                          ITerm result) {
         this(image, yf, yf1, result, null);
+    }
+
+
+    public int getLeftPriority() {
+        return leftPriority;
+    }
+
+    public int getRightPriority() {
+        return rightPriority;
     }
 
 //    public boolean equals(Object o) {
@@ -156,7 +169,11 @@ public class IdentifiedTerm extends HtFunctor implements Comparable<IdentifiedTe
      * @param associativity Specifies the associativity of the operator.
      * @param priority      The operators priority.
      */
-    public IdentifiedTerm(int name, String textName, Associativity associativity, int priority, boolean builtIn) {
+    public IdentifiedTerm(int name,
+                          String textName,
+                          Associativity associativity,
+                          int priority,
+                          boolean builtIn) {
         super(name, new ListTerm(associativity.arity));
         this.priority = priority;
         this.builtIn = builtIn;
@@ -172,7 +189,7 @@ public class IdentifiedTerm extends HtFunctor implements Comparable<IdentifiedTe
     }
 
     /**
-     * 与えられた演算子の並び順が表記上正しいかどうかを判別します。
+     *
      */
     public static boolean isCorrectOrder(Associativity l, Associativity r) {
         l = l.round();
@@ -246,21 +263,6 @@ public class IdentifiedTerm extends HtFunctor implements Comparable<IdentifiedTe
     public String getTextName() {
         return textName;
     }
-
-    /**
-     * @return
-     */
-    public int getLprio() {
-        return lprio;
-    }
-
-    /**
-     * @return
-     */
-    public int getRprio() {
-        return rprio;
-    }
-
 
     /**
      * Provides the symbols fixity, derived from its associativity.
@@ -340,15 +342,15 @@ public class IdentifiedTerm extends HtFunctor implements Comparable<IdentifiedTe
         return leftOps.contains(associativity);
     }
 
-    /**
-     * Compares this object with the specified object for order, providing a negative integer, zero, or a positive
-     * integer as this symbols priority is less than, equal to, or greater than the comparator. If this symbol is 'less'
-     * than another that means that it has a lower priority value, which means that it binds more tightly.
-     *
-     * @param o The object to be compared with.
-     * @return A negative integer, zero, or a positive integer as this symbols priority is less than, equal to, or
-     * greater than the comparator.
-     */
+//    /**
+//     * Compares this object with the specified object for order, providing a negative integer, zero, or a positive
+//     * integer as this symbols priority is less than, equal to, or greater than the comparator. If this symbol is 'less'
+//     * than another that means that it has a lower priority value, which means that it binds more tightly.
+//     *
+//     * @param o The object to be compared with.
+//     * @return A negative integer, zero, or a positive integer as this symbols priority is less than, equal to, or
+//     * greater than the comparator.
+//     */
 //    public int compareTo ( Object o ) {
 //        return priority - ((HlOpSymbol) o).priority;
 //    }

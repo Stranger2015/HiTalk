@@ -24,7 +24,11 @@ public class Directive extends HtClause {
         DK_ENCODING(DirectiveKind::encoding),
         DK_INCLUDE(DirectiveKind::include),
         DK_OP(DirectiveKind::op),
-        ;
+        DK_HILOG(DirectiveKind::hilog);
+
+        private static void hilog(IFunctor functor) {
+
+        }
 
         DirectiveKind(Consumer<IFunctor> handler) {
         }
