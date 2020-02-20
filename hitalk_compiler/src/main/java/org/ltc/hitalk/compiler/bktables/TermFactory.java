@@ -19,11 +19,12 @@ import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
+import static java.lang.Double.parseDouble;
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.MIN_VALUE;
+import static java.util.Arrays.asList;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
 import static org.ltc.hitalk.parser.HiLogParser.HILOG_APPLY_STRING;
 import static org.ltc.hitalk.parser.PlPrologParser.ANONYMOUS;
@@ -133,7 +134,7 @@ public class TermFactory implements ITermFactory {
 //        this.headTail = headTail;
 //        if (headTail.length ==1){ //[|VarOrList] []
 
-        return new ListTerm(Arrays.asList(headTail));
+        return new ListTerm(asList(headTail));
     }
 
     public String createFlag(String scratch_directory, Path scratchDir) {//fixme
@@ -191,10 +192,18 @@ public class TermFactory implements ITermFactory {
         return newAtomic(num > MIN_VALUE && num < MAX_VALUE ? (int) num : Math.toIntExact(num));
     }
 
+    /**
+     * @param s
+     * @return
+     */
     public FloatTerm parseFloat(String s) {
-        return newAtomic(Double.parseDouble(s));
+        return newAtomic(parseDouble(s));
     }
 
+    /**
+     * @param s
+     * @return
+     */
     public NumberTerm createNumber(String s) {
         try {
             return parseInteger(s);
@@ -203,11 +212,19 @@ public class TermFactory implements ITermFactory {
         }
     }
 
+    /**
+     * @param value
+     * @return
+     */
     @Override
     public HtNonVar createNonvar(String value) {
         return null;//atomic or compound
     }
 
+    /**
+     * @param vname
+     * @return
+     */
     public HtVariable createVariable(String vname) {
         return new HtVariable(interner.internVariableName(vname), null, false);
     }
@@ -239,7 +256,7 @@ public class TermFactory implements ITermFactory {
      * @return
      */
     public HtEntityIdentifier createIdentifier(HtEntityKind kind, String name, ITerm... args) {
-        return new HtEntityIdentifier(interner.internFunctorName(name, 0), new ListTerm(Arrays.asList(args)), kind);
+        return new HtEntityIdentifier(interner.internFunctorName(name, 0), new ListTerm(asList(args)), kind);
     }
 
     /**

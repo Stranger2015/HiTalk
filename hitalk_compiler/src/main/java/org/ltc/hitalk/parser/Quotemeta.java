@@ -12,7 +12,7 @@ public final class Quotemeta {
     }
 
     /**
-     * アンエスケープします。
+     *
      */
     public static String decode ( CharSequence value ) {
         StringBuilder result = new StringBuilder();

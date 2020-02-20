@@ -818,7 +818,7 @@ public class PlPrologParser implements IParser {
      * @throws Exception
      */
     private ITerm expr0_bypass() throws Exception {
-        return readSequence(BYPASS, rDelims);////  ',' , '|' , '}'
+        return readSequence(BYPASS, rDelims);//  ',' , '|' , '}'
     }
 
     /**
