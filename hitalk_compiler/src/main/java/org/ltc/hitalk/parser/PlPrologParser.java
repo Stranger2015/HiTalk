@@ -909,10 +909,10 @@ public class PlPrologParser implements IParser {
                         lastTerm = compound(t.image, (ListTerm) lastSequence);
                         return handleFunctor(lastTerm);
                     case TK_INTEGER_LITERAL:
-                        lastTerm = termFactory.newAtomic(Integer.parseInt(t.image));
+                        lastTerm = termFactory.newFloatTerm(Integer.parseInt(t.image));
                         return handleFunctor(lastTerm);
                     case TK_FLOATING_POINT_LITERAL:
-                        lastTerm = termFactory.newAtomic(Double.parseDouble(t.image));
+                        lastTerm = termFactory.newFloatTerm(Double.parseDouble(t.image));
                         return handleFunctor(lastTerm);
 //                  case TK_CHARACTER_LITERAL:
 //                        break;

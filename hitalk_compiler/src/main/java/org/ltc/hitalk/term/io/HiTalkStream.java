@@ -447,7 +447,7 @@ class HiTalkStream extends PropertyOwner implements PropertyChangeListener, Clon
         String[] pid = methodName.split("/");
         final IFunctor functor = appContext.getTermFactory().newFunctor(pid[1], new ListTerm(2));
         functor.setArgument(0, appContext.getTermFactory().createAtom(pid[0]));
-        functor.setArgument(1, appContext.getTermFactory().newAtomic(arity));
+        functor.setArgument(1, appContext.getTermFactory().newFloatTerm(arity));
         HtNonVar[] opts = Arrays.stream(options).map(option ->
                 appContext.getTermFactory().createNonvar(option)).toArray(HtNonVar[]::new);
 

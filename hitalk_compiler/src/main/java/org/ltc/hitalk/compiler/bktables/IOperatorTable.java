@@ -54,7 +54,24 @@ public interface IOperatorTable extends IHitalkObject {
      */
     Map<Fixity, IdentifiedTerm> getOperatorsMatchingNameByFixity(String name);
 
+    /**
+     * @param name
+     * @return
+     */
     Set<IdentifiedTerm> getOperators(String name);
 
+    /**
+     * @param name
+     * @param associativity
+     * @param priority
+     * @return
+     */
+    Set<IdentifiedTerm> getOperators(String name, Associativity associativity, int priority);
+
+    /**
+     * @param image
+     * @param associativity
+     * @return
+     */
     int getPriority(String image, Associativity associativity);
 }

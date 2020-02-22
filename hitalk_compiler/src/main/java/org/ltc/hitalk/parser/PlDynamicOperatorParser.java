@@ -458,6 +458,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
      * @param s
      * @return
      */
+    @Override
     public Set<IdentifiedTerm> getOperators(String s) {
         final Map<Fixity, IdentifiedTerm> map = getOperatorsMatchingNameByFixity(s);
         return new HashSet<>(map.values());

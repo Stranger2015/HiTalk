@@ -79,9 +79,9 @@ interface ITermFactory extends IHitalkObject {
      */
     HtProperty createFlag(String name, ITerm... args);
 
-    IntTerm newAtomic(int i);
+    IntTerm newIntTerm(int i);
 
-    FloatTerm newAtomic(double f);
+    FloatTerm newFloatTerm(double f);
 
     ListTerm newListTerm(ListTerm.Kind kind, List<ITerm> headTail);
 

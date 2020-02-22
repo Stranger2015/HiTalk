@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Double.parseDouble;
-import static java.lang.Integer.MAX_VALUE;
-import static java.lang.Integer.MIN_VALUE;
 import static java.util.Arrays.asList;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
 import static org.ltc.hitalk.parser.HiLogParser.HILOG_APPLY_STRING;
@@ -189,7 +187,7 @@ public class TermFactory implements ITermFactory {
 
     public IntTerm parseInteger(String s) {
         long num = Long.parseLong(s);
-        return newAtomic(num > MIN_VALUE && num < MAX_VALUE ? (int) num : Math.toIntExact(num));
+        return newIntTerm(num > Integer.MIN_VALUE && num < Integer.MAX_VALUE ? (int) num : Math.toIntExact(num));
     }
 
     /**
@@ -197,7 +195,7 @@ public class TermFactory implements ITermFactory {
      * @return
      */
     public FloatTerm parseFloat(String s) {
-        return newAtomic(parseDouble(s));
+        return newFloatTerm(parseDouble(s));
     }
 
     /**
@@ -278,12 +276,12 @@ public class TermFactory implements ITermFactory {
 //    }
 
     @Override
-    public IntTerm newAtomic(int i) {
+    public IntTerm newIntTerm(int i) {
         return new IntTerm(i);
     }
 
     @Override
-    public FloatTerm newAtomic(double f) {
+    public FloatTerm newFloatTerm(double f) {
         return new FloatTerm((float) f);
     }
 
