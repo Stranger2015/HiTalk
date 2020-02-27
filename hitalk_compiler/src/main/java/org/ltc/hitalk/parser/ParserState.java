@@ -1,5 +1,8 @@
 package org.ltc.hitalk.parser;
 
+/**
+ *
+ */
 public enum ParserState {
     START,
     FINISH,
@@ -27,4 +30,29 @@ public enum ParserState {
 
     EXPR_A0_TAIL,
     EXPR_A0_TAIL_EXIT,
+
+    SEQUENCE,
+    SEQUENCE_EXIT,
+    NOP;
+
+    private final ParserState[] parserStates;
+
+    ParserState(ParserState... parserStates) {
+        this.parserStates = parserStates;
+    }
+
+    private Boolean or;
+
+    ParserState(boolean or, ParserState... parserStates) {
+        this.or = or;
+        this.parserStates = parserStates;
+    }
+
+    public ParserState[] getParserStates() {
+        return parserStates;
+    }
+
+    public Boolean getOr() {
+        return or;
+    }
 }

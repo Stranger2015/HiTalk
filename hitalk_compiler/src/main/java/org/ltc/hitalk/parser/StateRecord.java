@@ -8,6 +8,7 @@ import java.util.EnumSet;
 import static java.util.EnumSet.of;
 import static org.ltc.hitalk.parser.Directive.DirectiveKind.*;
 import static org.ltc.hitalk.parser.HtPrologParser.MAX_PRIORITY;
+import static org.ltc.hitalk.parser.ParserState.START;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.TK_BOF;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.TK_DOT;
 import static org.ltc.hitalk.term.IdentifiedTerm.Associativity;
@@ -17,7 +18,7 @@ import static org.ltc.hitalk.term.IdentifiedTerm.Associativity.x;
  *
  */
 public class StateRecord {
-    ParserState state;
+    ParserState state = START;
     EnumSet<Associativity> assocs = of(x);
     EnumSet<DirectiveKind> dks = of(DK_IF, DK_ENCODING, DK_HILOG);
     EnumSet<TokenKind> rDelims = of(TK_DOT);
@@ -36,6 +37,13 @@ public class StateRecord {
         this.rDelims = rDelims;
         this.currPriority = currPriority;
         this.token = token;
+    }
+
+    /**
+     *
+     */
+    public StateRecord() {
+
     }
 
     public ParserState getParserState() {
