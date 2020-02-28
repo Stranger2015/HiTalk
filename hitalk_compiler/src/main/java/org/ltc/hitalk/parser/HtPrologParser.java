@@ -41,6 +41,7 @@ public class HtPrologParser implements IParser {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     ParserState state = START;
+    StateRecord record = new StateRecord();
     private EnumSet<Associativity> assocs;
     private EnumSet<DirectiveKind> directiveKinds;
     private EnumSet<TokenKind> rDelims;
@@ -98,6 +99,11 @@ public class HtPrologParser implements IParser {
         this.interner = interner;
         this.termFactory = factory;
         this.operatorTable = optable;
+        buildCompleterTree();
+    }
+
+    private void buildCompleterTree() {
+        completer.
     }
 
     /**

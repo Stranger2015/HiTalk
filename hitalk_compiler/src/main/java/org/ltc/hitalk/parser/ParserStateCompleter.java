@@ -1,90 +1,99 @@
 package org.ltc.hitalk.parser;
 
-import org.ltc.hitalk.parser.Directive.DirectiveKind;
-import org.ltc.hitalk.parser.PlToken.TokenKind;
-import org.ltc.hitalk.term.IdentifiedTerm.Associativity;
-
-import java.util.EnumSet;
-
 import static org.ltc.hitalk.parser.ParserState.*;
 
 /**
  *
  */
 abstract public class ParserStateCompleter implements ICompleter {
-    protected StateRecord record;
+    protected final StateRecord record;
+    protected final ParserState state;
 
+    /**
+     * @param record
+     * @param state
+     */
+    public ParserStateCompleter(StateRecord record, ParserState state) {
+        this.record = record;
+        this.state = state;
+    }
+
+    /**
+     * @param state
+     * @param record
+     * @return
+     */
     public static ICompleter create(ParserState state, StateRecord record) {
         final ICompleter completer;
         switch (state) {
             case START:
-                completer = new ZeroCompleter(new StateRecord(), START);
+                completer = new ZeroCompleter(record, START);
                 break;
             case FINISH:
-                completer = new ZeroCompleter(new StateRecord(), FINISH);
+                completer = new ZeroCompleter(record, FINISH);
                 break;
             case EXPR_A:
-                completer = new ExprACompleter(new StateRecord(), EXPR_A);
+                completer = new ExprACompleter(record, EXPR_A);
                 break;
             case EXPR_A_EXIT:
-                completer = new ZeroCompleter(new StateRecord(), EXPR_A_EXIT);
+                completer = new ZeroCompleter(record, EXPR_A_EXIT);
                 break;
             case EXPR_B:
-                completer = new ExprBCompleter(new StateRecord(), EXPR_B);
+                completer = new ExprBCompleter(record, EXPR_B);
                 break;
             case EXPR_B_EXIT:
-                completer = new ZeroCompleter(new StateRecord(), EXPR_B_EXIT);
+                completer = new ZeroCompleter(record, EXPR_B_EXIT);
                 break;
             case EXPR_C:
-                completer = new ExprCCompleter(new StateRecord(), EXPR_C);
+                completer = new ExprCCompleter(record, EXPR_C);
                 break;
             case EXPR_C_EXIT:
-                completer = new ZeroCompleter(new StateRecord(), EXPR_C_EXIT);
+                completer = new ZeroCompleter(record, EXPR_C_EXIT);
                 break;
             case EXPR_A0:
-                completer = new ExprA0Completer(new StateRecord(), EXPR_A0);
+                completer = new ExprA0Completer(record, EXPR_A0);
                 break;
             case EXPR_A0_EXIT:
-                completer = new ZeroCompleter(new StateRecord(), EXPR_A0_EXIT);
+                completer = new ZeroCompleter(record, EXPR_A0_EXIT);
                 break;
             case EXPR_A0_BRACE:
-                completer = new ExprA0BraceCompleter(new StateRecord(), EXPR_A0_BRACE);
+                completer = new ExprA0BraceCompleter(record, state);
                 break;
             case EXPR_A0_BRACE_EXIT:
-                completer = new ParserStateCompleter.
+                completer = new ZeroCompleter(record, state);
                 break;
             case EXPR_A0_BRACKET:
-                completer = new ParserStateCompleter.
+                completer = new ExprA0BracketCompleter(record, state);
                 break;
             case EXPR_A0_BRACKET_EXIT:
-                completer = new ParserStateCompleter.
+                completer = new ZeroCompleter(record, state);
                 break;
             case EXPR_A0_ARGS:
-                completer = new ParserStateCompleter.
+                completer = new ExprA0ArgsCompleter(record, state);
                 break;
             case EXPR_A0_ARGS_EXIT:
-                completer = new ParserStateCompleter.
+                completer = new ZeroCompleter(record, state);
                 break;
             case EXPR_A0_HEADS:
-                completer = new ParserStateCompleter.
+                completer = new ExprA0HeadsCompleter(record, state);
                 break;
             case EXPR_A0_HEADS_EXIT:
-                completer = new ParserStateCompleter.
+                completer = new ZeroCompleter(record, state);
                 break;
             case EXPR_A0_TAIL:
-                completer = new ParserStateCompleter.
+                completer = new ExprA0TailCompleter(record, state);
                 break;
             case EXPR_A0_TAIL_EXIT:
-                completer = new ParserStateCompleter.
+                completer = new ZeroCompleter(record, state);
                 break;
             case SEQUENCE:
-                completer = new ParserStateCompleter.
+                completer = new SequenceCompleter(record, state);
                 break;
             case SEQUENCE_EXIT:
-                completer = new ParserStateCompleter.
+                completer = new ZeroCompleter(record, state);
                 break;
             case NOP:
-                completer = new ParserStateCompleter.
+                completer = new ZeroCompleter(record, state);
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + state);
@@ -94,53 +103,23 @@ abstract public class ParserStateCompleter implements ICompleter {
     }
 
     /**
-     * @param assocs
-     * @param directiveKinds
-     * @param rDelims
-     * @param token
-     * @param state
+     *
      */
-    protected ParserStateCompleter(EnumSet<Associativity> assocs,
-                                   EnumSet<DirectiveKind> directiveKinds,
-                                   EnumSet<TokenKind> rDelims,
-                                   PlToken token,
-                                   ParserState state) {
+    protected static class ExprA0BracketCompleter extends ParserStateCompleter {
+        /**
+         * @param record
+         * @param state
+         */
+        public ExprA0BracketCompleter(StateRecord record, ParserState state) {
+            super(record, state);
+        }
 
+        /**
+         *
+         */
+        public void complete() {
 
-        this.assocs = assocs;
-        this.directiveKinds = directiveKinds;
-        this.rDelims = rDelims;
-        this.token = token;
-        this.state = state;
-    }
-
-
-    /**
-     * @return
-     */
-    public EnumSet<Associativity> getAssocs() {
-        return assocs;
-    }
-
-    /**
-     * @return
-     */
-    public EnumSet<DirectiveKind> getDirectiveKinds() {
-        return directiveKinds;
-    }
-
-    /**
-     * @return
-     */
-    public EnumSet<TokenKind> getrDelims() {
-        return rDelims;
-    }
-
-    /**
-     * @return
-     */
-    public PlToken getToken() {
-        return token;
+        }
     }
 
     /**
@@ -153,7 +132,7 @@ abstract public class ParserStateCompleter implements ICompleter {
      * @return
      */
     @Override
-    public ParserState getState() {
+    public final ParserState getState() {
         return state;
     }
 
@@ -180,21 +159,6 @@ abstract public class ParserStateCompleter implements ICompleter {
         public void complete() {
 
         }
-
-        /**
-         * @param assocs
-         * @param directiveKinds
-         * @param rDelims
-         * @param token
-         * @param state
-         */
-        public ExprACompleter(EnumSet<Associativity> assocs,
-                              EnumSet<DirectiveKind> directiveKinds,
-                              EnumSet<TokenKind> rDelims,
-                              PlToken token,
-                              ParserState state) {
-            super(assocs, directiveKinds, rDelims, token, state);
-        }
     }
 
     /**
@@ -211,21 +175,6 @@ abstract public class ParserStateCompleter implements ICompleter {
          */
         public void complete() {
 
-        }
-
-        /**
-         * @param assocs
-         * @param directiveKinds
-         * @param rDelims
-         * @param token
-         * @param state
-         */
-        public ExprBCompleter(EnumSet<Associativity> assocs,
-                              EnumSet<DirectiveKind> directiveKinds,
-                              EnumSet<TokenKind> rDelims,
-                              PlToken token,
-                              ParserState state) {
-            super(assocs, directiveKinds, rDelims, token, state);
         }
     }
 
@@ -244,27 +193,16 @@ abstract public class ParserStateCompleter implements ICompleter {
         public void complete() {
 
         }
-
-        /**
-         * @param assocs
-         * @param directiveKinds
-         * @param rDelims
-         * @param token
-         * @param state
-         */
-        public ExprCCompleter(EnumSet<Associativity> assocs,
-                              EnumSet<DirectiveKind> directiveKinds,
-                              EnumSet<TokenKind> rDelims,
-                              PlToken token,
-                              ParserState state) {
-            super(assocs, directiveKinds, rDelims, token, state);
-        }
     }
 
     /**
      *
      */
     public static class ExprAnCompleter extends ExprACompleter {
+
+        public ExprAnCompleter(StateRecord record, ParserState exprAExit) {
+            super(record, exprAExit);
+        }
 
         /**
          *
@@ -273,20 +211,6 @@ abstract public class ParserStateCompleter implements ICompleter {
             super.complete();
         }
 
-        /**
-         * @param assocs
-         * @param directiveKinds
-         * @param rDelims
-         * @param token
-         * @param state
-         */
-        public ExprAnCompleter(EnumSet<Associativity> assocs,
-                               EnumSet<DirectiveKind> directiveKinds,
-                               EnumSet<TokenKind> rDelims,
-                               PlToken token,
-                               ParserState state) {
-            super(assocs, directiveKinds, rDelims, token, state);
-        }
     }
 
     /**
@@ -305,20 +229,6 @@ abstract public class ParserStateCompleter implements ICompleter {
             super.complete();
         }
 
-        /**
-         * @param assocs
-         * @param directiveKinds
-         * @param rDelims
-         * @param token
-         * @param state
-         */
-        public ExprA0Completer(EnumSet<Associativity> assocs,
-                               EnumSet<DirectiveKind> directiveKinds,
-                               EnumSet<TokenKind> rDelims,
-                               PlToken token,
-                               ParserState state) {
-            super(assocs, directiveKinds, rDelims, token, state);
-        }
     }
 
     /**
@@ -327,20 +237,9 @@ abstract public class ParserStateCompleter implements ICompleter {
     public static class ZeroCompleter extends ParserStateCompleter {
 
         /**
-         * @param assocs
-         * @param directiveKinds
-         * @param rDelims
-         * @param token
-         * @param state
+         * @param record
+         * @param start
          */
-        protected ZeroCompleter(EnumSet<Associativity> assocs,
-                                EnumSet<DirectiveKind> directiveKinds,
-                                EnumSet<TokenKind> rDelims,
-                                PlToken token,
-                                ParserState state) {
-            super(assocs, directiveKinds, rDelims, token, state);
-        }
-
         public ZeroCompleter(StateRecord record, ParserState start) {
             super(record, start);
         }
@@ -353,22 +252,113 @@ abstract public class ParserStateCompleter implements ICompleter {
         }
     }
 
-    private static class ExprA0BraceCompleter implements ICompleter {
-        public ExprA0BraceCompleter(StateRecord record, ParserState exprA0Brace) {
+    /**
+     *
+     */
+    private static class ExprA0BraceCompleter extends ParserStateCompleter {
+        /**
+         * @param record
+         * @param state
+         */
+        public ExprA0BraceCompleter(StateRecord record, ParserState state) {
+            super(record, state);
         }
 
         /**
          *
          */
         public void complete() {
-            
+
+        }
+    }
+
+    private static class SequenceCompleter extends ParserStateCompleter {
+
+        /**
+         * @param record
+         * @param state
+         */
+        public SequenceCompleter(StateRecord record, ParserState state) {
+            super(record, state);
         }
 
         /**
-         * @return
+         *
          */
-        public ParserState getState() {
-            return null;
+        public void complete() {
+
+        }
+
+
+        /**
+         *
+         */
+        public void tryOperators() {
+
+        }
+    }
+
+    private static class ExprA0ArgsCompleter extends ParserStateCompleter {
+
+        public ExprA0ArgsCompleter(StateRecord record, ParserState state) {
+            super(record, state);
+        }
+
+        /**
+         *
+         */
+        public void complete() {
+
+        }
+
+
+        /**
+         *
+         */
+        public void tryOperators() {
+
+        }
+    }
+
+    private static class ExprA0HeadsCompleter extends ParserStateCompleter {
+
+        public ExprA0HeadsCompleter(StateRecord record, ParserState state) {
+            super(record, state);
+        }
+
+        /**
+         *
+         */
+        public void complete() {
+        }
+
+
+        /**
+         *
+         */
+        public void tryOperators() {
+
+        }
+    }
+
+    /**
+     *
+     */
+    private static class ExprA0TailCompleter extends ParserStateCompleter {
+
+        /**
+         * @param record
+         * @param state
+         */
+        public ExprA0TailCompleter(StateRecord record, ParserState state) {
+            super(record, state);
+        }
+
+        /**
+         *
+         */
+        public void complete() {
+
         }
 
         /**
