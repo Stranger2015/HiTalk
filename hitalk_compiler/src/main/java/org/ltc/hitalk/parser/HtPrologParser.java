@@ -83,7 +83,7 @@ public class HtPrologParser implements IParser {
 
     protected int currPriority;
     protected Predicate<ITerm> rDelimsCondition;
-    protected ParserStateCompleter completer;
+    protected ParserStateHandler handler;
 
     /**
      * @param inputStream
@@ -99,11 +99,6 @@ public class HtPrologParser implements IParser {
         this.interner = interner;
         this.termFactory = factory;
         this.operatorTable = optable;
-        buildCompleterTree();
-    }
-
-    private void buildCompleterTree() {
-        completer.
     }
 
     /**
@@ -612,7 +607,7 @@ public class HtPrologParser implements IParser {
                             currPriority,
                             token);
                     break;
-                case EXPR_A_EXIT:
+//                case EXPR_A_EXIT:
                     token = getLexer().readToken(true);
                     completeExprA(currPriority, token, (IdentifiedTerm) lastTerm);
                     if (lastTerm == END_OF_FILE) {
@@ -631,7 +626,7 @@ public class HtPrologParser implements IParser {
                             currPriority - 1,
                             token);
                     break;
-                case EXPR_B_EXIT:
+//                case EXPR_B_EXIT:
 
                     break;
                 case EXPR_C:
@@ -649,9 +644,10 @@ public class HtPrologParser implements IParser {
                             getLexer().unreadToken(token1);
                         }
                     }
-                case EXPR_C_EXIT:
-                    completeExprC(token);
                     break;
+//                case EXPR_C_EXIT:
+                completeExprC(rDelims, currPriority, token);
+                break;
                 case EXPR_A0:
                     //  expr_A0 ::=
                     //      integer |
@@ -671,7 +667,7 @@ public class HtPrologParser implements IParser {
                             currPriority,
                             token);
                     break;
-                case EXPR_A0_EXIT:
+//                case EXPR_A0_EXIT:
                     completeExprAn(currPriority, token, (IdentifiedTerm) lastTerm);
                     break;
                 case FINISH:
@@ -684,16 +680,16 @@ public class HtPrologParser implements IParser {
 //                    break;
                 case EXPR_A0_BRACE:
                     break;
-                case EXPR_A0_BRACE_EXIT:
+//                case EXPR_A0_BRACE_EXIT:
                     break;
                 case EXPR_A0_BRACKET:
                     break;
-                case EXPR_A0_BRACKET_EXIT:
+//                case EXPR_A0_BRACKET_EXIT:
                     break;
                 case EXPR_A0_ARGS:
 
                     break;
-                case EXPR_A0_ARGS_EXIT:
+//                case EXPR_A0_ARGS_EXIT:
                     rDelims = of(TK_COMMA, TK_CONS, TK_RPAREN);
 //                    token = getLexer().getToken(true);
 //                    if (rDelims.contains(token.kind)) {
@@ -721,13 +717,13 @@ public class HtPrologParser implements IParser {
                             MAX_PRIORITY,
                             token);
                     break;
-                case EXPR_A0_HEADS_EXIT:
+//                case EXPR_A0_HEADS_EXIT:
 
                     break;
                 case EXPR_A0_TAIL:
 
                     break;
-                case EXPR_A0_TAIL_EXIT:
+//                case EXPR_A0_TAIL_EXIT:
                     token = getLexer().getToken(true);
                     if (EnumSet.of(TK_VAR, TK_LBRACKET).contains(token.kind)) {
                         if (token.kind == TK_LBRACKET) {
@@ -763,7 +759,7 @@ public class HtPrologParser implements IParser {
         if (left == END_OF_FILE) {
             lastTerm = left;
         }
-        //2.left is followed by either xfx, xfy or xf operators, parse these
+        //2. left is followed by either xfx, xfy or xf operators, parse these
         token = getLexer().readToken(true);
         for (; isOperator(token, rDelims); token = getLexer().readToken(true)) {
             int priorityXFX = getOptable().getPriority(token.image, xfx);
@@ -933,19 +929,20 @@ public class HtPrologParser implements IParser {
      * //============================
      * //     sequence ::= [ heads tail ]
      * //============================
-     *
-     * @param currPriority
-     * @param token
-     * @param leftSide
-     * @throws Exception
-     */
-    protected void completeExprA(int currPriority, PlToken token, IdentifiedTerm leftSide) throws Exception {
-        if (currPriority == 0) {
-            completeExprA0(token);
-        } else {
-            completeExprAn(currPriority, token, leftSide);
-        }
-    }
+     //     *
+     //     * @param currPriority
+     //     * @param token
+     //     * @param leftSide
+     //     * @throws Exception
+     //     */
+//    protected void completeExprA(int currPriority, PlToken token, IdentifiedTerm leftSide) throws Exception {
+//        if (currPriority == 0) {
+//            completeExprA0(token);
+//        } else {
+//            completeExprAn(currPriority, token, leftSide);
+//        }
+//    }
+//
 
     /**
      * @return
