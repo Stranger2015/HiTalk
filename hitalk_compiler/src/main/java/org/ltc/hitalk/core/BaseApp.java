@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -59,7 +60,7 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
      */
     protected IVafInterner interner;
     protected ITermFactory termFactory;
-    protected PlPrologParser parser;
+    protected HtPrologParser parser;
     protected IOperatorTable optable;
     protected ICompiler<HtClause, HtPredicate, HtClause> compiler;
     protected PredicateTable<HtPredicate> predicateTable;
@@ -361,7 +362,7 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
      * @return
      */
     @Override
-    public PlPrologParser getParser() {
+    public HtPrologParser getParser() {
         return parser;
     }
 
@@ -369,7 +370,7 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
      * @param parser
      */
     @Override
-    public void setParser(PlPrologParser parser) {
+    public void setParser(HtPrologParser parser) {
         this.parser = parser;
         appContext.putIfAbsent(PARSER, (IHitalkObject) parser);
     }
@@ -502,10 +503,10 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
          * @return
          * @throws Exception
          */
-        public PlPrologParser getParser() throws Exception {
-            PlPrologParser parser = (PlPrologParser) get(PARSER);
+        public Deque<StateRecord> getParser() throws Exception {
+            HtPrologParser parser = (HtPrologParser) get(PARSER);
             if (parser == null) {
-                parser = new PlPrologParser();
+                parser = new HtPrologParser();
             }
             put(PARSER, parser);
             return parser;

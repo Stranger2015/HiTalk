@@ -7,8 +7,8 @@ import org.ltc.hitalk.core.HtVersion;
 import org.ltc.hitalk.core.IConfigurable;
 import org.ltc.hitalk.core.utils.HtSymbolTable;
 import org.ltc.hitalk.core.utils.ISymbolTable;
+import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.parser.PlLexer;
-import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.Language;
 import org.ltc.hitalk.wam.compiler.Tools;
 import org.slf4j.Logger;
@@ -285,12 +285,12 @@ public interface IApplication extends Runnable, IConfigurable {
     /**
      * @param parser
      */
-    void setParser ( PlPrologParser parser );
+    void setParser(HtPrologParser parser);
 
     /**
      * @return
      */
-    PlPrologParser getParser () throws IOException;
+    HtPrologParser getParser() throws IOException;
 
     /**
      * @param fileName

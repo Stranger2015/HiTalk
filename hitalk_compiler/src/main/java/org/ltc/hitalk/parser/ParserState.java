@@ -1,5 +1,7 @@
 package org.ltc.hitalk.parser;
 
+import static org.ltc.hitalk.parser.ParserState.Substate.ENTERING;
+
 /**
  * // * BNF part 2: Parser
  * //================================================================================================================
@@ -51,25 +53,18 @@ package org.ltc.hitalk.parser;
  */
 public enum ParserState {
     EXPR_C,
-//    EXPR_C_EXIT,
 
     EXPR_A0_BRACE,
-//    EXPR_A0_BRACE_EXIT,
 
     EXPR_A0_BRACKET,
-//    EXPR_A0_BRACKET_EXIT,
 
     EXPR_A0_ARGS,
-//    EXPR_A0_ARGS_EXIT,
 
     EXPR_A0_HEADS,
-//    EXPR_A0_HEADS_EXIT,
 
     EXPR_A0_TAIL,
-//    EXPR_A0_TAIL_EXIT,
 
     SEQUENCE,
-//    SEQUENCE_EXIT,
 
     EXPR_A0(true,
             EXPR_A0_ARGS,
@@ -78,13 +73,10 @@ public enum ParserState {
             EXPR_A0_HEADS,
             EXPR_A0_TAIL
     ),
-//    EXPR_A0_EXIT,
 
     EXPR_B(EXPR_C),
-//    EXPR_B_EXIT,
 
     EXPR_A(EXPR_B),
-//    EXPR_A_EXIT,
 
 
     START(true, EXPR_A, EXPR_A0),
@@ -101,6 +93,8 @@ public enum ParserState {
 
     private Boolean or;
 
+    private Substate substate = ENTERING;
+
     ParserState(boolean or, ParserState... parserStates) {
         this.or = or;
         this.parserStates = parserStates;
@@ -112,5 +106,14 @@ public enum ParserState {
 
     public Boolean getOr() {
         return or;
+    }
+
+    public Substate getSubstate() {
+        return substate;
+    }
+
+    public enum Substate {
+        ENTERING,
+        EXITING
     }
 }
