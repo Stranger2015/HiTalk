@@ -3,8 +3,6 @@ package org.ltc.hitalk.parser;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
-import org.ltc.hitalk.parser.Directive.DirectiveKind;
-import org.ltc.hitalk.parser.ParserStateHandler.ExprAnHandler;
 import org.ltc.hitalk.parser.ParserStateHandler.ExprBHandler;
 import org.ltc.hitalk.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.HtVariable;
@@ -21,15 +19,16 @@ import org.ltc.hitalk.wam.compiler.Language;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Predicate;
 
 import static java.util.EnumSet.of;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
 import static org.ltc.hitalk.core.utils.TermUtilities.convertToClause;
 import static org.ltc.hitalk.parser.Directive.DirectiveKind.*;
-import static org.ltc.hitalk.parser.ParserState.*;
+import static org.ltc.hitalk.parser.ParserState.EXPR_A;
+import static org.ltc.hitalk.parser.ParserState.EXPR_B;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
 import static org.ltc.hitalk.parser.PlToken.newToken;
 import static org.ltc.hitalk.parser.PrologAtoms.*;
@@ -41,29 +40,26 @@ import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
  */
 public class HtPrologParser implements IParser {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
-
-    ParserState state = START;
-    private StateRecord.State stateRecordState;
-    StateRecord record = new StateRecord(
-            state,
-            stateRecordState,
-            of(x),
+    ParserState state = EXPR_A;
+    StateRecord.State stateRecordState = StateRecord.State.PREPARING;
+    StateRecord record = new StateRecord(state,
+            of(yfx, yf),
             of(DK_IF, DK_ENCODING, DK_HILOG),
             HtPrologParser.MAX_PRIORITY,
             newToken(TK_BOF));
 
-    private boolean IsEndOfTerm(TokenKind tokenKind) {
+    private boolean isEndOfTerm(TokenKind tokenKind) {
         return tokenKind == TK_DOT ||
                 parentheses == 0 && brackets == 0 && braces == 0 &&
                         squotes % 2 == 0 && dquotes % 2 == 0 && bquotes % 2 == 0;
     }
 
     private EnumSet<Associativity> assocs;
-    private EnumSet<DirectiveKind> directiveKinds;
+    private EnumSet<Directive.DirectiveKind> directiveKinds;
     private int maxPriority;
     private PlToken token;
 
-    public Deque<StateRecord> states = new ArrayDeque<>();
+    public Deque<IStateHandler> states = new ArrayDeque<>();
 
     public static final String BEGIN_OF_FILE_STRING = "begin_of_file";
     public static final String END_OF_FILE_STRING = "end_of_file";
@@ -88,7 +84,6 @@ public class HtPrologParser implements IParser {
 
     protected ITerm lastTerm;
 
-
     protected int braces;
     protected int parentheses;
     protected int brackets;
@@ -98,8 +93,8 @@ public class HtPrologParser implements IParser {
     protected int bquotes;
 
     protected int currPriority;
-    protected Predicate<TokenKind> rDelimsCondition;
-    protected ParserStateHandler handler;
+    //    protected Predicate<TokenKind> rDelimsCondition;
+    protected IStateHandler handler;
 
     /**
      * @param inputStream
@@ -130,6 +125,8 @@ public class HtPrologParser implements IParser {
     }
 
     /**
+     * int arity = calcArity(assoc);
+     *
      * @param operatorName
      * @param priority
      * @param assoc
@@ -137,36 +134,10 @@ public class HtPrologParser implements IParser {
     public void setOperator(String operatorName, int priority, Associativity assoc) {
         Map<Fixity, IdentifiedTerm> ops = operatorTable.getOperatorsMatchingNameByFixity(operatorName);
         if (ops == null || ops.isEmpty()) {
-            int arity = calcArity(assoc);
-            int name = interner.internFunctorName(operatorName, arity);
+            int name = interner.internFunctorName(operatorName, assoc.arity);
             operatorTable.setOperator(name, operatorName, priority, assoc);
         }
     }
-
-    public int getBraces() {
-        return braces;
-    }
-
-    public int getParentheses() {
-        return parentheses;
-    }
-
-    public int getBrackets() {
-        return brackets;
-    }
-
-    public int getSquotes() {
-        return squotes;
-    }
-
-    public int getDquotes() {
-        return dquotes;
-    }
-
-    public int getBquotes() {
-        return bquotes;
-    }
-
 
     /**
      * @param assoc
@@ -421,179 +392,7 @@ public class HtPrologParser implements IParser {
      */
     public ITerm
     completeExprA0(PlToken token) throws Exception {
-        EnumSet<Associativity> assocs = of(x);
-        EnumSet<DirectiveKind> directiveKinds = of(DK_IF, DK_ENCODING, DK_HILOG);
-        EnumSet<TokenKind> rDelims = of(TK_DOT);
-        switch (token.kind) {
-            case TK_BOF:
-                lastTerm = BEGIN_OF_FILE;
-                break;
-            case TK_EOF:
-                lastTerm = END_OF_FILE;
-                popTokenSource();
-                break;
-            case TK_DOT:
-                break;
-            case TK_LPAREN:
-                if (isFunctorBegin()) {
-                    directiveKinds = of(DK_IF);
-                    rDelims.add(TK_RPAREN);
-//                    newState(EXPR_A0_ARGS,
-//                            assocs,
-//                            directiveKinds,
-//                            MAX_PRIORITY,
-//                            token);
-                    if (lastTerm.isHiLog()) {
-                        termFactory.newHiLogFunctor(lastTerm, new ListTerm(0));//fixme
-                    } else if (lastTerm.isAtom()) {
-                        int name = ((IFunctor) lastTerm).getName();
-                        int arity = ((IFunctor) lastTerm).getArity();
-                        lastTerm = new HtFunctor(name, new ListTerm(arity));
-                    } else {
-                        throw new ParserException("Possibly undeclared HILOG term ->%s<- ", token);
-                    }
-                } else {
-//                    newState(EXPR_A,
-//                            assocs,
-//                            directiveKinds,
-//                            rDelims,
-//                            MAX_PRIORITY,
-//                            token);
-                    if (rDelims.contains(token.kind)) {
-                        break;
-                    }
-                }
-                break;
-            case TK_LBRACKET:
-                rDelims.add(TK_RBRACKET);
-//                newState(EXPR_A0_BRACKET,
-//                        of(x),
-//                        of(DK_IF),
-//                        of(TK_DOT),
-//                        MAX_PRIORITY,
-//                        token);
-                break;
-            case TK_LBRACE:
-                rDelims.add(TK_RBRACE);
-//                newState(EXPR_A0_BRACE,
-//                        assocs,
-//                        directiveKinds,
-//                        rDelims,
-//                        MAX_PRIORITY,
-//                        token);
-                break;
-            case TK_RBRACE:
-                if (--braces < 0) {
-                    throw new ParserException("Extra right brace.");
-                }
-                states.pop();
-                break;
-            case TK_RBRACKET:
-                if (--brackets < 0) {
-                    throw new ParserException("Extra right bracket.");
-                }
-                states.pop();
-                break;
-            case TK_RPAREN:
-                if (--parentheses < 0) {
-                    throw new ParserException("Extra right parenthesis.");
-                }
-                states.pop();
-                break;
-            case TK_D_QUOTE:
-                if (++dquotes % 2 != 0) {
-                    if (options(TK_D_QUOTE)) {
-                        lastTerm = readString(TK_D_QUOTE);
-                    }
-                } else {
-                    return lastTerm;
-                }
-                rDelims.clear();
-                rDelims.add(token.kind);
-//                newState(SEQUENCE,
-//                        of(x),
-//                        of(DK_IF),
-//                        rDelims,
-//                        currPriority,
-//                        token);
-            case TK_S_QUOTE:
-                if (++squotes % 2 != 0) {
-                    if (options(TK_S_QUOTE)) {
-                        lastTerm = readString(TK_S_QUOTE);
-                    }
-                } else {
-                    return lastTerm;
-                }
-                rDelims.clear();
-                rDelims.add(token.kind);
-//                newState(SEQUENCE,
-//                        of(x),
-//                        of(DK_IF),
-//                        rDelims,
-//                        currPriority,
-//                        token);
-            case TK_B_QUOTE:
-                if (++bquotes % 2 != 0) {
-                    if (options(TK_B_QUOTE)) {
-                        lastTerm = readString(TK_B_QUOTE);
-                    }
-                } else {
-                    return lastTerm;
-                }
-                rDelims.clear();
-                rDelims.add(token.kind);
-//                return readSequence(LIST, rDelims);//char codelist
-//                newState(SEQUENCE,
-//                        of(x),
-//                        of(DK_IF),
-//                        rDelims,
-//                        currPriority,
-//                        token);
-//            case TK_INTEGER_LITERAL:
-//                break;
-//            case TK_DECIMAL_LITERAL:
-//                break;
-//            case TK_HEX_LITERAL:
-//                break;
-//            case TK_FLOATING_POINT_LITERAL:
-//                break;
-//            case TK_DECIMAL_EXPONENT:
-//                break;
-            case TK_CHARACTER_LITERAL:
-                break;
-            case TK_STRING_LITERAL:
-                break;
-            case TK_VAR:
-                lastTerm = termFactory.newVariable(token.image);
-                break;
-            case TK_ATOM:
-            case TK_QUOTED_NAME:
-            case TK_SYMBOLIC_NAME:
-                lastTerm = termFactory.newFunctor(token.image, ListTerm.NIL);
-                break;
-//            case TK_DIGIT:
-//                break;
-//            case TK_ANY_CHAR:
-//                break;
-//            case TK_LOWERCASE:
-//                break;
-//            case TK_UPPERCASE:
-//                break;
-//            case TK_SYMBOL:
-//                break;
-//            case TK_COMMA:
-//                break;
-//            case TK_SEMICOLON:
-//                break;
-//            case TK_COLON:
-//                break;
-//            case TK_CONS:
-//                break;
-            default:
-                throw new IllegalStateException("Unused or unknown value: " + token.kind);
-        }
-
-        return lastTerm;
+        return null;
     }
 
     private ITerm readSequence(Kind kind, EnumSet<TokenKind> rDelims) {
@@ -618,33 +417,31 @@ public class HtPrologParser implements IParser {
      */
     @Override
     public ITerm expr() throws Exception {
-        PlToken token;
-        EnumSet<Associativity> assocs = of(x);
-        EnumSet<DirectiveKind> directiveKinds = of(DK_IF, DK_ENCODING, DK_HILOG);
-//        EnumSet<TokenKind> rDelims = of(TK_DOT);
-        states.push(record);
-//        newState(START, assocs, directiveKinds, rDelims, MAX_PRIORITY, newToken(TK_BOF));fixme
+        PlToken token = newToken(TK_BOF);
+        EnumSet<Associativity> assocs = of(yfx, yf);
+        EnumSet<Directive.DirectiveKind> directiveKinds = of(DK_IF, DK_ENCODING, DK_HILOG);
         lastTerm = BEGIN_OF_FILE;
         currPriority = MAX_PRIORITY;
-        for (; ; ) {
+        handler = ParserStateHandler.create(EXPR_A, assocs, directiveKinds, MAX_PRIORITY, token);
+        ;
+        for (; ; handler = handler.handleState()) {
             token = getLexer().getToken(true);
-            ParserState state = states.peek().getParserState();
-            if (stateRecordState == StateRecord.State.PREPARING) {
-                create
-                handler.prepareState();
-            } else {
-                handler.completeState();
-            }
             switch (state) {
-                case START:
-                    if (state.)
-                        handler = new ExprAnHandler(EXPR_A, of(yfx, yf), directiveKinds, currPriority, token);
-                    handler.prepareState();
+//                case START:
+//                    if (state)
+//                        handler = new ExprAnHandler(EXPR_A, of(yfx, yf), directiveKinds, currPriority, token);
+//                    handler.prepareState();
                 case EXPR_A:
                     //   exprA(n) ::=
                     //      exprB(n) { op(yfx,n) exprA(n-1) | op(yf,n) }*
-                    handler = new ExprBHandler(EXPR_B, of(xfx, xfy, xf), of(DK_IF), currPriority, token);
                     handler.prepareState();
+                    handler = new ExprBHandler(
+                            EXPR_B,
+                            of(xfx, xfy, xf),
+                            of(DK_IF),
+                            currPriority,
+                            token);
+
                     break;
 //                token = getLexer().readToken(true);
 //                completeExprA(currPriority, token, (IdentifiedTerm) lastTerm);
@@ -739,7 +536,7 @@ public class HtPrologParser implements IParser {
 //                        rDelims,
 //                        MAX_PRIORITY,
 //                        token);
-                break;
+//                break;
                 case EXPR_A0_HEADS:
 //                    newState(EXPR_A0_TAIL,
 //                            of(yfx, yf),
@@ -754,13 +551,13 @@ public class HtPrologParser implements IParser {
 
                     break;
 //                case EXPR_A0_TAIL_EXIT:
-                token = getLexer().getToken(true);
-                if (of(TK_VAR, TK_LBRACKET).contains(token.kind)) {
-                    if (token.kind == TK_LBRACKET) {
+//                token = getLexer().getToken(true);
+//                if (of(TK_VAR, TK_LBRACKET).contains(token.kind)) {
+//                    if (token.kind == TK_LBRACKET) {
 //                            final StateRecord listState;
-                    }
-                }
-                break;
+//                    }
+//                }
+//                break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + states.peek().getParserState());
             }
@@ -885,7 +682,7 @@ public class HtPrologParser implements IParser {
             int priorityYFX = this.getOptable().getPriority(token.image, yfx);
             int priorityYF = this.getOptable().getPriority(token.image, yf);
             //YF and priorityYFX has a higher priority than the left side expr and less then top limit
-            // if (YF < leftSide.getPriority() && YF > PlDynamicOperatorParser.OP_HIGH) YF = -1;
+            // if (YF < leftSide.getPriority() && YF > PlDynamicOperatorOP_HIGH) YF = -1;
 
             if (priorityYF < leftSide.getPriority() || priorityYF > this.currPriority) {
                 priorityYF = -1;
@@ -1045,11 +842,11 @@ public class HtPrologParser implements IParser {
 //            int priorityYFX = this.getOptable().getPriority(t.image, yfx);
 //            int YF = this.getOptable().getPriority(t.image, yf);
 //            //YF and priorityYFX has a higher priority than the left side expr and less then top limit
-//            // if (YF < leftSide.getPriority() && YF > PlDynamicOperatorParser.OP_HIGH) YF = -1;
+//            // if (YF < leftSide.getPriority() && YF > PlDynamicOperatorOP_HIGH) YF = -1;
 //            if (YF < leftSide.getPriority() || YF > maxPriority) {
 //                YF = -1;
 //            }
-//            // if (priorityYFX < leftSide.getPriority() && priorityYFX > PlDynamicOperatorParser.OP_HIGH) priorityYFX = -1;
+//            // if (priorityYFX < leftSide.getPriority() && priorityYFX > PlDynamicOperatorOP_HIGH) priorityYFX = -1;
 //            if (priorityYFX < leftSide.getPriority() || priorityYFX > maxPriority) {
 //                priorityYFX = -1;
 //            }
@@ -1600,5 +1397,181 @@ public class HtPrologParser implements IParser {
 
     public void setLastTerm(ITerm lastTerm) {
         this.lastTerm = lastTerm;
+    }
+
+    public ITerm getTerm() throws Exception {
+        EnumSet<Associativity> assocs = of(x);
+        EnumSet<Directive.DirectiveKind> directiveKinds = of(DK_IF, DK_ENCODING, DK_HILOG);
+        EnumSet<TokenKind> rDelims = of(TK_DOT);
+        switch (token.kind) {
+            case TK_BOF:
+                lastTerm = BEGIN_OF_FILE;
+                break;
+            case TK_EOF:
+                lastTerm = END_OF_FILE;
+                popTokenSource();
+                throw new EOFException("");
+            case TK_DOT:
+                break;
+            case TK_LPAREN:
+                if (isFunctorBegin()) {
+                    directiveKinds = of(DK_IF);
+                    rDelims.add(TK_RPAREN);
+//                    newState(EXPR_A0_ARGS,
+//                            assocs,
+//                            directiveKinds,
+//                            MAX_PRIORITY,
+//                            token);
+                    if (lastTerm.isHiLog()) {
+                        termFactory.newHiLogFunctor(lastTerm, new ListTerm(0));//fixme
+                    } else if (lastTerm.isAtom()) {
+                        int name = ((IFunctor) lastTerm).getName();
+                        int arity = ((IFunctor) lastTerm).getArity();
+                        lastTerm = new HtFunctor(name, new ListTerm(arity));
+                    } else {
+                        throw new ParserException("Possibly undeclared HILOG term ->%s<- ", token);
+                    }
+                } else {
+//                    newState(EXPR_A,
+//                            assocs,
+//                            directiveKinds,
+//                            rDelims,
+//                            MAX_PRIORITY,
+//                            token);
+                    if (rDelims.contains(token.kind)) {
+                        break;
+                    }
+                }
+                break;
+            case TK_LBRACKET:
+                rDelims.add(TK_RBRACKET);
+//                newState(EXPR_A0_BRACKET,
+//                        of(x),
+//                        of(DK_IF),
+//                        of(TK_DOT),
+//                        MAX_PRIORITY,
+//                        token);
+                break;
+            case TK_LBRACE:
+                rDelims.add(TK_RBRACE);
+//                newState(EXPR_A0_BRACE,
+//                        assocs,
+//                        directiveKinds,
+//                        rDelims,
+//                        MAX_PRIORITY,
+//                        token);
+                break;
+            case TK_RBRACE:
+                if (--braces < 0) {
+                    throw new ParserException("Extra right brace.");
+                }
+                states.pop();
+                break;
+            case TK_RBRACKET:
+                if (--brackets < 0) {
+                    throw new ParserException("Extra right bracket.");
+                }
+                states.pop();
+                break;
+            case TK_RPAREN:
+                if (--parentheses < 0) {
+                    throw new ParserException("Extra right parenthesis.");
+                }
+                states.pop();
+                break;
+            case TK_D_QUOTE:
+                if (++dquotes % 2 != 0) {
+                    if (options(TK_D_QUOTE)) {
+                        lastTerm = readString(TK_D_QUOTE);
+                    }
+                } else {
+                    return lastTerm;
+                }
+                rDelims.clear();
+                rDelims.add(token.kind);
+//                newState(SEQUENCE,
+//                        of(x),
+//                        of(DK_IF),
+//                        rDelims,
+//                        currPriority,
+//                        token);
+            case TK_S_QUOTE:
+                if (++squotes % 2 != 0) {
+                    if (options(TK_S_QUOTE)) {
+                        lastTerm = readString(TK_S_QUOTE);
+                    }
+                } else {
+                    return lastTerm;
+                }
+                rDelims.clear();
+                rDelims.add(token.kind);
+//                newState(SEQUENCE,
+//                        of(x),
+//                        of(DK_IF),
+//                        rDelims,
+//                        currPriority,
+//                        token);
+            case TK_B_QUOTE:
+                if (++bquotes % 2 != 0) {
+                    if (options(TK_B_QUOTE)) {
+                        lastTerm = readString(TK_B_QUOTE);
+                    }
+                } else {
+                    return lastTerm;
+                }
+                rDelims.clear();
+                rDelims.add(token.kind);
+//                return readSequence(LIST, rDelims);//char codelist
+//                newState(SEQUENCE,
+//                        of(x),
+//                        of(DK_IF),
+//                        rDelims,
+//                        currPriority,
+//                        token);
+//            case TK_INTEGER_LITERAL:
+//                break;
+//            case TK_DECIMAL_LITERAL:
+//                break;
+//            case TK_HEX_LITERAL:
+//                break;
+//            case TK_FLOATING_POINT_LITERAL:
+//                break;
+//            case TK_DECIMAL_EXPONENT:
+//                break;
+            case TK_CHARACTER_LITERAL:
+                break;
+            case TK_STRING_LITERAL:
+                break;
+            case TK_VAR:
+                lastTerm = termFactory.newVariable(token.image);
+                break;
+            case TK_ATOM:
+            case TK_QUOTED_NAME:
+            case TK_SYMBOLIC_NAME:
+                lastTerm = termFactory.newFunctor(token.image, ListTerm.NIL);
+                break;
+//            case TK_DIGIT:
+//                break;
+//            case TK_ANY_CHAR:
+//                break;
+//            case TK_LOWERCASE:
+//                break;
+//            case TK_UPPERCASE:
+//                break;
+//            case TK_SYMBOL:
+//                break;
+//            case TK_COMMA:
+//                break;
+//            case TK_SEMICOLON:
+//                break;
+//            case TK_COLON:
+//                break;
+//            case TK_CONS:
+//                break;
+            default:
+                throw new IllegalStateException("Unused or unknown value: " + token.kind);
+        }
+
+        return lastTerm;
     }
 }

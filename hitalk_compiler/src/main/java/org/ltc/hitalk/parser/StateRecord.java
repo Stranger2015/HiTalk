@@ -35,7 +35,6 @@ public class StateRecord {
     PlToken token = newToken(TK_BOF);
 
     protected StateRecord(ParserState state,
-                          State stateRecordState,
                           EnumSet<Associativity> assocs,
                           EnumSet<DirectiveKind> dks,
                           int currPriority,

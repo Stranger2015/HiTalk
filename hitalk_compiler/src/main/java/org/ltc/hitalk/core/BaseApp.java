@@ -29,7 +29,6 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -503,7 +502,7 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
          * @return
          * @throws Exception
          */
-        public Deque<StateRecord> getParser() throws Exception {
+        public HtPrologParser getParser() throws Exception {
             HtPrologParser parser = (HtPrologParser) get(PARSER);
             if (parser == null) {
                 parser = new HtPrologParser();

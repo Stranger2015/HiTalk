@@ -3,7 +3,6 @@ package org.ltc.hitalk.parser;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.term.IdentifiedTerm;
 
-import java.util.Deque;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
@@ -13,15 +12,12 @@ import static java.util.EnumSet.of;
 import static org.ltc.hitalk.core.BaseApp.appContext;
 import static org.ltc.hitalk.parser.Directive.DirectiveKind;
 import static org.ltc.hitalk.parser.HtPrologParser.MIN_PRIORITY;
-import static org.ltc.hitalk.parser.ParserState.EXPR_A;
-import static org.ltc.hitalk.parser.PlToken.TokenKind;
-import static org.ltc.hitalk.parser.PlToken.newToken;
 import static org.ltc.hitalk.term.IdentifiedTerm.Associativity;
 import static org.ltc.hitalk.term.IdentifiedTerm.Associativity.*;
 
 /**
  * exprA(n) ::=
- * exprB(n)
+ * ____exprB(n)
  * { op(yfx,n) exprA(n-1) |
  * op(yf,n) }*
  * ============================
@@ -55,7 +51,7 @@ import static org.ltc.hitalk.term.IdentifiedTerm.Associativity.*;
  * functorName ::=
  * expr_A0
  * ============================
- * args ;;=
+ * args ::=
  * '(' sequence ')'
  * ----------------------------
  * list ::=
@@ -76,12 +72,6 @@ import static org.ltc.hitalk.term.IdentifiedTerm.Associativity.*;
  */
 abstract public class ParserStateHandler extends StateRecord implements IStateHandler {
     protected final HtPrologParser parser;
-    protected final ParserState state;
-    protected final State stateRecState;
-    protected final EnumSet<Associativity> assocs;
-    protected final EnumSet<DirectiveKind> dks;
-    protected final int currPriority;
-    protected final PlToken token;
 
     /**
      * @param assocs
@@ -89,16 +79,23 @@ abstract public class ParserStateHandler extends StateRecord implements IStateHa
      * @param currPriority
      * @param token
      */
-    public ParserStateHandler(HtPrologParser parser,
-                              ParserState state,
-                              State stateRecState,
+    public ParserStateHandler(ParserState state,
                               EnumSet<Associativity> assocs,
                               EnumSet<DirectiveKind> dks,
                               int currPriority,
-                              PlToken token) {
+                              PlToken token) throws Exception {
 
-        super(state, stateRecState, assocs, dks, currPriority, token);
-        this.parser = parser;
+        super(state, assocs, dks, currPriority, token);
+        this.parser = appContext.getParser();
+    }
+
+    public static IStateHandler create(StateRecord stateRecord) throws Exception {
+        return create(
+                stateRecord.getParserState(),
+                stateRecord.getAssocs(),
+                stateRecord.getDks(),
+                stateRecord.getCurrPriority(),
+                stateRecord.getToken());
     }
 
     public final StateRecord getStateRecord() {
@@ -106,135 +103,165 @@ abstract public class ParserStateHandler extends StateRecord implements IStateHa
     }
 
     /**
-     * @param h
      * @return
      */
-    public static IStateHandler create(ParserStateHandler h) {
+    public static IStateHandler create(ParserState state,
+                                       EnumSet<Associativity> assocs,
+                                       EnumSet<DirectiveKind> dks,
+                                       int currPriority,
+                                       PlToken token) throws Exception {
         IStateHandler handler;
-        switch (h.getParserState()) {
-            case START:
-                handler = new NopHandler(h.getParser(), h.getParserState(), h.getStateRecordState());
-                break;
-            case FINISH:
-                handler = new NopHandler(h.getParser(), h.getParserState(), h.getStateRecordState());
-                break;
+        switch (state) {
             case EXPR_A:
                 handler = new ExprAHandler(
-                        h.getParser(),
-                        h.getParserState(),
-                        h.getStateRecordState(),
-                        h.getAssocs(),
-                        h.getDks(),
-                        h.getCurrPriority(),
-                        h.getToken());
+                        state,
+                        of(yfx, yf),
+                        dks,
+                        currPriority,
+                        token);
                 break;
             case EXPR_B:
                 handler = new ExprBHandler(
-                        h.getParser(),
-                        h.getParserState(),
-                        h.getStateRecordState(),
-                        h.getAssocs(),
-                        h.getDks(),
-                        h.getCurrPriority(),
-                        h.getToken());
+                        state,
+                        of(xfx, xfy, xf),
+                        dks,
+                        currPriority,
+                        token);
                 break;
             case EXPR_C:
                 handler = new ExprCHandler(
-                        h.getParser(),
-                        h.getParserState(),
-                        h.getStateRecordState(),
-                        h.getAssocs(),
-                        h.getDks(),
-                        h.getCurrPriority(),
-                        h.getToken());
+                        state,
+                        of(x),
+                        dks,
+                        currPriority,
+                        token);
                 break;
             case EXPR_A0:
                 handler = new ExprA0Handler(
-                        h.getParser(),
-                        h.getParserState(),
-                        h.getStateRecordState(),
-                        h.getAssocs(),
-                        h.getDks(),
-                        h.getCurrPriority(),
-                        h.getToken());
+                        state,
+                        of(x),
+                        dks,
+                        currPriority,
+                        token);
                 break;
             case EXPR_A0_BRACE:
                 handler = new ExprA0BraceHandler(
-                        h.getParser(),
-                        h.getParserState(),
-                        h.getStateRecordState(),
-                        h.getAssocs(),
-                        h.getDks(),
-                        h.getCurrPriority(),
-                        h.getToken());
+                        state,
+                        of(x),
+                        dks,
+                        currPriority,
+                        token);
                 break;
             case EXPR_A0_BRACKET:
                 handler = new ExprA0BracketHandler(
-                        h.getParser(),
-                        h.getParserState(),
-                        h.getStateRecordState(),
-                        h.getAssocs(),
-                        h.getDks(),
-                        h.getCurrPriority(),
-                        h.getToken());
+                        state,
+                        of(x),
+                        dks,
+                        currPriority,
+                        token);
                 break;
             case EXPR_A0_ARGS:
                 handler = new ExprA0ArgsHandler(
-                        h.getParser(),
-                        h.getParserState(),
-                        h.getStateRecordState(),
-                        h.getAssocs(),
-                        h.getDks(),
-                        h.getCurrPriority(),
-                        h.getToken());
+                        state,
+                        of(x),
+                        dks,
+                        currPriority,
+                        token);
                 break;
             case EXPR_A0_HEADS:
                 handler = new ExprA0HeadsHandler(
-                        h.getParser(),
-                        h.getParserState(),
-                        h.getStateRecordState(),
-                        h.getAssocs(),
-                        h.getDks(),
-                        h.getCurrPriority(),
-                        h.getToken());
+                        state,
+                        of(x),
+                        dks,
+                        currPriority,
+                        token);
                 break;
             case EXPR_A0_TAIL:
                 handler = new ExprA0TailHandler(
-                        h.getParser(),
-                        h.getParserState(),
-                        h.getStateRecordState(),
-                        h.getAssocs(),
-                        h.getDks(),
-                        h.getCurrPriority(),
-                        h.getToken());
+                        state,
+                        of(x),
+                        dks,
+                        currPriority,
+                        token);
                 break;
             case SEQUENCE:
                 handler = new SequenceHandler(
-                        h.getParser(),
-                        h.getParserState(),
-                        h.getStateRecordState(),
-                        h.getAssocs(),
-                        h.getDks(),
-                        h.getCurrPriority(),
-                        h.getToken());
-                break;
-            case NOP:
-                handler = new NopHandler(h.getParser(), h.getParserState(), h.getStateRecordState());
+                        state,
+                        of(x),
+                        dks,
+                        currPriority,
+                        token);
                 break;
             default:
-                throw new IllegalStateException("Unexpected value: " + h.getParserState());
+                throw new IllegalStateException("Unexpected value: " + state);
         }
 
         return handler;
     }
 
+    /**
+     * @param handler
+     */
+    public void push(IStateHandler handler) {
+        parser.states.push(handler);
+    }
+
+    /**
+     * @return
+     */
+    public IStateHandler pop() {
+        return null;
+    }
+
+    public final IStateHandler prepareState() throws Exception {
+        IStateHandler handler = IStateHandler.super.prepareState();
+        doPrepareState();
+        return handler;
+    }
+
+    /**
+     *
+     */
+    protected void doPrepareState() throws Exception {
+
+    }
+
+    /**
+     *
+     */
+    protected void doCompleteState() throws Exception {
+
+    }
+
+
+    public final IStateHandler handleState() throws Exception {
+        IStateHandler result = null;
+        final StateRecord sr = getStateRecord();
+        switch (sr.stateRecordState) {
+            case PREPARING:
+                result = this.prepareState();
+                break;
+            case COMPLETING:
+                result = this.completeState();
+                break;
+        }
+
+        return result;
+    }
+
+
+    public final IStateHandler completeState() throws Exception {
+        IStateHandler s = IStateHandler.super.completeState();
+        doCompleteState();
+        return s;
+    }
 
     private HtPrologParser getParser() {
         return parser;
     }
 
     public StateRecord newState() {
-        return new StateRecord(state, stateRecordState, assocs, dks, currPriority, token);
+        return new StateRecord(state, assocs, dks, currPriority, token);
     }
 
     /**
@@ -243,25 +270,14 @@ abstract public class ParserStateHandler extends StateRecord implements IStateHa
     protected static class ExprA0BracketHandler extends ParserStateHandler {
 
         public ExprA0BracketHandler(
-                HtPrologParser parser,
                 ParserState state,
-                State stateRecordState,
                 EnumSet<Associativity> assocs,
                 EnumSet<DirectiveKind> dks,
                 int currPriority,
-                PlToken token) {
-            super(parser, state, stateRecordState, assocs, dks, currPriority, token);
+                PlToken token) throws Exception {
+            super(state, assocs, dks, currPriority, token);
         }
 
-
-        public void prepareState() throws Exception {
-            super.prepareState();
-            newState();
-        }
-
-        public void completeState() throws Exception {
-
-        }
 
         /**
          * @param name
@@ -283,32 +299,37 @@ abstract public class ParserStateHandler extends StateRecord implements IStateHa
         ExprAnHandler handlerAn;
 
         public ExprAHandler(
-                HtPrologParser parser,
                 ParserState state,
-                State stateRecordState,
                 EnumSet<Associativity> assocs,
                 EnumSet<DirectiveKind> dks,
                 int currPriority,
-                PlToken token) {
-            super(parser, state, stateRecordState, assocs, dks, currPriority, token);
+                PlToken token) throws Exception {
+            super(state, assocs, dks, currPriority, token);
 
-            handlerA0 = new ExprA0Handler(parser, state, stateRecordState, assocs, dks, currPriority, token);
-            handlerAn = new ExprAnHandler(parser, state, stateRecordState, assocs, dks, currPriority, token);
+            handlerA0 = new ExprA0Handler(
+                    state,
+                    of(x),
+                    dks,
+                    currPriority,
+                    token);
+            handlerAn = new ExprAnHandler(
+                    state,
+                    of(x),
+                    dks,
+                    currPriority,
+                    token);
         }
 
-        public void prepareState() {
-            if (getCurrPriority() == 0) {
+        public void doPrepareState() throws Exception {
+//            IStateHandler result;
+            if (currPriority == MIN_PRIORITY) {
+                /* result =*/
                 handlerA0.prepareState();//fixme
             } else {
+                /*result =*/
                 handlerAn.prepareState();//fixme
             }
-        }
-
-        public void completeState() throws Exception {
-
-        }
-
-        public void exitState(ParserState state) throws Exception {
+            /*return result;*/
         }
 
 
@@ -322,7 +343,7 @@ abstract public class ParserStateHandler extends StateRecord implements IStateHa
         public Set<IdentifiedTerm> tryOperators(String name) {
             final Set<IdentifiedTerm> result = new HashSet<>();
             for (Associativity assoc : getAssocs()) {
-                result.addAll(appContext.getOpTable().getOperators(name, assoc, getCurrPriority()));
+                result.addAll(appContext.getOpTable().getOperators(name, assoc, currPriority));
             }
             return result;
         }
@@ -334,26 +355,12 @@ abstract public class ParserStateHandler extends StateRecord implements IStateHa
     public static class ExprBHandler extends ParserStateHandler {
 
         public ExprBHandler(
-                HtPrologParser parser,
                 ParserState state,
-                State stateRecordState,
                 EnumSet<Associativity> assocs,
                 EnumSet<DirectiveKind> dks,
                 int currPriority,
-                PlToken token) {
-            super(parser, state, stateRecordState, assocs, dks, currPriority, token);
-        }
-
-        public void prepareState() {
-
-        }
-
-        public void completeState() throws Exception {
-
-        }
-
-        public void exitState() {
-
+                PlToken token) throws Exception {
+            super(state, assocs, dks, currPriority, token);
         }
 
         /**
@@ -382,26 +389,12 @@ abstract public class ParserStateHandler extends StateRecord implements IStateHa
          * @param token
          */
         public ExprCHandler(
-                HtPrologParser parser,
                 ParserState state,
-                State stateRecordState,
                 EnumSet<Associativity> assocs,
                 EnumSet<DirectiveKind> dks,
                 int currPriority,
-                PlToken token) {
-            super(parser, state, stateRecordState, assocs, dks, currPriority, token);
-        }
-
-        public void prepareState() {
-
-        }
-
-        public void completeState() throws Exception {
-
-        }
-
-        public void exitState() {
-
+                PlToken token) throws Exception {
+            super(state, assocs, dks, currPriority, token);
         }
 
         /**
@@ -431,25 +424,15 @@ abstract public class ParserStateHandler extends StateRecord implements IStateHa
          * @param token
          */
         public ExprAnHandler(
-                HtPrologParser parser,
                 ParserState state,
-                State stateRecordState,
                 EnumSet<Associativity> assocs,
                 EnumSet<DirectiveKind> dks,
                 int currPriority,
-                PlToken token) {
-            super(parser, state, stateRecordState, assocs, dks, currPriority, token);
+                PlToken token) throws Exception {
+            super(state, assocs, dks, currPriority, token);
         }
 
-        public void prepareState() {
-
-        }
-
-        public void completeState() throws Exception {
-
-        }
-
-        public void exitState() throws Exception {
+        public void doCompleteState() throws Exception {
             PlLexer lexer = appContext.getTokenSource();
             PlToken token = lexer.readToken(true);
             IOperatorTable operatorTable = appContext.getOpTable();
@@ -468,11 +451,11 @@ abstract public class ParserStateHandler extends StateRecord implements IStateHa
                 }
                 //priorityYFX has getPriority() over YF
                 if (priorityYFX >= priorityYF && priorityYFX >= MIN_PRIORITY) {
-                    newState(EXPR_A,
-                            assocs,
-                            dks,
-                            priorityYFX - 1,
-                            token);
+                    handlerAn.prepareState();
+//                            of(x),
+//                            dks,
+//                            priorityYFX - 1,
+//                            token);
                     if (parser.getLastTerm() != null) {
                         leftSide = new IdentifiedTerm(
                                 token.image,
@@ -507,82 +490,28 @@ abstract public class ParserStateHandler extends StateRecord implements IStateHa
 
     }
 
-    public void repeat(Consumer<IStateHandler> action) {
-
-    }
+//    public void repeat(Consumer<IStateHandler> action) {
+//
+//    }
+//
 
     /**
      *
      */
     public static class ExprA0Handler extends ExprAHandler {
 
-        public ExprA0Handler(HtPrologParser parser,
-                             ParserState state,
-                             State stateRecordState,
-                             EnumSet<Associativity> assocs,
-                             EnumSet<DirectiveKind> dks,
-                             int currPriority,
-                             PlToken token) {
-            super(parser, state, stateRecordState, assocs, dks, currPriority, token);
-        }
-
-        public void completeState() throws Exception {
-
+        public ExprA0Handler(
+                ParserState state,
+                EnumSet<Associativity> assocs,
+                EnumSet<DirectiveKind> dks,
+                int currPriority,
+                PlToken token) throws Exception {
+            super(state, assocs, dks, currPriority, token);
         }
 
         public void repeat(Consumer<IStateHandler> action) {
 
         }
-    }
-
-    /**
-     *
-     */
-    public static class NopHandler extends ParserStateHandler {
-
-        /**
-         * @param state
-         * @param stateRecordState
-         */
-        public NopHandler(HtPrologParser parser, ParserState state, State stateRecordState) {
-            super(parser,
-                    state,
-                    stateRecordState,
-                    of(x),
-                    of(DirectiveKind.DK_IF),
-                    0,
-                    newToken(TokenKind.TK_ANY_CHAR));
-        }
-
-//        private static boolean test(TokenKind tokenKind) {
-//            return false;
-//        }
-
-        public void prepareState() {
-
-        }
-
-        public void completeState() throws Exception {
-
-        }
-
-        public void exitState(ParserState state) {
-
-        }
-
-        /**
-         * @param name
-         */
-        public Set<IdentifiedTerm> tryOperators(String name) {
-            return null;
-        }
-
-
-        public void repeat(Consumer<IStateHandler> action) {
-
-        }
-
-
     }
 
     /**
@@ -591,30 +520,16 @@ abstract public class ParserStateHandler extends StateRecord implements IStateHa
     public static class ExprA0BraceHandler extends ParserStateHandler {
 
         public ExprA0BraceHandler(
-                HtPrologParser parser,
                 ParserState state,
-                State stateRecordState,
                 EnumSet<Associativity> assocs,
                 EnumSet<DirectiveKind> dks,
                 int currPriority,
-                PlToken token) {
-            super(parser, state, stateRecordState, assocs, dks, currPriority, token);
+                PlToken token) throws Exception {
+            super(state, assocs, dks, currPriority, token);
         }
 
         public StateRecord newState() {
             return null;
-        }
-
-        public void prepareState() {
-
-        }
-
-        public void completeState() throws Exception {
-
-        }
-
-        public void exitState(ParserState state) {
-
         }
 
         /**
@@ -640,23 +555,18 @@ abstract public class ParserStateHandler extends StateRecord implements IStateHa
          * @param token
          */
         public SequenceHandler(
-                HtPrologParser parser,
                 ParserState state,
-                State stateRecordState,
                 EnumSet<Associativity> assocs,
                 EnumSet<DirectiveKind> dks,
                 int currPriority,
-                PlToken token) {
-            super(parser, state, stateRecordState, assocs, dks, currPriority, token);
+                PlToken token) throws Exception {
+            super(state, assocs, dks, currPriority, token);
         }
 
-        public void prepareState() {
+        public final void push(StateRecord sr) {
 
         }
 
-        public void completeState() throws Exception {
-
-        }
 
         public void exitState() {
 
@@ -684,26 +594,12 @@ abstract public class ParserStateHandler extends StateRecord implements IStateHa
          * @param token
          */
         public ExprA0ArgsHandler(
-                HtPrologParser parser,
                 ParserState state,
-                State stateRecordState,
                 EnumSet<Associativity> assocs,
                 EnumSet<DirectiveKind> dks,
                 int currPriority,
-                PlToken token) {
-            super(parser, state, stateRecordState, assocs, dks, currPriority, token);
-        }
-
-        public StateRecord newState() {
-            return null;
-        }
-
-        public void prepareState() {
-
-        }
-
-        public void completeState() throws Exception {
-
+                PlToken token) throws Exception {
+            super(state, assocs, dks, currPriority, token);
         }
 
         /**
@@ -728,26 +624,12 @@ abstract public class ParserStateHandler extends StateRecord implements IStateHa
          * @param token
          */
         public ExprA0HeadsHandler(
-                HtPrologParser parser,
                 ParserState state,
-                State stateRecordState,
                 EnumSet<Associativity> assocs,
                 EnumSet<DirectiveKind> dks,
                 int currPriority,
-                PlToken token) {
-            super(parser, state, stateRecordState, assocs, dks, currPriority, token);
-        }
-
-        public void prepareState() {
-
-        }
-
-        public void completeState() throws Exception {
-
-        }
-
-        public void exitState() {
-
+                PlToken token) throws Exception {
+            super(state, assocs, dks, currPriority, token);
         }
 
         /**
@@ -776,40 +658,22 @@ abstract public class ParserStateHandler extends StateRecord implements IStateHa
          * @param token
          */
         public ExprA0TailHandler(
-                HtPrologParser parser,
                 ParserState state,
-                State stateRecordState,
                 EnumSet<Associativity> assocs,
                 EnumSet<DirectiveKind> dks,
                 int currPriority,
-                PlToken token) {
-            super(parser, state, stateRecordState, assocs, dks, currPriority, token);
+                PlToken token) throws Exception {
+            super(state, assocs, dks, currPriority, token);
         }
 
-        private static boolean test(IStateHandler iStateHandler) {
-            return true;
-        }
-
-        public void prepareState() throws Exception {
-            newState(parser, state, stateRecordState, assocs, dks, currPriority, token);
-        }
-
-        public void completeState() throws Exception {
-
-        }
-
+        @Deprecated
         public void newState(
-                HtPrologParser parser,
                 ParserState state,
                 State stateRecordState,
                 EnumSet<Associativity> assocs,
                 EnumSet<DirectiveKind> dks,
                 int currPriority,
                 PlToken token) {
-        }
-
-        public void exitState() {
-
         }
 
         /**
@@ -822,33 +686,22 @@ abstract public class ParserStateHandler extends StateRecord implements IStateHa
         public void repeat(Consumer<IStateHandler> action) {
             action.accept(this);
         }
-    }
 
-    protected StateRecord newState(ParserState state,
-                                   State stateRecordState,
-                                   EnumSet<Associativity> assocs,
-                                   EnumSet<DirectiveKind> dks,
-                                   int currPriority,
-                                   PlToken token) throws Exception {
-        final StateRecord sr = new StateRecord(state, stateRecordState, assocs, dks, currPriority, token);
-        getStates().push(sr);
+//        protected StateRecord newState(ParserState state,
+//                                       EnumSet<Associativity> assocs,
+//                                       EnumSet<DirectiveKind> dks,
+//                                       int currPriority,
+//                                       PlToken token) throws Exception {
+//            final StateRecord sr = new StateRecord(state, assocs, dks, currPriority, token);
+//            getStates().push(sr);
+//
+//            return sr;
+//        }
 
-        return sr;
-    }
-
-    @Override
-    public Deque<StateRecord> getStates() throws Exception {
-        return appContext.getParser();
-    }
-
-    public void completeState() throws Exception {
-
-    }
-
-    public boolean isEndOfTerm(HtPrologParser parser) {
-        return token.kind == TokenKind.TK_DOT ||
-                parser.getParentheses() == 0 && parser.getBrackets() == 0 && parser.getBraces() == 0 &&
-                        parser.getSquotes() % 2 == 0 && parser.getDquotes() % 2 == 0 && parser.getBquotes() % 2 == 0;
+//        @Override
+//        public Deque<StateRecord> getStates() throws Exception {
+//            return appContext.getParser().states;
+//        }
 
     }
 }

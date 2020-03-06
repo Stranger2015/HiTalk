@@ -3,9 +3,9 @@ package org.ltc.hitalk.core;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.parser.PlLexer;
-import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.hitalk.ILogicCompiler;
 import org.slf4j.Logger;
 
@@ -63,7 +63,7 @@ public interface ICompiler<T extends HtClause, P, Q> extends ILogicCompiler<T, P
     /**
      * @return
      */
-    PlPrologParser getParser ();
+    HtPrologParser getParser();
 
     /**
      * @param clause

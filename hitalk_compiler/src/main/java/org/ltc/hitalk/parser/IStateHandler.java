@@ -2,16 +2,16 @@ package org.ltc.hitalk.parser;
 
 import org.ltc.hitalk.term.IdentifiedTerm;
 
-import java.util.Deque;
 import java.util.Set;
 import java.util.function.Consumer;
-
-import static org.ltc.hitalk.core.BaseApp.appContext;
 
 /**
  *
  */
 public interface IStateHandler {
+    /**
+     * @return
+     */
     StateRecord newState();
 
     /**
@@ -20,25 +20,31 @@ public interface IStateHandler {
     StateRecord getStateRecord();
 
     /**
+     * @param handler
+     */
+    void push(IStateHandler handler);
+
+    /**
      * @return
-     * @throws Exception
      */
-    default Deque<StateRecord> getStates() throws Exception {
-        return ((HtPrologParser) appContext.getParser()).states;
-    }
+    IStateHandler pop();
+
+    IStateHandler handleState() throws Exception;
 
     /**
      *
+     * @return
      */
-    default void prepareState() throws Exception {
-        getStates().push(getStateRecord());
+    default IStateHandler prepareState() throws Exception {
+        push(this);
+        return ParserStateHandler.create(getStateRecord());
     }
 
     /**
-     *
+     * @return
      */
-    default void completeState() throws Exception {
-        getStates().pop();
+    default IStateHandler completeState() throws Exception {
+        return pop();
     }
 
     /**

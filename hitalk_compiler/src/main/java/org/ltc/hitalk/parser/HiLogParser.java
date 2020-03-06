@@ -23,7 +23,7 @@ import static org.ltc.hitalk.wam.compiler.Language.HILOG;
 /**
  *
  */
-public class HiLogParser extends PlPrologParser {
+public class HiLogParser extends HtPrologParser {
 
     public static final String HILOG_APPLY_STRING = "$hilog_apply";
 
