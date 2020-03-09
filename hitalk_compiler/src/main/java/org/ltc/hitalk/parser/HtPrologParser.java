@@ -3,8 +3,8 @@ package org.ltc.hitalk.parser;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
-import org.ltc.hitalk.parser.ParserStateHandler.ExprBHandler;
 import org.ltc.hitalk.parser.PlToken.TokenKind;
+import org.ltc.hitalk.parser.handlers.ParserStateHandler;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.IdentifiedTerm;
@@ -28,10 +28,10 @@ import static org.ltc.hitalk.core.BaseApp.getAppContext;
 import static org.ltc.hitalk.core.utils.TermUtilities.convertToClause;
 import static org.ltc.hitalk.parser.Directive.DirectiveKind.*;
 import static org.ltc.hitalk.parser.ParserState.EXPR_A;
-import static org.ltc.hitalk.parser.ParserState.EXPR_B;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
 import static org.ltc.hitalk.parser.PlToken.newToken;
 import static org.ltc.hitalk.parser.PrologAtoms.*;
+import static org.ltc.hitalk.parser.StateRecord.State.PREPARING;
 import static org.ltc.hitalk.term.IdentifiedTerm.Associativity.*;
 import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
 
@@ -41,7 +41,7 @@ import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
 public class HtPrologParser implements IParser {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
     ParserState state = EXPR_A;
-    StateRecord.State stateRecordState = StateRecord.State.PREPARING;
+    StateRecord.State stateRecordState = PREPARING;
     StateRecord record = new StateRecord(state,
             of(yfx, yf),
             of(DK_IF, DK_ENCODING, DK_HILOG),
@@ -68,7 +68,7 @@ public class HtPrologParser implements IParser {
     public static final String ANONYMOUS = "_";
 
     protected static final int MAX_PRIORITY = 1200;
-    protected static final int MIN_PRIORITY = 0;
+    public static final int MIN_PRIORITY = 0;
 
     protected final Deque<PlLexer> tokenSourceStack = new ArrayDeque<>();
 
@@ -382,19 +382,12 @@ public class HtPrologParser implements IParser {
      * //      list     |
      * //      functor
      * //============================
-     * // functor ::= functorName args
+     * // functor ::=
+     * functorName args
      * //============================
-     * // functorName ::= expr_A0
-     *
-     * @param token
-     * @return
-     * @throws Exception
+     * // functorName ::=
+     * expr_A0
      */
-    public ITerm
-    completeExprA0(PlToken token) throws Exception {
-        return null;
-    }
-
     private ITerm readSequence(Kind kind, EnumSet<TokenKind> rDelims) {
         return null;//fixme
     }
@@ -422,305 +415,18 @@ public class HtPrologParser implements IParser {
         EnumSet<Directive.DirectiveKind> directiveKinds = of(DK_IF, DK_ENCODING, DK_HILOG);
         lastTerm = BEGIN_OF_FILE;
         currPriority = MAX_PRIORITY;
-        handler = ParserStateHandler.create(EXPR_A, assocs, directiveKinds, MAX_PRIORITY, token);
-        ;
-        for (; ; handler = handler.handleState()) {
+        handler = ParserStateHandler.create(EXPR_A.getHandlerClass());
+        for (; ; handler = handler.handleState(token)) {
             token = getLexer().getToken(true);
-            switch (state) {
-//                case START:
-//                    if (state)
-//                        handler = new ExprAnHandler(EXPR_A, of(yfx, yf), directiveKinds, currPriority, token);
-//                    handler.prepareState();
-                case EXPR_A:
-                    //   exprA(n) ::=
-                    //      exprB(n) { op(yfx,n) exprA(n-1) | op(yf,n) }*
-                    handler.prepareState();
-                    handler = new ExprBHandler(
-                            EXPR_B,
-                            of(xfx, xfy, xf),
-                            of(DK_IF),
-                            currPriority,
-                            token);
-
-                    break;
-//                token = getLexer().readToken(true);
-//                completeExprA(currPriority, token, (IdentifiedTerm) lastTerm);
-//                if (lastTerm == END_OF_FILE) {
-//                    lastTEm
-//                    throw new EOFException();
-//                }
-
-//                break;
-                case EXPR_B:
-//                    exprB(n) ::=
-//                        exprC(n-1) { op(xfx,n) exprA(n-1) | op(xfy,n) exprA(n) | op(xf,n) }*
-// exprC is called parseLeftSide in the code
-//                    newState(EXPR_C,
-//                            of(fx, fy, hx, hy),
-//                            of(DK_IF, DK_HILOG),
-//                            of(TK_DOT),
-//                            currPriority - 1,
-//                            token);
-                    break;
-                case EXPR_C:
-                    //  exprC(n) ::=
-                    //      '-' integer | '-' float |
-                    //      op( fx,n ) exprA(n-1) |
-                    //      op( hx,n ) exprA(n-1) |
-                    //      op( fy,n ) exprA(n) |
-                    //      op( hy,n ) exprA(n) |
-                    //                 exprA(n)
-                    if (token.image.equals("-") || token.image.equals("+")) {
-                        PlToken token1 = getLexer().readToken(true);
-                        lastTerm = readNumber(token.image, token1);
-                        if (lastTerm == null) {
-                            getLexer().unreadToken(token1);
-                        }
-                    }
-//                case EXPR_C_EXIT:
-//                completeExprC(rDelims, currPriority, token);
-                    break;
-                case EXPR_A0:
-                    //  expr_A0 ::=
-                    //      integer |
-//                    token = getLexer().getToken(true);
-                    //      float |
-                    //      atom |
-                    //      variable |
-                    //      list     |
-                    //      functor
-                    // ============================
-                    // functor ::= functorName args
-                    //============================
-                    // functorName ::= expr_A0
-//                    newState(EXPR_A0,
-//                            of(x),
-//                            of(DK_IF),
-//                            rDelims,
-//                            currPriority,
-//                            token);
-//                case EXPR_A0_EXIT:
-//                completeExprAn(currPriority, token, (IdentifiedTerm) lastTerm);
-                    break;
-                case FINISH:
-//                    newState(FINISH,
-//                            of(x),
-//                            of(DK_IF),
-//                            of(TK_DOT),
-//                            currPriority,
-//                            newToken(TK_EOF));
-//                    break;
-                case EXPR_A0_BRACE:
-                    break;
-//                case EXPR_A0_BRACE_EXIT:
-                case EXPR_A0_BRACKET:
-                    break;
-//                case EXPR_A0_BRACKET_EXIT:
-                case EXPR_A0_ARGS:
-                    break;
-//                case EXPR_A0_ARGS_EXIT:
-//                rDelims = of(TK_COMMA, TK_CONS, TK_RPAREN);
-//                    if (rDelims.contains(token.kind)) {
-//                        break;
-//                    }
-//                newState(EXPR_A0_HEADS,
-//                        of(x),
-//                        directiveKinds,
-//                        rDelims,
-//                        MAX_PRIORITY,
-//                        token);
-//                    continue;
-//                newState(EXPR_A,
-//                        assocs,
-//                        directiveKinds,
-//                        rDelims,
-//                        MAX_PRIORITY,
-//                        token);
-//                break;
-                case EXPR_A0_HEADS:
-//                    newState(EXPR_A0_TAIL,
-//                            of(yfx, yf),
-//                            of(DK_IF),
-//                            of(TK_COMMA, TK_CONS, TK_RPAREN),
-//                            MAX_PRIORITY,
-//                            token);
-                    break;
-//                case EXPR_A0_HEADS_EXIT:
-
-                case EXPR_A0_TAIL:
-
-                    break;
-//                case EXPR_A0_TAIL_EXIT:
-//                token = getLexer().getToken(true);
-//                if (of(TK_VAR, TK_LBRACKET).contains(token.kind)) {
-//                    if (token.kind == TK_LBRACKET) {
-//                            final StateRecord listState;
-//                    }
-//                }
-//                break;
-                default:
-                    throw new IllegalStateException("Unexpected value: " + states.peek().getParserState());
-            }
-
-            return lastTerm;
         }
     }
 
-    /**
-     * @param rDelims
-     * @param currPriority
-     * @param token
-     * @throws Exception
-     */
-    protected void completeExprC(EnumSet<TokenKind> rDelims, int currPriority, PlToken token) throws Exception {
-        parseLeftSide(currPriority, token);
-    }
 
-    /**
-     * @param token
-     * @throws Exception
-     */
-    protected void completeExprB(PlToken token) throws Exception {//todo fixme
-        //1. op(fx,n) exprA(n-1) | op(fy,n) exprA(n) | expr0
-        IdentifiedTerm left = (IdentifiedTerm) parseLeftSide(maxPriority, token);
-        if (left == END_OF_FILE) {
-            lastTerm = left;
-        }
-        //2. left is followed by either xfx, xfy or xf operators, parse these
-        token = getLexer().readToken(true);
-        for (; isOperator(token); token = getLexer().readToken(true)) {
-            int priorityXFX = getOptable().getPriority(token.image, xfx);
-            int priorityXFY = getOptable().getPriority(token.image, xfy);
-            int priorityXF = getOptable().getPriority(token.image, xf);
-            //check that no operator has a priority higher than permitted
-            //or a lower priority than the left side expression
-            if (priorityXFX > maxPriority || priorityXFX < MIN_PRIORITY) {
-                priorityXFX = -1;
-            }
-            if (priorityXFY > maxPriority || priorityXFY < MIN_PRIORITY) {
-                priorityXFY = -1;
-            }
-            if (priorityXF > maxPriority || priorityXF < MIN_PRIORITY) {
-                priorityXF = -1;
-            }
-            //priorityXFX
-            boolean haveAttemptedXFX = false;
-            //priorityXFX has priority
-            if (priorityXFX >= priorityXFY && priorityXFX >= priorityXF && priorityXFX >= left.getPriority()) {
-//                            IdentifiedTerm found = exprA(priorityXFX - 1, delims);
-                if (lastTerm != null) {
-                    left = new IdentifiedTerm(
-                            token.image,
-                            xfx,
-                            priorityXFX,
-                            left.getResult(),
-                            ((IdentifiedTerm) lastTerm).getResult());
-//                    continue;
-                } else {
-                    haveAttemptedXFX = true;
-                }
-            }
-            //priorityXFY //priorityXFY has priority, or priorityXFX has failed
-            if ((priorityXFY >= priorityXF) && (priorityXFY >= left.getPriority())) {
-//                            IdentifiedTerm found = exprA(priorityXFY, delims);
-//                newState(EXPR_A,
-//                        assocs,
-//                        directiveKinds,
-//                        rDelims,
-//                        priorityXFX,
-//                        token);
-
-                if (lastTerm != null) {
-                    left = new IdentifiedTerm(
-                            token.image,
-                            xfy,
-                            priorityXFY,
-                            left.getResult(),
-                            ((IdentifiedTerm) lastTerm).getResult());
-                    continue;
-                }
-            } else //!!!!!!!!!!!
-                //priorityXF      //priorityXF has priority, or priorityXFX and/or priorityXFY has failed
-                if (priorityXF >= left.getPriority()) {
-                    lastTerm = new IdentifiedTerm(
-                            token.image,
-                            xf,
-                            priorityXF,
-                            left.getResult());
-                }// else //!!!!!!!!!!!!!!!!!!
-//            continue;
-            //2XFX did not have top priority, but priorityXFY failed
-            if (!haveAttemptedXFX && priorityXFX >= left.getPriority()) {
-//                            IdentifiedTerm found = exprA(priorityXFX - 1, delims);
-//                newState(EXPR_A,
-//                        assocs,
-//                        directiveKinds,
-//                        priorityXFX,
-//                        token);
-                //todo
-                if (lastTerm != null) {
-                    left = new IdentifiedTerm(
-                            token.image,
-                            xfx,
-                            priorityXFX,
-                            left.getResult(),
-                            ((IdentifiedTerm) lastTerm).getResult());
-                    continue;
-                }
-            }
-            break;
-        }
-    }
-
-    private boolean isOperator(PlToken token) {
-
+    public boolean isOperator(PlToken token) {
         return false;
     }
 
-    protected void completeExprAn(int currPriority, PlToken token, IdentifiedTerm leftSide) throws Exception {
-        for (; isOperator(token); token = getLexer().readToken(true)) {
-            int priorityYFX = this.getOptable().getPriority(token.image, yfx);
-            int priorityYF = this.getOptable().getPriority(token.image, yf);
-            //YF and priorityYFX has a higher priority than the left side expr and less then top limit
-            // if (YF < leftSide.getPriority() && YF > PlDynamicOperatorOP_HIGH) YF = -1;
-
-            if (priorityYF < leftSide.getPriority() || priorityYF > this.currPriority) {
-                priorityYF = -1;
-            }
-            // if (priorityYFX < leftSide.getPriority() && priorityYFX > MAX_PRIORITY) priorityYFX = -1;
-            if (priorityYFX < leftSide.getPriority() || priorityYFX > this.currPriority) {
-                priorityYFX = -1;
-            }
-            //priorityYFX has getPriority() over YF
-            if (priorityYFX >= priorityYF && priorityYFX >= MIN_PRIORITY) {
-//                newState(EXPR_A,
-//                        assocs,
-//                        directiveKinds,
-//                        rDelims,
-//                        priorityYFX - 1,
-//                        token);
-                if (lastTerm != null) {
-                    leftSide = new IdentifiedTerm(
-                            token.image,
-                            yfx,
-                            priorityYFX,
-                            leftSide.getResult(),
-                            ((IdentifiedTerm) lastTerm).getResult());
-                }
-            } else {
-                //either YF has priority over priorityYFX or priorityYFX failed
-                if (priorityYF >= MIN_PRIORITY) {
-                    leftSide = new IdentifiedTerm(
-                            token.image,
-                            yf,
-                            priorityYF,
-                            leftSide.getResult());
-                }
-            }
-        }
-    }
-
-    /**
+    /*
      * exprA(n) ::=
      * exprB(n) { op(yfx,n) exprA(n-1) | op(yf,n) }*
      * //============================
@@ -790,7 +496,6 @@ public class HtPrologParser implements IParser {
         }
         return result;
     }
-
 
     protected ITerm readNumber(String prefix, PlToken token) {
         final ITerm result;
@@ -1225,7 +930,7 @@ public class HtPrologParser implements IParser {
         }
     }
 
-    private PlLexer getLexer() {
+    public PlLexer getLexer() {
         return tokenSourceStack.peek();
     }
 
@@ -1284,106 +989,6 @@ public class HtPrologParser implements IParser {
 //        states.push(stateRec);
 //        return stateRec;
 //}
-
-    /**
-     * Parses and returns a valid 'leftside' of an expression.
-     * If the left side starts with a prefix, it consumes other expressions with a lower priority than itself.
-     * If the left side does not have a prefix it must be an expr0.
-     *
-     * @param maxPriority operators with a higher priority than this will effectively end the expression
-     * @param token
-     * @return a wrapper of: 1. term correctly structured and 2. the priority of its root operator
-     * @throws InvalidTermException
-     */
-    protected ITerm parseLeftSide(int maxPriority, PlToken token) throws Exception {
-//        1. prefix expression
-//        token = getLexer().readToken(true);
-        if (isOperator(token)) {
-            int priorityFX = getOptable().getPriority(token.image, fx);
-            int priorityFY = getOptable().getPriority(token.image, fy);
-            if (priorityFY == 0) {
-                priorityFY = -1;
-            }
-
-            if (token.image.equals("-") || token.image.equals("+")) {
-                PlToken t = getLexer().readToken(true);
-                if (t.isNumber()) {
-                    return termFactory.createNumber(token.image);
-                } else {
-                    getLexer().unreadToken(t);
-                }
-                //check that no operator has a priority higher than permitted
-                if (priorityFY > maxPriority) {
-                    priorityFY = -1;
-                }
-                if (priorityFX > maxPriority) {
-                    priorityFX = -1;
-                }
-                //priorityFX has priority over priorityFY
-                boolean haveAttemptedFX = false;
-                if (priorityFX >= priorityFY && priorityFX >= MIN_PRIORITY) {
-//                    IdentifiedTerm found = exprA(priorityFX - 1, rDelims);    //op(fx, n) exprA(n - 1)
-//                    newState(EXPR_A,
-//                            assocs,
-//                            directiveKinds,
-//                            rDelims,
-//                            priorityFX - 1,
-//                            token);
-
-                    if (lastTerm != null) {
-                        return new IdentifiedTerm(
-                                token.image,
-                                fx,
-                                priorityFX - 1,
-                                ((IdentifiedTerm) lastTerm).getResult());
-                    } else {
-                        haveAttemptedFX = true;
-                    }
-                }
-                //priorityFY has priority over priorityFX, or priorityFX has failed
-                if (priorityFY >= MIN_PRIORITY) {
-//                    IdentifiedTerm found = exprA(priorityFY, rDelims); //op(fy,n) exprA(1200)  or   op(fy,n) exprA(n)
-//                    newState(EXPR_A,
-//                            assocs,
-//                            directiveKinds,
-//                            rDelims,
-//                            priorityFY,
-//                            token);
-
-                    if (lastTerm != null) {
-                        return new IdentifiedTerm(
-                                token.image,
-                                fy,
-                                priorityFY,
-                                ((IdentifiedTerm) lastTerm).getResult());
-                    }
-                }
-                //priorityFY has priority over priorityFX, but priorityFY failed
-                if (!haveAttemptedFX && priorityFX >= MIN_PRIORITY) {
-//                    IdentifiedTerm found = exprA(priorityFX - 1, rDelims);    //op(fx, n) exprA(n - 1)
-//                    newState(EXPR_A,
-//                            assocs,
-//                            directiveKinds,
-//                            rDelims,
-//                            priorityFX - 1,
-//                            token);
-
-                    if (lastTerm != null) {
-                        return new IdentifiedTerm(
-                                token.image,
-                                fx,
-                                priorityFX - 1,
-                                ((IdentifiedTerm) lastTerm).getResult());
-                    }
-                }
-            }
-            //2. expr0
-            return lastTerm;
-        }
-
-        return lastTerm;
-    }
-
     /**
      * @param sb
      */

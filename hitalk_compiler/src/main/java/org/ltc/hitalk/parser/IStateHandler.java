@@ -1,7 +1,9 @@
 package org.ltc.hitalk.parser;
 
+import org.ltc.hitalk.parser.Directive.DirectiveKind;
 import org.ltc.hitalk.term.IdentifiedTerm;
 
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -9,10 +11,6 @@ import java.util.function.Consumer;
  *
  */
 public interface IStateHandler {
-    /**
-     * @return
-     */
-    StateRecord newState();
 
     /**
      * @return
@@ -29,23 +27,39 @@ public interface IStateHandler {
      */
     IStateHandler pop();
 
-    IStateHandler handleState() throws Exception;
+    /**
+     * @return
+     * @throws Exception
+     */
+    IStateHandler handleState(PlToken token) throws Exception;
 
     /**
-     *
      * @return
      */
-    default IStateHandler prepareState() throws Exception {
+    default void prepareState(ParserState state) throws Exception {
         push(this);
-        return ParserStateHandler.create(getStateRecord());
+        doPrepareState(state);
+    }
+
+    default void prepareState(StateRecord sr) throws Exception {
+        prepareState(sr.getParserState());
+    }
+
+    void doPrepareState(ParserState state) throws Exception;
+
+    default void doPrepareState(StateRecord sr) throws Exception {
+        doPrepareState(sr.getParserState());
     }
 
     /**
      * @return
      */
-    default IStateHandler completeState() throws Exception {
+    default IStateHandler completeState(PlToken token) throws Exception {
+        doCompleteState(token);
         return pop();
     }
+
+    void doCompleteState(PlToken token) throws Exception;
 
     /**
      * @return
@@ -61,4 +75,10 @@ public interface IStateHandler {
      * @param action
      */
     void repeat(Consumer<IStateHandler> action);
+
+    void setCurrPriority(int currPriority);
+
+    void setToken(PlToken token);
+
+    void setDks(EnumSet<DirectiveKind> dks);
 }
