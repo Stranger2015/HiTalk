@@ -4,14 +4,12 @@ import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.parser.PlToken.TokenKind;
-import org.ltc.hitalk.parser.handlers.ParserStateHandler;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.IdentifiedTerm;
 import org.ltc.hitalk.term.IdentifiedTerm.Associativity;
 import org.ltc.hitalk.term.IdentifiedTerm.Fixity;
 import org.ltc.hitalk.term.ListTerm;
-import org.ltc.hitalk.term.ListTerm.Kind;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.IFunctor;
@@ -28,10 +26,12 @@ import static org.ltc.hitalk.core.BaseApp.getAppContext;
 import static org.ltc.hitalk.core.utils.TermUtilities.convertToClause;
 import static org.ltc.hitalk.parser.Directive.DirectiveKind.*;
 import static org.ltc.hitalk.parser.ParserState.EXPR_A;
+import static org.ltc.hitalk.parser.ParserState.EXPR_AN;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
 import static org.ltc.hitalk.parser.PlToken.newToken;
 import static org.ltc.hitalk.parser.PrologAtoms.*;
 import static org.ltc.hitalk.parser.StateRecord.State.PREPARING;
+import static org.ltc.hitalk.parser.handlers.ParserStateHandler.create;
 import static org.ltc.hitalk.term.IdentifiedTerm.Associativity.*;
 import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
 
@@ -42,11 +42,11 @@ public class HtPrologParser implements IParser {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
     ParserState state = EXPR_A;
     StateRecord.State stateRecordState = PREPARING;
-    StateRecord record = new StateRecord(state,
-            of(yfx, yf),
-            of(DK_IF, DK_ENCODING, DK_HILOG),
-            HtPrologParser.MAX_PRIORITY,
-            newToken(TK_BOF));
+//    StateRecord record = new StateRecord(state,
+//            of(yfx, yf),
+//            of(DK_IF, DK_ENCODING, DK_HILOG),
+//            HtPrologParser.MAX_PRIORITY,
+//            newToken(TK_BOF));
 
     private boolean isEndOfTerm(TokenKind tokenKind) {
         return tokenKind == TK_DOT ||
@@ -54,9 +54,9 @@ public class HtPrologParser implements IParser {
                         squotes % 2 == 0 && dquotes % 2 == 0 && bquotes % 2 == 0;
     }
 
-    private EnumSet<Associativity> assocs;
-    private EnumSet<Directive.DirectiveKind> directiveKinds;
-    private int maxPriority;
+    //    private EnumSet<Associativity> assocs;
+//    private EnumSet<Directive.DirectiveKind> directiveKinds;
+//    private int maxPriority;
     private PlToken token;
 
     public Deque<IStateHandler> states = new ArrayDeque<>();
@@ -111,6 +111,7 @@ public class HtPrologParser implements IParser {
         this.termFactory = factory;
         this.operatorTable = optable;
     }
+
 
     /**
      *
@@ -388,13 +389,13 @@ public class HtPrologParser implements IParser {
      * // functorName ::=
      * expr_A0
      */
-    private ITerm readSequence(Kind kind, EnumSet<TokenKind> rDelims) {
-        return null;//fixme
-    }
+//    private ITerm readSequence(Kind kind, EnumSet<TokenKind> rDelims) {
+//        return null;//fixme
+//    }
 
-    private ITerm readString(TokenKind quote) {
-        return null;//todo
-    }
+//    private ITerm readString(TokenKind quote) {
+//        return null;//todo
+//    }
 
     /**
      * @param quote
@@ -404,27 +405,32 @@ public class HtPrologParser implements IParser {
         return false;
     }
 
+    void setHandler(IStateHandler h) {
+        handler = h;
+    }
+
     /**
      * @return
      * @throws Exception
      */
     @Override
     public ITerm expr() throws Exception {
-        PlToken token = newToken(TK_BOF);
-        EnumSet<Associativity> assocs = of(yfx, yf);
-        EnumSet<Directive.DirectiveKind> directiveKinds = of(DK_IF, DK_ENCODING, DK_HILOG);
         lastTerm = BEGIN_OF_FILE;
         currPriority = MAX_PRIORITY;
-        handler = ParserStateHandler.create(EXPR_A.getHandlerClass());
-        for (; ; handler = handler.handleState(token)) {
+        handler = create(EXPR_AN.getHandlerClass(),
+                of(yfx, yf),
+                of(DK_IF, DK_ENCODING, DK_HILOG),
+                MAX_PRIORITY,
+                newToken(TK_BOF));
+        states.push(handler);
+        for (; ; handler = handler.handleState((StateRecord) handler)) {
             token = getLexer().getToken(true);
         }
     }
 
-
-    public boolean isOperator(PlToken token) {
-        return false;
-    }
+//    sethandler()//    public boolean isOperator(PlToken token) {
+//        return false;
+//    }
 
     /*
      * exprA(n) ::=
@@ -481,21 +487,13 @@ public class HtPrologParser implements IParser {
 //    }
 //
 
-    /**
-     * @return
-     */
-    protected StateRecord getState(ParserState state) {
-        this.state = state;
-        return new StateRecord(state, of(x), of(DK_IF), currPriority, getLexer().getLastToken());
-    }
-
-    protected Set<IdentifiedTerm> tryOperators(String name, EnumSet<Associativity> assocs, int maxPriority) {
-        final Set<IdentifiedTerm> result = new HashSet<>();
-        for (Associativity assoc : assocs) {
-            result.addAll(getOptable().getOperators(name, assoc, maxPriority));
-        }
-        return result;
-    }
+//    /**
+//     * @return
+//     */
+//    protected StateRecord getState(ParserState state) {
+//        this.state = state;
+//        return new StateRecord(state, of(x), of(DK_IF), currPriority, getLexer().getLastToken());
+//    }
 
     protected ITerm readNumber(String prefix, PlToken token) {
         final ITerm result;
@@ -989,6 +987,7 @@ public class HtPrologParser implements IParser {
 //        states.push(stateRec);
 //        return stateRec;
 //}
+
     /**
      * @param sb
      */
@@ -1087,7 +1086,7 @@ public class HtPrologParser implements IParser {
             case TK_D_QUOTE:
                 if (++dquotes % 2 != 0) {
                     if (options(TK_D_QUOTE)) {
-                        lastTerm = readString(TK_D_QUOTE);
+                        lastTerm = null;//readString(TK_D_QUOTE);
                     }
                 } else {
                     return lastTerm;
@@ -1103,7 +1102,7 @@ public class HtPrologParser implements IParser {
             case TK_S_QUOTE:
                 if (++squotes % 2 != 0) {
                     if (options(TK_S_QUOTE)) {
-                        lastTerm = readString(TK_S_QUOTE);
+                        lastTerm = null;//readString(TK_S_QUOTE);
                     }
                 } else {
                     return lastTerm;
@@ -1119,7 +1118,7 @@ public class HtPrologParser implements IParser {
             case TK_B_QUOTE:
                 if (++bquotes % 2 != 0) {
                     if (options(TK_B_QUOTE)) {
-                        lastTerm = readString(TK_B_QUOTE);
+                        lastTerm = null;//readString(TK_B_QUOTE);
                     }
                 } else {
                     return lastTerm;

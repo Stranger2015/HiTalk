@@ -1,13 +1,10 @@
 package org.ltc.hitalk.parser.handlers;
 
-import org.ltc.hitalk.parser.IStateHandler;
 import org.ltc.hitalk.parser.ParserState;
 import org.ltc.hitalk.parser.PlToken;
-import org.ltc.hitalk.term.IdentifiedTerm;
+import org.ltc.hitalk.parser.StateRecord;
 
 import java.util.EnumSet;
-import java.util.Set;
-import java.util.function.Consumer;
 
 import static org.ltc.hitalk.parser.Directive.DirectiveKind;
 import static org.ltc.hitalk.term.IdentifiedTerm.Associativity;
@@ -30,23 +27,11 @@ public class ExprA0HeadsHandler extends ParserStateHandler {
         super(state, assocs, dks, currPriority, token);
     }
 
-    /**
-     * @param name
-     */
-    public Set<IdentifiedTerm> tryOperators(String name) {
-        return null;
-    }
-
-
-    public void repeat(Consumer<IStateHandler> action) {
+    public void doPrepareState(StateRecord sr) throws Exception {
 
     }
 
-    public void doPrepareState(ParserState state) throws Exception {
-        super.doPrepareState(state);
-    }
+    public void doCompleteState(StateRecord sr) throws Exception {
 
-    public void doCompleteState(PlToken token) throws Exception {
-        super.doCompleteState(token);
     }
 }

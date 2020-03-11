@@ -7,17 +7,22 @@ import org.ltc.hitalk.parser.*;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.IdentifiedTerm;
 import org.ltc.hitalk.term.IdentifiedTerm.Associativity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.EnumSet;
+import java.util.Set;
 
 import static org.ltc.hitalk.compiler.bktables.IApplication.getLogger;
 import static org.ltc.hitalk.core.BaseApp.appContext;
 import static org.ltc.hitalk.parser.HtPrologParser.MIN_PRIORITY;
+import static org.ltc.hitalk.parser.StateRecord.State.COMPLETING;
 import static org.ltc.hitalk.term.IdentifiedTerm.Associativity.fx;
 import static org.ltc.hitalk.term.IdentifiedTerm.Associativity.fy;
 
-///**
+///*****************************************************************
 // * exprA(n) ::=
+// +    n > 0
 // *    exprB(n)
 // *    { op(yfx,n) exprA(n-1) | op(yf,n) }*
 // * ============================
@@ -72,6 +77,7 @@ import static org.ltc.hitalk.term.IdentifiedTerm.Associativity.fy;
 // */
 abstract public
 class ParserStateHandler extends StateRecord implements IStateHandler {
+    protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     private static ParserState state;
     private static EnumSet<Associativity> assocs;
@@ -79,70 +85,47 @@ class ParserStateHandler extends StateRecord implements IStateHandler {
     private static State stateRecordState;
     private static int currPriority;
     private static PlToken token;
-    //    private static ParserState state;
-//    private static EnumSet<Associativity> assocs;
-//    private static EnumSet<DirectiveKind> directiveKinds;
+
     protected HtPrologParser parser = appContext.getParser();
     private ITermFactory termFactory = appContext.getTermFactory();
-
-//    private static IStateHandler create(ParserState state, EnumSet<Associativity> assocs) {
-//        ParserStateHandler.state = state;
-//        ParserStateHandler.assocs = assocs;
-//        return null;
-//    }
 
     @SuppressWarnings("JavaReflectionInvocation")
     public static IStateHandler create(Class<?> handler, Object... params) {
         final IStateHandler result;
         try {
             result = (IStateHandler) handler.getConstructor().newInstance(params);
-//                    state,
-//                    stateRecordState,
-//                    assocs,
-//                    dks,
-//                    currPriority,
-//                    token);
         } catch (ReflectiveOperationException e) {
             throw new ExecutionError();
         }
+
         return result;
     }
 
+    protected IStateHandler create(StateRecord sr) {
+        return create(sr.getParserState().getHandlerClass(),
+                sr.getParserState(),
+                sr.getAssocs(),
+                sr.getDks(),
+                sr.getCurrPriority(),
+                sr.getToken());
+    }
+
     public ParserStateHandler(ParserState state,
-                              State stateRecordState,
                               EnumSet<Associativity> assocs,
                               EnumSet<DirectiveKind> dks,
                               int currPriority,
                               PlToken token) throws Exception {
-        super(state, assocs, dks, currPriority, token);
+        super(state, stateRecordState, assocs, dks, currPriority, token);
     }
 
-//    public static IStateHandler create(ParserState state,
-//                                       EnumSet<Associativity> assocs,
-//                                       EnumSet<DirectiveKind> dks) {
-//        ParserStateHandler.state = state;
-//        ParserStateHandler.assocs = assocs;
-//        ParserStateHandler.dks = dks;
-//        return (IStateHandler) IStateHandler.newState();
-//    }
-
-    public static IStateHandler create(ParserState state,
-                                       State srs,
-                                       EnumSet<Associativity> assocs,
-                                       EnumSet<DirectiveKind> directiveKinds,
-                                       int maxPriority,
-                                       PlToken token) {
-        return create(state.getHandlerClass());
-    }
-
-    public final IStateHandler handleState(ParserState state) throws Exception {
+    public final IStateHandler handleState(StateRecord sr) throws Exception {
         IStateHandler result = null;
-        switch (getStateRecordState()) {
+        switch (sr.getStateRecordState()) {
             case PREPARING:
-                prepareState(state);
+                prepareState(sr);
                 break;
             case COMPLETING:
-                result = completeState(null);
+                result = completeState(sr);
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + getStateRecordState());
@@ -151,20 +134,19 @@ class ParserStateHandler extends StateRecord implements IStateHandler {
         return result;
     }
 
-    @Override
-    public void doPrepareState(ParserState state) throws Exception {
+    public void doPrepareState(StateRecord sr) throws Exception {
 
     }
 
     /**
-     * @param token
      * @return
      */
-    public IStateHandler completeState(PlToken token) throws Exception {
-        return IStateHandler.super.completeState(token);
+    public IStateHandler completeState(StateRecord sr) throws Exception {
+        doCompleteState(sr);
+        return IStateHandler.super.completeState(sr);
     }
 
-    public void doCompleteState(PlToken token) throws Exception {
+    public void doCompleteState(StateRecord sr) throws Exception {
 
     }
 
@@ -182,15 +164,6 @@ class ParserStateHandler extends StateRecord implements IStateHandler {
 
     public void setDks(EnumSet<DirectiveKind> dks) {
 
-    }
-
-    public ParserStateHandler(ParserState state,
-                              EnumSet<Associativity> assocs,
-                              EnumSet<DirectiveKind> dks,
-                              int currPriority,
-                              PlToken token) throws Exception {
-
-        super(state, assocs, dks, currPriority, token);
     }
 
     public final StateRecord getStateRecord() {
@@ -212,50 +185,48 @@ class ParserStateHandler extends StateRecord implements IStateHandler {
     }
 
     /**
-     * @param token
-     * @return
-     * @throws Exception
-     */
-    public IStateHandler handleState(PlToken token) throws Exception {
-        return null;
-    }
-
-    /**
-     * @param state
      * @return
      */
-    public final void prepareState(ParserState state) throws Exception {
-        getLogger().info("Preparing state " + state);
-        IStateHandler.super.prepareState(state);
-        doPrepareState(state);
+    public final void prepareState(StateRecord sr) throws Exception {
+        getLogger().info("Preparing state " + sr.getParserState());
+        IStateHandler.super.prepareState(sr);
+        doPrepareState(sr);
+        sr.setStateRecordState(COMPLETING);
     }
 
     /**
      *
      */
-    private HtPrologParser getParser() {
+    @Override
+    public HtPrologParser getParser() {
         return parser;
     }
 
-    public StateRecord newState() {
-        return new StateRecord(state, assocs, dks, currPriority, token);
-    }
+    /**
+     * @param token
+     * @return
+     */
+    public boolean isOperator(PlToken token) {
+        final String name = token.getImage();
+        final Set<IdentifiedTerm> ops = appContext.getOpTable().getOperators(name);
 
+        return ops.stream().anyMatch(op -> op.getTextName().equals(name));
+    }
 
     /**
      * Parses and returns a valid 'leftside' of an expression.
      * If the left side starts with a prefix, it consumes other expressions with a lower priority than itself.
      * If the left side does not have a prefix it must be an expr0.
      *
-     * @param maxPriority operators with a higher priority than this will effectively end the expression
+     * @param currPriority operators with a higher priority than this will effectively end the expression
      * @param token
      * @return a wrapper of: 1. term correctly structured and 2. the priority of its root operator
      * @throws InvalidTermException
      */
-    public ITerm parseLeftSide(int maxPriority, PlToken token) throws Exception {
+    public ITerm parseLeftSide(int currPriority, PlToken token) throws Exception {
 //        1. prefix expression
 //        token = getLexer().readToken(true);
-        if (parser.isOperator(token)) {
+        if (isOperator(token)) {
             int priorityFX = parser.getOptable().getPriority(token.image, fx);
             int priorityFY = parser.getOptable().getPriority(token.image, fy);
             if (priorityFY == 0) {
@@ -269,10 +240,10 @@ class ParserStateHandler extends StateRecord implements IStateHandler {
                     parser.getLexer().unreadToken(t);
                 }
                 //check that no operator has a priority higher than permitted
-                if (priorityFY > maxPriority) {
+                if (priorityFY > currPriority) {
                     priorityFY = -1;
                 }
-                if (priorityFX > maxPriority) {
+                if (priorityFX > currPriority) {
                     priorityFX = -1;
                 }
                 //priorityFX has priority over priorityFY

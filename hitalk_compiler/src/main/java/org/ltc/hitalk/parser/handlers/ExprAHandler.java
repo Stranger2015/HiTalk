@@ -5,6 +5,7 @@ import org.ltc.hitalk.parser.ParserState;
 import org.ltc.hitalk.parser.PlToken;
 import org.ltc.hitalk.term.IdentifiedTerm;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -12,9 +13,11 @@ import java.util.function.Consumer;
 import static org.ltc.hitalk.parser.Directive.DirectiveKind;
 import static org.ltc.hitalk.term.IdentifiedTerm.Associativity;
 
+@Deprecated
 public class ExprAHandler extends ParserStateHandler {
 
     /**
+     *
      * @param state
      * @param assocs
      * @param dks
@@ -30,8 +33,20 @@ public class ExprAHandler extends ParserStateHandler {
         super(state, assocs, dks, currPriority, token);
     }
 
+    /**
+     * @param handler
+     */
+    protected static void accept(IStateHandler handler) {
+
+    }
+
+    /**
+     * @param state
+     * @throws Exception
+     */
+    @Override
     public void doPrepareState(ParserState state) throws Exception {
-        super.doPrepareState(state);
+
     }
 
     /**
@@ -40,14 +55,15 @@ public class ExprAHandler extends ParserStateHandler {
      */
     @Override
     public void doCompleteState(PlToken token) throws Exception {
-        super.doCompleteState(token);
+        repeat(ExprAHandler::accept);
+
     }
 
     public Set<IdentifiedTerm> tryOperators(String name) {
-        return null;
+        return Collections.emptySet();
     }
 
-    public void repeat(Consumer<IStateHandler> action) {
-
+    public final void repeat(Consumer<IStateHandler> action) {
+        action.accept(this);
     }
 }

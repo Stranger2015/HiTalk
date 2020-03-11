@@ -5,17 +5,25 @@ import org.ltc.hitalk.parser.Directive.DirectiveKind;
 import org.ltc.hitalk.parser.IStateHandler;
 import org.ltc.hitalk.parser.ParserState;
 import org.ltc.hitalk.parser.PlToken;
+import org.ltc.hitalk.parser.StateRecord;
 
 import java.util.EnumSet;
-import java.util.function.Consumer;
 
 import static org.ltc.hitalk.term.IdentifiedTerm.Associativity;
 
 /**
  *
  */
-public class ExprA0Handler extends ExprAHandler {
+public class ExprA0Handler extends ParserStateHandler {
 
+    /**
+     * @param state
+     * @param assocs
+     * @param dks
+     * @param currPriority
+     * @param token
+     * @throws Exception
+     */
     public ExprA0Handler(
             ParserState state,
             EnumSet<Associativity> assocs,
@@ -25,15 +33,30 @@ public class ExprA0Handler extends ExprAHandler {
         super(state, assocs, dks, currPriority, token);
     }
 
-    public void repeat(Consumer<IStateHandler> action) {
+//    /**
+//     * @param name
+//     * @param sr
+//     */
+//    public Set<IdentifiedTerm> tryOperators(String name, StateRecord sr) {
+//        return null;
+//    }
+
+    @Override
+    public void doPrepareState(StateRecord sr) throws Exception {
 
     }
 
-    public void doCompleteState(PlToken token) throws Exception {
-        super.doCompleteState(token);
+    /**
+     * @param sr
+     * @return
+     */
+    @Override
+    public IStateHandler completeState(StateRecord sr) throws Exception {
+        return null;
     }
 
-    public void doPrepareState(ParserState state) throws Exception {
-        super.doPrepareState(state);
+    @Override
+    public void doCompleteState(StateRecord sr) throws Exception {
+
     }
 }

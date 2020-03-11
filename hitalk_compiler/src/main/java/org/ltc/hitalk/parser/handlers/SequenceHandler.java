@@ -12,6 +12,9 @@ import java.util.function.Consumer;
 import static org.ltc.hitalk.parser.Directive.DirectiveKind;
 import static org.ltc.hitalk.term.IdentifiedTerm.Associativity;
 
+/**
+ *
+ */
 public class SequenceHandler extends ParserStateHandler {
 
     /**

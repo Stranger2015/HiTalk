@@ -4,13 +4,20 @@ import org.ltc.hitalk.parser.Directive.DirectiveKind;
 import org.ltc.hitalk.term.IdentifiedTerm;
 
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
+
+import static org.ltc.hitalk.term.IdentifiedTerm.Associativity;
 
 /**
  *
  */
 public interface IStateHandler {
+    /**
+     * @return
+     */
+    HtPrologParser getParser();
 
     /**
      * @return
@@ -27,39 +34,32 @@ public interface IStateHandler {
      */
     IStateHandler pop();
 
-    /**
-     * @return
-     * @throws Exception
-     */
-    IStateHandler handleState(PlToken token) throws Exception;
+    IStateHandler handleState(StateRecord sr) throws Exception;
 
-    /**
-     * @return
-     */
-    default void prepareState(ParserState state) throws Exception {
-        push(this);
-        doPrepareState(state);
-    }
+//    /**
+//     * @return
+//     */
+//    default void prepareState(ParserState state) throws Exception {
+//        push(this);
+//        doPrepareState(state);
+//    }
+
 
     default void prepareState(StateRecord sr) throws Exception {
-        prepareState(sr.getParserState());
+        doPrepareState(sr);
     }
 
-    void doPrepareState(ParserState state) throws Exception;
-
-    default void doPrepareState(StateRecord sr) throws Exception {
-        doPrepareState(sr.getParserState());
-    }
+    void doPrepareState(StateRecord sr) throws Exception;
 
     /**
      * @return
      */
-    default IStateHandler completeState(PlToken token) throws Exception {
-        doCompleteState(token);
+    default IStateHandler completeState(StateRecord sr) throws Exception {
+        doCompleteState(sr);
         return pop();
     }
 
-    void doCompleteState(PlToken token) throws Exception;
+    void doCompleteState(StateRecord sr) throws Exception;
 
     /**
      * @return
@@ -69,12 +69,21 @@ public interface IStateHandler {
     /**
      *
      */
-    Set<IdentifiedTerm> tryOperators(String name);
+    default Set<IdentifiedTerm> tryOperators(String name, StateRecord sr) {
+        final Set<IdentifiedTerm> result = new HashSet<>();
+        for (Associativity assoc : sr.getAssocs()) {
+            result.addAll(getParser().getOptable().getOperators(name, assoc, sr.getCurrPriority()));
+        }
+
+        return result;
+    }
 
     /**
      * @param action
      */
-    void repeat(Consumer<IStateHandler> action);
+    default void repeat(Consumer<IStateHandler> action) {
+        action.accept((IStateHandler) getStateRecord());
+    }
 
     void setCurrPriority(int currPriority);
 
