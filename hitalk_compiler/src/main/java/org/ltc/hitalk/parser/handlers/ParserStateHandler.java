@@ -4,7 +4,6 @@ import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.parser.Directive.DirectiveKind;
 import org.ltc.hitalk.parser.*;
-import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.IdentifiedTerm;
 import org.ltc.hitalk.term.IdentifiedTerm.Associativity;
 import org.slf4j.Logger;
@@ -12,16 +11,13 @@ import org.slf4j.LoggerFactory;
 
 import java.util.EnumSet;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import static java.util.EnumSet.of;
-import static org.ltc.hitalk.compiler.bktables.IApplication.getLogger;
 import static org.ltc.hitalk.core.BaseApp.appContext;
 import static org.ltc.hitalk.parser.Directive.DirectiveKind.DK_IF;
-import static org.ltc.hitalk.parser.HtPrologParser.MIN_PRIORITY;
 import static org.ltc.hitalk.parser.ParserState.EXPR_AN;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.TK_BOF;
-import static org.ltc.hitalk.term.IdentifiedTerm.Associativity.*;
+import static org.ltc.hitalk.term.IdentifiedTerm.Associativity.x;
 
 ///*****************************************************************
 // * query ::=
@@ -138,24 +134,19 @@ class ParserStateHandler extends StateRecord implements IStateHandler {
         super(state, assocs, dks, currPriority, token);
     }
 
-    @Override
-    public void doPrepareState(StateRecord sr) throws Exception {
-
-    }
-
     /**
      * @return
      */
-    @Override
-    public IStateHandler completeState(StateRecord sr) throws Exception {
-        doCompleteState(sr);
-        return IStateHandler.super.completeState(sr);
-    }
+//    @Override
+//    public IStateHandler completeState(StateRecord sr) throws Exception {
+//        doCompleteState(sr);
+//        return IStateHandler.super.completeState(sr);
+//    }
 
-    @Override
-    public void doCompleteState(StateRecord sr) throws Exception {
-
-    }
+//    @Override
+//    public void doCompleteState(StateRecord sr) throws Exception {
+//
+//    }
 
     @Override
     public ParserState getParserState() {
@@ -172,14 +163,6 @@ class ParserStateHandler extends StateRecord implements IStateHandler {
 
     }
 
-    /**
-     * @param action
-     */
-    @Override
-    public void repeat(Consumer<IStateHandler> action) {
-        action.accept(this);
-    }
-
     @Override
     public void setCurrPriority(int currPriority) {
         this.currPriority = currPriority;
@@ -192,11 +175,6 @@ class ParserStateHandler extends StateRecord implements IStateHandler {
     @Override
     public void setDks(EnumSet<DirectiveKind> dks) {
 
-    }
-
-    @Override
-    public final StateRecord getStateRecord() {
-        return this;
     }
 
     /**
@@ -212,16 +190,6 @@ class ParserStateHandler extends StateRecord implements IStateHandler {
      */
     public final IStateHandler pop() {
         return parser.states.pop();
-    }
-
-    /**
-     * @return
-     */
-    public final void prepareState(StateRecord sr, IStateHandler result) throws Exception {
-        getLogger().info("Preparing state " + sr.getParserState());
-        IStateHandler.super.prepareState(sr, result);
-        doPrepareState(sr);
-//        sr.setStateRecordState(COMPLETING);
     }
 
     @Override
@@ -258,66 +226,66 @@ class ParserStateHandler extends StateRecord implements IStateHandler {
      * @return a wrapper of: 1. term correctly structured and 2. the priority of its root operator
      * @throws InvalidTermException
      */
-    public ITerm parseLeftSide(int currPriority, PlToken token) throws Exception {
-//        1. prefix expression
-//        token = getLexer().readToken(true);
-        if (isOperator(token)) {
-            int priorityFX = parser.getOptable().getPriority(token.image, fx);
-            int priorityFY = parser.getOptable().getPriority(token.image, fy);
-            if (priorityFY == 0) {
-                priorityFY = -1;
-            }
-            if (token.image.equals("-") || token.image.equals("+")) {
-                PlToken t = parser.getLexer().readToken(true);
-                if (t.isNumber()) {
-                    return termFactory.createNumber(token.image);
-                } else {
-                    parser.getLexer().unreadToken(t);
-                }
-                //check that no operator has a priority higher than permitted
-                if (priorityFY > currPriority) {
-                    priorityFY = -1;
-                }
-                if (priorityFX > currPriority) {
-                    priorityFX = -1;
-                }
-                //priorityFX has priority over priorityFY
-                boolean haveAttemptedFX = false;
-                if (priorityFX >= priorityFY && priorityFX >= MIN_PRIORITY) {
-                    if (parser.getLastTerm() != null) {
-                        return new IdentifiedTerm(
-                                token.image,
-                                fx,
-                                priorityFX - 1,
-                                ((IdentifiedTerm) parser.getLastTerm()).getResult());
-                    } else {
-                        haveAttemptedFX = true;
-                    }
-                }
-                //priorityFY has priority over priorityFX, or priorityFX has failed
-                if (priorityFY >= MIN_PRIORITY) {
-                    if (parser.getLastTerm() != null) {
-                        return new IdentifiedTerm(
-                                token.image,
-                                fy,
-                                priorityFY,
-                                ((IdentifiedTerm) parser.getLastTerm()).getResult());
-                    }
-                }
-                //priorityFY has priority over priorityFX, but priorityFY failed
-                if (!haveAttemptedFX && priorityFX >= MIN_PRIORITY) {
-                    if (parser.getLastTerm() != null) {
-                        return new IdentifiedTerm(
-                                token.image,
-                                fx,
-                                priorityFX - 1,
-                                ((IdentifiedTerm) parser.getLastTerm()).getResult());
-                    }
-                }
-            }
-        }
-        return parser.getLastTerm();
-    }
+//    public ITerm parseLeftSide(int currPriority, PlToken token) throws Exception {
+////        1. prefix expression
+////        token = getLexer().readToken(true);
+//        if (isOperator(token)) {
+//            int priorityFX = parser.getOptable().getPriority(token.image, fx);
+//            int priorityFY = parser.getOptable().getPriority(token.image, fy);
+//            if (priorityFY == 0) {
+//                priorityFY = -1;
+//            }
+//            if (token.image.equals("-") || token.image.equals("+")) {
+//                PlToken t = parser.getLexer().readToken(true);
+//                if (t.isNumber()) {
+//                    return termFactory.createNumber(token.image);
+//                } else {
+//                    parser.getLexer().unreadToken(t);
+//                }
+//                //check that no operator has a priority higher than permitted
+//                if (priorityFY > currPriority) {
+//                    priorityFY = -1;
+//                }
+//                if (priorityFX > currPriority) {
+//                    priorityFX = -1;
+//                }
+//                //priorityFX has priority over priorityFY
+//                boolean haveAttemptedFX = false;
+//                if (priorityFX >= priorityFY && priorityFX >= MIN_PRIORITY) {
+//                    if (parser.getLastTerm() != null) {
+//                        return new IdentifiedTerm(
+//                                token.image,
+//                                fx,
+//                                priorityFX - 1,
+//                                ((IdentifiedTerm) parser.getLastTerm()).getResult());
+//                    } else {
+//                        haveAttemptedFX = true;
+//                    }
+//                }
+//                //priorityFY has priority over priorityFX, or priorityFX has failed
+//                if (priorityFY >= MIN_PRIORITY) {
+//                    if (parser.getLastTerm() != null) {
+//                        return new IdentifiedTerm(
+//                                token.image,
+//                                fy,
+//                                priorityFY,
+//                                ((IdentifiedTerm) parser.getLastTerm()).getResult());
+//                    }
+//                }
+//                //priorityFY has priority over priorityFX, but priorityFY failed
+//                if (!haveAttemptedFX && priorityFX >= MIN_PRIORITY) {
+//                    if (parser.getLastTerm() != null) {
+//                        return new IdentifiedTerm(
+//                                token.image,
+//                                fx,
+//                                priorityFX - 1,
+//                                ((IdentifiedTerm) parser.getLastTerm()).getResult());
+//                    }
+//                }
+//            }
+//        }
+//        return parser.getLastTerm();
+//    }
 
     public <T extends ParserStateHandler> void accept(IStateVisitor<T> visitor) throws Exception {
         visitor.visit(new ExprAn(

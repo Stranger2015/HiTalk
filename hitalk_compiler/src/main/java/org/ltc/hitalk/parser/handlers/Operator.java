@@ -18,7 +18,12 @@ public class Operator extends ParserStateHandler {
     protected int priority;
 
     public Operator(String name, Associativity assoc, int priority) throws Exception {
-        this(OP, name, of(assoc), of(DK_IF), priority, PlToken.newToken(TK_ATOM));
+        this(OP,
+                name,
+                of(assoc),
+                of(DK_IF),
+                priority,
+                PlToken.newToken(TK_ATOM));
     }
 
     public Operator(ParserState state,

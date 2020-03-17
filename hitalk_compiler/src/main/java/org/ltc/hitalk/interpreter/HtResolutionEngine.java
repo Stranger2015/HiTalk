@@ -23,10 +23,7 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtProperty;
-import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.HtSourceCodeException;
-import org.ltc.hitalk.parser.PlLexer;
-import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.parser.*;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
@@ -88,7 +85,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      * @param parser
      * @param interner The functor and variable name interner.
      */
-    public HtResolutionEngine ( PlPrologParser parser,
+    public HtResolutionEngine ( HtPrologParser parser,
                                 IVafInterner interner,
                                 ICompiler <T, P, Q> compiler ) {
         super(parser);

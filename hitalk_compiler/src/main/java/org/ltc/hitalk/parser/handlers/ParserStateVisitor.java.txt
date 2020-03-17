@@ -9,6 +9,7 @@ import static org.ltc.hitalk.parser.PlToken.newToken;
 /**
  * @param <T>
  */
+@Deprecated
 public class ParserStateVisitor<T extends ParserStateHandler> extends BaseStateVisitor implements IStateVisitor<T> {
 
     protected IStateTraverser<T> traverser;
@@ -66,7 +67,7 @@ public class ParserStateVisitor<T extends ParserStateHandler> extends BaseStateV
 
     }
 
-    public void visit(List state) {
+    public void visit(DottedPair state) {
 
     }
 
@@ -86,7 +87,7 @@ public class ParserStateVisitor<T extends ParserStateHandler> extends BaseStateV
 //      }*
 // * // exprC is called parseLeftSide in the code
     public void visit(ExprB state) throws Exception {
-        final PlToken token = g
+        final PlToken token =get
         state.create(new ExprC(EXPR_C, state.getAssocs(), state.getDks(), state.getCurrPriority() - 1, token
         ))
     }

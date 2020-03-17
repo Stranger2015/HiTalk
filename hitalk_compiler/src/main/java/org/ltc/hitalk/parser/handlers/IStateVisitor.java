@@ -21,11 +21,11 @@ public interface IStateVisitor<T extends ParserStateHandler> {
 
     void visit(Tail state);
 
-    void visit(List state);
+    void visit(DottedPair state);
 
     void visit(SimpleSeq state);
 
-    void visit(ListSeq state);
+    void visit(ListSeq state) throws Exception;
 
     void visit(ExprB state) throws Exception;
 

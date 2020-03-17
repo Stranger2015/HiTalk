@@ -6,7 +6,6 @@ import org.ltc.hitalk.term.IdentifiedTerm;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import static org.ltc.hitalk.term.IdentifiedTerm.Associativity;
 
@@ -24,10 +23,10 @@ public interface IStateHandler {
      */
     HtPrologParser getParser();
 
-    /**
-     * @return
-     */
-    StateRecord getStateRecord();
+//    /**
+//     * @return
+//     */
+//    StateRecord getStateRecord();
 
     /**
      * @param handler
@@ -39,28 +38,28 @@ public interface IStateHandler {
      */
     IStateHandler pop();
 
-    default IStateHandler handleState(IStateHandler handler) throws Exception {
-        return null;
-    }
+//    default IStateHandler handleState(IStateHandler handler) throws Exception {
+//        return null;
+//    }
 
-    default void prepareState(StateRecord sr, IStateHandler result) throws Exception {
-        if (result != null && !isPushed()) {
-            push(result);
-        }
-        doPrepareState(sr);
-    }
+//    default void prepareState(StateRecord sr, IStateHandler result) throws Exception {
+//        if (result != null && !isPushed()) {
+//            push(result);
+//        }
+//        doPrepareState(sr);
+//    }
 
-    void doPrepareState(StateRecord sr) throws Exception;
+//    void doPrepareState(StateRecord sr) throws Exception;
 
-    /**
-     * @return
-     */
-    default IStateHandler completeState(StateRecord sr) throws Exception {
-        doCompleteState(sr);
-        return pop();//fixme
-    }
+//    /**
+//     * @return
+//     */
+//    default IStateHandler completeState(StateRecord sr) throws Exception {
+//        doCompleteState(sr);
+//        return pop();//fixme
+//    }
 
-    void doCompleteState(StateRecord sr) throws Exception;
+//    void doCompleteState(StateRecord sr) throws Exception;
 
     /**
      * @return
@@ -87,9 +86,9 @@ public interface IStateHandler {
     /**
      * @param action
      */
-    default void repeat(Consumer<IStateHandler> action) {
-        action.accept((IStateHandler) getStateRecord());
-    }
+//    default void repeat(Consumer<IStateHandler> action) {
+//        action.accept((IStateHandler) getStateRecord());
+//    }
 
     /**
      * @param currPriority

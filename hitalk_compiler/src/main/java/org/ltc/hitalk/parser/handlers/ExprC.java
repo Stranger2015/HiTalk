@@ -2,18 +2,11 @@ package org.ltc.hitalk.parser.handlers;
 
 import org.ltc.hitalk.parser.ParserState;
 import org.ltc.hitalk.parser.PlToken;
-import org.ltc.hitalk.parser.StateRecord;
-import org.ltc.hitalk.term.IdentifiedTerm;
 
-import java.util.Collections;
 import java.util.EnumSet;
-import java.util.Set;
 
 import static org.ltc.hitalk.parser.Directive.DirectiveKind;
-import static org.ltc.hitalk.parser.ParserState.EXPR_AN;
-import static org.ltc.hitalk.parser.PlToken.TokenKind.TK_ATOM;
 import static org.ltc.hitalk.term.IdentifiedTerm.Associativity;
-import static org.ltc.hitalk.term.IdentifiedTerm.Associativity.*;
 
 /**
  * exprC(n) ::=
@@ -42,52 +35,52 @@ public class ExprC extends ParserStateHandler {
         super(state, assocs, dks, currPriority, token);
     }
 
-    @Override
-    public void doCompleteState(StateRecord sr) throws Exception {
-        PlToken token = parser.getLexer().readToken(true);
-        Set<IdentifiedTerm> ops = (token.kind == TK_ATOM) ?
-                tryOperators(token.image, handler) :
-                Collections.emptySet();
-        for (IdentifiedTerm op : ops) {
-            if (op.getPriority() == sr.getCurrPriority()) {
-                switch (op.getAssociativity()) {
-                    case fx:
-                        create(EXPR_AN.getRuleClass(),
-                                EXPR_AN,
-                                fx,
-                                sr.getDks(),
-                                sr.getCurrPriority() - 1,
-                                token);
-                        break;
-                    case fy:
-                        create(EXPR_AN.getRuleClass(),
-                                EXPR_AN,
-                                fy,
-                                sr.getDks(),
-                                sr.getCurrPriority(),
-                                token);
-                        break;
-                    case hx:
-                        create(EXPR_AN.getRuleClass(),
-                                EXPR_AN,
-                                hx,
-                                sr.getDks(),
-                                sr.getCurrPriority() - 1,
-                                token);
-                        break;
-                    case hy:
-                        create(EXPR_AN.getRuleClass(),
-                                EXPR_AN,
-                                hy,
-                                sr.getDks(),
-                                sr.getCurrPriority(),
-                                token);
-                        break;
-                    default:
-                        throw new IllegalStateException("Unexpected value: " + op.getAssociativity());
-                }
-            }
-            parser.setLastTerm(op);
-        }
-    }
+//    @Override
+//    public void doCompleteState(StateRecord sr) throws Exception {
+//        PlToken token = parser.getLexer().readToken(true);
+//        Set<IdentifiedTerm> ops = (token.kind == TK_ATOM) ?
+//                tryOperators(token.image, handler) :
+//                Collections.emptySet();
+//        for (IdentifiedTerm op : ops) {
+//            if (op.getPriority() == sr.getCurrPriority()) {
+//                switch (op.getAssociativity()) {
+//                    case fx:
+//                        create(EXPR_AN.getRuleClass(),
+//                                EXPR_AN,
+//                                fx,
+//                                sr.getDks(),
+//                                sr.getCurrPriority() - 1,
+//                                token);
+//                        break;
+//                    case fy:
+//                        create(EXPR_AN.getRuleClass(),
+//                                EXPR_AN,
+//                                fy,
+//                                sr.getDks(),
+//                                sr.getCurrPriority(),
+//                                token);
+//                        break;
+//                    case hx:
+//                        create(EXPR_AN.getRuleClass(),
+//                                EXPR_AN,
+//                                hx,
+//                                sr.getDks(),
+//                                sr.getCurrPriority() - 1,
+//                                token);
+//                        break;
+//                    case hy:
+//                        create(EXPR_AN.getRuleClass(),
+//                                EXPR_AN,
+//                                hy,
+//                                sr.getDks(),
+//                                sr.getCurrPriority(),
+//                                token);
+//                        break;
+//                    default:
+//                        throw new IllegalStateException("Unexpected value: " + op.getAssociativity());
+//                }
+//            }
+//            parser.setLastTerm(op);
+//        }
+//    }
 }

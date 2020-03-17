@@ -4,7 +4,7 @@ import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.parser.HtPrologParser;
 
 import java.util.function.Consumer;
 
@@ -25,7 +25,7 @@ class HiTalkEngine<T extends HtClause, P, Q, PC, QC> extends HtResolutionEngine 
      * @param interner The interner.
      * @param compiler
      */
-    public HiTalkEngine ( PlPrologParser parser,
+    public HiTalkEngine ( HtPrologParser parser,
                           IVafInterner interner,
                           ICompiler <T, P, Q> compiler,
                           IResolver <P, Q> resolver ) {

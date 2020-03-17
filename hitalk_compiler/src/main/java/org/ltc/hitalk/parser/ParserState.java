@@ -1,7 +1,6 @@
 package org.ltc.hitalk.parser;
 
 import org.ltc.hitalk.parser.handlers.*;
-import org.ltc.hitalk.parser.rules.StartRule;
 
 /**
  * // * BNF part 2: Parser
@@ -61,7 +60,7 @@ public enum ParserState {
     EXPR_A0_BRACKET(Bracket.class),
     BLOCK(Block.class),
     TAIL(Tail.class),
-    LIST(List.class),
+    LIST(DottedPair.class),
 
     SIMPLE_SEQUENCE(SimpleSeq.class),
     LIST_SEQUENCE(ListSeq.class),

@@ -10,7 +10,7 @@ import static org.ltc.hitalk.parser.PlToken.TokenKind.TK_LPAREN;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.TK_RPAREN;
 import static org.ltc.hitalk.term.IdentifiedTerm.Associativity;
 
-public class Args extends List {
+public class Args extends DottedPair {
     /**
      * @param state
      * @param assocs

@@ -2,12 +2,10 @@ package org.ltc.hitalk.parser.handlers;
 
 import org.ltc.hitalk.parser.ParserState;
 import org.ltc.hitalk.parser.PlToken;
-import org.ltc.hitalk.parser.StateRecord;
 
 import java.util.EnumSet;
 
 import static org.ltc.hitalk.parser.Directive.DirectiveKind;
-import static org.ltc.hitalk.parser.ParserState.EXPR_C;
 import static org.ltc.hitalk.term.IdentifiedTerm.Associativity;
 
 //
@@ -21,18 +19,16 @@ import static org.ltc.hitalk.term.IdentifiedTerm.Associativity;
 // exprC is called parseLeftSide in the code
 //
 public class ExprB extends ParserStateHandler {
-    @Override
-    public void doPrepareState(StateRecord sr) throws Exception {
-        create(EXPR_C.getRuleClass(),
-                EXPR_C,
-                sr.getAssocs(),
-                sr.getDks(),
-                sr.getCurrPriority() - 1,
-                sr.getToken());
-    }
+//        create(EXPR_C.getRuleClass(),
+//                EXPR_C,
+//                sr.getAssocs(),
+//                sr.getDks(),
+//                sr.getCurrPriority() - 1,
+//                sr.getToken());
+//    }
 
-    @Override
-    public void doCompleteState(StateRecord sr) throws Exception {
+//    @Override
+//    public void doCompleteState(StateRecord sr) throws Exception {
 //        PlToken token = parser.getLexer().readToken(true);
 //        Set<IdentifiedTerm> ops = (token.kind == TK_ATOM) ?
 //                tryOperators(token.image, sr) :
@@ -65,7 +61,7 @@ public class ExprB extends ParserStateHandler {
 //            }
 //            parser.setLastTerm(op);
 //        }
-    }
+//    }
 //        //1. op(fx,n) exprA(n-1) | op(fy,n) exprA(n) | expr0
 //        PlToken token = sr.getToken();
 //        IdentifiedTerm left = (IdentifiedTerm) parseLeftSide(getCurrPriority(), token);

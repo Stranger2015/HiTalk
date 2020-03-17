@@ -1239,6 +1239,7 @@ public class HtPrologParser implements IParser, IStateHandler {
             implements IStateVisitor<T> {
 
         protected IStateTraverser<T> traverser;
+        private TokenKind lDelim;
 
         public IContext<T> getParentContext() {
             return null;
@@ -1301,7 +1302,7 @@ public class HtPrologParser implements IParser, IStateHandler {
 
         }
 
-        public void visit(org.ltc.hitalk.parser.handlers.List state) {
+        public void visit(DottedPair state) {
 
         }
 
@@ -1313,8 +1314,16 @@ public class HtPrologParser implements IParser, IStateHandler {
 
         }
 
-        public void visit(ListSeq state) {
-
+        public void visit(ListSeq state) throws Exception {
+            token = getLexer().readToken(true);
+            if (token.kind == lDelim) {
+                create(new ListSeq(
+                        LIST_SEQUENCE,
+                        getAssocs(),
+                        getDks(),
+                        getCurrPriority(),
+                        getToken()));
+            }
         }
 
         //    exprB(n) ::=
