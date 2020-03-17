@@ -1,23 +1,29 @@
 package org.ltc.hitalk.parser.handlers;
 
-import org.ltc.hitalk.parser.IStateHandler;
 import org.ltc.hitalk.parser.ParserState;
 import org.ltc.hitalk.parser.PlToken;
-import org.ltc.hitalk.term.IdentifiedTerm;
+import org.ltc.hitalk.parser.StateRecord;
 
 import java.util.EnumSet;
-import java.util.Set;
-import java.util.function.Consumer;
 
 import static org.ltc.hitalk.parser.Directive.DirectiveKind;
+import static org.ltc.hitalk.parser.ParserState.EXPR_AN;
 import static org.ltc.hitalk.term.IdentifiedTerm.Associativity;
 
 /**
  *
  */
-public class ExprA0BraceHandler extends ParserStateHandler {
+public class Brace extends SimpleSeq {
 
-    public ExprA0BraceHandler(
+    /**
+     * @param state
+     * @param assocs
+     * @param dks
+     * @param currPriority
+     * @param token
+     * @throws Exception
+     */
+    public Brace(
             ParserState state,
             EnumSet<Associativity> assocs,
             EnumSet<DirectiveKind> dks,
@@ -26,20 +32,14 @@ public class ExprA0BraceHandler extends ParserStateHandler {
         super(state, assocs, dks, currPriority, token);
     }
 
-    /**
-     * @param name
-     */
-    public Set<IdentifiedTerm> tryOperators(String name) {
-        return null;
-    }
-
-
-    public void repeat(Consumer<IStateHandler> action) {
-
-    }
-
-    public void doPrepareState(ParserState state) throws Exception {
-
+    public void doPrepareState(StateRecord sr) throws Exception {
+        parser.setLastTerm(null);
+        create(EXPR_AN.getRuleClass(),
+                EXPR_AN,
+                sr.getAssocs(),
+                sr.getDks(),
+                1200,
+                sr.getToken());
     }
 
     public void doCompleteState(PlToken token) throws Exception {

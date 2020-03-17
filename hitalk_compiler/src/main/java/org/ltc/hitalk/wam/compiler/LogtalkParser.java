@@ -3,13 +3,13 @@ package org.ltc.hitalk.wam.compiler;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
-import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
 
 /**
  *
  */
-public class LogtalkParser extends PlPrologParser {
+public class LogtalkParser extends HtPrologParser {
     /**
      * @param stream
      * @param interner

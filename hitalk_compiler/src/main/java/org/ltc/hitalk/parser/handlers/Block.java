@@ -8,7 +8,7 @@ import java.util.EnumSet;
 import static org.ltc.hitalk.parser.Directive.DirectiveKind;
 import static org.ltc.hitalk.term.IdentifiedTerm.Associativity;
 
-public class ExprA0ArgsHandler extends ParserStateHandler {
+public class Block extends SimpleSeq {
     /**
      * @param state
      * @param assocs
@@ -17,11 +17,11 @@ public class ExprA0ArgsHandler extends ParserStateHandler {
      * @param token
      * @throws Exception
      */
-    public ExprA0ArgsHandler(ParserState state,
-                             EnumSet<Associativity> assocs,
-                             EnumSet<DirectiveKind> dks,
-                             int currPriority,
-                             PlToken token) throws Exception {
+    public Block(ParserState state,
+                 EnumSet<Associativity> assocs,
+                 EnumSet<DirectiveKind> dks,
+                 int currPriority,
+                 PlToken token) throws Exception {
         super(state, assocs, dks, currPriority, token);
     }
 }

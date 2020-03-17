@@ -106,4 +106,18 @@ interface ITermFactory extends IHitalkObject {
     IFunctor newHiLogFunctor(List<ITerm> namesHeads);
 
     IFunctor newHiLogFunctor(IFunctor name, ListTerm args);
+
+    /**
+     * @param prefix
+     * @param image
+     * @return
+     */
+    IntTerm newIntTerm(String prefix, String image);
+
+    /**
+     * @param prefix
+     * @param image
+     * @return
+     */
+    FloatTerm newFloatTerm(String prefix, String image);
 }

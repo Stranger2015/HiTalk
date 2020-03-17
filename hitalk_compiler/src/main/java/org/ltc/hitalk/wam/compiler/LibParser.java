@@ -17,7 +17,7 @@ public class LibParser implements IParser {
     /**
      *
      */
-    protected PlPrologParser parser = getAppContext().getParser();
+    protected HtPrologParser parser = getAppContext().getParser();
 
     public LibParser() throws Exception {
     }
@@ -26,7 +26,7 @@ public class LibParser implements IParser {
      * @return
      */
     @Override
-    public PlPrologParser getParser () {
+    public HtPrologParser getParser() {
         return parser;
     }
 
@@ -81,7 +81,7 @@ public class LibParser implements IParser {
      *
      */
     @Override
-    public void initializeBuiltIns () {
+    public void initializeBuiltIns() {
         parser.initializeBuiltIns();
     }
 
@@ -89,7 +89,15 @@ public class LibParser implements IParser {
      * @return
      * @throws IOException
      */
-    public ITerm next () throws Exception {
+    public ITerm expr() throws Exception {
+        return null;
+    }
+
+    /**
+     * @return
+     * @throws IOException
+     */
+    public ITerm next() throws Exception {
         return parser.next();
     }
 

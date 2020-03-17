@@ -12,16 +12,15 @@ import static org.ltc.hitalk.term.IdentifiedTerm.Associativity;
 /**
  *
  */
-public class ExprA0BracketHandler extends ParserStateHandler {
-
+public class Bracket extends ParserStateHandler {
     @Override
     public void doPrepareState(StateRecord sr) throws Exception {
-        super.doPrepareState(sr);
+
     }
 
     @Override
     public void doCompleteState(StateRecord sr) throws Exception {
-        super.doCompleteState(sr);
+
     }
 
     /**
@@ -32,7 +31,7 @@ public class ExprA0BracketHandler extends ParserStateHandler {
      * @param token
      * @throws Exception
      */
-    public ExprA0BracketHandler(
+    public Bracket(
             ParserState state,
             EnumSet<Associativity> assocs,
             EnumSet<DirectiveKind> dks,

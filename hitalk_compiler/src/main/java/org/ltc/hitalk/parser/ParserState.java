@@ -1,6 +1,7 @@
 package org.ltc.hitalk.parser;
 
-import org.ltc.hitalk.parser.ParserStateHandler.ExprAnHandler;
+import org.ltc.hitalk.parser.handlers.*;
+import org.ltc.hitalk.parser.rules.StartRule;
 
 /**
  * // * BNF part 2: Parser
@@ -52,80 +53,33 @@ import org.ltc.hitalk.parser.ParserStateHandler.ExprAnHandler;
  * //     tail ::=  [ '|' (variable | list) ]
  */
 public enum ParserState {
-    EXPR_A(ExprAHandler.class),
-    EXPR_A0(ExprA0Handler.class),
-    EXPR_AN(ExprAnHandler.class),
-    EXPR_A0_ARGS(ExprA0ArgsHandler.class),
-    EXPR_A0_BRACE(ExprA0BraceHandler.class),
-    EXPR_A0_BRACKET(ExprA0BracketHandler.class),
-    EXPR_A0_HEADS(ExprA0HeadsHandler.class),
-    EXPR_A0_TAIL(ExprA0TailHandler.class),
-    SEQUENCE(SequenceHandler.class),
+    OP(Operator.class),
+    EXPR_A0(ExprA0.class),
+    EXPR_AN(ExprAn.class),
+    EXPR_A0_ARGS(Args.class),
+    EXPR_A0_BRACE(Brace.class),
+    EXPR_A0_BRACKET(Bracket.class),
+    BLOCK(Block.class),
+    TAIL(Tail.class),
+    LIST(List.class),
 
-    EXPR_B(ExprBHandler.class),
+    SIMPLE_SEQUENCE(SimpleSeq.class),
+    LIST_SEQUENCE(ListSeq.class),
 
-    EXPR_C(ExprCHandler.class);
+    EXPR_B(ExprB.class),
 
-    private final Class<?> handler;
+    EXPR_C(ExprC.class), START(StartRule.class);
 
-    public Class<?> getHandlerClass() {
-        return handler;
+
+    private Class<?> ruleClass;
+    private final Object[] args;
+
+    public Class<?> getRuleClass() {
+        return ruleClass;
     }
 
-    ParserState(Class<?> handler) {
-        this.handler = handler;
-    } //    public ParserState[] getParserStates() {
-
-    private static class ExprAHandler {
+    ParserState(Class<?> ruleClass, Object... args) {
+        this.ruleClass = ruleClass;
+        this.args = args;
     }
-
-    private static class ExprA0Handler {
-    }
-
-    private static class ExprA0Args {
-    }
-
-    private static class ExprA0ArgsHandler {
-    }
-
-    private static class ExprA0BraceHandler {
-    }
-
-    private static class ExprA0BracketHandler {
-    }
-
-    private static class ExprA0HeadsHandler {
-    }
-
-    private static class ExprA0TailHandler {
-    }
-
-    private static class SequenceHandler {
-    }
-
-    private static class ExprBHandler {
-    }
-
-    private static class ExprCHandler {
-    }
-    //        return parserStates;
-    //    }
-    //    public Boolean getOr() {
-    //        return or;
-    //    }
-    //    public Substate getSubstate() {
-    //        return substate;
-    //    }
-    //    public enum Substate {
-    //        ENTERING,
-    //        EXITING
-    //    }
-    /*boolean or, ParserState... parserStates*/ //        this.or = or;
-    //        this.parserStates = parserStates;
-    ,
-
-
-    SEQUENCE
-
-
 }

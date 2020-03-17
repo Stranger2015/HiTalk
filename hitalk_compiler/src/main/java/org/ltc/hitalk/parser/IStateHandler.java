@@ -17,6 +17,11 @@ public interface IStateHandler {
     /**
      * @return
      */
+    boolean isPushed();
+
+    /**
+     * @return
+     */
     HtPrologParser getParser();
 
     /**
@@ -34,18 +39,14 @@ public interface IStateHandler {
      */
     IStateHandler pop();
 
-    IStateHandler handleState(StateRecord sr) throws Exception;
+    default IStateHandler handleState(IStateHandler handler) throws Exception {
+        return null;
+    }
 
-//    /**
-//     * @return
-//     */
-//    default void prepareState(ParserState state) throws Exception {
-//        push(this);
-//        doPrepareState(state);
-//    }
-
-
-    default void prepareState(StateRecord sr) throws Exception {
+    default void prepareState(StateRecord sr, IStateHandler result) throws Exception {
+        if (result != null && !isPushed()) {
+            push(result);
+        }
         doPrepareState(sr);
     }
 
@@ -56,7 +57,7 @@ public interface IStateHandler {
      */
     default IStateHandler completeState(StateRecord sr) throws Exception {
         doCompleteState(sr);
-        return pop();
+        return pop();//fixme
     }
 
     void doCompleteState(StateRecord sr) throws Exception;
@@ -69,14 +70,19 @@ public interface IStateHandler {
     /**
      *
      */
-    default Set<IdentifiedTerm> tryOperators(String name, StateRecord sr) {
+    default Set<IdentifiedTerm> tryOperators(String name, IStateHandler handler) {
         final Set<IdentifiedTerm> result = new HashSet<>();
-        for (Associativity assoc : sr.getAssocs()) {
-            result.addAll(getParser().getOptable().getOperators(name, assoc, sr.getCurrPriority()));
+        for (Associativity assoc : handler.getAssocs()) {
+            result.addAll(getParser().getOptable().getOperators(name, assoc, handler.getCurrPriority()));
         }
 
         return result;
     }
+
+    /**
+     * @return
+     */
+    EnumSet<Associativity> getAssocs();
 
     /**
      * @param action
@@ -85,9 +91,33 @@ public interface IStateHandler {
         action.accept((IStateHandler) getStateRecord());
     }
 
+    /**
+     * @param currPriority
+     */
     void setCurrPriority(int currPriority);
 
+    /**
+     * @param token
+     */
     void setToken(PlToken token);
 
+    /**
+     * @param dks
+     */
     void setDks(EnumSet<DirectiveKind> dks);
+
+    /**
+     * @return
+     */
+    int getCurrPriority();
+
+    /**
+     * @return
+     */
+    EnumSet<DirectiveKind> getDks();
+
+    /**
+     * @return
+     */
+    PlToken getToken();
 }

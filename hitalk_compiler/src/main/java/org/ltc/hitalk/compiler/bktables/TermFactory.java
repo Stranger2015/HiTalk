@@ -25,7 +25,7 @@ import static java.lang.Double.parseDouble;
 import static java.util.Arrays.asList;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
 import static org.ltc.hitalk.parser.HiLogParser.HILOG_APPLY_STRING;
-import static org.ltc.hitalk.parser.PlPrologParser.ANONYMOUS;
+import static org.ltc.hitalk.parser.HtPrologParser.ANONYMOUS;
 import static org.ltc.hitalk.term.ListTerm.NIL;
 
 /**
@@ -173,14 +173,23 @@ public class TermFactory implements ITermFactory {
     public IFunctor newHiLogFunctor(List<ITerm> namesHeads) {
         return new HiLogFunctor(new ListTerm(new ArrayList<>(namesHeads)));
     }
-//
-//    public IFunctor newFunctor(IFunctor term, ListTerm args) {
-//        return newFunctor(args.addHead(term));
-//    }
 
     public IFunctor newHiLogFunctor(IFunctor name, ListTerm args) {
         args.getHeads().add(0, name);
         return new HiLogFunctor(args);
+    }
+
+    /**
+     * @param prefix
+     * @param image
+     * @return
+     */
+    public IntTerm newIntTerm(String prefix, String image) {
+        return parseInteger(prefix + image);
+    }
+
+    public FloatTerm newFloatTerm(String prefix, String image) {
+        return newFloatTerm(Double.parseDouble(prefix + image));
     }
 
     // commodity methods to parse numbers
