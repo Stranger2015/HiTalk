@@ -16,13 +16,13 @@
 package org.ltc.hitalk.compiler.bktables;
 
 import org.ltc.hitalk.core.IHitalkObject;
-import org.ltc.hitalk.term.IdentifiedTerm;
-import org.ltc.hitalk.term.IdentifiedTerm.Associativity;
+import org.ltc.hitalk.term.OpSymbolFunctor;
+import org.ltc.hitalk.term.OpSymbolFunctor.Associativity;
 
 import java.util.Map;
 import java.util.Set;
 
-import static org.ltc.hitalk.term.IdentifiedTerm.Fixity;
+import static org.ltc.hitalk.term.OpSymbolFunctor.Fixity;
 
 /**
  * OperatorTable maintains a table of dynamically defined operators. Implementations of this table may provide their own
@@ -52,13 +52,13 @@ public interface IOperatorTable extends IHitalkObject {
      * @param name The name of the operator to find.
      * @return An array of matching operators, or <tt>null</tt> if none can be found.
      */
-    Map<Fixity, IdentifiedTerm> getOperatorsMatchingNameByFixity(String name);
+    Map<Fixity, OpSymbolFunctor> getOperatorsMatchingNameByFixity(String name);
 
     /**
      * @param name
      * @return
      */
-    Set<IdentifiedTerm> getOperators(String name);
+    Set<OpSymbolFunctor> getOperators(String name);
 
     /**
      * @param name
@@ -66,7 +66,7 @@ public interface IOperatorTable extends IHitalkObject {
      * @param priority
      * @return
      */
-    Set<IdentifiedTerm> getOperators(String name, Associativity associativity, int priority);
+    Set<OpSymbolFunctor> getOperators(String name, Associativity associativity, int priority);
 
     /**
      * @param image

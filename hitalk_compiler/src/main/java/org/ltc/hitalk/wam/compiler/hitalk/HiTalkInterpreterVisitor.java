@@ -313,7 +313,7 @@ public class HiTalkInterpreterVisitor<T extends HtMethod, P, Q, PC, QC> extends 
         }
 
         private PlToken copyToken ( PlToken token ) {
-            PlToken newToken = new PlToken(token.kind);
+            PlToken newToken = new PlToken(token.kind, token.image);
 
 //            newToken.kind = token.kind;
             newToken.beginLine = token.beginLine;

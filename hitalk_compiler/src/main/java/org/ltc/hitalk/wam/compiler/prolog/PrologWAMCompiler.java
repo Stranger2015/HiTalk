@@ -8,9 +8,9 @@ import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.parser.PlLexer;
-import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.BaseInstructionCompiler;
 import org.ltc.hitalk.wam.compiler.CompilerFactory;
 import org.ltc.hitalk.wam.compiler.ICompilerFactory;
@@ -22,7 +22,7 @@ import java.util.List;
 import static java.util.EnumSet.of;
 import static org.ltc.hitalk.core.BaseApp.AppContext;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
-import static org.ltc.hitalk.parser.Directive.DirectiveKind.IF;
+import static org.ltc.hitalk.parser.Directive.DirectiveKind.DK_IF;
 import static org.ltc.hitalk.parser.PlLexer.getTokenSourceForIoFileName;
 import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
 
@@ -49,7 +49,7 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
      */
     public PrologWAMCompiler(ISymbolTable<Integer, String, Object> symbolTable,
                              IVafInterner interner,
-                             PlPrologParser parser,
+                             HtPrologParser parser,
                              ICompilerObserver<P, Q> observer) {
         super(symbolTable, interner, parser, observer);
 
@@ -147,7 +147,7 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
      */
     @Override
     public List<HtClause> compile(PlLexer tokenSource, HtProperty... flags) throws Exception {
-        return preCompiler.preCompile(tokenSource, of(IF));
+        return preCompiler.preCompile(tokenSource, of(DK_IF));
     }
 
     /**

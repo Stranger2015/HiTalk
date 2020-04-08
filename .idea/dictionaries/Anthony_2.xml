@@ -5,6 +5,7 @@
       <w>addr</w>
       <w>arglist</w>
       <w>associativities</w>
+      <w>assocs</w>
       <w>backquoted</w>
       <w>bslash</w>
       <w>builtins</w>

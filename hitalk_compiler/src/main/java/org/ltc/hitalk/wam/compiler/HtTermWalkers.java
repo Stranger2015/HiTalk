@@ -6,7 +6,7 @@ import com.thesett.aima.search.util.uninformed.PostFixSearch;
 import com.thesett.common.util.logic.UnaryPredicate;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ITermVisitor;
-import org.ltc.hitalk.term.IdentifiedTerm;
+import org.ltc.hitalk.term.OpSymbolFunctor;
 import org.ltc.hitalk.wam.compiler.hitalk.HtTermWalker;
 import org.ltc.hitalk.wam.printer.IPositionalTermTraverser;
 import org.ltc.hitalk.wam.printer.IPositionalTermVisitor;
@@ -17,9 +17,9 @@ class HtTermWalkers {
      * Predicate matching conjunction and disjunction operators.
      */
     public static final UnaryPredicate<ITerm> CONJ_DISJ_OP_SYMBOL_PREDICATE =
-            term -> (term instanceof IdentifiedTerm) &&
-                    (((IdentifiedTerm) term).getTextName().equals(";") ||
-                            ((IdentifiedTerm) term).getTextName().equals(","));
+            term -> (term instanceof OpSymbolFunctor) &&
+                    (((OpSymbolFunctor) term).getTextName().equals(";") ||
+                            ((OpSymbolFunctor) term).getTextName().equals(","));
 
     /**
      * Provides a simple depth first walk over a term.

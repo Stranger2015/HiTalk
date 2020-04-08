@@ -16,6 +16,18 @@ import static java.util.Collections.emptyList;
 public class ListTerm extends HtBaseTerm {
     public static final ListTerm NIL = new ListTerm(emptyList());
 
+    /**
+     * @param arg
+     */
+    public ListTerm(ITerm arg) {
+        addHead(arg);
+    }
+
+    public ListTerm(Kind kind, int arity) {
+        this.kind = kind;
+        this.heads.addAll(Arrays.asList(new ITerm[arity]));
+    }
+
     public Kind getKind() {
         return kind;
     }
@@ -23,16 +35,27 @@ public class ListTerm extends HtBaseTerm {
     protected Kind kind;//fixme encode in name
     final List<ITerm> heads = new ArrayList<>();
 
+    /**
+     * @param arity
+     */
     public ListTerm(int arity) {
-        this.heads.addAll(Arrays.asList(new ITerm[arity]));
+        this(Kind.LIST, arity);
     }
 
+    /**
+     * @param kind
+     * @param terms
+     */
     public ListTerm(Kind kind, ListTerm terms) {
         this.kind = kind;
         heads.clear();
         heads.addAll(terms.getHeads());
     }
 
+    /**
+     * @param kind
+     * @param headTail
+     */
     public ListTerm(Kind kind, List<ITerm> headTail) {
         this.kind = kind;
         heads.clear();
@@ -272,6 +295,10 @@ public class ListTerm extends HtBaseTerm {
         return this;
     }
 
+    public void addTail(ITerm tail) {//fixme
+        newTail(tail.isVar());
+    }
+
     /**
      *
      */
@@ -293,26 +320,10 @@ public class ListTerm extends HtBaseTerm {
         ARGS,
         BLOCK;
 
-//        private IFunctor goal;
-
-//        /**
-//         * @param goal
-//         */
-//        Kind ( IFunctor goal ) {
-//            this.goal = goal;
-//        }
-
         /**
          *
          */
         Kind() {
         }
-
-//        /**
-//         * @return
-//         */
-//        public IFunctor getGoal () {
-//            return goal;
-//        }
     }
 }

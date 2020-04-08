@@ -22,7 +22,7 @@ public final class Quotemeta {
                 if (j < i) {
                     result.append(value.subSequence(j, i));
                 }
-                switch (value.charAt(++i)) {
+                switch (value.charAt(i)) {
                     case 'b':
                         result.append("\b");
                         break;
@@ -51,7 +51,7 @@ public final class Quotemeta {
                         result.append(value.charAt(i));
                         break;
                 }
-                j = i + 1;
+                j = i /*+ 1*/;
             }
         }
         if (j < value.length()) {
@@ -91,7 +91,7 @@ public final class Quotemeta {
                     retval.append("\\\"");
                     continue;
                 case '\'':
-                    retval.append("\\\'");
+                    retval.append("\\'");
                     continue;
                 case '\\':
                     retval.append("\\\\");

@@ -1,6 +1,5 @@
 package org.ltc.hitalk.parser;
 
-
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
@@ -14,7 +13,6 @@ import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Objects;
 
 import static java.util.EnumSet.of;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.RESOURCE_ERROR;
@@ -23,9 +21,6 @@ import static org.ltc.hitalk.core.BaseApp.getAppContext;
 import static org.ltc.hitalk.entities.PropertyOwner.createProperty;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
 
-/**
- * @author shun
- */
 public class PlLexer implements PropertyChangeListener {
     public static final String PUNCTUATION = ";,!|.";
     public static final String SPECIAL = "#$&*+-/:<=>?@\\^~";
@@ -61,7 +56,25 @@ public class PlLexer implements PropertyChangeListener {
     private Path path;
 
     public void toString0(StringBuilder sb) {
-//sb.append();
+    }
+
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof PlLexer)) {
+            return false;
+        }
+
+        final PlLexer lexer = (PlLexer) o;
+
+        return getInputStream().equals(lexer.getInputStream());
+    }
+
+    public int hashCode() {
+        int result = getInputStream().hashCode();
+        result = 31 * result + getPath().hashCode();
+        return result;
     }
 
     /**
@@ -90,7 +103,7 @@ public class PlLexer implements PropertyChangeListener {
         inputStream.open();
 
 //     The first token is initialized to be empty, so that the first call to `poll` returns the first token.
-        lastToken = new PlToken(TK_BOF);
+        lastToken = new PlToken(TK_BOF, "");
         encodingPermitted = true;
     }
 
@@ -160,7 +173,6 @@ public class PlLexer implements PropertyChangeListener {
     /**
      * @return
      */
-//    @Override
     public Path getPath() {
         return path;
     }
@@ -187,7 +199,7 @@ public class PlLexer implements PropertyChangeListener {
      * @param c
      * @return
      */
-    private TokenKind calcTokenKind(int c) {
+    public TokenKind calcTokenKind(int c) {
         TokenKind result = null;
         for (TokenKind value : TokenKind.values()) {
             if (value.getChar() == c) {
@@ -263,7 +275,9 @@ public class PlLexer implements PropertyChangeListener {
      * @param token
      */
     public void unreadToken(PlToken token) {
-        pushBackBuffer.pushBack(token);
+        if (token.kind != TK_BOF) {
+            pushBackBuffer.pushBack(token);
+        }
     }
 
     /**
@@ -279,8 +293,9 @@ public class PlLexer implements PropertyChangeListener {
             if (chr == -1) {
                 lastToken = PlToken.newToken(TK_EOF);
             } else if (valued) {
-                if ("([{".indexOf(chr) != -1) {
-                    lastToken = new PlToken(Objects.requireNonNull(calcTokenKind(chr)));
+                TokenKind kind = calcTokenKind(chr);
+                if (of(TK_LPAREN, TK_LBRACKET, TK_LBRACE).contains(kind)) {
+                    lastToken = new PlToken(kind, "");
                 } else if (chr == '-' || chr == '+') {
                     int c = read();
                     if (isDigit((char) c)) {
@@ -290,18 +305,22 @@ public class PlLexer implements PropertyChangeListener {
                     }
                 } else if (isDigit((char) chr)) {
                     lastToken = getNumber(chr, "");
-                } else if ("}])".indexOf(chr) != -1) {
-                    lastToken = new PlToken(calcTokenKind(chr), String.valueOf((char) chr));
+
                 } else {
-                    lastToken = getAtom(chr);
-                    if (lastToken == null) {//Illegal characters
-                        throw new ParserException(":Bad char `" + (char) chr + ":0x" + Integer.toHexString(chr) + "'.");
-                    }
-                    if (of(TK_SYMBOLIC_NAME, TK_QUOTED_NAME, TK_ATOM).contains(lastToken.kind)) {
-                        if ((chr = read()) == '(') {
-                            lastToken = new PlToken(TK_FUNCTOR_BEGIN, lastToken.image);//fixme
-                        } else {
-                            ungetc(chr);
+                    kind = calcTokenKind(chr);
+                    if (of(TK_RBRACE, TK_RBRACKET, TK_RPAREN).contains(kind)) {
+                        lastToken = new PlToken(kind, String.valueOf((char) chr));
+                    } else {
+                        lastToken = getAtom(chr);
+                        if (lastToken == null) {//Illegal characters
+                            throw new ParserException(":Bad char `" + (char) chr + ":0x" + Integer.toHexString(chr) + "'.");
+                        }
+                        if (of(TK_SYMBOLIC_NAME, TK_QUOTED_NAME, TK_ATOM).contains(lastToken.kind)) {
+                            if ((chr = read()) == '(') {
+                                lastToken = new PlToken(TK_FUNCTOR_BEGIN, lastToken.image);//fixme
+                            } else {
+                                ungetc(chr);
+                            }
                         }
                     }
                 }
@@ -309,9 +328,9 @@ public class PlLexer implements PropertyChangeListener {
 
         } catch (EOFException e) {
             lastToken = PlToken.newToken(TK_EOF);
+            throw e;
         }
-
-        lastToken.setSpacesOccured(spacesOccurred);
+        lastToken.setSpacesOccurred(spacesOccurred);
 
         return lastToken;
     }
@@ -339,7 +358,16 @@ public class PlLexer implements PropertyChangeListener {
                 } while (isPrologIdentifierPart(chr = read()));
 
                 ungetc(chr);
+                if (!val.toString().isEmpty()) {
+                    return new PlToken(TK_ATOM, val.toString());
+                }
+
             } else if (isVarStart((char) start)) {
+                do {
+                    val.append((char) chr);
+                } while (isPrologIdentifierPart(chr = read()));
+
+                ungetc(chr);
                 return new PlToken(TK_VAR, val.toString());
             } else if (start == '\'') {
                 while ((chr = read()) != '\'') {
@@ -347,10 +375,6 @@ public class PlLexer implements PropertyChangeListener {
                 }
                 return new PlToken(TK_QUOTED_NAME, Quotemeta.decode(val.toString()));
             }
-        ungetc(chr);
-        if (!val.toString().isEmpty()) {
-            return new PlToken(TK_ATOM, val.toString());
-        }
         ungetc(chr);
 
         return lastToken;
@@ -593,5 +617,9 @@ public class PlLexer implements PropertyChangeListener {
      */
     public void setLastToken(PlToken lastToken) {
         this.lastToken = lastToken;
+    }
+
+    public int tokenStart() {
+        return 0;
     }
 }

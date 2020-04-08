@@ -23,7 +23,10 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtProperty;
-import org.ltc.hitalk.parser.*;
+import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.parser.HtSourceCodeException;
+import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
@@ -36,8 +39,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.ltc.hitalk.parser.PlPrologParser.END_OF_FILE;
-import static org.ltc.hitalk.term.IdentifiedTerm.Associativity;
+import static org.ltc.hitalk.parser.HtPrologParser.END_OF_FILE;
+import static org.ltc.hitalk.term.OpSymbolFunctor.Associativity;
 
 /**
  * ResolutionEngine combines together a logic {@link Parser}, a {@link IVafInterner} that acts as a symbol
@@ -58,7 +61,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
     /**
      * Holds the parser.
      */
-    protected PlPrologParser parser;
+    protected HtPrologParser parser;
 
     /**
      * Holds the variable and functor symbol table.
@@ -318,12 +321,8 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      * Adds the specified construction to the domain of resolution searched by this resolver.
      *
      * @param term The term to add to the domain.
-     * @throws LinkageException If the term to add to the domain, cannot be added to it, because it depends on the
-     *                          existance of other clauses which are not in the domain. Implementations may elect to
-     *                          raise this as an error at the time the clauses are added to the domain, or during
-     *                          resolution, or simply to fail to find a resolution.
      */
-    public void addToDomain ( P term ) throws LinkageException {
+    public void addToDomain(P term) {
         //resolver.addToDomain(term);
     }
 
@@ -341,7 +340,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
     }
 
     private Set <HtVariable> executeAndExtractBindings ( Q query ) {
-        return null;
+        return Collections.emptySet();
     }//todo
 
     /**

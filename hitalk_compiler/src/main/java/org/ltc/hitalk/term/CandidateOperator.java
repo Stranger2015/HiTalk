@@ -4,8 +4,8 @@ import org.ltc.hitalk.wam.compiler.HtFunctor;
 
 import java.util.EnumMap;
 
-import static org.ltc.hitalk.term.IdentifiedTerm.Fixity;
-import static org.ltc.hitalk.term.IdentifiedTerm.Fixity.*;
+import static org.ltc.hitalk.term.OpSymbolFunctor.Fixity;
+import static org.ltc.hitalk.term.OpSymbolFunctor.Fixity.*;
 
 /**
  * A CandidateOpSymbol is a named symbol in first order logic, that can take be one of several actual symbols, depending
@@ -18,7 +18,7 @@ import static org.ltc.hitalk.term.IdentifiedTerm.Fixity.*;
  *
  * <pre><p/><table id="crc"><caption>CRC Card</caption>
  * <tr><th> Responsibilities <th> Collaborations
- * <tr><td> Associate a string name with possible symbols with the same name. <td> {@link IdentifiedTerm}.
+ * <tr><td> Associate a string name with possible symbols with the same name. <td> {@link OpSymbolFunctor}.
  * <tr><td> Provide a listing of possible symbols organized by fixity. <td> {@link Fixity}.
  * <tr><td> Report whether a candidate can be pre, post or infix.
  * </table></pre>
@@ -27,7 +27,7 @@ import static org.ltc.hitalk.term.IdentifiedTerm.Fixity.*;
  */
 public class CandidateOperator extends HtFunctor {
 
-    public CandidateOperator(int name, ListTerm args, String textName, EnumMap<Fixity, IdentifiedTerm> possibleOperators) {
+    public CandidateOperator(int name, ListTerm args, String textName, EnumMap<Fixity, OpSymbolFunctor> possibleOperators) {
         super(name, args);
         this.name = textName;
         this.possibleOperators = possibleOperators;
@@ -41,7 +41,7 @@ public class CandidateOperator extends HtFunctor {
     /**
      * Holds the set of possible fixities that this symbol could have, depending on the parsing context.
      */
-    private final EnumMap<Fixity, IdentifiedTerm> possibleOperators;
+    private final EnumMap<Fixity, OpSymbolFunctor> possibleOperators;
 
     /**
      * Creates a candidate operator symbol for a given text name and possible symbols.
@@ -49,7 +49,7 @@ public class CandidateOperator extends HtFunctor {
      * @param name              The text name of the candidate symbol.
      * @param possibleOperators The possible symbols that the candidate could be.
      */
-    public CandidateOperator(String name, EnumMap<Fixity, IdentifiedTerm> possibleOperators) {
+    public CandidateOperator(String name, EnumMap<Fixity, OpSymbolFunctor> possibleOperators) {
         this(-1, null, name, possibleOperators);
     }
 
@@ -67,7 +67,7 @@ public class CandidateOperator extends HtFunctor {
      *
      * @return The possible associativities of this candidate symbol.
      */
-    public EnumMap<Fixity, IdentifiedTerm> getPossibleOperators() {
+    public EnumMap<Fixity, OpSymbolFunctor> getPossibleOperators() {
         return possibleOperators;
     }
 

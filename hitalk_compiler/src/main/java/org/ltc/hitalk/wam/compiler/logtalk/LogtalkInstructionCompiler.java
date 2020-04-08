@@ -2,7 +2,7 @@ package org.ltc.hitalk.wam.compiler.logtalk;
 
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.utils.ISymbolTable;
-import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.HtMethod;
 import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
@@ -22,7 +22,7 @@ public class LogtalkInstructionCompiler<T extends HtMethod, P, Q> extends Prolog
                                       IVafInterner interner,
                                       PrologDefaultBuiltIn defaultBuiltIn,
                                       ICompilerObserver<P, Q> observer,
-                                      PlPrologParser parser) {
+                                      HtPrologParser parser) {
         super(symbolTable, interner, defaultBuiltIn, observer, parser);
     }
 }

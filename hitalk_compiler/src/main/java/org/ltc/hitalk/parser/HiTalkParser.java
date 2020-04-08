@@ -7,23 +7,19 @@ import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.wam.compiler.Language;
 
 import static org.ltc.hitalk.parser.PrologAtoms.*;
-import static org.ltc.hitalk.term.IdentifiedTerm.Associativity.*;
+import static org.ltc.hitalk.term.OpSymbolFunctor.Associativity.*;
 import static org.ltc.hitalk.wam.compiler.Language.HITALK;
 
 /**
  *
  */
-public class HiTalkParser extends PlPrologParser {
-
-    public HiTalkParser() throws Exception {
-        super();
-    }
+public class HiTalkParser extends HtPrologParser {
 
     /**
      * @return
      */
     @Override
-    public Language language () {
+    public Language language() {
         return HITALK;
     }
 

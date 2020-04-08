@@ -7,8 +7,8 @@ import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.parser.PlLexer;
-import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 import org.slf4j.Logger;
@@ -19,8 +19,9 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
-import static org.ltc.hitalk.parser.PlPrologParser.BEGIN_OF_FILE;
-import static org.ltc.hitalk.parser.PlPrologParser.END_OF_FILE;
+import static org.ltc.hitalk.parser.HtPrologParser.BEGIN_OF_FILE;
+import static org.ltc.hitalk.parser.HtPrologParser.END_OF_FILE;
+import static org.ltc.hitalk.parser.PlToken.TokenKind.TK_DOT;
 
 /**
  * @param <P>
@@ -35,7 +36,7 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
     protected ISymbolTable<Integer, String, Object> scopeTable;
     protected int scope;
     protected Deque<SymbolKey> predicatesInScope = new ArrayDeque<>();
-    protected PlPrologParser parser;
+    protected HtPrologParser parser;
     protected IResolver<P, Q> resolver;
     protected ICompilerObserver<P, Q> observer;//todo is that really to be here
 
@@ -46,7 +47,7 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
      */
     protected BaseCompiler(ISymbolTable<Integer, String, Object> symbolTable,
                            IVafInterner interner,
-                           PlPrologParser parser,
+                           HtPrologParser parser,
                            ICompilerObserver<P, Q> observer) {
 
         super(symbolTable, interner);
@@ -84,7 +85,7 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
     }
 
     @Override
-    public PlPrologParser getParser() {
+    public HtPrologParser getParser() {
         return parser;
     }
 
@@ -110,7 +111,7 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
         final List<HtClause> list = new ArrayList<>();
         parser.setTokenSource(tokenSource);
         while (tokenSource.isOpen()) {
-            ITerm t = parser.next();
+            ITerm t = parser.expr(TK_DOT);
             if (t == BEGIN_OF_FILE) {
 //                getTaskQueue().push(new TermExpansionTask(this, Collections::singletonList,
 //                        EnumSet.of(ENCODING))); //read until

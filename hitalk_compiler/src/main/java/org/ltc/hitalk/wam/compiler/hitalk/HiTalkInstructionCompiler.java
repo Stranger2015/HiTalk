@@ -19,7 +19,7 @@ import com.thesett.aima.logic.fol.FunctorName;
 import com.thesett.common.util.SizeableLinkedList;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.utils.ISymbolTable;
-import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.HtMethod;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
@@ -151,7 +151,7 @@ public class HiTalkInstructionCompiler<T extends HtMethod, PC, QC> extends Prolo
                                      IVafInterner interner,
                                      HiTalkDefaultBuiltIn defaultBuiltIn,
                                      ICompilerObserver<PC, QC> observer,
-                                     PlPrologParser parser) {
+                                     HtPrologParser parser) {
         super(symbolTable, interner, defaultBuiltIn, observer, parser);
     }
 

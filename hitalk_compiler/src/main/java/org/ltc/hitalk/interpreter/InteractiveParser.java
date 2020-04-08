@@ -1,16 +1,16 @@
 package org.ltc.hitalk.interpreter;
 
-import com.thesett.aima.logic.fol.isoprologparser.PrologParser;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
-import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.HtPrologParser;
-import org.ltc.hitalk.parser.IParser;
+import org.ltc.hitalk.parser.*;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.Language;
 
 import java.io.IOException;
+import java.util.Deque;
+
+import static org.ltc.hitalk.parser.PlToken.TokenKind.TK_DOT;
 
 /**
  *
@@ -44,23 +44,31 @@ public class InteractiveParser implements IParser {
      * @return
      * @throws Exception
      */
-    public ITerm parse () throws Exception {
+    public ITerm parse() throws Exception {
         return parser.parse();
+    }
+
+    /**
+     * @return
+     */
+    public PlLexer getTokenSource() {
+        return parser.getTokenSource();
     }
 
     /**
      *
      */
     @Override
-    public void initializeBuiltIns () {
+    public void initializeBuiltIns() {
         parser.initializeBuiltIns();
     }
 
     /**
+     * @param rdelim
      * @return
      * @throws IOException
      */
-    public ITerm expr() throws Exception {
+    public ITerm expr(PlToken.TokenKind rdelim) throws Exception {
         return null;
     }
 
@@ -69,15 +77,20 @@ public class InteractiveParser implements IParser {
      * @throws IOException
      */
     public ITerm next () throws Exception {
-        return parser.next();//fixme
+        return parser.expr(TK_DOT);//fixme
     }
 
     /**
      * @return
      */
     @Override
-    public HtClause parseClause () throws Exception {
+    public HtClause parseClause() throws Exception {
         return parser.parseClause();
+    }
+
+    @Override
+    public Deque<PlLexer> getTokenSourceStack() {
+        return parser.getTokenSourceStack();
     }
 
     /**

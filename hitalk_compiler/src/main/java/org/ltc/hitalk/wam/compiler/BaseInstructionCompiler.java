@@ -27,8 +27,8 @@ import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.core.utils.TermUtilities;
 import org.ltc.hitalk.parser.Directive;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.parser.HtSourceCodeException;
-import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
@@ -123,7 +123,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
                                    IVafInterner interner,
                                    PrologDefaultBuiltIn defaultBuiltIn,
                                    ICompilerObserver<P, Q> observer,
-                                   PlPrologParser parser) {
+                                   HtPrologParser parser) {
         super(symbolTable, interner, parser, observer);
         optimizer = new HiTalkWAMOptimizer(symbolTable, interner);
         this.defaultBuiltIn = defaultBuiltIn;

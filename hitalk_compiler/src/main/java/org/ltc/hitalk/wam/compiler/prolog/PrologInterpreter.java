@@ -11,10 +11,7 @@ import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.interpreter.IInterpreter;
 import org.ltc.hitalk.interpreter.Mode;
-import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.HtSourceCodeException;
-import org.ltc.hitalk.parser.IParser;
-import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.parser.*;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.Language;
@@ -22,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Deque;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -48,7 +46,7 @@ public class PrologInterpreter<T extends HtClause, P, Q, PC, QC>
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
-    protected final PlPrologParser parser;
+    protected final HtPrologParser parser;
     private ConsoleReader reader;
 
     public String getMeta () {
@@ -70,10 +68,10 @@ public class PrologInterpreter<T extends HtClause, P, Q, PC, QC>
      * @param parser
      * @param compiler
      */
-    public PrologInterpreter ( PlPrologParser parser, ICompiler <T, P, Q> compiler, IResolver <P, Q> resolver ) {
+    public PrologInterpreter(HtPrologParser parser, ICompiler<T, P, Q> compiler, IResolver<P, Q> resolver) {
         this.parser = parser;
         this.compiler = compiler;
-        engine = new HtResolutionEngine <>(parser, getInterner(), compiler);
+        engine = new HtResolutionEngine<>(parser, getInterner(), compiler);
     }
 
     /**
@@ -87,15 +85,20 @@ public class PrologInterpreter<T extends HtClause, P, Q, PC, QC>
     /**
      * @return
      */
-    public Logger getConsole () {
+    public Logger getConsole() {
         return logger;
+    }
+
+    @Override
+    public Deque<PlLexer> getTokenSourceStack() {
+        return parser.getTokenSourceStack();
     }
 
     /**
      * @return
      */
     @Override
-    public PlPrologParser getParser() {
+    public HtPrologParser getParser() {
         return parser;
     }
 
@@ -134,25 +137,41 @@ public class PrologInterpreter<T extends HtClause, P, Q, PC, QC>
     /**
      * @return
      */
-    public ITerm parse () throws IOException {
+    public ITerm parse() throws IOException {
         return next();
     }
 
+    /**
+     * @return
+     */
+    public PlLexer getTokenSource() {
+        return parser.getTokenSource();
+    }
+
     @Override
-    public void initializeBuiltIns () {
+    public void initializeBuiltIns() {
         parser.initializeBuiltIns();
+    }
+
+    /**
+     * @param rdelim
+     * @return
+     * @throws IOException
+     */
+    public ITerm expr(PlToken.TokenKind rdelim) throws Exception {
+        return parser.expr(rdelim);
     }
 
     /**
      * @return
      * @throws IOException
      */
-    public ITerm next () throws IOException {
+    public ITerm next() throws IOException {
         return null;
     }
 
     @Override
-    public HtClause parseClause () throws Exception {
+    public HtClause parseClause() throws Exception {
         return parser.parseClause();
     }
 

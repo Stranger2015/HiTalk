@@ -11,8 +11,8 @@ import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.term.IdentifiedTerm;
 import org.ltc.hitalk.term.ListTerm;
+import org.ltc.hitalk.term.OpSymbolFunctor;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.util.*;
@@ -228,8 +228,8 @@ public class TermUtilities {
     public static HtClause convertToClause(ITerm term, IVafInterner interner) throws Exception {
         // Check if the top level term is a query, an implication or neither and reduce the term into a clause
         // accordingly.
-        if (term instanceof IdentifiedTerm) {
-            IdentifiedTerm symbol = (IdentifiedTerm) term;
+        if (term instanceof OpSymbolFunctor) {
+            OpSymbolFunctor symbol = (OpSymbolFunctor) term;
 
             if (IMPLIES.equals(symbol.getTextName())) {
                 IFunctor[] flattenedArgs = flattenTerm((IFunctor) symbol.getArgument(1),

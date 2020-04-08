@@ -2,7 +2,7 @@ package org.ltc.hitalk.wam.compiler.hitalk;
 
 import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
-import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.HtMethod;
 import org.ltc.hitalk.wam.compiler.prolog.PrologInterpreter;
 
@@ -17,7 +17,7 @@ public class HiTalkInterpreter<T extends HtMethod, P, Q, PC, QC> extends PrologI
      * @param compiler
      * @param resolver
      */
-    public HiTalkInterpreter ( PlPrologParser parser, ICompiler <T, P, Q> compiler, IResolver <P, Q> resolver ) {
+    public HiTalkInterpreter(HtPrologParser parser, ICompiler<T, P, Q> compiler, IResolver<P, Q> resolver) {
         super(parser, compiler, resolver);
     }
 

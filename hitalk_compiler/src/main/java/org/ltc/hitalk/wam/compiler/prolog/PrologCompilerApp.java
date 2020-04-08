@@ -27,10 +27,11 @@ import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.LoadContext;
 import org.ltc.hitalk.interpreter.HtProduct;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.PlLexer;
-import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
+import org.ltc.hitalk.term.io.HiTalkOutputStream;
 import org.ltc.hitalk.term.io.HtTermReader;
 import org.ltc.hitalk.term.io.HtTermWriter;
 import org.ltc.hitalk.wam.compiler.CompilerFactory;
@@ -47,7 +48,7 @@ import java.util.List;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.core.Components.INTERNER;
 import static org.ltc.hitalk.core.Components.WAM_COMPILER;
-import static org.ltc.hitalk.parser.Directive.DirectiveKind.IF;
+import static org.ltc.hitalk.parser.Directive.DirectiveKind.DK_IF;
 import static org.ltc.hitalk.parser.PlLexer.getTokenSourceForPath;
 import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
 import static org.ltc.hitalk.wam.compiler.Tools.Kind.COMPILER;
@@ -77,6 +78,8 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
             new HtVersion(0, 1, 1, 378, "", false));
     protected ICompilerObserver<P, Q> observer;
     protected IVafInterner interner = getAppContext().getInterner();
+    protected HiTalkInputStream currentInputStream;
+    protected HiTalkOutputStream currentOutputStream;
 
     /**
      * @return
@@ -171,7 +174,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
                 language().getName() + "_Functor_Namespace"));
 //        appCtx.setInputStream(appContext.createHiTalkInputStream(fileName));
         appCtx.setTermFactory(appCtx.getInterner());
-        setParser(new PlPrologParser());
+        setParser(appCtx.getParser());
         appCtx.setTermReader(new HtTermReader(fileName, getTokenSourceForPath(fileName), getParser()));
         setWAMCompiler(cf.createWAMCompiler(language()));
     }
@@ -196,7 +199,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
                                 IVafInterner interner,
                                 ITermFactory factory,
                                 IOperatorTable optable) throws Exception {
-        return new PlPrologParser(inputStream, interner, factory, optable);
+        return new HtPrologParser(inputStream, interner, factory, optable);
     }
 
     /**
@@ -290,7 +293,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
                 getWAMCompiler().setPreCompiler(new PrologPreCompiler<>());
                 getWAMCompiler().setCompilerObserver(new ICompilerObserver<P, Q>() {
                     public void onCompilation(PlLexer tokenSource) throws Exception {
-                        final List<HtClause> list = getWAMCompiler().getPreCompiler().preCompile(tokenSource, EnumSet.of(IF));
+                        final List<HtClause> list = getWAMCompiler().getPreCompiler().preCompile(tokenSource, EnumSet.of(DK_IF));
                         for (HtClause clause : list) {
                             getWAMCompiler().getInstructionCompiler().compile(clause);
                         }
@@ -407,5 +410,33 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
      */
     public void setObserver(ICompilerObserver<P, Q> observer) {
         this.observer = observer;
+    }
+
+    @Override
+    public HiTalkInputStream getCurrentInputStream() {
+        return currentInputStream;
+    }
+
+    /**
+     * @return
+     */
+    public HiTalkOutputStream getCurrentOutputStream() {
+        return currentOutputStream;
+    }
+
+    /**
+     * @param currentInputStream
+     */
+    @Override
+    public void setCurrentInputStream(HiTalkInputStream currentInputStream) {
+        this.currentInputStream = currentInputStream;
+    }
+
+    /**
+     * @param currentOutputStream
+     */
+    @Override
+    public void setCurrentOutputStream(HiTalkOutputStream currentOutputStream) {
+        this.currentOutputStream = currentOutputStream;
     }
 }

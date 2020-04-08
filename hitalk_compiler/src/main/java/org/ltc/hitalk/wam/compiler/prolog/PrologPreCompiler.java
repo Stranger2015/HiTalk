@@ -9,8 +9,8 @@ import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.Directive.DirectiveKind;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.parser.PlLexer;
-import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.HtTermWalkers;
 import org.ltc.hitalk.wam.compiler.IFunctor;
@@ -27,10 +27,9 @@ import java.util.*;
 import static java.util.EnumSet.noneOf;
 import static org.ltc.hitalk.core.BaseApp.appContext;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
-import static org.ltc.hitalk.parser.Directive.DirectiveKind.ENCODING;
-import static org.ltc.hitalk.parser.Directive.DirectiveKind.IF;
-import static org.ltc.hitalk.parser.PlPrologParser.BEGIN_OF_FILE;
-import static org.ltc.hitalk.parser.PlPrologParser.END_OF_FILE;
+import static org.ltc.hitalk.parser.Directive.DirectiveKind.*;
+import static org.ltc.hitalk.parser.HtPrologParser.BEGIN_OF_FILE;
+import static org.ltc.hitalk.parser.HtPrologParser.END_OF_FILE;
 
 /**
  *
@@ -39,7 +38,7 @@ public
 class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine implements IPreCompiler {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
-    final protected PlPrologParser parser;
+    final protected HtPrologParser parser;
     final protected PrologDefaultBuiltIn defaultBuiltIn;
 
     /**
@@ -49,7 +48,6 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
     protected final IResolver<HtPredicate, HtClause> resolver;
     protected ICompilerObserver<P, Q> observer;
 
-    //    protected final Deque <CompilerTask> compilerTaskQueue = new ArrayDeque <>();
     protected ClauseChainObserver clauseChainObserver;
     protected final Deque<PreCompilerTask> taskQueue = new ArrayDeque<>();
 
@@ -65,7 +63,7 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
                              PrologDefaultBuiltIn defaultBuiltIn,
                              PrologBuiltInTransform<T, P, Q> builtInTransform,
                              IResolver<HtPredicate, HtClause> resolver,
-                             PlPrologParser parser
+                             HtPrologParser parser
     ) {
         super(symbolTable, interner);
 
@@ -95,7 +93,7 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
      * @return
      */
     @Override
-    public PlPrologParser getParser() {
+    public HtPrologParser getParser() {
         return parser;
     }
 
@@ -128,19 +126,22 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
         getLogger().info("Precompiling " + tokenSource.getPath() + " ...");
         final List<HtClause> list = new ArrayList<>();
         while (tokenSource.isOpen()) {
-            ITerm t = getParser().next();
+            ITerm t = getParser().termSentence();
+//            if (t != null) {
+//                list.add(TermUtilities.convertToClause(t, interner));
+//            }
             if (t == BEGIN_OF_FILE) {
                 getLogger().info("begin_of_file");
-                getQueue().push(new TermExpansionTask(this, tokenSource, EnumSet.of(IF, ENCODING)));
-//                continue;
+                getQueue().push(new TermExpansionTask(this, tokenSource, EnumSet.of(DK_IF, DK_ENCODING, DK_HILOG), parser, interner));
             } else if (t == END_OF_FILE) {
                 getLogger().info("end_of_file");
-                getQueue().push(new TermExpansionTask(this, tokenSource, noneOf(DirectiveKind.class)));
+                getQueue().push(new TermExpansionTask(this, tokenSource, noneOf(DirectiveKind.class), parser, interner));
                 getParser().popTokenSource();
-                return list;
-            } else {//?????????????
-                preCompile(t);
-                HtClause c = getParser().convert(t);
+//                return list;
+            }
+            List<ITerm> tl = preCompile(t);
+            for (ITerm term : tl) {
+                HtClause c = getParser().convert(term);
                 if (!checkDirective(c, delims)) {
                     list.add(c);
                 }
@@ -152,20 +153,37 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
 
     /**
      * {@inheritDoc}
+     *
+     * @return
      */
-    public void preCompile(ITerm clause) throws Exception {
-        logger.debug("Precompiling " + "( " + clause + ") ...");
-        substituteBuiltIns(clause);
-        initializeSymbolTable(clause);
-        topLevelCheck(clause);
+    public List<ITerm> preCompile(ITerm term) throws Exception {
+        logger.info("Precompiling ( " + term + ") ...");
 
-        if (observer != null) {
-            if (clause.isQuery()) {
-                observer.onQueryCompilation((Q) clause);
-            } else {
-                observer.onCompilation((P) clause);
+        List<ITerm> clauses = preProcess(term);
+        for (ITerm clause : clauses) {
+            substituteBuiltIns(clause);
+            initializeSymbolTable(clause);
+            topLevelCheck(clause);
+
+            if (observer != null) {
+                if (clause.isQuery()) {
+                    observer.onQueryCompilation((Q) clause);
+                } else {
+                    observer.onCompilation((P) clause);
+                }
             }
         }
+
+        return clauses;
+    }
+
+    private List<ITerm> preProcess(ITerm clause) {
+        final List<ITerm> list = new ArrayList<>();
+        for (PreCompilerTask task : getTaskQueue()) {
+            list.addAll(task.invoke(clause));
+        }
+
+        return list;
     }
 
     /**
@@ -174,9 +192,8 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
      *
      * @param clause The clause to initialise the symbol keys of.
      */
-
     private void initializeSymbolTable(ITerm clause) {
-        logger.debug("Initializing symbol table " + "( " + clause + ") ...");
+        logger.info("Initializing symbol table ( " + clause + ") ...");
         // Run the symbol key traverser over the clause, to ensure that all terms have their symbol keys correctly
         // set up.
         HtSymbolKeyTraverser symbolKeyTraverser = new HtSymbolKeyTraverser(interner, symbolTable, null);
@@ -256,7 +273,7 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
     public List<ITerm> expandTerm(ITerm term) throws Exception {
         final EnumSet<DirectiveKind> kinds = EnumSet.noneOf(DirectiveKind.class);
         final PlLexer ts = PlLexer.getTokenSourceForIoFileName("");
-        getQueue().push(new TermExpansionTask(this, ts, kinds));
+        getQueue().push(new TermExpansionTask(this, ts, kinds, parser, interner));
 
         return Collections.singletonList(term);
     }
@@ -298,12 +315,12 @@ class PrologPreCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine im
         return taskQueue;
     }
 
-    /**
-     * @param item
-     */
-    public void push(PreCompilerTask item) {
-
-    }
+//    /**
+//     * @param item
+//     */
+//    public void push(PreCompilerTask item) {
+//
+//    }
 
     /**
      * @param item

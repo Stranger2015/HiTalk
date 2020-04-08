@@ -20,9 +20,29 @@ abstract public
 class PreCompilerTask implements IPendingTasks, IInvokable<ITerm>, IHitalkObject {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
+    public PlLexer getTokenSource() {
+        return tokenSource;
+    }
+
+    public IPreCompiler getPreCompiler() {
+        return preCompiler;
+    }
+
+    public EnumSet<DirectiveKind> getKind() {
+        return kind;
+    }
+
     protected final PlLexer tokenSource;
     protected final IPreCompiler preCompiler;
     protected final EnumSet<DirectiveKind> kind;
+    protected final Deque<PreCompilerTask> tasks = new ArrayDeque<>();
+
+    /**
+     * @return
+     */
+    public Deque<PreCompilerTask> getQueue() {
+        return tasks;
+    }
 
     /**
      * @param tokenSource
@@ -45,39 +65,42 @@ class PreCompilerTask implements IPendingTasks, IInvokable<ITerm>, IHitalkObject
     /**
      * @return
      */
-    public Deque<ITerm> getOutput() {
+    public List<ITerm> getOutput() {
         return output;
     }
 
     protected ITerm input;
-    protected final Deque<ITerm> output = new ArrayDeque<>();
+    protected final List<ITerm> output = new ArrayList<>();
 
     /**
      * @param term
      * @return
      */
     @Override
-    public final List <ITerm> invoke ( ITerm term ) {
-        List <ITerm> list = IInvokable.super.invoke(term);
+    public final List<ITerm> invoke(ITerm term) {
+        List<ITerm> list = IInvokable.super.invoke(term);
+        input = term;
+
         for (ITerm t : list) {
-            list.addAll(invoke0(t));
+            final List<ITerm> listj = invoke0(t);
+            output.addAll(listj);
         }
 
-        return list;
+        return output;
+    }
+
+    /**
+     *
+     */
+    public void banner() {
+        logger.info(format("\nPerforming %s task ...", getClass().getSimpleName()));
     }
 
     /**
      * @param term
      * @return
      */
-    protected List <ITerm> invoke0 ( ITerm term ) {
-        return Collections.singletonList(term);
-    }
-
-    /**
-     *
-     */
-    public void banner () {
-        logger.info(format("\nPerforming %s task ...", getClass().getSimpleName()));
+    protected List<ITerm> invoke0(ITerm term) {
+        return null;
     }
 }

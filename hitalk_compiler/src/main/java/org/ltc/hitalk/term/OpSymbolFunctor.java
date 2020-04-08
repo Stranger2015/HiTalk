@@ -22,7 +22,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 import static java.lang.String.format;
-import static org.ltc.hitalk.term.IdentifiedTerm.Associativity.*;
+import static org.ltc.hitalk.term.OpSymbolFunctor.Associativity.*;
 
 /**
  * Operators in first order logic, connect terms into compound units composed of many terms under the semantics of the
@@ -48,9 +48,9 @@ import static org.ltc.hitalk.term.IdentifiedTerm.Associativity.*;
  *
  * @author Rupert Smith
  */
-public class IdentifiedTerm extends HtFunctor implements Comparable<IdentifiedTerm>, Cloneable {
-    private ITerm result;
-    private ITerm result1;
+public class OpSymbolFunctor extends HtFunctor implements Comparable<OpSymbolFunctor>, Cloneable {
+//    private ITerm result;
+//    private ITerm result1;
     /**
      *
      */
@@ -78,7 +78,7 @@ public class IdentifiedTerm extends HtFunctor implements Comparable<IdentifiedTe
      * @param associativity
      * @param priority
      */
-    public IdentifiedTerm(int name, String textName, Associativity associativity, int priority) {
+    public OpSymbolFunctor(int name, String textName, Associativity associativity, int priority) {
         this(name, textName, associativity, priority, true);
     }
 
@@ -88,24 +88,23 @@ public class IdentifiedTerm extends HtFunctor implements Comparable<IdentifiedTe
      * @param result
      * @param result1
      */
-    public IdentifiedTerm(String name, int priority, ITerm result, ITerm result1) {
+    public OpSymbolFunctor(String name, int priority, ITerm result, ITerm result1) {
         super(-1);
         this.textName = name;
-//        this(name, priority, result,result1);
         this.priority = priority;
-        this.result = result;
-        this.result1 = result1;
+        args.addHead(result);
+        args.addHead(result1);
     }
 
-    public IdentifiedTerm(String name, ITerm result) {
+    public OpSymbolFunctor(String name, ITerm result) {
         this(name, null, -1, result, null);
     }
 
-    public IdentifiedTerm(String image,
-                          Associativity assoc,
-                          int priority,
-                          ITerm result,
-                          ITerm result1) {
+    public OpSymbolFunctor(String image,
+                           Associativity assoc,
+                           int priority,
+                           ITerm result,
+                           ITerm result1) {
         this(image, priority, result, result1);
     }
 
@@ -115,10 +114,10 @@ public class IdentifiedTerm extends HtFunctor implements Comparable<IdentifiedTe
      * @param yf1
      * @param result
      */
-    public IdentifiedTerm(String image,
-                          Associativity yf,
-                          int yf1,
-                          ITerm result) {
+    public OpSymbolFunctor(String image,
+                           Associativity yf,
+                           int yf1,
+                           ITerm result) {
         this(image, yf, yf1, result, null);
     }
 
@@ -131,33 +130,21 @@ public class IdentifiedTerm extends HtFunctor implements Comparable<IdentifiedTe
         return rightPriority;
     }
 
-//    public boolean equals(Object o) {
-//        if (this == o) {
-//            return true;
-//        }
-//        if (!(o instanceof IdentifiedTerm)) {
-//            return false;
-//        }
-//        final IdentifiedTerm that = (IdentifiedTerm) o;
-//
-//        if (getPriority() != that.getPriority()) {
-//            return false;
-//        }
-//        return getAssociativity() == that.getAssociativity();
-//    }
-
-//    public int hashCode() {
-//        int result2 = super.hashCode();
-//        result2 = 31 * result2 + getTextName().hashCode();
-//        result2 = 31 * result2 + (getAssociativity() != null ? getAssociativity().hashCode() : 0);
-//        result2 = 31 * result2 + getPriority();
-//        return result2;
-//    }
-
-    public IdentifiedTerm(String name) {
+    /**
+     * @param name
+     */
+    public OpSymbolFunctor(String name) {
         this(name, null, -1, null, null);
     }
 
+    public OpSymbolFunctor(String name, ITerm result, ITerm result1) {
+        this(name, null, -1, result, result1);
+    }
+
+
+    /**
+     * @return
+     */
     public boolean isBuiltIn() {
         return builtIn;
     }
@@ -169,11 +156,11 @@ public class IdentifiedTerm extends HtFunctor implements Comparable<IdentifiedTe
      * @param associativity Specifies the associativity of the operator.
      * @param priority      The operators priority.
      */
-    public IdentifiedTerm(int name,
-                          String textName,
-                          Associativity associativity,
-                          int priority,
-                          boolean builtIn) {
+    public OpSymbolFunctor(int name,
+                           String textName,
+                           Associativity associativity,
+                           int priority,
+                           boolean builtIn) {
         super(name, new ListTerm(associativity.arity));
         this.priority = priority;
         this.builtIn = builtIn;
@@ -210,7 +197,7 @@ public class IdentifiedTerm extends HtFunctor implements Comparable<IdentifiedTe
      * @return
      */
     public int getArity() {
-        return 0;
+        return args.getHeads().size();
     }
 
     /**
@@ -230,7 +217,7 @@ public class IdentifiedTerm extends HtFunctor implements Comparable<IdentifiedTe
     }
 
     public boolean isListTerm() {
-        return false;
+        return true;
     }
 
     public ListTerm getArgs() {
@@ -363,9 +350,9 @@ public class IdentifiedTerm extends HtFunctor implements Comparable<IdentifiedTe
      *
      * @return A shallow copy of the symbol.
      */
-    public IdentifiedTerm copySymbol() {
+    public OpSymbolFunctor copySymbol() {
         try {
-            return (IdentifiedTerm) clone();
+            return (OpSymbolFunctor) clone();
         } catch (CloneNotSupportedException e) {
             throw new IllegalStateException("Got a CloneNotSupportedException but clone is defined on Operator and " +
                     "should not fail.", e);
@@ -433,16 +420,16 @@ public class IdentifiedTerm extends HtFunctor implements Comparable<IdentifiedTe
      * @throws ClassCastException   if the specified object's type prevents it
      *                              from being compared to this object.
      */
-    public int compareTo(@NotNull IdentifiedTerm o) {
+    public int compareTo(@NotNull OpSymbolFunctor o) {
         return 0;
     }
 
     public ITerm getResult() {
-        return result;
+        return args.getHead(0);
     }
 
     public ITerm getResult1() {
-        return result1;
+        return args.getHead(1);
     }
 
     /**

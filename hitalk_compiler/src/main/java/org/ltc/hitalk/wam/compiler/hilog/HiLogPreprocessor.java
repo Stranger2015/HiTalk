@@ -4,7 +4,7 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltInTransform;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
@@ -60,7 +60,7 @@ public class HiLogPreprocessor<T extends HtClause, P, Q, TC extends ITerm, TT ex
                              PrologDefaultBuiltIn defaultBuiltIn,
                              PrologBuiltInTransform builtInTransform,
                              IResolver resolver,
-                             PlPrologParser parser) {
+                             HtPrologParser parser) {
         super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, parser);
     }
 }

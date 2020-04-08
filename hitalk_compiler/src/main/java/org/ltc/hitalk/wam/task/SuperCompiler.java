@@ -8,7 +8,7 @@ import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltInTransform;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
@@ -49,7 +49,7 @@ public class SuperCompiler extends PrologPreCompiler <HtClause, HtPredicate, HtC
                          PrologDefaultBuiltIn defaultBuiltIn,
                          PrologBuiltInTransform<HtClause, HtPredicate, HtClause> builtInTransform,
                          IResolver<HtPredicate, HtClause> resolver,
-                         PlPrologParser parser) {
+                         HtPrologParser parser) {
         super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, parser);
     }
 

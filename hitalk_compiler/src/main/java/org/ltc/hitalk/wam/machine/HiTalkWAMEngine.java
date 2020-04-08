@@ -15,6 +15,7 @@ import java.io.InputStream;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.RESOURCE_ERROR;
+import static org.ltc.hitalk.core.BaseApp.getAppContext;
 
 /**
  *
@@ -48,7 +49,7 @@ class HiTalkWAMEngine<T extends HtMethod, P, Q, PC, QC> extends HtResolutionEngi
      * @param interner The functor and variable name interner.
      * @param compiler
      */
-    public HiTalkWAMEngine(PlPrologParser parser,
+    public HiTalkWAMEngine(HtPrologParser parser,
                            IVafInterner interner,
                            ICompiler<T, P, Q> compiler,
                            IResolver<P, Q> resolver) {
@@ -80,12 +81,12 @@ class HiTalkWAMEngine<T extends HtMethod, P, Q, PC, QC> extends HtResolutionEngi
 //            HiTalkInputStream stream= appContext.createHiTalkInputStream(Paths.get(BUILT_IN_LIB));
 //            PlLexer tokenSource = new PlLexer(stream);
 //            stream.setTokenSource(tokenSource);
-            IParser libParser = new HiTalkParser();
+            IParser libParser = new HiTalkParser(getAppContext().getApp().getCurrentInputStream(), getInterner(), getFactory(), getOptable());
             libParser.setTokenSource(tokenSource);       // Set up a parser on the token source.
             // Load the built-ins into the domain.
             try {
                 while (true) {
-                    HtClause sentence = libParser.sentence();
+                    HtClause sentence = libParser.parseClause();
                     if (sentence == null) {
                         break;
                     }

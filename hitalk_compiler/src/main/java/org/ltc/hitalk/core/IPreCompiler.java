@@ -56,11 +56,11 @@ public interface IPreCompiler extends IQueueHolder<PreCompilerTask>, IHitalkObje
 //            ISentence <ITerm> sentence = libParser.parse();
 //            final ITerm term = sentence.getT();
 //            //TODO  GLOBAL WITHOUT SPECIAL CASES
-//            if (term == PlPrologParser.BEGIN_OF_FILE_ATOM) {//ignore
+//            if (term == HtPrologParser.BEGIN_OF_FILE_ATOM) {//ignore
 //                //    final List <ITerm> l = preCompiler.expandTerm(term);
 //                continue;
 //            }
-//            if (term == PlPrologParser.END_OF_FILE_ATOM) {
+//            if (term == HtPrologParser.END_OF_FILE_ATOM) {
 //                if (!libParser.getTokenSource().isEofGenerated()) {
 //                    parser.popTokenSource();
 //                    break;

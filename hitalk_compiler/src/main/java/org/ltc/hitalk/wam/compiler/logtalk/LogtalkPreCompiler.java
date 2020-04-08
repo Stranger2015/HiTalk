@@ -6,7 +6,7 @@ import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.HtMethod;
 import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltInTransform;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
@@ -26,7 +26,7 @@ public class LogtalkPreCompiler<T extends HtMethod, P, Q> extends PrologPreCompi
                               PrologDefaultBuiltIn defaultBuiltIn,
                               PrologBuiltInTransform<T, P, Q> builtInTransform,
                               IResolver<HtPredicate, HtClause> resolver,
-                              PlPrologParser parser) {
+                              HtPrologParser parser) {
         super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, parser);
     }
 }

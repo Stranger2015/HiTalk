@@ -21,7 +21,9 @@ public class ExecutionTask extends PreCompilerTask implements IExecutionTask {
     /**
      * @param preCompiler
      */
-    public ExecutionTask(PlLexer lexer, IPreCompiler preCompiler, EnumSet<DirectiveKind> kind) {
+    public ExecutionTask(PlLexer lexer,
+                         IPreCompiler preCompiler,
+                         EnumSet<DirectiveKind> kind) {
         super(lexer, preCompiler, kind);
     }
 

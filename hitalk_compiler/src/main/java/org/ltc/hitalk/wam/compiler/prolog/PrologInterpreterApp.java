@@ -5,6 +5,8 @@ import org.ltc.hitalk.compiler.bktables.IProduct;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.term.io.HiTalkInputStream;
+import org.ltc.hitalk.term.io.HiTalkOutputStream;
 import org.ltc.hitalk.wam.compiler.Language;
 import org.ltc.hitalk.wam.compiler.Tools.Kind;
 
@@ -17,12 +19,14 @@ import static org.ltc.hitalk.wam.compiler.Tools.Kind.INTERPRETER;
 /**
  *
  */
-public class PrologInterpreterApp<T extends HtClause, P, Q, PC, QC> extends BaseApp <T, P, Q, PC, QC> {
+public class PrologInterpreterApp<T extends HtClause, P, Q, PC, QC> extends BaseApp<T, P, Q, PC, QC> {
+
+    private HiTalkInputStream currentInputStream;
 
     /**
      * @param fn
      */
-    public PrologInterpreterApp ( String fn ) throws IOException, CloneNotSupportedException {
+    public PrologInterpreterApp(String fn) throws IOException, CloneNotSupportedException {
         if (fn.startsWith("meta:")) {
             fn = fn.substring(6);
             ///getParser().setTokenSource(ITokenSource.getITokenSourceForString(fn));
@@ -48,7 +52,25 @@ public class PrologInterpreterApp<T extends HtClause, P, Q, PC, QC> extends Base
     /**
      * @return
      */
-    public Language getLanguage () {
+    public HiTalkInputStream getCurrentInputStream() {
+        return currentInputStream;
+    }
+
+    public void setCurrentInputStream(HiTalkInputStream currentInputStream) {
+        this.currentInputStream = currentInputStream;
+    }
+
+    /**
+     * @param currentOutputStream
+     */
+    public void setCurrentOutputStream(HiTalkOutputStream currentOutputStream) {
+
+    }
+
+    /**
+     * @return
+     */
+    public Language getLanguage() {
         return PROLOG;
     }
 
@@ -56,7 +78,7 @@ public class PrologInterpreterApp<T extends HtClause, P, Q, PC, QC> extends Base
      * @param varOrFunctor
      * @return
      */
-    public String namespace ( String varOrFunctor ) {
+    public String namespace(String varOrFunctor) {
         return null;
     }
 

@@ -5,12 +5,13 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.core.IHitalkObject;
 import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.term.IdentifiedTerm;
-import org.ltc.hitalk.term.IdentifiedTerm.Associativity;
+import org.ltc.hitalk.term.OpSymbolFunctor;
+import org.ltc.hitalk.term.OpSymbolFunctor.Associativity;
 import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.Language;
 
 import java.io.IOException;
+import java.util.Deque;
 
 import static org.ltc.hitalk.core.utils.TermUtilities.convertToClause;
 
@@ -18,6 +19,11 @@ import static org.ltc.hitalk.core.utils.TermUtilities.convertToClause;
  *
  */
 public interface IParser extends IHitalkObject {
+    /**
+     * @return
+     */
+    Deque<PlLexer> getTokenSourceStack();
+
     /**
      * @return
      */
@@ -86,7 +92,7 @@ public interface IParser extends IHitalkObject {
     /**
      * @param op
      */
-    default void setOperator(IdentifiedTerm op) {
+    default void setOperator(OpSymbolFunctor op) {
         getParser().setOperator(op);
     }
 
@@ -105,29 +111,37 @@ public interface IParser extends IHitalkObject {
      * @return
      */
     default PlLexer getTokenSource() {
-        return getParser().getTokenSource();
+        return getTokenSourceStack().peek();
     }
 
     /**
      * @param source
      */
     default void setTokenSource(PlLexer source) {
-        if (source.isOpen()) {
-            getParser().setTokenSource(source);
+        final Deque<PlLexer> stack = getTokenSourceStack();
+        if (!stack.contains(source) && source.isOpen()) {
+            stack.push(source);
+            source.getInputStream().addListener(source);
         }
     }
 
     /**
-     * @return
+     *
      */
-    default PlLexer popTokenSource() throws IOException {
+    default PlLexer popTokenSource() {
         PlLexer ts = getTokenSource();
         ts.getInputStream().removeListener(ts);
-        ts = getParser().popTokenSource();
-        ts.getInputStream().addListener(ts);
-        ts.close();
-        return ts;
 
+        if (!getParser().tokenSourceStack.isEmpty()) {
+            ts = getParser().tokenSourceStack.pop();
+            ts.close();
+            if (!getParser().tokenSourceStack.isEmpty()) {
+                ts = getTokenSource();
+                ts.getInputStream().addListener(ts);
+            }
+        }
+
+        return ts;
     }
 
     /**
@@ -152,22 +166,23 @@ public interface IParser extends IHitalkObject {
     }
 
     /**
+     * @param rdelim
      * @return
      * @throws IOException
      */
-    ITerm expr() throws Exception;
+    ITerm expr(PlToken.TokenKind rdelim) throws Exception;
 
     /**
      * @return
      */
     HtClause parseClause() throws Exception;
 
-    /**
-     * @return
-     */
-    default HtClause sentence() {
-        return getParser().sentence();
-    }
+//    /**
+//     * @return
+//     */
+//    default HtClause sentence() {
+//        return getParser().sentence();
+//    }
 
     /**
      * @param t

@@ -42,7 +42,8 @@ public class HiTalkOutputStream extends HiTalkStream {
     }
 
     public HiTalkOutputStream(int i, FileDescriptor out) {
-        super();
+        super(i);
+//        super();
         setOutputStream(new FileOutputStream(out));
     }
 
@@ -57,6 +58,10 @@ public class HiTalkOutputStream extends HiTalkStream {
 
     public HiTalkOutputStream(Path fileName) throws Exception {
         super(fileName);
+    }
+
+    public HiTalkOutputStream(int id) {
+        super(id);
     }
 
     /**
@@ -453,6 +458,7 @@ public class HiTalkOutputStream extends HiTalkStream {
         outputStream.close();
     }
 
+    @Override
     protected void doOpen() throws FileNotFoundException {
 
     }

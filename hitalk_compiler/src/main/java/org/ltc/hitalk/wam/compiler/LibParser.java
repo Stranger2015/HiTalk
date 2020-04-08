@@ -7,8 +7,10 @@ import org.ltc.hitalk.parser.*;
 import org.ltc.hitalk.term.ITerm;
 
 import java.io.IOException;
+import java.util.Deque;
 
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
+import static org.ltc.hitalk.parser.PlToken.TokenKind.TK_DOT;
 
 /**
  *
@@ -20,6 +22,11 @@ public class LibParser implements IParser {
     protected HtPrologParser parser = getAppContext().getParser();
 
     public LibParser() throws Exception {
+    }
+
+    @Override
+    public Deque<PlLexer> getTokenSourceStack() {
+        return parser.getTokenSourceStack();
     }
 
     /**
@@ -73,8 +80,15 @@ public class LibParser implements IParser {
      * @return
      */
     @Override
-    public ITerm parse () throws Exception {
+    public ITerm parse() throws Exception {
         return parser.termSentence();
+    }
+
+    /**
+     * @return
+     */
+    public PlLexer getTokenSource() {
+        return parser.getTokenSource();
     }
 
     /**
@@ -86,10 +100,11 @@ public class LibParser implements IParser {
     }
 
     /**
+     * @param rdelim
      * @return
      * @throws IOException
      */
-    public ITerm expr() throws Exception {
+    public ITerm expr(PlToken.TokenKind rdelim) throws Exception {
         return null;
     }
 
@@ -98,7 +113,7 @@ public class LibParser implements IParser {
      * @throws IOException
      */
     public ITerm next() throws Exception {
-        return parser.next();
+        return parser.expr(TK_DOT);
     }
 
     /**

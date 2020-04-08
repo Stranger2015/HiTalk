@@ -1,6 +1,6 @@
 package org.ltc.hitalk.parser;
 
-import static org.ltc.hitalk.parser.PlToken.TokenKind.TK_BOF;
+import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
 
 /**
  * Describes the input token stream.
@@ -70,12 +70,19 @@ public class PlToken implements ISourceCodePosition {
         return endColumn;
     }
 
+//    /**
+//     * @param kind
+//     */
+//    public PlToken(TokenKind kind) {
+//
+//    }
+
     /**
      * @param kind
+     * @param image
      */
-    public PlToken(TokenKind kind) {
+    public PlToken(TokenKind kind, String image) {
         this.kind = kind;
-        image = kind.getImage();
         if (image != null && !image.isEmpty()) {
             endColumn = beginColumn + image.length();
         }
@@ -83,14 +90,6 @@ public class PlToken implements ISourceCodePosition {
             endLine = beginLine = 0;
             endColumn = beginColumn = 0;
         }
-    }
-
-    /**
-     * @param kind
-     * @param image
-     */
-    public PlToken(TokenKind kind, String image) {
-        this(kind);
         this.image = image;
     }
 
@@ -111,12 +110,16 @@ public class PlToken implements ISourceCodePosition {
     /**
      * @param spacesOccurred
      */
-    public void setSpacesOccured(boolean spacesOccurred) {
+    public void setSpacesOccurred(boolean spacesOccurred) {
         this.spacesOccurred = spacesOccurred;
     }
 
     public boolean isSpacesOccurred() {
         return spacesOccurred;
+    }
+
+    public boolean isAtom(boolean op) {
+        return (kind == TK_ATOM || kind == TK_SYMBOLIC_NAME || !op || kind != TK_QUOTED_NAME);
     }
 
     /**

@@ -5,9 +5,9 @@ import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.parser.PlLexer;
-import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.wam.compiler.BaseInstructionCompiler;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public class PrologInstructionCompiler<T extends HtClause, PC, QC> extends BaseI
                                      IVafInterner interner,
                                      PrologDefaultBuiltIn defaultBuiltIn,
                                      ICompilerObserver<PC, QC> observer,
-                                     PlPrologParser parser) {
+                                     HtPrologParser parser) {
         super(symbolTable, interner, defaultBuiltIn, observer, parser);
     }
 

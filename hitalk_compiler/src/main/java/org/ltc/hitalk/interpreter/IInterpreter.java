@@ -7,8 +7,8 @@ import org.ltc.hitalk.core.IConfigurable;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.parser.HtSourceCodeException;
-import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.parser.PlToken;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
@@ -36,7 +36,7 @@ public interface IInterpreter<T extends HtClause, P, Q> extends IConfigurable/*,
     /**
      * @return
      */
-    PlPrologParser getParser ();
+    HtPrologParser getParser();
 
     /**
      * @throws IOException
@@ -82,31 +82,31 @@ public interface IInterpreter<T extends HtClause, P, Q> extends IConfigurable/*,
 //                    ITokenSource tokenSource = ITokenSource.getITokenSourceForString(line, lineNo);
 //                    getParser().setTokenSource(tokenSource);
 
-                PlPrologParser.Directive directive = getParser().peekAndConsumeDirective();
+//                HtPrologParser.Directive directive = getParser().peekAndConsumeDirective();
 
-                if (directive != null) {
-                    switch (directive) {
-                        case Trace:
-                            /*log.fine("Got trace directive.");*/
-                            break;
-                        case Info:
-                            /*log.fine("Got info directive.");*/
-                            break;
-                        case User:
-                            /*log.fine("Got user directive, entering program getMode().");*/
-                            mode = Mode.Program;
-                            break;
-                    }
-                    inputLines.clear();
-                    continue;
-                }
+//                if (directive != null) {
+//                    switch (directive) {
+//                        case Trace:
+//                            /*log.fine("Got trace directive.");*/
+//                            break;
+//                        case Info:
+//                            /*log.fine("Got info directive.");*/
+//                            break;
+//                        case User:
+//                            /*log.fine("Got user directive, entering program getMode().");*/
+//                            mode = Mode.Program;
+//                            break;
+//                    }
+                inputLines.clear();
+                continue;
+            }
             }
 
             // For normal queries, the query functor '?-' begins every statement, this is not passed back from
             // JLine even though it is used as the command prompt.
             if (getMode() == Mode.Query) {
-                line = getQueryPrompt() + line;
-                inputLines.set(inputLines.size() - 1, line);
+//                line = getQueryPrompt() + line;
+//                inputLines.set(inputLines.size() - 1, line);
             }
 
             // Buffer input tokens until EOL is reached, of the input is terminated with a PERIOD.
@@ -152,7 +152,7 @@ public interface IInterpreter<T extends HtClause, P, Q> extends IConfigurable/*,
 //                    inputLines.clear();
 //                }
         }
-    }
+//    }
 
     /**
      * @param clause

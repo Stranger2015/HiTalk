@@ -8,8 +8,8 @@ import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.parser.HtSourceCodeException;
-import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.HtMethod;
 import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
@@ -41,8 +41,8 @@ public class HiTalkPreprocessor<T extends HtMethod, P, Q, TT extends TransformTa
     }
 
     protected ICompilerObserver <P, Q> observer;
-    protected List <T> preCompiledTarget;
-    protected PlPrologParser parser;
+    protected List<T> preCompiledTarget;
+    protected HtPrologParser parser;
 
     /**
      * Creates a base machine over the specified symbol table.
@@ -56,7 +56,7 @@ public class HiTalkPreprocessor<T extends HtMethod, P, Q, TT extends TransformTa
                               PrologBuiltInTransform<T, P, Q> builtInTransform,
                               PrologDefaultBuiltIn defaultBuiltIn,
                               IResolver<HtPredicate, HtClause> resolver,
-                              PlPrologParser parser)
+                              HtPrologParser parser)
             throws LinkageException {
 
         super(symbolTable, interner, builtInTransform, defaultBuiltIn, resolver, parser);

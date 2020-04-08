@@ -9,8 +9,8 @@ import static org.ltc.hitalk.parser.Directive.DirectiveKind.*;
 import static org.ltc.hitalk.parser.HtPrologParser.MAX_PRIORITY;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.TK_BOF;
 import static org.ltc.hitalk.parser.PlToken.newToken;
-import static org.ltc.hitalk.term.IdentifiedTerm.Associativity;
-import static org.ltc.hitalk.term.IdentifiedTerm.Associativity.x;
+import static org.ltc.hitalk.term.OpSymbolFunctor.Associativity;
+import static org.ltc.hitalk.term.OpSymbolFunctor.Associativity.x;
 
 /**
  *
@@ -22,6 +22,10 @@ public class StateRecord {
     protected int currPriority = MAX_PRIORITY;
     protected PlToken token = newToken(TK_BOF);
 
+    public ParserState getState() {
+        return state;
+    }
+
     public StateRecord(ParserState state,
                        EnumSet<Associativity> assocs,
                        EnumSet<DirectiveKind> dks,
@@ -32,10 +36,6 @@ public class StateRecord {
         this.dks = dks;
         this.currPriority = currPriority;
         this.token = token;
-    }
-
-    public ParserState getParserState() {
-        return state;
     }
 
     public EnumSet<Associativity> getAssocs() {
@@ -52,5 +52,16 @@ public class StateRecord {
 
     public PlToken getToken() {
         return token;
+    }
+
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("StateRecord{");
+        sb.append("state=").append(state);
+        sb.append(", assocs=").append(assocs);
+        sb.append(", dks=").append(dks);
+        sb.append(", currPriority=").append(currPriority);
+        sb.append(", token=").append(token);
+        sb.append('}');
+        return sb.toString();
     }
 }

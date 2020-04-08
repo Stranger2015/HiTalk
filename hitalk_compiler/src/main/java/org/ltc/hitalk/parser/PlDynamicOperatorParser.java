@@ -20,9 +20,9 @@ import com.thesett.common.util.StackQueue;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.term.CandidateOperator;
 import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.term.IdentifiedTerm;
-import org.ltc.hitalk.term.IdentifiedTerm.Associativity;
-import org.ltc.hitalk.term.IdentifiedTerm.Fixity;
+import org.ltc.hitalk.term.OpSymbolFunctor;
+import org.ltc.hitalk.term.OpSymbolFunctor.Associativity;
+import org.ltc.hitalk.term.OpSymbolFunctor.Fixity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +31,7 @@ import java.util.stream.IntStream;
 
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
-import static org.ltc.hitalk.term.IdentifiedTerm.Fixity.*;
+import static org.ltc.hitalk.term.OpSymbolFunctor.Fixity.*;
 
 /**
  * PlDynamicOperatorParser is a 'deferred decision parser' that can be used to parse Prolog with dynamically defined
@@ -172,7 +172,7 @@ import static org.ltc.hitalk.term.IdentifiedTerm.Fixity.*;
  * non-associative then the choice is ambigious so an error is reported.
  * <p>
  * <p/>The parser is further complicated by the fact that operators can be overloaded in Prolog. This means that each
- * {@link CandidateOperator} encountered can map onto multiple {@link IdentifiedTerm} definitions and a choice as to which one
+ * {@link CandidateOperator} encountered can map onto multiple {@link OpSymbolFunctor} definitions and a choice as to which one
  * is used must be made in the context of the position in which is encountered. Consider the following sequences of
  * symbols when and operator/operator conflict is encountered:
  *
@@ -183,7 +183,7 @@ import static org.ltc.hitalk.term.IdentifiedTerm.Fixity.*;
  * <p/>Where alpha and beta are sequences of symbols, possibly empty. Now consider for the empty or non-empty values of
  * alpha and beta, what fixities of operator are possible for OpA and OpB. Note that OpA and OpB must be prefix,
  * postfix, or infix and cannot be an constant atom, because operators as constant atoms must be bracketed in ISO
- * Prolog, and will therefore have already been resolved from a {@link CandidateOperator} to an {@link IdentifiedTerm}.
+ * Prolog, and will therefore have already been resolved from a {@link CandidateOperator} to an {@link OpSymbolFunctor}.
  *
  * <pre><p/><table><caption>Possibly Fixity Combinations</caption>
  * <tr><td> alpha = not_empty, beta = not_empty <td> (OpA = in, OpB = post) or (OpA = in, OpB = in)
@@ -206,7 +206,7 @@ import static org.ltc.hitalk.term.IdentifiedTerm.Fixity.*;
  * <tr><td> Add new operators to the table following ISO Prolog rules.
  * <tr><td> Find all candidate operators matching a given name.
  * <tr><td> Parse sequences of terms and candidate operators using ISO Prolog rules.
- *     <td> {@link ITerm}, {@link CandidateOperator}, {@link IdentifiedTerm}.
+ *     <td> {@link ITerm}, {@link CandidateOperator}, {@link OpSymbolFunctor}.
  * </table></pre>
  *
  * @author Rupert Smith
@@ -223,12 +223,12 @@ public class PlDynamicOperatorParser implements IOperatorTable {
      */
     private enum Symbol {
         /**
-         * A term which is not a {@link CandidateOperator}. It may be a previously resolved {@link IdentifiedTerm} though.
+         * A term which is not a {@link CandidateOperator}. It may be a previously resolved {@link OpSymbolFunctor} though.
          */
         Term,
 
         /**
-         * A symbol which is a {@link CandidateOperator} to be resovled onto an {@link IdentifiedTerm}.
+         * A symbol which is a {@link CandidateOperator} to be resovled onto an {@link OpSymbolFunctor}.
          */
         Op,
 
@@ -343,7 +343,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
     /**
      * Holds the table of defined operators by name and fixity.
      */
-    private final Map<String, EnumMap<Fixity, IdentifiedTerm>> operators = new HashMap<>();
+    private final Map<String, EnumMap<Fixity, OpSymbolFunctor>> operators = new HashMap<>();
 
     /**
      * Parses a flat list of terms, which are literals, variables, functors, or operators into a tree in such a way that
@@ -406,11 +406,11 @@ public class PlDynamicOperatorParser implements IOperatorTable {
         // Check that the priority of the operator is valid.
         if (priority > 0 && (priority <= 1200)) {
 
-            IdentifiedTerm opSymbol = new IdentifiedTerm(name, textName, associativity, priority);
+            OpSymbolFunctor opSymbol = new OpSymbolFunctor(name, textName, associativity, priority);
 
             // Consult the defined operators to see if there are any already defined that match the name of the
             // new definition, otherwise a map of operators by fixity needs to be created.
-            EnumMap<Fixity, IdentifiedTerm> operatorMap = operators.get(textName);
+            EnumMap<Fixity, OpSymbolFunctor> operatorMap = operators.get(textName);
 
             // Check if the priority is non-zero in which case the operator is being added or redefined.
             if (operatorMap == null) {
@@ -449,8 +449,8 @@ public class PlDynamicOperatorParser implements IOperatorTable {
      * @param name The interned name of the operator to find.
      * @return An array of matching operators, or <tt>null</tt> if none can be found.
      */
-    public Map<Fixity, IdentifiedTerm> getOperatorsMatchingNameByFixity(String name) {
-        final EnumMap<Fixity, IdentifiedTerm> map = operators.get(name);
+    public Map<Fixity, OpSymbolFunctor> getOperatorsMatchingNameByFixity(String name) {
+        final EnumMap<Fixity, OpSymbolFunctor> map = operators.get(name);
         return map == null ? Collections.emptyMap() : map;
     }
 
@@ -459,9 +459,25 @@ public class PlDynamicOperatorParser implements IOperatorTable {
      * @return
      */
     @Override
-    public Set<IdentifiedTerm> getOperators(String s) {
-        final Map<Fixity, IdentifiedTerm> map = getOperatorsMatchingNameByFixity(s);
+    public Set<OpSymbolFunctor> getOperators(String s) {
+        final Map<Fixity, OpSymbolFunctor> map = getOperatorsMatchingNameByFixity(s);
         return new HashSet<>(map.values());
+    }
+
+    /**
+     * @param name
+     * @param associativity
+     * @param priority
+     * @return
+     */
+    public Set<OpSymbolFunctor> getOperators(String name, Associativity associativity, int priority) {
+        Set<OpSymbolFunctor> ops = new HashSet<>();
+        for (OpSymbolFunctor operator : getOperators(name)) {
+            if (operator.getAssociativity() == associativity && operator.getPriority() == priority) {
+                ops.add(operator);
+            }
+        }
+        return ops;
     }
 
     /**
@@ -471,12 +487,12 @@ public class PlDynamicOperatorParser implements IOperatorTable {
      */
     @Override
     public int getPriority(String image, Associativity associativity) {
-        IdentifiedTerm symbol = filter(getOperators(image), associativity);
+        OpSymbolFunctor symbol = filter(getOperators(image), associativity);
         return symbol == null ? -1 : symbol.getPriority();
     }
 
-    private IdentifiedTerm filter(Set<IdentifiedTerm> operators, Associativity associativity) {
-        for (IdentifiedTerm symbol : operators) {
+    private OpSymbolFunctor filter(Set<OpSymbolFunctor> operators, Associativity associativity) {
+        for (OpSymbolFunctor symbol : operators) {
             if (symbol.getAssociativity() == associativity) {
                 return symbol;
             }
@@ -485,8 +501,8 @@ public class PlDynamicOperatorParser implements IOperatorTable {
         return null;
     }
 
-    IdentifiedTerm getOperator(String name, Associativity associativity) {
-        for (IdentifiedTerm op : getOperators(name)) {
+    OpSymbolFunctor getOperator(String name, Associativity associativity) {
+        for (OpSymbolFunctor op : getOperators(name)) {
             if (op.getAssociativity() == associativity) {
                 return op;
             }
@@ -516,9 +532,9 @@ public class PlDynamicOperatorParser implements IOperatorTable {
      * @param fixities  The possible fixities to resolve the symbol to.
      * @return The candidate operator resolved to an actual operator.
      */
-    protected static IdentifiedTerm checkAndResolveToFixity(CandidateOperator candidate, Fixity... fixities)
+    protected static OpSymbolFunctor checkAndResolveToFixity(CandidateOperator candidate, Fixity... fixities)
             throws HtSourceCodeException {
-        IdentifiedTerm result = null;
+        OpSymbolFunctor result = null;
 
         for (Fixity fixity : fixities) {
             result = candidate.getPossibleOperators().get(fixity);
@@ -618,7 +634,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
 
     /**
      * ResolveAction decides a shift-reduce conflict between a pair of {@link CandidateOperator}s. The resolution
-     * procedure is as described in the class level comment for {@link com.thesett.aima.logic.fol.isoprologparser.DynamicOperatorParser}.
+     * procedure is as described in the class level comment for ///{}.
      */
     private class ResolveAction extends Action {
         /**
@@ -694,8 +710,8 @@ public class PlDynamicOperatorParser implements IOperatorTable {
 
             // Based on the form of the symbol sequence preceding the next symbol, work out which combination
             // of operator fixities in uniquely possible, and resolve the candidate operators onto that combination.
-            IdentifiedTerm lastOp;
-            IdentifiedTerm nextOp;
+            OpSymbolFunctor lastOp;
+            OpSymbolFunctor nextOp;
 
             if (alpha && beta) {
                 lastOp = checkAndResolveToFixity(lastCandidate, In);
@@ -825,7 +841,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
             ITerm t = outputStack.poll();
             CandidateOperator candidate = (CandidateOperator) outputStack.poll();
 
-            IdentifiedTerm op = checkAndResolveToFixity(candidate, Pre);
+            OpSymbolFunctor op = checkAndResolveToFixity(candidate, Pre);
 
             // Clone the operator symbol from the operator table before adding the unique source code position and
             // argument for this symbol instance.
@@ -865,7 +881,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
             CandidateOperator candidate = (CandidateOperator) outputStack.poll();
             ITerm t = outputStack.poll();
 
-            IdentifiedTerm op = checkAndResolveToFixity(candidate, Post);
+            OpSymbolFunctor op = checkAndResolveToFixity(candidate, Post);
 
             // Clone the operator symbol from the operator table before adding the unique source code position and
             // argument for this symbol instance.
@@ -903,7 +919,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
             CandidateOperator candidate = (CandidateOperator) outputStack.poll();
             ITerm t2 = outputStack.poll();
 
-            IdentifiedTerm op = checkAndResolveToFixity(candidate, In);
+            OpSymbolFunctor op = checkAndResolveToFixity(candidate, In);
 
             // Clone the operator symbol from the operator table before adding the unique source code position and
             // argument for this symbol instance.

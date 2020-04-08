@@ -3,8 +3,8 @@ package org.ltc.hitalk.term.io;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.entities.IProperty;
 import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.term.IdentifiedTerm;
 import org.ltc.hitalk.term.ListTerm;
+import org.ltc.hitalk.term.OpSymbolFunctor;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.io.FileNotFoundException;
@@ -103,7 +103,7 @@ public class HtTermWriter extends HtTermIO {
             if (f.getArity() != arity) {
                 throw new ExecutionError(REPRESENTATION_ERROR, interner.getDeinternedFunctorName(f.getName()));
             }
-            final Set<IdentifiedTerm> ops = getAppContext().getOpTable().getOperators(name);
+            final Set<OpSymbolFunctor> ops = getAppContext().getOpTable().getOperators(name);
             if (ops.isEmpty()) {
                 //working withn operator
             }

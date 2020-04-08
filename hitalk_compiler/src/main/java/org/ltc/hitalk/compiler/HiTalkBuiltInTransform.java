@@ -15,7 +15,6 @@
   */
  package org.ltc.hitalk.compiler;
 
- import com.thesett.aima.logic.fol.Term;
  import com.thesett.aima.logic.fol.wam.builtins.BuiltInFunctor;
  import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
  import org.ltc.hitalk.core.IResolver;
@@ -84,7 +83,7 @@
      private HtEntityIdentifier entityCompiling;
      private IRelation lastRelation;
      private DirectiveClause lastDirective;
-     private Term lastTerm;
+     private ITerm lastTerm;
 
      protected final AtomicInteger objectCounter = new AtomicInteger(0);
      protected final AtomicInteger categoryCounter = new AtomicInteger(0);
@@ -1108,7 +1107,7 @@
          return lastRelation;
      }
 
-     public Term getLastTerm () {
+     public ITerm getLastTerm() {
          return lastTerm;
      }
  }

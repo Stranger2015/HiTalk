@@ -5,13 +5,12 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.parser.Directive.DirectiveKind;
 import org.ltc.hitalk.parser.PlToken.TokenKind;
-import org.ltc.hitalk.parser.handlers.*;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.term.IdentifiedTerm;
-import org.ltc.hitalk.term.IdentifiedTerm.Associativity;
-import org.ltc.hitalk.term.IdentifiedTerm.Fixity;
 import org.ltc.hitalk.term.ListTerm;
+import org.ltc.hitalk.term.OpSymbolFunctor;
+import org.ltc.hitalk.term.OpSymbolFunctor.Associativity;
+import org.ltc.hitalk.term.OpSymbolFunctor.Fixity;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.IFunctor;
@@ -20,59 +19,65 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.EOFException;
-import java.io.IOException;
-import java.util.List;
 import java.util.*;
 
 import static java.util.EnumSet.of;
 import static org.ltc.hitalk.core.BaseApp.appContext;
-import static org.ltc.hitalk.core.BaseApp.getAppContext;
-import static org.ltc.hitalk.core.utils.TermUtilities.convertToClause;
 import static org.ltc.hitalk.parser.Directive.DirectiveKind.*;
-import static org.ltc.hitalk.parser.ParserState.*;
+import static org.ltc.hitalk.parser.PlLexer.getPlLexerForString;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
-import static org.ltc.hitalk.parser.PlToken.newToken;
 import static org.ltc.hitalk.parser.PrologAtoms.*;
-import static org.ltc.hitalk.parser.handlers.ParserStateHandler.create;
-import static org.ltc.hitalk.term.IdentifiedTerm.Associativity.*;
+import static org.ltc.hitalk.term.OpSymbolFunctor.Associativity.*;
 import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
 
 /**
  *
  */
-public class HtPrologParser implements IParser, IStateHandler {
+public class HtPrologParser implements IParser {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
-    ParserState state = EXPR_AN;
 
-    private boolean isEndOfTerm(TokenKind tokenKind) {
-        return tokenKind == TK_DOT ||
-                parentheses == 0 && brackets == 0 && braces == 0 &&
-                        squotes % 2 == 0 && dquotes % 2 == 0 && bquotes % 2 == 0;
+    protected ListTerm listTerm = new ListTerm(0);
+    protected EnumSet<Associativity> assocs = of(x);
+    protected EnumSet<DirectiveKind> dks = of(DK_IF, DK_ENCODING, DK_HILOG);
+
+    public boolean isEndOfTerm(TokenKind tokenKind) {
+        return tokenKind == TK_DOT && isEndOfTerm();
     }
 
-    private PlToken token;
-    public Deque<IStateHandler> states = new ArrayDeque<>();
+    protected boolean isEndOfTerm() {
+        return (parentheses == 0) && (brackets == 0) && (braces == 0) &&
+                ((squotes % 2) == 0) && ((dquotes % 2) == 0) && ((bquotes % 2) == 0);
+    }
+
+    protected PlToken token;
 
     public static final String BEGIN_OF_FILE_STRING = "begin_of_file";
     public static final String END_OF_FILE_STRING = "end_of_file";
-    public static final IdentifiedTerm END_OF_FILE = new IdentifiedTerm(END_OF_FILE_STRING);
-    public static final IdentifiedTerm BEGIN_OF_FILE = new IdentifiedTerm(BEGIN_OF_FILE_STRING);
+    public static final IFunctor END_OF_FILE = new OpSymbolFunctor(END_OF_FILE_STRING);
+    public static final IFunctor BEGIN_OF_FILE = new OpSymbolFunctor(BEGIN_OF_FILE_STRING);
     public static final String ANONYMOUS = "_";
 
-    protected static final int MAX_PRIORITY = 1200;
+    public static final int MAX_PRIORITY = 1200;
     public static final int MIN_PRIORITY = 0;
+
+    @Override
+    public Deque<PlLexer> getTokenSourceStack() {
+        return tokenSourceStack;
+    }
 
     protected final Deque<PlLexer> tokenSourceStack = new ArrayDeque<>();
 
     protected IOperatorTable operatorTable;
     protected IVafInterner interner;
     protected ITermFactory termFactory;
+    protected Map<ITerm, Integer> offsetsMap;
+    protected int tokenStart;
 
     /**
      * Holds the variable scoping context for the current sentence.
      */
     protected Map<Integer, HtVariable> variableContext = new HashMap<>();
-    protected IdentifiedTerm operator;
+    protected OpSymbolFunctor operator;
 
     protected ITerm lastTerm;
 
@@ -85,7 +90,6 @@ public class HtPrologParser implements IParser, IStateHandler {
     protected int bquotes;
 
     protected int currPriority;
-    protected IStateHandler handler;
 
     /**
      * @param inputStream
@@ -103,19 +107,6 @@ public class HtPrologParser implements IParser, IStateHandler {
         this.operatorTable = optable;
     }
 
-
-    /**
-     *
-     */
-    public HtPrologParser() throws Exception {
-        this(
-                getAppContext().getInputStream(),
-                getAppContext().getInterner(PROLOG.getNameSpace("Variables", "Functors")),
-                getAppContext().getTermFactory(),
-                getAppContext().getOpTable()
-        );
-    }
-
     /**
      * int arity = calcArity(assoc);
      *
@@ -124,7 +115,7 @@ public class HtPrologParser implements IParser, IStateHandler {
      * @param assoc
      */
     public void setOperator(String operatorName, int priority, Associativity assoc) {
-        Map<Fixity, IdentifiedTerm> ops = operatorTable.getOperatorsMatchingNameByFixity(operatorName);
+        Map<Fixity, OpSymbolFunctor> ops = operatorTable.getOperatorsMatchingNameByFixity(operatorName);
         if (ops == null || ops.isEmpty()) {
             int name = interner.internFunctorName(operatorName, assoc.arity);
             operatorTable.setOperator(name, operatorName, priority, assoc);
@@ -147,7 +138,7 @@ public class HtPrologParser implements IParser, IStateHandler {
      * @param priority     The priority of the operator, zero unsets it.
      * @param assoc        The operators assoc.
      */
-    void op(String operatorName, int priority, Associativity assoc) {
+    protected void op(String operatorName, int priority, Associativity assoc) {
         int arity;
         if ((assoc == xfy) || (assoc == yfx) || (assoc == xfx)) {
             arity = 2;
@@ -173,133 +164,71 @@ public class HtPrologParser implements IParser, IStateHandler {
     /**
      * @return
      */
-    public boolean isPushed() {
-        return false;
-    }
-
-    /**
-     * @return
-     */
     public HtPrologParser getParser() {
-        return null;
-    }
-
-    /**
-     * @return
-     */
-    public StateRecord getStateRecord() {
-        return null;
-    }
-
-    /**
-     * @param handler
-     */
-    public void push(IStateHandler handler) {
-
-    }
-
-    /**
-     * @return
-     */
-    public IStateHandler pop() {
-        return null;
-    }
-
-    public IStateHandler handleState(StateRecord sr) throws Exception {
-        return null;
-    }
-
-    public void doPrepareState(StateRecord sr) throws Exception {
-
-    }
-
-    public void doCompleteState(StateRecord sr) throws Exception {
-
-    }
-
-    /**
-     * @return
-     */
-    public ParserState getParserState() {
-        return null;
+        return this;
     }
 
     /**
      * @return
      */
     public EnumSet<Associativity> getAssocs() {
-        return null;
-    }
-
-    @Override
-    public void setCurrPriority(int currPriority) {
-
-    }
-
-    @Override
-    public void setToken(PlToken token) {
-
-    }
-
-    @Override
-    public void setDks(EnumSet<DirectiveKind> dks) {
-
+        return assocs;
     }
 
     /**
      * @return
      */
     public int getCurrPriority() {
-        return 0;
+        return currPriority;
     }
 
     /**
      * @return
      */
     public EnumSet<DirectiveKind> getDks() {
-        return null;
+        return dks;
     }
 
     /**
      * @return
      */
     public PlToken getToken() {
-        return null;
+        return token;
     }
 
     /**
      * @return
      */
     public IVafInterner getInterner() {
-        return null;
+        return interner;
     }
 
     /**
      * @param interner
      */
     public void setInterner(IVafInterner interner) {
-
+        this.interner = interner;
     }
 
     /**
      * @return
      */
     public ITermFactory getFactory() {
-        return null;
+        return termFactory;
     }
 
     /**
      * @return
      */
     public IOperatorTable getOptable() {
-        return null;
+        return operatorTable;
     }
 
     /**
      * @param optable
      */
     public void setOptable(IOperatorTable optable) {
-
+        operatorTable = optable;
     }
 
     /**
@@ -314,7 +243,17 @@ public class HtPrologParser implements IParser, IStateHandler {
      * @throws HtSourceCodeException
      */
     public ITerm parse() throws Exception {
-        return null;
+        return termSentence();
+    }
+
+    /**
+     * @return
+     */
+    public PlLexer getTokenSource() {
+        if (!tokenSourceStack.isEmpty()) {
+            return tokenSourceStack.peek();
+        }
+        throw new IllegalStateException();
     }
 
     /**
@@ -341,7 +280,6 @@ public class HtPrologParser implements IParser, IStateHandler {
                 GREATER,
                 IDENTICAL,
                 NON_IDENTICAL,
-
                 EQ_BSLASH_EQ,
                 EQ_COLON_EQ,
                 LESS,
@@ -400,14 +338,14 @@ public class HtPrologParser implements IParser, IStateHandler {
 
         // Intern all built in names.
 
-        interner.internFunctorName(NIL, 0);
+        interner.internFunctorName(PrologAtoms.NIL, 0);
         interner.internFunctorName(TRUE, 0);
         interner.internFunctorName(FAIL, 0);
         interner.internFunctorName(FALSE, 0);
         interner.internFunctorName(CUT, 0);
     }
 
-    // * BNF part 2: Parser
+// * BNF part 2: Parser
     //================================================================================================================
     //   term ::=
     //      exprA(1200)
@@ -416,7 +354,7 @@ public class HtPrologParser implements IParser, IStateHandler {
     //      exprB(n) { op(yfx,n) exprA(n-1) | op(yf,n) }*
 //============================
     //  exprB(n) ::=
-    //      exprC(n-1) { op(xfx,n) exprA(n-1) | op(xfy,n) exprA(n) | op(xf,n) }*
+    //      exprC(n-1) { op(priorityXFX,n) exprA(n-1) | op(priorityXFY,n) exprA(n) | op(xf,n) }*
     //   // exprC is called parseLeftSide in the code
     //============================
     //  exprC(n) ::=
@@ -439,7 +377,7 @@ public class HtPrologParser implements IParser, IStateHandler {
     //============================
     // functorName ::= expr_A0
     // ============================
-    // args ;;= '(' sequence ')'
+    // args ::= '(' sequence ')'
     //----------------------------
     // list ::= '[' sequence ']'
 //===========================
@@ -449,11 +387,11 @@ public class HtPrologParser implements IParser, IStateHandler {
 //============================
 //     op(type,n) ::= atom | { symbol }+
 //============================
-//     sequence ::= [ heads tail ]
+//     sequence ::= [ heads "|" tail ]
 //============================
 //     heads ::= [ exprA(1200) { ',' exprA(1200) }* ]
 //============================
-//     tail ::=  [ '|' (variable | list) ]
+//     tail ::=  variable | list
 
     /**
      * //  expr_A0 ::=
@@ -473,575 +411,25 @@ public class HtPrologParser implements IParser, IStateHandler {
      * @param quote
      * @return
      */
-    private boolean options(TokenKind quote) {
+    protected boolean options(TokenKind quote) {
         return false;
     }
 
-    void setHandler(IStateHandler h) {
-        handler = h;
+    /**
+     * @param rdelim
+     * @return
+     * @throws EOFException
+     */
+    @Override
+    public ITerm expr(TokenKind rdelim) throws Exception {
+        return exprA(MAX_PRIORITY, rdelim);
     }
 
     /**
      * @return
-     * @throws Exception
      */
-    @Override
-    public ITerm expr() throws Exception {
-        IStateHandler handler = buildStates(null);
-        return evalStates(handler);
-    }
-
-    private ITerm evalStates(IStateHandler handler) {
-        return lastTerm;
-    }
-
-    private IStateHandler buildStates(IStateHandler handler) throws Exception {
-        lastTerm = BEGIN_OF_FILE;
-        handler = create(new ExprAn(
-                EXPR_AN,
-                of(yfx, yf),
-                of(DK_IF, DK_ENCODING, DK_HILOG),
-                MAX_PRIORITY,
-                newToken(TK_BOF)));
-        for (; handler != null; handler = getParser().doBuildStates(handler)) {
-//            token = getLexer().getToken(true);
-        }
-//        while (!states.isEmpty()){
-//           handler= states.pop();
-//           evalStates(handler);
-//
-//        }
-        return handler;
-    }
-
-    protected IStateHandler doBuildStates(IStateHandler handler) throws Exception {
-        PlToken token = getLexer().readToken(true);
-        Set<IdentifiedTerm> ops = (token.kind == TK_ATOM) ?
-                tryOperators(token.image, handler) :
-                Collections.emptySet();
-        for (IdentifiedTerm op : ops) {
-            if (op.getPriority() == handler.getCurrPriority()) {
-                switch (op.getAssociativity()) {
-                    case fx:
-                        create(new ExprAn(
-                                EXPR_AN,
-                                of(fx),
-                                handler.getDks(),
-                                handler.getCurrPriority() - 1,
-                                token));
-                        break;
-                    case fy:
-                        create(new ExprAn(
-                                EXPR_AN,
-                                of(fx),
-                                handler.getDks(),
-                                handler.getCurrPriority(),
-                                token));
-                        break;
-                    case hx:
-                        create(new ExprAn(
-                                EXPR_AN,
-                                of(hx),
-                                handler.getDks(),
-                                handler.getCurrPriority() - 1,
-                                token));
-                        break;
-                    case hy:
-                        create(new ExprC(
-                                EXPR_C,
-                                of(hy),
-                                handler.getDks(),
-                                handler.getCurrPriority(),
-                                token));
-                        break;
-                    default:
-                        throw new IllegalStateException("Unexpected value: " + op.getAssociativity());
-                }
-            }
-            lastTerm = op;
-        }
-        return handler;
-    }
-
-//    sethandler()//    public boolean isOperator(PlToken token) {
-//        return false;
-//    }
-
-    /*
-     * exprA(n) ::=
-     * exprB(n) { op(yfx,n) exprA(n-1) | op(yf,n) }*
-     * //============================
-     * //  exprB(n) ::=
-     * //      exprC(n-1) { op(xfx,n) exprA(n-1) | op(xfy,n) exprA(n) | op(xf,n) }*
-     * //   // exprC is called parseLeftSide in the code
-     * //============================
-     * //  exprC(n) ::=
-     * //      '-' integer | '-' float |
-     * //      op( fx,n ) exprA(n-1) |
-     * //      op( hx,n ) exprA(n-1) |
-     * //      op( fy,n ) exprA(n) |
-     * //      op( hy,n ) exprA(n) |
-     * //                 exprA(n)
-     * //=================================================================================================================
-     * //  expr_A0 ::=
-     * //      integer |
-     * //      float |
-     * //      atom |
-     * //      variable |
-     * //      list     |
-     * //      functor
-     * //============================
-     * // functor ::= functorName args
-     * //============================
-     * // functorName ::= expr_A0
-     * // ============================
-     * // args ;;= '(' sequence ')'
-     * //----------------------------
-     * // list ::= '[' sequence ']'
-     * //===========================
-     * //     block ::= '('  { exprA(1200) }* ')'  //block
-     * //============================
-     * //     bypass_blk ::= '{' { exprA(1200) }* '}'
-     * //============================
-     * //     op(type,n) ::= atom | { symbol }+
-     * //============================
-     * //     sequence ::= [ heads tail ]
-     * //============================
-    public ITerm handler(String prefix, PlToken token) {
-        final ITerm result;
-        if (token.kind == TK_INTEGER_LITERAL || token.kind == TK_FLOATING_POINT_LITERAL) {
-            result = termFactory.createNumber(prefix + token.image);
-        } else {
-            throw new ParserException("Bad number " + token);
-        }
-        return result;
-    }
-
-// * This class defines a parser of prolog terms and sentences.
-
-//    /**
-//     * Parses next term from the stream built on string.
-//     *
-//     * @param endNeeded <tt>true</tt> if it is required to parse the end token
-//     *                  (a period), <tt>false</tt> otherwise.
-//     */
-//    public ITerm nextTerm(boolean valued, boolean endNeeded) throws Exception {
-//        PlToken t = getLexer().readToken(valued);
-//        if (t.kind == TK_BOF) {
-//            return BEGIN_OF_FILE;
-//        }
-//        if (t.kind == TK_EOF) {//error!!!!!!!!!!
-//            popTokenSource();
-//            return END_OF_FILE;
-//        }
-//        //    getLexer().unreadToken(t);
-//        ITerm term = expr(EnumSet.of(TK_DOT));
-//        if (term == END_OF_FILE) {
-//            return term;
-//        }
-//        if (endNeeded && getLexer().readToken(valued).kind != TK_DOT) {
-//            throw new ParserException("The term " + term + " is not ended with a period.");
-//        }
-//
-//        return term;
-//    }
-//
-//    protected IdentifiedTerm exprA(int maxPriority, EnumSet<TokenKind> delims) throws Exception {
-//        IdentifiedTerm leftSide = exprB(maxPriority, delims);
-//        if (leftSide == END_OF_FILE) {
-//            return leftSide;
-//        }
-//        //{op(yfx,n) exprA(n-1) | op(yf,n)}*
-//        PlToken t = getLexer().readToken(true);
-//        for (; isOperator(t, delims); t = getLexer().readToken(true)) {
-//            int priorityYFX = this.getOptable().getPriority(t.image, yfx);
-//            int YF = this.getOptable().getPriority(t.image, yf);
-//            //YF and priorityYFX has a higher priority than the left side expr and less then top limit
-//            // if (YF < leftSide.getPriority() && YF > PlDynamicOperatorOP_HIGH) YF = -1;
-//            if (YF < leftSide.getPriority() || YF > maxPriority) {
-//                YF = -1;
-//            }
-//            // if (priorityYFX < leftSide.getPriority() && priorityYFX > PlDynamicOperatorOP_HIGH) priorityYFX = -1;
-//            if (priorityYFX < leftSide.getPriority() || priorityYFX > maxPriority) {
-//                priorityYFX = -1;
-//            }
-//            //priorityYFX has getPriority() over YF
-//            if (priorityYFX >= YF && priorityYFX >= MIN_PRIORITY) {
-//                IdentifiedTerm ta = exprA(priorityYFX - 1, delims);
-//                if (ta != null) {
-//                    leftSide = new IdentifiedTerm(
-//                            t.image,
-//                            yfx,
-//                            priorityYFX,
-//                            leftSide.getResult(),
-//                            ta.getResult());
-//                    continue;
-//                }
-//            }
-//            //either YF has priority over priorityYFX or priorityYFX failed
-//            if (YF >= MIN_PRIORITY) {
-//                leftSide = new IdentifiedTerm(
-//                        t.image,
-//                        yf,
-//                        YF,
-//                        leftSide.getResult());
-//                continue;
-//            }
-//            break;
-//        }
-////        getLexer().unreadToken(t);//todo ?????????
-//
-//        return leftSide;
-//    }
-//
-//    /**
-//     * @param maxPriority
-//     * @param delims
-//     * @return
-//     * @throws Exception
-//     */
-//    protected IdentifiedTerm exprB(int maxPriority, EnumSet<TokenKind> delims) throws Exception {
-//        //1. op(fx,n) exprA(n-1) | op(fy,n) exprA(n) | expr0
-//        IdentifiedTerm left = (IdentifiedTerm) parseLeftSide(delims, maxPriority);
-//        if (left == END_OF_FILE) {
-//            return left;
-//        }
-//        //2.left is followed by either xfx, xfy or xf operators, parse these
-//        PlToken token = getLexer().readToken(true);
-//        for (; isOperator(token, delims); token = getLexer().readToken(true)) {
-//            int priorityXFX = getOptable().getPriority(token.image, xfx);
-//            int priorityXFY = getOptable().getPriority(token.image, xfy);
-//            int priorityXF = getOptable().getPriority(token.image, xf);
-//            //check that no operator has a priority higher than permitted
-//            //or a lower priority than the left side expression
-//            if (priorityXFX > maxPriority || priorityXFX < MIN_PRIORITY) {
-//                priorityXFX = -1;
-//            }
-//            if (priorityXFY > maxPriority || priorityXFY < MIN_PRIORITY) {
-//                priorityXFY = -1;
-//            }
-//            if (priorityXF > maxPriority || priorityXF < MIN_PRIORITY) {
-//                priorityXF = -1;
-//            }
-//
-//            //priorityXFX
-//            boolean haveAttemptedXFX = false;
-//            if (priorityXFX >= priorityXFY && priorityXFX >= priorityXF && priorityXFX >= left.getPriority()) {     //priorityXFX has priority
-//                IdentifiedTerm found = exprA(priorityXFX - 1, delims);
-//                if (found != null) {
-//                    left = new IdentifiedTerm(
-//                            token.image,
-//                            xfx,
-//                            priorityXFX,
-//                            left.getResult(),
-//                            found.getResult());
-////                    continue;
-//                } else {
-//                    haveAttemptedXFX = true;
-//                }
-//            }
-//            //priorityXFY //priorityXFY has priority, or priorityXFX has failed
-//            if ((priorityXFY >= priorityXF) && (priorityXFY >= left.getPriority())) {
-//                IdentifiedTerm found = exprA(priorityXFY, delims);
-//                if (found != null) {
-//                    left = new IdentifiedTerm(
-//                            token.image,
-//                            xfy,
-//                            priorityXFY,
-//                            left.getResult(),
-//                            found.getResult());
-//                    continue;
-//                }
-//            } else //!!!!!!!!!!!
-//                //priorityXF      //priorityXF has priority, or priorityXFX and/or priorityXFY has failed
-//                if (priorityXF >= left.getPriority()) {
-//                    return new IdentifiedTerm(
-//                            token.image,
-//                            xf,
-//                            priorityXF,
-//                            left.getResult());
-//                }// else //!!!!!!!!!!!!!!!!!!
-////            continue;
-//            //2XFX did not have top priority, but priorityXFY failed
-//            if (!haveAttemptedXFX && priorityXFX >= left.getPriority()) {
-//                IdentifiedTerm found = exprA(priorityXFX - 1, delims);
-//                if (found != null) {
-//                    left = new IdentifiedTerm(
-//                            token.image,
-//                            xfx,
-//                            priorityXFX,
-//                            left.getResult(),
-//                            found.getResult());
-//                    continue;
-//                }
-//            }
-//            break;
-//        }
-//        // getLexer().unreadToken(token);
-//
-//        return left;
-//    }
-//
-//   //
-//
-//        popTokenSource();
-//        return END_OF_FILE;
-//    }
-////        throw new ParserException("The following token could not be identified: "+t1.image);
-//
-//    /**
-//     * @return
-//     * @throws Exception
-//     */
-//    protected ITerm expr0_list() throws Exception {
-//        return readSequence(LIST, rDelims);// ',' , '|' , ']'
-//    }
-//
-//    /**
-//     * @return
-//     * @throws Exception
-//     */
-//    protected ITerm expr0_arglist() throws Exception {
-//        return readSequence(ARGS, rDelims);//  ',' , '|' , ')'
-//    }
-//
-//    /**
-//     * @return
-//     * @throws Exception
-//     */
-//    protected ITerm expr0_block() throws Exception {
-//        return readSequence(BLOCK, EnumSet.of(TK_COMMA, TK_RPAREN));
-//    }
-//
-//    /**
-//     * @return
-//     * @throws Exception
-//     */
-//    protected ITerm expr0_bypass() throws Exception {
-//        return readSequence(BYPASS, rDelims);////  ',' , '|' , '}'
-//    }
-//
-//    /**
-//     * @param kind
-//     * @param rDelims
-//     * @return
-//     * @throws Exception
-//     */
-//    protected ITerm readSequence(ListTerm.Kind kind, EnumSet<TokenKind> rDelims) throws Exception {
-//        ITerm tail = NIL;
-//        List<ITerm> heads = new ArrayList<>();
-//        for (; ; ) {
-//            PlToken t = getLexer().readToken(true);
-//            if (rDelims.contains(t.kind)) {
-//                return new ListTerm(kind, heads, tail);
-//            } else {
-//                switch (t.kind) {
-//                    case TK_EOF:
-//                        throw new ExecutionError(SYNTAX_ERROR, new HtFunctorName("Premature EOF", -1));
-//                    case TK_LPAREN:
-//                        parentheses++;
-//                        lastTerm = (getLexer().getLastToken().kind == TK_FUNCTOR_BEGIN) ?
-//                                expr0_arglist() : expr0_block();
-////                        getLexer().unreadToken(t);
-//                        break;
-//                    case TK_RPAREN:
-//                        if (--parentheses < 0) {
-//                            throw new ParserException("Extra rparen");
-//                        }
-//                        return lastSequence;
-//                    case TK_LBRACKET:
-//                        brackets++;
-//                        lastTerm = lastSequence = expr0_list();
-////                        getLexer().unreadToken(t);
-//                        break;
-//                    case TK_RBRACKET:
-//                        if (--brackets < 0) {
-//                            throw new ParserException("Extra rbracket");
-//                        }
-//                        return lastSequence;
-//                    case TK_LBRACE:
-//                        braces++;
-//                        lastTerm = lastSequence = expr0_bypass();
-////                        getLexer().unreadToken(t);
-//                        break;
-//                    case TK_RBRACE:
-//                        if (--braces < 0) {
-//                            throw new ParserException("Extra rbrace");
-//                        }
-//                        return lastSequence;
-//                    case TK_D_QUOTE:
-//                        if (++dquotes % 2 != 0) {
-//                            if (options(TK_D_QUOTE)) {
-//                                lastTerm = readString(TK_D_QUOTE);
-//                            }
-//                        } else {
-//                            return lastTerm;
-//                        }
-//                        rDelims.clear();
-//                        rDelims.add(t.kind);
-//                        return readSequence(kind, rDelims);//char codelist
-//                    case TK_S_QUOTE:
-//                        if (++squotes % 2 != 0) {
-//                            if (options(TK_S_QUOTE)) {
-//                                lastTerm = readString(TK_S_QUOTE);
-//                            }
-//                        } else {
-//                            return lastTerm;
-//                        }
-//                        rDelims.clear();
-//                        rDelims.add(t.kind);
-//                        return lastTerm;
-//                    case TK_B_QUOTE:
-//                        if (++bquotes % 2 != 0) {
-//                            if (options(TK_S_QUOTE)) {
-//                                lastTerm = readString(TK_S_QUOTE);
-//                            }
-//                        } else {
-//                            return lastTerm;
-//                        }
-//                        rDelims.clear();
-//                        rDelims.add(t.kind);
-//                        return lastTerm;
-//                    case TK_VAR:
-//                        lastTerm = termFactory.newVariable(t.image);
-//                        return handleFunctor(lastTerm);
-//                    case TK_FUNCTOR_BEGIN:
-//                        lastTerm = compound(t.image, (ListTerm) lastSequence);
-//                        return handleFunctor(lastTerm);
-//                    case TK_INTEGER_LITERAL:
-//                        lastTerm = termFactory.newAtomic(Integer.parseInt(t.image));
-//                        return handleFunctor(lastTerm);
-//                    case TK_FLOATING_POINT_LITERAL:
-//                        lastTerm = termFactory.newAtomic(Double.parseDouble(t.image));
-//                        return handleFunctor(lastTerm);
-////                  case TK_CHARACTER_LITERAL:
-////                        break;
-////                    case TK_STRING_LITERAL:
-////
-////                    case TK_LOWERCASE:
-////                        nextTerm(true);
-////                        break;
-////                    case TK_UPPERCASE:
-////                        break;
-////                    case TK_SYMBOL:
-////                        break;
-//                    case TK_COMMA:
-//                        lastTerm = expr(rDelims);
-//                        heads.add(lastTerm);
-//                        break;
-//                    case TK_SEMICOLON:
-//                        break;
-//                    case TK_COLON:
-//                        break;
-//                    case TK_CONS://  ',' , '|' , ')]}' =>
-//                        final EnumSet<TokenKind> rd = EnumSet.of(t.kind);
-//                        lastTerm = tail = expr(rd);//VAR OR LIST
-//                        break;
-//                    default:
-//                        if (!heads.isEmpty()) {
-//                            throw new ParserException("The expression: %s\nis not followed by either a ',' or '|' or ']'.");
-//                        } else {
-//
-//                        }
-//                }
-//            }
-//        }
-//    }
-//
-//    /**
-//     * @param term
-//     * @return
-//     * @throws Exception
-//     */
-//    protected ITerm handleFunctor(ITerm term) throws Exception {
-//        PlToken t = getLexer().readToken(true);
-//        if (t.kind == TK_LPAREN) {
-//            if (term.isAtom()) {
-//                lastSequence = readSequence(ARGS, rDelims);//',' , '|' , ')'
-//                getLexer().unreadToken(t);//pushBack )
-//                t = getLexer().readToken(true);
-//                if (t.kind == TK_RPAREN) {
-//                    if (term.isAtom()) {
-//                        return lastTerm = termFactory.newFunctor((IFunctor) term, (ListTerm) lastSequence);
-//                    }
-//                }
-//            } else {
-//                lastSequence = expr0_block();
-//                // lastSequence=readSequence(BLOCK, expr0_block())
-//            }
-//        }
-//
-//        return lastTerm;
-//    }
-//
-//    /**
-//     * @param tkDQuote
-//     * @return
-//     */
-//    public StringTerm readString(TokenKind tkDQuote) {
-//        return new StringTerm(0);
-//    }
-//
-//    /**
-//     * @param tkDQuote
-//     * @return
-//     */
-//    protected boolean options(TokenKind tkDQuote) {
-//        return map.get(tkDQuote) != null;
-//    }
-//
-//    /**
-//     * @param delims
-//     * @return
-//     * @throws Exception
-//     */
-//    protected ITerm expr(EnumSet<TokenKind> delims) throws Exception {
-//        IdentifiedTerm term = exprA(OP_HIGH, delims);
-//        if (term == END_OF_FILE) {
-//            return term;
-//        }
-//        return term.getResult();
-//    }
-
-    /**
-     * Static service to get a term from its string representation
-     */
-    public ITerm parseSingleTerm(String st) throws Exception {
-        PlLexer ts = PlLexer.getPlLexerForString(st);
-        return parseSingleTerm(ts);
-    }
-
-    /**
-     * Static service to get a term from its string representation,
-     * providing a specific operator manager
-     */
-    public ITerm parseSingleTerm(PlLexer ts) throws Exception {
-        try {
-            setTokenSource(ts);
-            PlToken t = getLexer().readToken(true);
-            if (t.kind == TK_BOF) {
-                return BEGIN_OF_FILE;
-            }
-            if (t.kind == TK_EOF) {
-                popTokenSource();
-                return END_OF_FILE;
-            }
-//            getLexer().unreadToken(t);
-            ITerm term = expr();
-            if (term == null) {
-                throw new InvalidTermException("Term is null");
-            }
-            if (!(getLexer().readToken(true).kind == TK_EOF)) {
-                throw new InvalidTermException("The entire string could not be read as one term");
-            }
-            return term;
-        } catch (IOException | InvalidTermException ex) {
-            throw new IOException("An I/O error occurred");
-        }
-    }
-
-    public PlLexer getLexer() {
-        return tokenSourceStack.peek();
+    public HtClause parseClause() throws Exception {
+        return convert(termSentence());
     }
 
     /**
@@ -1065,60 +453,18 @@ public class HtPrologParser implements IParser, IStateHandler {
         variableContext.clear();
 
         if (!tokenSourceStack.isEmpty() && tokenSourceStack.peek().isOpen()) {
-            return expr();
+            return expr(TK_DOT);
         }
 
         popTokenSource();
         return END_OF_FILE;
     }
 
-    /**
-     * @return
-     */
-    public HtClause parseClause() throws Exception {
-        return convertToClause(termSentence(), getAppContext().getInterner());
-    }
-
-
-//    public StateRecord createFinishState(
-//            ParserState state,
-//            EnumSet<Associativity> assocs,
-//            EnumSet<DirectiveKind> dks,
-//            EnumSet<TokenKind> rDelimsCondition,
-//            int maxPriority,
-//            PlToken token) {
-//        final StateRecord stateRec = new StateRecord(
-//                state,
-//                assocs,
-//                dks,
-//                rDelimsCondition,
-//                maxPriority,
-//                token
-//        );
-
-//        states.push(stateRec);
-//        return stateRec;
-//}
-
-    /**
-     * @param sb
-     */
-    public void toString0(StringBuilder sb) {
-
-    }
-
-    public ITerm getLastTerm() {
-        return lastTerm;
-    }
-
-    public void setLastTerm(ITerm lastTerm) {
-        this.lastTerm = lastTerm;
-    }
-
     public ITerm getTerm() throws Exception {
         EnumSet<Associativity> assocs = of(x);
         EnumSet<DirectiveKind> directiveKinds = of(DK_IF, DK_ENCODING, DK_HILOG);
         EnumSet<TokenKind> rDelims = of(TK_DOT);
+        PlToken token = readToken();
         switch (token.kind) {
             case TK_BOF:
                 lastTerm = BEGIN_OF_FILE;
@@ -1126,62 +472,56 @@ public class HtPrologParser implements IParser, IStateHandler {
             case TK_EOF:
                 lastTerm = END_OF_FILE;
                 popTokenSource();
-                throw new EOFException("");
+                break;
             case TK_DOT:
+                if (!isEndOfTerm()) {
+                    throw new IllegalStateException("Brackets or/and quotes are unbalanced ...");
+                }
                 break;
             case TK_LPAREN:
                 if (isFunctorBegin()) {
                     directiveKinds = of(DK_IF);
                     rDelims.add(TK_RPAREN);
-//                    newState(EXPR_A0_ARGS,
-//                            assocs,
-//                            directiveKinds,
-//                            MAX_PRIORITY,
-//                            token);
+                    final ListTerm l = (ListTerm) expr0Args();
                     if (lastTerm.isHiLog()) {
-                        termFactory.newHiLogFunctor(lastTerm, new ListTerm(0));//fixme
+                        termFactory.newHiLogFunctor(lastTerm, l);//fixme
                     } else if (lastTerm.isAtom()) {
                         int name = ((IFunctor) lastTerm).getName();
                         int arity = ((IFunctor) lastTerm).getArity();
-                        lastTerm = new HtFunctor(name, new ListTerm(arity));
+                        lastTerm = new HtFunctor(name, l);
                     } else {
-                        throw new ParserException("Possibly undeclared HILOG term ->%s<- ", token);
+                        throw new ParserException("Possibly undeclared HiLog term ->%s<- ", token);
                     }
                 } else {
-//                    newState(EXPR_A,
-//                            assocs,
-//                            directiveKinds,
-//                            rDelims,
-//                            MAX_PRIORITY,
-//                            token);
                     if (rDelims.contains(token.kind)) {
                         break;
                     }
+                    lastTerm = expr0Block();
+                    lastTerm.setBracketed(true);
                 }
                 break;
             case TK_LBRACKET:
                 rDelims.add(TK_RBRACKET);
+                lastTerm = expr0List();
                 break;
             case TK_LBRACE:
                 rDelims.add(TK_RBRACE);
+                lastTerm = expr0BraceBlock();
                 break;
             case TK_RBRACE:
                 if (--braces < 0) {
                     throw new ParserException("Extra right brace.");
                 }
-                states.pop();
                 break;
             case TK_RBRACKET:
                 if (--brackets < 0) {
                     throw new ParserException("Extra right bracket.");
                 }
-                states.pop();
                 break;
             case TK_RPAREN:
                 if (--parentheses < 0) {
                     throw new ParserException("Extra right parenthesis.");
                 }
-                states.pop();
                 break;
             case TK_D_QUOTE:
                 if (++dquotes % 2 != 0) {
@@ -1193,6 +533,7 @@ public class HtPrologParser implements IParser, IStateHandler {
                 }
                 rDelims.clear();
                 rDelims.add(token.kind);
+                break;
             case TK_S_QUOTE:
                 if (++squotes % 2 != 0) {
                     if (options(TK_S_QUOTE)) {
@@ -1203,6 +544,7 @@ public class HtPrologParser implements IParser, IStateHandler {
                 }
                 rDelims.clear();
                 rDelims.add(token.kind);
+                break;
             case TK_B_QUOTE:
                 if (++bquotes % 2 != 0) {
                     if (options(TK_B_QUOTE)) {
@@ -1213,6 +555,7 @@ public class HtPrologParser implements IParser, IStateHandler {
                 }
                 rDelims.clear();
                 rDelims.add(token.kind);
+                break;
             case TK_CHARACTER_LITERAL:
                 break;
             case TK_STRING_LITERAL:
@@ -1233,362 +576,489 @@ public class HtPrologParser implements IParser, IStateHandler {
     }
 
     /**
-     * @param <T>
+     * @param token
+     * @return
      */
-    public class ParserStateVisitor<T extends ParserStateHandler> extends BaseStateVisitor
-            implements IStateVisitor<T> {
+    public boolean isOperator(PlToken token) {
+        final String name = token.getImage();
+        final Set<OpSymbolFunctor> ops = appContext.getOpTable().getOperators(name);
 
-        protected IStateTraverser<T> traverser;
-        private TokenKind lDelim;
+        return ops.stream().anyMatch(op -> op.getTextName().equals(name));
+    }
 
-        public IContext<T> getParentContext() {
-            return null;
+//    protected Set<OpSymbolFunctor> tryOperators(String image, TokenKind rDelim) throws Exception {
+//        Set<OpSymbolFunctor> ops = (token.kind == TK_ATOM) ?
+//                tryOperators(token.image) :
+//                Collections.emptySet();
+//        for (OpSymbolFunctor op : ops) {
+//            if (op.getPriority() == currPriority) {
+//                switch (op.getAssociativity()) {
+//                    case fx:
+//                        lastTerm = exprA(currPriority - 1);
+//                        break;
+//                    case fy:
+//                        lastTerm = exprA(currPriority);
+//                        break;
+//                    case hx:
+//                        lastTerm = exprA(currPriority - 1);
+//                        break;
+//                    case hy:
+//                        lastTerm = exprA(currPriority);
+//                        break;
+//                    default:
+//                }
+//            }
+//            lastTerm = op;
+//        }
+//
+//        return ops;
+//    }
+
+    /**
+     * Parses and returns a valid 'leftside' of an expression.
+     * If the left side starts with a prefix, it consumes other expressions with a lower priority than itself.
+     * If the left side does not have a prefix it must be an expr0.
+     *
+     * @param currPriority operators with a higher priority than this will effectively end the expression
+     * @param rDelim
+     * @return a wrapper of: 1. term correctly structured and 2. the priority of its root operator
+     */
+    public ITerm parseLeftSide(int currPriority, TokenKind rDelim) throws Exception {
+//        1. prefix expression
+        lastTerm = null;
+        PlToken token = readToken();
+        if (token.kind == TK_BOF) {
+            lastTerm = BEGIN_OF_FILE;
+            return lastTerm;
         }
-
-        public void visit(T state) {
-
+        if (token.kind == TK_EOF) {
+            lastTerm = END_OF_FILE;
+            popTokenSource();
+            return lastTerm;
         }
-
-// * exprAn(n) ::=
-// *    n > 0
-// *    exprB(n)
-// *    { op(yfx,n) exprA(n-1) | op(yf,n) }*
-
-        /**
-         * @param state
-         * @throws Exception
-         */
-        @Override
-        public void visit(ExprAn state) throws Exception {
-            if (state.getCurrPriority() > 0) {
-                create(new ExprB(
-                        EXPR_B,
-                        state.getAssocs(),
-                        state.getDks(),
-                        state.getCurrPriority(),
-                        newToken(TK_BOF)));
-            } else {
-                create(new ExprA0(
-                        EXPR_A0,
-                        state.getAssocs(),
-                        state.getDks(),
-                        0,
-                        state.getToken()));
+        if (currPriority == 0) {
+            return exprA0(rDelim);
+        }
+        if (isOperator(token)) {
+            int priorityFX = getOptable().getPriority(token.image, fx);
+            int priorityFY = getOptable().getPriority(token.image, fy);
+            int priorityHX = getOptable().getPriority(token.image, hx);
+            int priorityHY = getOptable().getPriority(token.image, hy);
+            if (priorityFY == 0) {
+                priorityFY = -1;
             }
-        }
-
-        public void visit(ExprA0 state) {
-
-
-        }
-
-        public void visit(Args state) {
-
-        }
-
-        public void visit(Brace state) {
-
-        }
-
-        public void visit(Bracket state) {
-
-        }
-
-        public void visit(Block state) {
-
-        }
-
-        public void visit(Tail state) {
-
-        }
-
-        public void visit(DottedPair state) {
-
-        }
-
-        public void visit(List state) {
-
-        }
-
-        public void visit(SimpleSeq state) {
-
-        }
-
-        public void visit(ListSeq state) throws Exception {
-            token = getLexer().readToken(true);
-            if (token.kind == lDelim) {
-                create(new ListSeq(
-                        LIST_SEQUENCE,
-                        getAssocs(),
-                        getDks(),
-                        getCurrPriority(),
-                        getToken()));
+            if (priorityHY == 0) {
+                priorityHY = -1;
             }
-        }
-
-        //    exprB(n) ::=
-// *    exprC(n-1)
-// *    {
-//          op(xfx,n) exprAn(n-1) |
-// *        op(xfy,n) exprAn(n) |
-// *        op(xf,n)
-//       }*
-// exprC is called parseLeftSide in the code
-        public void visit(ExprB state) throws Exception {
-            PlToken token = getLexer().readToken(true);
-            create(new ExprC(
-                    EXPR_C,
-                    state.getAssocs(),
-                    state.getDks(),
-                    state.getCurrPriority() - 1,
-                    token
-            ));
-            //2. left is followed by either xfx, xfy or xf operators, parse them
-            token = getLexer().readToken(true);
-            for (; isOperator(token); token = getLexer().readToken(true)) {
-                int priorityXFX = getOptable().getPriority(token.image, xfx);
-                int priorityXFY = getOptable().getPriority(token.image, xfy);
-                int priorityXF = getOptable().getPriority(token.image, xf);
-                //check that no operator has a priority higher than permitted
-                //or a lower priority than the left side expression
-                if (priorityXFX > getCurrPriority() || priorityXFX < MIN_PRIORITY) {
-                    priorityXFX = -1;
-                }
-                if (priorityXFY > getCurrPriority() || priorityXFY < MIN_PRIORITY) {
-                    priorityXFY = -1;
-                }
-                if (priorityXF > getCurrPriority() || priorityXF < MIN_PRIORITY) {
-                    priorityXF = -1;
-                }
-                //priorityXFX
-                boolean haveAttemptedXFX = false;
-                //priorityXFX has priority
-                IdentifiedTerm left = (IdentifiedTerm) lastTerm;
-                if (priorityXFX >= priorityXFY && priorityXFX >= priorityXF && priorityXFX >= left.getPriority()) {
-//                            IdentifiedTerm found = exprA(priorityXFX - 1, delims);
-                    final IStateHandler h = create(new ExprAn(
-                            EXPR_AN,
-                            getAssocs(),
-                            getDks(),
-                            getCurrPriority(),
-                            token));
-                    if (lastTerm != null) {
-                        left = new IdentifiedTerm(
-                                token.image,
-                                xfx,
-                                priorityXFX,
-                                left.getResult(),
-                                ((IdentifiedTerm) getLastTerm()).getResult());
-                    } else {
-                        haveAttemptedXFX = true;
-                    }
-                }
-                //priorityXFY //priorityXFY has priority, or priorityXFX has failed
-                if ((priorityXFY >= priorityXF) && (priorityXFY >= left.getPriority())) {
-                    final IStateHandler h = create(new ExprAn(
-                            EXPR_AN,
-                            getAssocs(),
-                            getDks(),
-                            getCurrPriority(),
-                            token));
-//                    continue;
-                    if (getLastTerm() != null) {
-                        left = new IdentifiedTerm(
-                                token.image,
-                                xfy,
-                                priorityXFY,
-                                left.getResult(),
-                                ((IdentifiedTerm) getLastTerm()).getResult());
-                        continue;
-                    }
-                } else               //priorityXF
-                    // priorityXF has priority, or priorityXFX and/or priorityXFY has failed
-                    if (priorityXF >= left.getPriority()) {
-                        setLastTerm(new IdentifiedTerm(
-                                token.image,
-                                xf,
-                                priorityXF,
-                                left.getResult()));
-                    }
-                //2XFX did not have top priority, but priorityXFY failed
-                if (!haveAttemptedXFX && priorityXFX >= left.getPriority()) {
-                    final IStateHandler h = create(new ExprAn(
-                            EXPR_AN,
-                            of(xfx),
-                            getDks(),
-                            priorityXFX - 1,
-                            token));
-//                    continue;
-                    if (lastTerm != null) {
-                        left = new IdentifiedTerm(
-                                token.image,
-                                xfx,
-                                priorityXFX,
-                                left.getResult(),
-                                ((IdentifiedTerm) getLastTerm()).getResult());
-                        continue;
-                    }
-                }
-                break;
-            }
-        }
-
-        /**
-         * @param token
-         * @return
-         */
-        public boolean isOperator(PlToken token) {
-            final String name = token.getImage();
-            final Set<IdentifiedTerm> ops = appContext.getOpTable().getOperators(name);
-
-            return ops.stream().anyMatch(op -> op.getTextName().equals(name));
-        }
-
-        // * exprC(n) ::=
-// *    '-' integer | '-' float |
-// *    op( fx,n ) -> exprAn(n-1) |
-// *    op( hx,n ) -> exprAn(n-1) |
-// *    op( fy,n ) -> exprAn(n) |
-// *    op( hy,n ) -> exprAn(n) |
-// *   true ->  exprAn(n)
-        public void visit(ExprC state) throws Exception {
-            PlToken token = getLexer().readToken(true);
+            token = readToken();
             String prefix = token.image;
             if ("+".equals(prefix) || "-".equals(prefix)) {
-                token = getLexer().readToken(true);
+                token = readToken();
                 switch (token.kind) {
                     case TK_INTEGER_LITERAL:
                         lastTerm = termFactory.newIntTerm(prefix, token.image);
-                        break;
+                        return lastTerm;
                     case TK_FLOATING_POINT_LITERAL:
                         lastTerm = termFactory.newFloatTerm(prefix, token.image);
-                        break;
+                        return lastTerm;
                     default:
-                        throw new IllegalStateException("Unexpected value: " + token.kind);
+                        getLexer().unreadToken(token);
                 }
-            }
-            token = getLexer().readToken(true);
-            Set<IdentifiedTerm> ops = (token.kind == TK_ATOM) ?
-                    tryOperators(token.image, handler) :
-                    Collections.emptySet();
-            for (IdentifiedTerm op : ops) {
-                if (op.getPriority() == handler.getCurrPriority()) {
-                    switch (op.getAssociativity()) {
-                        case fx:
-                            create(new ExprAn(
-                                    EXPR_AN,
-                                    of(fx),
-                                    handler.getDks(),
-                                    handler.getCurrPriority() - 1,
-                                    token));
-                            break;
-                        case fy:
-                            create(new ExprAn(
-                                    EXPR_AN,
-                                    of(fy),
-                                    handler.getDks(),
-                                    handler.getCurrPriority(),
-                                    token));
-                            break;
-                        case hx:
-                            create(new ExprAn(
-                                    EXPR_AN,
-                                    of(hx),
-                                    handler.getDks(),
-                                    handler.getCurrPriority() - 1,
-                                    token));
-                            break;
-                        case hy:
-                            create(new ExprAn(
-                                    EXPR_AN,
-                                    of(hy),
-                                    handler.getDks(),
-                                    handler.getCurrPriority(),
-                                    token));
-                            break;
-                        default:
-                            create(new ExprAn(
-                                    EXPR_AN,
-                                    handler.getAssocs(),
-                                    handler.getDks(),
-                                    handler.getCurrPriority(),
-                                    token));
+                //check that no operator has a priority higher than permitted
+                if (priorityFY > currPriority) {
+                    priorityFY = -1;
+                }
+                if (priorityFX > currPriority) {
+                    priorityFX = -1;
+                }
+                //priorityFX has priority over priorityFY
+                boolean haveAttemptedFX = false;
+                if (priorityFX >= priorityFY && priorityFX >= MIN_PRIORITY) {
+                    if (lastTerm != null) {
+                        return new OpSymbolFunctor(
+                                token.image,
+                                fx,
+                                priorityFX - 1,
+                                ((OpSymbolFunctor) lastTerm).getResult());
+                    } else {
+                        haveAttemptedFX = true;
                     }
                 }
-                lastTerm = op;
+                boolean haveAttemptedHX = false;
+                if (priorityHX >= priorityHY && priorityHX >= MIN_PRIORITY) {
+                    if (lastTerm != null) {
+                        return new OpSymbolFunctor(
+                                token.image,
+                                hx,
+                                priorityHX - 1,
+                                ((OpSymbolFunctor) lastTerm).getResult());
+                    } else {
+                        haveAttemptedHX = true;
+                    }
+                }
+                //priorityFY has priority over priorityFX, or priorityFX has failed
+                if (priorityFY >= MIN_PRIORITY) {//todo hilog
+                    if (lastTerm != null) {
+                        return new OpSymbolFunctor(
+                                token.image,
+                                fy,
+                                priorityFY,
+                                ((OpSymbolFunctor) lastTerm).getResult());
+                    }
+                }
+                if (priorityHY >= MIN_PRIORITY) {//todo hilog
+                    if (lastTerm != null) {
+                        return new OpSymbolFunctor(
+                                token.image,
+                                hy,
+                                priorityHY,
+                                ((OpSymbolFunctor) lastTerm).getResult());
+                    }
+                }
+                //priorityFY has priority over priorityFX, but priorityFY failed
+                if (!haveAttemptedFX && priorityFX >= MIN_PRIORITY) {
+                    if (lastTerm != null) {
+                        return new OpSymbolFunctor(
+                                token.image,
+                                fx,
+                                priorityFX - 1,
+                                ((OpSymbolFunctor) lastTerm).getResult());
+                    }
+                }
+                //priorityFY has priority over priorityFX, but priorityFY failed
+                if (!haveAttemptedHX && priorityHX >= MIN_PRIORITY) {
+                    if (lastTerm != null) {
+                        return new OpSymbolFunctor(
+                                token.image,
+                                hx,
+                                priorityHX - 1,
+                                ((OpSymbolFunctor) lastTerm).getResult());
+                    }
+                }
             }
         }
 
-        /**
-         * Parses and returns a valid 'leftside' of an expression.
-         * If the left side starts with a prefix, it consumes other expressions with a lower priority than itself.
-         * If the left side does not have a prefix it must be an expr0.
-         *
-         * @param currPriority operators with a higher priority than this will effectively end the expression
-         * @param token
-         * @return a wrapper of: 1. term correctly structured and 2. the priority of its root operator
-         * @throws InvalidTermException
-         */
-        public ITerm parseLeftSide(int currPriority, PlToken token) throws Exception {
-//        1. prefix expression
-//        token = getLexer().readToken(true);
-            if (isOperator(token)) {
-                int priorityFX = getOptable().getPriority(token.image, fx);
-                int priorityFY = getOptable().getPriority(token.image, fy);
-                if (priorityFY == 0) {
-                    priorityFY = -1;
-                }
-                if ("-".equals(token.image) || "+".equals(token.image)) {
-                    final String prefix = token.image;
-                    PlToken t = getLexer().readToken(true);
-                    if (t.isNumber()) {
-                        return termFactory.createNumber(prefix + token.image);
-                    } else {
-                        getLexer().unreadToken(t);
-                    }
-                    //check that no operator has a priority higher than permitted
-                    if (priorityFY > currPriority) {
-                        priorityFY = -1;
-                    }
-                    if (priorityFX > currPriority) {
-                        priorityFX = -1;
-                    }
-                    //priorityFX has priority over priorityFY
-                    boolean haveAttemptedFX = false;
-                    if (priorityFX >= priorityFY && priorityFX >= MIN_PRIORITY) {
-                        if (getLastTerm() != null) {
-                            return new IdentifiedTerm(
+        return lastTerm;
+    }
+
+    /**
+     * @param currPriority
+     * @return
+     * @throws Exception
+     */
+    protected OpSymbolFunctor exprA(int currPriority, TokenKind rDelim) throws Exception {
+        OpSymbolFunctor leftSide = exprB(currPriority, rDelim);
+        //{op(yfx,n) exprA(n-1) | op(yf,n)}*
+        PlToken t = readToken();
+        for (; isOperator(t); t = readToken()) {
+            int priorityYFX = getOptable().getPriority(token.image, yfx);
+            int priorityYF = getOptable().getPriority(token.image, yf);
+
+            //YF and YFX has a higher priority than the left side expr and less then top limit
+            // if (YF < leftSide.priority && YF > OperatorManager.OP_HIGH) YF = -1;
+            if (priorityYF < leftSide.getPriority() || priorityYF > currPriority) {
+                priorityYF = -1;
+            }
+            // if (YFX < leftSide.priority && YFX > OperatorManager.OP_HIGH) YFX = -1;
+            if (priorityYFX < leftSide.getPriority() || priorityYFX > currPriority) {
+                priorityYFX = -1;
+            }
+            //YFX has priority over YF
+            if (priorityYFX >= priorityYF && priorityYFX >= MIN_PRIORITY) {
+                OpSymbolFunctor ta = exprA(priorityYFX - 1, rDelim);
+                if (ta != null) {
+                    leftSide = identifyTerm(priorityYFX,
+                            new OpSymbolFunctor(
                                     token.image,
-                                    fx,
-                                    priorityFX - 1,
-                                    ((IdentifiedTerm) getLastTerm()).getResult());
-                        } else {
-                            haveAttemptedFX = true;
-                        }
-                    }
-                    //priorityFY has priority over priorityFX, or priorityFX has failed
-                    if (priorityFY >= MIN_PRIORITY) {
-                        if (getLastTerm() != null) {
-                            return new IdentifiedTerm(
-                                    token.image,
-                                    fy,
-                                    priorityFY,
-                                    ((IdentifiedTerm) getLastTerm()).getResult());
-                        }
-                    }
-                    //priorityFY has priority over priorityFX, but priorityFY failed
-                    if (!haveAttemptedFX && priorityFX >= MIN_PRIORITY) {
-                        if (getLastTerm() != null) {
-                            return new IdentifiedTerm(
-                                    token.image,
-                                    fx,
-                                    priorityFX - 1,
-                                    ((IdentifiedTerm) getLastTerm()).getResult());
-                        }
-                    }
+                                    leftSide.getResult(),
+                                    ta.getResult()),
+                            tokenStart);
+                    continue;
                 }
             }
-            return getLastTerm();
+            //either YF has priority over YFX or YFX failed
+            if (priorityYF >= MIN_PRIORITY) {
+                leftSide = identifyTerm(
+                        priorityYF,
+                        new OpSymbolFunctor(
+                                token.image,
+                                leftSide.getResult()),
+                        tokenStart);
+                continue;
+            }
+            break;
         }
+        getLexer().unreadToken(t);
+
+        return leftSide;
+    }
+
+    /**
+     * @param currPriority
+     * @param rDelim
+     * @return
+     * @throws Exception
+     */
+    protected OpSymbolFunctor exprB(int currPriority, TokenKind rDelim) throws Exception {
+        //1. op(fx,n) exprA(n-1) | op(fy,n) exprA(n) | expr0
+        OpSymbolFunctor left = (OpSymbolFunctor) parseLeftSide(currPriority, rDelim);
+        //2.left is followed by either priorityXFX, priorityXFY or xf operators, parse these
+        PlToken operator = readToken();
+        for (; isOperator(operator); operator = readToken()) {
+            int priorityXFX = getOptable().getPriority(token.image, xfx);
+            int priorityXFY = getOptable().getPriority(token.image, fx);
+            int priorityXF = getOptable().getPriority(token.image, xf);
+            //check that no operator has a priority higher than permitted
+            //or a lower priority than the left side expression
+            if (priorityXFX > currPriority || priorityXFX < MIN_PRIORITY) {
+                priorityXFX = -1;
+            }
+            if (priorityXFY > currPriority || priorityXFY < MIN_PRIORITY) {
+                priorityXFY = -1;
+            }
+            if (priorityXF > currPriority || priorityXF < MIN_PRIORITY) {
+                priorityXF = -1;
+            }
+            //priorityXFX
+            boolean haveAttemptedXFX = false;
+            if (priorityXFX >= priorityXFY && priorityXFX >= priorityXF && priorityXFX >= left.getPriority()) {
+                //priorityXFX has priority
+                OpSymbolFunctor found = exprA(priorityXFX - 1, rDelim);
+                if (found != null) {
+                    //OpSymbolFunctor priorityXFX = new OpSymbolFunctor(operator.seq, left.getResult(), found.getResult());
+                    //left = new OpSymbolFunctor(priorityXFX, priorityXFX);
+                    left = identifyTerm(priorityXFX,
+                            new OpSymbolFunctor(
+                                    token.image,
+                                    left.getResult(),
+                                    found.getResult()),
+                            tokenStart);
+                    continue;
+                } else {
+                    haveAttemptedXFX = true;
+                }
+            }
+            //priorityXFY has priority, or priorityXFX has failed
+            if (priorityXFY >= priorityXF && priorityXFY >= left.getPriority()) {
+                OpSymbolFunctor found = exprA(priorityXFY, rDelim);
+                if (found != null) {
+                    //OpSymbolFunctor priorityXFY = new OpSymbolFunctor(token.image, left.getResult(), found.getResult());
+                    //left = new OpSymbolFunctor(priorityXFY, priorityXFY);
+                    left = identifyTerm(
+                            priorityXFY,
+                            new OpSymbolFunctor(
+                                    token.image,
+                                    left.getResult(),
+                                    found.getResult()),
+                            tokenStart);
+                    continue;
+                }
+            }
+            //XF has priority, or priorityXFX and/or priorityXFY has failed
+            if (priorityXF >= left.getPriority())
+                //return new OpSymbolFunctor(XF, new OpSymbolFunctor(token.image, left.getResult()));
+                return identifyTerm(priorityXF,
+                        new OpSymbolFunctor(
+                                token.image,
+                                left.getResult()),
+                        tokenStart);
+
+            //priorityXFX did not have top priority, but priorityXFY failed
+            if (!haveAttemptedXFX && priorityXFX >= left.getPriority()) {
+                OpSymbolFunctor found = exprA(priorityXFX - 1, rDelim);
+                if (found != null) {
+                    left = identifyTerm(priorityXFX,
+                            new OpSymbolFunctor(
+                                    token.image,
+                                    left.getResult(),
+                                    found.getResult()),
+                            tokenStart);
+                    continue;
+                }
+            }
+            break;
+        }
+        getLexer().unreadToken(operator);
+
+        return left;
+    }
+
+    /**
+     * @param priority
+     * @param term
+     * @param offset
+     * @return
+     */
+    protected OpSymbolFunctor identifyTerm(int priority, ITerm term, int offset) {
+        map(term, offset);
+        return new OpSymbolFunctor("", priority, term, null);
+    }
+
+    protected void map(ITerm term, int offset) {
+        if (offsetsMap != null)
+            offsetsMap.put(term, offset);
+    }
+
+    public Map<ITerm, Integer> getTextMapping() {
+        return offsetsMap;
+    }
+
+    /**
+     * @return
+     * @throws Exception
+     */
+    protected PlToken readToken() throws Exception {
+        return getLexer().readToken(true);
+    }
+
+    /**
+     * @param sb
+     */
+    public void toString0(StringBuilder sb) {
+
+    }
+
+    /**
+     * @return
+     */
+    protected PlLexer getLexer() {
+        return getTokenSourceStack().peek();
+    }
+
+    /**
+     * Static service to get a term from its string representation,
+     * providing a specific operator manager
+     */
+    public ITerm parseSingleTerm(String st) throws Exception {
+        setTokenSource(getPlLexerForString(st));
+        PlToken t = readToken();
+        if (t.kind == TK_BOF) {
+            return BEGIN_OF_FILE;
+        }
+        if (t.kind == TK_EOF) {
+            popTokenSource();
+            return END_OF_FILE;
+        }
+
+//        getLexer().unreadToken(t);
+        return termSentence();
+    }
+
+    /**
+     * exprA(0) ::= integer |
+     * float |
+     * variable |
+     * atom |
+     * atom( exprA(1200) { , exprA(1200) }* ) |
+     * '[' exprA(1200) { , exprA(1200) }* [ | exprA(1200) ] ']' |
+     * '{' [ exprA(1200) ] '}' |
+     * '(' exprA(1200) ')'
+     *
+     * @param rDelim
+     */
+    public ITerm exprA0(TokenKind rDelim) throws Exception {
+        lastTerm = getTerm();
+        return lastTerm;
+    }
+
+    /**
+     * @return
+     * @throws Exception
+     */
+    public ITerm expr0List() throws Exception {
+        return listSequence(TK_LBRACKET);
+    }
+
+    private ITerm listSequence(TokenKind lDelim) throws Exception {
+        ListTerm l = sequence(lDelim);
+        PlToken token = readToken();
+        final TokenKind rDelim = calcRDelim(lDelim);
+        if (token.kind == TK_CONS) {
+            l.addTail(tail(lDelim));
+        } else if (token.kind == rDelim) {
+            l.newTail(false);//NIL
+        }
+        return lastTerm = l;
+    }
+
+    /**
+     * @return
+     * @throws Exception
+     */
+    public ITerm expr0Args() throws Exception {
+        return listSequence(TK_LPAREN);
+    }
+
+    /**
+     * @return
+     * @throws Exception
+     */
+    public ITerm expr0Block() throws Exception {
+        return sequence(TK_LPAREN);
+    }
+
+    /**
+     * @return
+     * @throws Exception
+     */
+    public ITerm expr0BraceBlock() throws Exception {
+        return sequence(TK_LBRACE);
+    }
+
+    protected ListTerm sequence(TokenKind kind) throws Exception {
+        ListTerm l = new ListTerm(0);
+        TokenKind rdelim = calcRDelim(kind);
+        ITerm head = null;
+        for (; ; ) {
+            PlToken t = readToken();
+            switch (t.kind) {
+                case TK_LPAREN:
+                case TK_LBRACKET:
+                case TK_LBRACE:
+                    if (t.kind == kind) {
+                        head = expr(rdelim);
+                    }
+                    break;
+                case TK_RPAREN:
+                case TK_RBRACKET:
+                case TK_RBRACE:
+                    l.addHead(head);
+                    getLexer().unreadToken(t);
+                    break;
+                case TK_COMMA:
+                    l.addHead(head);
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + t.kind);
+            }
+        }
+    }
+
+    private TokenKind calcRDelim(TokenKind kind) {
+        switch (kind) {
+            case TK_LPAREN:
+                return TK_RPAREN;
+            case TK_LBRACKET:
+                return TK_RBRACKET;
+            case TK_LBRACE:
+                return TK_RBRACE;
+//            case TK_RBRACE:
+//                break;
+//            case TK_D_QUOTE:
+//                break;
+//            case TK_S_QUOTE:
+//                break;
+//            case TK_B_QUOTE:
+//                break;
+        }
+        return kind;
+    }
+
+    private ITerm tail(TokenKind rDelim) throws Exception {
+        final ITerm t = expr(rDelim);
+        if (t.isList() || t.isVar()) {
+            return t;
+        }
+        throw new ParserException("list or var are expected here.");
     }
 }

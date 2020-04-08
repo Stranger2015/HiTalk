@@ -9,6 +9,8 @@ import org.ltc.hitalk.core.utils.HtSymbolTable;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.parser.PlLexer;
+import org.ltc.hitalk.term.io.HiTalkInputStream;
+import org.ltc.hitalk.term.io.HiTalkOutputStream;
 import org.ltc.hitalk.wam.compiler.Language;
 import org.ltc.hitalk.wam.compiler.Tools;
 import org.slf4j.Logger;
@@ -32,17 +34,29 @@ public interface IApplication extends Runnable, IConfigurable {
     /**
      * @return
      */
-    IConfig getConfig ();
+    IConfig getConfig();
 
     /**
      * @param config
      */
-    void setConfig ( IConfig config );
+    void setConfig(IConfig config);
+
+    /**
+     * @return
+     */
+    HiTalkInputStream getCurrentInputStream();
+
+    void setCurrentInputStream(HiTalkInputStream currentInputStream);
+
+    /**
+     * @param currentOutputStream
+     */
+    void setCurrentOutputStream(HiTalkOutputStream currentOutputStream);
 
     /**
      *
      */
-    default void init () throws LinkageException, IOException {
+    default void init() throws LinkageException, IOException {
         banner();
         try {
             if (!isInited()) {
@@ -61,18 +75,18 @@ public interface IApplication extends Runnable, IConfigurable {
     /**
      * @return
      */
-    Language getLanguage ();
+    Language getLanguage();
 
     /**
      * @param varOrFunctor
      * @return
      */
-    String namespace ( String varOrFunctor );
+    String namespace(String varOrFunctor);
 
     /**
      *
      */
-    default void clear () throws LinkageException, IOException {
+    default void clear() throws LinkageException, IOException {
         setInited(false);
         doClear();
     }
@@ -80,12 +94,12 @@ public interface IApplication extends Runnable, IConfigurable {
     /**
      *
      */
-    void doClear ();
+    void doClear();
 
     /**
      *
      */
-    default void reset () throws LinkageException, IOException {
+    default void reset() throws LinkageException, IOException {
         if (isInited()) {
             clear();
         }
@@ -95,7 +109,7 @@ public interface IApplication extends Runnable, IConfigurable {
     /**
      * @param b
      */
-    default void setInited ( boolean b ) throws LinkageException, IOException {
+    default void setInited(boolean b) throws LinkageException, IOException {
         if (!isInited()) {
             init();
         } else {
@@ -106,7 +120,7 @@ public interface IApplication extends Runnable, IConfigurable {
     /**
      * @return
      */
-    boolean isInited ();
+    boolean isInited();
 
     /**
      *
@@ -116,11 +130,12 @@ public interface IApplication extends Runnable, IConfigurable {
     /**
      *
      */
-    void undoInit ();
+    void undoInit();
+
     /**
      *
      */
-    default void start () throws Exception {
+    default void start() throws Exception {
         if (!isStarted()) {
             doStart();
         }
@@ -129,7 +144,7 @@ public interface IApplication extends Runnable, IConfigurable {
     /**
      * @param b
      */
-    default void setStarted ( boolean b ) throws Exception {
+    default void setStarted(boolean b) throws Exception {
         if (b) {
             if (!isStarted()) {
                 doStart();
@@ -144,17 +159,17 @@ public interface IApplication extends Runnable, IConfigurable {
     /**
      * @return
      */
-    void pause (); //PAUSE
+    void pause(); //PAUSE
 
     /**
      * @return
      */
-    boolean isPaused ();
+    boolean isPaused();
 
     /**
      *
      */
-    void resume (); //RESUME
+    void resume(); //RESUME
 
     /**
      * @return
@@ -188,19 +203,19 @@ public interface IApplication extends Runnable, IConfigurable {
     /**
      *
      */
-    void interrupt ();
+    void interrupt();
 
     /**
      * @return
      */
-    boolean isInterrupted ();
+    boolean isInterrupted();
 
     /**
      * @return
      */
 //    boolean save();
 //    boolean restore();
-    State getState ();
+    State getState();
 
     /**
      *
@@ -212,17 +227,17 @@ public interface IApplication extends Runnable, IConfigurable {
     /**
      * @return
      */
-    boolean isStarted ();
+    boolean isStarted();
 
     /**
      *
      */
-    void doStart () throws Exception;
+    void doStart() throws Exception;
 
     /**
      *
      */
-    default void run () {
+    default void run() {
         Runnable target = getTarget();
         if (target != null) {
             target.run();
@@ -232,12 +247,12 @@ public interface IApplication extends Runnable, IConfigurable {
     /**
      * @return
      */
-    Runnable getTarget ();
+    Runnable getTarget();
 
     /**
      * @return
      */
-    IVafInterner getInterner ();
+    IVafInterner getInterner();
 
 //    /**
 //     * @param interner
@@ -247,34 +262,34 @@ public interface IApplication extends Runnable, IConfigurable {
     /**
      * @return
      */
-    default ISymbolTable <Integer, String, Object> getSymbolTable () {
-        return new HtSymbolTable <>();
+    default ISymbolTable<Integer, String, Object> getSymbolTable() {
+        return new HtSymbolTable<>();
     }
 
     /**
      * @param symbolTable
      */
-    void setSymbolTable ( ISymbolTable <Integer, String, Object> symbolTable );
+    void setSymbolTable(ISymbolTable<Integer, String, Object> symbolTable);
 
     /**
      * @return
      */
-    IProduct product ();
+    IProduct product();
 
     /**
      * @return
      */
-    Language language ();
+    Language language();
 
     /**
      * @return
      */
-    Tools.Kind tool ();
+    Tools.Kind tool();
 
     /**
      *
      */
-    default void banner () {
+    default void banner() {
         String n = product().getName();
         HtVersion v = product().getVersion();
         String c = product().getCopyright();
@@ -295,7 +310,7 @@ public interface IApplication extends Runnable, IConfigurable {
     /**
      * @param fileName
      */
-    void setFileName ( String fileName );
+    void setFileName(String fileName);
 
     /**
      * @return

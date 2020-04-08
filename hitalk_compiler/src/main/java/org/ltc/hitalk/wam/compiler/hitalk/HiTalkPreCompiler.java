@@ -24,8 +24,8 @@ import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.parser.HtSourceCodeException;
-import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.HtMethod;
 import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
@@ -70,7 +70,7 @@ class HiTalkPreCompiler<T extends HtMethod, P, Q> extends PrologPreCompiler <T, 
                              PrologBuiltInTransform<T, P, Q> builtInTransform,
                              PrologDefaultBuiltIn defaultBuiltIn,
                              IResolver<HtPredicate, HtClause> resolver,
-                             PlPrologParser parser) {
+                             HtPrologParser parser) {
         super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, parser);
     }
 

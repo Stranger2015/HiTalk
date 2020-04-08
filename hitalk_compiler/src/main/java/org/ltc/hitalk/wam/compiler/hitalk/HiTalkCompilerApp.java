@@ -204,7 +204,7 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q, PC, QC>
     createWAMCompiler(ISymbolTable<Integer, String, Object> symbolTable,
                       IVafInterner interner,
                       ICompilerObserver<P, Q> observer,
-                      PlPrologParser parser) {
+                      HtPrologParser parser) {
         return new HiTalkWAMCompiler<>(symbolTable, interner, parser, observer);
     }
 

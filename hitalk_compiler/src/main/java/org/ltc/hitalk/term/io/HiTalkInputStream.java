@@ -250,6 +250,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
         return inputStream;
     }
 
+    @Override
     protected void doOpen() throws IOException {
         if (getInputStream() == null) {
             setInputStream(newInputStream(path, READ));

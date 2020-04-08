@@ -3,7 +3,7 @@ package org.ltc.hitalk.wam.compiler.hilog;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 
@@ -26,7 +26,7 @@ public class HiLogWAMCompiler<T extends HtClause, P, Q, PC, QC> extends PrologWA
      */
     public HiLogWAMCompiler(ISymbolTable<Integer, String, Object> symbolTable,
                             IVafInterner interner,
-                            PlPrologParser parser,
+                            HtPrologParser parser,
                             ICompilerObserver<P, Q> observer) {
         super(symbolTable, interner, parser, observer);
     }

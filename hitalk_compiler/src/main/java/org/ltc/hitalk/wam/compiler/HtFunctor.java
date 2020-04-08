@@ -60,11 +60,6 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
     public <C extends BodyCall.BodyCalls<C>> HtFunctor(IFunctor sym, List<BodyCall<C>> calls) {
 
     }
-//
-//    public HtFunctor(int name, int arityDelta, ListTerm listTerm) {
-//
-//
-//    }
 
     /**
      * @return

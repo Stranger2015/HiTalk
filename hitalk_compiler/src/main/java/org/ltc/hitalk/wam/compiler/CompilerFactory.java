@@ -3,7 +3,7 @@ package org.ltc.hitalk.wam.compiler;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.prolog.PrologInstructionCompiler;
 import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
@@ -17,9 +17,9 @@ public class CompilerFactory<T extends HtClause, P, Q, PC, QC> implements ICompi
      * @return
      */
     @Override
-    public PlPrologParser createParser ( Language language ) {
+    public HtPrologParser createParser(Language language) {
         try {
-            return (PlPrologParser) language.getParserClass().newInstance();
+            return (HtPrologParser) language.getParserClass().newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
             throw new ExecutionError(EXISTENCE_ERROR, null);

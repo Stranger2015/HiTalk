@@ -1,6 +1,5 @@
 package org.ltc.hitalk.wam.compiler;
 
-
 import org.ltc.hitalk.wam.machine.IWAMResolvingMachineDPI;
 
 /**

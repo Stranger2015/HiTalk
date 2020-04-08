@@ -28,6 +28,7 @@ import java.util.function.Predicate;
 
 import static java.nio.charset.Charset.*;
 import static org.ltc.hitalk.core.BaseApp.appContext;
+import static org.ltc.hitalk.core.BaseApp.streams;
 
 /**
  * open(+SrcDest, +Mode, --Stream)
@@ -146,6 +147,9 @@ class HiTalkStream extends PropertyOwner implements PropertyChangeListener, Clon
 
     public static final int BB_ALLOC_SIZE = 32768;
 
+    // protected static int idCounter=0;
+    protected final int id;
+
     protected FileDescriptor fd;
     protected FileChannel channel;
     protected EnumSet<StandardOpenOption> options = EnumSet.noneOf(StandardOpenOption.class);
@@ -155,6 +159,10 @@ class HiTalkStream extends PropertyOwner implements PropertyChangeListener, Clon
     protected IPropertyOwner owner = this;
     protected List<PropertyChangeListener> listeners = new ArrayList<>();
 
+    public HiTalkStream(int id) {
+        this.id = id;
+    }
+
     /**
      * @param path
      * @param charset
@@ -162,7 +170,7 @@ class HiTalkStream extends PropertyOwner implements PropertyChangeListener, Clon
      * @param properties
      */
     protected HiTalkStream(Path path, String charset, StandardOpenOption[] option, HtProperty... properties) {
-
+        this(streams.size());
         this.path = path;
 //        this.defcharset = charset;
         this.option = option;
@@ -172,18 +180,17 @@ class HiTalkStream extends PropertyOwner implements PropertyChangeListener, Clon
     /**
      * @param properties
      */
-    protected HiTalkStream(HtProperty... properties) {
-        this(new HtMethodDef[0], properties);
-    }
+//    protected HiTalkStream(HtProperty... properties) {
+//        this(new HtMethodDef[0], properties);
+//    }
 
     /**
      * @param methods
      * @param props
      */
-    protected HiTalkStream(HtMethodDef[] methods, HtProperty... props) {
-        super(props);
-
-    }
+//    protected HiTalkStream(HtMethodDef[] methods, HtProperty... props) {
+//        super(props);
+//    }
 
     /**
      * ISO Input and Output Streams
@@ -389,7 +396,6 @@ class HiTalkStream extends PropertyOwner implements PropertyChangeListener, Clon
 //                wait(Bool)
 //        This option can be combined with the lock option. If false (default true), the open call returns immediately
 //        with an exception if the file is locked. The exception has the format permission_error(lock, source_sink, SrcDest).
-//
 //        The option reposition is not supported in SWI-Prolog. All streams connected to a file may be repositioned.
 
 
@@ -466,12 +472,18 @@ class HiTalkStream extends PropertyOwner implements PropertyChangeListener, Clon
     protected StandardOpenOption[] option;
 //    private final HtProperty[] properties;
 
+    /**
+     * @throws IOException
+     */
     public final void open() throws IOException {
         if (!isOpen) {
             doOpen();
         }
     }
 
+    /**
+     * @throws IOException
+     */
     abstract protected void doOpen() throws IOException;
 
     /**
@@ -496,12 +508,25 @@ class HiTalkStream extends PropertyOwner implements PropertyChangeListener, Clon
         this(path, defaultCharset().name(), options);
     }
 
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof HiTalkStream)) return false;
+
+        final HiTalkStream that = (HiTalkStream) o;
+
+        return id == that.id;
+    }
+
+    public int hashCode() {
+        return id;
+    }
+
     /**
      * @param fd
      * @throws IOException
      */
     public HiTalkStream(FileDescriptor fd) throws Exception {
-        this();
+        this(streams.size());
         this.fd = fd;
         init(fd);
     }

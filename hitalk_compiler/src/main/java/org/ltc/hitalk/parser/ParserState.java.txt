@@ -1,6 +1,9 @@
 package org.ltc.hitalk.parser;
 
-import org.ltc.hitalk.parser.handlers.*;
+import org.ltc.hitalk.core.BaseApp;
+import org.ltc.hitalk.term.ITerm;
+
+import java.util.function.Function;
 
 /**
  * // * BNF part 2: Parser
@@ -51,34 +54,37 @@ import org.ltc.hitalk.parser.handlers.*;
  * //============================
  * //     tail ::=  [ '|' (variable | list) ]
  */
-public enum ParserState {
-    OP(Operator.class),
-    EXPR_A0(ExprA0.class),
-    EXPR_AN(ExprAn.class),
-    EXPR_A0_ARGS(Args.class),
-    EXPR_A0_BRACE(Brace.class),
-    EXPR_A0_BRACKET(Bracket.class),
-    BLOCK(Block.class),
-    TAIL(Tail.class),
-    LIST(DottedPair.class),
+public enum ParserState {// implements Function<Integer, ITerm> {
+    EXPR_A0(term -> {
+        return HtPrologParser.exprA0(term);
+    }),
+    FUNCTOR(HtPrologParser::functor),
+    ARGS(HtPrologParser::args),
+    EXPR_AN(HtPrologParser::exprAn),
+    BRACE(HtPrologParser::brace),
+    BLOCK(HtPrologParser::block),
+    TAIL(HtPrologParser::tail),
+    DOTTED_PAIR(HtPrologParser::dottedPair),
 
-    SIMPLE_SEQUENCE(SimpleSeq.class),
-    LIST_SEQUENCE(ListSeq.class),
+    SIMPLE_SEQUENCE(HtPrologParser::simpleSeq),
+    LIST_SEQUENCE(HtPrologParser::listSeq),
 
-    EXPR_B(ExprB.class),
+    EXPR_B(HtPrologParser::exprB),
+    EXPR_C(HtPrologParser::exprC),
 
-    EXPR_C(ExprC.class), START(StartRule.class);
+    FINAL_STATE(HtPrologParser::finalState),
+    START_STATE(HtPrologParser::start);
 
-
-    private Class<?> ruleClass;
-    private final Object[] args;
-
-    public Class<?> getRuleClass() {
-        return ruleClass;
+    /**1
+     * @param action
+     */
+    ParserState(Function<Integer, ITerm> action) {
+        this.action = action;
     }
 
-    ParserState(Class<?> ruleClass, Object... args) {
-        this.ruleClass = ruleClass;
-        this.args = args;
+    protected Function<Integer, ITerm> action;
+
+    public Function<Integer, ITerm> getAction() {
+        return action;
     }
 }

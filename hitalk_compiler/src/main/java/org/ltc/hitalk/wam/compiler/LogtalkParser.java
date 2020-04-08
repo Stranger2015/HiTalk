@@ -22,11 +22,4 @@ public class LogtalkParser extends HtPrologParser {
                          IOperatorTable optable) throws Exception {
         super(stream, interner, factory, optable);
     }
-
-    /**
-     *
-     */
-    public LogtalkParser() throws Exception {
-        super();
-    }
 }

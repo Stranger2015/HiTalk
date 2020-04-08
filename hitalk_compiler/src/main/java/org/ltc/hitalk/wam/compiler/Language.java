@@ -2,7 +2,7 @@ package org.ltc.hitalk.wam.compiler;
 
 import org.ltc.hitalk.parser.HiLogParser;
 import org.ltc.hitalk.parser.HiTalkParser;
-import org.ltc.hitalk.parser.PlPrologParser;
+import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.hilog.HiLogInstructionCompiler;
 import org.ltc.hitalk.wam.compiler.hilog.HiLogPreCompiler;
 import org.ltc.hitalk.wam.compiler.hilog.HiLogWAMCompiler;
@@ -18,7 +18,7 @@ import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 
 public enum Language {
     PROLOG("Ltc-Prolog",
-            PlPrologParser.class,
+            HtPrologParser.class,
             PrologWAMCompiler.class,
             PrologPreCompiler.class,
             PrologInstructionCompiler.class
@@ -28,7 +28,7 @@ public enum Language {
             HiTalkWAMCompiler.class,
             HiTalkPreCompiler.class,
             HiTalkInstructionCompiler.class),
-    HILOG("HiLog",
+    HILOG("Ltc-HiLog",
             HiLogParser.class,
             HiLogWAMCompiler.class,
             HiLogPreCompiler.class,

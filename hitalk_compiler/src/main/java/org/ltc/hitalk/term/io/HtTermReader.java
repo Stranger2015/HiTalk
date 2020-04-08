@@ -2,8 +2,8 @@ package org.ltc.hitalk.term.io;
 
 import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.PropertyOwner;
+import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.parser.PlLexer;
-import org.ltc.hitalk.parser.PlPrologParser;
 import org.ltc.hitalk.term.ITerm;
 
 import java.nio.file.Path;
@@ -15,12 +15,12 @@ import java.util.List;
  */
 public class HtTermReader extends HtTermIO {
     private HiTalkInputStream stream;
-    protected PlPrologParser parser;
+    protected HtPrologParser parser;
 
     /**
      *
      */
-    public HtTermReader(Path path, PlLexer lexer, PlPrologParser parser) throws Exception {
+    public HtTermReader(Path path, PlLexer lexer, HtPrologParser parser) throws Exception {
         super(path, lexer.getInputStream());
         this.parser = parser;
         this.parser.setTokenSource(lexer);

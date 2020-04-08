@@ -505,8 +505,9 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
         public HtPrologParser getParser() throws Exception {
             HtPrologParser parser = (HtPrologParser) get(PARSER);
             if (parser == null) {
-                parser = new HtPrologParser();
+                parser = new HtPrologParser(getInputStream(), getInterner(), getTermFactory(), getOpTable());
             }
+            getApp().setParser(parser);
             put(PARSER, parser);
             return parser;
         }

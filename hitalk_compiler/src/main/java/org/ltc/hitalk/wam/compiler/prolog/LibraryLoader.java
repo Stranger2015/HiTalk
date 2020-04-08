@@ -9,8 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 
-import static org.ltc.hitalk.parser.PlPrologParser.BEGIN_OF_FILE;
-import static org.ltc.hitalk.parser.PlPrologParser.END_OF_FILE;
+import static org.ltc.hitalk.parser.HtPrologParser.BEGIN_OF_FILE;
+import static org.ltc.hitalk.parser.HtPrologParser.END_OF_FILE;
 
 /**
  *

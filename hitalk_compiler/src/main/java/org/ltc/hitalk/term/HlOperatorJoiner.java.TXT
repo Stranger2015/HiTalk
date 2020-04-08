@@ -1,15 +1,15 @@
 package org.ltc.hitalk.term;
 
 import org.ltc.hitalk.parser.ParserException;
-import org.ltc.hitalk.term.IdentifiedTerm.Associativity;
+import org.ltc.hitalk.term.OpSymbolFunctor.Associativity;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
-import static org.ltc.hitalk.term.IdentifiedTerm.Associativity.fx;
-import static org.ltc.hitalk.term.IdentifiedTerm.isCorrectOrder;
+import static org.ltc.hitalk.term.OpSymbolFunctor.Associativity.fx;
+import static org.ltc.hitalk.term.OpSymbolFunctor.isCorrectOrder;
 
 /**
  * 演算子優先順位解析を行います。
