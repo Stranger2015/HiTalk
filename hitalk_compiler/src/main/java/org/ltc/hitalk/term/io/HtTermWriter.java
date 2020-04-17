@@ -1,15 +1,18 @@
 package org.ltc.hitalk.term.io;
 
+import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
+import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.entities.IProperty;
-import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.term.ListTerm;
-import org.ltc.hitalk.term.OpSymbolFunctor;
+import org.ltc.hitalk.term.*;
+import org.ltc.hitalk.wam.compiler.HtFunctor;
+import org.ltc.hitalk.wam.compiler.HtFunctorName;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Set;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.REPRESENTATION_ERROR;
@@ -19,6 +22,7 @@ import static org.ltc.hitalk.core.BaseApp.getAppContext;
  *
  */
 public class HtTermWriter extends HtTermIO {
+    IOperatorTable optable = BaseApp.appContext.getOpTable();
 
     /**
      * @param path
@@ -28,6 +32,93 @@ public class HtTermWriter extends HtTermIO {
     public HtTermWriter(Path path, HiTalkOutputStream stream) throws FileNotFoundException {
         super(path, stream);
         stream.setOutputStream(new FileOutputStream(path.toFile()));
+
+    }
+
+    public HtTermWriter(ITerm term) {
+        super(term);
+    }
+
+
+    /**
+     * @param sb
+     * @param t
+     * @return
+     */
+    public String writeTerm(StringBuilder sb, ITerm t) {
+        if (t.isFunctor()) {
+            writeFunctor(sb, (HtFunctor) t);
+        } else if (t.isNumber()) {
+            if (t instanceof IntTerm) {
+                sb.append(((IntTerm) t).getInt());
+            } else if (t instanceof FloatTerm) {
+                sb.append(Float.intBitsToFloat(((FloatTerm) t).getImage()));
+            }
+        } else if (t.isVar()) {
+            sb.append(interner.getVariableName((HtVariable) t));
+        } else if (t.isList()) {
+            sb.append("[ ");
+            writeSeq(sb, (ListTerm) t);
+            sb.append(" ]");
+        }
+        return sb.toString();
+    }
+
+    private void writeFunctor(StringBuilder sb, HtFunctor functor) {
+        final HtFunctorName fn = interner.getDeinternedFunctorName(t.getName());
+        final String name = fn.getName();
+        int arity = fn.getArity();
+
+        final Set<OpSymbolFunctor> ops = optable.getOperators(name, arity);//writeName(sb, functor);
+        if (ops.isEmpty()) {
+            sb.append("( ");
+            writeSeq(sb, functor.getArgs());
+            sb.append(" )");
+        } else { ///ops.size == 1
+            for (OpSymbolFunctor op : ops) {
+                if (op.isPrefix()) {
+                    sb.append(op.getArgument(0).);//fixme
+                    writeTerm(sb, op.getArgument(0));
+                } else if (op.isInfix()) {//todo
+
+                }
+            }
+        }
+    }
+
+    private void writeName(StringBuilder sb, String name) {
+        if (quoteRequired(name)) {
+            sb.append('\'');
+            sb.append(name);
+            sb.append('\'');
+        } else {
+            sb.append(name);
+        }
+//        return optable.getOperators(name, arity);
+    }
+
+    private boolean quoteRequired(String name) {
+        return !isAlphaNumeric(name) && !isSymbolic(name);
+    }
+
+    protected void writeSeq(StringBuilder sb, ListTerm t) {
+        writeHeads(sb, t);
+        writeTail(sb, t);
+    }
+
+    private void writeTail(StringBuilder sb, ListTerm t) {
+        if (t.getTail() != ListTerm.NIL) {
+            sb.append("| ");
+            writeTerm(sb, t.getTail());
+        }
+    }
+
+    private void writeHeads(StringBuilder sb, ListTerm t) {
+        final List<ITerm> heads = t.getHeads();
+        for (int i = 0; i < heads.size(); i++) {
+            writeTerm(sb, heads.get(i));
+            sb.append(i + 1 < heads.size() ? ", " : " ");
+        }
 
     }
 
@@ -122,11 +213,7 @@ public class HtTermWriter extends HtTermIO {
     }
 
     private boolean quotesNeeded(String name) {
-        if (priorityIsBeDropped(name) || !isAlphaNumeric(name) && !isSymbolic(name)) {
-            return true;
-        }
-
-        return false;
+        return priorityIsBeDropped(name) || !isAlphaNumeric(name) && !isSymbolic(name);
     }
 
     private boolean isSymbolic(String name) {

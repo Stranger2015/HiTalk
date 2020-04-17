@@ -23,7 +23,7 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
-import static org.ltc.hitalk.core.utils.TermUtilities.unify;
+import static org.ltc.hitalk.core.utils.TermUtilities.unifyB;
 
 /**
  *
@@ -140,7 +140,7 @@ public abstract class MetaInterpreterVisitor<T extends HtClause, P, Q, PC, QC> e
         boolean unifies = true;
         for (PiCalls <?> hbEl : hbSet) {
             eqf.setArgument(1, hbEl);//fixme
-            unifies = unify(eqf.getArgument(0), eqf.getArgument(1));
+            unifies = unifyB(eqf.getArgument(0), eqf.getArgument(1));
             if (unifies) {
 //                this.bindings.addAll(bindings);
                 return;

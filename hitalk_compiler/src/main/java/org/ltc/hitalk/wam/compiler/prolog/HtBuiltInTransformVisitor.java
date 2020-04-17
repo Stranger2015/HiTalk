@@ -1,4 +1,8 @@
-package org.ltc.hitalk.wam.compiler.prolog;/*  * Copyright The Sett Ltd, 2005 to 2014.  *  * Licensed under the Apache License, Version 2.0 (the "License");  * you may not use this file except in compliance with the License.  * You may obtain a copy of the License at  *  *     http://www.apache.org/licenses/LICENSE-2.0  *  * Unless required by applicable law or agreed to in writing, software  * distributed under the License is distributed on an "AS IS" BASIS,  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  * See the License for the specific language governing permissions and  * limitations under the License.  */
+/*  * Copyright The Sett Ltd, 2005 to 2014.
+ *   * Licensed under the Apache License, Version 2.0 (the "License");
+ * * you may not use this file except in compliance with the License.
+ * * You may obtain a copy of the License at  *  *     http://www.apache.org/licenses/LICENSE-2.0  *  * Unless required by applicable law or agreed to in writing, software  * distributed under the License is distributed on an "AS IS" BASIS,  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  * See the License for the specific language governing permissions and  * limitations under the License.  */
+package org.ltc.hitalk.wam.compiler.prolog;
 
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.utils.ISymbolTable;
@@ -8,6 +12,8 @@ import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.HtPositionalTermTraverser;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.builtins.PrologBuiltInFunctor;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
 import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
 import org.ltc.hitalk.wam.printer.IPositionalTermTraverser;
 import org.ltc.hitalk.wam.printer.IPositionalTermVisitor;
@@ -28,7 +34,7 @@ public class HtBuiltInTransformVisitor extends HtBasePositionalVisitor
     /**
      * Holds the built in transformation function.
      */
-    protected final PrologBuiltInTransform <HtClause, HtPredicate, HtClause> builtInTransform;
+    protected final PrologBuiltInTransform<HtClause, HtPredicate, HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> builtInTransform;
 
     /**
      * Creates the visitor with the supplied interner, symbol table and traverser.
@@ -38,11 +44,11 @@ public class HtBuiltInTransformVisitor extends HtBasePositionalVisitor
      * @param traverser        The positional context traverser.
      * @param builtInTransform The built-in transformation function.
      */
-    public HtBuiltInTransformVisitor (
-            ISymbolTable <Integer, String, Object> symbolTable,
+    public HtBuiltInTransformVisitor(
+            ISymbolTable<Integer, String, Object> symbolTable,
             IVafInterner interner,
             HtPositionalTermTraverser traverser,
-            PrologBuiltInTransform <HtClause, HtPredicate, HtClause> builtInTransform ) {
+            PrologBuiltInTransform<HtClause, HtPredicate, HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> builtInTransform) {
 
         super(symbolTable, interner, traverser);
         this.builtInTransform = builtInTransform;

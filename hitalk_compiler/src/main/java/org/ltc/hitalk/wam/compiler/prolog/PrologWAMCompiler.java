@@ -14,6 +14,8 @@ import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.wam.compiler.BaseInstructionCompiler;
 import org.ltc.hitalk.wam.compiler.CompilerFactory;
 import org.ltc.hitalk.wam.compiler.ICompilerFactory;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,8 +40,8 @@ import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
  * @author Rupert Smith
  */
 @SuppressWarnings("rawtypes")
-public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
-        extends BaseCompiler<T, P, Q> implements IHitalkObject {
+public class PrologWAMCompiler<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledPredicate, QC extends HiTalkWAMCompiledQuery>
+        extends BaseCompiler<T, P, Q, PC, QC> implements IHitalkObject {
 
     /**
      * Creates a base machine over the specified symbol table.
@@ -71,12 +73,12 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
     /**
      * @param instructionCompiler
      */
-    public void setInstructionCompiler(BaseInstructionCompiler<T, PC, QC> instructionCompiler) {
+    public void setInstructionCompiler(BaseInstructionCompiler<T, P, Q, PC, QC> instructionCompiler) {
         this.instructionCompiler = instructionCompiler;
     }
 
     protected IPreCompiler preCompiler;
-    protected BaseInstructionCompiler<T, PC, QC> instructionCompiler;
+    protected BaseInstructionCompiler<T, P, Q, PC, QC> instructionCompiler;
 
     /**
      *
@@ -117,12 +119,12 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
      * @throws IOException
      * @throws HtSourceCodeException
      */
-    public List<HtClause> compileFiles(List<String> fnl) throws Exception {
+    public List<T> compileFiles(List<String> fnl) throws Exception {
         return compileFiles(fnl, EMPTY_FLAG_ARRAY);
     }
 
-    public List<HtClause> compileFiles(List<String> fnl, HtProperty... flags) throws Exception {
-        List<HtClause> list = new ArrayList<>();
+    public List<T> compileFiles(List<String> fnl, HtProperty... flags) throws Exception {
+        List<T> list = new ArrayList<>();
         for (String fn : fnl) {
             list = compileFile(fn, flags);
         }
@@ -135,7 +137,7 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
      * @throws IOException
      */
     @Override
-    public List<HtClause> compileFile(String fn, HtProperty... flags) throws Exception {
+    public List<T> compileFile(String fn, HtProperty... flags) throws Exception {
         return compile(getTokenSourceForIoFileName(fn));
     }
 
@@ -146,7 +148,7 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
      * @throws HtSourceCodeException
      */
     @Override
-    public List<HtClause> compile(PlLexer tokenSource, HtProperty... flags) throws Exception {
+    public List<T> compile(PlLexer tokenSource, HtProperty... flags) throws Exception {
         return preCompiler.preCompile(tokenSource, of(DK_IF));
     }
 
@@ -156,7 +158,7 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
      * @param observer The compiler output observer.
      */
     public void setCompilerObserver(ICompilerObserver<P, Q> observer) {
-        instructionCompiler.setCompilerObserver((ICompilerObserver<PC, QC>) observer);
+        instructionCompiler.setCompilerObserver(observer);
     }
 
     /**
@@ -173,7 +175,7 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
     /**
      * @param resolver
      */
-    public void setResolver(IResolver<P, Q> resolver) {
+    public void setResolver(IResolver<PC, QC> resolver) {
 
     }
 
@@ -182,7 +184,7 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
      * @throws HtSourceCodeException
      */
     @Override
-    public void compile(HtClause clause) throws HtSourceCodeException {
+    public void compile(T clause) throws HtSourceCodeException {
         logger.info("Compiling clause ...");
     }
 
@@ -190,7 +192,7 @@ public class PrologWAMCompiler<T extends HtClause, P, Q, PC, QC>
 
     }
 
-    public BaseInstructionCompiler<T, PC, QC> getInstructionCompiler() {
+    public BaseInstructionCompiler<T, P, Q, PC, QC> getInstructionCompiler() {
         return instructionCompiler;
     }
 

@@ -44,7 +44,8 @@ import static org.ltc.hitalk.interpreter.IInterpreter.SEMICOLON;
 /**
  *
  */
-public class HiTalkInterpreterVisitor<T extends HtMethod, P, Q, PC, QC> extends PrologInterpreterVisitor <T, P, Q, PC, QC>
+public class HiTalkInterpreterVisitor<T extends HtMethod, P, Q, PC extends HiTalkWAMCompiledPredicate, QC extends HiTalkWAMCompiledQuery>
+        extends PrologInterpreterVisitor<T, P, Q, PC, QC>
         implements IAllTermsVisitor {
 
 

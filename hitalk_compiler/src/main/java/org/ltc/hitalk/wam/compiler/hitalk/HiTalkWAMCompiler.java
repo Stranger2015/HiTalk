@@ -18,10 +18,13 @@ import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
  * @param <P>
  * @param <Q>
  */
-public class HiTalkWAMCompiler<T extends HtMethod, P, Q, PC, QC> extends PrologWAMCompiler <T, P, Q, PC, QC> {
-    public HiTalkWAMCompiler () {
+public class HiTalkWAMCompiler<T extends HtMethod, P, Q, PC extends HiTalkWAMCompiledPredicate,
+        QC extends HiTalkWAMCompiledQuery>
+        extends PrologWAMCompiler<T, P, Q, PC, QC> {
 
-    }
+//    public HiTalkWAMCompiler () {
+//
+//    }
 
     /**
      *

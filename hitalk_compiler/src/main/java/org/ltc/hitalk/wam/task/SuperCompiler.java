@@ -10,6 +10,8 @@ import org.ltc.hitalk.entities.context.IMetrics;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
 import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltInTransform;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
@@ -24,7 +26,7 @@ import java.util.List;
 /**
  *
  */
-public class SuperCompiler extends PrologPreCompiler <HtClause, HtPredicate, HtClause>
+public class SuperCompiler extends PrologPreCompiler<HtClause, HtPredicate, HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>
         implements IInliner, ISpecializer, IGeneralizer, ITransformer {
 
     private ProcessTree pTree;
@@ -47,8 +49,8 @@ public class SuperCompiler extends PrologPreCompiler <HtClause, HtPredicate, HtC
     public SuperCompiler(ISymbolTable<Integer, String, Object> symbolTable,
                          IVafInterner interner,
                          PrologDefaultBuiltIn defaultBuiltIn,
-                         PrologBuiltInTransform<HtClause, HtPredicate, HtClause> builtInTransform,
-                         IResolver<HtPredicate, HtClause> resolver,
+                         PrologBuiltInTransform<HtClause, HtPredicate, HtClause, HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> builtInTransform,
+                         IResolver<HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> resolver,
                          HtPrologParser parser) {
         super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, parser);
     }

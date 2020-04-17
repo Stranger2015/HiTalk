@@ -1,13 +1,17 @@
 package org.ltc.hitalk.wam.machine;
 
-import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.ICompiler;
+import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.core.IResolver;
+import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.parser.*;
 import org.ltc.hitalk.wam.compiler.HtFunctorName;
 import org.ltc.hitalk.wam.compiler.HtMethod;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,9 +25,9 @@ import static org.ltc.hitalk.core.BaseApp.getAppContext;
  *
  */
 public
-class HiTalkWAMEngine<T extends HtMethod, P, Q, PC, QC> extends HtResolutionEngine<T, P, Q, PC, QC> {
-
-    protected final Logger log = LoggerFactory.getLogger(getClass().getSimpleName());
+class HiTalkWAMEngine<T extends HtMethod, P, Q, PC extends HiTalkWAMCompiledPredicate, QC extends HiTalkWAMCompiledQuery>
+        extends HtResolutionEngine<T, P, Q, PC, QC> {
+    protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     /**
      * HiTalkWAMEngine implements a {@link HtResolutionEngine} for an WAM-based Prolog with built-ins. This engine loads its
@@ -40,28 +44,30 @@ class HiTalkWAMEngine<T extends HtMethod, P, Q, PC, QC> extends HtResolutionEngi
 //Holds the name of the resource on the classpath that contains the built-in library.
     private static final String BUILT_IN_LIB = "wam_builtins.pl";
     private static final String BUILT_IN_LIB_CORE = "core.lgt";
-    private final IResolver<P, Q> resolver;
+    private final IResolver<PC, QC> resolver;
 
     /**
      * Creates a prolog parser using the specified interner.
      *
      * @param parser
-     * @param interner The functor and variable name interner.
      * @param compiler
      */
-    public HiTalkWAMEngine(HtPrologParser parser,
-                           IVafInterner interner,
-                           ICompiler<T, P, Q> compiler,
-                           IResolver<P, Q> resolver) {
-        super(parser, interner, compiler);
+    public HiTalkWAMEngine(ITermFactory termFactory,
+                           ISymbolTable<Integer, String, Object> symbolTable,
+                           ICompiler<T, P, Q, PC, QC> compiler,
+                           IResolver<PC, QC> resolver,
+                           HtPrologParser parser,
+                           IPreCompiler<T> preCompiler
+    ) {
+        super(symbolTable, termFactory, compiler, resolver, parser, preCompiler);
         this.resolver = resolver;
     }
 
-    public void setCompiler(ICompiler<T, P, Q> compiler) {
+    public void setCompiler(ICompiler<T, P, Q, PC, QC> compiler) {
         this.compiler = compiler;
     }
 
-    protected ICompiler<T, P, Q> compiler;
+    protected ICompiler<T, P, Q, PC, QC> compiler;
 
     /**
      * {InheritDoc}
@@ -86,7 +92,7 @@ class HiTalkWAMEngine<T extends HtMethod, P, Q, PC, QC> extends HtResolutionEngi
             // Load the built-ins into the domain.
             try {
                 while (true) {
-                    HtClause sentence = libParser.parseClause();
+                    T sentence = (T) libParser.parseClause();
                     if (sentence == null) {
                         break;
                     }
@@ -115,7 +121,7 @@ class HiTalkWAMEngine<T extends HtMethod, P, Q, PC, QC> extends HtResolutionEngi
     /**
      * @return
      */
-    public IResolver<P, Q> getResolver() {
+    public IResolver<PC, QC> getResolver() {
         return resolver;
     }
 

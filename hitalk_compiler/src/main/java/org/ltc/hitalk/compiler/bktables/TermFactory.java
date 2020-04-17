@@ -32,6 +32,7 @@ import static org.ltc.hitalk.term.ListTerm.NIL;
  *
  */
 public class TermFactory implements ITermFactory {
+
     private IVafInterner interner;
 
     /**

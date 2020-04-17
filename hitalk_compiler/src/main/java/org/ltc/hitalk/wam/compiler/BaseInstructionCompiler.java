@@ -62,8 +62,9 @@ import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.STACK_ADDR
  *
  * @author Rupert Smith
  */
-public abstract class BaseInstructionCompiler<T extends HtClause, P, Q>
-        extends BaseCompiler<T, P, Q> {
+public abstract class BaseInstructionCompiler<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledPredicate,
+        QC extends HiTalkWAMCompiledQuery>
+        extends BaseCompiler<T, P, Q, PC, QC> {
 
     protected ICompilerObserver<P, Q> observer;
     protected final PrologDefaultBuiltIn defaultBuiltIn;

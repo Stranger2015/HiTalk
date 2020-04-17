@@ -12,7 +12,6 @@ import org.ltc.hitalk.wam.transformers.TransformInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Deque;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -31,7 +30,7 @@ class TransformTask extends PreCompilerTask implements ITransformer {
     protected TransformTask(IPreCompiler preCompiler,
                             PlLexer tokenSource,
                             EnumSet<DirectiveKind> kind) {
-        super(tokenSource, preCompiler, kind);
+        super(preCompiler, tokenSource, kind);
     }
 
     protected ITransformer transformer;
@@ -105,20 +104,6 @@ class TransformTask extends PreCompilerTask implements ITransformer {
     }
 
     public void cancel () {
-
-    }
-
-    /**
-     * @return
-     */
-    public Deque <PreCompilerTask> getQueue () {
-        return null;
-    }
-
-    /**
-     * @param item
-     */
-    public void push ( PreCompilerTask item ) {
 
     }
 

@@ -107,7 +107,7 @@ class Specializer<C extends BodyCalls <C>> implements ISpecializer {
     }
 
     protected boolean unifiesMnl ( ListTerm args, ListTerm headsArgs ) {
-        return TermUtilities.unify(args, headsArgs);
+        return TermUtilities.unifyB(args, headsArgs);
     }
 //    proper_subset([], [_|_]).
 //    proper_subset([_|SubTail], [_|SetTail]) :- proper_subset(SubTail, SetTail).

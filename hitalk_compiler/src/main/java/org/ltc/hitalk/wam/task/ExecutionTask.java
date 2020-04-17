@@ -1,12 +1,18 @@
 package org.ltc.hitalk.wam.task;
 
 import com.thesett.aima.logic.fol.LinkageException;
+import com.thesett.aima.logic.fol.wam.compiler.WAMCallPoint;
+import org.jetbrains.annotations.NotNull;
 import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.entities.HtPredicate;
+import org.ltc.hitalk.interpreter.HtResolutionEngine;
 import org.ltc.hitalk.parser.Directive.DirectiveKind;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.term.HtVariable;
+import org.ltc.hitalk.wam.compiler.IFunctor;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
 import org.ltc.hitalk.wam.compiler.prolog.IExecutionTask;
 
 import java.util.*;
@@ -16,35 +22,41 @@ import java.util.*;
  */
 public class ExecutionTask extends PreCompilerTask implements IExecutionTask {
 
-    private Deque <PreCompilerTask> tasks = new ArrayDeque <>();
+    private final Deque<PreCompilerTask> tasks = new ArrayDeque<>();
+
+    private final HtResolutionEngine<HtClause, HtPredicate, HtClause,
+            HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> engine;
 
     /**
      * @param preCompiler
      */
-    public ExecutionTask(PlLexer lexer,
-                         IPreCompiler preCompiler,
-                         EnumSet<DirectiveKind> kind) {
-        super(lexer, preCompiler, kind);
+    public ExecutionTask(
+            IPreCompiler<?> preCompiler,
+            PlLexer lexer,
+            EnumSet<DirectiveKind> kind) throws Exception {
+
+        super(preCompiler, lexer, kind);
+        engine = new HtResolutionEngine<>();
     }
 
     /**
      * @return
      */
-    public Deque <PreCompilerTask> getQueue () {
+    public Deque<PreCompilerTask> getQueue() {
         return tasks;
     }
 
     /**
      * @param item
      */
-    public void push ( PreCompilerTask item ) {
+    public void push(PreCompilerTask item) {
         getQueue().push(item);
     }
 
     /**
      *
      */
-    public PreCompilerTask poll () {
+    public PreCompilerTask poll() {
         return getQueue().poll();
     }
 
@@ -52,26 +64,18 @@ public class ExecutionTask extends PreCompilerTask implements IExecutionTask {
      * Adds the specified construction to the domain of resolution searched by this resolver.
      *
      * @param term The term to add to the domain.
-     * @throws LinkageException If the term to add to the domain, cannot be added to it, because it depends on the
-     *                          existance of other clauses which are not in the domain. Implementations may elect to
-     *                          raise this as an error at the time the clauses are added to the domain, or during
-     *                          resolution, or simply to fail to find a resolution.
      */
-    public void addToDomain ( HtPredicate term ) throws LinkageException {
-
+    public void addToDomain(HtPredicate term) throws LinkageException {
+        engine.addToDomain((HiTalkWAMCompiledPredicate) term);
     }
 
     /**
      * Sets the query to resolve.
      *
      * @param query The query to resolve.
-     * @throws LinkageException If the query to add run over the domain, cannot be applied to it, because it depends on
-     *                          the existance of clauses which are not in the domain. Implementations may elect to raise
-     *                          this as an error at the time the query is created, or during resolution, or simply to
-     *                          fail to find a resolution.
      */
-    public void setQuery ( HtClause query ) throws LinkageException {
-
+    public void setQuery(HtClause query) throws LinkageException {
+        engine.setQuery((HiTalkWAMCompiledQuery) query);
     }
 
     /**
@@ -82,16 +86,16 @@ public class ExecutionTask extends PreCompilerTask implements IExecutionTask {
      *
      * @return A list of variable bindings, if the query can be satisfied, or <tt>null</tt> otherwise.
      */
-    public Set <HtVariable> resolve () {
-        return null;
+    public Set<HtVariable> resolve() {
+        return engine.resolve();
     }
 
     /**
      * Resets the resolver. This should clear any start and goal states, and leave the resolver in a state in which it
      * is ready to be run.
      */
-    public void reset () {
-
+    public void reset() throws Exception {
+        engine.reset();
     }
 
     /**
@@ -99,12 +103,26 @@ public class ExecutionTask extends PreCompilerTask implements IExecutionTask {
      *
      * @return An iterator that generates all solutions on demand as a sequence of variable bindings.
      */
-    public Iterator <Set <HtVariable>> iterator () {
-        return null;
+    public @NotNull Iterator<Set<HtVariable>> iterator() {
+        return engine.iterator();
     }
 
-    public void toString0 ( StringBuilder sb ) {
 
+    public void toString0(StringBuilder sb) {
+
+    }
+
+
+    /**
+     * @param goal
+     * @return
+     */
+    @Override
+    public boolean call(IFunctor goal) {
+        WAMCallPoint callPoint = new WAMCallPoint(hashCode(), hashCode(), hashCode());//fixme
+
+        engine.execute(callPoint);
+        return false;
     }
 }
 

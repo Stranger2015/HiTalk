@@ -18,7 +18,6 @@ import static java.util.EnumSet.of;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.RESOURCE_ERROR;
 import static org.ltc.hitalk.core.BaseApp.appContext;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
-import static org.ltc.hitalk.entities.PropertyOwner.createProperty;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
 
 public class PlLexer implements PropertyChangeListener {
@@ -26,12 +25,14 @@ public class PlLexer implements PropertyChangeListener {
     public static final String SPECIAL = "#$&*+-/:<=>?@\\^~";
     public static final String PARENTHESES = "(){}[]";
     public static final String DELIMITERS = "\"'`";
+    public boolean isBOFGenerated;
 
     protected HiTalkInputStream inputStream;
     protected boolean encodingPermitted;
     protected IOperatorTable optable = getAppContext().getOpTable();
 
     private PlToken lastToken;
+    public boolean atEOF;
 
     public static PlLexer getTokenSourceForInputStream(InputStream input, String s) throws Exception {
         Path path = Paths.get(s);
@@ -103,7 +104,8 @@ public class PlLexer implements PropertyChangeListener {
         inputStream.open();
 
 //     The first token is initialized to be empty, so that the first call to `poll` returns the first token.
-        lastToken = new PlToken(TK_BOF, "");
+        lastToken = !isBOFGenerated ? new PlToken(TK_BOF, "") : null;
+        isBOFGenerated = true;
         encodingPermitted = true;
     }
 
@@ -157,9 +159,9 @@ public class PlLexer implements PropertyChangeListener {
      */
     public HiTalkInputStream getInputStream() {
 
-        setPath(Paths.get(createProperty("file_name",
-                "c:\\Users\\Anthony_2\\IdeaProjects\\WAM\\hitalk_compiler\\src\\main\\resources\\test.pl",
-                "").getV()));
+//        setPath(Paths.get(createProperty("file_name",
+//                "c:\\Users\\Anthony_2\\IdeaProjects\\WAM\\hitalk_compiler\\src\\main\\resources\\test.pl",
+//                "").getV()));
         return inputStream == null ? getAppContext().getInputStream() : inputStream;
     }
 
@@ -292,6 +294,7 @@ public class PlLexer implements PropertyChangeListener {
             int chr = read();
             if (chr == -1) {
                 lastToken = PlToken.newToken(TK_EOF);
+                atEOF = true;
             } else if (valued) {
                 TokenKind kind = calcTokenKind(chr);
                 if (of(TK_LPAREN, TK_LBRACKET, TK_LBRACE).contains(kind)) {

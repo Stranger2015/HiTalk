@@ -18,6 +18,7 @@ import org.ltc.hitalk.wam.compiler.IFunctor;
 import java.util.*;
 
 import static java.util.Arrays.asList;
+import static org.ltc.hitalk.core.PrologBuiltIns.CALL;
 import static org.ltc.hitalk.parser.PrologAtoms.*;
 
 /**
@@ -188,8 +189,7 @@ public class TermUtilities {
 
         // Walk down the terms matching symbols and flattening them into a list of terms.
         while (mayBeMore) {
-            if (!nextTerm.isBracketed() && nextTerm instanceof IFunctor &&
-                    internedName == nextTerm.getName()) {
+            if (!nextTerm.isBracketed() && internedName == nextTerm.getName()) {
                 IFunctor op = nextTerm;
                 IFunctor termToExtract = (IFunctor) op.getArgument(0);
 
@@ -253,18 +253,9 @@ public class TermUtilities {
         }
     }
 
-    /**
-     * @param term1
-     * @param term2
-     * @return
-     */
-    public static boolean unify(ITerm term1, ITerm term2) {
-        final ListTerm lt = new ListTerm(Arrays.asList(term1, term2));
-        lt.setHead(0, term1);
-        lt.setHead(1, term2);
-
-        PrologBuiltIns.UNIFIES.getBuiltInDef().accept(lt);
-        return PrologBuiltIns.getBooleanResult();
+    public static boolean unifyB(ITerm term1, ITerm term2) {
+        final List<ListTerm> r = unify(term1, term2);
+        return r != null && !r.isEmpty();
     }
 
     /**
@@ -272,11 +263,29 @@ public class TermUtilities {
      * @param term2
      * @return
      */
-    public static boolean term_expansion(ITerm term1, ITerm term2) {
-        final ListTerm lt = new ListTerm(asList(term1, term2));
-        PrologBuiltIns.TERM_EXPANSION.getBuiltInDef().accept(lt);
+    public static List<ListTerm> unify(ITerm term1, ITerm term2) {
+        final ListTerm lt = new ListTerm(Arrays.asList(term1, term2));
+        lt.setHead(0, term1);
+        lt.setHead(1, term2);
 
-        return PrologBuiltIns.getBooleanResult();
+        return PrologBuiltIns.UNIFIES.getBuiltInDef().apply(lt);
+    }
+
+    /**
+     * @param term1
+     * @param term2
+     * @return
+     */
+    public static List<ListTerm> termExpansion(ITerm term1, ITerm term2) {
+        final ListTerm lt = new ListTerm(asList(term1, term2));
+        return PrologBuiltIns.TERM_EXPANSION.getBuiltInDef().apply(lt);
+    }
+
+    public static boolean call(IFunctor functor) {
+        ListTerm lt = new ListTerm(Collections.singletonList(functor));
+        final List<ListTerm> l = CALL.getBuiltInDef().apply(lt);
+
+        return l != null && !l.isEmpty();
     }
 
     /**

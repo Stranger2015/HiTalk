@@ -4,11 +4,16 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
 import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.prolog.PrologInstructionCompiler;
 
-public class HiLogInstructionCompiler<T extends HtClause, P, Q> extends PrologInstructionCompiler <T, P, Q> {
+public class HiLogInstructionCompiler<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledPredicate,
+        QC extends HiTalkWAMCompiledQuery>
+        extends PrologInstructionCompiler<T, P, Q, PC, QC> {
+
     /**
      * Creates a base machine over the specified symbol table.
      *

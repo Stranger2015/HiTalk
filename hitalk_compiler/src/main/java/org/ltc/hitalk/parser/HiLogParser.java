@@ -24,9 +24,7 @@ import static org.ltc.hitalk.wam.compiler.Language.HILOG;
 public class HiLogParser extends HtPrologParser {
 
     public static final String HILOG_APPLY_STRING = "$hilog_apply";
-
     public static final int HILOG_APPLY_INT = getAppContext().getInterner().internFunctorName(HILOG_APPLY_STRING, 1);
-
     public static final IFunctor HILOG_APPLY =
             getAppContext().getTermFactory().newHiLogFunctor(HILOG_APPLY_STRING, new ListTerm(1));
 

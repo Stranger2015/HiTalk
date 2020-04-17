@@ -6,8 +6,6 @@ import com.thesett.aima.logic.fol.Sentence;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
-import org.ltc.hitalk.entities.HtPredicate;
-import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.term.ITerm;
@@ -18,6 +16,7 @@ import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.task.TransformTask;
 import org.ltc.hitalk.wam.transformers.DefaultTransformer;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -25,23 +24,23 @@ import java.util.function.Consumer;
 /**
  *
  */
-public class HiTalkPreprocessor<T extends HtMethod, P, Q, TT extends TransformTask>
-        extends HiTalkPreCompiler <T, P, Q> {
+public class HiTalkPreprocessor<T extends HtMethod, P, Q, PC extends HiTalkWAMCompiledPredicate, QC extends HiTalkWAMCompiledQuery>
+        extends HiTalkPreCompiler<T, P, Q, PC, QC> {
 
     protected final DefaultTransformer defaultTransformer;
-    protected final List <TT> components = new ArrayList <>();
+    protected final List<TransformTask> components = new ArrayList<>();
 
-    private static Object apply ( Object o ) {
+    private static Object apply(Object o) {
         return o;
     }
 
     @Override
-    public ICompilerObserver <P, Q> getObserver () {
+    public ICompilerObserver<P, Q> getObserver() {
         return observer;
     }
 
-    protected ICompilerObserver <P, Q> observer;
-    protected List<T> preCompiledTarget;
+    protected ICompilerObserver<P, Q> observer;
+    protected List<QC> preCompiledTarget;
     protected HtPrologParser parser;
 
     /**
@@ -53,9 +52,9 @@ public class HiTalkPreprocessor<T extends HtMethod, P, Q, TT extends TransformTa
      */
     public HiTalkPreprocessor(ISymbolTable<Integer, String, Object> symbolTable,
                               IVafInterner interner,
-                              PrologBuiltInTransform<T, P, Q> builtInTransform,
+                              PrologBuiltInTransform<T, P, Q, PC, QC> builtInTransform,
                               PrologDefaultBuiltIn defaultBuiltIn,
-                              IResolver<HtPredicate, HtClause> resolver,
+                              IResolver<PC, QC> resolver,
                               HtPrologParser parser)
             throws LinkageException {
 
@@ -64,12 +63,11 @@ public class HiTalkPreprocessor<T extends HtMethod, P, Q, TT extends TransformTa
         defaultTransformer = new DefaultTransformer(null);
 
         if (preCompiledTarget != null) {
-            for (final T t : preCompiledTarget) {
-                resolver.setQuery(t);
+            for (final QC t : preCompiledTarget) {
+                resolver.setQuery((QC) t);
                 resolver.resolve();
             }
         }
-//        components.add((TT)
     }
 
     /**
@@ -78,7 +76,7 @@ public class HiTalkPreprocessor<T extends HtMethod, P, Q, TT extends TransformTa
      * @param sentence
      */
     @Override
-    public void compile ( Sentence <T> sentence ) throws HtSourceCodeException {
+    public void compile(Sentence<T> sentence) throws HtSourceCodeException {
 //
     }
 
@@ -86,7 +84,7 @@ public class HiTalkPreprocessor<T extends HtMethod, P, Q, TT extends TransformTa
      * @param clauses
      */
     @Override
-    protected void saveResult ( List <T> clauses ) {
+    protected void saveResult(List<QC> clauses) {
         preCompiledTarget = clauses;
     }
 
@@ -94,15 +92,23 @@ public class HiTalkPreprocessor<T extends HtMethod, P, Q, TT extends TransformTa
      * @param t
      * @return
      */
-    protected List <T> preprocess ( T t ) {
-        List <T> list = new ArrayList <>();
+    protected List<T> preprocess(T t) {
+        List<T> list = new ArrayList<>();
 
-        components.stream().map(task -> task.invoke(t)).forEach((Consumer <? super List <ITerm>>) list);//fixme
+        components.stream().map(
+                task -> {
+                    try {
+                        return task.invoke(t);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }).forEach((Consumer<? super List<ITerm>>) list);//fixme
 
         return list;
     }
 
-    private void initialize () {
+    private void initialize() {
 
     }
 
@@ -110,12 +116,12 @@ public class HiTalkPreprocessor<T extends HtMethod, P, Q, TT extends TransformTa
      * @param t
      */
 //    @Override
-    public void add ( TT t ) {
+    public void add(TransformTask t) {
         components.add(t);
     }
 
     //    @Override
-    public List <TT> getComponents () {
+    public List<TransformTask> getComponents() {
         return components;
     }
 }

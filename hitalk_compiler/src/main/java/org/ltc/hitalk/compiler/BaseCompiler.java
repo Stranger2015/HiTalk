@@ -10,6 +10,8 @@ import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
 import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
-import static org.ltc.hitalk.parser.HtPrologParser.BEGIN_OF_FILE;
 import static org.ltc.hitalk.parser.HtPrologParser.END_OF_FILE;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.TK_DOT;
 
@@ -28,8 +29,10 @@ import static org.ltc.hitalk.parser.PlToken.TokenKind.TK_DOT;
  * @param <Q>
  */
 abstract
-public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
-        implements ICompiler<T, P, Q> {
+public class BaseCompiler<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledPredicate,
+        QC extends HiTalkWAMCompiledQuery>
+        extends AbstractBaseMachine
+        implements ICompiler<T, P, Q, PC, QC> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
@@ -37,7 +40,7 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
     protected int scope;
     protected Deque<SymbolKey> predicatesInScope = new ArrayDeque<>();
     protected HtPrologParser parser;
-    protected IResolver<P, Q> resolver;
+    protected IResolver<PC, QC> resolver;
     protected ICompilerObserver<P, Q> observer;//todo is that really to be here
 
     /**
@@ -75,7 +78,7 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
     /**
      * @return
      */
-    public IResolver<P, Q> getResolver() {
+    public IResolver<PC, QC> getResolver() {
         return resolver;
     }
 
@@ -101,22 +104,22 @@ public class BaseCompiler<T extends HtClause, P, Q> extends AbstractBaseMachine
      * @throws Exception
      */
     @Override
-    public List<HtClause> compile(String fileName, HtProperty... flags) throws Exception {
+    public List<T> compile(String fileName, HtProperty... flags) throws Exception {
         PlLexer ts = PlLexer.getTokenSourceForIoFileName(fileName);
         return compile(ts, flags);
     }
 
-    public List<HtClause> compile(PlLexer tokenSource, HtProperty... flags) throws Exception {
+    public List<T> compile(PlLexer tokenSource, HtProperty... flags) throws Exception {
         getConsole().info("PreCompiling " + tokenSource.getPath() + "... ");
-        final List<HtClause> list = new ArrayList<>();
+        final List<T> list = new ArrayList<>();
         parser.setTokenSource(tokenSource);
         while (tokenSource.isOpen()) {
             ITerm t = parser.expr(TK_DOT);
-            if (t == BEGIN_OF_FILE) {
-//                getTaskQueue().push(new TermExpansionTask(this, Collections::singletonList,
-//                        EnumSet.of(ENCODING))); //read until
-                continue;
-            }
+//            if (t == BEGIN_OF_FILE) {
+////                getTaskQueue().push(new TermExpansionTask(this, Collections::singletonList,
+////                        EnumSet.of(ENCODING))); //read until
+//                continue;
+//            }
             if (t == END_OF_FILE) {
                 //                getTaskQueue().push(new TermExpansionTask(this, Collections::singletonList,
                 parser.popTokenSource();

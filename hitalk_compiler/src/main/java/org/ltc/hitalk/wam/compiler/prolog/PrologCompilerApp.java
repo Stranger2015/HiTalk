@@ -38,6 +38,8 @@ import org.ltc.hitalk.wam.compiler.CompilerFactory;
 import org.ltc.hitalk.wam.compiler.ICompilerFactory;
 import org.ltc.hitalk.wam.compiler.Language;
 import org.ltc.hitalk.wam.compiler.Tools.Kind;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -56,7 +58,7 @@ import static org.ltc.hitalk.wam.compiler.Tools.Kind.COMPILER;
 /**
  *
  */
-public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp<T, P, Q, PC, QC> {
+public class PrologCompilerApp<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledPredicate, QC extends HiTalkWAMCompiledQuery> extends BaseApp<T, P, Q, PC, QC> {
 
     public static final String DEFAULT_SCRATCH_DIRECTORY = "scratch";
     public static final HtProperty[] DEFAULT_PROPS = new HtProperty[]{
@@ -293,8 +295,8 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC, QC> extends BaseApp
                 getWAMCompiler().setPreCompiler(new PrologPreCompiler<>());
                 getWAMCompiler().setCompilerObserver(new ICompilerObserver<P, Q>() {
                     public void onCompilation(PlLexer tokenSource) throws Exception {
-                        final List<HtClause> list = getWAMCompiler().getPreCompiler().preCompile(tokenSource, EnumSet.of(DK_IF));
-                        for (HtClause clause : list) {
+                        final List<T> list = getWAMCompiler().getPreCompiler().preCompile(tokenSource, EnumSet.of(DK_IF));
+                        for (T clause : list) {
                             getWAMCompiler().getInstructionCompiler().compile(clause);
                         }
                     }

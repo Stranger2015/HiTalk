@@ -59,10 +59,9 @@ import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.STR;
  * @author Rupert Smith
  */
 public abstract
-class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
-        implements IResolver <HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>, IWAMResolvingMachineDPI {
-    //Used for debugging.
-    //private static final Logger log = Logger.getLogger(HiTalkWAMResolvingMachine.class.getName());
+class HiTalkWAMResolvingMachine<P extends HiTalkWAMCompiledPredicate, Q extends HiTalkWAMCompiledQuery>
+        extends HiTalkWAMBaseMachine
+        implements IResolver<P, Q>, IWAMResolvingMachineDPI {
 
     /**
      * Static counter for inventing new variable names.
@@ -90,14 +89,14 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
      *
      * @param symbolTable The symbol table.
      */
-    protected HiTalkWAMResolvingMachine ( ISymbolTable <Integer, String, Object> symbolTable ) {
+    protected HiTalkWAMResolvingMachine(ISymbolTable<Integer, String, Object> symbolTable) {
         super(symbolTable);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void emitCode ( HiTalkWAMCompiledPredicate predicate ) throws LinkageException {
+    public void emitCode(HiTalkWAMCompiledPredicate predicate) throws LinkageException {
         // Keep track of the offset into which the code was loaded.
         int entryPoint = codeBuffer.position();
         int length = (int) predicate.sizeof();
@@ -106,7 +105,9 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
         WAMCallPoint callPoint = setCodeAddress(predicate.getName(), entryPoint, length);
 
         // Emit code for the clause into this machine.
-        predicate.emitCode(codeBuffer, this, callPoint);
+        predicate.emitCode(codeBuffer,
+                (HiTalkWAMResolvingMachine<HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>) this,
+                callPoint);
 
         // Notify the native machine of the addition of new code.
         codeAdded(codeBuffer, entryPoint, length);
@@ -120,7 +121,7 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
     /**
      * {@inheritDoc}
      */
-    public void emitCode ( HiTalkWAMCompiledQuery query ) throws LinkageException {
+    public void emitCode(HiTalkWAMCompiledQuery query) throws LinkageException {
         // Keep track of the offset into which the code was loaded.
         int entryPoint = codeBuffer.position();
         int length = (int) query.sizeof();
@@ -129,7 +130,7 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
         WAMCallPoint callPoint = new WAMCallPoint(entryPoint, length, -1);
 
         // Emmit code for the clause into this machine.
-        query.emitCode(codeBuffer, this, callPoint);
+        query.emitCode(codeBuffer, (HiTalkWAMResolvingMachine<HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery>) this, callPoint);
 
         // Notify the native machine of the addition of new code.
         codeAdded(codeBuffer, entryPoint, length);
@@ -146,7 +147,7 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
      * @param callPoint The call table entry giving the location and length of the code.
      * @return The byte code at the specified location.
      */
-    public byte[] retrieveCode ( WAMCallPoint callPoint ) {
+    public byte[] retrieveCode(WAMCallPoint callPoint) {
 
         byte[] result = new byte[callPoint.length];
         codeBuffer.get(result, callPoint.entryPoint, callPoint.length);
@@ -157,14 +158,14 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
     /**
      * {@inheritDoc}
      */
-    public void emitCode ( int offset, int address ) {
+    public void emitCode(int offset, int address) {
         codeBuffer.putInt(offset, address);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void addToDomain ( HiTalkWAMCompiledPredicate term ) throws LinkageException {
+    public void addToDomain(HiTalkWAMCompiledPredicate term) throws LinkageException {
         /*log.fine("public void addToDomain(HiTalkWAMCompiledClause term = " + term + "): called");*/
 
         // Emit code for the term into this machine.
@@ -174,7 +175,7 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
     /**
      * {@inheritDoc}
      */
-    public void setQuery ( HiTalkWAMCompiledQuery query ) throws LinkageException {
+    public void setQuery(HiTalkWAMCompiledQuery query) throws LinkageException {
         /*log.fine("public void setQuery(HiTalkWAMCompiledClause query = " + query + "): called");*/
 
         // Emit code for the clause into this machine.
@@ -187,7 +188,7 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
     /**
      * {@inheritDoc}
      */
-    public Set <HtVariable> resolve () {
+    public Set<HtVariable> resolve() {
         // Check that a query has been set to resolve.
         if (currentQuery == null) {
             throw new IllegalStateException("No query set to resolve.");
@@ -200,14 +201,14 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
     /**
      * {@inheritDoc}
      */
-    public void attachMonitor ( IWAMResolvingMachineDPIMonitor monitor ) {
+    public void attachMonitor(IWAMResolvingMachineDPIMonitor monitor) {
         this.monitor = monitor;
     }
 
     /**
      * {@inheritDoc}
      */
-    public ByteBuffer getCodeBuffer ( int start, int length ) {
+    public ByteBuffer getCodeBuffer(int start, int length) {
         // Take a read only slice onto an appropriate section of the code buffer.
         ByteBuffer readOnlyBuffer = codeBuffer.asReadOnlyBuffer();
         readOnlyBuffer.position(start);
@@ -219,7 +220,7 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
     /**
      * {@inheritDoc}
      */
-    public IVafInterner getIVafInterner () {
+    public IVafInterner getIVafInterner() {
         return this;
     }
 
@@ -230,7 +231,7 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
      * @param codeOffset The start offset of the new code.
      * @param length     The length of the new code.
      */
-    protected abstract void codeAdded ( ByteBuffer codeBuffer, int codeOffset, int length );
+    protected abstract void codeAdded(ByteBuffer codeBuffer, int codeOffset, int length);
 
     /**
      * Dereferences an offset from the current BaseApp frame on the stack. Storage slots in the current BaseApp
@@ -240,7 +241,7 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
      * @param a The offset into the current BaseApp stack frame to dereference.
      * @return The dereferences structure or variable.
      */
-    protected abstract int derefStack ( int a );
+    protected abstract int derefStack(int a);
 
     /**
      * Executes compiled code at the specified call point returning an indication of whether or not the execution was
@@ -249,7 +250,7 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
      * @param callPoint The call point of the compiled byte code to execute.
      * @return <tt>true</tt> iff execution succeeded.
      */
-    protected abstract boolean execute ( WAMCallPoint callPoint );
+    protected abstract boolean execute(WAMCallPoint callPoint);
 
     /**
      * Dereferences a heap pointer (or register), returning the address that it refers to after following all reference
@@ -260,21 +261,21 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
      * @param a The address to dereference.
      * @return The address that the reference refers to.
      */
-    protected abstract int deref ( int a );
+    protected abstract int deref(int a);
 
     /**
      * Gets the heap cell tag for the most recent dereference operation.
      *
      * @return The heap cell tag for the most recent dereference operation.
      */
-    protected abstract byte getDerefTag ();
+    protected abstract byte getDerefTag();
 
     /**
      * Gets the heap call value for the most recent dereference operation.
      *
      * @return The heap call value for the most recent dereference operation.
      */
-    protected abstract int getDerefVal ();
+    protected abstract int getDerefVal();
 
     /**
      * Gets the value of the heap cell at the specified location.
@@ -282,7 +283,7 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
      * @param addr The address to fetch from the heap.
      * @return The heap cell at the specified location.
      */
-    protected abstract int getHeap ( int addr );
+    protected abstract int getHeap(int addr);
 
     /**
      * Runs a query, and for every non-anonymous variable in the query, decodes its binding value from the heap and
@@ -291,21 +292,21 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
      * @param query The query to execute.
      * @return A set of variable bindings resulting from the query.
      */
-    protected Set <HtVariable> executeAndExtractBindings ( HiTalkWAMCompiledQuery query ) {
+    protected Set<HtVariable> executeAndExtractBindings(HiTalkWAMCompiledQuery query) {
         // Execute the query and program. The starting point for the execution is the first functor in the query
         // body, this will follow on to the subsequent functors and make calls to functors in the compiled programs.
         boolean success = execute(query.getCallPoint());
 
         // Used to collect the results in.
-        Set <HtVariable> results = null;
+        Set<HtVariable> results = null;
 
         // Collect the results only if the resolution was successful.
         if (success) {
-            results = new HashSet <>();
+            results = new HashSet<>();
 
             // The same variable context is used accross all of the results, for common use of variables in the
             // results.
-            Map <Integer, HtVariable> varContext = new HashMap <>();
+            Map<Integer, HtVariable> varContext = new HashMap<>();
 
             // For each of the free variables in the query, extract its value from the location on the heap pointed to
             // by the register that holds the variable.
@@ -334,7 +335,7 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
      *                        decoded for a particular unifcation.
      * @return The term decoded from its heap representation.
      */
-    protected ITerm decodeHeap ( int start, Map <Integer, HtVariable> variableContext ) {
+    protected ITerm decodeHeap(int start, Map<Integer, HtVariable> variableContext) {
         /*log.fine("private Term decodeHeap(int start = " + start + ", Map<Integer, HtVariable> variableContext = " +
             variableContext + "): called");*/
 
@@ -362,7 +363,6 @@ class HiTalkWAMResolvingMachine extends HiTalkWAMBaseMachine
                 }
 
                 result = var;
-
                 break;
             }
 

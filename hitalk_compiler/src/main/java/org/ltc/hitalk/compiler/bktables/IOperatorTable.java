@@ -74,4 +74,6 @@ public interface IOperatorTable extends IHitalkObject {
      * @return
      */
     int getPriority(String image, Associativity associativity);
+
+    Set<OpSymbolFunctor> getOperators(String name, int arity);
 }

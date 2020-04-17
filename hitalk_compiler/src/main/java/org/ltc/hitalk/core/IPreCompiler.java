@@ -6,6 +6,7 @@ import org.ltc.hitalk.parser.Directive.DirectiveKind;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.parser.PlLexer;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.HtFunctorName;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler.ClauseChainObserver;
 import org.ltc.hitalk.wam.task.PreCompilerTask;
@@ -21,86 +22,31 @@ import static org.ltc.hitalk.core.BaseApp.getAppContext;
 /**
  *
  */
-public interface IPreCompiler extends IQueueHolder<PreCompilerTask>, IHitalkObject {
+public interface IPreCompiler<T extends HtClause> extends IQueueHolder<PreCompilerTask>, IHitalkObject {
     /**
      * @return
      */
     Logger getLogger();
-//    /**
-//     * @param string
-//     * @param flags
-//     * @throws Exception
-//     */
-//    @Override
-//    public void compileString ( String string, HtProperty... flags ) throws Exception {
-//        ICompiler.super.compileString(string, flags);
-//    }
-
-//    /**
-//     * @param tokenSource
-//     * @param flags
-//     * @throws IOException
-//     * @throws HtSourceCodeException
-//     */
-//    @Override
-//    public void compile ( ITokenSource tokenSource, HtProperty... flags )
-//            throws IOException, HtSourceCodeException, ParserException {
-//        getConsole().info("Compiling " + tokenSource.getPath() + "... ");
-//        /*
-//        // Set up a parser on the token source.
-//        LibParser libParser = new LibParser();
-//        libParser.setTokenSource(tokenSource);
-//
-//        // Load the built-ins into the domain
-//        while (true) {
-//            ISentence <ITerm> sentence = libParser.parse();
-//            final ITerm term = sentence.getT();
-//            //TODO  GLOBAL WITHOUT SPECIAL CASES
-//            if (term == HtPrologParser.BEGIN_OF_FILE_ATOM) {//ignore
-//                //    final List <ITerm> l = preCompiler.expandTerm(term);
-//                continue;
-//            }
-//            if (term == HtPrologParser.END_OF_FILE_ATOM) {
-//                if (!libParser.getTokenSource().isEofGenerated()) {
-//                    parser.popTokenSource();
-//                    break;
-//                }
-//            }
-//            //            compiler.compile(sentence);
-//            HtClause clause = libParser.convert(sentence.getT());
-//            preCompiler.compile(clause);
-//        }
-//        preCompiler.endScope();
-//        *
-//        * */
-//        parser.setTokenSource(tokenSource);
-//
-//    }
-//
-//    @Override
-//    public Logger getConsole () {
-//        return logger;
-//    }
 
     /**
      * @param tokenSource
      * @return
      * @throws Exception
      */
-    List<HtClause> preCompile(PlLexer tokenSource, EnumSet<DirectiveKind> delims) throws Exception;
+    List<T> preCompile(PlLexer tokenSource, EnumSet<DirectiveKind> delims) throws Exception;
 
-    Deque <PreCompilerTask> getQueue ();
+    Deque<PreCompilerTask> getQueue();
 
-    HtPrologParser getParser();
+    HtPrologParser getParser() throws Exception;
 
-    boolean isDirective ( HtClause clause );
+    boolean isDirective(T clause) throws Exception;
 
     /**
      * @param clause
      * @param delims
      * @return
      */
-    default boolean checkDirective(HtClause clause, EnumSet<DirectiveKind> delims) throws Exception {
+    default boolean checkDirective(T clause, EnumSet<DirectiveKind> delims) throws Exception {
         final IVafInterner interner = getInterner();
         if (!isDirective(clause)) {
             return false;
@@ -117,14 +63,25 @@ public interface IPreCompiler extends IQueueHolder<PreCompilerTask>, IHitalkObje
     /**
      *
      */
-    void endScope ();
+    void endScope() throws Exception;
 
-    default IVafInterner getInterner () {
+    default IVafInterner getInterner() {
         return getAppContext().getInterner();
     }
 
-    void setCompilerObserver ( ClauseChainObserver clauseChainObserver );
+    void setCompilerObserver(ClauseChainObserver clauseChainObserver);
 
+    /**
+     * @param term
+     * @return
+     */
+    boolean checkBOF(ITerm term);
+
+    /**
+     * @param term
+     * @return
+     */
+    boolean checkEOF(ITerm term);
 
     /**
      * expand_term(+Term1, -Term2)
@@ -152,4 +109,5 @@ public interface IPreCompiler extends IQueueHolder<PreCompilerTask>, IHitalkObje
      * @param term
      * @return
      */
+
 }

@@ -8,16 +8,16 @@ import org.ltc.hitalk.compiler.VafInterner;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 public abstract
 class HiTalkWAMBaseMachine extends VafInterner implements HiTalkWAMMachine, WAMCodeView {
-    /* Used for debugging. */
-    protected final Logger log = Logger.getLogger(getClass().getSimpleName());
+    protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     /**
      * The symbol table key for call points.
@@ -192,8 +192,7 @@ class HiTalkWAMBaseMachine extends VafInterner implements HiTalkWAMMachine, WAMC
      * Resets the machine, to its initial state. This should clear any programs from the machine, and clear all of its
      * stacks and heaps.
      */
-    public
-    void reset () {
+    public void reset() throws Exception {
         // Clear the entire symbol table.
         symbolTable.clear();
         reverseTable.clear();

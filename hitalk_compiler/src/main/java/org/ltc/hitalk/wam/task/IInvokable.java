@@ -2,12 +2,19 @@ package org.ltc.hitalk.wam.task;
 
 import org.ltc.hitalk.compiler.bktables.error.StopRequestException;
 import org.ltc.hitalk.term.ITerm;
+import org.slf4j.Logger;
 
-import java.util.Collections;
+import java.io.IOException;
 import java.util.List;
+
+import static java.util.Collections.singletonList;
 
 public
 interface IInvokable<T extends ITerm> extends Runnable {
+    /**
+     * @return
+     */
+    Logger getLogger();
 
     /**
      * When an object implementing interface <code>Runnable</code> is used
@@ -21,11 +28,10 @@ interface IInvokable<T extends ITerm> extends Runnable {
      * @see Thread#run()
      */
     @Override
-    default
-    void run () {
+    default void run() {
         try {
             invoke(null);
-        } catch (StopRequestException ignored) {
+        } catch (StopRequestException | IOException ignored) {
         }
     }
 
@@ -33,14 +39,19 @@ interface IInvokable<T extends ITerm> extends Runnable {
      * @param t
      * @return
      */
-    default
-    List <T> invoke ( T t ) {
+    default List<T> invoke(T t) throws IOException {
         banner();
-        return Collections.singletonList(t);
+        return singletonList(t);
     }
 
     /**
      *
      */
-    void banner ();
+    void banner();
+
+//    CompositeTask<T> getCompositeTask();
+//    void setCompositeTask(CompositeTask<T> task);
+
+//    IgetNextTask();
 }
+

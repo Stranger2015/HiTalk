@@ -10,26 +10,26 @@ public interface IQueueHolder<T extends IHitalkObject> {
     /**
      * @return
      */
-    Deque <T> getQueue ();
+    Deque<T> getTaskQueue();
 
     /**
      * @param item
      */
     default void push ( T item ) {
-        getQueue().push(item);
+        getTaskQueue().push(item);
     }
 
     /**
      *
      */
     default T poll () {
-        return getQueue().poll();
+        return getTaskQueue().poll();
     }
 
     /**
      * @return
      */
     default T pop () {
-        return getQueue().pop();
+        return getTaskQueue().pop();
     }
 }

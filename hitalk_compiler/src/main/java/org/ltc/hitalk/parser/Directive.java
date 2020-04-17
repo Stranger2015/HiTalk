@@ -52,15 +52,13 @@ public class Directive extends HtClause {
         }
 
         private static void _if(IFunctor functor) {
+//            new CondCompilationTask(BaseApp.appContext.getTokenSource(),);
         }
     }
 
     public IFunctor getDef () {
         return getGoal(0);
     }
-
-//    protected IFunctor def;
-
     public DirectiveKind getKind () {
         return kind;
     }

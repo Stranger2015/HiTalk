@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.EOFException;
+import java.io.IOException;
 import java.util.*;
 
 import static java.util.EnumSet.of;
@@ -33,7 +34,7 @@ import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
 /**
  *
  */
-public class HtPrologParser implements IParser {
+public class HtPrologParser implements IParser<HtClause> {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     protected ListTerm listTerm = new ListTerm(0);
@@ -253,7 +254,8 @@ public class HtPrologParser implements IParser {
         if (!tokenSourceStack.isEmpty()) {
             return tokenSourceStack.peek();
         }
-        throw new IllegalStateException();
+//        throw new IllegalStateException();
+        return null;
     }
 
     /**
@@ -435,7 +437,7 @@ public class HtPrologParser implements IParser {
     /**
      * @return
      */
-    public boolean isFunctorBegin() {
+    public boolean isFunctorBegin() throws IOException {
         final PlToken token = getLexer().getLastToken();
         return token.kind == TK_LPAREN && token.isSpacesOccurred();
     }
@@ -471,7 +473,8 @@ public class HtPrologParser implements IParser {
                 break;
             case TK_EOF:
                 lastTerm = END_OF_FILE;
-                popTokenSource();
+//                popTokenSource();
+                getLexer().atEOF = true;
                 break;
             case TK_DOT:
                 if (!isEndOfTerm()) {
@@ -625,7 +628,7 @@ public class HtPrologParser implements IParser {
      */
     public ITerm parseLeftSide(int currPriority, TokenKind rDelim) throws Exception {
 //        1. prefix expression
-        lastTerm = null;
+//        lastTerm = null;
         PlToken token = readToken();
         if (token.kind == TK_BOF) {
             lastTerm = BEGIN_OF_FILE;
@@ -633,7 +636,8 @@ public class HtPrologParser implements IParser {
         }
         if (token.kind == TK_EOF) {
             lastTerm = END_OF_FILE;
-            popTokenSource();
+//            popTokenSource();
+            getParser().getLexer().atEOF = true;
             return lastTerm;
         }
         if (currPriority == 0) {
@@ -697,7 +701,7 @@ public class HtPrologParser implements IParser {
                     }
                 }
                 //priorityFY has priority over priorityFX, or priorityFX has failed
-                if (priorityFY >= MIN_PRIORITY) {//todo hilog
+                if (priorityFY >= MIN_PRIORITY) {
                     if (lastTerm != null) {
                         return new OpSymbolFunctor(
                                 token.image,
@@ -723,6 +727,8 @@ public class HtPrologParser implements IParser {
                                 fx,
                                 priorityFX - 1,
                                 ((OpSymbolFunctor) lastTerm).getResult());
+                    } else {
+                        haveAttemptedFX = true;
                     }
                 }
                 //priorityFY has priority over priorityFX, but priorityFY failed
@@ -733,6 +739,8 @@ public class HtPrologParser implements IParser {
                                 hx,
                                 priorityHX - 1,
                                 ((OpSymbolFunctor) lastTerm).getResult());
+                    } else {
+                        haveAttemptedHX = true;
                     }
                 }
             }
@@ -805,9 +813,9 @@ public class HtPrologParser implements IParser {
         //2.left is followed by either priorityXFX, priorityXFY or xf operators, parse these
         PlToken operator = readToken();
         for (; isOperator(operator); operator = readToken()) {
-            int priorityXFX = getOptable().getPriority(token.image, xfx);
-            int priorityXFY = getOptable().getPriority(token.image, fx);
-            int priorityXF = getOptable().getPriority(token.image, xf);
+            int priorityXFX = getOptable().getPriority(operator.image, xfx);
+            int priorityXFY = getOptable().getPriority(operator.image, fx);
+            int priorityXF = getOptable().getPriority(operator.image, xf);
             //check that no operator has a priority higher than permitted
             //or a lower priority than the left side expression
             if (priorityXFX > currPriority || priorityXFX < MIN_PRIORITY) {
@@ -829,7 +837,7 @@ public class HtPrologParser implements IParser {
                     //left = new OpSymbolFunctor(priorityXFX, priorityXFX);
                     left = identifyTerm(priorityXFX,
                             new OpSymbolFunctor(
-                                    token.image,
+                                    operator.image,
                                     left.getResult(),
                                     found.getResult()),
                             tokenStart);
@@ -847,7 +855,7 @@ public class HtPrologParser implements IParser {
                     left = identifyTerm(
                             priorityXFY,
                             new OpSymbolFunctor(
-                                    token.image,
+                                    operator.image,
                                     left.getResult(),
                                     found.getResult()),
                             tokenStart);
@@ -859,7 +867,7 @@ public class HtPrologParser implements IParser {
                 //return new OpSymbolFunctor(XF, new OpSymbolFunctor(token.image, left.getResult()));
                 return identifyTerm(priorityXF,
                         new OpSymbolFunctor(
-                                token.image,
+                                operator.image,
                                 left.getResult()),
                         tokenStart);
 
@@ -869,7 +877,7 @@ public class HtPrologParser implements IParser {
                 if (found != null) {
                     left = identifyTerm(priorityXFX,
                             new OpSymbolFunctor(
-                                    token.image,
+                                    operator.image,
                                     left.getResult(),
                                     found.getResult()),
                             tokenStart);
@@ -908,6 +916,7 @@ public class HtPrologParser implements IParser {
      * @throws Exception
      */
     protected PlToken readToken() throws Exception {
+        logger.info("getLexer() = " + getLexer());
         return getLexer().readToken(true);
     }
 
@@ -921,8 +930,12 @@ public class HtPrologParser implements IParser {
     /**
      * @return
      */
-    protected PlLexer getLexer() {
-        return getTokenSourceStack().peek();
+    public PlLexer getLexer() throws IOException {
+        final PlLexer peek = getTokenSourceStack().peek();
+//        if(peek == null){
+//            throw new EOFException();
+//        }
+        return peek;
     }
 
     /**

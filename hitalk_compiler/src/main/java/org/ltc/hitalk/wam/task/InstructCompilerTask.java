@@ -11,19 +11,26 @@ import java.util.Deque;
  *
  */
 public class InstructCompilerTask implements IPendingClausesHolder, IHitalkObject {
-    private final Deque <HtClause> clauses = new ArrayDeque <>();
+    private final Deque<HtClause> clauses = new ArrayDeque<>();
 
     /**
      * @return
      */
-    public Deque <HtClause> getQueue () {
+    public Deque<HtClause> getQueue() {
         return clauses;
+    }
+
+    /**
+     * @return
+     */
+    public Deque<HtClause> getTaskQueue() {
+        return null;
     }
 
     /**
      * @param item
      */
-    public void push ( HtClause item ) {
+    public void push(HtClause item) {
         clauses.push(item);
     }
 

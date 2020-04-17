@@ -9,8 +9,8 @@ import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.term.io.HiTalkOutputStream;
 import org.ltc.hitalk.wam.compiler.Language;
 import org.ltc.hitalk.wam.compiler.Tools.Kind;
-
-import java.io.IOException;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
@@ -19,14 +19,14 @@ import static org.ltc.hitalk.wam.compiler.Tools.Kind.INTERPRETER;
 /**
  *
  */
-public class PrologInterpreterApp<T extends HtClause, P, Q, PC, QC> extends BaseApp<T, P, Q, PC, QC> {
+public class PrologInterpreterApp<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledPredicate, QC extends HiTalkWAMCompiledQuery> extends BaseApp<T, P, Q, PC, QC> {
 
     private HiTalkInputStream currentInputStream;
 
     /**
      * @param fn
      */
-    public PrologInterpreterApp(String fn) throws IOException, CloneNotSupportedException {
+    public PrologInterpreterApp(String fn) {
         if (fn.startsWith("meta:")) {
             fn = fn.substring(6);
             ///getParser().setTokenSource(ITokenSource.getITokenSourceForString(fn));

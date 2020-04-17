@@ -53,12 +53,12 @@ import java.util.*;
  */
 public
 class HiTalkWAMCompiledPredicate extends HtPredicate
-        implements Sentence <HiTalkWAMCompiledPredicate>, Sizeable, IWAMOptimizeableListing {
+        implements Sentence<HiTalkWAMCompiledPredicate>, Sizeable, IWAMOptimizeableListing {
     /**
      * @return
      */
     @Override
-    public boolean isHiLog () {
+    public boolean isHiLog() {
         return false;
     }
     //Used for debugging.
@@ -156,8 +156,6 @@ class HiTalkWAMCompiledPredicate extends HtPredicate
 //        int oldLength=0;
 
         merge(definition);
-
-
         addInstructions(instructions);
     }
 
@@ -246,8 +244,9 @@ class HiTalkWAMCompiledPredicate extends HtPredicate
      * @param callPoint The call point within the machine, at which the code is to be stored.
      * @throws LinkageException If required symbols to link to cannot be found in the binary machine.
      */
-    public
-    void emitCode ( ByteBuffer buffer, HiTalkWAMResolvingMachine machine, WAMCallPoint callPoint ) throws LinkageException {
+    public void emitCode(ByteBuffer buffer,
+                         HiTalkWAMResolvingMachine<HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> machine,
+                         WAMCallPoint callPoint) throws LinkageException {
         // Ensure that the size of the instruction listing does not exceed max int (highly unlikely).
         if (sizeof() > Integer.MAX_VALUE) {
             throw new IllegalStateException("The instruction listing size exceeds Integer.MAX_VALUE.");

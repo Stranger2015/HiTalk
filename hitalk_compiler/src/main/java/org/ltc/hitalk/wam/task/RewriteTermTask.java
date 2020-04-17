@@ -3,14 +3,13 @@ package org.ltc.hitalk.wam.task;
 import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.parser.Directive.DirectiveKind;
 import org.ltc.hitalk.parser.PlLexer;
-import org.ltc.hitalk.term.ITerm;
 
 import java.util.EnumSet;
-import java.util.List;
 
 /**
  *
  */
+@Deprecated
 public abstract class RewriteTermTask extends PreCompilerTask {
 
     /**
@@ -18,25 +17,10 @@ public abstract class RewriteTermTask extends PreCompilerTask {
      * @param preCompiler
      * @param kind
      */
-    public RewriteTermTask(PlLexer tokenSource,
-                           IPreCompiler preCompiler,
+    public RewriteTermTask(IPreCompiler preCompiler,
+                           PlLexer tokenSource,
                            EnumSet<DirectiveKind> kind) {
-        super(tokenSource, preCompiler, kind);
+        super(preCompiler, tokenSource, kind);
 
-        getQueue().add(new CondCompilationTask(tokenSource, preCompiler, kind));
-        getQueue().add(new TermExpansionTask(preCompiler, tokenSource, kind));
-        getQueue().add(new DcgExpansionTask(preCompiler, tokenSource, kind));
-        getQueue().add(new GoalExpansionTask(preCompiler, tokenSource, kind));
     }
-
-    /**
-     * @param term
-     * @return
-     */
-    @Override
-    protected List<ITerm> invoke0(ITerm term) {
-        output.add(term);
-        return super.invoke0(term);
-    }
-
 }

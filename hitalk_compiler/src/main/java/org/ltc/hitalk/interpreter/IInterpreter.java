@@ -2,27 +2,29 @@ package org.ltc.hitalk.interpreter;
 
 import jline.ConsoleReader;
 import org.ltc.hitalk.compiler.PredicateTable;
-import org.ltc.hitalk.core.BaseApp;
-import org.ltc.hitalk.core.IConfigurable;
+import org.ltc.hitalk.core.ICompiler;
 import org.ltc.hitalk.core.IResolver;
-import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
-import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.parser.PlToken;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static org.ltc.hitalk.core.BaseApp.getAppContext;
+
 /**
  *
  */
-public interface IInterpreter<T extends HtClause, P, Q> extends IConfigurable/*, ICompiler <HtClause,P, Q>*/,
-        IResolver <P, Q> {
+public interface IInterpreter<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledPredicate, QC extends HiTalkWAMCompiledQuery>
+        extends ICompiler<T, P, Q, PC, QC>, IResolver<PC, QC> {
+
     /**
      *
      */
@@ -31,7 +33,7 @@ public interface IInterpreter<T extends HtClause, P, Q> extends IConfigurable/*,
     /**
      * @return
      */
-    Mode getMode ();
+    Mode getMode();
 
     /**
      * @return
@@ -41,7 +43,7 @@ public interface IInterpreter<T extends HtClause, P, Q> extends IConfigurable/*,
     /**
      * @throws IOException
      */
-    default void interpreterLoop () throws IOException {
+    default void interpreterLoop() throws IOException {
         // Initialize the JLine console.
         setConsoleReader(initializeCommandLineReader());
 
@@ -50,7 +52,7 @@ public interface IInterpreter<T extends HtClause, P, Q> extends IConfigurable/*,
 //
         // Used to hold the currently buffered lines of input, for the purpose of presenting this back to the user
         // in the event of a syntax or other error in the input.
-        List <String> inputLines = new ArrayList <>();
+        List<String> inputLines = new ArrayList<>();
 
         // Used to count the number of lines entered.
         int lineNo = 0;
@@ -100,18 +102,18 @@ public interface IInterpreter<T extends HtClause, P, Q> extends IConfigurable/*,
                 inputLines.clear();
                 continue;
             }
-            }
+        }
 
-            // For normal queries, the query functor '?-' begins every statement, this is not passed back from
-            // JLine even though it is used as the command prompt.
-            if (getMode() == Mode.Query) {
+        // For normal queries, the query functor '?-' begins every statement, this is not passed back from
+        // JLine even though it is used as the command prompt.
+        if (getMode() == Mode.Query) {
 //                line = getQueryPrompt() + line;
 //                inputLines.set(inputLines.size() - 1, line);
-            }
+        }
 
-            // Buffer input tokens until EOL is reached, of the input is terminated with a PERIOD.
+        // Buffer input tokens until EOL is reached, of the input is terminated with a PERIOD.
 //                ITokenSource tokenSource = ITokenSource.getITokenSourceForString(line, lineNo);//todo
-            PlToken nextToken;
+        PlToken nextToken;
 
 //                while (true) {
 ////                    nextToken = tokenSource.poll();
@@ -151,40 +153,40 @@ public interface IInterpreter<T extends HtClause, P, Q> extends IConfigurable/*,
 //
 //                    inputLines.clear();
 //                }
-        }
+    }
 //    }
 
-    /**
-     * @param clause
-     * @throws HtSourceCodeException
-     */
-    void evaluate ( T clause ) throws Exception;
+//    /**
+//     * @param clause
+//     * @throws HtSourceCodeException
+//     */
+//    void evaluate ( T clause ) throws Exception;
 
     /**
      * @return
      */
-    ConsoleReader getConsoleReader ();
+    ConsoleReader getConsoleReader();
 
     /**
      * @param reader
      */
-    void setConsoleReader ( ConsoleReader reader );
+    void setConsoleReader(ConsoleReader reader);
 
     /**
      * @return
      */
-    String getQueryPrompt ();
+    String getQueryPrompt();
 
     /**
      * @return
      * @throws IOException
      */
-    ConsoleReader initializeCommandLineReader () throws IOException;
+    ConsoleReader initializeCommandLineReader() throws IOException;
 
-    default Set <HtVariable> solve ( HtFunctor goal, HtClause clause ) {
-        PredicateTable <HtPredicate> predicateTable = BaseApp.getAppContext().getPredicateTable();
+    default Set<HtVariable> solve(HtFunctor goal, HtClause clause) {
+        PredicateTable<?> predicateTable = getAppContext().getPredicateTable();
         HtClause clause1 = predicateTable.lookup(goal, clause);
 
-        return null;
+        return resolve();
     }
 }

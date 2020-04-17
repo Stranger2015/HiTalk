@@ -22,8 +22,6 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
-import org.ltc.hitalk.entities.HtPredicate;
-import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.term.ITerm;
@@ -49,11 +47,12 @@ import static org.ltc.hitalk.wam.compiler.HtTermWalkers.positionalWalker;
  * @author Rupert Smith
  */
 abstract public
-class HiTalkPreCompiler<T extends HtMethod, P, Q> extends PrologPreCompiler <T, P, Q> implements IPreCompiler {
+class HiTalkPreCompiler<T extends HtMethod, P, Q, PC, QC> extends PrologPreCompiler<T, P, Q, PC, QC> implements IPreCompiler<T> {
+
     /**
      * Holds the compiler output observer.
      */
-    protected ICompilerObserver <P, Q> observer;
+    protected ICompilerObserver<P, Q> observer;
 
     /**
      * Creates a new PreCompiler.
@@ -67,9 +66,9 @@ class HiTalkPreCompiler<T extends HtMethod, P, Q> extends PrologPreCompiler <T, 
      */
     public HiTalkPreCompiler(ISymbolTable<Integer, String, Object> symbolTable,
                              IVafInterner interner,
-                             PrologBuiltInTransform<T, P, Q> builtInTransform,
+                             PrologBuiltInTransform<T, P, Q, PC, QC> builtInTransform,
                              PrologDefaultBuiltIn defaultBuiltIn,
-                             IResolver<HtPredicate, HtClause> resolver,
+                             IResolver<PC, QC> resolver,
                              HtPrologParser parser) {
         super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, parser);
     }
@@ -79,19 +78,19 @@ class HiTalkPreCompiler<T extends HtMethod, P, Q> extends PrologPreCompiler <T, 
      *
      * @param sentence
      */
-    public abstract void compile ( Sentence <T> sentence ) throws HtSourceCodeException;
+    public abstract void compile(Sentence<T> sentence) throws HtSourceCodeException;
 
 
     /**
      * @param clauses
      */
-    protected abstract void saveResult ( List <T> clauses );
+    protected abstract void saveResult(List<QC> clauses);
 
     /**
      * @param t
      * @return
      */
-    protected abstract List <T> preprocess ( T t );
+    protected abstract List<T> preprocess(T t);
 
 
     /**
@@ -100,13 +99,13 @@ class HiTalkPreCompiler<T extends HtMethod, P, Q> extends PrologPreCompiler <T, 
      *
      * @param clause The clause to initialise the symbol keys of.
      */
-    private void initializeSymbolTable ( ITerm clause ) {
+    private void initializeSymbolTable(ITerm clause) {
         // Run the symbol key traverser over the clause, to ensure that all terms have their symbol keys correctly
         // set up.
         HtSymbolKeyTraverser symbolKeyTraverser = new HtSymbolKeyTraverser(interner, symbolTable, null);
         symbolKeyTraverser.setContextChangeVisitor(symbolKeyTraverser);
 
-        HtTermWalker symWalker = new HtTermWalker(new DepthFirstBacktrackingSearch <>(), symbolKeyTraverser, symbolKeyTraverser);
+        HtTermWalker symWalker = new HtTermWalker(new DepthFirstBacktrackingSearch<>(), symbolKeyTraverser, symbolKeyTraverser);
         symWalker.walk(clause);
     }
 
@@ -115,12 +114,12 @@ class HiTalkPreCompiler<T extends HtMethod, P, Q> extends PrologPreCompiler <T, 
      *
      * @param clause The clause to top-level check.
      */
-    private void topLevelCheck ( ITerm clause ) {
+    private void topLevelCheck(ITerm clause) {
         HtTermWalker walk = positionalWalker(new HiTalkTopLevelCheckVisitor(symbolTable, interner, null));
         walk.walk(clause);
     }
 
-    public ICompilerObserver <P, Q> getObserver () {
+    public ICompilerObserver<P, Q> getObserver() {
         return observer;
     }
 }

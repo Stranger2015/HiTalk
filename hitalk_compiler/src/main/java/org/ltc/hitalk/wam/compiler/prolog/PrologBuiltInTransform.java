@@ -16,13 +16,13 @@ import static org.ltc.hitalk.core.BaseApp.getAppContext;
  * @param <P>
  * @param <Q>
  */
-public class PrologBuiltInTransform<T extends HtClause, P, Q>
-        implements Function <IFunctor, IFunctor> {
+public class PrologBuiltInTransform<T extends HtClause, P, Q, PC, QC>
+        implements Function<IFunctor, IFunctor> {
 
     protected final IVafInterner interner;
-    protected final IPreCompiler preCompiler;
-    protected final IResolver <P, Q> resolver;
-    protected final PredicateTable <HtPredicate> predicateTable = getAppContext().getPredicateTable();
+    protected final IPreCompiler<T> preCompiler;
+    protected final IResolver<PC, QC> resolver;
+    protected final PredicateTable<HtPredicate> predicateTable = getAppContext().getPredicateTable();
 
     /**
      * Holds the default built-in, for standard compilation and interners and symbol tables.
@@ -35,10 +35,10 @@ public class PrologBuiltInTransform<T extends HtClause, P, Q>
      * @param preCompiler
      * @param resolver
      */
-    public PrologBuiltInTransform ( PrologDefaultBuiltIn defaultBuiltIn,
-                                    IVafInterner interner,
-                                    IPreCompiler preCompiler,
-                                    IResolver <P, Q> resolver ) {
+    public PrologBuiltInTransform(PrologDefaultBuiltIn defaultBuiltIn,
+                                  IVafInterner interner,
+                                  IPreCompiler<T> preCompiler,
+                                  IResolver<PC, QC> resolver) {
         this.defaultBuiltIn = defaultBuiltIn;
         this.interner = interner;
         this.preCompiler = preCompiler;

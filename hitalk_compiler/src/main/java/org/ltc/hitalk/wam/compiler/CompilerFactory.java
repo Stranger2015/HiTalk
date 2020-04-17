@@ -4,13 +4,15 @@ import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
 import org.ltc.hitalk.wam.compiler.prolog.PrologInstructionCompiler;
 import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.EXISTENCE_ERROR;
 
-public class CompilerFactory<T extends HtClause, P, Q, PC, QC> implements ICompilerFactory <T, P, Q, PC, QC> {
+public class CompilerFactory<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledPredicate, QC extends HiTalkWAMCompiledQuery> implements ICompilerFactory<T, P, Q, PC, QC> {
 
     /**
      * @param language
@@ -46,7 +48,7 @@ public class CompilerFactory<T extends HtClause, P, Q, PC, QC> implements ICompi
      */
     public IPreCompiler createPreCompiler ( Language language ) {
         try {
-            return (PrologPreCompiler <T, P, Q>) language.getPreCompilerClass().newInstance();
+            return (PrologPreCompiler<T, P, Q, PC, QC>) language.getPreCompilerClass().newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
             throw new ExecutionError(EXISTENCE_ERROR, null);
@@ -57,9 +59,9 @@ public class CompilerFactory<T extends HtClause, P, Q, PC, QC> implements ICompi
      * @param language
      * @return
      */
-    public BaseInstructionCompiler <T, PC, QC> createInstrCompiler ( Language language ) {
+    public BaseInstructionCompiler<T, P, Q, PC, QC> createInstrCompiler(Language language) {
         try {
-            return (PrologInstructionCompiler <T, PC, QC>) language.getInstrCompilerClass().newInstance();
+            return (PrologInstructionCompiler<T, P, Q, PC, QC>) language.getInstrCompilerClass().newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
             throw new ExecutionError(EXISTENCE_ERROR, null);

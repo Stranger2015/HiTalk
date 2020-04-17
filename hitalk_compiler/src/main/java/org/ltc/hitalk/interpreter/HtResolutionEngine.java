@@ -15,32 +15,50 @@
  */
 package org.ltc.hitalk.interpreter;
 
-import com.thesett.aima.attribute.impl.IdAttribute;
-import com.thesett.aima.logic.fol.LinkageException;
+import com.thesett.aima.attribute.impl.IdAttribute.IdAttributeFactory;
 import com.thesett.aima.logic.fol.Parser;
+import com.thesett.aima.logic.fol.wam.compiler.WAMCallPoint;
+import com.thesett.aima.logic.fol.wam.machine.WAMInternalRegisters;
+import com.thesett.aima.logic.fol.wam.machine.WAMMemoryLayout;
+import com.thesett.aima.logic.fol.wam.machine.WAMResolvingMachineDPIMonitor;
 import com.thesett.common.util.Filterator;
+import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.core.ICompiler;
+import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.core.IResolver;
+import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtProperty;
-import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.parser.HtPrologParser;
-import org.ltc.hitalk.parser.HtSourceCodeException;
-import org.ltc.hitalk.parser.PlLexer;
+import org.ltc.hitalk.parser.Directive.DirectiveKind;
+import org.ltc.hitalk.parser.*;
+import org.ltc.hitalk.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.OpSymbolFunctor.Associativity;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
+import org.ltc.hitalk.term.io.HtTermReader;
 import org.ltc.hitalk.wam.compiler.HtFunctorName;
 import org.ltc.hitalk.wam.compiler.IFunctor;
+import org.ltc.hitalk.wam.compiler.Language;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
 import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
+import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler.ClauseChainObserver;
+import org.ltc.hitalk.wam.machine.HiTalkWAMResolvingMachine;
+import org.ltc.hitalk.wam.task.PreCompilerTask;
+import org.ltc.hitalk.wam.task.TermExpansionTask;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.ltc.hitalk.core.BaseApp.appContext;
+import static org.ltc.hitalk.parser.Directive.DirectiveKind.*;
 import static org.ltc.hitalk.parser.HtPrologParser.END_OF_FILE;
-import static org.ltc.hitalk.term.OpSymbolFunctor.Associativity;
 
 /**
  * ResolutionEngine combines together a logic {@link Parser}, a {@link IVafInterner} that acts as a symbol
@@ -53,50 +71,69 @@ import static org.ltc.hitalk.term.OpSymbolFunctor.Associativity;
  * @author Rupert Smith
  */
 public
-class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractiveParser
-        implements IVafInterner, ICompiler <T, P, Q>, IResolver <P, Q> {
-
-    protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
+class HtResolutionEngine<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledPredicate,
+        QC extends HiTalkWAMCompiledQuery>
+        extends HiTalkWAMResolvingMachine<PC, QC>
+        implements IVafInterner, ICompiler<T, P, Q, PC, QC>, IResolver<PC, QC>, IParser<T>, IPreCompiler<T> {
 
     /**
      * Holds the parser.
      */
     protected HtPrologParser parser;
+    protected HtTermReader termReader;
+    protected final IPreCompiler<T> preCompiler;
 
     /**
      * Holds the variable and functor symbol table.
      */
     protected IVafInterner interner;
 
+    private final ISymbolTable<Integer, String, Object> symbolTable;
     /**
      * Holds the compiler.
      */
-    protected ICompiler <T, P, Q> compiler;
+    protected ICompiler<T, P, Q, PC, QC> compiler;
 
     /**
      * Holds the observer for compiler outputs.
      */
-    protected ICompilerObserver <P, Q> observer = new ChainedCompilerObserver <>();
+    protected ICompilerObserver<P, Q> observer = new ChainedCompilerObserver<>();
 
     protected Q currentQuery;
-    protected final List <Set <HtVariable>> vars = new ArrayList <>();
-    protected IResolver <P, Q> resolver;
+    protected final List<Set<HtVariable>> vars = new ArrayList<>();
+    protected IResolver<PC, QC> resolver;
+    protected ITermFactory termFactory;
 
     /**
      * Creates a prolog parser using the specified interner.
      *
      * @param parser
-     * @param interner The functor and variable name interner.
      */
-    public HtResolutionEngine ( HtPrologParser parser,
-                                IVafInterner interner,
-                                ICompiler <T, P, Q> compiler ) {
-        super(parser);
-
-        this.interner = interner;
+    public HtResolutionEngine(ISymbolTable<Integer, String, Object> symbolTable,
+                              ITermFactory termFactory,
+                              ICompiler<T, P, Q, PC, QC> compiler,
+                              IResolver<PC, QC> resolver,
+                              HtPrologParser parser,
+                              IPreCompiler<T> preCompiler) {
+        super(symbolTable);
+        this.symbolTable = symbolTable;
+        this.termFactory = termFactory;
         this.compiler = compiler;
-        this.resolver = this;
-//        this.compiler.setCompilerObserver(observer);
+        this.resolver = resolver;
+        this.parser = parser;
+        this.preCompiler = preCompiler;
+    }
+
+    @SuppressWarnings("unchecked")
+    public HtResolutionEngine() throws Exception {
+        super(appContext.getSymbolTable());
+        symbolTable = appContext.getSymbolTable();
+
+        termFactory = appContext.getTermFactory();
+        compiler = (ICompiler<T, P, Q, PC, QC>) appContext.getApp().getLanguage().getWamCompilerClass().newInstance();
+        resolver = (IResolver<PC, QC>) appContext.getResolverIC();
+        parser = appContext.getParser();
+        preCompiler = (IPreCompiler<T>) appContext.getApp().getLanguage().getPreCompilerClass().newInstance();
     }
 
     /**
@@ -104,8 +141,8 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      * bootstrapping libraries of built-ins that
      * the engine requires, but otherwise set its domain to empty.
      */
-    public void reset () throws Exception {
-
+    public void reset() throws Exception {
+        super.reset();
     }
 
     /**
@@ -114,8 +151,98 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      * @return The resolution engines interner.
      */
     @Override
-    public IVafInterner getInterner () {
+    public IVafInterner getInterner() {
         return interner;
+    }
+
+    /**
+     * @param clauseChainObserver
+     */
+    @Override
+    public void setCompilerObserver(ClauseChainObserver clauseChainObserver) {
+        preCompiler.setCompilerObserver(clauseChainObserver);
+    }
+
+    /**
+     * @param term
+     * @return
+     */
+    public boolean checkBOF(ITerm term) {
+        return preCompiler.checkBOF(term);
+    }
+
+    /**
+     * @param term
+     * @return
+     */
+    public boolean checkEOF(ITerm term) {
+        return preCompiler.checkEOF(term);
+    }
+
+    /**
+     * @param interner
+     */
+    public void setInterner(IVafInterner interner) {
+        this.interner = interner;
+    }
+
+    /**
+     * @return
+     */
+    public ITermFactory getFactory() {
+        return termFactory;
+    }
+
+    /**
+     * @return
+     */
+    public IOperatorTable getOptable() {
+        return parser.getOptable();
+    }
+
+    /**
+     * @param optable
+     */
+    public void setOptable(IOperatorTable optable) {
+        parser.setOptable(optable);
+    }
+
+    /**
+     * @return
+     */
+    public Language language() {
+        return parser.language();
+    }
+
+    /**
+     * @return
+     * @throws HtSourceCodeException
+     */
+    public ITerm parse() throws Exception {
+        return parser.parse();
+    }
+
+    /**
+     *
+     */
+    public void initializeBuiltIns() {
+        parser.initializeBuiltIns();
+    }
+
+    /**
+     * @param rdelim
+     * @return
+     */
+    public ITerm expr(TokenKind rdelim) throws Exception {
+        return parser.expr(rdelim);
+    }
+
+    /**
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public T parseClause() throws Exception {
+        return (T) parser.parseClause();
     }
 
     /**
@@ -123,7 +250,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      *
      * @return The resolution engines compiler.
      */
-    public ICompiler <T, P, Q> getCompiler () {
+    public ICompiler<T, P, Q, PC, QC> getCompiler() {
         return compiler;
     }
 
@@ -134,20 +261,35 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      * @param stream The input stream to consult.
      * @throws HtSourceCodeException If any code read from the input stream fails to parse, compile or link.
      */
-    public void consultInputStream ( HiTalkInputStream stream ) throws Exception {
+    public void consultInputStream(HiTalkInputStream stream) throws Exception {
         // Create a token source to read from the specified input stream.
         PlLexer tokenSource = stream.getTokenSource();
         getParser().setTokenSource(tokenSource);
-
         // Consult the type checking rules and add them to the knowledge base.
         while (tokenSource.isOpen()) {
-            ITerm term = getParser().parse();
-
-            if (term == END_OF_FILE) {
-                break;
-            }
+            ITerm term = termReader.readTerm();
+            if (preCompiler.checkBOF(term))
+                if (term == END_OF_FILE) {
+                    parser.popTokenSource();
+                    break;
+                }
+            final List<ITerm> l = preprocess(term);
+            //todo
         }
     }
+
+    private List<ITerm> preprocess(ITerm clause) throws IOException {
+        getTaskQueue().add(new TermExpansionTask(
+                preCompiler,
+                getTokenSource(),
+                EnumSet.of(DK_ELSE, DK_ELIF, DK_ENDIF)));
+        return getTaskQueue().peek().invoke(clause);
+    }
+
+//    private ITerm readTerm() throws Exception {
+//        new HtTermReader(IPreCompiler.) ;
+//        return
+//    }
 
     /**
      * Prints all of the logic variables in the results of a query.
@@ -155,7 +297,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      * @param solution An iterable over the variables in the solution.
      * @return All the variables printed as a string, one per line.
      */
-    public String printSolution ( Iterable <HtVariable> solution ) {
+    public String printSolution(Iterable<HtVariable> solution) {
         StringBuilder result = new StringBuilder();
 
         for (HtVariable var : solution) {
@@ -171,7 +313,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      * @param variables An iterable over the variables in the solution.
      * @return All the variables printed as a string, one per line.
      */
-    public String printSolution ( Map <String, HtVariable> variables ) {
+    public String printSolution(Map<String, HtVariable> variables) {
 
         return variables.values().stream().map(variable ->
                 printVariableBinding(variable) + "\n").collect(Collectors.joining());
@@ -183,7 +325,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      * @param var The variable to print.
      * @return The variable binding in the form 'Var = value'.
      */
-    public String printVariableBinding ( ITerm var ) {
+    public String printVariableBinding(ITerm var) {
         return var.toString(getInterner(), true, false) + " = " + var.getValue().toString(getInterner(), false, true);
     }
 
@@ -194,28 +336,28 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      * @param solutions The resolution solutions to convert to map form.
      * @return An iterator over a map from the string name of variables to their bindings, for the solutions.
      */
-    public Iterable <Map <String, HtVariable>> expandResultSetToMap ( Iterator <Set <HtVariable>> solutions ) {
-        return new Filterator <>(solutions, this::apply);
+    public Iterable<Map<String, HtVariable>> expandResultSetToMap(Iterator<Set<HtVariable>> solutions) {
+        return new Filterator<>(solutions, this::apply);
     }
 
     /**
      * {@inheritDoc}
      */
-    public IdAttribute.IdAttributeFactory <String> getVariableInterner () {
+    public IdAttributeFactory<String> getVariableInterner() {
         return interner.getVariableInterner();
     }
 
     /**
      * {@inheritDoc}
      */
-    public IdAttribute.IdAttributeFactory<HtFunctorName> getFunctorInterner() {
+    public IdAttributeFactory<HtFunctorName> getFunctorInterner() {
         return interner.getFunctorInterner();
     }
 
     /**
      * {@inheritDoc}
      */
-    public int internFunctorName ( String name, int numArgs ) {
+    public int internFunctorName(String name, int numArgs) {
         return interner.internFunctorName(name, numArgs);
     }
 
@@ -229,21 +371,21 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
     /**
      * {@inheritDoc}
      */
-    public int internVariableName ( String name ) {
+    public int internVariableName(String name) {
         return interner.internVariableName(name);
     }
 
     /**
      * {@inheritDoc}
      */
-    public String getVariableName ( int name ) {
+    public String getVariableName(int name) {
         return interner.getVariableName(name);
     }
 
     /**
      * {@inheritDoc}
      */
-    public String getVariableName ( HtVariable variable ) {
+    public String getVariableName(HtVariable variable) {
         return interner.getVariableName(variable);
     }
 
@@ -259,7 +401,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      * {@inheritDoc}
      */
     @Override
-    public String getFunctorName ( int name ) {
+    public String getFunctorName(int name) {
         return interner.getFunctorName(name);
     }
 
@@ -267,7 +409,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      * {@inheritDoc}
      */
     @Override
-    public int getFunctorArity ( int name ) {
+    public int getFunctorArity(int name) {
         return interner.getFunctorArity(name);
     }
 
@@ -295,13 +437,6 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
         return interner.getFunctorArity(functor);
     }
 
-//    /**
-//     * {@inheritDoc}
-//     */
-//    public void setTokenSource ( Source <PlToken> tokenSource ) {
-//        parser.setTokenSource(tokenSource);
-//    }
-
     /**
      * {@inheritDoc}
      */
@@ -312,24 +447,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
     /**
      * {@inheritDoc}
      */
-    public void setQuery ( Q query ) throws LinkageException {
-//        currentQuery = query;
-//        resolver.setQuery(query);
-    }
-
-    /**
-     * Adds the specified construction to the domain of resolution searched by this resolver.
-     *
-     * @param term The term to add to the domain.
-     */
-    public void addToDomain(P term) {
-        //resolver.addToDomain(term);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Set <HtVariable> resolve () {
+    public Set<HtVariable> resolve() {
         // Check that a query has been set to resolve.
         if (currentQuery == null) {
             throw new IllegalStateException("No query set to resolve.");
@@ -339,7 +457,82 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
         return executeAndExtractBindings(currentQuery);
     }
 
-    private Set <HtVariable> executeAndExtractBindings ( Q query ) {
+    /**
+     * Notified whenever code is added to the machine.
+     *
+     * @param codeBuffer The code buffer.
+     * @param codeOffset The start offset of the new code.
+     * @param length     The length of the new code.
+     */
+    protected void codeAdded(ByteBuffer codeBuffer, int codeOffset, int length) {
+
+    }
+
+    /**
+     * Dereferences an offset from the current BaseApp frame on the stack. Storage slots in the current BaseApp
+     * may point to other BaseApp frames, but should not contain unbound variables, so ultimately this dereferencing
+     * should resolve onto a structure or variable on the heap.
+     *
+     * @param a The offset into the current BaseApp stack frame to dereference.
+     * @return The dereferences structure or variable.
+     */
+    protected int derefStack(int a) {
+        return 0;
+    }
+
+    /**
+     * Executes compiled code at the specified call point returning an indication of whether or not the execution was
+     * successful.
+     *
+     * @param callPoint The call point of the compiled byte code to execute.
+     * @return <tt>true</tt> iff execution succeeded.
+     */
+    public boolean execute(WAMCallPoint callPoint) {
+        return false;
+    }
+
+    /**
+     * Dereferences a heap pointer (or register), returning the address that it refers to after following all reference
+     * chains to their conclusion. This method is also side effecting, in that the contents of the refered to heap cell
+     * are also loaded into fields and made available through the {@link #getDerefTag()} and {@link #getDerefVal()}
+     * methods.
+     *
+     * @param a The address to dereference.
+     * @return The address that the reference refers to.
+     */
+    protected int deref(int a) {
+        return 0;
+    }
+
+    /**
+     * Gets the heap cell tag for the most recent dereference operation.
+     *
+     * @return The heap cell tag for the most recent dereference operation.
+     */
+    protected byte getDerefTag() {
+        return 0;
+    }
+
+    /**
+     * Gets the heap call value for the most recent dereference operation.
+     *
+     * @return The heap call value for the most recent dereference operation.
+     */
+    protected int getDerefVal() {
+        return 0;
+    }
+
+    /**
+     * Gets the value of the heap cell at the specified location.
+     *
+     * @param addr The address to fetch from the heap.
+     * @return The heap cell at the specified location.
+     */
+    protected int getHeap(int addr) {
+        return 0;
+    }
+
+    private Set<HtVariable> executeAndExtractBindings(Q query) {
         return Collections.emptySet();
     }//todo
 
@@ -347,27 +540,27 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      * {@inheritDoc}
      */
     @Override
-    public Iterator <Set <HtVariable>> iterator () {
+    public Iterator<Set<HtVariable>> iterator() {
         return vars.iterator();
     }
 
-    public void compile ( HtClause sentence ) throws Exception {
+    public void compile(T sentence) throws Exception {
         compiler.compile(sentence);
     }
 
-    public void setCompilerObserver ( ICompilerObserver <P, Q> observer ) {
+    public void setCompilerObserver(ICompilerObserver<P, Q> observer) {
         compiler.setCompilerObserver(observer);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void endScope () throws Exception {
+    public void endScope() throws Exception {
         compiler.endScope();
     }
 
-    private Map <String, HtVariable> apply ( Set <HtVariable> variables ) {
-        Map <String, HtVariable> results = new HashMap <>();
+    private Map<String, HtVariable> apply(Set<HtVariable> variables) {
+        Map<String, HtVariable> results = new HashMap<>();
 
         for (HtVariable var : variables) {
             String varName = getInterner().getVariableName(var.getName());
@@ -378,7 +571,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
     }
 
     @Override
-    public List<HtClause> compile(PlLexer tokenSource, HtProperty... flags) throws Exception {
+    public List<T> compile(PlLexer tokenSource, HtProperty... flags) throws Exception {
         return compiler.compile(tokenSource, flags);
     }
 
@@ -386,8 +579,46 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      * @return
      */
     @Override
-    public Logger getConsole () {
+    public Logger getConsole() {
         return logger;
+    }
+
+    /**
+     * @return
+     */
+    public Deque<PlLexer> getTokenSourceStack() {
+        return parser.getTokenSourceStack();
+    }
+
+    /**
+     * @return
+     */
+    public Logger getLogger() {
+        return null;
+    }
+
+    /**
+     * @param tokenSource
+     * @param delims
+     * @return
+     */
+    public List<T> preCompile(PlLexer tokenSource, EnumSet<DirectiveKind> delims) throws Exception {
+        return preCompiler.preCompile(tokenSource, delims);
+    }
+
+    public Deque<PreCompilerTask> getQueue() {
+        return preCompiler.getQueue();
+    }
+
+    /**
+     * @return
+     */
+    public HtPrologParser getParser() {
+        return parser;
+    }
+
+    public boolean isDirective(T clause) throws Exception {
+        return preCompiler.isDirective(clause);
     }
 
     /**
@@ -396,7 +627,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      * @throws HtSourceCodeException
      */
     @Override
-    public void compile ( T clause, HtProperty... flags ) throws HtSourceCodeException {
+    public void compile(T clause, HtProperty... flags) throws HtSourceCodeException {
         compiler.compile(clause, flags);
     }
 
@@ -404,7 +635,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      * @param rule
      */
     @Override
-    public void compileDcgRule ( DcgRule rule ) throws HtSourceCodeException {//fixme
+    public void compileDcgRule(DcgRule rule) throws HtSourceCodeException {//fixme
         compiler.compileDcgRule(rule);
     }
 
@@ -412,19 +643,61 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      * @param query
      */
     @Override
-    public void compileQuery ( Q query ) throws HtSourceCodeException {
+    public void compileQuery(Q query) throws HtSourceCodeException {
         compiler.compileQuery(query);
     }
 
-
     @Override
-    public void setResolver ( IResolver <P, Q> resolver ) {
+    public void setResolver(IResolver<PC, QC> resolver) {
         this.resolver = resolver;
     }
 
     @Override
-    public List <HtClause> compile ( String fileName, HtProperty... flags ) throws Exception {
+    public List<T> compile(String fileName, HtProperty... flags) throws Exception {
         return compiler.compile(fileName, flags);
+    }
+
+    /**
+     * Attaches a monitor to the abstract machine.
+     *
+     * @param monitor The machine monitor.
+     */
+    public void attachMonitor(WAMResolvingMachineDPIMonitor monitor) {
+
+    }
+
+    /*
+     * Provides read access to the the machines data area.
+     *
+     * @return The requested portion of the machines data area.
+     */
+    public IntBuffer getDataBuffer() {
+        return null;
+    }
+
+    /**
+     * Provides the internal register file and flags for the machine.
+     *
+     * @return The internal register file and flags for the machine.
+     */
+    public WAMInternalRegisters getInternalRegisters() {
+        return null;
+    }
+
+    /**
+     * Provides the internal register set describing the memory layout of the machine.
+     *
+     * @return The internal register set describing the memory layout of the machine.
+     */
+    public WAMMemoryLayout getMemoryLayout() {
+        return null;
+    }
+
+    /**
+     * @return
+     */
+    public Deque<PreCompilerTask> getTaskQueue() {
+        return null;
     }
 
 
@@ -435,7 +708,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
      * <p/>If a chained observer is set up, all compiler outputs are forwarded onto it.
      */
     public static
-    class ChainedCompilerObserver<P, Q> implements ICompilerObserver <P, Q> {
+    class ChainedCompilerObserver<P, Q> implements ICompilerObserver<P, Q> {
 
         /**
          * Accepts notification of the completion of the compilation of a sentence into a (binary) form.
@@ -444,7 +717,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
          * @throws HtSourceCodeException If there is an error in the compiled code that prevents its further processing.
          */
         @Override
-        public void onCompilation ( P sentence ) throws HtSourceCodeException {
+        public void onCompilation(P sentence) throws HtSourceCodeException {
             //todo
         }
 
@@ -453,7 +726,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC, QC> extends InteractivePa
          *
          * @param sentence
          */
-        public void onQueryCompilation ( Q sentence ) throws HtSourceCodeException {
+        public void onQueryCompilation(Q sentence) throws HtSourceCodeException {
 //todo
         }
     }

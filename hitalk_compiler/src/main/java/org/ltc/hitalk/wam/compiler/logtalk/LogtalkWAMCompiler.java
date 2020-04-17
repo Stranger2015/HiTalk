@@ -4,22 +4,30 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtProperty;
-import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.wam.compiler.HtMethod;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
 import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
 
-public class LogtalkWAMCompiler<T extends HtMethod, P, Q, PC, QC> extends PrologWAMCompiler <T, P, Q, PC, QC> {
+/**
+ * @param <T>
+ * @param <P>
+ * @param <Q>
+ * @param <PC>
+ * @param <QC>
+ */
+public class LogtalkWAMCompiler<T extends HtMethod, P, Q, PC extends HiTalkWAMCompiledPredicate, QC extends HiTalkWAMCompiledQuery>
+        extends PrologWAMCompiler<T, P, Q, PC, QC> {
 
     /**
      *
      */
-    protected LogtalkTranspiler <T, P, Q> transpiler;
-    protected LogtalkPreCompiler <T, P, Q> preCompiler;
-    protected LogtalkInstructionCompiler <T, PC, QC> instructionCompiler;
+    protected LogtalkTranspiler<T, P, Q, PC, QC> transpiler;
+    protected LogtalkPreCompiler<T, P, Q, PC, QC> preCompiler;
+    protected LogtalkInstructionCompiler<T, P, Q, PC, QC> instructionCompiler;
 
     /**
      * @param symbolTable
@@ -32,31 +40,32 @@ public class LogtalkWAMCompiler<T extends HtMethod, P, Q, PC, QC> extends Prolog
                               IVafInterner interner,
                               HtPrologParser parser,
                               ICompilerObserver<P, Q> observer,
-                              LogtalkTranspiler<T, P, Q> transpiler) {
+                              LogtalkTranspiler<T, P, Q, PC, QC> transpiler) {
         super(symbolTable, interner, parser, observer);
         this.transpiler = transpiler;
     }
 
-    public LogtalkWAMCompiler () {
-
-    }
+//    public LogtalkWAMCompiler() {
+//
+//    }
 
     /**
      * @param query
      */
-    public void compileQuery ( HiTalkWAMCompiledQuery query ) throws HtSourceCodeException {
-
-    }
+//    public void compileQuery(HiTalkWAMCompiledQuery query) throws HtSourceCodeException {
+//
+//    }
 
     /**
      * @param resolver
      */
-    public void setResolver ( IResolver <P, Q> resolver ) {
+    @Override
+    public void setResolver(IResolver<PC, QC> resolver) {
         this.resolver = resolver;
     }
 
     @Override
-    public void endScope () throws HtSourceCodeException {
+    public void endScope() throws HtSourceCodeException {
         transpiler.endScope();
     }
 
@@ -65,19 +74,19 @@ public class LogtalkWAMCompiler<T extends HtMethod, P, Q, PC, QC> extends Prolog
      * @param flags
      * @throws HtSourceCodeException
      */
-    public void compile ( T clause, HtProperty... flags ) throws HtSourceCodeException {
+    public void compile(T clause, HtProperty... flags) throws HtSourceCodeException {
 
     }
 
     /**
      * @param query
      */
-    public void compileQuery ( Q query ) {
+    public void compileQuery(Q query) {
 
     }
 
     @Override
-    public void compile ( HtClause clause ) {
+    public void compile(T clause) {
 
     }
 }

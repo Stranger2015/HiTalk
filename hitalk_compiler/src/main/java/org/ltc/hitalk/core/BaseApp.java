@@ -44,7 +44,8 @@ import static org.ltc.hitalk.term.io.HiTalkInputStream.defaultEncoding;
  */
 @SuppressWarnings("ALL")
 public abstract
-class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
+class BaseApp<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledPredicate, QC extends HiTalkWAMCompiledQuery>
+        implements IApplication {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     public final static AppContext appContext = new AppContext();
@@ -61,7 +62,7 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
     protected ITermFactory termFactory;
     protected HtPrologParser parser;
     protected IOperatorTable optable;
-    protected ICompiler<HtClause, HtPredicate, HtClause> compiler;
+    protected ICompiler<T, P, Q, PC, QC> compiler;
     protected PredicateTable<HtPredicate> predicateTable;
     protected ISymbolTable<Integer, String, Object> symbolTable;
     protected IResolver<HtPredicate, HtClause> resolver;
@@ -662,7 +663,8 @@ class BaseApp<T extends HtClause, P, Q, PC, QC> implements IApplication {
          * @param <PC>
          * @param <QC>
          */
-        public <T extends HtClause, P, Q, PC, QC> void setCompilerFactory(ICompilerFactory<T, P, Q, PC, QC> cf) {
+        public <T extends HtClause, P, Q, PC extends HiTalkWAMCompiledPredicate, QC extends HiTalkWAMCompiledQuery>
+        void setCompilerFactory(ICompilerFactory<T, P, Q, PC, QC> cf) {
             putIfAbsent(COMPILER_FACTORY, cf);
         }
 

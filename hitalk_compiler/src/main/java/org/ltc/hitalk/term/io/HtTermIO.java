@@ -2,6 +2,7 @@ package org.ltc.hitalk.term.io;
 
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.IHitalkObject;
+import org.ltc.hitalk.term.ITerm;
 
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -24,5 +25,9 @@ public abstract class HtTermIO implements IHitalkObject {
         this.path = path;
         this.stream = stream;
         openOption = stream.options;
+    }
+
+    public HtTermIO(ITerm term) {
+
     }
 }

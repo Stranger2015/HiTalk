@@ -8,6 +8,8 @@ import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.term.ListTerm;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
+import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
 import org.ltc.hitalk.wam.compiler.prolog.PrologInterpreter;
 import org.ltc.hitalk.wam.printer.IPositionalTermTraverser;
 
@@ -39,9 +41,9 @@ import java.util.Set;
  * @param <P>
  * @param <Q>
  */
-public class PrologInterpreterVisitor<T extends HtMethod, P, Q, PC, QC> extends MetaInterpreterVisitor <T, P, Q, PC, QC> {
+public class PrologInterpreterVisitor<T extends HtMethod, P, Q, PC extends HiTalkWAMCompiledPredicate, QC extends HiTalkWAMCompiledQuery> extends MetaInterpreterVisitor<T, P, Q, PC, QC> {
 
-    protected final PrologInterpreter <T, P, Q, PC, QC> engine;
+    protected final PrologInterpreter<T, P, Q, PC, QC> engine;
     protected final ConsoleReader consoleReader = new ConsoleReader();
 
     /**

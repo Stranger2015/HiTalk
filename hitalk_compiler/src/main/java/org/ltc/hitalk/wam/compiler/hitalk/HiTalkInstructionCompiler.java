@@ -130,7 +130,7 @@ import org.ltc.hitalk.wam.machine.HiTalkWAMMachine;
  *
  * @author Rupert Smith
  */
-public class HiTalkInstructionCompiler<T extends HtMethod, PC, QC> extends PrologInstructionCompiler <T, PC, QC> {
+public class HiTalkInstructionCompiler<T extends HtMethod, P, Q, PC extends HiTalkWAMCompiledPredicate, QC extends HiTalkWAMCompiledQuery> extends PrologInstructionCompiler<T, P, Q, PC, QC> {
 
 //public final static FunctorName OBJECT = new FunctorName("object", 2);
 //public final static FunctorName END_OBJECT = new FunctorName("end_object", 0);
@@ -150,7 +150,7 @@ public class HiTalkInstructionCompiler<T extends HtMethod, PC, QC> extends Prolo
     public HiTalkInstructionCompiler(ISymbolTable<Integer, String, Object> symbolTable,
                                      IVafInterner interner,
                                      HiTalkDefaultBuiltIn defaultBuiltIn,
-                                     ICompilerObserver<PC, QC> observer,
+                                     ICompilerObserver<P, Q> observer,
                                      HtPrologParser parser) {
         super(symbolTable, interner, defaultBuiltIn, observer, parser);
     }
@@ -188,10 +188,10 @@ public class HiTalkInstructionCompiler<T extends HtMethod, PC, QC> extends Prolo
      * @param bodyNumber  The body position within the containing clause.
      * @return A listing of the instructions for the clause body in the WAM instruction set.
      */
-    public SizeableLinkedList <HiTalkWAMInstruction> compileBodyArguments ( IFunctor expression,
-                                                                            boolean isFirstBody,
-                                                                            FunctorName clauseName,
-                                                                            int bodyNumber ) {
+    public SizeableLinkedList<HiTalkWAMInstruction> compileBodyArguments(IFunctor expression,
+                                                                         boolean isFirstBody,
+                                                                         FunctorName clauseName,
+                                                                         int bodyNumber) {
         return null;
     }
 }

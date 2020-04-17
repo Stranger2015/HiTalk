@@ -119,14 +119,6 @@ public class HiTalkWAMCompiledQuery extends HtClause implements
         super(identifier, body);
     }
 
-//    public HiTalkWAMCompiledQuery ( HtEntityIdentifier identifier, IFunctor head ) {
-//        this(identifier, head, );
-//    }
-
-//    public HiTalkWAMCompiledQuery ( IFunctor head, IFunctor[] body, HtEntityIdentifier identifier ) {
-//        super(identifier, head, body);
-//    }
-
     /**
      * Sets a compiled head functor to this clause.
      *
@@ -243,7 +235,9 @@ public class HiTalkWAMCompiledQuery extends HtClause implements
      * @param callPoint The call point within the machine, at which the code is to be stored.
      * @throws LinkageException If required symbols to link to cannot be found in the binary machine.
      */
-    public void emitCode ( ByteBuffer buffer, HiTalkWAMResolvingMachine machine, WAMCallPoint callPoint ) throws LinkageException {
+    public void emitCode(ByteBuffer buffer,
+                         HiTalkWAMResolvingMachine<HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> machine,
+                         WAMCallPoint callPoint) throws LinkageException {
         // Ensure that the size of the instruction listing does not exceed max int (highly unlikely).
         if (sizeof() > Integer.MAX_VALUE) {
             throw new IllegalStateException("The instruction listing size exceeds Integer.MAX_VALUE.");

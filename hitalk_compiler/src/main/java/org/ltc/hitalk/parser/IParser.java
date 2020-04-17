@@ -4,6 +4,7 @@ import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.core.IHitalkObject;
+import org.ltc.hitalk.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.OpSymbolFunctor;
 import org.ltc.hitalk.term.OpSymbolFunctor.Associativity;
@@ -18,7 +19,8 @@ import static org.ltc.hitalk.core.utils.TermUtilities.convertToClause;
 /**
  *
  */
-public interface IParser extends IHitalkObject {
+public interface IParser<T extends HtClause> extends IHitalkObject {
+
     /**
      * @return
      */
@@ -128,8 +130,11 @@ public interface IParser extends IHitalkObject {
     /**
      *
      */
-    default PlLexer popTokenSource() {
+    default void popTokenSource() {
         PlLexer ts = getTokenSource();
+        if (ts == null) {
+            return;
+        }
         ts.getInputStream().removeListener(ts);
 
         if (!getParser().tokenSourceStack.isEmpty()) {
@@ -140,8 +145,6 @@ public interface IParser extends IHitalkObject {
                 ts.getInputStream().addListener(ts);
             }
         }
-
-        return ts;
     }
 
     /**
@@ -159,6 +162,7 @@ public interface IParser extends IHitalkObject {
     void initializeBuiltIns();
 
     /**
+     *
      * @param factory
      */
     default void setTermFactory(ITermFactory factory) {
@@ -166,29 +170,24 @@ public interface IParser extends IHitalkObject {
     }
 
     /**
+     *
      * @param rdelim
      * @return
      * @throws IOException
      */
-    ITerm expr(PlToken.TokenKind rdelim) throws Exception;
+    ITerm expr(TokenKind rdelim) throws Exception;
 
     /**
+     *
      * @return
      */
-    HtClause parseClause() throws Exception;
-
-//    /**
-//     * @return
-//     */
-//    default HtClause sentence() {
-//        return getParser().sentence();
-//    }
+    T parseClause() throws Exception;
 
     /**
      * @param t
      * @return
      */
-    default HtClause convert(ITerm t) throws Exception {
-        return convertToClause(t, getInterner());
+    default T convert(ITerm t) throws Exception {
+        return (T) convertToClause(t, getInterner());
     }
 }

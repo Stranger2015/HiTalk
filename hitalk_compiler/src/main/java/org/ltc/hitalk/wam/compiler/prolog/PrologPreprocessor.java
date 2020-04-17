@@ -18,21 +18,20 @@ package org.ltc.hitalk.wam.compiler.prolog;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
-import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.IFunctor;
-import org.ltc.hitalk.wam.task.TransformTask;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
  *
  */
 @Deprecated
-public class PrologPreprocessor<T extends HtClause, P, Q, TC extends ITerm, TT extends TransformTask>
-        extends PrologPreCompiler <T, P, Q> {
+public class PrologPreprocessor<T extends HtClause, P, Q, PC, QC>
+        extends PrologPreCompiler<T, P, Q, PC, QC> {
 
     /**
      * Creates a base machine over the specified symbol table.
@@ -43,8 +42,8 @@ public class PrologPreprocessor<T extends HtClause, P, Q, TC extends ITerm, TT e
     public PrologPreprocessor(ISymbolTable<Integer, String, Object> symbolTable,
                               IVafInterner interner,
                               PrologDefaultBuiltIn defaultBuiltIn,
-                              PrologBuiltInTransform<T, P, Q> builtInTransform,
-                              IResolver<HtPredicate, HtClause> resolver,
+                              PrologBuiltInTransform<T, P, Q, PC, QC> builtInTransform,
+                              IResolver<PC, QC> resolver,
                               HtPrologParser parser) {
 
         super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, parser);
@@ -89,7 +88,7 @@ public class PrologPreprocessor<T extends HtClause, P, Q, TC extends ITerm, TT e
      * @param term
      * @return
      */
-    public List <ITerm> callTermExpansion ( ITerm term ) {
+    public List<ITerm> callTermExpansion(ITerm term) throws IOException {
         return super.callTermExpansion(term);
     }
 

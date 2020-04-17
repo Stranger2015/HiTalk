@@ -4,11 +4,17 @@ import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.parser.Directive.DirectiveKind;
 import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.ListTerm;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.builtins.Bypass;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.IntStream;
+
+import static java.util.Arrays.asList;
+import static org.ltc.hitalk.core.PrologBuiltIns.EXPAND_TERM;
 
 /**
  * This predicate is normally called by the compiler on terms read from the input to perform preprocessing.
@@ -29,7 +35,9 @@ import java.util.stream.IntStream;
  * <p>
  * 4) Call expand_goal/2 on each body term that appears in the output of the previous steps.
  */
-public class TermExpansionTask extends RewriteTermTask {
+public class TermExpansionTask extends PreCompilerTask {
+
+    protected final Deque<PreCompilerTask> taskQueue = new ArrayDeque<>();
 
     /**
      * @param preCompiler
@@ -39,8 +47,10 @@ public class TermExpansionTask extends RewriteTermTask {
     public TermExpansionTask(IPreCompiler preCompiler,
                              PlLexer tokenSource,
                              EnumSet<DirectiveKind> kind) {
-        super(tokenSource, preCompiler, kind);
-
+        super(preCompiler, tokenSource, kind);
+        taskQueue.add(new CondCompilationTask(preCompiler, tokenSource, kind));
+        taskQueue.add(new DcgExpansionTask(preCompiler, tokenSource, kind));
+        taskQueue.add(new GoalExpansionTask(preCompiler, tokenSource, kind));
     }
 
     public void toString0(StringBuilder sb) {
@@ -106,11 +116,24 @@ public class TermExpansionTask extends RewriteTermTask {
     protected List<ITerm> apply(ITerm term) {
         final List<ITerm> l = Collections.singletonList(term);
         List<ITerm> output = new ArrayList<>();
-        IntStream.range(0, tasks.size())
-                .mapToObj(i -> tasks.poll()).filter(Objects::nonNull).forEachOrdered(task -> l.stream()
-                .map(task::invoke).forEachOrdered(output::addAll));
+        IntStream.range(0, getTaskQueue().size())
+                .mapToObj(i -> getTaskQueue().poll()).filter(Objects::nonNull).forEachOrdered(task -> {
+            for (ITerm iTerm : l) {
+                List<ITerm> invoke = null;
+                try {
+                    invoke = task.invoke(iTerm);
+                } catch (IOException e) {
+                    e.printStackTrace();//fixme
+                }
+                output.addAll(invoke);
+            }
+        });
 
         return output;
+    }
+
+    private Deque<PreCompilerTask> getTaskQueue() {
+        return taskQueue;
     }
 
     /**
@@ -118,9 +141,17 @@ public class TermExpansionTask extends RewriteTermTask {
      * @return
      */
     @Override
-    protected List<ITerm> invoke0(ITerm term) {
+    protected List<ITerm> invoke0(ITerm term) throws IOException {
+        output.add(term);
         final List<ITerm> l = super.invoke0(term);
-
+        for (PreCompilerTask next : taskQueue) {
+            next.invoke(term);
+        }
         return l;
+    }
+
+    protected List<ListTerm> expandTerm(IFunctor f) {
+        final ListTerm lt = new ListTerm(asList(f.getArgument(0), f.getArgument(1)));
+        return EXPAND_TERM.getBuiltInDef().apply(lt);
     }
 }
