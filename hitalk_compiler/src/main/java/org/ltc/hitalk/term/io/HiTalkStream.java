@@ -19,14 +19,13 @@ import java.io.FileDescriptor;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.function.Predicate;
 
-import static java.nio.charset.Charset.*;
+import static java.nio.charset.Charset.defaultCharset;
 import static org.ltc.hitalk.core.BaseApp.appContext;
 import static org.ltc.hitalk.core.BaseApp.streams;
 
@@ -147,7 +146,6 @@ class HiTalkStream extends PropertyOwner implements PropertyChangeListener, Clon
 
     public static final int BB_ALLOC_SIZE = 32768;
 
-    // protected static int idCounter=0;
     protected final int id;
 
     protected FileDescriptor fd;
@@ -169,28 +167,18 @@ class HiTalkStream extends PropertyOwner implements PropertyChangeListener, Clon
      * @param option
      * @param properties
      */
-    protected HiTalkStream(Path path, String charset, StandardOpenOption[] option, HtProperty... properties) {
+    protected HiTalkStream(Path path, Charset charset, StandardOpenOption[] option, HtProperty... properties) {
         this(streams.size());
         this.path = path;
-//        this.defcharset = charset;
+        this.charset = charset;
         this.option = option;
 //        this.properties = properties;
     }
 
-    /**
-     * @param properties
-     */
-//    protected HiTalkStream(HtProperty... properties) {
-//        this(new HtMethodDef[0], properties);
-//    }
-
-    /**
-     * @param methods
-     * @param props
-     */
-//    protected HiTalkStream(HtMethodDef[] methods, HtProperty... props) {
-//        super(props);
-//    }
+    public HiTalkStream(Path path) {
+        this(streams.size());
+        this.path = path;
+    }
 
     /**
      * ISO Input and Output Streams
@@ -468,9 +456,8 @@ class HiTalkStream extends PropertyOwner implements PropertyChangeListener, Clon
     }
 
     protected Path path;
-    //    private final String charset;
+    private Charset charset;
     protected StandardOpenOption[] option;
-//    private final HtProperty[] properties;
 
     /**
      * @throws IOException
@@ -491,21 +478,11 @@ class HiTalkStream extends PropertyOwner implements PropertyChangeListener, Clon
      * @param encoding
      * @param options
      */
-    protected HiTalkStream(Path path, String encoding, StandardOpenOption... options) {
-        this(path, encoding, options, new HtProperty[0]);
+    protected HiTalkStream(Path path, Charset encoding, StandardOpenOption... options) throws Exception {
+        this(streams.size());
         this.path = path;
-        Charset charset = isSupported(encoding) ? forName(encoding) : defaultCharset();
-        CharsetDecoder decoder = charset.newDecoder();
-        sd = StreamDecoder.forDecoder(channel, decoder, BB_ALLOC_SIZE);
-
-    }
-
-    /**
-     * @param path
-     * @param options
-     */
-    protected HiTalkStream(Path path, StandardOpenOption... options) throws Exception {
-        this(path, defaultCharset().name(), options);
+        charset = encoding;
+//        this.options = options;
     }
 
     public boolean equals(Object o) {
@@ -654,6 +631,10 @@ class HiTalkStream extends PropertyOwner implements PropertyChangeListener, Clon
      */
     public boolean isOpen() {
         return isOpen;
+    }
+
+    public Charset getCharset() {
+        return charset;
     }
 //    open(+SrcDest, +Mode, --Stream, +Options)
 //    True when SrcDest can be opened in Mode and Stream is an I/O stream to/from the object.

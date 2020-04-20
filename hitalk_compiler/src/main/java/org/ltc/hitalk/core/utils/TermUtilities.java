@@ -14,6 +14,8 @@ import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.term.OpSymbolFunctor;
 import org.ltc.hitalk.wam.compiler.IFunctor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -37,6 +39,8 @@ import static org.ltc.hitalk.parser.PrologAtoms.*;
  * @author Rupert Smith
  */
 public class TermUtilities {
+    static protected final Logger logger = LoggerFactory.getLogger(TermUtilities.class);
+
     /**
      * @param original
      * @return
@@ -122,8 +126,8 @@ public class TermUtilities {
      * @return A sequence of terms parsed as a term, then flattened back into a list seperated on commas.
      * @throws HtSourceCodeException If any of the extracted terms encountered do not extend the superclass.
      */
-    public static <T extends IFunctor> IFunctor[] flattenTerm(IFunctor term, Class<T> superClass, String symbolToFlattenOn,
-                                                              IVafInterner interner) throws Exception {
+    public static <T extends IFunctor> T[] flattenTerm(T term, Class<T> superClass, String symbolToFlattenOn,
+                                                       IVafInterner interner) throws Exception {
         List<T> terms = new ArrayList<>();
 
         // Used to hold the next term to examine as operators are flattened.
@@ -138,8 +142,8 @@ public class TermUtilities {
         // Walk down the terms matching symbols and flattening them into a list of terms.
         while (mayBeMoreCommas) {
             if (!nextTerm.isBracketed() && (nextTerm instanceof IFunctor) &&
-                    symbolName == (((IFunctor) nextTerm).getName())) {
-                IFunctor op = (IFunctor) nextTerm;
+                    symbolName == (((T) nextTerm).getName())) {
+                T op = (T) nextTerm;
                 ITerm termToExtract = op.getArgument(0);
 
                 if (superClass.isInstance(termToExtract)) {
@@ -160,7 +164,8 @@ public class TermUtilities {
             }
         }
 
-        return terms.toArray(new IFunctor[terms.size()]);
+
+        return (T[]) terms.toArray(new Object[terms.size()]);
     }
 
     /**
@@ -178,11 +183,11 @@ public class TermUtilities {
      * @param internedName The interned name of the symbol to flatten on.
      * @return A sequence of terms parsed as a term, then flattened back into a list seperated on commas.
      */
-    public static <T extends IFunctor> List<T> flattenTerm(IFunctor term, Class<T> superClass, int internedName) throws Exception {
+    public static <T extends IFunctor> List<T> flattenTerm(T term, Class<T> superClass, int internedName) throws Exception {
         List<T> terms = new LinkedList<>();
 
         // Used to hold the next term to examine as operators are flattened.
-        IFunctor nextTerm = term;
+        T nextTerm = term;
 
         // Used to indicate when there are no more operators to flatten.
         boolean mayBeMore = true;
@@ -190,12 +195,12 @@ public class TermUtilities {
         // Walk down the terms matching symbols and flattening them into a list of terms.
         while (mayBeMore) {
             if (!nextTerm.isBracketed() && internedName == nextTerm.getName()) {
-                IFunctor op = nextTerm;
-                IFunctor termToExtract = (IFunctor) op.getArgument(0);
+                T op = nextTerm;
+                T termToExtract = (T) op.getArgument(0);
 
                 if (superClass.isInstance(termToExtract)) {
                     terms.add(superClass.cast(termToExtract));
-                    nextTerm = (IFunctor) op.getArgument(1);
+                    nextTerm = (T) op.getArgument(1);
                 } else {
                     throw new IllegalStateException("The term " + termToExtract + " is expected to extend " + superClass +
                             " but does not.");
@@ -246,6 +251,7 @@ public class TermUtilities {
             }
         }
         if (term != null) {
+            logger.info("end_of_file");
             return new HtClause((IFunctor) term, new ListTerm(Collections.emptyList()));
         } else {
             throw new HtSourceCodeException("Only functor can be as a clause head", null, null, null, null

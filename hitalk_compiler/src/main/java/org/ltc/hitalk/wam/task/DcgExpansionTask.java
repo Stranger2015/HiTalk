@@ -2,6 +2,7 @@ package org.ltc.hitalk.wam.task;
 
 import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.parser.Directive.DirectiveKind;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
@@ -17,7 +18,7 @@ import static org.ltc.hitalk.core.PrologBuiltIns.DCG_EXPAND;
 /**
  *
  */
-public class DcgExpansionTask extends PreCompilerTask {
+public class DcgExpansionTask<T extends HtClause> extends PreCompilerTask<T> {
 
     /**
      * @param preCompiler
@@ -25,7 +26,7 @@ public class DcgExpansionTask extends PreCompilerTask {
      * @param kind
      */
     public DcgExpansionTask(
-            IPreCompiler preCompiler,
+            IPreCompiler<T> preCompiler,
             PlLexer tokenSource,
             EnumSet<DirectiveKind> kind) {
         super(preCompiler, tokenSource, kind);
@@ -48,13 +49,31 @@ public class DcgExpansionTask extends PreCompilerTask {
         for (ITerm t : l) {
             output.addAll(dcgExpand((IFunctor) t));
         }
-        return l;
+        return output;
     }
 
 
+    /**
+     * @param f
+     * @return
+     */
     protected List<ListTerm> dcgExpand(IFunctor f) {
         final ListTerm lt = new ListTerm(asList(f.getArgument(0), f.getArgument(1)));
         return DCG_EXPAND.getBuiltInDef().apply(lt);
     }
 
+    /**
+     * When an object implementing interface <code>Runnable</code> is used
+     * to create a thread, starting the thread causes the object's
+     * <code>run</code> method to be called in that separately executing
+     * thread.
+     * <p>
+     * The general contract of the method <code>run</code> is that it may
+     * take any action whatsoever.
+     *
+     * @see Thread#run()
+     */
+    public void run() {
+
+    }
 }

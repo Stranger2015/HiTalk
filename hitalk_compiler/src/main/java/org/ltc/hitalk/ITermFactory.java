@@ -44,7 +44,7 @@ interface ITermFactory extends IHitalkObject {
      * @param args
      * @return
      */
-    IFunctor newFunctor(IFunctor term, ListTerm args);
+    IFunctor newFunctor(IFunctor term, ListTerm args) throws Exception;
 
     /**
      * 変数を作成します。

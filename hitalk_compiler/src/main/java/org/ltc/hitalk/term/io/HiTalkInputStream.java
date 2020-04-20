@@ -12,15 +12,16 @@ import java.io.*;
 import java.nio.CharBuffer;
 import java.nio.ReadOnlyBufferException;
 import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.newByteChannel;
 import static java.nio.file.Files.newInputStream;
 import static java.nio.file.StandardOpenOption.READ;
-import static org.apache.commons.lang3.CharEncoding.UTF_8;
 
 /**
  *
@@ -28,7 +29,7 @@ import static org.apache.commons.lang3.CharEncoding.UTF_8;
 public class HiTalkInputStream extends HiTalkStream implements Readable {
 
     public static final int defaultBufSize = 8192;
-    public static final String defaultEncoding = UTF_8;
+    public static final Charset defaultEncoding = UTF_8;
 
 //    private final int bufferSize;
 
@@ -49,7 +50,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      * @param encoding
      * @param path
      */
-    public HiTalkInputStream(Path path, String encoding) throws Exception {
+    public HiTalkInputStream(Path path, Charset encoding) throws Exception {
         super(path, encoding, READ);
         final FileInputStream fis = new FileInputStream(path.toFile());
         setInputStream(fis);
@@ -71,7 +72,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
      * @throws IOException
      */
     public HiTalkInputStream(String path, int bufferSize) throws Exception {
-        super(Paths.get(path), defaultEncoding, READ);
+        super(Paths.get(path), defaultEncoding);
     }
 
     /**
@@ -102,13 +103,13 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
         setInputStream(fis);
     }
 
-    public HiTalkInputStream(Path path, String encoding, StandardOpenOption read) throws Exception {
+    public HiTalkInputStream(Path path, Charset encoding, StandardOpenOption read) throws Exception {
         super(path, encoding, read);
         setInputStream(new FileInputStream(path.toFile()));
     }
 
     public HiTalkInputStream(InputStream input, Path path) throws Exception {
-        this(path, "UTF-8", READ);
+        this(path, UTF_8, READ);
         setInputStream(input);
     }
 

@@ -77,9 +77,10 @@ public class ListTerm extends HtBaseTerm {
      * @param i
      * @return
      */
-    public ListTerm addHead(int i) {
-        heads.add(new IntTerm(i));
-        return this;
+    public int addHead(int i) {
+        final IntTerm t = new IntTerm(i);
+        heads.add(t);
+        return i;
     }
 
     /**
@@ -106,7 +107,6 @@ public class ListTerm extends HtBaseTerm {
      * @param heads
      */
     public ListTerm(final List<ITerm> heads) {
-//        this(heads.size());
         int bound = this.getHeads().size();
         for (int i = 0; i < bound; i++) {
             this.heads.add(heads.get(i));
@@ -123,9 +123,7 @@ public class ListTerm extends HtBaseTerm {
         this.kind = kind;
         heads.add(tail);
         setHeads(heads);
-
     }
-
 
     /**
      * @param heads

@@ -491,6 +491,13 @@ public class PlDynamicOperatorParser implements IOperatorTable {
         return symbol == null ? -1 : symbol.getPriority();
     }
 
+    public Set<OpSymbolFunctor> getOperators(String name, int arity) {
+        final Set<OpSymbolFunctor> ops = getOperators(name);
+        ops.removeIf(op -> op.getArity() != arity);
+
+        return ops;
+    }
+
     private OpSymbolFunctor filter(Set<OpSymbolFunctor> operators, Associativity associativity) {
         for (OpSymbolFunctor symbol : operators) {
             if (symbol.getAssociativity() == associativity) {

@@ -18,8 +18,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
 
-import static java.nio.charset.Charset.*;
-
 /**
  *
  */
@@ -33,17 +31,16 @@ public class HiTalkOutputStream extends HiTalkStream {
      * @param encoding
      * @param options
      */
-    public HiTalkOutputStream(BufferedWriter output, Path path, String encoding, StandardOpenOption... options) {
+    public HiTalkOutputStream(BufferedWriter output, Path path, Charset encoding, StandardOpenOption... options) throws Exception {
         super(path, encoding, options);
         this.output = output;
-        Charset charset = isSupported(encoding) ? forName(encoding) : defaultCharset();//currentCharset;
-        CharsetEncoder encoder = charset.newEncoder();
+//        Charset charset = isSupported(encoding) ? forName(encoding) : defaultCharset();
+        CharsetEncoder encoder = encoding.newEncoder();
         StreamEncoder se = StreamEncoder.forEncoder(channel, encoder, BB_ALLOC_SIZE);
     }
 
     public HiTalkOutputStream(int i, FileDescriptor out) {
         super(i);
-//        super();
         setOutputStream(new FileOutputStream(out));
     }
 
@@ -52,12 +49,12 @@ public class HiTalkOutputStream extends HiTalkStream {
      * @param encoding
      * @param options
      */
-    protected HiTalkOutputStream(Path path, String encoding, StandardOpenOption... options) {
+    protected HiTalkOutputStream(Path path, Charset encoding, StandardOpenOption... options) throws Exception {
         super(path, encoding, options);
     }
 
-    public HiTalkOutputStream(Path fileName) throws Exception {
-        super(fileName);
+    public HiTalkOutputStream(Path path) throws Exception {
+        super(path);
     }
 
     public HiTalkOutputStream(int id) {

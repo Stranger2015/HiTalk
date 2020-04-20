@@ -105,14 +105,14 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q, PC exten
     /**
      * @return
      */
-    public Deque<PreCompilerTask> getTasks() {
+    public Deque<PreCompilerTask<HtClause>> getTasks() {
         return tasks;
     }
 
     /**
      *
      */
-    public final Deque<PreCompilerTask> tasks = new ArrayDeque<>();
+    public final Deque<PreCompilerTask<HtClause>> tasks = new ArrayDeque<>();
 
     /**
      * Creates a base machine over the specified symbol table.

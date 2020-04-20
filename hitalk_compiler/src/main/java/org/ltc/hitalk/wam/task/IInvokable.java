@@ -1,6 +1,5 @@
 package org.ltc.hitalk.wam.task;
 
-import org.ltc.hitalk.compiler.bktables.error.StopRequestException;
 import org.ltc.hitalk.term.ITerm;
 import org.slf4j.Logger;
 
@@ -26,14 +25,14 @@ interface IInvokable<T extends ITerm> extends Runnable {
      * take any action whatsoever.
      *
      * @see Thread#run()
-     */
-    @Override
-    default void run() {
-        try {
-            invoke(null);
-        } catch (StopRequestException | IOException ignored) {
-        }
-    }
+    //     */
+//    @Override
+//    default void run() {
+//        try {
+//            invoke(null);
+//        } catch (StopRequestException | IOException ignored) {
+//        }
+//    }
 
     /**
      * @param t

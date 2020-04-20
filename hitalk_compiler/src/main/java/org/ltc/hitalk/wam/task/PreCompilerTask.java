@@ -3,6 +3,7 @@ package org.ltc.hitalk.wam.task;
 import org.ltc.hitalk.core.IHitalkObject;
 import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.parser.Directive.DirectiveKind;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.term.ITerm;
 import org.slf4j.Logger;
@@ -19,27 +20,18 @@ import static java.lang.String.format;
  *
  */
 abstract public
-class PreCompilerTask implements IInvokable<ITerm>, IHitalkObject {
+class PreCompilerTask<T extends HtClause> implements IInvokable<ITerm>, IHitalkObject {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     protected final PlLexer tokenSource;
-    protected final IPreCompiler preCompiler;
+    protected final IPreCompiler<T> preCompiler;
     protected final EnumSet<DirectiveKind> kind;
-//    protected PreCompilerTask nextTask;
-//
-//    public PreCompilerTask getNextTask() {
-//        return nextTask;
-//    }
-//
-//    public void setNextTask(PreCompilerTask nextTask) {
-//        this.nextTask = nextTask;
-//    }
 
-    public void addTask(PreCompilerTask newTask) {
-//        PreCompilerTask tmp = this.nextTask;
-//        this.nextTask = newTask;
-//        newTask = tmp;
-        preCompiler.getTaskQueue().add(newTask);
+    /**
+     * @param newTask
+     */
+    public void addTask(PreCompilerTask<T> newTask) {
+        preCompiler.getTaskQueue().add((PreCompilerTask<HtClause>) newTask);
     }
 
 
@@ -48,11 +40,14 @@ class PreCompilerTask implements IInvokable<ITerm>, IHitalkObject {
         return logger;
     }
 
+    /**
+     * @return
+     */
     public PlLexer getTokenSource() {
         return tokenSource;
     }
 
-    public IPreCompiler getPreCompiler() {
+    public IPreCompiler<T> getPreCompiler() {
         return preCompiler;
     }
 
@@ -65,7 +60,7 @@ class PreCompilerTask implements IInvokable<ITerm>, IHitalkObject {
      * @param preCompiler
      * @param kind
      */
-    public PreCompilerTask(IPreCompiler preCompiler, PlLexer tokenSource, EnumSet<DirectiveKind> kind) {
+    public PreCompilerTask(IPreCompiler<T> preCompiler, PlLexer tokenSource, EnumSet<DirectiveKind> kind) {
         this.preCompiler = preCompiler;
         this.tokenSource = tokenSource;
         this.kind = kind;
@@ -86,7 +81,7 @@ class PreCompilerTask implements IInvokable<ITerm>, IHitalkObject {
     }
 
     protected ITerm input;
-    protected final List<ITerm> output = new ArrayList<>();
+    protected List<ITerm> output = new ArrayList<>();
 
     /**
      * @param term
@@ -127,6 +122,21 @@ class PreCompilerTask implements IInvokable<ITerm>, IHitalkObject {
      * @param sb
      */
     public void toString0(StringBuilder sb) {
+
+    }
+
+    /**
+     * When an object implementing interface <code>Runnable</code> is used
+     * to create a thread, starting the thread causes the object's
+     * <code>run</code> method to be called in that separately executing
+     * thread.
+     * <p>
+     * The general contract of the method <code>run</code> is that it may
+     * take any action whatsoever.
+     *
+     * @see Thread#run()
+     */
+    public void run() {
 
     }
 }

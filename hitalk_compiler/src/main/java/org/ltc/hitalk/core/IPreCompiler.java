@@ -22,7 +22,7 @@ import static org.ltc.hitalk.core.BaseApp.getAppContext;
 /**
  *
  */
-public interface IPreCompiler<T extends HtClause> extends IQueueHolder<PreCompilerTask>, IHitalkObject {
+public interface IPreCompiler<T extends HtClause> extends IQueueHolder<PreCompilerTask<HtClause>>, IHitalkObject {
     /**
      * @return
      */
@@ -35,7 +35,7 @@ public interface IPreCompiler<T extends HtClause> extends IQueueHolder<PreCompil
      */
     List<T> preCompile(PlLexer tokenSource, EnumSet<DirectiveKind> delims) throws Exception;
 
-    Deque<PreCompilerTask> getQueue();
+    Deque<PreCompilerTask<HtClause>> getQueue();
 
     HtPrologParser getParser() throws Exception;
 

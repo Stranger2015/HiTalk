@@ -23,6 +23,7 @@ import static org.ltc.hitalk.core.BaseApp.getAppContext;
  */
 public class HtTermWriter extends HtTermIO {
     IOperatorTable optable = BaseApp.appContext.getOpTable();
+    private int ident;
 
     /**
      * @param path
@@ -41,46 +42,60 @@ public class HtTermWriter extends HtTermIO {
 
 
     /**
-     * @param sb
      * @param t
      * @return
      */
-    public String writeTerm(StringBuilder sb, ITerm t) {
+    public String writeTerm(ITerm t) {
+        StringBuilder sb = new StringBuilder();
+        writeTerm(sb, t);
+
+        return sb.toString();
+    }
+
+    public void writeTerm(StringBuilder sb, ITerm t) {
         if (t.isFunctor()) {
             writeFunctor(sb, (HtFunctor) t);
         } else if (t.isNumber()) {
             if (t instanceof IntTerm) {
-                sb.append(((IntTerm) t).getInt());
+                ident(sb, (String.valueOf(((IntTerm) t).getInt())));
             } else if (t instanceof FloatTerm) {
-                sb.append(Float.intBitsToFloat(((FloatTerm) t).getImage()));
+                ident(sb, String.valueOf(Float.intBitsToFloat(((FloatTerm) t).getImage())));
             }
         } else if (t.isVar()) {
-            sb.append(interner.getVariableName((HtVariable) t));
+            ident(sb, interner.getVariableName((HtVariable) t));
         } else if (t.isList()) {
-            sb.append("[ ");
+            ident(sb, "[ ");
             writeSeq(sb, (ListTerm) t);
-            sb.append(" ]");
+            ident(sb, " ]");
         }
-        return sb.toString();
     }
 
     private void writeFunctor(StringBuilder sb, HtFunctor functor) {
-        final HtFunctorName fn = interner.getDeinternedFunctorName(t.getName());
+        final HtFunctorName fn = interner.getDeinternedFunctorName(functor.getName());
         final String name = fn.getName();
         int arity = fn.getArity();
 
         final Set<OpSymbolFunctor> ops = optable.getOperators(name, arity);//writeName(sb, functor);
         if (ops.isEmpty()) {
-            sb.append("( ");
+            ident(sb, "( ");
             writeSeq(sb, functor.getArgs());
-            sb.append(" )");
+            ident(sb, " )");
         } else { ///ops.size == 1
             for (OpSymbolFunctor op : ops) {
                 if (op.isPrefix()) {
-                    sb.append(op.getArgument(0).);//fixme
+                    ident(sb, op.getTextName());
+                    ident(sb, " ");
                     writeTerm(sb, op.getArgument(0));
-                } else if (op.isInfix()) {//todo
-
+                } else if (op.isInfix()) {
+                    writeTerm(sb, op.getArgs().getHead(0));
+                    ident(sb, " ");
+                    ident(sb, op.getTextName());
+                    ident(sb, " ");
+                    writeTerm(sb, op.getArgs().getHead(1));
+                } else {
+                    writeTerm(sb, op.getArgs().getHead(0));
+                    ident(sb, " ");
+                    ident(sb, op.getTextName());
                 }
             }
         }
@@ -88,13 +103,19 @@ public class HtTermWriter extends HtTermIO {
 
     private void writeName(StringBuilder sb, String name) {
         if (quoteRequired(name)) {
-            sb.append('\'');
-            sb.append(name);
-            sb.append('\'');
+            ident(sb, "'");
+            ident(sb, name);
+            ident(sb, "'");
         } else {
-            sb.append(name);
+            ident(sb, name);
         }
-//        return optable.getOperators(name, arity);
+    }
+
+    private void ident(StringBuilder sb, String s) {
+        for (int i = 0; i < ident; i++) {
+            sb.append(' ');
+        }
+        sb.append(s);
     }
 
     private boolean quoteRequired(String name) {
@@ -108,7 +129,7 @@ public class HtTermWriter extends HtTermIO {
 
     private void writeTail(StringBuilder sb, ListTerm t) {
         if (t.getTail() != ListTerm.NIL) {
-            sb.append("| ");
+            ident(sb, "| ");
             writeTerm(sb, t.getTail());
         }
     }
@@ -117,7 +138,7 @@ public class HtTermWriter extends HtTermIO {
         final List<ITerm> heads = t.getHeads();
         for (int i = 0; i < heads.size(); i++) {
             writeTerm(sb, heads.get(i));
-            sb.append(i + 1 < heads.size() ? ", " : " ");
+            ident(sb, i + 1 < heads.size() ? ", " : " ");
         }
 
     }

@@ -3,6 +3,7 @@ package org.ltc.hitalk.wam.compiler.prolog;
 import com.thesett.aima.search.util.backtracking.DepthFirstBacktrackingSearch;
 import org.ltc.hitalk.compiler.AbstractBaseMachine;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.core.IHitalkObject;
 import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
@@ -12,6 +13,7 @@ import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.term.io.HtTermWriter;
 import org.ltc.hitalk.wam.compiler.HtTermWalkers;
 import org.ltc.hitalk.wam.compiler.IFunctor;
@@ -23,7 +25,7 @@ import org.ltc.hitalk.wam.task.TermExpansionTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileNotFoundException;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.*;
 
@@ -38,7 +40,8 @@ import static org.ltc.hitalk.parser.PrologAtoms.IMPLIES;
  *
  */
 public
-class PrologPreCompiler<T extends HtClause, P, Q, PC, QC> extends AbstractBaseMachine implements IPreCompiler<T> {
+class PrologPreCompiler<T extends HtClause, P, Q, PC, QC> extends AbstractBaseMachine
+        implements IPreCompiler<T>, IHitalkObject {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
@@ -53,9 +56,9 @@ class PrologPreCompiler<T extends HtClause, P, Q, PC, QC> extends AbstractBaseMa
     protected ICompilerObserver<P, Q> observer;
 
     protected ClauseChainObserver clauseChainObserver;
-    protected final Deque<PreCompilerTask> taskQueue = new ArrayDeque<>();
+    protected final Deque<PreCompilerTask<HtClause>> taskQueue = new ArrayDeque<>();
     protected boolean isBOFPassed;
-
+    protected boolean isEOFPassed;
 
     /**
      * @param symbolTable
@@ -90,7 +93,7 @@ class PrologPreCompiler<T extends HtClause, P, Q, PC, QC> extends AbstractBaseMa
     /**
      * @return
      */
-    public Deque<PreCompilerTask> getTaskQueue() {
+    public Deque<PreCompilerTask<HtClause>> getTaskQueue() {
         return taskQueue;
     }
 
@@ -107,6 +110,15 @@ class PrologPreCompiler<T extends HtClause, P, Q, PC, QC> extends AbstractBaseMa
         return clause.getHead() == null &&
                 clause.getBody().size() == 1 &&
                 ((IFunctor) clause).getName() == interner.internFunctorName(IMPLIES, 1);
+    }
+
+    /**
+     * @param clause
+     * @param delims
+     * @return
+     */
+    public boolean checkDirective(T clause, EnumSet<DirectiveKind> delims) throws Exception {
+        return false;
     }
 
     /**
@@ -135,17 +147,22 @@ class PrologPreCompiler<T extends HtClause, P, Q, PC, QC> extends AbstractBaseMa
         List<T> list = new ArrayList<>();
         while (tokenSource.isOpen()) {
             ITerm t = getParser().termSentence();
-            if (checkBOF(t)) {
-                getLogger().info("begin_of_file");
-                break;
-            }
+            checkBOF(t);// {
+//                getLogger().info("begin_of_file");
+            /* } else */
             if (checkEOF(t)) {
-                getLogger().info("end_of_file");
-
-            } else {
-                list.add((T) TermUtilities.convertToClause(t, interner));
+//                getLogger().info("end_of_file");
+                parser.popTokenSource();
+            }
+            getLogger().info("term: " + t);
+            for (ITerm term : preCompile(t)) {
+                getLogger().info("precompiled: " + term);
+                T clause = (T) TermUtilities.convertToClause(term, interner);
+                getLogger().info("converted: " + clause);
+                list.add(clause);
             }
         }
+
         return list;
     }
 
@@ -153,8 +170,8 @@ class PrologPreCompiler<T extends HtClause, P, Q, PC, QC> extends AbstractBaseMa
     public boolean checkEOF(ITerm t) {
         boolean result = false;
         if (t == END_OF_FILE) {
-            if (!isBOFPassed) {
-                isBOFPassed = true;
+            if (!isEOFPassed) {
+                isEOFPassed = true;
                 parser.popTokenSource();
                 logger.info("'end_of_file' is being passed.");
                 result = true;
@@ -224,7 +241,7 @@ class PrologPreCompiler<T extends HtClause, P, Q, PC, QC> extends AbstractBaseMa
      * @param clause The clause to initialise the symbol keys of.
      */
     private void initializeSymbolTable(ITerm clause) {
-        logger.info("Initializing symbol table ( " + clause + ") ...");
+        logger.info("Initializing symbol table ( " + clause + " ) ...");
         // Run the symbol key traverser over the clause, to ensure that all terms have their symbol keys correctly
         // set up.
         HtSymbolKeyTraverser symbolKeyTraverser = new HtSymbolKeyTraverser(interner, symbolTable, null);
@@ -243,7 +260,7 @@ class PrologPreCompiler<T extends HtClause, P, Q, PC, QC> extends AbstractBaseMa
      * @param clause The clause to top-level check.
      */
     private void topLevelCheck(ITerm clause) {
-        logger.info("TopLevel checking " + "( " + clause + ") ...");
+        logger.info("TopLevel checking ( " + clause + " ) ...");
         HtTermWalker walk = HtTermWalkers.positionalWalker(
                 new HtTopLevelCheckVisitor(
                         symbolTable,
@@ -259,7 +276,7 @@ class PrologPreCompiler<T extends HtClause, P, Q, PC, QC> extends AbstractBaseMa
      */
     @SuppressWarnings("unchecked")
     private void substituteBuiltIns(ITerm clause) {
-        logger.debug("Built-in's substitution " + "( " + clause + ") ...");
+        logger.debug("Built-in's substitution ( " + clause + " ) ...");
         HtTermWalker walk =
                 HtTermWalkers.positionalWalker(
                         new HtBuiltInTransformVisitor(
@@ -304,9 +321,12 @@ class PrologPreCompiler<T extends HtClause, P, Q, PC, QC> extends AbstractBaseMa
         return Collections.singletonList(term);
     }
 
-    private PlLexer getTokenSourceForTerm(ITerm term) throws FileNotFoundException {
+    private PlLexer getTokenSourceForTerm(ITerm term) throws Exception {
         HtTermWriter writer = new HtTermWriter(term);
-        return null;
+        String s = writer.writeTerm(term);
+        byte[] in = s.getBytes();
+        HiTalkInputStream stream = new HiTalkInputStream(new ByteArrayInputStream(in), null);
+        return new PlLexer(stream, null);
     }
 
     /**
@@ -342,14 +362,14 @@ class PrologPreCompiler<T extends HtClause, P, Q, PC, QC> extends AbstractBaseMa
     /**
      * @return
      */
-    public Deque<PreCompilerTask> getQueue() {
+    public Deque<PreCompilerTask<HtClause>> getQueue() {
         return taskQueue;
     }
 
     /**
      * @param item
      */
-    public void remove(PreCompilerTask item) {
+    public void remove(PreCompilerTask<HtClause> item) {
         taskQueue.remove(item);
     }
 

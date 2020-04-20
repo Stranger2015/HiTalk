@@ -1,7 +1,9 @@
 package org.ltc.hitalk.wam.task;
 
+import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.parser.Directive.DirectiveKind;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.ListTerm;
@@ -35,22 +37,21 @@ import static org.ltc.hitalk.core.PrologBuiltIns.EXPAND_TERM;
  * <p>
  * 4) Call expand_goal/2 on each body term that appears in the output of the previous steps.
  */
-public class TermExpansionTask extends PreCompilerTask {
-
-    protected final Deque<PreCompilerTask> taskQueue = new ArrayDeque<>();
+public class TermExpansionTask<T extends HtClause> extends PreCompilerTask<T> {
+    protected final Deque<PreCompilerTask<T>> taskQueue = new ArrayDeque<>();
 
     /**
      * @param preCompiler
      * @param tokenSource
      * @param kind
      */
-    public TermExpansionTask(IPreCompiler preCompiler,
+    public TermExpansionTask(IPreCompiler<T> preCompiler,
                              PlLexer tokenSource,
                              EnumSet<DirectiveKind> kind) {
         super(preCompiler, tokenSource, kind);
-        taskQueue.add(new CondCompilationTask(preCompiler, tokenSource, kind));
-        taskQueue.add(new DcgExpansionTask(preCompiler, tokenSource, kind));
-        taskQueue.add(new GoalExpansionTask(preCompiler, tokenSource, kind));
+        taskQueue.add(new CondCompilationTask<>(preCompiler, tokenSource, kind));
+        taskQueue.add(new DcgExpansionTask<>(preCompiler, tokenSource, kind));
+        taskQueue.add(new GoalExpansionTask<>(preCompiler, tokenSource, kind));
     }
 
     public void toString0(StringBuilder sb) {
@@ -124,6 +125,7 @@ public class TermExpansionTask extends PreCompilerTask {
                     invoke = task.invoke(iTerm);
                 } catch (IOException e) {
                     e.printStackTrace();//fixme
+                    throw new ExecutionError(ExecutionError.Kind.PERMISSION_ERROR, toString(), e);
                 }
                 output.addAll(invoke);
             }
@@ -132,7 +134,7 @@ public class TermExpansionTask extends PreCompilerTask {
         return output;
     }
 
-    private Deque<PreCompilerTask> getTaskQueue() {
+    private Deque<PreCompilerTask<T>> getTaskQueue() {
         return taskQueue;
     }
 
@@ -142,16 +144,35 @@ public class TermExpansionTask extends PreCompilerTask {
      */
     @Override
     protected List<ITerm> invoke0(ITerm term) throws IOException {
-        output.add(term);
+        List<ITerm> list = new ArrayList<>();
+//        list.add(term);
         final List<ITerm> l = super.invoke0(term);
-        for (PreCompilerTask next : taskQueue) {
-            next.invoke(term);
+        for (ITerm t : l) {
+            list.addAll(expandTerm((IFunctor) t));
         }
-        return l;
+        getLogger().info("term expansion: " + list);
+        output = list;
+        return output;
+
     }
 
     protected List<ListTerm> expandTerm(IFunctor f) {
         final ListTerm lt = new ListTerm(asList(f.getArgument(0), f.getArgument(1)));
         return EXPAND_TERM.getBuiltInDef().apply(lt);
+    }
+
+    /**
+     * When an object implementing interface <code>Runnable</code> is used
+     * to create a thread, starting the thread causes the object's
+     * <code>run</code> method to be called in that separately executing
+     * thread.
+     * <p>
+     * The general contract of the method <code>run</code> is that it may
+     * take any action whatsoever.
+     *
+     * @see Thread#run()
+     */
+    public void run() {
+
     }
 }

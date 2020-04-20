@@ -20,7 +20,7 @@ import static org.ltc.hitalk.parser.Directive.DirectiveKind.*;
 /**
  *
  */
-public class CondCompilationTask extends PreCompilerTask {
+public class CondCompilationTask<T extends HtClause> extends PreCompilerTask<T> {
 
     public EnumSet<DirectiveKind> getDkRDelim() {
         return dkRDelim;
@@ -33,7 +33,7 @@ public class CondCompilationTask extends PreCompilerTask {
      * @param preCompiler
      * @param kind
      */
-    public CondCompilationTask(IPreCompiler preCompiler,
+    public CondCompilationTask(IPreCompiler<T> preCompiler,
                                PlLexer tokenSource,
                                EnumSet<DirectiveKind> kind) {
         super(preCompiler, tokenSource, kind);
@@ -46,20 +46,18 @@ public class CondCompilationTask extends PreCompilerTask {
      */
     public boolean ccIf(ITerm term) throws IOException {
         final GoalExpansionTask getask;
-        getask = new GoalExpansionTask(getPreCompiler(), getTokenSource(), getKind());
-//        addTask(getask);
-//        getask.input = term;
-        getask.invoke(term);
-        for (ITerm t : getask.output) {
+        getask = new GoalExpansionTask((IPreCompiler<HtClause>) getPreCompiler(), getTokenSource(), getKind());
+        final List<ITerm> l = getask.invoke(term);
+        for (ITerm t : l) {
             final ExecutionTask etask;
             try {
-                etask = new ExecutionTask(getPreCompiler(), getTokenSource(), getKind());
+                etask = new ExecutionTask((IPreCompiler<HtClause>) getPreCompiler(), getTokenSource(), getKind());
                 etask.input = t;
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new ExecutionError(PERMISSION_ERROR, toString(), e);
             }
-            final List<ITerm> l = invoke(etask.input);
+            output = invoke(etask.input);
 
             dkRDelim = of(DK_ELIF, DK_ELSE, DK_ENDIF);
         }
@@ -72,8 +70,6 @@ public class CondCompilationTask extends PreCompilerTask {
      */
     public boolean ccElIf(ITerm term) throws IOException {
         final boolean b = ccIf(term);
-//        addTask(etask);
-//        etask.input = term;
         dkRDelim = of(DK_ELIF, DK_ELSE, DK_ENDIF);
         return b;
     }
@@ -102,10 +98,25 @@ public class CondCompilationTask extends PreCompilerTask {
     @Override
     protected List<ITerm> invoke0(ITerm term) throws IOException {
         final List<ITerm> l = super.invoke0(term);
-        for (ITerm t : l) {
-            // output.addAll(ccIf(t));
+        for (final ITerm t : l) {
+            for (DirectiveKind directiveKind : dkRDelim) {
+                switch (directiveKind) {
+                    case DK_IF:
+                        ccIf(t);
+                        break;
+                    case DK_ELSE:
+                        ccElse(t);
+                        break;
+                    case DK_ELIF:
+                        ccElIf(t);
+                        break;
+                    case DK_ENDIF:
+                        ccEndIf(t);
+                        break;
+                }
+            }
         }
-        return l;
+        return output;
     }
 
     /**
@@ -132,5 +143,20 @@ public class CondCompilationTask extends PreCompilerTask {
         }
 
         return false;
+    }
+
+    /**
+     * When an object implementing interface <code>Runnable</code> is used
+     * to create a thread, starting the thread causes the object's
+     * <code>run</code> method to be called in that separately executing
+     * thread.
+     * <p>
+     * The general contract of the method <code>run</code> is that it may
+     * take any action whatsoever.
+     *
+     * @see Thread#run()
+     */
+    public void run() {
+
     }
 }

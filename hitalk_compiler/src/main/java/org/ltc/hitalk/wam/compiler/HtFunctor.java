@@ -34,12 +34,12 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
         this(args.addHead(name).addHead(hilogApply));
     }
 
-    /**
-     * @param args
-     */
-    public HtFunctor(ListTerm args) {
-        this.args = args;//name heads tail
-    }
+//    /**
+//     * @param args
+//     */
+//    public HtFunctor(ListTerm args) {
+//        this.args = args;//name heads tail
+//    }
 
     /**
      * @param name
@@ -234,18 +234,18 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
     public Iterator<Operator<ITerm>> getChildren(boolean reverse) {
         if (traverser instanceof IFunctorTraverser) {
             return ((IFunctorTraverser) traverser).traverse(this, reverse);
-        } else if (args == null) {
+        } else if (args == null || args.size() == 0) {
             return emptyIterator();
         } else if (!reverse) {
             List<Operator<ITerm>> argList = new ArrayList<>();
-
             for (int i = args.getHeads().size() - 1; i >= 0; i--) {
                 argList.add(args.getHead(i));
             }
 
             return argList.iterator();
         }
-        return null;//fixme
+
+        return emptyIterator();//fixme
     }
 
     /**

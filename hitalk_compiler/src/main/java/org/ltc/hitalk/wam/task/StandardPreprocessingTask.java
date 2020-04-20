@@ -2,22 +2,24 @@ package org.ltc.hitalk.wam.task;
 
 import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.parser.Directive;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.PlLexer;
 
-import java.util.Deque;
 import java.util.EnumSet;
 
 /**
  *
  */
-public class StandardPreprocessingTask extends PreCompilerTask {
+public class StandardPreprocessingTask<T extends HtClause> extends PreCompilerTask<T> {
 
     /**
      * @param preCompiler
      * @param tokenSource
      * @param kind
      */
-    public StandardPreprocessingTask(IPreCompiler preCompiler, PlLexer tokenSource, EnumSet<Directive.DirectiveKind> kind) {
+    public StandardPreprocessingTask(IPreCompiler<T> preCompiler,
+                                     PlLexer tokenSource,
+                                     EnumSet<Directive.DirectiveKind> kind) {
         super(preCompiler, tokenSource, kind);
     }
 
@@ -28,10 +30,10 @@ public class StandardPreprocessingTask extends PreCompilerTask {
 
     }
 
-    /**
-     * @return
-     */
-    public Deque<PreCompilerTask> getTaskQueue() {
-        return null;
-    }
+//    /**
+//     * @return
+//     */
+//    public Deque<PreCompilerTask<T>> getTaskQueue() {
+//        return null;
+//    }
 }

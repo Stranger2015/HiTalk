@@ -2,6 +2,7 @@ package org.ltc.hitalk.wam.task;
 
 import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.parser.Directive.DirectiveKind;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.PlLexer;
 
 import java.util.EnumSet;
@@ -10,7 +11,7 @@ import java.util.EnumSet;
  *
  */
 @Deprecated
-public abstract class RewriteTermTask extends PreCompilerTask {
+public abstract class RewriteTermTask extends PreCompilerTask<HtClause> {
 
     /**
      * @param tokenSource

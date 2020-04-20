@@ -323,7 +323,7 @@ public class HtPrologParser implements IParser<HtClause> {
         op(200, yfx, UP_UP);
         op(200, xfx, STAR_STAR);
         op(200, fy, AS);
-        op(100, yfx, DOT);
+//        op(100, yfx, DOT);
         op(1, fx, DOLLAR);
 //Block operators
 //        This operator is typically declared as a low-priority yf postfix operator,
@@ -916,7 +916,7 @@ public class HtPrologParser implements IParser<HtClause> {
      * @throws Exception
      */
     protected PlToken readToken() throws Exception {
-        logger.info("getLexer() = " + getLexer());
+//        logger.info("getLexer() = " + getLexer());
         return getLexer().readToken(true);
     }
 

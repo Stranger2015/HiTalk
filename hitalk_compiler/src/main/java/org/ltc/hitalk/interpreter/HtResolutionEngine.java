@@ -279,11 +279,17 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledP
     }
 
     private List<ITerm> preprocess(ITerm clause) throws IOException {
+        final List<ITerm> clauses = new ArrayList<>();
+        clauses.add(clause);
         getTaskQueue().add(new TermExpansionTask(
-                preCompiler,
-                getTokenSource(),
+                (IPreCompiler<HtClause>) preCompiler,
+                getTokenSource(),///fixme
                 EnumSet.of(DK_ELSE, DK_ELIF, DK_ENDIF)));
-        return getTaskQueue().peek().invoke(clause);
+        for (PreCompilerTask<HtClause> task : getTaskQueue()) {
+            clauses.addAll(task.invoke(clause));
+        }
+
+        return clauses;//getTaskQueue().peek().invoke(clause);
     }
 
 //    private ITerm readTerm() throws Exception {
@@ -606,7 +612,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledP
         return preCompiler.preCompile(tokenSource, delims);
     }
 
-    public Deque<PreCompilerTask> getQueue() {
+    public Deque<PreCompilerTask<HtClause>> getQueue() {
         return preCompiler.getQueue();
     }
 
@@ -696,7 +702,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledP
     /**
      * @return
      */
-    public Deque<PreCompilerTask> getTaskQueue() {
+    public Deque<PreCompilerTask<HtClause>> getTaskQueue() {
         return null;
     }
 

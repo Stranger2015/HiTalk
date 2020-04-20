@@ -5,6 +5,7 @@ import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
 import org.ltc.hitalk.parser.Directive.DirectiveKind;
+import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.transformers.ITransformer;
@@ -19,7 +20,7 @@ import java.util.List;
  *
  */
 public
-class TransformTask extends PreCompilerTask implements ITransformer {
+class TransformTask extends PreCompilerTask<HtClause> implements ITransformer {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
@@ -110,7 +111,7 @@ class TransformTask extends PreCompilerTask implements ITransformer {
     /**
      * @param item
      */
-    public void remove ( PreCompilerTask item ) {
+    public void remove(PreCompilerTask<HtClause> item) {
 
     }
 

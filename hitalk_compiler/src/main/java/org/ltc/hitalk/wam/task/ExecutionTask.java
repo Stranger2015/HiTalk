@@ -20,18 +20,18 @@ import java.util.*;
 /**
  *
  */
-public class ExecutionTask extends PreCompilerTask implements IExecutionTask {
+public class ExecutionTask<T extends HtClause> extends PreCompilerTask<T> implements IExecutionTask {
 
-    private final Deque<PreCompilerTask> tasks = new ArrayDeque<>();
+    private final Deque<PreCompilerTask<T>> tasks = new ArrayDeque<>();
 
-    private final HtResolutionEngine<HtClause, HtPredicate, HtClause,
+    private final HtResolutionEngine<T, HtPredicate, HtClause,
             HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> engine;
 
     /**
      * @param preCompiler
      */
     public ExecutionTask(
-            IPreCompiler<?> preCompiler,
+            IPreCompiler<T> preCompiler,
             PlLexer lexer,
             EnumSet<DirectiveKind> kind) throws Exception {
 
@@ -42,21 +42,21 @@ public class ExecutionTask extends PreCompilerTask implements IExecutionTask {
     /**
      * @return
      */
-    public Deque<PreCompilerTask> getQueue() {
+    public Deque<PreCompilerTask<T>> getQueue() {
         return tasks;
     }
 
     /**
      * @param item
      */
-    public void push(PreCompilerTask item) {
+    public void push(PreCompilerTask<T> item) {
         getQueue().push(item);
     }
 
     /**
      *
      */
-    public PreCompilerTask poll() {
+    public PreCompilerTask<T> poll() {
         return getQueue().poll();
     }
 
@@ -119,10 +119,24 @@ public class ExecutionTask extends PreCompilerTask implements IExecutionTask {
      */
     @Override
     public boolean call(IFunctor goal) {
-        WAMCallPoint callPoint = new WAMCallPoint(hashCode(), hashCode(), hashCode());//fixme
-
+        WAMCallPoint callPoint = new WAMCallPoint(hashCode(), hashCode(), hashCode());
         engine.execute(callPoint);
         return false;
+    }
+
+    /**
+     * When an object implementing interface <code>Runnable</code> is used
+     * to create a thread, starting the thread causes the object's
+     * <code>run</code> method to be called in that separately executing
+     * thread.
+     * <p>
+     * The general contract of the method <code>run</code> is that it may
+     * take any action whatsoever.
+     *
+     * @see Thread#run()
+     */
+    public void run() {
+
     }
 }
 

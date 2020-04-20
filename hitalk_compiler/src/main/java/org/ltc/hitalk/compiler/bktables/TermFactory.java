@@ -92,8 +92,8 @@ public class TermFactory implements ITermFactory {
      * @return
      */
     @Override
-    public IFunctor newFunctor(IFunctor term, ListTerm args) {
-        return new HtFunctor(args);
+    public IFunctor newFunctor(IFunctor term, ListTerm args) throws Exception {
+        return new HtFunctor(term.getName(), args);
     }
 
     /**

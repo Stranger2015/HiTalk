@@ -615,14 +615,14 @@ public class PlLexer implements PropertyChangeListener {
         return lastToken;
     }
 
-    /**
-     * @param lastToken
-     */
-    public void setLastToken(PlToken lastToken) {
-        this.lastToken = lastToken;
-    }
-
-    public int tokenStart() {
-        return 0;
-    }
+//    /**
+//     * @param lastToken
+//     */
+//    public void setLastToken(PlToken lastToken) {
+//        this.lastToken = lastToken;
+//    }
+//
+//    public int tokenStart() {
+//        return 0;
+//    }
 }
