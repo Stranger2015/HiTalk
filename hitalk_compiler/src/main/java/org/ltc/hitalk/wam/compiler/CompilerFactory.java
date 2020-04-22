@@ -9,10 +9,12 @@ import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
 import org.ltc.hitalk.wam.compiler.prolog.PrologInstructionCompiler;
 import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
+import org.ltc.hitalk.wam.task.PreCompilerTask;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.EXISTENCE_ERROR;
 
-public class CompilerFactory<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledPredicate, QC extends HiTalkWAMCompiledQuery> implements ICompilerFactory<T, P, Q, PC, QC> {
+public class CompilerFactory<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledPredicate,
+        QC extends HiTalkWAMCompiledQuery> implements ICompilerFactory<T, P, Q, PC, QC> {
 
     /**
      * @param language
@@ -46,9 +48,10 @@ public class CompilerFactory<T extends HtClause, P, Q, PC extends HiTalkWAMCompi
      * @param language
      * @return
      */
-    public IPreCompiler createPreCompiler ( Language language ) {
+    @SuppressWarnings("unchecked")
+    public IPreCompiler<T, PreCompilerTask<T>, P, Q, PC, QC> createPreCompiler(Language language) {
         try {
-            return (PrologPreCompiler<T, P, Q, PC, QC>) language.getPreCompilerClass().newInstance();
+            return (PrologPreCompiler<T, PreCompilerTask<T>, P, Q, PC, QC>) language.getPreCompilerClass().newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
             throw new ExecutionError(EXISTENCE_ERROR, null);

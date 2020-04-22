@@ -12,7 +12,7 @@ import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler.ClauseChainObserver;
 import org.ltc.hitalk.wam.task.PreCompilerTask;
 import org.slf4j.Logger;
 
-import java.util.Deque;
+import java.io.IOException;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
@@ -22,7 +22,8 @@ import static org.ltc.hitalk.core.BaseApp.getAppContext;
 /**
  *
  */
-public interface IPreCompiler<T extends HtClause> extends IQueueHolder<PreCompilerTask<HtClause>>, IHitalkObject {
+public interface IPreCompiler<T extends HtClause, TT extends PreCompilerTask<T>, P, Q, PC, QC>
+        extends IQueueHolder<T, TT>, IHitalkObject {
     /**
      * @return
      */
@@ -34,8 +35,6 @@ public interface IPreCompiler<T extends HtClause> extends IQueueHolder<PreCompil
      * @throws Exception
      */
     List<T> preCompile(PlLexer tokenSource, EnumSet<DirectiveKind> delims) throws Exception;
-
-    Deque<PreCompilerTask<HtClause>> getQueue();
 
     HtPrologParser getParser() throws Exception;
 
@@ -75,39 +74,12 @@ public interface IPreCompiler<T extends HtClause> extends IQueueHolder<PreCompil
      * @param term
      * @return
      */
-    boolean checkBOF(ITerm term);
+    void checkBOF(ITerm term) throws IOException;
 
     /**
      * @param term
      * @return
      */
-    boolean checkEOF(ITerm term);
-
-    /**
-     * expand_term(+Term1, -Term2)
-     * This predicate is normally called by the compiler on terms read from the input to perform preprocessing.
-     * It consists of four steps, where each step processes the output of the previous step.
-     * ========================================================================================================
-     *
-     * 1. Test conditional compilation directives and translate all input to [] if we are in a `false branch' of
-     * the conditional compilation. See section 4.3.1.2.
-     * <p>
-     *
-     * 2. Call term_expansion/2.
-     * This predicate is first tried in the module that is being compiled and then
-     * in modules from which this module inherits according to default_module/2. The output of the expansion in
-     * a module is used as input for the next module. Using the default setup and when compiling a normal
-     * application module M, this implies expansion is executed in M, user and finally in system. Library modules
-     * inherit directly from system and can thus not be re-interpreted by term expansion rules in user.
-     * <p>
-     *
-     * 3. Call DCG expansion (dcg_translate_rule/2).
-     * <p>
-     *
-     * 4. Call expand_goal/2 on each body term that appears in the output of the previous steps.
-     *
-     * @param term
-     * @return
-     */
+    void checkEOF(ITerm term) throws IOException;
 
 }

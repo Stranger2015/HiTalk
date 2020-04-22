@@ -16,6 +16,7 @@ import java.util.*;
 import java.util.stream.IntStream;
 
 import static java.util.Arrays.asList;
+import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.core.PrologBuiltIns.EXPAND_TERM;
 
 /**
@@ -45,10 +46,11 @@ public class TermExpansionTask<T extends HtClause> extends PreCompilerTask<T> {
      * @param tokenSource
      * @param kind
      */
-    public TermExpansionTask(IPreCompiler<T> preCompiler,
+    public TermExpansionTask(IPreCompiler<T, PreCompilerTask<T>, ?, ?, ?, ?> preCompiler,
                              PlLexer tokenSource,
                              EnumSet<DirectiveKind> kind) {
         super(preCompiler, tokenSource, kind);
+
         taskQueue.add(new CondCompilationTask<>(preCompiler, tokenSource, kind));
         taskQueue.add(new DcgExpansionTask<>(preCompiler, tokenSource, kind));
         taskQueue.add(new GoalExpansionTask<>(preCompiler, tokenSource, kind));
@@ -125,7 +127,7 @@ public class TermExpansionTask<T extends HtClause> extends PreCompilerTask<T> {
                     invoke = task.invoke(iTerm);
                 } catch (IOException e) {
                     e.printStackTrace();//fixme
-                    throw new ExecutionError(ExecutionError.Kind.PERMISSION_ERROR, toString(), e);
+                    throw new ExecutionError(PERMISSION_ERROR, toString(), e);
                 }
                 output.addAll(invoke);
             }
@@ -145,7 +147,6 @@ public class TermExpansionTask<T extends HtClause> extends PreCompilerTask<T> {
     @Override
     protected List<ITerm> invoke0(ITerm term) throws IOException {
         List<ITerm> list = new ArrayList<>();
-//        list.add(term);
         final List<ITerm> l = super.invoke0(term);
         for (ITerm t : l) {
             list.addAll(expandTerm((IFunctor) t));
@@ -159,20 +160,5 @@ public class TermExpansionTask<T extends HtClause> extends PreCompilerTask<T> {
     protected List<ListTerm> expandTerm(IFunctor f) {
         final ListTerm lt = new ListTerm(asList(f.getArgument(0), f.getArgument(1)));
         return EXPAND_TERM.getBuiltInDef().apply(lt);
-    }
-
-    /**
-     * When an object implementing interface <code>Runnable</code> is used
-     * to create a thread, starting the thread causes the object's
-     * <code>run</code> method to be called in that separately executing
-     * thread.
-     * <p>
-     * The general contract of the method <code>run</code> is that it may
-     * take any action whatsoever.
-     *
-     * @see Thread#run()
-     */
-    public void run() {
-
     }
 }

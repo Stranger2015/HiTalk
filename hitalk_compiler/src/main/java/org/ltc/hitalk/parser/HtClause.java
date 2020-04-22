@@ -13,11 +13,11 @@ import java.util.stream.IntStream;
 /**
  *
  */
-public class HtClause extends HtBaseTerm implements ITerm, ISubroutine, IHitalkObject {
+public class HtClause extends HtBaseTerm implements ITerm, ISubroutine<IFunctor>, IHitalkObject {
     protected IFunctor head;
     protected ListTerm body;
 
-    boolean isDirective () {
+    boolean isDirective() {
         return this instanceof Directive;
 
     }

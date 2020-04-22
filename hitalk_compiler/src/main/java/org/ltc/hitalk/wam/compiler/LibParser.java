@@ -3,7 +3,10 @@ package org.ltc.hitalk.wam.compiler;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
-import org.ltc.hitalk.parser.*;
+import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.parser.IParser;
+import org.ltc.hitalk.parser.PlLexer;
+import org.ltc.hitalk.parser.PlToken;
 import org.ltc.hitalk.term.ITerm;
 
 import java.io.IOException;
@@ -116,17 +119,17 @@ public class LibParser implements IParser {
         return parser.expr(TK_DOT);
     }
 
-    /**
-     * @return
-     * @throws ParserException
-     * @throws IOException
-     * @throws HtSourceCodeException
-     */
-    @Override
-    public HtClause parseClause () throws Exception {
-        return parser.parseClause();
-    }
+//    /**
+//     * @return
+//     * @throws ParserException
+//     * @throws IOException
+//     * @throws HtSourceCodeException
+//     */
+//    @Override
+//    public HtClause parseClause () throws Exception {
+//        return parser.parseClause();
+//    }
 
-    public void toString0 ( StringBuilder sb ) {
+    public void toString0(StringBuilder sb) {
     }
 }

@@ -1,45 +1,45 @@
 package org.ltc.hitalk.wam.task;
 
 import org.ltc.hitalk.core.IHitalkObject;
+import org.ltc.hitalk.core.IPreCompiler;
+import org.ltc.hitalk.parser.Directive.DirectiveKind;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.wam.compiler.IPendingClausesHolder;
+import org.ltc.hitalk.parser.PlLexer;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.EnumSet;
 
 /**
  *
  */
-public class InstructCompilerTask implements IPendingClausesHolder, IHitalkObject {
-    private final Deque<HtClause> clauses = new ArrayDeque<>();
+public class InstructCompilerTask<T extends HtClause> extends PreCompilerTask<T> implements IHitalkObject {
+    private final Deque<T> clauses = new ArrayDeque<>();
 
     /**
-     * @return
+     * @param preCompiler
+     * @param tokenSource
+     * @param kind
      */
-    public Deque<HtClause> getQueue() {
-        return clauses;
+    public InstructCompilerTask(IPreCompiler<T, PreCompilerTask<T>, ?, ?, ?, ?> preCompiler, PlLexer tokenSource, EnumSet<
+            DirectiveKind> kind) {
+        super(preCompiler, tokenSource, kind);
     }
 
     /**
      * @return
      */
-    public Deque<HtClause> getTaskQueue() {
-        return null;
+    public Deque<T> getClausesQueue() {
+        return clauses;
     }
 
     /**
      * @param item
      */
-    public void push(HtClause item) {
+    public void push(T item) {
         clauses.push(item);
     }
 
-    /**
-     * @return
-     */
-    public HtClause poll () {
-        return clauses.poll();
-    }
 
     public void toString0 ( StringBuilder sb ) {
 

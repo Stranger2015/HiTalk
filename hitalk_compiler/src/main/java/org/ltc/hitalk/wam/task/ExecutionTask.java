@@ -23,15 +23,13 @@ import java.util.*;
 public class ExecutionTask<T extends HtClause> extends PreCompilerTask<T> implements IExecutionTask {
 
     private final Deque<PreCompilerTask<T>> tasks = new ArrayDeque<>();
-
-    private final HtResolutionEngine<T, HtPredicate, HtClause,
-            HiTalkWAMCompiledPredicate, HiTalkWAMCompiledQuery> engine;
+    private final HtResolutionEngine<T, PreCompilerTask<T>, ?, ?, ?, ?> engine;
 
     /**
      * @param preCompiler
      */
     public ExecutionTask(
-            IPreCompiler<T> preCompiler,
+            IPreCompiler<T, PreCompilerTask<T>, ?, ?, ?, ?> preCompiler,
             PlLexer lexer,
             EnumSet<DirectiveKind> kind) throws Exception {
 

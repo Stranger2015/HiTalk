@@ -42,6 +42,7 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
     private int lineNumber;
     private int colNumber;
     private LineNumberReader reader;
+    private int offset;
 
     /**
      * Creates a buffering character-input stream that uses a default-sized
@@ -387,4 +388,16 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
     public int hashCode() {
         return getInputStream().hashCode();
     }
+
+    /**
+     * @param offset
+     * @throws IOException
+     */
+    public void setOffset(int offset) throws IOException {
+        channel.position(channel.position() + offset);
+    }
+
+//    public int getOffset() {
+//        return offset;
+//    }
 }

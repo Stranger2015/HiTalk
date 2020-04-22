@@ -3,7 +3,10 @@ package org.ltc.hitalk.interpreter;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
-import org.ltc.hitalk.parser.*;
+import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.parser.IParser;
+import org.ltc.hitalk.parser.PlLexer;
+import org.ltc.hitalk.parser.PlToken;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.Language;
 
@@ -76,17 +79,17 @@ public class InteractiveParser implements IParser {
      * @return
      * @throws IOException
      */
-    public ITerm next () throws Exception {
+    public ITerm next() throws Exception {
         return parser.expr(TK_DOT);//fixme
     }
 
-    /**
-     * @return
-     */
-    @Override
-    public HtClause parseClause() throws Exception {
-        return parser.parseClause();
-    }
+//    /**
+//     * @return
+//     */
+//    @Override
+//    public HtClause parseClause() throws Exception {
+//        return parser.parseClause();
+//    }
 
     @Override
     public Deque<PlLexer> getTokenSourceStack() {

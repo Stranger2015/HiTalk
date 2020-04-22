@@ -30,6 +30,7 @@ import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltInTransform;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
+import org.ltc.hitalk.wam.task.PreCompilerTask;
 
 import java.util.List;
 
@@ -47,7 +48,8 @@ import static org.ltc.hitalk.wam.compiler.HtTermWalkers.positionalWalker;
  * @author Rupert Smith
  */
 abstract public
-class HiTalkPreCompiler<T extends HtMethod, P, Q, PC, QC> extends PrologPreCompiler<T, P, Q, PC, QC> implements IPreCompiler<T> {
+class HiTalkPreCompiler<T extends HtMethod, P, Q, PC, QC> extends PrologPreCompiler<T, PreCompilerTask<T>, P, Q, PC, QC>
+        implements IPreCompiler<T, PreCompilerTask<T>, P, Q, PC, QC> {
 
     /**
      * Holds the compiler output observer.

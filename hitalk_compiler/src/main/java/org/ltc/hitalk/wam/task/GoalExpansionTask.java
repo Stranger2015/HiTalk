@@ -21,7 +21,7 @@ import static java.util.Arrays.asList;
 public class GoalExpansionTask<T extends HtClause> extends PreCompilerTask<T> {
     private IFunctor f;
 
-    public GoalExpansionTask(IPreCompiler<T> preCompiler,
+    public GoalExpansionTask(IPreCompiler<T, PreCompilerTask<T>, ?, ?, ?, ?> preCompiler,
                              PlLexer tokenSource,
                              EnumSet<DirectiveKind> kind) {
         super(preCompiler, tokenSource, kind);

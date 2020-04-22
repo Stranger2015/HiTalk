@@ -26,7 +26,7 @@ public class DcgExpansionTask<T extends HtClause> extends PreCompilerTask<T> {
      * @param kind
      */
     public DcgExpansionTask(
-            IPreCompiler<T> preCompiler,
+            IPreCompiler<T, PreCompilerTask<T>, ?, ?, ?, ?> preCompiler,
             PlLexer tokenSource,
             EnumSet<DirectiveKind> kind) {
         super(preCompiler, tokenSource, kind);
@@ -60,20 +60,5 @@ public class DcgExpansionTask<T extends HtClause> extends PreCompilerTask<T> {
     protected List<ListTerm> dcgExpand(IFunctor f) {
         final ListTerm lt = new ListTerm(asList(f.getArgument(0), f.getArgument(1)));
         return DCG_EXPAND.getBuiltInDef().apply(lt);
-    }
-
-    /**
-     * When an object implementing interface <code>Runnable</code> is used
-     * to create a thread, starting the thread causes the object's
-     * <code>run</code> method to be called in that separately executing
-     * thread.
-     * <p>
-     * The general contract of the method <code>run</code> is that it may
-     * take any action whatsoever.
-     *
-     * @see Thread#run()
-     */
-    public void run() {
-
     }
 }

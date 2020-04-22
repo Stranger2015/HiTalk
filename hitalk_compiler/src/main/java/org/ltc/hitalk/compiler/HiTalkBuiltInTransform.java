@@ -27,6 +27,7 @@
  import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltInTransform;
  import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
  import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
+ import org.ltc.hitalk.wam.task.PreCompilerTask;
 
  import java.io.IOException;
  import java.nio.file.Path;
@@ -99,7 +100,7 @@
       * @param resolver
       */
      public HiTalkBuiltInTransform(PrologDefaultBuiltIn defaultBuiltIn,
-                                   PrologPreCompiler<T, P, Q, PC, QC> preCompiler,
+                                   PrologPreCompiler<T, PreCompilerTask<T>, P, Q, PC, QC> preCompiler,
                                    IResolver<PC, QC> resolver) {
          super(defaultBuiltIn, defaultBuiltIn.getInterner(), preCompiler, resolver);
 

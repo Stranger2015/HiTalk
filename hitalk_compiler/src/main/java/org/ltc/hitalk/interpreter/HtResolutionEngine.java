@@ -36,7 +36,6 @@ import org.ltc.hitalk.parser.PlToken.TokenKind;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.OpSymbolFunctor.Associativity;
-import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.term.io.HtTermReader;
 import org.ltc.hitalk.wam.compiler.HtFunctorName;
 import org.ltc.hitalk.wam.compiler.IFunctor;
@@ -47,7 +46,6 @@ import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler.ClauseChainObserver;
 import org.ltc.hitalk.wam.machine.HiTalkWAMResolvingMachine;
 import org.ltc.hitalk.wam.task.PreCompilerTask;
-import org.ltc.hitalk.wam.task.TermExpansionTask;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -57,8 +55,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.ltc.hitalk.core.BaseApp.appContext;
-import static org.ltc.hitalk.parser.Directive.DirectiveKind.*;
-import static org.ltc.hitalk.parser.HtPrologParser.END_OF_FILE;
 
 /**
  * ResolutionEngine combines together a logic {@link Parser}, a {@link IVafInterner} that acts as a symbol
@@ -71,17 +67,24 @@ import static org.ltc.hitalk.parser.HtPrologParser.END_OF_FILE;
  * @author Rupert Smith
  */
 public
-class HtResolutionEngine<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledPredicate,
+class HtResolutionEngine<T extends HtClause, TT extends PreCompilerTask<T>, P, Q,
+        PC extends HiTalkWAMCompiledPredicate,
         QC extends HiTalkWAMCompiledQuery>
+
         extends HiTalkWAMResolvingMachine<PC, QC>
-        implements IVafInterner, ICompiler<T, P, Q, PC, QC>, IResolver<PC, QC>, IParser<T>, IPreCompiler<T> {
+        implements
+        IVafInterner,
+        ICompiler<T, P, Q, PC, QC>,
+        IResolver<PC, QC>,
+        IParser<T>,
+        IPreCompiler<T, TT, P, Q, PC, QC> {
 
     /**
      * Holds the parser.
      */
     protected HtPrologParser parser;
     protected HtTermReader termReader;
-    protected final IPreCompiler<T> preCompiler;
+    protected final IPreCompiler<T, TT, P, Q, PC, QC> preCompiler;
 
     /**
      * Holds the variable and functor symbol table.
@@ -114,7 +117,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledP
                               ICompiler<T, P, Q, PC, QC> compiler,
                               IResolver<PC, QC> resolver,
                               HtPrologParser parser,
-                              IPreCompiler<T> preCompiler) {
+                              IPreCompiler<T, TT, P, Q, PC, QC> preCompiler) {
         super(symbolTable);
         this.symbolTable = symbolTable;
         this.termFactory = termFactory;
@@ -133,7 +136,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledP
         compiler = (ICompiler<T, P, Q, PC, QC>) appContext.getApp().getLanguage().getWamCompilerClass().newInstance();
         resolver = (IResolver<PC, QC>) appContext.getResolverIC();
         parser = appContext.getParser();
-        preCompiler = (IPreCompiler<T>) appContext.getApp().getLanguage().getPreCompilerClass().newInstance();
+        preCompiler = (IPreCompiler<T, TT, P, Q, PC, QC>) appContext.getApp().getLanguage().getPreCompilerClass().newInstance();
     }
 
     /**
@@ -167,16 +170,16 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledP
      * @param term
      * @return
      */
-    public boolean checkBOF(ITerm term) {
-        return preCompiler.checkBOF(term);
+    public void checkBOF(ITerm term) throws IOException {
+        preCompiler.checkBOF(term);
     }
 
     /**
      * @param term
      * @return
      */
-    public boolean checkEOF(ITerm term) {
-        return preCompiler.checkEOF(term);
+    public void checkEOF(ITerm term) throws IOException {
+        preCompiler.checkEOF(term);
     }
 
     /**
@@ -237,13 +240,13 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledP
         return parser.expr(rdelim);
     }
 
-    /**
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    public T parseClause() throws Exception {
-        return (T) parser.parseClause();
-    }
+//    /**
+//     * @return
+//     */
+//    @SuppressWarnings("unchecked")
+//    public T parseClause() throws Exception {
+//        return (T) parser.parseClause();
+//    }
 
     /**
      * Provides the resolution engines compiler.
@@ -261,36 +264,36 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledP
      * @param stream The input stream to consult.
      * @throws HtSourceCodeException If any code read from the input stream fails to parse, compile or link.
      */
-    public void consultInputStream(HiTalkInputStream stream) throws Exception {
-        // Create a token source to read from the specified input stream.
-        PlLexer tokenSource = stream.getTokenSource();
-        getParser().setTokenSource(tokenSource);
-        // Consult the type checking rules and add them to the knowledge base.
-        while (tokenSource.isOpen()) {
-            ITerm term = termReader.readTerm();
-            if (preCompiler.checkBOF(term))
-                if (term == END_OF_FILE) {
-                    parser.popTokenSource();
-                    break;
-                }
-            final List<ITerm> l = preprocess(term);
-            //todo
-        }
-    }
+//    public void consultInputStream(HiTalkInputStream stream) throws Exception {
+//         Create a token source to read from the specified input stream.
+//        PlLexer tokenSource = stream.getTokenSource();
+//        getParser().setTokenSource(tokenSource);
+//         Consult the type checking rules and add them to the knowledge base.
+//        while (tokenSource.isOpen()) {
+//            ITerm term = termReader.readTerm();
+//            if (term == BEGIN_OF_FILE) {
+//                preCompiler.checkBOF(term);
+//            }
+//            if (term == END_OF_FILE) {
+//                preCompiler.checkEOF(term);
+//                parser.popTokenSource();
+//                    break;//
+//            }
+//            final List<ITerm> l = preprocess(term);
+    //todo
+//        }
+//    }
 
-    private List<ITerm> preprocess(ITerm clause) throws IOException {
-        final List<ITerm> clauses = new ArrayList<>();
-        clauses.add(clause);
-        getTaskQueue().add(new TermExpansionTask(
-                (IPreCompiler<HtClause>) preCompiler,
-                getTokenSource(),///fixme
-                EnumSet.of(DK_ELSE, DK_ELIF, DK_ENDIF)));
-        for (PreCompilerTask<HtClause> task : getTaskQueue()) {
-            clauses.addAll(task.invoke(clause));
-        }
-
-        return clauses;//getTaskQueue().peek().invoke(clause);
-    }
+//    private List<ITerm> preprocess(ITerm clause) throws IOException {
+//        final List<ITerm> clauses = new ArrayList<>();
+//        clauses.add(clause);
+//        final TermExpansionTask task = new TermExpansionTask(
+//                preCompiler,
+//                getTokenSource(),///fixme
+//                EnumSet.of(DK_ELSE, DK_ELIF, DK_ENDIF));
+//        clauses.addAll(task.invoke(clause));
+//        return clauses;//getTaskQueue().peek().invoke(clause);
+//    }
 
 //    private ITerm readTerm() throws Exception {
 //        new HtTermReader(IPreCompiler.) ;
@@ -600,7 +603,7 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledP
      * @return
      */
     public Logger getLogger() {
-        return null;
+        return logger;
     }
 
     /**
@@ -610,10 +613,6 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledP
      */
     public List<T> preCompile(PlLexer tokenSource, EnumSet<DirectiveKind> delims) throws Exception {
         return preCompiler.preCompile(tokenSource, delims);
-    }
-
-    public Deque<PreCompilerTask<HtClause>> getQueue() {
-        return preCompiler.getQueue();
     }
 
     /**
@@ -702,10 +701,9 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledP
     /**
      * @return
      */
-    public Deque<PreCompilerTask<HtClause>> getTaskQueue() {
+    public Deque<TT> getTaskQueue() {
         return null;
     }
-
 
     /**
      * ChainedCompilerObserver implements the compiler observer for this resolution engine. Compiled programs are added
@@ -713,7 +711,6 @@ class HtResolutionEngine<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledP
      * <p>
      * <p/>If a chained observer is set up, all compiler outputs are forwarded onto it.
      */
-    public static
     class ChainedCompilerObserver<P, Q> implements ICompilerObserver<P, Q> {
 
         /**

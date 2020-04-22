@@ -8,14 +8,19 @@ import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.HtMethod;
 import org.ltc.hitalk.wam.compiler.prolog.PrologInterpreter;
+import org.ltc.hitalk.wam.task.PreCompilerTask;
 
 /**
  * @param <T>
  * @param <P>
  * @param <Q>
  */
-public class HiTalkInterpreter<T extends HtMethod, P, Q, PC extends HiTalkWAMCompiledPredicate, QC extends HiTalkWAMCompiledQuery>
+public class HiTalkInterpreter<T extends HtMethod, P, Q,
+        PC extends HiTalkWAMCompiledPredicate,
+        QC extends HiTalkWAMCompiledQuery>
+
         extends PrologInterpreter<T, P, Q, PC, QC> {
+
     /**
      * @param parser
      * @param compiler
@@ -26,9 +31,8 @@ public class HiTalkInterpreter<T extends HtMethod, P, Q, PC extends HiTalkWAMCom
                              ICompiler<T, P, Q, PC, QC> compiler,
                              IResolver<PC, QC> resolver,
                              HtPrologParser parser,
-                             IPreCompiler preCompiler) {
+                             IPreCompiler<T, PreCompilerTask<T>, P, Q, PC, QC> preCompiler) {
         super(symbolTable, termFactory, compiler, resolver, parser, preCompiler);
-
     }
 
     /**

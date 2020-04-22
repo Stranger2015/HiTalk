@@ -34,13 +34,6 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
         this(args.addHead(name).addHead(hilogApply));
     }
 
-//    /**
-//     * @param args
-//     */
-//    public HtFunctor(ListTerm args) {
-//        this.args = args;//name heads tail
-//    }
-
     /**
      * @param name
      */
@@ -279,14 +272,13 @@ public class HtFunctor extends HtBaseTerm implements IFunctor {
      * {@inheritDoc}
      */
     public List<ITerm> acceptTransformer(ITermTransformer transformer) {
-        List<ITerm> result = transformer instanceof IFunctorTransformer ?
-                transformer.transform(this) :
-                super.acceptTransformer(transformer);
 
         //        IntStream.range(0, args.size()).forEachOrdered(i -> FIXME
 //                result.getArgument(i) = args[i].acceptTransformer(transformer));
 
-        return result;
+        return transformer instanceof IFunctorTransformer ?
+                transformer.transform(this) :
+                super.acceptTransformer(transformer);
     }
 
     /**

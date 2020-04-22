@@ -33,7 +33,7 @@ public class CondCompilationTask<T extends HtClause> extends PreCompilerTask<T> 
      * @param preCompiler
      * @param kind
      */
-    public CondCompilationTask(IPreCompiler<T> preCompiler,
+    public CondCompilationTask(IPreCompiler<T, PreCompilerTask<T>, ?, ?, ?, ?> preCompiler,
                                PlLexer tokenSource,
                                EnumSet<DirectiveKind> kind) {
         super(preCompiler, tokenSource, kind);
@@ -45,13 +45,13 @@ public class CondCompilationTask<T extends HtClause> extends PreCompilerTask<T> 
      * @param term
      */
     public boolean ccIf(ITerm term) throws IOException {
-        final GoalExpansionTask getask;
-        getask = new GoalExpansionTask((IPreCompiler<HtClause>) getPreCompiler(), getTokenSource(), getKind());
+        final GoalExpansionTask<T> getask;
+        getask = new GoalExpansionTask<>(getPreCompiler(), getTokenSource(), getKind());
         final List<ITerm> l = getask.invoke(term);
         for (ITerm t : l) {
-            final ExecutionTask etask;
+            final ExecutionTask<T> etask;
             try {
-                etask = new ExecutionTask((IPreCompiler<HtClause>) getPreCompiler(), getTokenSource(), getKind());
+                etask = new ExecutionTask<>(getPreCompiler(), getTokenSource(), getKind());
                 etask.input = t;
             } catch (Exception e) {
                 e.printStackTrace();

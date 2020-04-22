@@ -26,6 +26,7 @@ import org.ltc.hitalk.wam.compiler.*;
 import org.ltc.hitalk.wam.compiler.hilog.HiLogCompilerApp;
 import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler;
+import org.ltc.hitalk.wam.task.PreCompilerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1245,15 +1246,18 @@ public class HiTalkCompilerApp<T extends HtMethod, P, Q, PC extends HiTalkWAMCom
     /**
      *
      */
-    public static class ClauseChainObserver<T extends HtMethod, P, Q, PC extends HiTalkWAMCompiledPredicate, QC extends HiTalkWAMCompiledQuery> implements LogicCompilerObserver<T, Q> {
-        protected IPreCompiler<T> preCompiler;
+    public static class ClauseChainObserver<T extends HtMethod, P, Q,
+            PC extends HiTalkWAMCompiledPredicate,
+            QC extends HiTalkWAMCompiledQuery> implements LogicCompilerObserver<T, Q> {
+        protected IPreCompiler<T, PreCompilerTask<T>, P, Q, PC, QC> preCompiler;
         protected BaseInstructionCompiler<T, P, Q, PC, QC> instructionCompiler;
 
         /**
          * @param preCompiler
          * @param instructionCompiler
          */
-        public ClauseChainObserver(IPreCompiler<T> preCompiler, BaseInstructionCompiler<T, P, Q, PC, QC> instructionCompiler) {
+        public ClauseChainObserver(IPreCompiler<T, PreCompilerTask<T>, P, Q, PC, QC> preCompiler,
+                                   BaseInstructionCompiler<T, P, Q, PC, QC> instructionCompiler) {
             this.preCompiler = preCompiler;
             this.instructionCompiler = instructionCompiler;
         }

@@ -7,7 +7,6 @@ import org.ltc.hitalk.core.IHitalkObject;
 import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
-import org.ltc.hitalk.core.utils.TermUtilities;
 import org.ltc.hitalk.parser.Directive.DirectiveKind;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
@@ -21,6 +20,7 @@ import org.ltc.hitalk.wam.compiler.hitalk.HtSymbolKeyTraverser;
 import org.ltc.hitalk.wam.compiler.hitalk.HtTermWalker;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler.ClauseChainObserver;
 import org.ltc.hitalk.wam.task.PreCompilerTask;
+import org.ltc.hitalk.wam.task.StandardPreprocessingTask;
 import org.ltc.hitalk.wam.task.TermExpansionTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ import java.util.*;
 
 import static org.ltc.hitalk.core.BaseApp.appContext;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
-import static org.ltc.hitalk.parser.Directive.DirectiveKind.*;
+import static org.ltc.hitalk.parser.Directive.DirectiveKind.DK_IF;
 import static org.ltc.hitalk.parser.HtPrologParser.BEGIN_OF_FILE;
 import static org.ltc.hitalk.parser.HtPrologParser.END_OF_FILE;
 import static org.ltc.hitalk.parser.PrologAtoms.IMPLIES;
@@ -40,8 +40,8 @@ import static org.ltc.hitalk.parser.PrologAtoms.IMPLIES;
  *
  */
 public
-class PrologPreCompiler<T extends HtClause, P, Q, PC, QC> extends AbstractBaseMachine
-        implements IPreCompiler<T>, IHitalkObject {
+class PrologPreCompiler<T extends HtClause, TT extends PreCompilerTask<T>, P, Q, PC, QC> extends AbstractBaseMachine
+        implements IPreCompiler<T, TT, P, Q, PC, QC>, IHitalkObject {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
@@ -56,7 +56,8 @@ class PrologPreCompiler<T extends HtClause, P, Q, PC, QC> extends AbstractBaseMa
     protected ICompilerObserver<P, Q> observer;
 
     protected ClauseChainObserver clauseChainObserver;
-    protected final Deque<PreCompilerTask<HtClause>> taskQueue = new ArrayDeque<>();
+    protected final Deque<TT> taskQueue = new ArrayDeque<TT>();
+
     protected boolean isBOFPassed;
     protected boolean isEOFPassed;
 
@@ -75,7 +76,7 @@ class PrologPreCompiler<T extends HtClause, P, Q, PC, QC> extends AbstractBaseMa
     ) {
         super(symbolTable, interner);
 
-        this.defaultBuiltIn = defaultBuiltIn;//instructionCompiler.getDefaultBuiltIn();
+        this.defaultBuiltIn = defaultBuiltIn;
         this.builtInTransform = builtInTransform;
         this.resolver = resolver;
         this.parser = parser;
@@ -93,7 +94,7 @@ class PrologPreCompiler<T extends HtClause, P, Q, PC, QC> extends AbstractBaseMa
     /**
      * @return
      */
-    public Deque<PreCompilerTask<HtClause>> getTaskQueue() {
+    public Deque<TT> getTaskQueue() {
         return taskQueue;
     }
 
@@ -112,14 +113,14 @@ class PrologPreCompiler<T extends HtClause, P, Q, PC, QC> extends AbstractBaseMa
                 ((IFunctor) clause).getName() == interner.internFunctorName(IMPLIES, 1);
     }
 
-    /**
-     * @param clause
-     * @param delims
-     * @return
-     */
-    public boolean checkDirective(T clause, EnumSet<DirectiveKind> delims) throws Exception {
-        return false;
-    }
+//    /**
+//     * @param clause
+//     * @param delims
+//     * @return
+//     */
+//    public boolean checkDirective(T clause, EnumSet<DirectiveKind> delims) {
+//        return false;
+//    }
 
     /**
      *
@@ -144,20 +145,19 @@ class PrologPreCompiler<T extends HtClause, P, Q, PC, QC> extends AbstractBaseMa
     @SuppressWarnings("unchecked")
     public List<T> preCompile(PlLexer tokenSource, EnumSet<DirectiveKind> delims) throws Exception {
         getLogger().info("Precompiling " + tokenSource.getPath() + " ...");
-        List<T> list = new ArrayList<>();
+        List<T> list = new ArrayList<T>();
         while (tokenSource.isOpen()) {
             ITerm t = getParser().termSentence();
-            checkBOF(t);// {
-//                getLogger().info("begin_of_file");
-            /* } else */
-            if (checkEOF(t)) {
-//                getLogger().info("end_of_file");
-                parser.popTokenSource();
+            if (!isBOFPassed) {
+                checkBOF(t);
+            }
+            if (!isEOFPassed) {
+                checkEOF(t);
             }
             getLogger().info("term: " + t);
             for (ITerm term : preCompile(t)) {
                 getLogger().info("precompiled: " + term);
-                T clause = (T) TermUtilities.convertToClause(term, interner);
+                T clause = (T) parser.convert(term);
                 getLogger().info("converted: " + clause);
                 list.add(clause);
             }
@@ -167,34 +167,41 @@ class PrologPreCompiler<T extends HtClause, P, Q, PC, QC> extends AbstractBaseMa
     }
 
     @Override
-    public boolean checkEOF(ITerm t) {
-        boolean result = false;
+    public void checkEOF(ITerm t) {
         if (t == END_OF_FILE) {
             if (!isEOFPassed) {
-                isEOFPassed = true;
-                parser.popTokenSource();
                 logger.info("'end_of_file' is being passed.");
-                result = true;
+                if (parser.getTokenSource().atEOF) {
+                    parser.popTokenSource();
+                    isEOFPassed = true;
+                } else {
+                    parser.getTokenSource().atEOF = true;
+                }
             } else {
                 logger.info("'end_of_file' has been already passed. This one will be ignored...");
             }
         }
-        return result;
     }
 
     @Override
-    public boolean checkBOF(ITerm t) {
-        boolean result = true;
+    public void checkBOF(ITerm t) throws IOException {
         if (t == BEGIN_OF_FILE) {
             if (!isBOFPassed) {
-                isBOFPassed = true;
                 logger.info("'begin_of_file' is being passed.");
+                if (parser.getTokenSource().atBOF) {
+                    isBOFPassed = true;
+                    parser.getTokenSource().atBOF = false;
+                } else {
+                    final PlLexer ts = parser.getTokenSource();
+                    ts.setLastOffset(ts.getLastOffset() + ts.getPrevOffset());
+                    ts.atBOF = true;
+                    ts.isBOFGenerated = true;
+                    logger.info("'begin of file' has been reset to " + ts.getLastOffset());
+                }
             } else {
-                logger.info("'begin_of_file' has been already passed. This one will be ignored...");
-                result = false;
+                logger.info("Warning: 'begin_of_file' has been already reset ...");
             }
         }
-        return result;
     }
 
     /**
@@ -208,9 +215,9 @@ class PrologPreCompiler<T extends HtClause, P, Q, PC, QC> extends AbstractBaseMa
 
         List<ITerm> clauses = preProcess(term);
         for (ITerm clause : clauses) {
-            substituteBuiltIns(clause);
-            initializeSymbolTable(clause);
-            topLevelCheck(clause);
+            // substituteBuiltIns(clause);
+            // initializeSymbolTable(clause);
+            // topLevelCheck(clause);
 
             if (observer != null) {
                 if (clause.isQuery()) {
@@ -224,14 +231,36 @@ class PrologPreCompiler<T extends HtClause, P, Q, PC, QC> extends AbstractBaseMa
         return clauses;
     }
 
-    private List<ITerm> preProcess(ITerm clause) throws Exception {
-        final TermExpansionTask task = new TermExpansionTask(
-                this,
-                getParser().getTokenSource(),
-                EnumSet.of(DK_IF, DK_ENCODING, DK_HILOG)
-        );
+    ;
 
-        return task.invoke(clause);
+    private List<ITerm> preProcess(ITerm clause) throws Exception {
+        final PrologPreprocessor<T, TT, P, Q, PC, QC> preprocessor = new PrologPreprocessor<>(
+                symbolTable,
+                interner,
+                defaultBuiltIn,
+                builtInTransform,
+                resolver,
+                parser);
+        final List<ITerm> l = new ArrayList<>();
+        initTasks(preprocessor);
+
+        for (int i = 0; i < taskQueue.size(); i++) {
+            final TT task = taskQueue.remove();
+            l.addAll(task.invoke(clause));
+        }
+
+        return l;
+    }
+
+    protected void initTasks(PrologPreprocessor<T, TT, P, Q, PC, QC> preprocessor) {
+        taskQueue.add((TT) new StandardPreprocessingTask(
+                preprocessor,
+                parser.getTokenSource(),
+                EnumSet.of(DK_IF)));
+        taskQueue.add((TT) new TermExpansionTask(
+                preprocessor,
+                parser.getTokenSource(),
+                EnumSet.of(DK_IF)));
     }
 
     /**
@@ -313,10 +342,11 @@ class PrologPreCompiler<T extends HtClause, P, Q, PC, QC> extends AbstractBaseMa
      * @param term
      * @return
      */
+    @SuppressWarnings("unchecked")
     public List<ITerm> expandTerm(ITerm term) throws Exception {
         final EnumSet<DirectiveKind> kinds = EnumSet.noneOf(DirectiveKind.class);
         final PlLexer ts = getTokenSourceForTerm(term);
-        getQueue().push(new TermExpansionTask(this, ts, kinds));
+//        getTaskQueue().add((TT) new TermExpansionTask(this, ts, kinds));
 
         return Collections.singletonList(term);
     }
@@ -333,15 +363,19 @@ class PrologPreCompiler<T extends HtClause, P, Q, PC, QC> extends AbstractBaseMa
      * @param term
      * @return
      */
-    public List<ITerm> callTermExpansion(ITerm term) throws IOException {
-        return getQueue().pop().invoke(term);
+    public List<ITerm> callTermExpansion(ITerm term) throws Exception {
+        return expandTerm0(term);
+    }
+
+    private List<ITerm> expandTerm0(ITerm term) {
+        return Collections.singletonList(term);
     }
 
     /**
      * @param goal
      * @return
      */
-    public List<IFunctor> expandGoal(IFunctor goal) {
+    public List<ITerm> expandGoal(ITerm goal) {
         return callGoalExpansion(goal);
     }
 
@@ -349,10 +383,12 @@ class PrologPreCompiler<T extends HtClause, P, Q, PC, QC> extends AbstractBaseMa
      * @param goal
      * @return
      */
-    private List<IFunctor> callGoalExpansion(IFunctor goal) {
-        final List<IFunctor> l = new ArrayList<>();
+    private List<ITerm> callGoalExpansion(ITerm goal) {
+        return expandGoal0(goal);
+    }
 
-        return l;
+    private List<ITerm> expandGoal0(ITerm goal) {
+        return Collections.singletonList(goal);
     }
 
     public Logger getLogger() {
@@ -362,14 +398,14 @@ class PrologPreCompiler<T extends HtClause, P, Q, PC, QC> extends AbstractBaseMa
     /**
      * @return
      */
-    public Deque<PreCompilerTask<HtClause>> getQueue() {
+    public Deque<TT> getQueue() {
         return taskQueue;
     }
 
     /**
      * @param item
      */
-    public void remove(PreCompilerTask<HtClause> item) {
+    public void remove(TT item) {
         taskQueue.remove(item);
     }
 

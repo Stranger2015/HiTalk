@@ -18,20 +18,22 @@ import static java.lang.String.format;
 
 /**
  *
+ *
  */
 abstract public
 class PreCompilerTask<T extends HtClause> implements IInvokable<ITerm>, IHitalkObject {
+
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     protected final PlLexer tokenSource;
-    protected final IPreCompiler<T> preCompiler;
+    protected final IPreCompiler<T, PreCompilerTask<T>, ?, ?, ?, ?> preCompiler;
     protected final EnumSet<DirectiveKind> kind;
 
     /**
      * @param newTask
      */
     public void addTask(PreCompilerTask<T> newTask) {
-        preCompiler.getTaskQueue().add((PreCompilerTask<HtClause>) newTask);
+        preCompiler.getTaskQueue().add(newTask);
     }
 
 
@@ -47,7 +49,7 @@ class PreCompilerTask<T extends HtClause> implements IInvokable<ITerm>, IHitalkO
         return tokenSource;
     }
 
-    public IPreCompiler<T> getPreCompiler() {
+    public IPreCompiler<T, PreCompilerTask<T>, ?, ?, ?, ?> getPreCompiler() {
         return preCompiler;
     }
 
@@ -60,7 +62,7 @@ class PreCompilerTask<T extends HtClause> implements IInvokable<ITerm>, IHitalkO
      * @param preCompiler
      * @param kind
      */
-    public PreCompilerTask(IPreCompiler<T> preCompiler, PlLexer tokenSource, EnumSet<DirectiveKind> kind) {
+    public PreCompilerTask(IPreCompiler<T, PreCompilerTask<T>, ?, ?, ?, ?> preCompiler, PlLexer tokenSource, EnumSet<DirectiveKind> kind) {
         this.preCompiler = preCompiler;
         this.tokenSource = tokenSource;
         this.kind = kind;
@@ -92,6 +94,7 @@ class PreCompilerTask<T extends HtClause> implements IInvokable<ITerm>, IHitalkO
         List<ITerm> list = IInvokable.super.invoke(term);
         input = term;
         for (ITerm t : list) {
+            logger.info("t: " + t);
             final List<ITerm> listj = invoke0(t);
             output.addAll(listj);
         }

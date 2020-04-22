@@ -21,17 +21,15 @@ import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.wam.compiler.IFunctor;
+import org.ltc.hitalk.wam.task.PreCompilerTask;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
  *
  */
-@Deprecated
-public class PrologPreprocessor<T extends HtClause, P, Q, PC, QC>
-        extends PrologPreCompiler<T, P, Q, PC, QC> {
+public class PrologPreprocessor<T extends HtClause, TT extends PreCompilerTask<T>, P, Q, PC, QC>
+        extends PrologPreCompiler<T, TT, P, Q, PC, QC> {
 
     /**
      * Creates a base machine over the specified symbol table.
@@ -47,6 +45,7 @@ public class PrologPreprocessor<T extends HtClause, P, Q, PC, QC>
                               HtPrologParser parser) {
 
         super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, parser);
+//        taskQueue.add(new )
     }
 //
 //    /**
@@ -56,30 +55,6 @@ public class PrologPreprocessor<T extends HtClause, P, Q, PC, QC>
 //        super.compile(clause);
 //    }
 
-    /**
-     * expand_term(+Term1, -Term2)
-     * This predicate is normally called by the compiler on terms read from the input to perform preprocessing.
-     * It consists of four steps, where each step processes the output of the previous step.
-     *
-     * Test conditional compilation directives and translate all input to [] if we are in a `false branch' of
-     * the conditional compilation. See section 4.3.1.2.
-     * <p>
-     *
-     * Call term_expansion/2. This predicate is first tried in the module that is being compiled and then
-     * in modules from which this module inherits according to default_module/2. The output of the expansion in
-     * a module is used as input for the next module. Using the default setup and when compiling a normal
-     * application module M, this implies expansion is executed in M, user and finally in system. Library modules
-     * inherit directly from system and can thus not be re-interpreted by term expansion rules in user.
-     * <p>
-     *
-     * Call DCG expansion (dcg_translate_rule/2).
-     * <p>
-     *
-     * Call expand_goal/2 on each body term that appears in the output of the previous steps.
-     *
-     * @param term
-     * @return
-     */
     public List<ITerm> expandTerm(ITerm term) throws Exception {
         return super.expandTerm(term);
     }
@@ -88,7 +63,7 @@ public class PrologPreprocessor<T extends HtClause, P, Q, PC, QC>
      * @param term
      * @return
      */
-    public List<ITerm> callTermExpansion(ITerm term) throws IOException {
+    public List<ITerm> callTermExpansion(ITerm term) throws Exception {
         return super.callTermExpansion(term);
     }
 
@@ -96,7 +71,7 @@ public class PrologPreprocessor<T extends HtClause, P, Q, PC, QC>
      * @param goal
      * @return
      */
-    public List <IFunctor> expandGoal ( IFunctor goal ) {
+    public List<ITerm> expandGoal(ITerm goal) {
         return super.expandGoal(goal);
     }
 }

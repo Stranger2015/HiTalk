@@ -11,10 +11,12 @@ import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.term.HtVariable;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
+import org.ltc.hitalk.wam.task.PreCompilerTask;
 
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.function.Consumer;
+
 
 /**
  *
@@ -22,7 +24,7 @@ import java.util.function.Consumer;
 
 public
 class HiTalkEngine<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledPredicate, QC extends HiTalkWAMCompiledQuery>
-        extends HtResolutionEngine<T, P, Q, PC, QC> {
+        extends HtResolutionEngine<T, PreCompilerTask<T>, P, Q, PC, QC> {
 
     /**
      * Builds an logical resolution engine from a parser, interner, compiler and resolver.
@@ -36,7 +38,7 @@ class HiTalkEngine<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledPredica
             ICompiler<T, P, Q, PC, QC> compiler,
             IResolver<PC, QC> resolver,
             HtPrologParser parser,
-            IPreCompiler<T> preCompiler) {
+            IPreCompiler<T, PreCompilerTask<T>, P, Q, PC, QC> preCompiler) {
 
         super(symbolTable, termFactory, compiler, resolver, parser, preCompiler);
     }

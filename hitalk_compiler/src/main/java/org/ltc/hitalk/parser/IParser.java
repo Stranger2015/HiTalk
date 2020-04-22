@@ -170,23 +170,20 @@ public interface IParser<T extends HtClause> extends IHitalkObject {
     }
 
     /**
-     *
      * @param rdelim
      * @return
      * @throws IOException
      */
     ITerm expr(TokenKind rdelim) throws Exception;
+//
+//    /**
+//     *
+//     * @return
+//     */
+//    T parseClause() throws Exception;
 
-    /**
-     *
-     * @return
-     */
-    T parseClause() throws Exception;
+    ;
 
-    /**
-     * @param t
-     * @return
-     */
     default T convert(ITerm t) throws Exception {
         return (T) convertToClause(t, getInterner());
     }

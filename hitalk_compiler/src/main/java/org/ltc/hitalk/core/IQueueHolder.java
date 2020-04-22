@@ -1,35 +1,38 @@
 package org.ltc.hitalk.core;
 
+import org.ltc.hitalk.parser.HtClause;
+import org.ltc.hitalk.wam.task.PreCompilerTask;
+
 import java.util.Deque;
 
 /**
  * @param <T>
  */
-public interface IQueueHolder<T extends IHitalkObject> {
+public interface IQueueHolder<T extends HtClause, TT extends PreCompilerTask<T>> {
 
     /**
      * @return
      */
-    Deque<T> getTaskQueue();
+    Deque<TT> getTaskQueue();
 
     /**
      * @param item
      */
-    default void push ( T item ) {
+    default void push(TT item) {
         getTaskQueue().push(item);
     }
 
     /**
-     *
+     * @return
      */
-    default T poll () {
+    default TT poll() {
         return getTaskQueue().poll();
     }
 
     /**
      * @return
      */
-    default T pop () {
+    default TT pop() {
         return getTaskQueue().pop();
     }
 }

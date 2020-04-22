@@ -44,9 +44,9 @@ import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.EnumSet;
 import java.util.List;
 
+import static java.util.EnumSet.of;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.core.Components.INTERNER;
 import static org.ltc.hitalk.core.Components.WAM_COMPILER;
@@ -295,7 +295,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC extends HiTalkWAMCom
                 getWAMCompiler().setPreCompiler(new PrologPreCompiler<>());
                 getWAMCompiler().setCompilerObserver(new ICompilerObserver<P, Q>() {
                     public void onCompilation(PlLexer tokenSource) throws Exception {
-                        final List<T> list = getWAMCompiler().getPreCompiler().preCompile(tokenSource, EnumSet.of(DK_IF));
+                        final List<T> list = getWAMCompiler().getPreCompiler().preCompile(tokenSource, of(DK_IF));
                         for (T clause : list) {
                             getWAMCompiler().getInstructionCompiler().compile(clause);
                         }

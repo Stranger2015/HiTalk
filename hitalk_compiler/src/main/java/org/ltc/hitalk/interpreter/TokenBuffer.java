@@ -6,9 +6,6 @@ import org.ltc.hitalk.term.io.HiTalkInputStream;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-import static org.ltc.hitalk.interpreter.PlTokenStatus.POLLED;
-import static org.ltc.hitalk.interpreter.PlTokenStatus.PUSHED_BACK;
-
 /**
  * Used to buffer tokens.
  */
@@ -63,8 +60,8 @@ public class TokenBuffer/* extends PlLexer implements Sink<PlToken>*/ {
      */
     public PlToken poll () {
         final PlToken t = tokens.poll();
-        history.push(PlToken.newToken(t.kind));
-        statuses.push(POLLED);
+        //  history.push(PlToken.newToken(t.kind));
+        // statuses.push(POLLED);
         return t;
     }
 
@@ -88,8 +85,8 @@ public class TokenBuffer/* extends PlLexer implements Sink<PlToken>*/ {
      */
     public void pushBack(PlToken token) {
         tokens.push(token);
-        history.push(token);
-        statuses.push(PUSHED_BACK);
+//        history.push(token);
+//        statuses.push(PUSHED_BACK);
     }
 
     /**

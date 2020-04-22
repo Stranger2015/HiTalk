@@ -25,14 +25,23 @@ public class PlLexer implements PropertyChangeListener {
     public static final String SPECIAL = "#$&*+-/:<=>?@\\^~";
     public static final String PARENTHESES = "(){}[]";
     public static final String DELIMITERS = "\"'`";
+
+    public boolean isBOFGenerated() {
+        return isBOFGenerated;
+    }
+
     public boolean isBOFGenerated;
+    public boolean isEOFGenerated;
+    public boolean atBOF = true;
 
     protected HiTalkInputStream inputStream;
     protected boolean encodingPermitted;
     protected IOperatorTable optable = getAppContext().getOpTable();
 
     private PlToken lastToken;
-    public boolean atEOF;
+    public boolean atEOF = false;
+    private int offset;
+    private int prevOffset;
 
     public static PlLexer getTokenSourceForInputStream(InputStream input, String s) throws Exception {
         Path path = Paths.get(s);
@@ -105,7 +114,7 @@ public class PlLexer implements PropertyChangeListener {
 
 //     The first token is initialized to be empty, so that the first call to `poll` returns the first token.
         lastToken = !isBOFGenerated ? new PlToken(TK_BOF, "") : null;
-        isBOFGenerated = true;
+//        isBOFGenerated;
         encodingPermitted = true;
     }
 
@@ -203,7 +212,7 @@ public class PlLexer implements PropertyChangeListener {
      */
     public TokenKind calcTokenKind(int c) {
         TokenKind result = null;
-        for (TokenKind value : TokenKind.values()) {
+        for (TokenKind value : values()) {
             if (value.getChar() == c) {
                 result = value;
                 break;
@@ -276,10 +285,11 @@ public class PlLexer implements PropertyChangeListener {
     /**
      * @param token
      */
-    public void unreadToken(PlToken token) {
-        if (token.kind != TK_BOF) {
+    public PlToken unreadToken(PlToken token) {
+        if (token.kind != TK_BOF && token.kind != TK_EOF) {
             pushBackBuffer.pushBack(token);
         }
+        return token;
     }
 
     /**
@@ -613,6 +623,19 @@ public class PlLexer implements PropertyChangeListener {
      */
     public PlToken getLastToken() {
         return lastToken;
+    }
+
+    public void setLastOffset(int offset) throws IOException {
+        this.offset = offset;
+        inputStream.setOffset(offset);
+    }
+
+    public int getLastOffset() {
+        return offset;
+    }
+
+    public int getPrevOffset() {
+        return prevOffset;
     }
 
 //    /**

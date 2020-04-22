@@ -9,8 +9,10 @@ import org.ltc.hitalk.wam.compiler.HtMethod;
 import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltInTransform;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
+import org.ltc.hitalk.wam.task.PreCompilerTask;
 
-public class LogtalkPreCompiler<T extends HtMethod, P, Q, PC, QC> extends PrologPreCompiler<T, P, Q, PC, QC> {
+public class LogtalkPreCompiler<T extends HtMethod, P, Q, PC, QC>
+        extends PrologPreCompiler<T, PreCompilerTask<T>, P, Q, PC, QC> {
     /**
      * @param symbolTable
      * @param interner

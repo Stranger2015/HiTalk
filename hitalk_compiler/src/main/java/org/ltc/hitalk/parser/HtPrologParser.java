@@ -35,62 +35,40 @@ import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
  *
  */
 public class HtPrologParser implements IParser<HtClause> {
-    protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
-
-    protected ListTerm listTerm = new ListTerm(0);
-    protected EnumSet<Associativity> assocs = of(x);
-    protected EnumSet<DirectiveKind> dks = of(DK_IF, DK_ENCODING, DK_HILOG);
-
-    public boolean isEndOfTerm(TokenKind tokenKind) {
-        return tokenKind == TK_DOT && isEndOfTerm();
-    }
-
-    protected boolean isEndOfTerm() {
-        return (parentheses == 0) && (brackets == 0) && (braces == 0) &&
-                ((squotes % 2) == 0) && ((dquotes % 2) == 0) && ((bquotes % 2) == 0);
-    }
-
-    protected PlToken token;
-
     public static final String BEGIN_OF_FILE_STRING = "begin_of_file";
     public static final String END_OF_FILE_STRING = "end_of_file";
     public static final IFunctor END_OF_FILE = new OpSymbolFunctor(END_OF_FILE_STRING);
     public static final IFunctor BEGIN_OF_FILE = new OpSymbolFunctor(BEGIN_OF_FILE_STRING);
     public static final String ANONYMOUS = "_";
-
     public static final int MAX_PRIORITY = 1200;
     public static final int MIN_PRIORITY = 0;
-
-    @Override
-    public Deque<PlLexer> getTokenSourceStack() {
-        return tokenSourceStack;
-    }
-
+    protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
     protected final Deque<PlLexer> tokenSourceStack = new ArrayDeque<>();
-
+    protected ListTerm listTerm = new ListTerm(0);
+    protected EnumSet<Associativity> assocs = of(x);
+    protected EnumSet<DirectiveKind> dks = of(DK_IF, DK_ENCODING, DK_HILOG);
+    protected PlToken token;
     protected IOperatorTable operatorTable;
     protected IVafInterner interner;
     protected ITermFactory termFactory;
     protected Map<ITerm, Integer> offsetsMap;
     protected int tokenStart;
-
     /**
      * Holds the variable scoping context for the current sentence.
      */
     protected Map<Integer, HtVariable> variableContext = new HashMap<>();
     protected OpSymbolFunctor operator;
-
     protected ITerm lastTerm;
-
     protected int braces;
     protected int parentheses;
     protected int brackets;
-
     protected int squotes;
     protected int dquotes;
     protected int bquotes;
-
     protected int currPriority;
+
+    public HtPrologParser() {
+    }
 
     /**
      * @param inputStream
@@ -106,6 +84,20 @@ public class HtPrologParser implements IParser<HtClause> {
         this.interner = interner;
         this.termFactory = factory;
         this.operatorTable = optable;
+    }
+
+    public boolean isEndOfTerm(TokenKind tokenKind) {
+        return tokenKind == TK_DOT && isEndOfTerm();
+    }
+
+    protected boolean isEndOfTerm() {
+        return (parentheses == 0) && (brackets == 0) && (braces == 0) &&
+                ((squotes % 2) == 0) && ((dquotes % 2) == 0) && ((bquotes % 2) == 0);
+    }
+
+    @Override
+    public Deque<PlLexer> getTokenSourceStack() {
+        return tokenSourceStack;
     }
 
     /**
@@ -254,7 +246,6 @@ public class HtPrologParser implements IParser<HtClause> {
         if (!tokenSourceStack.isEmpty()) {
             return tokenSourceStack.peek();
         }
-//        throw new IllegalStateException();
         return null;
     }
 
@@ -262,6 +253,7 @@ public class HtPrologParser implements IParser<HtClause> {
      * Interns and inserts into the operator table all of the built in operators and names in Prolog.
      */
     public void initializeBuiltIns() {
+
         logger.info("Initializing built-in operators...");
 
         // Initializes the operator table with the standard ISO prolog built-in operators.
@@ -427,12 +419,12 @@ public class HtPrologParser implements IParser<HtClause> {
         return exprA(MAX_PRIORITY, rdelim);
     }
 
-    /**
-     * @return
-     */
-    public HtClause parseClause() throws Exception {
-        return convert(termSentence());
-    }
+//    /**
+//     * @return
+//     */
+//    public HtClause parseClause() throws Exception {
+//        return convert(termSentence());
+//    }
 
     /**
      * @return
@@ -458,7 +450,7 @@ public class HtPrologParser implements IParser<HtClause> {
             return expr(TK_DOT);
         }
 
-        popTokenSource();
+//        popTokenSource();
         return END_OF_FILE;
     }
 
@@ -630,14 +622,16 @@ public class HtPrologParser implements IParser<HtClause> {
 //        1. prefix expression
 //        lastTerm = null;
         PlToken token = readToken();
-        if (token.kind == TK_BOF) {
+        if (token.kind == TK_BOF ||
+                (token.kind == TK_ATOM && token.image.equals(BEGIN_OF_FILE_STRING) && (getTokenSource().isBOFGenerated = true))) {
             lastTerm = BEGIN_OF_FILE;
             return lastTerm;
         }
-        if (token.kind == TK_EOF) {
+        if (token.kind == TK_EOF ||
+                (token.kind == TK_ATOM && token.image.equals(END_OF_FILE_STRING) && (getTokenSource().isEOFGenerated = true))) {
             lastTerm = END_OF_FILE;
 //            popTokenSource();
-            getParser().getLexer().atEOF = true;
+//            getParser().getLexer()//.atEOF = true;
             return lastTerm;
         }
         if (currPriority == 0) {
@@ -916,8 +910,10 @@ public class HtPrologParser implements IParser<HtClause> {
      * @throws Exception
      */
     protected PlToken readToken() throws Exception {
-//        logger.info("getLexer() = " + getLexer());
-        return getLexer().readToken(true);
+        final PlToken tok = getLexer().readToken(true);
+        logger.info("token = " + tok);
+
+        return tok;
     }
 
     /**

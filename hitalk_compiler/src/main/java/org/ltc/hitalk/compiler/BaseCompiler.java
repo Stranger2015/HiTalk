@@ -9,7 +9,6 @@ import org.ltc.hitalk.interpreter.DcgRule;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.parser.PlLexer;
-import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
 import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
@@ -20,9 +19,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
-
-import static org.ltc.hitalk.parser.HtPrologParser.END_OF_FILE;
-import static org.ltc.hitalk.parser.PlToken.TokenKind.TK_DOT;
 
 /**
  * @param <P>
@@ -110,24 +106,18 @@ public class BaseCompiler<T extends HtClause, P, Q, PC extends HiTalkWAMCompiled
     }
 
     public List<T> compile(PlLexer tokenSource, HtProperty... flags) throws Exception {
-        getConsole().info("PreCompiling " + tokenSource.getPath() + "... ");
+//        getConsole().info("PreCompiling " + tokenSource.getPath() + "... ");
         final List<T> list = new ArrayList<>();
-        parser.setTokenSource(tokenSource);
-        while (tokenSource.isOpen()) {
-            ITerm t = parser.expr(TK_DOT);
-//            if (t == BEGIN_OF_FILE) {
-////                getTaskQueue().push(new TermExpansionTask(this, Collections::singletonList,
-////                        EnumSet.of(ENCODING))); //read until
-//                continue;
+//        parser.setTokenSource(tokenSource);
+//        while (tokenSource.isOpen()) {
+//            ITerm t = parser.expr(TK_DOT);
+//            if (pR.checkBOF())
+//            if (t == END_OF_FILE) {
+//                parser.popTokenSource();
 //            }
-            if (t == END_OF_FILE) {
-                //                getTaskQueue().push(new TermExpansionTask(this, Collections::singletonList,
-                parser.popTokenSource();
-                break;
-            }
-            T c = (T) parser.convert(t);//FIXME
-            compile(c, flags);
-        }
+//            T c = (T) parser.convert(t);//FIXME
+//            compile(c, flags);
+//        }
 
         return list;
     }

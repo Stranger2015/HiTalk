@@ -7,26 +7,34 @@ import org.ltc.hitalk.core.IPreCompiler;
 import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.interpreter.HtResolutionEngine;
-import org.ltc.hitalk.parser.*;
+import org.ltc.hitalk.parser.HiTalkParser;
+import org.ltc.hitalk.parser.HtPrologParser;
+import org.ltc.hitalk.parser.HtSourceCodeException;
+import org.ltc.hitalk.parser.PlLexer;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.HtFunctorName;
 import org.ltc.hitalk.wam.compiler.HtMethod;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
+import org.ltc.hitalk.wam.task.PreCompilerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 
-import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind;
+import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.RESOURCE_ERROR;
-import static org.ltc.hitalk.core.BaseApp.getAppContext;
 
 /**
  *
  */
 public
-class HiTalkWAMEngine<T extends HtMethod, P, Q, PC extends HiTalkWAMCompiledPredicate, QC extends HiTalkWAMCompiledQuery>
-        extends HtResolutionEngine<T, P, Q, PC, QC> {
+class HiTalkWAMEngine<T extends HtMethod, P, Q,
+        PC extends HiTalkWAMCompiledPredicate,
+        QC extends HiTalkWAMCompiledQuery>
+
+        extends HtResolutionEngine<T, PreCompilerTask<T>, P, Q, PC, QC> {
+
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     /**
@@ -57,7 +65,7 @@ class HiTalkWAMEngine<T extends HtMethod, P, Q, PC extends HiTalkWAMCompiledPred
                            ICompiler<T, P, Q, PC, QC> compiler,
                            IResolver<PC, QC> resolver,
                            HtPrologParser parser,
-                           IPreCompiler<T> preCompiler
+                           IPreCompiler<T, PreCompilerTask<T>, P, Q, PC, QC> preCompiler
     ) {
         super(symbolTable, termFactory, compiler, resolver, parser, preCompiler);
         this.resolver = resolver;
@@ -87,24 +95,23 @@ class HiTalkWAMEngine<T extends HtMethod, P, Q, PC extends HiTalkWAMCompiledPred
 //            HiTalkInputStream stream= appContext.createHiTalkInputStream(Paths.get(BUILT_IN_LIB));
 //            PlLexer tokenSource = new PlLexer(stream);
 //            stream.setTokenSource(tokenSource);
-            IParser libParser = new HiTalkParser(getAppContext().getApp().getCurrentInputStream(), getInterner(), getFactory(), getOptable());
+            HtPrologParser libParser = new HiTalkParser();
             libParser.setTokenSource(tokenSource);       // Set up a parser on the token source.
             // Load the built-ins into the domain.
             try {
-                while (true) {
-                    T sentence = (T) libParser.parseClause();
-                    if (sentence == null) {
-                        break;
-                    }
+                while (tokenSource.isOpen()) {
+                    ITerm sentence = libParser.termSentence();
+//                        break;
+//                    }
 
-                    compiler.compile(sentence);
+                    compiler.compile((T) sentence);
                 }
 
                 compiler.endScope();
             } catch (HtSourceCodeException e) {
                 // There should not be any errors in the built in library, if there are then the prolog engine just
                 // isn't going to work, so report this as a bug.
-                throw new ExecutionError(Kind.PERMISSION_ERROR,
+                throw new ExecutionError(PERMISSION_ERROR,
                         "Got an exception whilst loading the built-in library.",
                         e);
             }

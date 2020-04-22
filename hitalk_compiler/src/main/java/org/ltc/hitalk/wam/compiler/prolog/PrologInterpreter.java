@@ -27,6 +27,7 @@ import org.ltc.hitalk.wam.compiler.Language;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
 import org.ltc.hitalk.wam.machine.HiTalkWAMResolvingMachine;
+import org.ltc.hitalk.wam.task.PreCompilerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +44,11 @@ import java.util.Set;
  * @param <Q>
  */
 public
-class PrologInterpreter<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledPredicate, QC extends HiTalkWAMCompiledQuery>
-        extends HtResolutionEngine<T, P, Q, PC, QC> implements IInterpreter<T, P, Q, PC, QC> {
+class PrologInterpreter<T extends HtClause, P, Q,
+        PC extends HiTalkWAMCompiledPredicate,
+        QC extends HiTalkWAMCompiledQuery>
+
+        extends HtResolutionEngine<T, PreCompilerTask<T>, P, Q, PC, QC> implements IInterpreter<T, P, Q, PC, QC> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
@@ -63,7 +67,7 @@ class PrologInterpreter<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledPr
                              ICompiler<T, P, Q, PC, QC> compiler,
                              IResolver<PC, QC> resolver,
                              HtPrologParser parser,
-                             IPreCompiler preCompiler) {
+                             IPreCompiler<T, PreCompilerTask<T>, P, Q, PC, QC> preCompiler) {
         super(symbolTable, termFactory, compiler, resolver, parser, preCompiler);
         engine = new HtResolutionEngine<>(symbolTable, termFactory, compiler, resolver, parser, preCompiler);
     }
@@ -212,11 +216,11 @@ class PrologInterpreter<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledPr
         return null;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public T parseClause() throws Exception {
-        return (T) parser.parseClause();
-    }
+//    @Override
+//    @SuppressWarnings("unchecked")
+//    public T parseClause() throws Exception {
+//        return (T) parser.parseClause();
+//    }
 
 //    /**
 //     * @param clause

@@ -73,6 +73,9 @@ public class HiLogParser extends HtPrologParser {
         super(inputStream, interner, factory, optable);
     }
 
+    public HiLogParser() {
+    }
+
     /**
      * @return
      */
@@ -121,6 +124,10 @@ public class HiLogParser extends HtPrologParser {
         super.initializeBuiltIns();
 
         internOperator(PrologAtoms.HILOG, 1150, fx);
+
+        //internOperator(PrologAtoms.HILOG, 1150, hx);
+        // internOperator(PrologAtoms.HILOG, 1150, hy);
+
     }
 
 //            final ITerm name = lastTerm;//visit(h);//endfTerm todo

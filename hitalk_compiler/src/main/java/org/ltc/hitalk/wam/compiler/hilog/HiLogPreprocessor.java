@@ -9,6 +9,7 @@ import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltInTransform;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.prolog.PrologPreprocessor;
+import org.ltc.hitalk.wam.task.PreCompilerTask;
 import org.ltc.hitalk.wam.task.TransformTask;
 
 /**
@@ -44,7 +45,7 @@ import org.ltc.hitalk.wam.task.TransformTask;
  * RestCode2 = [].
  */
 public class HiLogPreprocessor<T extends HtClause, P, Q, TC extends ITerm, TT extends TransformTask>
-        extends PrologPreprocessor <T, P, Q, TC, TT> {
+        extends PrologPreprocessor<T, PreCompilerTask<T>, P, Q, TC, TT> {
     /**
      * Creates a base machine over the specified symbol table.
      *

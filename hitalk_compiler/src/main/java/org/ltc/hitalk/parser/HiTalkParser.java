@@ -15,6 +15,10 @@ import static org.ltc.hitalk.wam.compiler.Language.HITALK;
  */
 public class HiTalkParser extends HiLogParser {
 
+    public HiTalkParser() {
+
+    }
+
     /**
      * @return
      */

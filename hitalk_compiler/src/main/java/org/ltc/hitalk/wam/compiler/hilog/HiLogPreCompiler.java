@@ -8,8 +8,11 @@ import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.wam.compiler.prolog.PrologBuiltInTransform;
 import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.compiler.prolog.PrologPreCompiler;
+import org.ltc.hitalk.wam.compiler.prolog.PrologPreprocessor;
+import org.ltc.hitalk.wam.task.PreCompilerTask;
 
-public class HiLogPreCompiler<T extends HtClause, P, Q, PC, QC> extends PrologPreCompiler<T, P, Q, PC, QC> {
+public class HiLogPreCompiler<T extends HtClause, TT extends PreCompilerTask<T>, P, Q, PC, QC>
+        extends PrologPreCompiler<T, TT, P, Q, PC, QC> {
     /**
      * @param symbolTable
      * @param interner
@@ -25,6 +28,10 @@ public class HiLogPreCompiler<T extends HtClause, P, Q, PC, QC> extends PrologPr
                             IResolver<PC, QC> resolver,
                             HtPrologParser parser) {
         super(symbolTable, interner, defaultBuiltIn, builtInTransform, resolver, parser);
+    }
+
+    protected void initTasks(PrologPreprocessor<T, TT, P, Q, PC, QC> pp) {
+        super.initTasks(pp);
     }
 
 //    public HiLogPreCompiler() throws Exception {
