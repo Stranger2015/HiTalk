@@ -35,14 +35,19 @@ import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
  *
  */
 public class HtPrologParser implements IParser<HtClause> {
+
+    protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
+
     public static final String BEGIN_OF_FILE_STRING = "begin_of_file";
     public static final String END_OF_FILE_STRING = "end_of_file";
-    public static final IFunctor END_OF_FILE = new OpSymbolFunctor(END_OF_FILE_STRING);
-    public static final IFunctor BEGIN_OF_FILE = new OpSymbolFunctor(BEGIN_OF_FILE_STRING);
+    public static final IFunctor BEGIN_OF_FILE = new HtFunctor(appContext.getInterner().internFunctorName(BEGIN_OF_FILE_STRING, 0));
+    public static final IFunctor END_OF_FILE = new HtFunctor(appContext.getInterner().internFunctorName(END_OF_FILE_STRING, 0));
     public static final String ANONYMOUS = "_";
+
     public static final int MAX_PRIORITY = 1200;
     public static final int MIN_PRIORITY = 0;
-    protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
+
+
     protected final Deque<PlLexer> tokenSourceStack = new ArrayDeque<>();
     protected ListTerm listTerm = new ListTerm(0);
     protected EnumSet<Associativity> assocs = of(x);
@@ -80,7 +85,7 @@ public class HtPrologParser implements IParser<HtClause> {
                           ITermFactory factory,
                           IOperatorTable optable)
             throws Exception {
-        setTokenSource(new PlLexer(inputStream, inputStream.getPath()));
+//        setTokenSource(new PlLexer(inputStream, inputStream.getPath()));
         this.interner = interner;
         this.termFactory = factory;
         this.operatorTable = optable;
@@ -315,7 +320,7 @@ public class HtPrologParser implements IParser<HtClause> {
         op(200, yfx, UP_UP);
         op(200, xfx, STAR_STAR);
         op(200, fy, AS);
-//        op(100, yfx, DOT);
+        op(100, yfx, DOT);
         op(1, fx, DOLLAR);
 //Block operators
 //        This operator is typically declared as a low-priority yf postfix operator,
@@ -622,16 +627,21 @@ public class HtPrologParser implements IParser<HtClause> {
 //        1. prefix expression
 //        lastTerm = null;
         PlToken token = readToken();
-        if (token.kind == TK_BOF ||
-                (token.kind == TK_ATOM && token.image.equals(BEGIN_OF_FILE_STRING) && (getTokenSource().isBOFGenerated = true))) {
+//        token.kind = TK_ATOM;
+//        token.image = END_OF_FILE_STRING;//(getTokenSource().isEOFGenerated = true))) {
+//        lastTerm = END_OF_FILE;
+//        return lastTerm;
+//    }
+//        if (token.kind == TK_BOF) {
+//            token.kind = TK_ATOM;
+        if (token == BOF) {
+            getTokenSource().isBOFGenerated = true;
             lastTerm = BEGIN_OF_FILE;
             return lastTerm;
         }
-        if (token.kind == TK_EOF ||
-                (token.kind == TK_ATOM && token.image.equals(END_OF_FILE_STRING) && (getTokenSource().isEOFGenerated = true))) {
+        if (token == EOF) {
+            getTokenSource().isEOFGenerated = true;
             lastTerm = END_OF_FILE;
-//            popTokenSource();
-//            getParser().getLexer()//.atEOF = true;
             return lastTerm;
         }
         if (currPriority == 0) {
@@ -715,15 +725,7 @@ public class HtPrologParser implements IParser<HtClause> {
                 }
                 //priorityFY has priority over priorityFX, but priorityFY failed
                 if (!haveAttemptedFX && priorityFX >= MIN_PRIORITY) {
-                    if (lastTerm != null) {
-                        return new OpSymbolFunctor(
-                                token.image,
-                                fx,
-                                priorityFX - 1,
-                                ((OpSymbolFunctor) lastTerm).getResult());
-                    } else {
-                        haveAttemptedFX = true;
-                    }
+                    haveAttemptedFX = true;
                 }
                 //priorityFY has priority over priorityFX, but priorityFY failed
                 if (!haveAttemptedHX && priorityHX >= MIN_PRIORITY) {
@@ -753,8 +755,8 @@ public class HtPrologParser implements IParser<HtClause> {
         //{op(yfx,n) exprA(n-1) | op(yf,n)}*
         PlToken t = readToken();
         for (; isOperator(t); t = readToken()) {
-            int priorityYFX = getOptable().getPriority(token.image, yfx);
-            int priorityYF = getOptable().getPriority(token.image, yf);
+            int priorityYFX = getOptable().getPriority(t.image, yfx);
+            int priorityYF = getOptable().getPriority(t.image, yf);
 
             //YF and YFX has a higher priority than the left side expr and less then top limit
             // if (YF < leftSide.priority && YF > OperatorManager.OP_HIGH) YF = -1;
@@ -771,7 +773,7 @@ public class HtPrologParser implements IParser<HtClause> {
                 if (ta != null) {
                     leftSide = identifyTerm(priorityYFX,
                             new OpSymbolFunctor(
-                                    token.image,
+                                    t.image,
                                     leftSide.getResult(),
                                     ta.getResult()),
                             tokenStart);
@@ -783,7 +785,7 @@ public class HtPrologParser implements IParser<HtClause> {
                 leftSide = identifyTerm(
                         priorityYF,
                         new OpSymbolFunctor(
-                                token.image,
+                                t.image,
                                 leftSide.getResult()),
                         tokenStart);
                 continue;
@@ -927,11 +929,7 @@ public class HtPrologParser implements IParser<HtClause> {
      * @return
      */
     public PlLexer getLexer() throws IOException {
-        final PlLexer peek = getTokenSourceStack().peek();
-//        if(peek == null){
-//            throw new EOFException();
-//        }
-        return peek;
+        return getTokenSourceStack().peek();
     }
 
     /**
@@ -940,14 +938,14 @@ public class HtPrologParser implements IParser<HtClause> {
      */
     public ITerm parseSingleTerm(String st) throws Exception {
         setTokenSource(getPlLexerForString(st));
-        PlToken t = readToken();
-        if (t.kind == TK_BOF) {
-            return BEGIN_OF_FILE;
-        }
-        if (t.kind == TK_EOF) {
-            popTokenSource();
-            return END_OF_FILE;
-        }
+//        PlToken t = readToken();
+//        if (t.kind == TK_BOF) {
+//            return BEGIN_OF_FILE;
+//        }
+//        if (t.kind == TK_EOF) {
+//            popTokenSource();
+//            return END_OF_FILE;
+//        }
 
 //        getLexer().unreadToken(t);
         return termSentence();
@@ -1003,7 +1001,9 @@ public class HtPrologParser implements IParser<HtClause> {
      * @throws Exception
      */
     public ITerm expr0Block() throws Exception {
-        return sequence(TK_LPAREN);
+        final ListTerm t = sequence(TK_LPAREN);
+        t.setBracketed(true);
+        return t;
     }
 
     /**
@@ -1051,15 +1051,8 @@ public class HtPrologParser implements IParser<HtClause> {
                 return TK_RBRACKET;
             case TK_LBRACE:
                 return TK_RBRACE;
-//            case TK_RBRACE:
-//                break;
-//            case TK_D_QUOTE:
-//                break;
-//            case TK_S_QUOTE:
-//                break;
-//            case TK_B_QUOTE:
-//                break;
         }
+
         return kind;
     }
 

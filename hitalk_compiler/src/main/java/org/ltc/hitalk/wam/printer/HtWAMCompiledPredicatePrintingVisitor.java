@@ -3,6 +3,7 @@ package org.ltc.hitalk.wam.printer;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
+import org.ltc.hitalk.term.IntTerm;
 
 public
 class HtWAMCompiledPredicatePrintingVisitor extends HtWAMCompiledTermsPrintingVisitor {
@@ -31,6 +32,13 @@ class HtWAMCompiledPredicatePrintingVisitor extends HtWAMCompiledTermsPrintingVi
         }
 
         super.visit(predicate);
+    }
+
+    /**
+     * @param term
+     */
+    public void visit(IntTerm term) {
+
     }
 }
 

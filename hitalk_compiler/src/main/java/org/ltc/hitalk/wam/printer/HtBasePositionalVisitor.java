@@ -97,6 +97,8 @@ class HtBasePositionalVisitor extends AbstractBaseMachine implements IAllTermsVi
 
     /**
      * {@inheritDoc}
+     *
+     * @return
      */
     public void visit ( HtVariable variable ) {
         if (traverser.isEnteringContext()) {
@@ -125,6 +127,7 @@ class HtBasePositionalVisitor extends AbstractBaseMachine implements IAllTermsVi
 
     /**
      * {@inheritDoc}
+     * @return
      */
     public void visit ( HtClause clause ) throws LinkageException {
         if (traverser.isEnteringContext()) {

@@ -38,6 +38,10 @@ public class HiTalkInputStream extends HiTalkStream implements Readable {
     private int bof;
     private PlLexer tokenSource;
 
+    public int getBof() {
+        return bof;
+    }
+
     private int reads;
     private int lineNumber;
     private int colNumber;

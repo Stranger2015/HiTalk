@@ -859,6 +859,8 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q, PC exten
          * {@inheritDoc}
          * <p>
          * <p/>Allocates unallocated variables to stack slots.
+         *
+         * @return
          */
         public void visit(HtVariable variable) {
             if (getSymbolTable().get(variable.getSymbolKey(), SYMKEY_ALLOCATION) == null) {

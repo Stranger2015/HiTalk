@@ -9,7 +9,6 @@ import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
-import java.io.IOException;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -44,7 +43,7 @@ public class CondCompilationTask<T extends HtClause> extends PreCompilerTask<T> 
     /**
      * @param term
      */
-    public boolean ccIf(ITerm term) throws IOException {
+    public boolean ccIf(ITerm term) throws Exception {
         final GoalExpansionTask<T> getask;
         getask = new GoalExpansionTask<>(getPreCompiler(), getTokenSource(), getKind());
         final List<ITerm> l = getask.invoke(term);
@@ -68,7 +67,7 @@ public class CondCompilationTask<T extends HtClause> extends PreCompilerTask<T> 
     /**
      * @param term
      */
-    public boolean ccElIf(ITerm term) throws IOException {
+    public boolean ccElIf(ITerm term) throws Exception {
         final boolean b = ccIf(term);
         dkRDelim = of(DK_ELIF, DK_ELSE, DK_ENDIF);
         return b;
@@ -77,7 +76,7 @@ public class CondCompilationTask<T extends HtClause> extends PreCompilerTask<T> 
     /**
      * @param term
      */
-    public boolean ccElse(ITerm term) throws IOException {
+    public boolean ccElse(ITerm term) throws Exception {
         final boolean b = !ccIf(term);
         dkRDelim = of(DK_ENDIF);
         return b;
@@ -96,7 +95,7 @@ public class CondCompilationTask<T extends HtClause> extends PreCompilerTask<T> 
      * @return
      */
     @Override
-    protected List<ITerm> invoke0(ITerm term) throws IOException {
+    protected List<ITerm> invoke0(ITerm term) throws Exception {
         final List<ITerm> l = super.invoke0(term);
         for (final ITerm t : l) {
             for (DirectiveKind directiveKind : dkRDelim) {

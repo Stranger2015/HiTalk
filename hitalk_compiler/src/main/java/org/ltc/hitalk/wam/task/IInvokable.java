@@ -3,7 +3,6 @@ package org.ltc.hitalk.wam.task;
 import org.ltc.hitalk.term.ITerm;
 import org.slf4j.Logger;
 
-import java.io.IOException;
 import java.util.List;
 
 import static java.util.Collections.singletonList;
@@ -38,7 +37,7 @@ interface IInvokable<T extends ITerm> extends Runnable {
      * @param t
      * @return
      */
-    default List<T> invoke(T t) throws IOException {
+    default List<T> invoke(T t) throws Exception {
         banner();
         return singletonList(t);
     }

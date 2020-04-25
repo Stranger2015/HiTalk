@@ -22,6 +22,7 @@ import com.thesett.aima.search.Operator;
 import com.thesett.aima.search.TraversableState;
 import com.thesett.aima.search.util.backtracking.Reversable;
 import com.thesett.common.util.doublemaps.SymbolKey;
+import org.ltc.hitalk.core.utils.TermUtilities.FlattenTermVisitor;
 import org.ltc.hitalk.parser.ISourceCodePosition;
 
 import java.util.Collections;
@@ -40,7 +41,7 @@ import java.util.List;
  *
  * @author Rupert Smith
  */
-public abstract class HtBaseTerm extends TraversableState <ITerm> implements ITerm, GoalState, Cloneable {
+public abstract class HtBaseTerm extends TraversableState<ITerm> implements ITerm, GoalState, Cloneable {
 
     /* private static final Logger log = Logger.getLogger(BaseTerm.class.getName()); */
 
@@ -78,35 +79,35 @@ public abstract class HtBaseTerm extends TraversableState <ITerm> implements ITe
     /**
      * {@inheritDoc}
      */
-    public boolean isGoal () {
+    public boolean isGoal() {
         return true;
     }
 
     /**
      * {@inheritDoc}
      */
-    public ITerm getChildStateForOperator ( Operator <ITerm> op ) {
+    public ITerm getChildStateForOperator(Operator<ITerm> op) {
         return op.getOp();
     }
 
     /**
      * {@inheritDoc}
      */
-    public float costOf ( Operator op ) {
+    public float costOf(Operator op) {
         return 0;
     }
 
     /**
      * {@inheritDoc}
      */
-    public void setReversible ( Reversable reversible ) {
+    public void setReversible(Reversable reversible) {
         this.reversible = reversible;
     }
 
     /**
      * {@inheritDoc} If a {@link Reversable} has been set on this term it is applied, otherwise nothing is done.
      */
-    public void applyOperator () {
+    public void applyOperator() {
         if (reversible != null) {
             reversible.applyOperator();
         }
@@ -115,7 +116,7 @@ public abstract class HtBaseTerm extends TraversableState <ITerm> implements ITe
     /**
      * {@inheritDoc} If a {@link Reversable} has been set on this term it is undone, otherwise nothing is done.
      */
-    public void undoOperator () {
+    public void undoOperator() {
         if (reversible != null) {
             reversible.undoOperator();
         }
@@ -124,21 +125,21 @@ public abstract class HtBaseTerm extends TraversableState <ITerm> implements ITe
     /**
      * {@inheritDoc}
      */
-    public void setTermTraverser ( TermTraverser traverser ) {
+    public void setTermTraverser(TermTraverser traverser) {
         this.traverser = traverser;
     }
 
     /**
      * {@inheritDoc}
      */
-    public Iterator <Operator <ITerm>> validOperators ( boolean reverse ) {
+    public Iterator<Operator<ITerm>> validOperators(boolean reverse) {
         return getChildren(reverse);
     }
 
     /**
      * {@inheritDoc}
      */
-    public Iterator <Operator <ITerm>> getChildren ( boolean reverse ) {
+    public Iterator<Operator<ITerm>> getChildren(boolean reverse) {
         // Return an empty iterator by default.
         return Collections.emptyIterator();
     }
@@ -146,7 +147,7 @@ public abstract class HtBaseTerm extends TraversableState <ITerm> implements ITe
     /**
      * {@inheritDoc}
      */
-    public ITerm getOp () {
+    public ITerm getOp() {
         return this;
     }
 
@@ -160,49 +161,49 @@ public abstract class HtBaseTerm extends TraversableState <ITerm> implements ITe
     /**
      * {@inheritDoc}
      */
-    public int getAllocation () {
+    public int getAllocation() {
         return alloc;
     }
 
     /**
      * {@inheritDoc}
      */
-    public void setAllocation ( int alloc ) {
+    public void setAllocation(int alloc) {
         this.alloc = alloc;
     }
 
     /**
      * {@inheritDoc}
      */
-    public ISourceCodePosition getSourceCodePosition () {
+    public ISourceCodePosition getSourceCodePosition() {
         return sourcePosition;
     }
 
     /**
      * {@inheritDoc}
      */
-    public void setSourceCodePosition ( ISourceCodePosition sourceCodePosition ) {
+    public void setSourceCodePosition(ISourceCodePosition sourceCodePosition) {
         this.sourcePosition = sourceCodePosition;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean isBracketed () {
+    public boolean isBracketed() {
         return bracketed;
     }
 
     /**
      * {@inheritDoc}
      */
-    public void setBracketed ( boolean bracketed ) {
+    public void setBracketed(boolean bracketed) {
         this.bracketed = bracketed;
     }
 
     /**
      * {@inheritDoc}
      */
-    public ITerm queryConversion () {
+    public ITerm queryConversion() {
         try {
             return (ITerm) clone();
         } catch (CloneNotSupportedException e) {
@@ -213,89 +214,86 @@ public abstract class HtBaseTerm extends TraversableState <ITerm> implements ITe
     /**
      * {@inheritDoc}
      */
-    public void accept ( ITermVisitor visitor ) {
+    public void accept(ITermVisitor visitor) {
         visitor.visit(this);
+    }
+
+    public List<ITerm> accept(FlattenTermVisitor visitor) throws Exception {
+        return visitor.visit(this);
     }
 
     /**
      * {@inheritDoc}
      */
-    public List <ITerm> acceptTransformer ( ITermTransformer transformer ) {
+    public List<ITerm> acceptTransformer(ITermTransformer transformer) {
         return transformer.transform(this);
     }
 
-//    /**
-//     * {@inheritDoc}
-//     */
-//    public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
-//        return toString();
-//    }
-
     @Override
-    public boolean isQuery () {
+    public boolean isQuery() {
         return false;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean structuralEquals ( ITerm term ) {
+    public boolean structuralEquals(ITerm term) {
         return this.equals(term);
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean isNumber () {
+    public boolean isNumber() {
         return false;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean isFunctor () {
+    public boolean isFunctor() {
         return false;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean isVar () {
+    public boolean isVar() {
         return false;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean isConstant () {
+    public boolean isConstant() {
         return false;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean isCompound () {
+    public boolean isCompound() {
         return false;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean isAtom () {
+    public boolean isAtom() {
         return false;
     }
 
     /**
      * {@inheritDoc}
      */
-    public boolean isGround () {
+    public boolean isGround() {
         return false;
     }
 
     /**
      * @return
      */
-    public boolean isJavaObject () {
+    public boolean isJavaObject() {
         return false;
     }
 

@@ -21,6 +21,7 @@ import com.thesett.aima.search.util.backtracking.ReTraversable;
 import com.thesett.aima.search.util.backtracking.Reversable;
 import com.thesett.common.util.doublemaps.SymbolKey;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.core.utils.TermUtilities.FlattenTermVisitor;
 import org.ltc.hitalk.parser.HiLogFunctor;
 import org.ltc.hitalk.parser.ISourceCodePosition;
 
@@ -258,6 +259,8 @@ public interface ITerm extends ReTraversable<ITerm>, Operator<ITerm> {
      * @param visitor The term visitor to accept.
      */
     void accept(ITermVisitor visitor);
+
+    List<ITerm> accept(FlattenTermVisitor visitor) throws Exception;
 
     /**
      * Applies a term to term transformation function over the term tree, recursively from this point downwards. This is

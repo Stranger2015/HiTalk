@@ -16,7 +16,6 @@ import org.ltc.hitalk.wam.compiler.prolog.PrologDefaultBuiltIn;
 import org.ltc.hitalk.wam.task.TransformTask;
 import org.ltc.hitalk.wam.transformers.DefaultTransformer;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -92,6 +91,7 @@ public class HiTalkPreprocessor<T extends HtMethod, P, Q, PC extends HiTalkWAMCo
      * @param t
      * @return
      */
+    ;
     protected List<T> preprocess(T t) {
         List<T> list = new ArrayList<>();
 
@@ -99,7 +99,7 @@ public class HiTalkPreprocessor<T extends HtMethod, P, Q, PC extends HiTalkWAMCo
                 task -> {
                     try {
                         return task.invoke(t);
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                     return null;

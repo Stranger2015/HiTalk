@@ -1,5 +1,7 @@
 package org.ltc.hitalk.parser;
 
+import static org.ltc.hitalk.parser.HtPrologParser.BEGIN_OF_FILE_STRING;
+import static org.ltc.hitalk.parser.HtPrologParser.END_OF_FILE_STRING;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
 
 /**
@@ -161,9 +163,10 @@ public class PlToken implements ISourceCodePosition {
         TK_COLON(":"),
         TK_CONS("|");
 
-        public static final PlToken BOF = PlToken.newToken(TK_BOF);
+        public static final PlToken BOF = PlToken.newToken(TK_ATOM, BEGIN_OF_FILE_STRING);
+        public static final PlToken EOF = PlToken.newToken(TK_ATOM, END_OF_FILE_STRING);
         private String name;
-        private String image;
+        private final String image;
 
         /**
          * @param image
@@ -252,7 +255,7 @@ public class PlToken implements ISourceCodePosition {
      * to the following switch statement. Then you can cast matchedToken
      * variable to the appropriate type and use it in your lexical actions.
      */
-    public static PlToken newToken(TokenKind tokenKind) {
-        return new PlToken(tokenKind, tokenKind.getImage());
+    public static PlToken newToken(TokenKind tokenKind, String endOfFileString) {
+        return new PlToken(tokenKind, endOfFileString);
     }
 }

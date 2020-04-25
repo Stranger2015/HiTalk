@@ -275,6 +275,8 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
      * {@inheritDoc}
      * <p>
      * <p/>Assigns symbol keys to variables, based on the variables id.
+     *
+     * @return
      */
     public void visit(HtVariable variable) {
         if (isEnteringContext()) {
@@ -308,6 +310,7 @@ public class HtSymbolKeyTraverser extends HtPositionalTermTraverser implements I
 
     /**
      * {@inheritDoc}
+     * @return
      */
     public void visit(HtClause clause) throws LinkageException {
         if (isEnteringContext()) {

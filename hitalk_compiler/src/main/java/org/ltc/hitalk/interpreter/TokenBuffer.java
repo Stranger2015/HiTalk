@@ -6,6 +6,9 @@ import org.ltc.hitalk.term.io.HiTalkInputStream;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
+import static org.ltc.hitalk.parser.HtPrologParser.END_OF_FILE_STRING;
+import static org.ltc.hitalk.parser.PlToken.TokenKind.TK_ATOM;
+
 /**
  * Used to buffer tokens.
  */
@@ -44,7 +47,7 @@ public class TokenBuffer/* extends PlLexer implements Sink<PlToken>*/ {
      */
     public TokenBuffer(HiTalkInputStream inputStream) {
         this.stream = inputStream;
-        pushBack(PlToken.newToken(PlToken.TokenKind.TK_BOF));
+        pushBack(PlToken.newToken(TK_ATOM, END_OF_FILE_STRING));
     }
 
     /**

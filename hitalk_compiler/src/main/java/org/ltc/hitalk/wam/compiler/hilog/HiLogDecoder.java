@@ -105,6 +105,7 @@ public class HiLogDecoder<T extends HtClause, P, Q, PC, QC> extends MetaInterpre
 
     /**
      * @param clause The clause being entered.
+     * @return
      */
     @Override
     protected void enterClause ( HtClause clause ) throws LinkageException {

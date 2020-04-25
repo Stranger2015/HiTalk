@@ -13,11 +13,13 @@ import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 import static java.util.EnumSet.of;
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.RESOURCE_ERROR;
 import static org.ltc.hitalk.core.BaseApp.appContext;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
+import static org.ltc.hitalk.parser.HtPrologParser.END_OF_FILE_STRING;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
 
 public class PlLexer implements PropertyChangeListener {
@@ -25,10 +27,6 @@ public class PlLexer implements PropertyChangeListener {
     public static final String SPECIAL = "#$&*+-/:<=>?@\\^~";
     public static final String PARENTHESES = "(){}[]";
     public static final String DELIMITERS = "\"'`";
-
-    public boolean isBOFGenerated() {
-        return isBOFGenerated;
-    }
 
     public boolean isBOFGenerated;
     public boolean isEOFGenerated;
@@ -69,22 +67,13 @@ public class PlLexer implements PropertyChangeListener {
     }
 
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof PlLexer)) {
-            return false;
-        }
-
-        final PlLexer lexer = (PlLexer) o;
-
-        return getInputStream().equals(lexer.getInputStream());
+        return this == o;
     }
 
     public int hashCode() {
-        int result = getInputStream().hashCode();
-        result = 31 * result + getPath().hashCode();
-        return result;
+//        int result = getInputStream().hashCode();
+//        result = 31 * result + getPath().hashCode();
+        return Objects.hashCode(this);
     }
 
     /**
@@ -113,8 +102,7 @@ public class PlLexer implements PropertyChangeListener {
         inputStream.open();
 
 //     The first token is initialized to be empty, so that the first call to `poll` returns the first token.
-        lastToken = !isBOFGenerated ? new PlToken(TK_BOF, "") : null;
-//        isBOFGenerated;
+        lastToken = BOF;
         encodingPermitted = true;
     }
 
@@ -167,10 +155,6 @@ public class PlLexer implements PropertyChangeListener {
      * @return
      */
     public HiTalkInputStream getInputStream() {
-
-//        setPath(Paths.get(createProperty("file_name",
-//                "c:\\Users\\Anthony_2\\IdeaProjects\\WAM\\hitalk_compiler\\src\\main\\resources\\test.pl",
-//                "").getV()));
         return inputStream == null ? getAppContext().getInputStream() : inputStream;
     }
 
@@ -196,7 +180,7 @@ public class PlLexer implements PropertyChangeListener {
         int lineNumber = stream.getLineNumber();
         int colNumber = stream.getColNumber();
 
-        lastToken = stream.isBOFNotPassed() ? PlToken.newToken(TK_BOF) : readToken(valued);
+        lastToken = stream.isBOFNotPassed() ? PlToken.newToken(TK_BOF, END_OF_FILE_STRING) : readToken(valued);
 
         lastToken.setBeginLine(lineNumber);
         lastToken.setBeginColumn(colNumber);
@@ -285,11 +269,10 @@ public class PlLexer implements PropertyChangeListener {
     /**
      * @param token
      */
-    public PlToken unreadToken(PlToken token) {
-        if (token.kind != TK_BOF && token.kind != TK_EOF) {
+    public void unreadToken(PlToken token) {
+        if (token != BOF && token != EOF) {
             pushBackBuffer.pushBack(token);
         }
-        return token;
     }
 
     /**
@@ -298,12 +281,15 @@ public class PlLexer implements PropertyChangeListener {
      * @throws Exception
      */
     public PlToken getToken(boolean valued) throws Exception {
+        if (getInputStream().isBOFNotPassed()) {
+            return lastToken = BOF;
+        }
         boolean spacesOccurred = false;
         try {
             spacesOccurred = skipWhitespaces();
             int chr = read();
             if (chr == -1) {
-                lastToken = PlToken.newToken(TK_EOF);
+                lastToken = PlToken.newToken(TK_ATOM, END_OF_FILE_STRING);
                 atEOF = true;
             } else if (valued) {
                 TokenKind kind = calcTokenKind(chr);
@@ -340,7 +326,7 @@ public class PlLexer implements PropertyChangeListener {
             }
 
         } catch (EOFException e) {
-            lastToken = PlToken.newToken(TK_EOF);
+            lastToken = EOF;
             throw e;
         }
         lastToken.setSpacesOccurred(spacesOccurred);
@@ -625,27 +611,26 @@ public class PlLexer implements PropertyChangeListener {
         return lastToken;
     }
 
+    /**
+     * @param offset
+     * @throws IOException
+     */
     public void setLastOffset(int offset) throws IOException {
         this.offset = offset;
         inputStream.setOffset(offset);
     }
 
+    /**
+     * @return
+     */
     public int getLastOffset() {
         return offset;
     }
 
+    /**
+     * @return
+     */
     public int getPrevOffset() {
         return prevOffset;
     }
-
-//    /**
-//     * @param lastToken
-//     */
-//    public void setLastToken(PlToken lastToken) {
-//        this.lastToken = lastToken;
-//    }
-//
-//    public int tokenStart() {
-//        return 0;
-//    }
 }

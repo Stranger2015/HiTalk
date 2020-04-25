@@ -252,6 +252,7 @@ class PrologPreCompiler<T extends HtClause, TT extends PreCompilerTask<T>, P, Q,
         return l;
     }
 
+    @SuppressWarnings("unchecked")
     protected void initTasks(PrologPreprocessor<T, TT, P, Q, PC, QC> preprocessor) {
         taskQueue.add((TT) new StandardPreprocessingTask(
                 preprocessor,

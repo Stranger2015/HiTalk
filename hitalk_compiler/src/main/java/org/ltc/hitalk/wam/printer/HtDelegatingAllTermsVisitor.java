@@ -81,6 +81,7 @@ class HtDelegatingAllTermsVisitor implements IAllTermsVisitor {
      * Visits a clause.
      *
      * @param clause The clause to visit.
+     * @return
      */
     @Override
     public void visit ( HtClause clause ) throws LinkageException {

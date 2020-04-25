@@ -9,7 +9,6 @@ import org.ltc.hitalk.term.ITerm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -90,7 +89,7 @@ class PreCompilerTask<T extends HtClause> implements IInvokable<ITerm>, IHitalkO
      * @return
      */
     @Override
-    public final List<ITerm> invoke(ITerm term) throws IOException {
+    public final List<ITerm> invoke(ITerm term) throws Exception {
         List<ITerm> list = IInvokable.super.invoke(term);
         input = term;
         for (ITerm t : list) {
@@ -114,7 +113,7 @@ class PreCompilerTask<T extends HtClause> implements IInvokable<ITerm>, IHitalkO
      * @param term
      * @return
      */
-    protected List<ITerm> invoke0(ITerm term) throws IOException {
+    protected List<ITerm> invoke0(ITerm term) throws Exception {
         if (!output.contains(term)) {
             output.add(term);
         }

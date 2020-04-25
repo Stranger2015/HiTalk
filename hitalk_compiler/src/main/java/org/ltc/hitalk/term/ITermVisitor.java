@@ -20,7 +20,5 @@ public interface ITermVisitor {
     default void visit ( ITerm term ) {
 
     }
-
-//    void visit ( ITerm term1, ITerm term2 );
 }
 

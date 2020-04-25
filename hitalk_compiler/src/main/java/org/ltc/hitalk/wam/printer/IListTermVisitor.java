@@ -11,6 +11,7 @@ public interface IListTermVisitor extends ITermVisitor {
 
     /**
      * @param listTerm
+     * @return
      * @throws LinkageException
      */
     default void visit ( ListTerm listTerm ) throws LinkageException {

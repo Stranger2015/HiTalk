@@ -24,9 +24,6 @@ public class HtTermReader extends HtTermIO {
         super(path, lexer.getInputStream());
         this.parser = parser;
         this.parser.setTokenSource(lexer);
-//       input = new HiTalkInputStream(path, HiTalkInputStream.defaultEncoding);
-//                Paths.get(getPropMap().get("file_name").getValue().toString()),
-//                getPropMap().get("encoding").getValue().toString());
         lexer.getInputStream().open();
     }
 
@@ -39,7 +36,7 @@ public class HtTermReader extends HtTermIO {
 
     public ITerm readTerm(HiTalkInputStream input, HtProperty... options) throws Exception {
         createOptions();
-        parser.setTokenSource(input.getTokenSource());
+//        parser.setTokenSource(input.getTokenSource());
         return parser.parse();
     }
 

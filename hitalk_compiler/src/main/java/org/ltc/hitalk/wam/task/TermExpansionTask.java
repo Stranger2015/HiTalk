@@ -11,7 +11,6 @@ import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.builtins.Bypass;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.IntStream;
 
@@ -125,7 +124,7 @@ public class TermExpansionTask<T extends HtClause> extends PreCompilerTask<T> {
                 List<ITerm> invoke = null;
                 try {
                     invoke = task.invoke(iTerm);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();//fixme
                     throw new ExecutionError(PERMISSION_ERROR, toString(), e);
                 }
@@ -145,7 +144,7 @@ public class TermExpansionTask<T extends HtClause> extends PreCompilerTask<T> {
      * @return
      */
     @Override
-    protected List<ITerm> invoke0(ITerm term) throws IOException {
+    protected List<ITerm> invoke0(ITerm term) throws Exception {
         List<ITerm> list = new ArrayList<>();
         final List<ITerm> l = super.invoke0(term);
         for (ITerm t : l) {

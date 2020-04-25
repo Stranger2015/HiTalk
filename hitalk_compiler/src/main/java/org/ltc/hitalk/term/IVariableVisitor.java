@@ -7,6 +7,7 @@ public interface IVariableVisitor extends ITermVisitor {
 
     /**
      * @param variable
+     * @return
      */
     default void visit ( HtVariable variable ) {
 

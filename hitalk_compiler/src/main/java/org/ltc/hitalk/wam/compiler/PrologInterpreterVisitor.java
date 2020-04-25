@@ -41,7 +41,11 @@ import java.util.Set;
  * @param <P>
  * @param <Q>
  */
-public class PrologInterpreterVisitor<T extends HtMethod, P, Q, PC extends HiTalkWAMCompiledPredicate, QC extends HiTalkWAMCompiledQuery> extends MetaInterpreterVisitor<T, P, Q, PC, QC> {
+public class PrologInterpreterVisitor<T extends HtMethod, P, Q,
+        PC extends HiTalkWAMCompiledPredicate,
+        QC extends HiTalkWAMCompiledQuery>
+
+        extends MetaInterpreterVisitor<T, P, Q, PC, QC> {
 
     protected final PrologInterpreter<T, P, Q, PC, QC> engine;
     protected final ConsoleReader consoleReader = new ConsoleReader();
@@ -84,6 +88,7 @@ public class PrologInterpreterVisitor<T extends HtMethod, P, Q, PC extends HiTal
 
     /**
      * @param clause The clause being entered.
+     * @return
      */
     @Override
     protected void enterClause ( HtClause clause ) throws LinkageException {

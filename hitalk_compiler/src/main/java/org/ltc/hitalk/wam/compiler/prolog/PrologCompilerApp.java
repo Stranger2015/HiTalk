@@ -285,6 +285,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC extends HiTalkWAMCom
     /**
      * @throws Exception
      */
+    @SuppressWarnings("unchecked")
     @Override
     public void doStart() throws Exception {
         getLogger().info("Starting... ");

@@ -6,19 +6,18 @@ import com.thesett.aima.search.QueueBasedSearchMethod;
 import com.thesett.aima.search.util.Searches;
 import com.thesett.aima.search.util.uninformed.DepthFirstSearch;
 import org.ltc.hitalk.compiler.IVafInterner;
+import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.core.PrologBuiltIns;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtSourceCodeException;
-import org.ltc.hitalk.term.HtVariable;
-import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.term.ListTerm;
-import org.ltc.hitalk.term.OpSymbolFunctor;
+import org.ltc.hitalk.term.*;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static com.thesett.aima.search.util.Searches.setOf;
 import static java.util.Arrays.asList;
 import static org.ltc.hitalk.core.PrologBuiltIns.CALL;
 import static org.ltc.hitalk.parser.PrologAtoms.*;
@@ -90,7 +89,7 @@ public class TermUtilities {
         freeVarSearch.addStartState(query);
         freeVarSearch.setGoalPredicate(new FreeVarPredicate());
 
-        return (Set<HtVariable>) (Set) Searches.setOf(freeVarSearch);
+        return (Set<HtVariable>) (Set) setOf(freeVarSearch);
     }
 
     /**
@@ -106,13 +105,13 @@ public class TermUtilities {
         freeVarSearch.addStartState(query);
         freeVarSearch.setGoalPredicate(new FreeNonAnonVarPredicate());
 
-        return (Set<HtVariable>) (Set) Searches.setOf(freeVarSearch);
+        return (Set<HtVariable>) (Set) setOf(freeVarSearch);
     }
 
     /**
      * Flattens a sequence of terms as a symbol separated argument list. Terms that have been parsed as a bracketed
      * expressions will not be flattened. All of the terms in the list must sub sub-classes of a specified super class.
-     * This is usefull, for example, when parsing a sequence of functors in a clause body, in order to check that all of
+     * This is useful, for example, when parsing a sequence of functors in a clause body, in order to check that all of
      * the body members really are functors and not just terms.
      * <p>
      * <p/>For example, 'a, b, c' is broken into the list { a, b, c } on the symbol ','. The example, 'a, (b, c), d' is
@@ -308,5 +307,99 @@ public class TermUtilities {
      */
     public static ITerm getLast(List<ITerm> a) {
         return a.get(a.size() - 1);
+    }
+
+
+    public static HtClause convert(ITerm term) throws Exception {
+        final FlattenTermVisitor ftv = new FlattenTermVisitor();
+        HtClause clause = null;
+        if (term instanceof IFunctor) {
+            final int name = ((IFunctor) term).getName();
+            final IVafInterner interner = BaseApp.appContext.getInterner();
+            final String fn = interner.getFunctorName(name);
+            if (IMPLIES.equals(fn)) {
+                if (((IFunctor) term).getArity() == 2) {
+                    final ITerm h = ((IFunctor) term).getArgument(0);
+                    final ITerm b = ((IFunctor) term).getArgument(1);
+                    final List<ITerm> hl = h.accept(ftv);
+                    final List<ITerm> bl = b.accept(ftv);
+                    bl.addAll(1, hl);
+                    final IFunctor newHead = (IFunctor) hl.get(0);
+                    clause = new HtClause(newHead, new ListTerm(bl));
+                }
+            } else {
+                final List<ITerm> hl = term.accept(ftv);
+                clause = new HtClause((IFunctor) hl.get(0), new ListTerm(hl.subList(1, hl.size())));
+            }
+        }
+
+        return clause;
+    }
+
+    /**
+     *
+     */
+    public static class FlattenTermVisitor implements ITermsVisitor {
+        private Map<HtVariable, ITerm> map = new HashMap<>();
+
+        public List<ITerm> visit(ITerm term) throws Exception {
+            if (term instanceof IFunctor) {
+                return visit((IFunctor) term);
+            }
+            if (term instanceof ListTerm) {
+                return visit((ListTerm) term);
+            }
+            if (term instanceof HtVariable) {
+                return visit((HtVariable) term);
+            }
+
+            return Collections.singletonList(term);
+        }
+
+        public List<ITerm> visit(IFunctor functor) throws Exception {
+            final List<ITerm> l = new ArrayList<>();
+
+            final ListTerm args = functor.getArgs();
+            visit(functor.getArgs());
+
+            return l;
+        }
+
+//        public HtClause visit(HtClause clause) throws Exception {
+//            final List<ITerm> hl = visit(clause.getHead());
+//            final List<ITerm> bl = visit(clause.getBody());
+//            final IFunctor newHead = (IFunctor) hl.get(0);
+//            hl.addAll(1, bl);
+//            final ListTerm newBody = new ListTerm(hl);
+//
+//            return new HtClause(newHead, newBody);
+//        }
+
+        public List<ITerm> visit(ListTerm list) throws Exception {
+            final List<ITerm> l = list.getHeads();
+            final List<ITerm> newLits = new ArrayList<>();
+            for (ITerm term : l) {
+                newLits.addAll(visit(term));
+            }
+            final ITerm tail = list.getTail();
+            final List<ITerm> tl = visit(tail);
+
+            return l;
+        }
+
+        public List<ITerm> visit(HtVariable var) {
+            if (!map.containsKey(var)) {
+                map.put(var, new HtVariable());
+            }
+            return Collections.singletonList(var);
+        }
+
+        public List<ITerm> visit(IntTerm integer) {
+            return Collections.singletonList(integer);
+        }
+
+        public List<ITerm> visit(FloatTerm real) {
+            return Collections.singletonList(real);
+        }
     }
 }
