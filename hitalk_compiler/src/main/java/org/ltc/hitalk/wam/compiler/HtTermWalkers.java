@@ -11,6 +11,9 @@ import org.ltc.hitalk.wam.compiler.hitalk.HtTermWalker;
 import org.ltc.hitalk.wam.printer.IPositionalTermTraverser;
 import org.ltc.hitalk.wam.printer.IPositionalTermVisitor;
 
+import static org.ltc.hitalk.parser.PrologAtoms.COMMA;
+import static org.ltc.hitalk.parser.PrologAtoms.SEMICOLON;
+
 public
 class HtTermWalkers {
     /**
@@ -18,8 +21,8 @@ class HtTermWalkers {
      */
     public static final UnaryPredicate<ITerm> CONJ_DISJ_OP_SYMBOL_PREDICATE =
             term -> (term instanceof OpSymbolFunctor) &&
-                    (((OpSymbolFunctor) term).getTextName().equals(";") ||
-                            ((OpSymbolFunctor) term).getTextName().equals(","));
+                    (((OpSymbolFunctor) term).getTextName().equals(SEMICOLON) ||
+                            ((OpSymbolFunctor) term).getTextName().equals(COMMA));
 
     /**
      * Provides a simple depth first walk over a term.

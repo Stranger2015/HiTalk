@@ -16,8 +16,9 @@ public class TokenBuffer/* extends PlLexer implements Sink<PlToken>*/ {
     private final HiTalkInputStream stream;
     //    private final String path;
     private Deque<PlToken> tokens = new ArrayDeque<>();
-    private Deque<PlToken> history = new ArrayDeque<>();
-    private Deque<PlTokenStatus> statuses = new ArrayDeque<PlTokenStatus>();
+//    private Deque<PlToken> history = new ArrayDeque<>();
+
+//    private Deque<PlTokenStatus> statuses = new ArrayDeque<>();
 
     /**
      * Creates a stream tokenizer that parses the specified input

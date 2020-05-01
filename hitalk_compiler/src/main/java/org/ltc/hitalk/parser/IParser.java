@@ -180,6 +180,7 @@ public interface IParser<T extends HtClause> extends IHitalkObject {
      * @return
      * @throws Exception
      */
+    @SuppressWarnings("unchecked")
     default T convert(ITerm t) throws Exception {
         return (T) TermUtilities.convert(t);
     }

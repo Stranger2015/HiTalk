@@ -14,11 +14,13 @@ import org.ltc.hitalk.parser.PlLexer;
 import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.term.io.HtTermWriter;
+import org.ltc.hitalk.wam.compiler.HtPositionAndOccurrenceVisitor;
 import org.ltc.hitalk.wam.compiler.HtTermWalkers;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.hitalk.HtSymbolKeyTraverser;
 import org.ltc.hitalk.wam.compiler.hitalk.HtTermWalker;
 import org.ltc.hitalk.wam.compiler.prolog.PrologWAMCompiler.ClauseChainObserver;
+import org.ltc.hitalk.wam.printer.HtBasePositionalVisitor;
 import org.ltc.hitalk.wam.task.PreCompilerTask;
 import org.ltc.hitalk.wam.task.StandardPreprocessingTask;
 import org.ltc.hitalk.wam.task.TermExpansionTask;
@@ -113,15 +115,6 @@ class PrologPreCompiler<T extends HtClause, TT extends PreCompilerTask<T>, P, Q,
                 ((IFunctor) clause).getName() == interner.internFunctorName(IMPLIES, 1);
     }
 
-//    /**
-//     * @param clause
-//     * @param delims
-//     * @return
-//     */
-//    public boolean checkDirective(T clause, EnumSet<DirectiveKind> delims) {
-//        return false;
-//    }
-
     /**
      *
      */
@@ -145,7 +138,7 @@ class PrologPreCompiler<T extends HtClause, TT extends PreCompilerTask<T>, P, Q,
     @SuppressWarnings("unchecked")
     public List<T> preCompile(PlLexer tokenSource, EnumSet<DirectiveKind> delims) throws Exception {
         getLogger().info("Precompiling " + tokenSource.getPath() + " ...");
-        List<T> list = new ArrayList<T>();
+        List<T> list = new ArrayList<>();
         while (tokenSource.isOpen()) {
             ITerm t = getParser().termSentence();
             if (!isBOFPassed) {
@@ -215,9 +208,9 @@ class PrologPreCompiler<T extends HtClause, TT extends PreCompilerTask<T>, P, Q,
 
         List<ITerm> clauses = preProcess(term);
         for (ITerm clause : clauses) {
-            // substituteBuiltIns(clause);
-            // initializeSymbolTable(clause);
-            // topLevelCheck(clause);
+//            substituteBuiltIns(clause);
+//            initializeSymbolTable(clause);
+//            topLevelCheck(clause);
 
             if (observer != null) {
                 if (clause.isQuery()) {
@@ -254,12 +247,12 @@ class PrologPreCompiler<T extends HtClause, TT extends PreCompilerTask<T>, P, Q,
 
     @SuppressWarnings("unchecked")
     protected void initTasks(PrologPreprocessor<T, TT, P, Q, PC, QC> preprocessor) {
-        taskQueue.add((TT) new StandardPreprocessingTask(
-                preprocessor,
+        taskQueue.add((TT) new StandardPreprocessingTask<>(
+                (IPreCompiler<T, PreCompilerTask<T>, ?, ?, ?, ?>) preprocessor,
                 parser.getTokenSource(),
                 EnumSet.of(DK_IF)));
-        taskQueue.add((TT) new TermExpansionTask(
-                preprocessor,
+        taskQueue.add((TT) new TermExpansionTask<>(
+                (IPreCompiler<T, PreCompilerTask<T>, ?, ?, ?, ?>) preprocessor,
                 parser.getTokenSource(),
                 EnumSet.of(DK_IF)));
     }
@@ -276,11 +269,12 @@ class PrologPreCompiler<T extends HtClause, TT extends PreCompilerTask<T>, P, Q,
         // set up.
         HtSymbolKeyTraverser symbolKeyTraverser = new HtSymbolKeyTraverser(interner, symbolTable, null);
         symbolKeyTraverser.setContextChangeVisitor(symbolKeyTraverser);
+        HtBasePositionalVisitor visitor = new HtPositionAndOccurrenceVisitor(symbolTable, interner, symbolKeyTraverser);
 
         HtTermWalker symWalker =
                 new HtTermWalker(new DepthFirstBacktrackingSearch<>(),
-                        symbolKeyTraverser,
-                        symbolKeyTraverser);
+                        symbolKeyTraverser, visitor
+                );
         symWalker.walk(clause);
     }
 
@@ -299,23 +293,23 @@ class PrologPreCompiler<T extends HtClause, TT extends PreCompilerTask<T>, P, Q,
         walk.walk(clause);
     }
 
-    /**
-     * Substitutes built-ins within a clause, with their built-in definitions.
-     *
-     * @param clause The clause to transform.
-     */
-    @SuppressWarnings("unchecked")
-    private void substituteBuiltIns(ITerm clause) {
-        logger.debug("Built-in's substitution ( " + clause + " ) ...");
-        HtTermWalker walk =
-                HtTermWalkers.positionalWalker(
-                        new HtBuiltInTransformVisitor(
-                                symbolTable,
-                                interner,
-                                null,
-                                appContext.getBuiltInTransform()));
-        walk.walk(clause);
-    }
+//    /**
+//     * Substitutes built-ins within a clause, with their built-in definitions.
+//     *
+//     * @param clause The clause to transform.
+//     */
+//    @SuppressWarnings("unchecked")
+//    private void substituteBuiltIns(ITerm clause) {
+//        logger.info("Built-in's substitution ( " + clause + " ) ...");
+//        HtTermWalker walk =
+//                HtTermWalkers.positionalWalker(
+//                        new HtBuiltInTransformVisitor(
+//                                symbolTable,
+//                                interner,
+//                                null,
+//                                appContext.getBuiltInTransform()));
+//        walk.walk(clause);
+//    }
 
     /**
      * expand_term(+Term1, -Term2)
@@ -411,5 +405,6 @@ class PrologPreCompiler<T extends HtClause, TT extends PreCompilerTask<T>, P, Q,
     }
 
     public void toString0(StringBuilder sb) {
+
     }
 }

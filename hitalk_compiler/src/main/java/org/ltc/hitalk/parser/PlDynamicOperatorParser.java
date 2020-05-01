@@ -405,8 +405,7 @@ public class PlDynamicOperatorParser implements IOperatorTable {
 
         // Check that the priority of the operator is valid.
         if (priority > 0 && (priority <= 1200)) {
-
-            OpSymbolFunctor opSymbol = new OpSymbolFunctor(name, textName, associativity, priority);
+            OpSymbolFunctor opSymbol = new OpSymbolFunctor(textName, associativity.arity, associativity, priority, null, null);//fixme
 
             // Consult the defined operators to see if there are any already defined that match the name of the
             // new definition, otherwise a map of operators by fixity needs to be created.

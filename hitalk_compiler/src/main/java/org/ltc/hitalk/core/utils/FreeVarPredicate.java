@@ -29,21 +29,19 @@ import org.ltc.hitalk.term.ITerm;
  *
  * @author Rupert Smith
  */
-public class FreeVarPredicate implements UnaryPredicate <ITerm> {
+public class FreeVarPredicate<T extends ITerm<T>> implements UnaryPredicate<T> {
 
     /**
-     * Determine whether a term is a free variable.
+     * Evaluates a logical predicate.
      *
      * @param term The object to test for predicate membership.
-     * @return <tt>true</tt> if the term is a free variable, <tt>false</tt> otherwise.
+     * @return <tt>true</tt> if the object is a member of the predicate, <tt>false</tt> otherwise.
      */
-    public boolean evaluate ( ITerm term ) {
-        if (term.isVar() && (term instanceof HtVariable)) {
-            HtVariable var = (HtVariable) term;
-
+    public boolean evaluate(T term) {
+        if (term.isVar()) {
+            HtVariable<?> var = (HtVariable) term;
             return !var.isBound();
         }
-
         return false;
     }
 }

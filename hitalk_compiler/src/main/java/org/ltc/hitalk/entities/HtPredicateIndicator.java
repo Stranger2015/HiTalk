@@ -1,6 +1,5 @@
 package org.ltc.hitalk.entities;
 
-import com.thesett.aima.search.Operator;
 import org.ltc.enumus.Hierarchy;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.term.*;
@@ -246,7 +245,7 @@ class HtPredicateIndicator extends HtBaseTerm implements IFunctor {
      * @return The sub-terms of a compound term.
      */
     @Override
-    public Iterator<Operator<ITerm>> getChildren(boolean reverse) {
+    public Iterator<HtVariable> getChildren(boolean reverse) {
         return delegate.getChildren(reverse);
     }
 

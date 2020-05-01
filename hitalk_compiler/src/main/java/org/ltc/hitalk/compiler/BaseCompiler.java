@@ -25,8 +25,10 @@ import java.util.List;
  * @param <Q>
  */
 abstract
-public class BaseCompiler<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledPredicate,
+public class BaseCompiler<T extends HtClause, P, Q,
+        PC extends HiTalkWAMCompiledPredicate,
         QC extends HiTalkWAMCompiledQuery>
+
         extends AbstractBaseMachine
         implements ICompiler<T, P, Q, PC, QC> {
 

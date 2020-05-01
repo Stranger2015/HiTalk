@@ -148,8 +148,11 @@ import static org.ltc.hitalk.wam.compiler.Language.HITALK;
  * The current implementation does not detect such cases and the involved threads will freeze.
  * This problem can be avoided if a mutually dependent collection of files is always loaded from the same start file.
  */
-public class HiTalkCompilerApp<T extends HtMethod, P, Q, PC extends HiTalkWAMCompiledPredicate, QC extends HiTalkWAMCompiledQuery>
-        extends HiLogCompilerApp<T, P, Q, PC, QC> {
+public class HiTalkCompilerApp<T extends HtMethod, TT extends PreCompilerTask<T>, P, Q,
+        PC extends HiTalkWAMCompiledPredicate,
+        QC extends HiTalkWAMCompiledQuery>
+
+        extends HiLogCompilerApp<T, TT, P, Q, PC, QC> {
 
     private final static Language language = HITALK;
 

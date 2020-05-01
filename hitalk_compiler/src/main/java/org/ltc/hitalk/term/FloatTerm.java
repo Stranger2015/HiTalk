@@ -1,5 +1,6 @@
 package org.ltc.hitalk.term;
 
+import com.thesett.aima.search.Traversable;
 import com.thesett.aima.search.util.backtracking.Reversable;
 import org.ltc.hitalk.NumberTerm;
 import org.ltc.hitalk.compiler.IVafInterner;
@@ -9,7 +10,7 @@ import java.util.List;
 /**
  *
  */
-public class FloatTerm extends NumberTerm implements ITerm {
+public class FloatTerm<T extends Traversable<T>> extends NumberTerm<T> implements ITerm<T> {
 
     /**
      * Creates a new number with the specified value.
@@ -33,7 +34,7 @@ public class FloatTerm extends NumberTerm implements ITerm {
     }
 
     @Override
-    public FloatTerm getValue () {
+    public FloatTerm<T> getValue() {
         return this;
     }
 

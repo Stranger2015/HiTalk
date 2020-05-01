@@ -193,6 +193,10 @@ public class TermFactory implements ITermFactory {
         return newFloatTerm(Double.parseDouble(prefix + image));
     }
 
+    public IFunctor newFunctor(String assign, HtVariable htVariable, ITerm term) {
+        return newFunctor(assign, new ListTerm(asList(htVariable, term)));
+    }
+
     // commodity methods to parse numbers
 
     public IntTerm parseInteger(String s) {

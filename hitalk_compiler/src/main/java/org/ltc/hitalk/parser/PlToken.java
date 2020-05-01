@@ -236,6 +236,22 @@ public class PlToken implements ISourceCodePosition {
 //     */
 //    public PlToken specialToken;
 
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PlToken)) return false;
+
+        final PlToken plToken = (PlToken) o;
+
+        if (!getImage().equals(plToken.getImage())) return false;
+        return kind == plToken.kind;
+    }
+
+    public int hashCode() {
+        int result = getImage().hashCode();
+        result = 31 * result + kind.hashCode();
+        return result;
+    }
+
     /**
      * Returns the image.
      */

@@ -16,7 +16,7 @@
 package org.ltc.hitalk.term;
 
 /**
- * VariableBindingContext provides a reference to the storage cell in which a {@link Variable} holds its binding.
+ * VariableBindingContext provides a reference to the storage cell in which a {@link HtVariable} holds its binding.
  *
  * <pre><p/><table id="crc"><caption>CRC Card</caption>
  * <tr><th> Responsibilities
@@ -25,7 +25,7 @@ package org.ltc.hitalk.term;
  *
  * @author Rupert Smith
  */
-public interface IVariableBindingContext<V extends HtVariable> {
+public interface IVariableBindingContext<V extends HtVariable<V>> {
     /**
      * Provides the storage cell for the specified variable. Some types of variable may defer their storage onto a
      * storage cell other than themselves, other variable types may simply return themselves as their own storage cells.
@@ -33,5 +33,5 @@ public interface IVariableBindingContext<V extends HtVariable> {
      * @param variable The variable to get the storage cell for.
      * @return The storage cell where the specified variable sets its bindings.
      */
-    HtVariable getStorageCell ( V variable );
+    HtVariable<V> getStorageCell(V variable);
 }

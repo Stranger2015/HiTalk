@@ -157,7 +157,7 @@ public abstract class MetaInterpreterVisitor<T extends HtClause, P, Q, PC, QC> e
 
     @Override
     protected void enterFunctor ( IFunctor functor ) throws LinkageException {
-        if (!functor.isBracketed() && functor.isListTerm()) {
+        if (functor.isBracketed() && functor.isListTerm()) {
             enterListTerm((ListTerm) functor);
         } else {
             enterGoal(functor);//fixme redundant

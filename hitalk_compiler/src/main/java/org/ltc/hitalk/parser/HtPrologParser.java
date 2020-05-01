@@ -28,6 +28,7 @@ import static org.ltc.hitalk.parser.Directive.DirectiveKind.*;
 import static org.ltc.hitalk.parser.PlLexer.getPlLexerForString;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
 import static org.ltc.hitalk.parser.PrologAtoms.*;
+import static org.ltc.hitalk.term.ListTerm.NIL;
 import static org.ltc.hitalk.term.OpSymbolFunctor.Associativity.*;
 import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
 
@@ -35,18 +36,30 @@ import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
  *
  */
 public class HtPrologParser implements IParser<HtClause> {
-
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
+
+    public static final ITermFactory tf = appContext.getTermFactory();
 
     public static final String BEGIN_OF_FILE_STRING = "begin_of_file";
     public static final String END_OF_FILE_STRING = "end_of_file";
-    public static final IFunctor BEGIN_OF_FILE = new HtFunctor(appContext.getInterner().internFunctorName(BEGIN_OF_FILE_STRING, 0));
-    public static final IFunctor END_OF_FILE = new HtFunctor(appContext.getInterner().internFunctorName(END_OF_FILE_STRING, 0));
+    public static final IFunctor BEGIN_OF_FILE = new OpSymbolFunctor(
+            BEGIN_OF_FILE_STRING,
+            0,
+            x,
+            -1,
+            null,
+            null);
+    public static final IFunctor END_OF_FILE = new OpSymbolFunctor(
+            END_OF_FILE_STRING,
+            0,
+            x,
+            -1,
+            null,
+            null);
     public static final String ANONYMOUS = "_";
 
     public static final int MAX_PRIORITY = 1200;
     public static final int MIN_PRIORITY = 0;
-
 
     protected final Deque<PlLexer> tokenSourceStack = new ArrayDeque<>();
     protected ListTerm listTerm = new ListTerm(0);
@@ -85,7 +98,7 @@ public class HtPrologParser implements IParser<HtClause> {
                           ITermFactory factory,
                           IOperatorTable optable)
             throws Exception {
-//        setTokenSource(new PlLexer(inputStream, inputStream.getPath()));
+        setTokenSource(new PlLexer(inputStream, inputStream.getPath()));
         this.interner = interner;
         this.termFactory = factory;
         this.operatorTable = optable;
@@ -424,13 +437,6 @@ public class HtPrologParser implements IParser<HtClause> {
         return exprA(MAX_PRIORITY, rdelim);
     }
 
-//    /**
-//     * @return
-//     */
-//    public HtClause parseClause() throws Exception {
-//        return convert(termSentence());
-//    }
-
     /**
      * @return
      */
@@ -465,14 +471,14 @@ public class HtPrologParser implements IParser<HtClause> {
         EnumSet<TokenKind> rDelims = of(TK_DOT);
         PlToken token = readToken();
         switch (token.kind) {
-            case TK_BOF:
-                lastTerm = BEGIN_OF_FILE;
-                break;
-            case TK_EOF:
-                lastTerm = END_OF_FILE;
+//            case TK_BOF:
+//                lastTerm = BEGIN_OF_FILE;
+//                break;
+//            case TK_EOF:
+//                lastTerm = END_OF_FILE;
 //                popTokenSource();
-                getLexer().atEOF = true;
-                break;
+//                getLexer().atEOF = true;
+//                break;
             case TK_DOT:
                 if (!isEndOfTerm()) {
                     throw new IllegalStateException("Brackets or/and quotes are unbalanced ...");
@@ -563,10 +569,23 @@ public class HtPrologParser implements IParser<HtClause> {
             case TK_VAR:
                 lastTerm = termFactory.newVariable(token.image);
                 break;
-            case TK_ATOM:
             case TK_QUOTED_NAME:
             case TK_SYMBOLIC_NAME:
-                lastTerm = termFactory.newFunctor(token.image, ListTerm.NIL);
+            case TK_ATOM:
+                if (token.equals(BOF)) {
+                    getTokenSource().atBOF = false;
+                    lastTerm = BEGIN_OF_FILE;
+                    getTokenSource().isBOFGenerated = true;
+                } else if (token.equals(EOF)) {
+                    getTokenSource().atEOF = true;
+                    lastTerm = END_OF_FILE;
+                    getTokenSource().isEOFGenerated = true;
+                    popTokenSource();
+                } else {
+                    lastTerm = termFactory.newFunctor(token.image, NIL);
+                }
+
+
                 break;
             default:
                 throw new IllegalStateException("Unused or unknown value: " + token.kind);
@@ -586,34 +605,6 @@ public class HtPrologParser implements IParser<HtClause> {
         return ops.stream().anyMatch(op -> op.getTextName().equals(name));
     }
 
-//    protected Set<OpSymbolFunctor> tryOperators(String image, TokenKind rDelim) throws Exception {
-//        Set<OpSymbolFunctor> ops = (token.kind == TK_ATOM) ?
-//                tryOperators(token.image) :
-//                Collections.emptySet();
-//        for (OpSymbolFunctor op : ops) {
-//            if (op.getPriority() == currPriority) {
-//                switch (op.getAssociativity()) {
-//                    case fx:
-//                        lastTerm = exprA(currPriority - 1);
-//                        break;
-//                    case fy:
-//                        lastTerm = exprA(currPriority);
-//                        break;
-//                    case hx:
-//                        lastTerm = exprA(currPriority - 1);
-//                        break;
-//                    case hy:
-//                        lastTerm = exprA(currPriority);
-//                        break;
-//                    default:
-//                }
-//            }
-//            lastTerm = op;
-//        }
-//
-//        return ops;
-//    }
-
     /**
      * Parses and returns a valid 'leftside' of an expression.
      * If the left side starts with a prefix, it consumes other expressions with a lower priority than itself.
@@ -625,23 +616,16 @@ public class HtPrologParser implements IParser<HtClause> {
      */
     public ITerm parseLeftSide(int currPriority, TokenKind rDelim) throws Exception {
 //        1. prefix expression
-//        lastTerm = null;
         PlToken token = readToken();
-//        token.kind = TK_ATOM;
-//        token.image = END_OF_FILE_STRING;//(getTokenSource().isEOFGenerated = true))) {
-//        lastTerm = END_OF_FILE;
-//        return lastTerm;
-//    }
-//        if (token.kind == TK_BOF) {
-//            token.kind = TK_ATOM;
-        if (token == BOF) {
+        if (token.equals(BOF)) {
             getTokenSource().isBOFGenerated = true;
             lastTerm = BEGIN_OF_FILE;
             return lastTerm;
         }
-        if (token == EOF) {
+        if (token.equals(EOF)) {
             getTokenSource().isEOFGenerated = true;
             lastTerm = END_OF_FILE;
+            popTokenSource();
             return lastTerm;
         }
         if (currPriority == 0) {
@@ -683,23 +667,26 @@ public class HtPrologParser implements IParser<HtClause> {
                 boolean haveAttemptedFX = false;
                 if (priorityFX >= priorityFY && priorityFX >= MIN_PRIORITY) {
                     if (lastTerm != null) {
+                        /*
                         return new OpSymbolFunctor(
                                 token.image,
                                 fx,
                                 priorityFX - 1,
-                                ((OpSymbolFunctor) lastTerm).getResult());
+                                ((OpSymbolFunctor) lastTerm).getResult());*/
                     } else {
                         haveAttemptedFX = true;
                     }
                 }
                 boolean haveAttemptedHX = false;
+
                 if (priorityHX >= priorityHY && priorityHX >= MIN_PRIORITY) {
                     if (lastTerm != null) {
                         return new OpSymbolFunctor(
                                 token.image,
+                                1,
                                 hx,
                                 priorityHX - 1,
-                                ((OpSymbolFunctor) lastTerm).getResult());
+                                ((OpSymbolFunctor) lastTerm).getResult(), null);
                     } else {
                         haveAttemptedHX = true;
                     }
@@ -709,18 +696,20 @@ public class HtPrologParser implements IParser<HtClause> {
                     if (lastTerm != null) {
                         return new OpSymbolFunctor(
                                 token.image,
+                                1,
                                 fy,
                                 priorityFY,
-                                ((OpSymbolFunctor) lastTerm).getResult());
+                                ((OpSymbolFunctor) lastTerm).getResult(), null);
                     }
                 }
                 if (priorityHY >= MIN_PRIORITY) {//todo hilog
                     if (lastTerm != null) {
                         return new OpSymbolFunctor(
                                 token.image,
+                                1,
                                 hy,
                                 priorityHY,
-                                ((OpSymbolFunctor) lastTerm).getResult());
+                                ((OpSymbolFunctor) lastTerm).getResult(), null);
                     }
                 }
                 //priorityFY has priority over priorityFX, but priorityFY failed
@@ -732,12 +721,13 @@ public class HtPrologParser implements IParser<HtClause> {
                     if (lastTerm != null) {
                         return new OpSymbolFunctor(
                                 token.image,
+                                1,
                                 hx,
                                 priorityHX - 1,
-                                ((OpSymbolFunctor) lastTerm).getResult());
-                    } else {
-                        haveAttemptedHX = true;
+                                ((OpSymbolFunctor) lastTerm).getResult(), null);
                     }
+                } else {
+                    haveAttemptedHX = true;
                 }
             }
         }
@@ -771,11 +761,12 @@ public class HtPrologParser implements IParser<HtClause> {
             if (priorityYFX >= priorityYF && priorityYFX >= MIN_PRIORITY) {
                 OpSymbolFunctor ta = exprA(priorityYFX - 1, rDelim);
                 if (ta != null) {
-                    leftSide = identifyTerm(priorityYFX,
-                            new OpSymbolFunctor(
-                                    t.image,
-                                    leftSide.getResult(),
-                                    ta.getResult()),
+                    leftSide = identifyTerm(
+                            priorityYFX,
+                            yfx,
+                            t.image,
+                            leftSide.getResult(),
+                            ta.getResult(),
                             tokenStart);
                     continue;
                 }
@@ -784,9 +775,9 @@ public class HtPrologParser implements IParser<HtClause> {
             if (priorityYF >= MIN_PRIORITY) {
                 leftSide = identifyTerm(
                         priorityYF,
-                        new OpSymbolFunctor(
-                                t.image,
-                                leftSide.getResult()),
+                        yf,
+                        t.image,
+                        leftSide.getResult(),
                         tokenStart);
                 continue;
             }
@@ -795,6 +786,18 @@ public class HtPrologParser implements IParser<HtClause> {
         getLexer().unreadToken(t);
 
         return leftSide;
+    }
+
+    private OpSymbolFunctor identifyTerm(int priorityYF, Associativity yf, String image, ITerm result, int tokenStart) {
+        return identifyTerm(priorityYF, yf, null, result);
+    }
+
+    private OpSymbolFunctor identifyTerm(int priorityYF, Associativity associativity, String image, ITerm result) {
+        return identifyTerm(priorityYF, yf, image, result, null);
+    }
+
+    private OpSymbolFunctor identifyTerm(int priority, Associativity associativity, String image, ITerm result, ITerm result1) {
+        return new OpSymbolFunctor(image, 0, yfx, priority, result, result1);
     }
 
     /**
@@ -831,11 +834,13 @@ public class HtPrologParser implements IParser<HtClause> {
                 if (found != null) {
                     //OpSymbolFunctor priorityXFX = new OpSymbolFunctor(operator.seq, left.getResult(), found.getResult());
                     //left = new OpSymbolFunctor(priorityXFX, priorityXFX);
-                    left = identifyTerm(priorityXFX,
-                            new OpSymbolFunctor(
-                                    operator.image,
-                                    left.getResult(),
-                                    found.getResult()),
+                    left = identifyTerm(
+                            priorityXFX,
+                            Associativity.xfx,
+//                            new OpSymbolFunctor(
+                            operator.image,
+                            left.getResult(),
+                            found.getResult(),
                             tokenStart);
                     continue;
                 } else {
@@ -850,10 +855,11 @@ public class HtPrologParser implements IParser<HtClause> {
                     //left = new OpSymbolFunctor(priorityXFY, priorityXFY);
                     left = identifyTerm(
                             priorityXFY,
-                            new OpSymbolFunctor(
-                                    operator.image,
-                                    left.getResult(),
-                                    found.getResult()),
+                            Associativity.xfy,
+//                            new OpSymbolFunctor(
+                            operator.image,
+                            left.getResult(),
+                            found.getResult(),
                             tokenStart);
                     continue;
                 }
@@ -861,21 +867,25 @@ public class HtPrologParser implements IParser<HtClause> {
             //XF has priority, or priorityXFX and/or priorityXFY has failed
             if (priorityXF >= left.getPriority())
                 //return new OpSymbolFunctor(XF, new OpSymbolFunctor(token.image, left.getResult()));
-                return identifyTerm(priorityXF,
-                        new OpSymbolFunctor(
-                                operator.image,
-                                left.getResult()),
+                return identifyTerm(
+                        priorityXF,
+                        Associativity.xf,
+//                        new OpSymbolFunctor(
+                        operator.image,
+                        left.getResult(),
                         tokenStart);
-
+//            continue;
             //priorityXFX did not have top priority, but priorityXFY failed
             if (!haveAttemptedXFX && priorityXFX >= left.getPriority()) {
                 OpSymbolFunctor found = exprA(priorityXFX - 1, rDelim);
                 if (found != null) {
-                    left = identifyTerm(priorityXFX,
-                            new OpSymbolFunctor(
-                                    operator.image,
-                                    left.getResult(),
-                                    found.getResult()),
+                    left = identifyTerm(
+                            priorityXFX,
+                            xfx,
+//                            new OpSymbolFunctor(
+                            operator.image,
+                            left.getResult(),
+                            found.getResult(),
                             tokenStart);
                     continue;
                 }
@@ -887,15 +897,25 @@ public class HtPrologParser implements IParser<HtClause> {
         return left;
     }
 
+    private OpSymbolFunctor identifyTerm(int priorityXFX,
+                                         Associativity xfx,
+                                         String image,
+                                         ITerm result,
+                                         ITerm result1,
+                                         int tokenStart) {
+        return identifyTerm(priorityXFX, xfx, result, result1, tokenStart);
+    }
+
     /**
      * @param priority
      * @param term
      * @param offset
      * @return
      */
-    protected OpSymbolFunctor identifyTerm(int priority, ITerm term, int offset) {
+    protected OpSymbolFunctor identifyTerm(int priority, Associativity associativity, ITerm term, ITerm term1, int offset) {
         map(term, offset);
-        return new OpSymbolFunctor("", priority, term, null);
+        final OpSymbolFunctor f = (OpSymbolFunctor) term;
+        return new OpSymbolFunctor(f.getTextName(), 0, associativity, priority, f.getResult(), f.getResult1());
     }
 
     protected void map(ITerm term, int offset) {
@@ -928,7 +948,7 @@ public class HtPrologParser implements IParser<HtClause> {
     /**
      * @return
      */
-    public PlLexer getLexer() throws IOException {
+    public PlLexer getLexer() {
         return getTokenSourceStack().peek();
     }
 
@@ -938,16 +958,6 @@ public class HtPrologParser implements IParser<HtClause> {
      */
     public ITerm parseSingleTerm(String st) throws Exception {
         setTokenSource(getPlLexerForString(st));
-//        PlToken t = readToken();
-//        if (t.kind == TK_BOF) {
-//            return BEGIN_OF_FILE;
-//        }
-//        if (t.kind == TK_EOF) {
-//            popTokenSource();
-//            return END_OF_FILE;
-//        }
-
-//        getLexer().unreadToken(t);
         return termSentence();
     }
 

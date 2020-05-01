@@ -120,4 +120,6 @@ interface ITermFactory extends IHitalkObject {
      * @return
      */
     FloatTerm newFloatTerm(String prefix, String image);
+
+    ITerm newFunctor(String assign, HtVariable htVariable, ITerm term);
 }

@@ -3,14 +3,15 @@ package org.ltc.hitalk.core.utils;
 import com.thesett.aima.logic.fol.FreeNonAnonymousVariablePredicate;
 import com.thesett.aima.logic.fol.FreeVariablePredicate;
 import com.thesett.aima.search.QueueBasedSearchMethod;
+import com.thesett.aima.search.Traversable;
 import com.thesett.aima.search.util.Searches;
 import com.thesett.aima.search.util.uninformed.DepthFirstSearch;
 import org.ltc.hitalk.compiler.IVafInterner;
-import org.ltc.hitalk.core.BaseApp;
 import org.ltc.hitalk.core.PrologBuiltIns;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtSourceCodeException;
 import org.ltc.hitalk.term.*;
+import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +20,11 @@ import java.util.*;
 
 import static com.thesett.aima.search.util.Searches.setOf;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static org.ltc.hitalk.core.BaseApp.appContext;
 import static org.ltc.hitalk.core.PrologBuiltIns.CALL;
 import static org.ltc.hitalk.parser.PrologAtoms.*;
+import static org.ltc.hitalk.term.ListTerm.Kind.AND;
 
 /**
  * TermUtils provides some convenient static utility methods for working with terms in first order logic.
@@ -83,13 +87,13 @@ public class TermUtilities {
      * @param query The term to calculate the free non-anonymous variable set from.
      * @return A set of variables that are free and non-anonymous in the term.
      */
-    public static Set<HtVariable> findFreeVariables(ITerm query) {
-        QueueBasedSearchMethod<ITerm, ITerm> freeVarSearch = new DepthFirstSearch<>();
+    public static <T extends ITerm<T>> Set<T> findFreeVariables(T query) {
+        QueueBasedSearchMethod<T, T> freeVarSearch = new DepthFirstSearch<>();
         freeVarSearch.reset();
         freeVarSearch.addStartState(query);
-        freeVarSearch.setGoalPredicate(new FreeVarPredicate());
+        freeVarSearch.setGoalPredicate(new FreeVarPredicate<T>());
 
-        return (Set<HtVariable>) (Set) setOf(freeVarSearch);
+        return Searches.setOf(freeVarSearch);
     }
 
     /**
@@ -99,13 +103,13 @@ public class TermUtilities {
      * @param query The term to calculate the free non-anonymous variable set from.
      * @return A set of variables that are free and non-anonymous in the term.
      */
-    public static Set<HtVariable> findFreeNonAnonVariables(ITerm query) {
-        QueueBasedSearchMethod<ITerm, ITerm> freeVarSearch = new DepthFirstSearch<>();
+    public static <T extends ITerm<T>> Set<T> findFreeNonAnonVariables(T query) {
+        QueueBasedSearchMethod<T, T> freeVarSearch = new DepthFirstSearch<>();
         freeVarSearch.reset();
         freeVarSearch.addStartState(query);
-        freeVarSearch.setGoalPredicate(new FreeNonAnonVarPredicate());
+        freeVarSearch.setGoalPredicate(new FreeNonAnonVarPredicate<T>());
 
-        return (Set<HtVariable>) (Set) setOf(freeVarSearch);
+        return setOf(freeVarSearch);
     }
 
     /**
@@ -140,7 +144,7 @@ public class TermUtilities {
 
         // Walk down the terms matching symbols and flattening them into a list of terms.
         while (mayBeMoreCommas) {
-            if (!nextTerm.isBracketed() && (nextTerm instanceof IFunctor) &&
+            if (nextTerm.isBracketed() && (nextTerm instanceof IFunctor) &&
                     symbolName == (((T) nextTerm).getName())) {
                 T op = (T) nextTerm;
                 ITerm termToExtract = op.getArgument(0);
@@ -193,7 +197,7 @@ public class TermUtilities {
 
         // Walk down the terms matching symbols and flattening them into a list of terms.
         while (mayBeMore) {
-            if (!nextTerm.isBracketed() && internedName == nextTerm.getName()) {
+            if (nextTerm.isBracketed() && internedName == nextTerm.getName()) {
                 T op = nextTerm;
                 T termToExtract = (T) op.getArgument(0);
 
@@ -287,7 +291,7 @@ public class TermUtilities {
     }
 
     public static boolean call(IFunctor functor) {
-        ListTerm lt = new ListTerm(Collections.singletonList(functor));
+        ListTerm lt = new ListTerm(singletonList(functor));
         final List<ListTerm> l = CALL.getBuiltInDef().apply(lt);
 
         return l != null && !l.isEmpty();
@@ -315,21 +319,21 @@ public class TermUtilities {
         HtClause clause = null;
         if (term instanceof IFunctor) {
             final int name = ((IFunctor) term).getName();
-            final IVafInterner interner = BaseApp.appContext.getInterner();
+            final IVafInterner interner = appContext.getInterner();
             final String fn = interner.getFunctorName(name);
             if (IMPLIES.equals(fn)) {
                 if (((IFunctor) term).getArity() == 2) {
-                    final ITerm h = ((IFunctor) term).getArgument(0);
-                    final ITerm b = ((IFunctor) term).getArgument(1);
+                    final ITerm<T> h = ((IFunctor) term).getArgument(0);
+                    final ITerm<T> b = ((IFunctor) term).getArgument(1);
                     final List<ITerm> hl = h.accept(ftv);
                     final List<ITerm> bl = b.accept(ftv);
                     bl.addAll(1, hl);
                     final IFunctor newHead = (IFunctor) hl.get(0);
-                    clause = new HtClause(newHead, new ListTerm(bl));
+                    clause = new HtClause(newHead, new ListTerm(AND, bl));
                 }
             } else {
                 final List<ITerm> hl = term.accept(ftv);
-                clause = new HtClause((IFunctor) hl.get(0), new ListTerm(hl.subList(1, hl.size())));
+                clause = new HtClause((IFunctor) hl.get(0), new ListTerm(AND, 0));
             }
         }
 
@@ -339,67 +343,50 @@ public class TermUtilities {
     /**
      *
      */
-    public static class FlattenTermVisitor implements ITermsVisitor {
-        private Map<HtVariable, ITerm> map = new HashMap<>();
+    public static class FlattenTermVisitor<T extends ITerm<T>> implements ITermsVisitor {
 
-        public List<ITerm> visit(ITerm term) throws Exception {
-            if (term instanceof IFunctor) {
-                return visit((IFunctor) term);
-            }
-            if (term instanceof ListTerm) {
-                return visit((ListTerm) term);
-            }
-            if (term instanceof HtVariable) {
-                return visit((HtVariable) term);
+        /**
+         * @param term
+         * @return
+         * @throws Exception
+         */
+        public List<ITerm<T>> visit(ITerm<T> term) throws Exception {
+            if (term instanceof IFunctor) {//topmost functor
+                IFunctor<T> f = (IFunctor) term;
+                f = new HtFunctor<>(f.getName(), new ListTerm(f.getArity()));
+                final List<ITerm<T>> l = new ArrayList<>();
+                final ListTerm<T> args = f.getArgs();
+                for (int i = 0, argSize = f.getArgs().size(); i < argSize; i++) {
+                    final List<ITerm> newlits = visit(args.getHead(i));
+                    l.addAll(newlits);
+                    args.setHead(i, newlits.get(0));
+                }
+
+                return l;
             }
 
-            return Collections.singletonList(term);
+            return singletonList(appContext.getTermFactory().newFunctor(ASSIGN, new HtVariable(), term));
         }
 
         public List<ITerm> visit(IFunctor functor) throws Exception {
-            final List<ITerm> l = new ArrayList<>();
-
-            final ListTerm args = functor.getArgs();
-            visit(functor.getArgs());
-
-            return l;
+            return new ArrayList<>(visit(functor.getArgs()));
         }
-
-//        public HtClause visit(HtClause clause) throws Exception {
-//            final List<ITerm> hl = visit(clause.getHead());
-//            final List<ITerm> bl = visit(clause.getBody());
-//            final IFunctor newHead = (IFunctor) hl.get(0);
-//            hl.addAll(1, bl);
-//            final ListTerm newBody = new ListTerm(hl);
-//
-//            return new HtClause(newHead, newBody);
-//        }
 
         public List<ITerm> visit(ListTerm list) throws Exception {
             final List<ITerm> l = list.getHeads();
             final List<ITerm> newLits = new ArrayList<>();
-            for (ITerm term : l) {
+            for (int i = 0, lSize = l.size(); i < lSize; i++) {
+                final ITerm term = l.get(i);
                 newLits.addAll(visit(term));
+                l.set(i, newLits.get(0));
             }
-            final ITerm tail = list.getTail();
-            final List<ITerm> tl = visit(tail);
+            l.addAll(visit(list.getTail()));
 
             return l;
         }
 
-        public List<ITerm> visit(HtVariable var) {
-            if (!map.containsKey(var)) {
-                map.put(var, new HtVariable());
-            }
-            return Collections.singletonList(var);
-        }
-
-        public List<ITerm> visit(IntTerm integer) {
-            return Collections.singletonList(integer);
-        }
-
-        public List<ITerm> visit(FloatTerm real) {
-            return Collections.singletonList(real);
+        public <T extends Traversable<T>> List<ITerm<T>> visit(HtBaseTerm tHtBaseTerm) {
+            return null;
         }
     }
 }

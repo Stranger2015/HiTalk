@@ -119,7 +119,8 @@ public class TermExpansionTask<T extends HtClause> extends PreCompilerTask<T> {
         final List<ITerm> l = Collections.singletonList(term);
         List<ITerm> output = new ArrayList<>();
         IntStream.range(0, getTaskQueue().size())
-                .mapToObj(i -> getTaskQueue().poll()).filter(Objects::nonNull).forEachOrdered(task -> {
+                .mapToObj(i -> getTaskQueue().poll()).filter(Objects
+                ::nonNull).forEachOrdered(task -> {
             for (ITerm iTerm : l) {
                 List<ITerm> invoke = null;
                 try {

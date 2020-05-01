@@ -42,7 +42,6 @@ public class StandardPreprocessingTask<T extends HtClause> extends PreCompilerTa
 
         output = list;
         return output;
-
     }
 
     private List<ITerm> stdPreprocess(ITerm t) throws Exception {

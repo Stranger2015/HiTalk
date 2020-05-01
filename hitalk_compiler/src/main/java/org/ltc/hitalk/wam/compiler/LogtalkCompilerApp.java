@@ -5,11 +5,13 @@ import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
 import org.ltc.hitalk.wam.compiler.prolog.PrologCompilerApp;
+import org.ltc.hitalk.wam.task.PreCompilerTask;
 
 import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 
-public class LogtalkCompilerApp<T extends HtMethod, P, Q, PC extends HiTalkWAMCompiledPredicate,
-        QC extends HiTalkWAMCompiledQuery> extends PrologCompilerApp<T, P, Q, PC, QC> {
+public class LogtalkCompilerApp<T extends HtMethod, TT extends PreCompilerTask<T>, P, Q,
+        PC extends HiTalkWAMCompiledPredicate,
+        QC extends HiTalkWAMCompiledQuery> extends PrologCompilerApp<T, TT, P, Q, PC, QC> {
 
     /**
      * @param fn
@@ -22,16 +24,16 @@ public class LogtalkCompilerApp<T extends HtMethod, P, Q, PC extends HiTalkWAMCo
      * @return
      */
     @Override
-    public Language getLanguage () {
+    public Language getLanguage() {
         return language;
     }
 
     /**
      * @param args
      */
-    public static void main ( String[] args ) {
+    public static void main(String[] args) {
         try {
-            IApplication application = new LogtalkCompilerApp <>(args[0]);
+            IApplication application = new LogtalkCompilerApp<>(args[0]);
             application.init();
             application.start();
         } catch (Exception e) {

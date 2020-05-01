@@ -267,23 +267,6 @@ class HtBasePositionalVisitor extends AbstractBaseMachine implements IAllTermsVi
 
     }
 
-//    private Collection <? extends PiCall> collectPiCalls ( HtPredicateDefinition <ISubroutine, HtPredicate, HtClause> pd ) {
-//        piCalls = new ArrayList <>();
-//        for (int i = 0; i < pd.size(); i++) {
-//            ISubroutine sub = pd.get(i);
-//            if (pd.isBuiltIn()) {
-//                continue;
-//            }
-//            HtFunctor head = sub.getHead();
-//            HtFunctor[] body = sub.getBody();
-//            int name = -1;
-//            Term[] args = EMPTY_TERM_ARRAY;
-//            piCalls.add(new PiCalls(name, args));
-//        }
-//
-//        return null;
-//    }
-
 //====================================================
 
     /**

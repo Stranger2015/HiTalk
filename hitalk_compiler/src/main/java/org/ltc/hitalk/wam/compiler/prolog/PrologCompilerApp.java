@@ -40,6 +40,7 @@ import org.ltc.hitalk.wam.compiler.Language;
 import org.ltc.hitalk.wam.compiler.Tools.Kind;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
 import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
+import org.ltc.hitalk.wam.task.PreCompilerTask;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -58,7 +59,11 @@ import static org.ltc.hitalk.wam.compiler.Tools.Kind.COMPILER;
 /**
  *
  */
-public class PrologCompilerApp<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledPredicate, QC extends HiTalkWAMCompiledQuery> extends BaseApp<T, P, Q, PC, QC> {
+public class PrologCompilerApp<T extends HtClause, TT extends PreCompilerTask<T>, P, Q,
+        PC extends HiTalkWAMCompiledPredicate,
+        QC extends HiTalkWAMCompiledQuery>
+
+        extends BaseApp<T, P, Q, PC, QC> {
 
     public static final String DEFAULT_SCRATCH_DIRECTORY = "scratch";
     public static final HtProperty[] DEFAULT_PROPS = new HtProperty[]{
@@ -77,7 +82,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC extends HiTalkWAMCom
     protected ExecutionContext executionContext = new ExecutionContext();
     protected IProduct product = new HtProduct("Copyright (c) Anton Danilov 2018-2020, All rights reserved.",
             language().getName() + " " + tool().getName(),
-            new HtVersion(0, 1, 1, 378, "", false));
+            new HtVersion(0, 1, 2, 1024, "", false));
     protected ICompilerObserver<P, Q> observer;
     protected IVafInterner interner = getAppContext().getInterner();
     protected HiTalkInputStream currentInputStream;
@@ -86,11 +91,11 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC extends HiTalkWAMCom
     /**
      * @return
      */
-    public IPreCompiler getPreCompiler() {
+    public IPreCompiler<T, TT, P, Q, PC, QC> getPreCompiler() {
         return preCompiler;
     }
 
-    protected IPreCompiler preCompiler;
+    protected IPreCompiler<T, TT, P, Q, PC, QC> preCompiler;
 
     /**
      * @param fn
@@ -99,7 +104,7 @@ public class PrologCompilerApp<T extends HtClause, P, Q, PC extends HiTalkWAMCom
         fileName = Paths.get(fn).toAbsolutePath();
         appContext.setApp(this);
         termReader = new HtTermReader(fileName,
-                getTokenSourceForPath(fileName/*, "UTF-8"*/),
+                getTokenSourceForPath(fileName),
                 appContext.getParser());
     }
 

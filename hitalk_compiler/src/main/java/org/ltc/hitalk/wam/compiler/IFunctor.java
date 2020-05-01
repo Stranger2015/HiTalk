@@ -9,7 +9,7 @@ import java.util.List;
 /**
  *
  */
-public interface IFunctor extends ITerm, IRangedArity {
+public interface IFunctor<T extends ITerm<T>> extends ITerm<T>, IRangedArity {
     /**
      * @return
      */
@@ -23,13 +23,13 @@ public interface IFunctor extends ITerm, IRangedArity {
     /**
      * @return
      */
-    List<ITerm> getArguments();
+    List<ITerm<T>> getArguments();
 
     /**
      * @param i
      * @return
      */
-    ITerm getArgument ( int i );
+    ITerm<T> getArgument(int i);
 
     /**
      * @return

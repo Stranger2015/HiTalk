@@ -7,10 +7,7 @@ import org.ltc.hitalk.compiler.IPredicateVisitor;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.interpreter.IPredicateTraverser;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.term.HtBaseTerm;
-import org.ltc.hitalk.term.HtNonVar;
-import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.term.ITermVisitor;
+import org.ltc.hitalk.term.*;
 import org.ltc.hitalk.term.io.HtMethodDef;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
@@ -109,17 +106,19 @@ class HtPredicate extends HtBaseTerm implements ITerm, IPropertyOwner {
 
     /**
      * {@inheritDoc}
+     *
+     * @return
      */
-    public Iterator <Operator <ITerm>> getChildren ( boolean reverse ) {
+    public Iterator<HtVariable> getChildren(boolean reverse) {
         if ((traverser instanceof IPredicateTraverser)) {
             return ((IPredicateTraverser) traverser).traverse(this, reverse);
         } else {
-            List <Operator <ITerm>> resultList = null;
+            List<Operator<ITerm>> resultList = null;
 
             if (!reverse) {
-                resultList = new LinkedList <>();//replace linked
+                resultList = new LinkedList<>();//replace linked
             } else {
-                resultList = new StackQueue <>();
+                resultList = new StackQueue<>();
             }
 //
 //            if (l != null) {

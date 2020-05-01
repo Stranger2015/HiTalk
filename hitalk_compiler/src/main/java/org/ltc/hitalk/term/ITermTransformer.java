@@ -38,5 +38,5 @@ public interface ITermTransformer {
      * @param term The term to transform.
      * @return A term which is a transformation of the argument.
      */
-    List <ITerm> transform ( ITerm term );
+    List<ITerm<?>> transform(ITerm<?> term);
 }

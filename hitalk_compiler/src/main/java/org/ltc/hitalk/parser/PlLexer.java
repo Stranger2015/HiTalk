@@ -270,9 +270,9 @@ public class PlLexer implements PropertyChangeListener {
      * @param token
      */
     public void unreadToken(PlToken token) {
-        if (token != BOF && token != EOF) {
+      //  if (token != BOF && token != EOF) {
             pushBackBuffer.pushBack(token);
-        }
+        //  }
     }
 
     /**
@@ -304,7 +304,6 @@ public class PlLexer implements PropertyChangeListener {
                     }
                 } else if (isDigit((char) chr)) {
                     lastToken = getNumber(chr, "");
-
                 } else {
                     kind = calcTokenKind(chr);
                     if (of(TK_RBRACE, TK_RBRACKET, TK_RPAREN).contains(kind)) {

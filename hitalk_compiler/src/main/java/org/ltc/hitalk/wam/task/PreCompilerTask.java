@@ -114,9 +114,9 @@ class PreCompilerTask<T extends HtClause> implements IInvokable<ITerm>, IHitalkO
      * @return
      */
     protected List<ITerm> invoke0(ITerm term) throws Exception {
-        if (!output.contains(term)) {
+//        if (!output.contains(term)) {
             output.add(term);
-        }
+//        }
         return output;
     }
 

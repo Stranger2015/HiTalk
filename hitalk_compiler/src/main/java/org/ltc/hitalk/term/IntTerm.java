@@ -1,6 +1,5 @@
 package org.ltc.hitalk.term;
 
-import com.thesett.aima.search.Operator;
 import org.ltc.hitalk.NumberTerm;
 import org.ltc.hitalk.compiler.IVafInterner;
 
@@ -71,13 +70,4 @@ public class IntTerm extends NumberTerm implements ITerm {
     public boolean isJavaObject() {
         return false;
     }
-
-    /**
-     * @param op
-     * @return
-     */
-    @Override
-    public ITerm getChildStateForOperator(Operator<ITerm> op) {
-        return null;
-    }//fixme
 }

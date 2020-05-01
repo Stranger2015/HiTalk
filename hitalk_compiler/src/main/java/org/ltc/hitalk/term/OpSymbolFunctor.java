@@ -17,11 +17,13 @@ package org.ltc.hitalk.term;
 
 import org.jetbrains.annotations.NotNull;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
+import org.ltc.hitalk.wam.compiler.HtFunctorName;
 
 import java.util.EnumSet;
 import java.util.List;
 
 import static java.lang.String.format;
+import static org.ltc.hitalk.core.BaseApp.appContext;
 import static org.ltc.hitalk.term.OpSymbolFunctor.Associativity.*;
 
 /**
@@ -49,15 +51,11 @@ import static org.ltc.hitalk.term.OpSymbolFunctor.Associativity.*;
  * @author Rupert Smith
  */
 public class OpSymbolFunctor extends HtFunctor implements Comparable<OpSymbolFunctor>, Cloneable {
-//    private ITerm result;
-//    private ITerm result1;
     /**
      *
      */
     protected boolean builtIn;
 
-    public int leftPriority;
-    public int rightPriority;
     /**
      * Holds the raw text name of this operator.
      */
@@ -66,81 +64,65 @@ public class OpSymbolFunctor extends HtFunctor implements Comparable<OpSymbolFun
      * Holds the associativity of this operator.
      */
     protected Associativity associativity;
-
     /**
      * Holds the priority of this operator.
      */
     protected int priority;
 
     /**
-     * @param name
      * @param textName
      * @param associativity
      * @param priority
      */
-    public OpSymbolFunctor(int name, String textName, Associativity associativity, int priority) {
-        this(name, textName, associativity, priority, true);
-    }
 
-    /**
-     * @param name
-     * @param priority
-     * @param result
-     * @param result1
-     */
-    public OpSymbolFunctor(String name, int priority, ITerm result, ITerm result1) {
-        super(-1);
-        this.textName = name;
-        this.priority = priority;
-        args.addHead(result);
-        args.addHead(result1);
-    }
-
-    public OpSymbolFunctor(String name, ITerm result) {
-        this(name, null, -1, result, null);
-    }
-
-    public OpSymbolFunctor(String image,
-                           Associativity assoc,
+//    public OpSymbolFunctor(String textName, Associativity associativity, int priority, ITerm result) {
+//        super(name);
+//
+//        this.textName = textName;
+//        this.associativity = associativity;
+//        this.priority = priority;
+//        setResult(result);
+//        setResult1(result1);
+//    }
+    public OpSymbolFunctor(String textName,
+                           int arity,
+                           Associativity associativity,
                            int priority,
                            ITerm result,
                            ITerm result1) {
-        this(image, priority, result, result1);
+        super(new HtFunctorName(textName, arity));
+
+        this.textName = textName;
+        this.associativity = associativity;
+        this.priority = priority;
+        setResult(result);
+        setResult1(result1);
+
+        setName(appContext.getInterner().internFunctorName(textName, arity));
     }
 
-    /**
-     * @param image
-     * @param yf
-     * @param yf1
-     * @param result
-     */
-    public OpSymbolFunctor(String image,
-                           Associativity yf,
-                           int yf1,
-                           ITerm result) {
-        this(image, yf, yf1, result, null);
+//    ????public OpSymbolFunctor(String textName, Associativity associativity, int priority, ITerm result, ITerm result1) {
+//        this(textName, 0, associativity, priority,result, result1);
+//    }
+//
+//    public OpSymbolFunctor(String image, Associativity hx, int i, ITerm result) {
+//        this(image, 0, hx, i, result, null);
+//    }
+
+    protected void setName(int name) {
+        this.name = name;
     }
 
-
-    public int getLeftPriority() {
-        return leftPriority;
+    private void setResult1(ITerm result1) {
+        if (getArguments().size() == 1) {
+            getArguments().add(result1);
+        }
+        setArgument(1, result1);
     }
 
-    public int getRightPriority() {
-        return rightPriority;
+    private void setResult(ITerm result) {
+        setArgument(0, result);
     }
-
-    /**
-     * @param name
-     */
-    public OpSymbolFunctor(String name) {
-        this(name, null, -1, null, null);
-    }
-
-    public OpSymbolFunctor(String name, ITerm result, ITerm result1) {
-        this(name, null, -1, result, result1);
-    }
-
 
     /**
      * @return
@@ -161,18 +143,8 @@ public class OpSymbolFunctor extends HtFunctor implements Comparable<OpSymbolFun
                            Associativity associativity,
                            int priority,
                            boolean builtIn) {
-        super(name, new ListTerm(associativity.arity));
-        this.priority = priority;
+        this(textName, 0, associativity, priority, null, null);
         this.builtIn = builtIn;
-
-        // Check that there is at least one and at most two arguments.
-        if (args.size() < 1 || args.size() > 2) {
-            throw new IllegalArgumentException("An operator has minimum 1 and maximum 2 arguments.");
-        }
-
-        this.textName = textName;
-        this.priority = priority;
-        this.associativity = associativity;
     }
 
     /**
@@ -329,19 +301,6 @@ public class OpSymbolFunctor extends HtFunctor implements Comparable<OpSymbolFun
         return leftOps.contains(associativity);
     }
 
-//    /**
-//     * Compares this object with the specified object for order, providing a negative integer, zero, or a positive
-//     * integer as this symbols priority is less than, equal to, or greater than the comparator. If this symbol is 'less'
-//     * than another that means that it has a lower priority value, which means that it binds more tightly.
-//     *
-//     * @param o The object to be compared with.
-//     * @return A negative integer, zero, or a positive integer as this symbols priority is less than, equal to, or
-//     * greater than the comparator.
-//     */
-//    public int compareTo ( Object o ) {
-//        return priority - ((HlOpSymbol) o).priority;
-//    }
-
     /**
      * Provides a copied clone of the symbol. The available symbols that a parser recognizes may be set up in a symbol
      * table. When an instance of a symbol is encountered it may be desireable to copy the symbol from the table. Using
@@ -413,7 +372,7 @@ public class OpSymbolFunctor extends HtFunctor implements Comparable<OpSymbolFun
      * <tt>0</tt>, or <tt>1</tt> according to whether the value of
      * <i>expression</i> is negative, zero or positive.
      *
-     * @param o the object to be compared.
+     be compared.
      * @return a negative integer, zero, or a positive integer as this object
      * is less than, equal to, or greater than the specified object.
      * @throws NullPointerException if the specified object is null
@@ -466,19 +425,11 @@ public class OpSymbolFunctor extends HtFunctor implements Comparable<OpSymbolFun
         fx(1), fy(1),
         hx(1), hy(1),
 
-        /**
-         * 前置演算子です。
-         */
         xf(1), yf(1),
 
-        /**
-         * オペランドを表現します。
-         */
+
         x(0);
 
-        /**
-         * この演算子が結合する項数です。
-         */
         public int arity;
 
         Associativity(int arity) {

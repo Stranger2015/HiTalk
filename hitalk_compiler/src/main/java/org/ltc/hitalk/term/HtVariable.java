@@ -15,7 +15,10 @@
  */
 package org.ltc.hitalk.term;
 
+import com.thesett.aima.search.Operator;
+import com.thesett.aima.search.Traversable;
 import com.thesett.common.util.doublemaps.SymbolKey;
+import org.jetbrains.annotations.NotNull;
 import org.ltc.hitalk.compiler.IVafInterner;
 
 import java.util.List;
@@ -36,7 +39,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author Rupert Smith
  */
-public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingContext <HtVariable>, Comparable <HtVariable> {
+public class HtVariable<T extends HtVariable<T>> extends HtBaseTerm<T>
+        implements ITerm<T>, IVariableBindingContext<T>, Comparable<T>, Traversable<T> {
     /**
      * A generator of unique variable id's.
      */
@@ -51,7 +55,7 @@ public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingCon
     /**
      * The term against which this variable is currently unified. <tt>null</tt> when the variable is free.
      */
-    protected ITerm substitution;
+    protected ITerm<T> substitution;
 
     /**
      * Used to indicate that a variable is anonymous.
@@ -72,13 +76,13 @@ public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingCon
      * @param substitution The substitution to create the variable with, use <tt>null</tt> for a free variable.
      * @param anonymous    <tt>true</tt> if the variable is anonymous.
      */
-    public HtVariable ( int name, ITerm substitution, boolean anonymous ) {
+    public HtVariable(int name, ITerm<T> substitution, boolean anonymous) {
         this.name = name;
         this.substitution = substitution;
         this.anonymous = anonymous;
     }
 
-    public HtVariable () {
+    public HtVariable() {
         anonymous = true;
         name = id;
     }
@@ -88,7 +92,7 @@ public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingCon
      *
      * @return This variables binding context.
      */
-    public IVariableBindingContext <HtVariable> getBindingContext () {
+    public IVariableBindingContext<T> getBindingContext() {
         return this;
     }
 
@@ -99,8 +103,15 @@ public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingCon
      * @param variable The variable to get the storage cell for.
      * @return The storage cell where the specified variable sets its bindings.
      */
-    public HtVariable getStorageCell ( HtVariable variable ) {
+    public HtVariable<T> getStorageCell(T variable) {
         return this;
+    }
+
+    /**
+     * @return
+     */
+    public boolean isList() {
+        return false;
     }
 
     /**
@@ -108,7 +119,7 @@ public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingCon
      *
      * @return <tt>false</tt> always.
      */
-    public boolean isNumber () {
+    public boolean isNumber() {
         ITerm t = getValue();
 
         return (t != this) && t.isNumber();
@@ -119,7 +130,7 @@ public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingCon
      *
      * @return <tt>true</tt> always.
      */
-    public boolean isVar () {
+    public boolean isVar() {
         return true;
     }
 
@@ -129,7 +140,7 @@ public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingCon
      *
      * @return <tt>true</tt> if this term is constant, <tt>false</tt> otherwise.
      */
-    public boolean isConstant () {
+    public boolean isConstant() {
         ITerm t = getValue();
 
         return (t != this) && t.isConstant();
@@ -141,7 +152,7 @@ public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingCon
      *
      * @return <tt>true</tt> if this term is compound, <tt>fals</tt> otherwise.
      */
-    public boolean isCompound () {
+    public boolean isCompound() {
         ITerm t = getValue();
 
         return (t != this) && t.isCompound();
@@ -153,7 +164,7 @@ public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingCon
      *
      * @return <tt>true</tt> if this variable has been assigned atomic value, <tt>false</tt> otherwise.
      */
-    public boolean isAtom () {
+    public boolean isAtom() {
         ITerm t = getValue();
 
         return (t != this) && t.isAtom();
@@ -165,21 +176,21 @@ public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingCon
      *
      * @return <tt>true</tt> if this variable has been assigned a ground term, <tt>false</tt> othewise.
      */
-    public boolean isGround () {
+    public boolean isGround() {
         ITerm t = getValue();
 
         return (t != this) && t.isGround();
     }
 
     @Override
-    public boolean isHiLog () {
+    public boolean isHiLog() {
         return false;
     }
 
     /**
      * @return
      */
-    public boolean isJavaObject () {
+    public boolean isJavaObject() {
         return false;
     }
 
@@ -189,7 +200,7 @@ public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingCon
      *
      * @return The term itself, or the assigned value of this variable.
      */
-    public ITerm getValue () {
+    public ITerm getValue() {
         ITerm result = this;
         ITerm assignment = this.substitution;
 
@@ -211,7 +222,7 @@ public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingCon
     /**
      * Frees all assigned variables in the term, leaving them unnassigned.
      */
-    public void free () {
+    public void free() {
         substitution = null;
     }
 
@@ -220,7 +231,7 @@ public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingCon
      *
      * @return <tt>true</tt> if this is an anonymous variable, <tt>false</tt> otherwise.
      */
-    public boolean isAnonymous () {// consider usage name<0 or name == intern("_")?????
+    public boolean isAnonymous() {// consider usage name<0 or name == intern("_")?????
         return anonymous;
     }
 
@@ -229,7 +240,7 @@ public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingCon
      *
      * @return <tt>true</tt> if this variable has been assigned a value, <tt>false</tt> otherwise.
      */
-    public boolean isBound () {
+    public boolean isBound() {
         return substitution != null;
     }
 
@@ -238,7 +249,7 @@ public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingCon
      *
      * @return The value to which this variable has been bound, or <tt>null</tt> if it is free.
      */
-    public ITerm getSubstitution () {
+    public ITerm getSubstitution() {
         return substitution;
     }
 
@@ -247,12 +258,12 @@ public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingCon
      *
      * @param term The value to bind this variable to.
      */
-    public void setSubstitution ( ITerm term ) {
-        ITerm termToBindTo = term;
+    public void setSubstitution(ITerm<T> term) {
+        ITerm<T> termToBindTo = term;
 
         // When binding against a variable, always bind to its storage cell and not the variable itself.
         if (termToBindTo instanceof HtVariable) {
-            HtVariable variableToBindTo = (HtVariable) term;
+            HtVariable<T> variableToBindTo = (HtVariable) term;
             termToBindTo = variableToBindTo.getStorageCell(variableToBindTo);
         }
 
@@ -264,14 +275,14 @@ public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingCon
      *
      * @return The name of this variable.
      */
-    public int getName () {
+    public int getName() {
         return name;
     }
 
     /**
      * {@inheritDoc}
      */
-    public void accept ( ITermVisitor visitor ) {
+    public void accept(ITermVisitor visitor) {
         if (visitor instanceof IVariableVisitor) {
             ((IVariableVisitor) visitor).visit(this);
         } else {
@@ -282,7 +293,7 @@ public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingCon
     /**
      * {@inheritDoc}
      */
-    public List <ITerm> acceptTransformer ( ITermTransformer transformer ) {
+    public List<ITerm> acceptTransformer(ITermTransformer transformer) {
         if (transformer instanceof IVariableTransformer) {
             return ((IVariableTransformer) transformer).transform(this);
         } else {
@@ -299,7 +310,7 @@ public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingCon
      * @param term The term to compare with this one for structural equality.
      * @return <tt>true</tt> if the two terms are structurally eqaul, <tt>false</tt> otherwise.
      */
-    public boolean structuralEquals ( ITerm term ) {
+    public boolean structuralEquals(ITerm term) {
         ITerm comparator = term.getValue();
         ITerm value = getValue();
 
@@ -316,14 +327,14 @@ public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingCon
      * <p>
      * <p/>Orders variables by interned name.
      */
-    public int compareTo ( HtVariable o ) {
-        return Integer.compare(name, o.name);
-    }
+//    public int compareTo(HtVariable o) {
+//        return Integer.compare(name, o.name);
+//    }
 
     /**
      * {@inheritDoc}
      */
-    public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
+    public String toString(IVafInterner interner, boolean printVarName, boolean printBindings) {
         ITerm value = null;
 
         String textName;
@@ -352,7 +363,7 @@ public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingCon
      *
      * @return The unique id for this variable.
      */
-    public int getId () {
+    public int getId() {
         return id;
     }
 
@@ -366,7 +377,76 @@ public class HtVariable extends HtBaseTerm implements ITerm, IVariableBindingCon
                 " ]";
     }
 
+    /**
+     * {@inheritDoc}
+     */
+
     public SymbolKey getSymbolKey() {
         return key;
+    }
+
+    /**
+     * Returns the state obtained by applying the specified operation. If the operation is not valid then this may
+     * return <tt>null</tt>. The effect of the operator on the child state does not have to be evaluated immediately. It
+     * can be done when this method is called, or when the goal predicate is evaluated.
+     *
+     * @param op The operator to apply to the traversable state.
+     * @return The new traversable state generated by applying the specified operator.
+     */
+    public Traversable<T> getChildStateForOperator(Operator<T> op) {
+        return op.getOp();
+    }
+
+    /**
+     * Compares this object with the specified object for order.  Returns a
+     * negative integer, zero, or a positive integer as this object is less
+     * than, equal to, or greater than the specified object.
+     *
+     * <p>The implementor must ensure <tt>sgn(x.compareTo(y)) ==
+     * -sgn(y.compareTo(x))</tt> for all <tt>x</tt> and <tt>y</tt>.  (This
+     * implies that <tt>x.compareTo(y)</tt> must throw an exception iff
+     * <tt>y.compareTo(x)</tt> throws an exception.)
+     *
+     * <p>The implementor must also ensure that the relation is transitive:
+     * <tt>(x.compareTo(y)&gt;0 &amp;&amp; y.compareTo(z)&gt;0)</tt> implies
+     * <tt>x.compareTo(z)&gt;0</tt>.
+     *
+     * <p>Finally, the implementor must ensure that <tt>x.compareTo(y)==0</tt>
+     * implies that <tt>sgn(x.compareTo(z)) == sgn(y.compareTo(z))</tt>, for
+     * all <tt>z</tt>.
+     *
+     * <p>It is strongly recommended, but <i>not</i> strictly required that
+     * <tt>(x.compareTo(y)==0) == (x.equals(y))</tt>.  Generally speaking, any
+     * class that implements the <tt>Comparable</tt> interface and violates
+     * this condition should clearly indicate this fact.  The recommended
+     * language is "Note: this class has a natural ordering that is
+     * inconsistent with equals."
+     *
+     * <p>In the foregoing description, the notation
+     * <tt>sgn(</tt><i>expression</i><tt>)</tt> designates the mathematical
+     * <i>signum</i> function, which is defined to return one of <tt>-1</tt>,
+     * <tt>0</tt>, or <tt>1</tt> according to whether the value of
+     * <i>expression</i> is negative, zero or positive.
+     *
+     * @param o the object to be compared.
+     * @return a negative integer, zero, or a positive integer as this object
+     * is less than, equal to, or greater than the specified object.
+     * @throws NullPointerException if the specified object is null
+     * @throws ClassCastException   if the specified object's type prevents it
+     *                              from being compared to this object.
+     */
+    public int compareTo(@NotNull T o) {
+        return getId() - o.getId();
+    }
+
+    /**
+     * Provides the storage cell for the specified variable. Some types of variable may defer their storage onto a
+     * storage cell other than themselves, other variable types may simply return themselves as their own storage cells.
+     *
+     * @param variable The variable to get the storage cell for.
+     * @return The storage cell where the specified variable sets its bindings.
+     */
+    public HtVariable<T> getStorageCell(T variable) {
+        return this;
     }
 }

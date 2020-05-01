@@ -17,21 +17,14 @@ import static com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys.SYMKEY_FUN
 import static com.thesett.aima.logic.fol.wam.compiler.SymbolTableKeys.SYMKEY_VAR_LAST_ARG_FUNCTOR;
 
 public class HtPositionAndOccurrenceVisitor extends HtBasePositionalVisitor {
+    /**
+     * @return
+     */
     public IPositionalTermTraverser getPositionalTraverser() {
         return positionalTraverser;
     }
 
     protected IPositionalTermTraverser positionalTraverser;
-
-//    public HtPositionAndOccurrenceVisitor ( IVafInterner interner,
-//                                            SymbolTable <Integer, String, Object> symbolTable,
-//                                            IPositionalTermTraverser positionalTraverser ) {
-//        super(symbolTable, interner);
-//        this.positionalTraverser = positionalTraverser;
-//    }
-
-    // Used for debugging.
-    /* private static final Logger log = Logger.getLogger(PositionAndOccurrenceVisitor.class.getName()); */
 
     /**
      * Holds the current top-level body functor. <tt>null</tt> when traversing the head.

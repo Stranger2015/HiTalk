@@ -17,6 +17,7 @@ package org.ltc.hitalk.term;
 
 import com.thesett.aima.logic.fol.*;
 import com.thesett.aima.search.Operator;
+import com.thesett.aima.search.Traversable;
 import com.thesett.aima.search.util.backtracking.ReTraversable;
 import com.thesett.aima.search.util.backtracking.Reversable;
 import com.thesett.common.util.doublemaps.SymbolKey;
@@ -84,7 +85,8 @@ import java.util.List;
  *
  * @author Rupert Smith
  */
-public interface ITerm extends ReTraversable<ITerm>, Operator<ITerm> {
+public interface ITerm<T extends Traversable<T>> extends ReTraversable<T>, Operator<T>, Traversable<T> {
+
 
     ITerm[] EMPTY_TERM_ARRAY = new ITerm[0];
 
@@ -155,7 +157,7 @@ public interface ITerm extends ReTraversable<ITerm>, Operator<ITerm> {
      *
      * @return The term itself, or the assigned value for variables.
      */
-    default ITerm getValue() {
+    default ITerm<T> getValue() {
         return this;
     }
 
@@ -197,7 +199,7 @@ public interface ITerm extends ReTraversable<ITerm>, Operator<ITerm> {
      *
      * @return A copy of this term, with entirely independent variables to the term it was copied from.
      */
-    ITerm queryConversion();
+    ITerm<T> queryConversion();
 
     /**
      * Allows a reversable operator to be set upon the term, so that context can be established or cleared as terms are
@@ -214,6 +216,8 @@ public interface ITerm extends ReTraversable<ITerm>, Operator<ITerm> {
      */
     void setTermTraverser(TermTraverser traverser);
 
+    Iterator<Operator<T>> validOperators(boolean reverse);
+
     /**
      * Provides an iterator over the child terms, if there are any. Only functors are compound, and build across a list
      * of child arguments.
@@ -221,7 +225,7 @@ public interface ITerm extends ReTraversable<ITerm>, Operator<ITerm> {
      * @param reverse Set, if the children should be presented in reverse order.
      * @return The sub-terms of a compound term.
      */
-    Iterator<Operator<ITerm>> getChildren(boolean reverse);
+    Iterator<T> getChildren(boolean reverse);
 
     /**
      * Provides the source code position that this term was parsed from.
@@ -239,7 +243,7 @@ public interface ITerm extends ReTraversable<ITerm>, Operator<ITerm> {
     void setSourceCodePosition(ISourceCodePosition sourceCodePosition);
 
     /**
-     * Reports whether this term is the top-level term in a bracketed expression, and therefore requires no fruther
+     * Reports whether this term is the top-level term in a bracketed expression, and therefore requires no further
      * reduction outside of the brackets.
      *
      * @return <tt>true</tt> if this term is bracketed, <tt>false</tt> if not.
@@ -260,7 +264,7 @@ public interface ITerm extends ReTraversable<ITerm>, Operator<ITerm> {
      */
     void accept(ITermVisitor visitor);
 
-    List<ITerm> accept(FlattenTermVisitor visitor) throws Exception;
+    List<ITerm<T>> accept(FlattenTermVisitor visitor) throws Exception;
 
     /**
      * Applies a term to term transformation function over the term tree, recursively from this point downwards. This is
@@ -270,7 +274,7 @@ public interface ITerm extends ReTraversable<ITerm>, Operator<ITerm> {
      * @param transformer The transformation function to apply.
      * @return The transformed term tree.
      */
-    List<ITerm> acceptTransformer(ITermTransformer transformer);
+    List<ITerm<T>> acceptTransformer(ITermTransformer transformer);
 
     /**
      * Pretty prints a term relative to the symbol namings provided by the specified interner.
@@ -293,7 +297,7 @@ public interface ITerm extends ReTraversable<ITerm>, Operator<ITerm> {
      * @param term The term to compare with this one for structural equality.
      * @return <tt>true</tt> if the two terms are structurally eqaul, <tt>false</tt> otherwise.
      */
-    boolean structuralEquals(ITerm term);
+    boolean structuralEquals(ITerm<T> term);
 
     /**
      * @return
