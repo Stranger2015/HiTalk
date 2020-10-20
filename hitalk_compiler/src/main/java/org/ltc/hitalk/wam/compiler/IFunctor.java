@@ -23,13 +23,13 @@ public interface IFunctor<T extends ITerm<T>> extends ITerm<T>, IRangedArity {
     /**
      * @return
      */
-    List<ITerm<T>> getArguments();
+    List<T> getArguments();
 
     /**
      * @param i
      * @return
      */
-    ITerm<T> getArgument(int i);
+    T getArgument(int i);
 
     /**
      * @return
@@ -46,13 +46,13 @@ public interface IFunctor<T extends ITerm<T>> extends ITerm<T>, IRangedArity {
 
     String toStringArguments();
 
-    void setArgument(int i, ITerm term);
+    void setArgument(int i, T term);
 
-    void setArguments(List<ITerm> terms);
+    void setArguments(List<T> terms);
 
     default boolean isListTerm() {
         return false;
     }
 
-    ListTerm getArgs();
+    ListTerm<T> getArgs();
 }

@@ -25,7 +25,7 @@ package org.ltc.hitalk.term;
  *
  * @author Rupert Smith
  */
-public interface IVariableBindingContext<V extends HtVariable<V>> {
+public interface IVariableBindingContext<V extends ITerm<V>> {
     /**
      * Provides the storage cell for the specified variable. Some types of variable may defer their storage onto a
      * storage cell other than themselves, other variable types may simply return themselves as their own storage cells.
@@ -33,5 +33,5 @@ public interface IVariableBindingContext<V extends HtVariable<V>> {
      * @param variable The variable to get the storage cell for.
      * @return The storage cell where the specified variable sets its bindings.
      */
-    HtVariable<V> getStorageCell(V variable);
+    V getStorageCell(V variable);
 }

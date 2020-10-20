@@ -4,7 +4,6 @@ import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.parser.HtPrologParser;
-import org.ltc.hitalk.term.io.HiTalkInputStream;
 
 /**
  *
@@ -22,4 +21,5 @@ public class LogtalkParser extends HtPrologParser {
                          IOperatorTable optable) throws Exception {
         super(stream, interner, factory, optable);
     }
+
 }

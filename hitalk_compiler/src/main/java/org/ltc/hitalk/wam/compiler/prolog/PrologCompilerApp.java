@@ -25,30 +25,24 @@ import org.ltc.hitalk.entities.HtProperty;
 import org.ltc.hitalk.entities.context.CompilationContext;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.LoadContext;
+import org.ltc.hitalk.gnu.prolog.io.TermReader;
+import org.ltc.hitalk.gnu.prolog.io.TermWriter;
 import org.ltc.hitalk.interpreter.HtProduct;
-import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.parser.IParser;
 import org.ltc.hitalk.parser.PlLexer;
-import org.ltc.hitalk.term.io.HiTalkInputStream;
-import org.ltc.hitalk.term.io.HiTalkOutputStream;
-import org.ltc.hitalk.term.io.HtTermReader;
-import org.ltc.hitalk.term.io.HtTermWriter;
 import org.ltc.hitalk.wam.compiler.CompilerFactory;
 import org.ltc.hitalk.wam.compiler.ICompilerFactory;
 import org.ltc.hitalk.wam.compiler.Language;
 import org.ltc.hitalk.wam.compiler.Tools.Kind;
-import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledPredicate;
-import org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMCompiledQuery;
-import org.ltc.hitalk.wam.task.PreCompilerTask;
 
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
 import static java.util.EnumSet.of;
-import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 import static org.ltc.hitalk.core.Components.INTERNER;
 import static org.ltc.hitalk.core.Components.WAM_COMPILER;
 import static org.ltc.hitalk.parser.Directive.DirectiveKind.DK_IF;
@@ -59,21 +53,17 @@ import static org.ltc.hitalk.wam.compiler.Tools.Kind.COMPILER;
 /**
  *
  */
-public class PrologCompilerApp<T extends HtClause, TT extends PreCompilerTask<T>, P, Q,
-        PC extends HiTalkWAMCompiledPredicate,
-        QC extends HiTalkWAMCompiledQuery>
-
-        extends BaseApp<T, P, Q, PC, QC> {
+public class PrologCompilerApp extends BaseApp {
 
     public static final String DEFAULT_SCRATCH_DIRECTORY = "scratch";
     public static final HtProperty[] DEFAULT_PROPS = new HtProperty[]{
     };
 
-    protected HtTermReader termReader;
-    protected HtTermWriter termWriter;// = new HtTermWriter();
+    protected TermReader termReader;
+    protected TermWriter termWriter;// = new HtTermWriter();
 
     protected DefaultFileSystemManager fsManager;
-    protected PrologWAMCompiler<T, P, Q, PC, QC> wamCompiler;
+    protected PrologWAMCompiler wamCompiler;
     protected LibraryLoader loader = new LibraryLoader();
 
     protected Path scratchDirectory = Paths.get(DEFAULT_SCRATCH_DIRECTORY).toAbsolutePath();
@@ -85,17 +75,17 @@ public class PrologCompilerApp<T extends HtClause, TT extends PreCompilerTask<T>
             new HtVersion(0, 1, 2, 1024, "", false));
     protected ICompilerObserver<P, Q> observer;
     protected IVafInterner interner = getAppContext().getInterner();
-    protected HiTalkInputStream currentInputStream;
-    protected HiTalkOutputStream currentOutputStream;
+//    protected HiTalkInputStream currentInputStream;
+//    protected HiTalkOutputStream currentOutputStream;
 
     /**
      * @return
      */
-    public IPreCompiler<T, TT, P, Q, PC, QC> getPreCompiler() {
+    public IPreCompiler getPreCompiler() {
         return preCompiler;
     }
 
-    protected IPreCompiler<T, TT, P, Q, PC, QC> preCompiler;
+    protected IPreCompiler preCompiler;
 
     /**
      * @param fn
@@ -103,7 +93,7 @@ public class PrologCompilerApp<T extends HtClause, TT extends PreCompilerTask<T>
     public PrologCompilerApp(String fn) throws Exception {
         fileName = Paths.get(fn).toAbsolutePath();
         appContext.setApp(this);
-        termReader = new HtTermReader(fileName,
+        termReader = new TermReader(new FileReader(fn), NEW);
                 getTokenSourceForPath(fileName),
                 appContext.getParser());
     }

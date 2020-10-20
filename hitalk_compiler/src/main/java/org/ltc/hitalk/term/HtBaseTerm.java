@@ -160,7 +160,7 @@ public abstract class HtBaseTerm<T extends ITerm<T>> extends TraversableState<T>
      * @return
      */
     public T getOp() {
-        return (T) new HtVariable<>();
+        return getValue().getOp();
     }
 
     /**
@@ -237,14 +237,14 @@ public abstract class HtBaseTerm<T extends ITerm<T>> extends TraversableState<T>
         visitor.visit(this);
     }
 
-    public List<ITerm<T>> accept(FlattenTermVisitor visitor) throws Exception {
-        return visitor.visit(this);
+    public List<T> accept(FlattenTermVisitor<T> visitor) throws Exception {
+        return visitor.visit((T) this);
     }
 
     /**
      * {@inheritDoc}
      */
-    public List<ITerm<T>> acceptTransformer(ITermTransformer transformer) {
+    public List<T> acceptTransformer(ITermTransformer<T> transformer) {
         return transformer.transform(this);
     }
 
@@ -259,7 +259,7 @@ public abstract class HtBaseTerm<T extends ITerm<T>> extends TraversableState<T>
      * @return A pretty printed string containing the term.
      */
     public String toString(IVafInterner interner, boolean printVarName, boolean printBindings) {
-        return null;
+        return ""+getClass();
     }
 
     @Override
@@ -269,8 +269,9 @@ public abstract class HtBaseTerm<T extends ITerm<T>> extends TraversableState<T>
 
     /**
      * {@inheritDoc}
+     * @param term
      */
-    public boolean structuralEquals(ITerm term) {
+    public boolean structuralEquals(ITerm<?> term) {
         return this.equals(term);
     }
 

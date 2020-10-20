@@ -26,12 +26,11 @@ import static java.util.Arrays.asList;
 import static org.ltc.hitalk.core.BaseApp.getAppContext;
 import static org.ltc.hitalk.parser.HiLogParser.HILOG_APPLY_STRING;
 import static org.ltc.hitalk.parser.HtPrologParser.ANONYMOUS;
-import static org.ltc.hitalk.term.ListTerm.NIL;
 
 /**
  *
  */
-public class TermFactory implements ITermFactory {
+ public class TermFactory implements ITermFactory {
 
     private IVafInterner interner;
 
@@ -124,7 +123,7 @@ public class TermFactory implements ITermFactory {
 
     public IFunctor newAtom(TokenKind lDelim, TokenKind rDelim) {
         String s = String.format("%s%s", lDelim.getImage(), rDelim.getImage());
-        return new HtFunctor(interner.internFunctorName(s, 0), NIL);
+        return new HtFunctor(interner.internFunctorName(s, 0), 0);
     }
 
 
@@ -147,7 +146,7 @@ public class TermFactory implements ITermFactory {
 
     public IFunctor createMostGeneralHiLog(IFunctor functor) throws Exception {
         List<ITerm> heads = functor.getArguments();
-        return newHiLogFunctor(functor.getArgs().getHeads().get(0), newListTerm(Kind.ARGS, heads));
+        return newHiLogFunctor(String.valueOf(functor.getArgs().getHeads().get(0)), newListTerm(Kind.ARGS, heads));
     }
 
     /**
@@ -155,18 +154,13 @@ public class TermFactory implements ITermFactory {
      * @param arity
      * @return
      */
-    public IFunctor newFunctor(int name, int arity) {
-        return new HtFunctor(name, new ListTerm(arity));
+    public IFunctor<?> newFunctor(int name, int arity) {
+        return new HtFunctor<>(name, arity);
     }
 
-//    @Override
-//    public IFunctor newFunctor(ITerm name, ListTerm args) {
-//        return newHiLogFunctor(args.addHeads(name, new IntTerm(HILOG_APPLY_INT)));
-//    }
-
-    @Override
-    public IFunctor newHiLogFunctor(ITerm name, ListTerm args) {
-        final List<ITerm> heads = new ArrayList<>(args.getHeads());
+     @Override
+    public IFunctor<?> newHiLogFunctor(ITerm name, ListTerm args) {
+        final List<ITerm<?>> heads = new ArrayList<>(args.getHeads());
         heads.add(name);
         return new HiLogFunctor(new ListTerm(heads));
     }
@@ -195,6 +189,11 @@ public class TermFactory implements ITermFactory {
 
     public IFunctor newFunctor(String assign, HtVariable htVariable, ITerm term) {
         return newFunctor(assign, new ListTerm(asList(htVariable, term)));
+    }
+
+    public IFunctor newFunctor(String image, int arity) {
+      int n=  interner.internFunctorName(image, arity);
+        return newFunctor(n, arity);
     }
 
     // commodity methods to parse numbers
@@ -248,7 +247,7 @@ public class TermFactory implements ITermFactory {
     @Override
     public IFunctor createAtom(String s) {
         int ffn = interner.internFunctorName(s, 0);
-        return new HtFunctor(ffn, NIL);
+        return new HtFunctor(ffn, 0);
     }
 
     /**

@@ -40,7 +40,7 @@ public class IntTerm extends NumberTerm implements ITerm {
         return toString();
     }
 
-    public boolean structuralEquals(ITerm term) {
+    public boolean structuralEquals(ITerm<?> term) {
         return false;
     }
 

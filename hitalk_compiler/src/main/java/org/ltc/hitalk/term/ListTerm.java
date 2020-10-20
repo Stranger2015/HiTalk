@@ -5,26 +5,29 @@ import com.thesett.aima.search.Traversable;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.utils.TermUtilities;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
-import static java.util.Collections.emptyList;
+import static org.ltc.hitalk.term.ListTerm.Kind.LIST;
 
 /**
  *
  */
 public class ListTerm<T extends ITerm<T>> extends HtBaseTerm<T> {
-    public static final ListTerm<?> NIL = new ListTerm<>(emptyList());
+  //  public final ListTerm<T> NIL = new ListTerm<>(emptyList());
 
     /**
      * @param arg
      */
-    public ListTerm(ITerm arg) {
+    public ListTerm(T arg) {
         addHead(arg);
     }
 
     public ListTerm(Kind kind, int arity) {
         this.kind = kind;
-        this.heads.addAll(Arrays.asList(new ITerm[arity]));
+        //this.heads.addAll(Arrays.asList(new ITerm[arity]));fixme
     }
 
     public Kind getKind() {
@@ -32,20 +35,20 @@ public class ListTerm<T extends ITerm<T>> extends HtBaseTerm<T> {
     }
 
     protected Kind kind;//fixme encode in name
-    final List<ITerm> heads = new ArrayList<>();
+    final List<T> heads = new ArrayList<>();
 
     /**
      * @param arity
      */
     public ListTerm(int arity) {
-        this(Kind.LIST, arity);
+        this(LIST, arity);
     }
 
     /**
      * @param kind
      * @param terms
      */
-    public ListTerm(Kind kind, ListTerm terms) {
+    public ListTerm(Kind kind, ListTerm<T> terms) {
         this.kind = kind;
         heads.clear();
         heads.addAll(terms.getHeads());
@@ -55,7 +58,7 @@ public class ListTerm<T extends ITerm<T>> extends HtBaseTerm<T> {
      * @param kind
      * @param headTail
      */
-    public ListTerm(Kind kind, List<ITerm> headTail) {
+    public ListTerm(Kind kind, List<T> headTail) {
         this.kind = kind;
         heads.clear();
         heads.addAll(headTail);
@@ -65,7 +68,7 @@ public class ListTerm<T extends ITerm<T>> extends HtBaseTerm<T> {
      * @param names
      * @return
      */
-    public List<ITerm> addHeads(int... names) {
+    public List<T> addHeads(int... names) {
         for (final int name : names) {
             addHead(name);
         }
@@ -78,7 +81,7 @@ public class ListTerm<T extends ITerm<T>> extends HtBaseTerm<T> {
      */
     public int addHead(int i) {
         final IntTerm t = new IntTerm(i);
-        heads.add(t);
+        heads.add((T) t);
         return i;
     }
 
@@ -86,8 +89,8 @@ public class ListTerm<T extends ITerm<T>> extends HtBaseTerm<T> {
      * @param names
      * @return
      */
-    public List<ITerm> addHeads(ITerm... names) {
-        for (final ITerm name : names) {
+    public List<T> addHeads(T... names) {
+        for (final T name : names) {
             addHead(name);
         }
         return heads;
@@ -97,7 +100,7 @@ public class ListTerm<T extends ITerm<T>> extends HtBaseTerm<T> {
      * @param names
      * @return
      */
-    public List<ITerm> addHead(ITerm... names) {
+    public List<T> addHead(T... names) {
         Collections.addAll(heads, names);
         return heads;
     }
@@ -105,12 +108,12 @@ public class ListTerm<T extends ITerm<T>> extends HtBaseTerm<T> {
     /**
      * @param heads
      */
-    public ListTerm(final List<ITerm> heads) {
+    public ListTerm(final List<T> heads) {
         int bound = this.getHeads().size();
         for (int i = 0; i < bound; i++) {
             this.heads.add(heads.get(i));
         }
-        this.heads.add(NIL);
+        this.newTail(false);
     }
 
     /**
@@ -118,7 +121,7 @@ public class ListTerm<T extends ITerm<T>> extends HtBaseTerm<T> {
      * @param tail
      * @param heads
      */
-    public ListTerm(Kind kind, List<ITerm> heads, ITerm tail) {
+    public ListTerm(Kind kind, List<T> heads, T tail) {
         this.kind = kind;
         heads.add(tail);
         setHeads(heads);
@@ -128,8 +131,8 @@ public class ListTerm<T extends ITerm<T>> extends HtBaseTerm<T> {
      * @param heads
      * @param tail
      */
-    public ListTerm(List<ITerm> heads, ITerm tail) {
-        this(Kind.LIST, heads, tail);
+    public ListTerm(List<T> heads, T tail) {
+        this(LIST, heads, tail);
     }
 
     /**
@@ -137,7 +140,7 @@ public class ListTerm<T extends ITerm<T>> extends HtBaseTerm<T> {
      *
      * @return
      */
-    public List<ITerm> getHeads() {
+    public List<T> getHeads() {
         return heads;
     }
 
@@ -158,7 +161,7 @@ public class ListTerm<T extends ITerm<T>> extends HtBaseTerm<T> {
     /**
      * @return
      */
-    public ITerm getTail() {
+    public T getTail() {
         return TermUtilities.getLast(heads);
     }
 
@@ -166,7 +169,7 @@ public class ListTerm<T extends ITerm<T>> extends HtBaseTerm<T> {
      * @param i
      * @return
      */
-    public ITerm getHead(int i) {
+    public T getHead(int i) {
         return getHeads().get(i);
     }
 
@@ -182,13 +185,13 @@ public class ListTerm<T extends ITerm<T>> extends HtBaseTerm<T> {
      * @param i
      * @param term
      */
-    public void setHead(int i, ITerm term) {
+    public void setHead(int i, T term) {
         if (isConjunction(term)) {
             getHeads().set(i, term);
         }
     }
 
-    private boolean isConjunction(ITerm term) {
+    private boolean isConjunction(T term) {
 //        return (term.isList() && ((ListTerm) term).getKind() == CLAUSE_BODY);
         return true;//tidi
     }
@@ -209,8 +212,8 @@ public class ListTerm<T extends ITerm<T>> extends HtBaseTerm<T> {
      * @param op The operator to apply to the traversable state.
      * @return The new traversable state generated by applying the specified operator.
      */
-    public Traversable<HtVariable> getChildStateForOperator(Operator<HtVariable> op) {
-        return null;
+    public Traversable<T> getChildStateForOperator(Operator<T> op) {
+        return op.getOp();
     }
 
     /**
@@ -263,11 +266,10 @@ public class ListTerm<T extends ITerm<T>> extends HtBaseTerm<T> {
                 sb.append("[]");
             case LIST:
                 sb.append("[");
-                final List<ITerm> heads = getHeads();
+                final List<T> heads = getHeads();
                 final int iMax = heads.size() - 1;
                 for (int i = 0; i < heads.size(); i++) {
                     sb.append(heads.get(i).toString(interner, printVarName, printBindings));
-
                     if (i < iMax) {
                         sb.append(", ");
                     } else if (i == iMax) {
@@ -303,13 +305,12 @@ public class ListTerm<T extends ITerm<T>> extends HtBaseTerm<T> {
 
     /**
      * @param isOpen
-     * @return
      */
-    public ITerm newTail(boolean isOpen) {
-        return isOpen ? new HtVariable() : NIL;
+    public void newTail(boolean isOpen) {
+        addHeads(isOpen ? (T) new HtVariable<>() : (T) new ListTerm<T>(0));
     }
 
-    public void setHeads(List<ITerm> heads) {
+    public void setHeads(List<T> heads) {
         this.heads.clear();
         this.heads.addAll(heads);
     }
@@ -318,19 +319,19 @@ public class ListTerm<T extends ITerm<T>> extends HtBaseTerm<T> {
      * @param name
      * @return
      */
-    public ListTerm addHead(ITerm name) {
+    public ListTerm<T> addHead(T name) {
         heads.add(name);
         return this;
     }
 
-    public void addTail(ITerm tail) {//fixme
+    public void addTail(T tail) {//fixme
         newTail(tail.isVar());
     }
 
     /**
      *
      */
-    public enum Kind {
+    public enum Kind{
         NIL, //"[]" "{}" "()" BY  INTERNED NAME
 
         LIST, //-1 [.......]

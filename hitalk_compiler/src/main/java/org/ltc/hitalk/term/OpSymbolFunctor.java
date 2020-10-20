@@ -50,7 +50,7 @@ import static org.ltc.hitalk.term.OpSymbolFunctor.Associativity.*;
  *
  * @author Rupert Smith
  */
-public class OpSymbolFunctor extends HtFunctor implements Comparable<OpSymbolFunctor>, Cloneable {
+public class OpSymbolFunctor<T extends ITerm<T>> extends HtFunctor<T> implements Comparable<OpSymbolFunctor<T>>, Cloneable {
     /**
      *
      */
@@ -88,8 +88,8 @@ public class OpSymbolFunctor extends HtFunctor implements Comparable<OpSymbolFun
                            int arity,
                            Associativity associativity,
                            int priority,
-                           ITerm result,
-                           ITerm result1) {
+                           T result,
+                           T result1) {
         super(new HtFunctorName(textName, arity));
 
         this.textName = textName;
@@ -113,14 +113,14 @@ public class OpSymbolFunctor extends HtFunctor implements Comparable<OpSymbolFun
         this.name = name;
     }
 
-    private void setResult1(ITerm result1) {
+    private void setResult1(T result1) {
         if (getArguments().size() == 1) {
             getArguments().add(result1);
         }
         setArgument(1, result1);
     }
 
-    private void setResult(ITerm result) {
+    private void setResult(T result) {
         setArgument(0, result);
     }
 
@@ -179,7 +179,7 @@ public class OpSymbolFunctor extends HtFunctor implements Comparable<OpSymbolFun
      * @param arguments The arguments the operator is applied to.
      */
     @Override
-    public void setArguments(List<ITerm> arguments) {
+    public void setArguments(List<T> arguments) {
         // Check that there is at least one and at most two arguments.
         if ((arguments.size() < 1) || (arguments.size() > 2)) {
             throw new IllegalArgumentException("An operator has minimum 1 and maximum 2 arguments.");
@@ -192,7 +192,7 @@ public class OpSymbolFunctor extends HtFunctor implements Comparable<OpSymbolFun
         return true;
     }
 
-    public ListTerm getArgs() {
+    public ListTerm<T> getArgs() {
         return args;
     }
 
@@ -396,6 +396,15 @@ public class OpSymbolFunctor extends HtFunctor implements Comparable<OpSymbolFun
      */
     public boolean isList() {
         return false;
+    }
+
+    /**
+     * @param arityMin
+     * @param arityDelta
+     * @return
+     */
+    public int setArityRange(int arityMin, int arityDelta) {
+        return 0;
     }
 
     /**

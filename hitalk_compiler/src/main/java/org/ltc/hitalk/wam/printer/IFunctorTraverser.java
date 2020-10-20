@@ -15,7 +15,7 @@
  */
 package org.ltc.hitalk.wam.printer;
 
-import org.ltc.hitalk.term.HtVariable;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.util.Iterator;
@@ -30,7 +30,7 @@ import java.util.Iterator;
  *
  * @author Rupert Smith
  */
-public interface IFunctorTraverser {
+public interface IFunctorTraverser<T extends ITerm<T>> {
     /**
      * Visits a functor.
      *
@@ -39,5 +39,5 @@ public interface IFunctorTraverser {
      *                a natural, left-to-right ordering.
      * @return An iterator over operators producing the traveresed elements of the functor.
      */
-    Iterator<HtVariable> traverse(IFunctor functor, boolean reverse);
+    Iterator<T> traverse(IFunctor<T> functor, boolean reverse);
 }

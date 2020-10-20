@@ -31,12 +31,12 @@ import java.util.List;
  * pass context down to child terms. Ability to iterate over child terms in any queue based search ordering.
  * Looks like a traversable, operators capture and pass on state, goal checks do the visiting.
  */
-public interface ITermTransformer {
+public interface ITermTransformer<T extends ITerm<T>> {
     /**
      * Applies a transformation to the term.
      *
      * @param term The term to transform.
      * @return A term which is a transformation of the argument.
      */
-    List<ITerm<?>> transform(ITerm<?> term);
+    List<T> transform(ITerm<T> term);
 }

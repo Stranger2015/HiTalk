@@ -2,20 +2,20 @@ package org.ltc.hitalk.parser;
 
 public interface ISourceCodePosition {
 
-    public void setBeginLine ( int beginLine );
+    void setBeginLine(int beginLine);
 
-    public void setBeginColumn ( int beginColumn );
+    void setBeginColumn(int beginColumn);
 
-    public void setEndLine ( int endLine );
+    void setEndLine(int endLine);
 
-    public void setEndColumn ( int endColumn );
+    void setEndColumn(int endColumn);
 
-    public int getBeginLine ();
+    int getBeginLine();
 
-    public int getBeginColumn ();
+    int getBeginColumn();
 
-    public int getEndLine ();
+    int getEndLine();
 
-    public int getEndColumn ();
+    int getEndColumn();
 
 }

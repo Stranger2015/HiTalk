@@ -2,23 +2,18 @@ package org.ltc.hitalk.compiler.bktables;
 
 import com.thesett.aima.logic.fol.LinkageException;
 import org.ltc.hitalk.compiler.IVafInterner;
-import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.HtVersion;
 import org.ltc.hitalk.core.IConfigurable;
 import org.ltc.hitalk.core.utils.HtSymbolTable;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.parser.PlLexer;
-import org.ltc.hitalk.term.io.HiTalkInputStream;
-import org.ltc.hitalk.term.io.HiTalkOutputStream;
 import org.ltc.hitalk.wam.compiler.Language;
 import org.ltc.hitalk.wam.compiler.Tools;
 import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.nio.file.Path;
-
-import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.PERMISSION_ERROR;
 
 /**
  *
@@ -44,14 +39,14 @@ public interface IApplication extends Runnable, IConfigurable {
     /**
      * @return
      */
-    HiTalkInputStream getCurrentInputStream();
+//    HiTalkInputStream getCurrentInputStream();
 
-    void setCurrentInputStream(HiTalkInputStream currentInputStream);
+//    void setCurrentInputStream(HiTalkInputStream currentInputStream);
 
     /**
      * @param currentOutputStream
      */
-    void setCurrentOutputStream(HiTalkOutputStream currentOutputStream);
+//    void setCurrentOutputStream(HiTalkOutputStream currentOutputStream);
 
     /**
      *
@@ -65,7 +60,7 @@ public interface IApplication extends Runnable, IConfigurable {
         } catch (Throwable throwable) {
             try {
                 throwable.printStackTrace();
-                throw new ExecutionError(PERMISSION_ERROR, null);
+//                throw new ExecutionError(PERMISSION_ERROR, null);
             } finally {
                 undoInit();
             }

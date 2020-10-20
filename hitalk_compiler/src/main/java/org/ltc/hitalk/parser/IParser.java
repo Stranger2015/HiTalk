@@ -6,10 +6,6 @@ import org.ltc.hitalk.compiler.bktables.IOperatorTable;
 import org.ltc.hitalk.core.IHitalkObject;
 import org.ltc.hitalk.core.utils.TermUtilities;
 import org.ltc.hitalk.parser.PlToken.TokenKind;
-import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.term.OpSymbolFunctor;
-import org.ltc.hitalk.term.OpSymbolFunctor.Associativity;
-import org.ltc.hitalk.term.io.HiTalkStream;
 import org.ltc.hitalk.wam.compiler.Language;
 
 import java.io.IOException;

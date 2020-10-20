@@ -1,13 +1,10 @@
 package org.ltc.hitalk.parser;
 
-import org.ltc.hitalk.ITermFactory;
-import org.ltc.hitalk.compiler.IVafInterner;
-import org.ltc.hitalk.compiler.bktables.IOperatorTable;
-import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.wam.compiler.Language;
 
+import static org.ltc.hitalk.gnu.prolog.io.Operator.SPECIFIER.fy;
+import static org.ltc.hitalk.gnu.prolog.io.Operator.SPECIFIER.xfy;
 import static org.ltc.hitalk.parser.PrologAtoms.*;
-import static org.ltc.hitalk.term.OpSymbolFunctor.Associativity.*;
 import static org.ltc.hitalk.wam.compiler.Language.HITALK;
 
 /**
@@ -33,12 +30,12 @@ public class HiTalkParser extends HiLogParser {
      *
      * @param interner The interner for variable and functor names.
      */
-    public HiTalkParser(HiTalkInputStream stream,
-                        IVafInterner interner,
-                        ITermFactory factory,
-                        IOperatorTable optable) throws Exception {
-        super(stream, interner, factory, optable);
-    }
+//    public HiTalkParser(HiTalkInputStream stream,
+//                        IVafInterner interner,
+//                        ITermFactory factory,
+//                        IOperatorTable optable) throws Exception {
+//        super(stream, interner, factory, optable);
+//    }
 
     /**
      * Interns and inserts into the operator table all of the built in operators and functors in Prolog.
@@ -46,8 +43,8 @@ public class HiTalkParser extends HiLogParser {
     public void initializeBuiltIns () {
         super.initializeBuiltIns();
 //Logtalk operators
-        internOperator(COLON_COLON, 600, xfy);
-        internOperator(COLON_COLON, 600, fy);// message sending to "self"
+        op(COLON_COLON, 600, xfy);
+        op(COLON_COLON, 600, fy);// message sending to "self"
         internOperator(UP_UP, 600, fy);// "super" call (calls an inherited or imported method definition)
         // mode operator
         internOperator(PLUS, 200, fy);// input argument (instantiated); ISO Prolog standard operator

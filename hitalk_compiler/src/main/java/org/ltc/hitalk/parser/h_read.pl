@@ -415,7 +415,7 @@ h_read_curr_op(700,xfx,'>=').
 h_read_curr_op(661,xfy,'.').	/* !! */
 h_read_curr_op(500,yfx,'+').
 h_read_curr_op(500,yfx,'-').
-h_read_curr_op(500,yfx,'/\\').
+h_read_curr_op(500,yfx,('/\\ ')).
 h_read_curr_op(500,fx,'+').
 h_read_curr_op(500,fx,'-').
 h_read_curr_op(400,yfx,'*').
@@ -847,7 +847,7 @@ h_read_chkspec(0'=).	% '=' 61
 h_read_chkspec(0'>).	% '>' 62
 h_read_chkspec(0'?).	% '?' 63
 h_read_chkspec(0'@).	% '@' 64
-h_read_chkspec(0'\).	% '\' 92
+h_read_chkspec(0'\\).	% '\' 92
 h_read_chkspec(0'^).	% '^' 94
 h_read_chkspec(0'`).	% '`' 96
 h_read_chkspec(0'~).	% '~' 126

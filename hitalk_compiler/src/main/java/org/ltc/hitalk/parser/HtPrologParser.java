@@ -1,17 +1,14 @@
 package org.ltc.hitalk.parser;
 
+import com.thesett.aima.logic.fol.OpSymbol.Associativity;
 import org.ltc.hitalk.ITermFactory;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.bktables.IOperatorTable;
+import org.ltc.hitalk.gnu.prolog.io.parser.gen.TermParser;
+import org.ltc.hitalk.gnu.prolog.term.Term;
+import org.ltc.hitalk.gnu.prolog.vm.Environment;
 import org.ltc.hitalk.parser.Directive.DirectiveKind;
 import org.ltc.hitalk.parser.PlToken.TokenKind;
-import org.ltc.hitalk.term.HtVariable;
-import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.term.ListTerm;
-import org.ltc.hitalk.term.OpSymbolFunctor;
-import org.ltc.hitalk.term.OpSymbolFunctor.Associativity;
-import org.ltc.hitalk.term.OpSymbolFunctor.Fixity;
-import org.ltc.hitalk.term.io.HiTalkInputStream;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 import org.ltc.hitalk.wam.compiler.Language;
@@ -20,63 +17,63 @@ import org.slf4j.LoggerFactory;
 
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.*;
 
 import static java.util.EnumSet.of;
 import static org.ltc.hitalk.core.BaseApp.appContext;
+import static org.ltc.hitalk.gnu.prolog.io.Operator.SPECIFIER.*;
 import static org.ltc.hitalk.parser.Directive.DirectiveKind.*;
-import static org.ltc.hitalk.parser.PlLexer.getPlLexerForString;
 import static org.ltc.hitalk.parser.PlToken.TokenKind.*;
 import static org.ltc.hitalk.parser.PrologAtoms.*;
-import static org.ltc.hitalk.term.ListTerm.NIL;
-import static org.ltc.hitalk.term.OpSymbolFunctor.Associativity.*;
 import static org.ltc.hitalk.wam.compiler.Language.PROLOG;
 
 /**
  *
  */
-public class HtPrologParser implements IParser<HtClause> {
+public class
+HtPrologParser extends TermParser {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     public static final ITermFactory tf = appContext.getTermFactory();
 
     public static final String BEGIN_OF_FILE_STRING = "begin_of_file";
     public static final String END_OF_FILE_STRING = "end_of_file";
-    public static final IFunctor BEGIN_OF_FILE = new OpSymbolFunctor(
-            BEGIN_OF_FILE_STRING,
-            0,
-            x,
-            -1,
-            null,
-            null);
-    public static final IFunctor END_OF_FILE = new OpSymbolFunctor(
-            END_OF_FILE_STRING,
-            0,
-            x,
-            -1,
-            null,
-            null);
+    //    public static final IFunctor BEGIN_OF_FILE = new OpSymbolFunctor(
+//            BEGIN_OF_FILE_STRING,
+//            0,
+//            x,
+//            -1,
+//            null,
+//            null);
+//    public static final IFunctor END_OF_FILE = new OpSymbolFunctor(
+//            END_OF_FILE_STRING,
+//            0,
+//            x,
+//            -1,
+//            null,
+//            null);
     public static final String ANONYMOUS = "_";
 
     public static final int MAX_PRIORITY = 1200;
-    public static final int MIN_PRIORITY = 0;
+    public static final int MIN_PRIORITY = 1;
 
     protected final Deque<PlLexer> tokenSourceStack = new ArrayDeque<>();
-    protected ListTerm listTerm = new ListTerm(0);
-    protected EnumSet<Associativity> assocs = of(x);
+//    protected ListTerm listTerm = new ListTerm(0);
+//    protected EnumSet<Associativity> assocs = of(x);
     protected EnumSet<DirectiveKind> dks = of(DK_IF, DK_ENCODING, DK_HILOG);
     protected PlToken token;
     protected IOperatorTable operatorTable;
     protected IVafInterner interner;
     protected ITermFactory termFactory;
-    protected Map<ITerm, Integer> offsetsMap;
+//    protected Map<ITerm, Integer> offsetsMap;
     protected int tokenStart;
     /**
      * Holds the variable scoping context for the current sentence.
      */
-    protected Map<Integer, HtVariable> variableContext = new HashMap<>();
-    protected OpSymbolFunctor operator;
-    protected ITerm lastTerm;
+//    protected Map<Integer, HtVariable> variableContext = new HashMap<>();
+//    protected OpSymbolFunctor operator;
+//    protected ITerm lastTerm;
     protected int braces;
     protected int parentheses;
     protected int brackets;
@@ -85,24 +82,28 @@ public class HtPrologParser implements IParser<HtClause> {
     protected int bquotes;
     protected int currPriority;
 
-    public HtPrologParser() {
+    public HtPrologParser(Reader r, int line, int col, Environment environment) {
+        super(r, line, col, environment);
     }
 
-    /**
-     * @param inputStream
-     * @param factory
-     * @param optable
-     */
-    public HtPrologParser(HiTalkInputStream inputStream,
-                          IVafInterner interner,
-                          ITermFactory factory,
-                          IOperatorTable optable)
-            throws Exception {
-        setTokenSource(new PlLexer(inputStream, inputStream.getPath()));
-        this.interner = interner;
-        this.termFactory = factory;
-        this.operatorTable = optable;
-    }
+//    public HtPrologParser() {
+//    }
+
+//    /**
+//     * @param inputStream
+//     * @param factory
+//     * @param optable
+//     */
+//    public HtPrologParser(HiTalkInputStream inputStream,
+//                          IVafInterner interner,
+//                          ITermFactory factory,
+//                          IOperatorTable optable)
+//            throws Exception {
+//        setTokenSource(new PlLexer(inputStream, inputStream.getPath()));
+//        this.interner = interner;
+//        this.termFactory = factory;
+//        this.operatorTable = optable;
+//    }
 
     public boolean isEndOfTerm(TokenKind tokenKind) {
         return tokenKind == TK_DOT && isEndOfTerm();
@@ -113,7 +114,7 @@ public class HtPrologParser implements IParser<HtClause> {
                 ((squotes % 2) == 0) && ((dquotes % 2) == 0) && ((bquotes % 2) == 0);
     }
 
-    @Override
+//    @Override
     public Deque<PlLexer> getTokenSourceStack() {
         return tokenSourceStack;
     }
@@ -126,11 +127,11 @@ public class HtPrologParser implements IParser<HtClause> {
      * @param assoc
      */
     public void setOperator(String operatorName, int priority, Associativity assoc) {
-        Map<Fixity, OpSymbolFunctor> ops = operatorTable.getOperatorsMatchingNameByFixity(operatorName);
-        if (ops == null || ops.isEmpty()) {
-            int name = interner.internFunctorName(operatorName, assoc.arity);
-            operatorTable.setOperator(name, operatorName, priority, assoc);
-        }
+//        Map<Fixity, OpSymbolFunctor> ops = operatorTable.getOperatorsMatchingNameByFixity(operatorName);
+//        if (ops == null || ops.isEmpty()) {
+//            int name = interner.internFunctorName(operatorName, assoc.arity);
+//            operatorTable.setOperator(name, operatorName, priority, assoc);
+//        }
     }
 
     /**
@@ -253,7 +254,7 @@ public class HtPrologParser implements IParser<HtClause> {
      * @return
      * @throws HtSourceCodeException
      */
-    public ITerm parse() throws Exception {
+    public Term parse() throws Exception {
         return termSentence();
     }
 
@@ -432,8 +433,8 @@ public class HtPrologParser implements IParser<HtClause> {
      * @return
      * @throws EOFException
      */
-    @Override
-    public ITerm expr(TokenKind rdelim) throws Exception {
+//    @Override
+    public Term expr(TokenKind rdelim) throws Exception {
         return exprA(MAX_PRIORITY, rdelim);
     }
 
@@ -453,9 +454,9 @@ public class HtPrologParser implements IParser<HtClause> {
      *
      * @return A term parsed in a fresh variable context.
      */
-    public ITerm termSentence() throws Exception {
+    public Term termSentence() throws Exception {
         // Each new sentence provides a new scope in which to make variables unique.
-        variableContext.clear();
+//        variableContext.clear();
 
         if (!tokenSourceStack.isEmpty() && tokenSourceStack.peek().isOpen()) {
             return expr(TK_DOT);
@@ -465,7 +466,7 @@ public class HtPrologParser implements IParser<HtClause> {
         return END_OF_FILE;
     }
 
-    public ITerm getTerm() throws Exception {
+    public Term getTerm() throws Exception {
         EnumSet<Associativity> assocs = of(x);
         EnumSet<DirectiveKind> directiveKinds = of(DK_IF, DK_ENCODING, DK_HILOG);
         EnumSet<TokenKind> rDelims = of(TK_DOT);
@@ -582,7 +583,7 @@ public class HtPrologParser implements IParser<HtClause> {
                     getTokenSource().isEOFGenerated = true;
                     popTokenSource();
                 } else {
-                    lastTerm = termFactory.newFunctor(token.image, NIL);
+                    lastTerm = termFactory.newFunctor(token.image, 0);
                 }
 
 
@@ -912,18 +913,18 @@ public class HtPrologParser implements IParser<HtClause> {
      * @param offset
      * @return
      */
-    protected OpSymbolFunctor identifyTerm(int priority, Associativity associativity, ITerm term, ITerm term1, int offset) {
+    protected OpSymbolFunctor identifyTerm(int priority, Associativity associativity, Term term, Term term1, int offset) {
         map(term, offset);
         final OpSymbolFunctor f = (OpSymbolFunctor) term;
         return new OpSymbolFunctor(f.getTextName(), 0, associativity, priority, f.getResult(), f.getResult1());
     }
 
-    protected void map(ITerm term, int offset) {
+    protected void map(Term term, int offset) {
         if (offsetsMap != null)
             offsetsMap.put(term, offset);
     }
 
-    public Map<ITerm, Integer> getTextMapping() {
+    public Map<Term, Integer> getTextMapping() {
         return offsetsMap;
     }
 
@@ -956,7 +957,7 @@ public class HtPrologParser implements IParser<HtClause> {
      * Static service to get a term from its string representation,
      * providing a specific operator manager
      */
-    public ITerm parseSingleTerm(String st) throws Exception {
+    public Term parseSingleTerm(String st) throws Exception {
         setTokenSource(getPlLexerForString(st));
         return termSentence();
     }
@@ -973,7 +974,7 @@ public class HtPrologParser implements IParser<HtClause> {
      *
      * @param rDelim
      */
-    public ITerm exprA0(TokenKind rDelim) throws Exception {
+    public Term exprA0(TokenKind rDelim) throws Exception {
         lastTerm = getTerm();
         return lastTerm;
     }
@@ -982,11 +983,11 @@ public class HtPrologParser implements IParser<HtClause> {
      * @return
      * @throws Exception
      */
-    public ITerm expr0List() throws Exception {
+    public Term expr0List() throws Exception {
         return listSequence(TK_LBRACKET);
     }
 
-    private ITerm listSequence(TokenKind lDelim) throws Exception {
+    private Term listSequence(TokenKind lDelim) throws Exception {
         ListTerm l = sequence(lDelim);
         PlToken token = readToken();
         final TokenKind rDelim = calcRDelim(lDelim);
@@ -1002,7 +1003,7 @@ public class HtPrologParser implements IParser<HtClause> {
      * @return
      * @throws Exception
      */
-    public ITerm expr0Args() throws Exception {
+    public Term expr0Args() throws Exception {
         return listSequence(TK_LPAREN);
     }
 
@@ -1010,7 +1011,7 @@ public class HtPrologParser implements IParser<HtClause> {
      * @return
      * @throws Exception
      */
-    public ITerm expr0Block() throws Exception {
+    public Term expr0Block() throws Exception {
         final ListTerm t = sequence(TK_LPAREN);
         t.setBracketed(true);
         return t;
@@ -1020,14 +1021,14 @@ public class HtPrologParser implements IParser<HtClause> {
      * @return
      * @throws Exception
      */
-    public ITerm expr0BraceBlock() throws Exception {
+    public Term expr0BraceBlock() throws Exception {
         return sequence(TK_LBRACE);
     }
 
     protected ListTerm sequence(TokenKind kind) throws Exception {
         ListTerm l = new ListTerm(0);
         TokenKind rdelim = calcRDelim(kind);
-        ITerm head = null;
+        Term head = null;
         for (; ; ) {
             PlToken t = readToken();
             switch (t.kind) {
@@ -1066,11 +1067,11 @@ public class HtPrologParser implements IParser<HtClause> {
         return kind;
     }
 
-    private ITerm tail(TokenKind rDelim) throws Exception {
-        final ITerm t = expr(rDelim);
-        if (t.isList() || t.isVar()) {
-            return t;
-        }
-        throw new ParserException("list or var are expected here.");
-    }
+//    private Term tail(TokenKind rDelim) throws Exception {
+//        final Term t = expr(rDelim);
+//        if (t.isList() || t.isVar()) {
+//            return t;
+//        }
+//        throw new ParserException("list or var are expected here.");
+//    }
 }

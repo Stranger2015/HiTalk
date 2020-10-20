@@ -128,7 +128,8 @@ public class HtTermWriter extends HtTermIO {
     }
 
     private void writeTail(StringBuilder sb, ListTerm t) {
-        if (t.getTail() != ListTerm.NIL) {
+        ITerm tail=t.getTail();
+        if (tail != null ) {
             ident(sb, "| ");
             writeTerm(sb, t.getTail());
         }
@@ -256,7 +257,7 @@ public class HtTermWriter extends HtTermIO {
             for (int i = ofs, numHeads = args.getHeads().size() - ofs; i < numHeads; i++) {
                 write_canonical(stream, args.getHead(i));
             }
-            if (args.getTail() != ListTerm.NIL) {
+            if (!args.getTail().isList() ) {
                 stream.writeChar('|');
                 write_canonical(stream, args.getTail());
             }

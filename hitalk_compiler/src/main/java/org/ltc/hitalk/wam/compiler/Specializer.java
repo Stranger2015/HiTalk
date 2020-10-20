@@ -1,6 +1,5 @@
 package org.ltc.hitalk.wam.compiler;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PredicateTable;
@@ -11,9 +10,6 @@ import org.ltc.hitalk.entities.HtPredicateIndicator;
 import org.ltc.hitalk.entities.context.ExecutionContext;
 import org.ltc.hitalk.entities.context.IMetrics;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.term.HtVariable;
-import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.PiCalls.XPiCalls;
 import org.ltc.hitalk.wam.transformers.ISpecializer;
 import org.ltc.hitalk.wam.transformers.TransformInfo;

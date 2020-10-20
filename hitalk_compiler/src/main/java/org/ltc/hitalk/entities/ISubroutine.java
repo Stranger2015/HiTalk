@@ -8,7 +8,7 @@ import org.ltc.hitalk.wam.compiler.IFunctor;
  *
  */
 public
-interface ISubroutine<F extends IFunctor> {
+interface ISubroutine<F extends IFunctor<?>> {
     /**
      * @return
      */
@@ -17,7 +17,7 @@ interface ISubroutine<F extends IFunctor> {
     /**
      * @return
      */
-    ListTerm getBody ();
+    ListTerm<?> getBody ();
 
     F getGoal ( int i );
 

@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author Rupert Smith
  */
-public class HtVariable<T extends HtVariable<T>> extends HtBaseTerm<T>
+public class HtVariable<T extends ITerm<T>> extends HtBaseTerm<T>
         implements ITerm<T>, IVariableBindingContext<T>, Comparable<T>, Traversable<T> {
     /**
      * A generator of unique variable id's.
@@ -103,8 +103,8 @@ public class HtVariable<T extends HtVariable<T>> extends HtBaseTerm<T>
      * @param variable The variable to get the storage cell for.
      * @return The storage cell where the specified variable sets its bindings.
      */
-    public HtVariable<T> getStorageCell(T variable) {
-        return this;
+    public T getStorageCell(T variable) {
+        return (T) this;
     }
 
     /**
@@ -153,7 +153,7 @@ public class HtVariable<T extends HtVariable<T>> extends HtBaseTerm<T>
      * @return <tt>true</tt> if this term is compound, <tt>fals</tt> otherwise.
      */
     public boolean isCompound() {
-        ITerm t = getValue();
+        ITerm<T> t = getValue();
 
         return (t != this) && t.isCompound();
     }
@@ -259,15 +259,9 @@ public class HtVariable<T extends HtVariable<T>> extends HtBaseTerm<T>
      * @param term The value to bind this variable to.
      */
     public void setSubstitution(ITerm<T> term) {
-        ITerm<T> termToBindTo = term;
-
         // When binding against a variable, always bind to its storage cell and not the variable itself.
-        if (termToBindTo instanceof HtVariable) {
-            HtVariable<T> variableToBindTo = (HtVariable) term;
-            termToBindTo = variableToBindTo.getStorageCell(variableToBindTo);
-        }
 
-        substitution = termToBindTo;
+        substitution = getStorageCell((T) term);
     }
 
     /**
@@ -293,9 +287,9 @@ public class HtVariable<T extends HtVariable<T>> extends HtBaseTerm<T>
     /**
      * {@inheritDoc}
      */
-    public List<ITerm> acceptTransformer(ITermTransformer transformer) {
+    public List<T> acceptTransformer(ITermTransformer<T> transformer) {
         if (transformer instanceof IVariableTransformer) {
-            return ((IVariableTransformer) transformer).transform(this);
+            return (List<T>) ((IVariableTransformer) transformer).transform(this);
         } else {
             return super.acceptTransformer(transformer);
         }
@@ -310,9 +304,9 @@ public class HtVariable<T extends HtVariable<T>> extends HtBaseTerm<T>
      * @param term The term to compare with this one for structural equality.
      * @return <tt>true</tt> if the two terms are structurally eqaul, <tt>false</tt> otherwise.
      */
-    public boolean structuralEquals(ITerm term) {
-        ITerm comparator = term.getValue();
-        ITerm value = getValue();
+    public boolean structuralEquals(ITerm<?> term) {
+        ITerm<?> comparator = term.getValue();
+        ITerm<?> value = getValue();
 
         // Check if this is an unbound variable in which case the comparator must be the same variable.
         if (value == this) {
@@ -436,17 +430,6 @@ public class HtVariable<T extends HtVariable<T>> extends HtBaseTerm<T>
      *                              from being compared to this object.
      */
     public int compareTo(@NotNull T o) {
-        return getId() - o.getId();
-    }
-
-    /**
-     * Provides the storage cell for the specified variable. Some types of variable may defer their storage onto a
-     * storage cell other than themselves, other variable types may simply return themselves as their own storage cells.
-     *
-     * @param variable The variable to get the storage cell for.
-     * @return The storage cell where the specified variable sets its bindings.
-     */
-    public HtVariable<T> getStorageCell(T variable) {
-        return this;
+        return getId() - ((HtVariable)o).getId();
     }
 }

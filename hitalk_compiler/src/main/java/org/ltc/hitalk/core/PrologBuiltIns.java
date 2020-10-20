@@ -1,13 +1,11 @@
 package org.ltc.hitalk.core;
 
-import org.ltc.hitalk.term.ListTerm;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
 /**
- *
+ *`
  */
 public
 enum PrologBuiltIns {

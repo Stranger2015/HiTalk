@@ -1,11 +1,10 @@
 package org.ltc.hitalk.compiler;
 
 import org.jetbrains.annotations.NotNull;
-import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.wam.compiler.BodyCall;
+import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.compiler.HtFunctor;
-import org.ltc.hitalk.wam.compiler.PiCalls;
+import org.ltc.hitalk.wam.compiler.IFunctor;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -15,28 +14,36 @@ import java.util.List;
  *
  */
 public
-class PredicateTable<P extends HtPredicate> extends HashMap <Integer, P> implements Iterable <P> {
+class PredicateTable<T extends ITerm<T>> extends HashMap<Integer, T> implements Iterable<T> {
 
     /**
      *
      */
-    public PredicateTable () {
+    public PredicateTable() {
 
     }
 
-    public PredicateTable(List<HtPredicate> predicates) throws Exception {
-        for (HtPredicate predicate : predicates) {
-            List<HtClause> def = predicate.getClauses();
+    /**
+     * @param predicates
+     * @throws Exception
+     */
+    public PredicateTable(List<T> predicates) throws Exception {
+        for (T predicate : predicates) {
+            List<T> def = predicate.getClauses();
             if (!predicate.isBuiltIn()) {
-                accept((P) def);
+                accept(def);
             }
         }
     }
 
-    private void accept(P definition) throws Exception {
-        final int key = definition.get(0).getHead().getName();
+    /**
+     * @param definition
+     * @throws Exception
+     */
+    private void accept(List<T> definition) throws Exception {
+        final int key = ((IFunctor<T>)definition.get(0)).getName();
 
-        put(key, definition);
+        put(key, (T) definition);
     }
 
     /**
@@ -44,39 +51,11 @@ class PredicateTable<P extends HtPredicate> extends HashMap <Integer, P> impleme
      */
     @NotNull
     @Override
-    public Iterator <P> iterator () {
+    public Iterator<T> iterator() {
         return values().iterator();
     }
 
-    public HtClause lookup ( HtFunctor goal, HtClause clause ) {
-        return null;
-    }
-
-    public <C extends BodyCall.BodyCalls <C>> P lookup ( PiCalls <C> piCall ) {
+    public HtClause lookup(HtFunctor<T> goal, HtClause clause) {
         return null;
     }
 }
-
-//    /**
-//     * @param call
-//     * @return
-//     */
-//    public UserDefinition <?, ?, ?> lookup ( PiCalls <?> call ) {
-//        int name = call.getName();
-////        UserDefinition <?, ?, ?> value = this.get(name);
-//        if (value == null) {
-//            value = new UserDefinition();
-//            this.put(name, value);
-//        }
-//
-//        return value;
-//    }
-//
-//    public HtClause lookup ( HtFunctor goal, HtClause clause ) {
-//        return null;
-//    }
-//
-//    public HtClause lookup ( HtFunctor goal, boolean redo ) {
-//        return null;
-//    }
-//}

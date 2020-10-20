@@ -34,6 +34,11 @@
       <w>inliner</w>
       <w>interner</w>
       <w>interners</w>
+      <w>ipop</w>
+      <w>iretry</w>
+      <w>isave</w>
+      <w>istore</w>
+      <w>ithrow</w>
       <w>lbrace</w>
       <w>lbracket</w>
       <w>lits</w>
@@ -71,6 +76,7 @@
       <w>stdin</w>
       <w>subterm</w>
       <w>supercall</w>
+      <w>targs</w>
       <w>transpiler</w>
       <w>traverser</w>
       <w>ttyflush</w>

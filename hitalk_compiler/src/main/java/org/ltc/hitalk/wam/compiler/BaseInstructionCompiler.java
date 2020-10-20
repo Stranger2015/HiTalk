@@ -25,13 +25,11 @@ import org.ltc.hitalk.compiler.BaseCompiler;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.core.utils.TermUtilities;
+import org.ltc.hitalk.gnu.prolog.term.VariableTerm;
 import org.ltc.hitalk.parser.Directive;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
 import org.ltc.hitalk.parser.HtSourceCodeException;
-import org.ltc.hitalk.term.HtVariable;
-import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.hitalk.*;
 import org.ltc.hitalk.wam.compiler.prolog.ICompilerObserver;
 import org.ltc.hitalk.wam.compiler.prolog.IPrologBuiltIn;
@@ -170,10 +168,10 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q, PC exten
         SizeableList<HiTalkWAMInstruction> postFixInstructions = new SizeableLinkedList<>();
 
         // Find all the free non-anonymous variables in the clause.
-        Set<HtVariable> freeVars = TermUtilities.findFreeNonAnonVariables(clause.getT());
+        Set<VariableTerm> freeVars = TermUtilities.findFreeNonAnonVariables(clause.getT());
         Set<Integer> freeVarNames = new TreeSet<>();
 
-        for (HtVariable var : freeVars) {
+        for (VariableTerm var : freeVars) {
             freeVarNames.add(var.getName());
         }
 
@@ -352,10 +350,10 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q, PC exten
         SizeableList<HiTalkWAMInstruction> postFixInstructions = new SizeableLinkedList<>();
 
         // Find all the free non-anonymous variables in the clause.
-        Set<HtVariable> freeVars = TermUtilities.findFreeNonAnonVariables(clause);
+        Set<VariableTerm> freeVars = TermUtilities.findFreeNonAnonVariables(clause);
         Collection<Integer> freeVarNames = new TreeSet<>();
 
-        for (HtVariable var : freeVars) {
+        for (VariableTerm var : freeVars) {
             freeVarNames.add(var.getName());
         }
 
@@ -472,22 +470,22 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q, PC exten
      */
     private void allocatePermanentProgramRegisters(HtClause clause) {
         // A bag to hold variable occurrence counts in.
-        Map<HtVariable, Integer> variableCountBag = new HashMap<>();
+        Map<VariableTerm, Integer> variableCountBag = new HashMap<>();
 
         // A mapping from variables to the body number in which they appear last.
-        Map<HtVariable, Integer> lastBodyMap = new HashMap<>();
+        Map<VariableTerm, Integer> lastBodyMap = new HashMap<>();
 
         // Holds the variable that are in the head and first clause body argument.
-        Collection<HtVariable> firstGroupVariables = new HashSet<>();
+        Collection<VariableTerm> firstGroupVariables = new HashSet<>();
 
         // Get the occurrence counts of variables in all clauses after the initial head and first body grouping.
         // In the same pass, pick out which body variables last occur in.
         if ((clause.getBody() != null)) {
             for (int i = clause.getBody().size() - 1; i >= 1; i--) {
-                Set<HtVariable> groupVariables = TermUtilities.findFreeVariables(clause.getBody().getHead(i));
+                Set<VariableTerm> groupVariables = TermUtilities.findFreeVariables(clause.getBody().getHead(i));
 
                 // Add all their counts to the bag and update their last occurrence positions.
-                for (HtVariable variable : groupVariables) {
+                for (VariableTerm variable : groupVariables) {
                     Integer count = variableCountBag.get(variable);
                     variableCountBag.put(variable, (count == null) ? 1 : (count + 1));
 
@@ -507,17 +505,17 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q, PC exten
 
         // Get the set of variables in the head and first clause body argument.
         if (clause.getHead() != null) {
-            Set<HtVariable> headVariables = TermUtilities.findFreeVariables(clause.getHead());
+            Set<VariableTerm> headVariables = TermUtilities.findFreeVariables(clause.getHead());
             firstGroupVariables.addAll(headVariables);
         }
 
         if ((clause.getBody() != null) && (clause.getBody().size() > 0)) {
-            Set<HtVariable> firstArgVariables = TermUtilities.findFreeVariables(clause.getBody().getHead(0));
+            Set<VariableTerm> firstArgVariables = TermUtilities.findFreeVariables(clause.getBody().getHead(0));
             firstGroupVariables.addAll(firstArgVariables);
         }
 
         // Add their counts to the bag, and set their last positions of occurrence as required.
-        for (HtVariable variable : firstGroupVariables) {
+        for (VariableTerm variable : firstGroupVariables) {
             Integer count = variableCountBag.get(variable);
             variableCountBag.put(variable, (count == null) ? 1 : (count + 1));
 
@@ -527,7 +525,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q, PC exten
         }
 
         // Sort the variables by reverse position of last occurrence.
-        List<Map.Entry<HtVariable, Integer>> lastBodyList = new ArrayList<>(lastBodyMap.entrySet());
+        List<Map.Entry<VariableTerm, Integer>> lastBodyList = new ArrayList<>(lastBodyMap.entrySet());
         lastBodyList.sort((o1, o2) -> o2.getValue().compareTo(o1.getValue()));
 
         // Holds counts of permanent variable last appearances against the body in which they last occur.
@@ -536,13 +534,13 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q, PC exten
         // Search the count bag for all variable occurrences greater than one, and assign them to stack slots.
         // The variables are examined by reverse position of last occurrence, to ensure that later variables
         // are assigned to lower permanent allocation slots for BaseApp trimming purposes.
-        for (Map.Entry<HtVariable, Integer> entry : lastBodyList) {
-            HtVariable variable = entry.getKey();
+        for (Map.Entry<VariableTerm, Integer> entry : lastBodyList) {
+            VariableTerm variable = entry.getKey();
             Integer count = variableCountBag.get(variable);
             int body = entry.getValue();
 
             if ((count != null) && (count > 1)) {
-                /*log.fine("HtVariable " + variable + " is permanent, count = " + count);*/
+                /*log.fine("VariableTerm " + variable + " is permanent, count = " + count);*/
 
                 int allocation = (numPermanentVars++ & (0xff)) | (STACK_ADDR << 8);
                 getSymbolTable().put(variable.getSymbolKey(), SYMKEY_ALLOCATION, allocation);
@@ -571,7 +569,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q, PC exten
         }
     }
 
-    private boolean isCutLevelVariable(HtVariable variable) {
+    private boolean isCutLevelVariable(VariableTerm variable) {
         return false;
     }
 
@@ -675,7 +673,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q, PC exten
      * @param goal The clause head to compile.
      * @return A listing of the instructions for the clause head in the WAM instruction set.
      */
-    private SizeableLinkedList<HiTalkWAMInstruction> compileHead(IFunctor goal) throws Exception {
+    private <T extends ITerm<T>> SizeableLinkedList<HiTalkWAMInstruction> compileHead(IFunctor<T> goal) throws Exception {
         // Used to build up the results in.
         SizeableLinkedList<HiTalkWAMInstruction> instructions = new SizeableLinkedList<>();
 
@@ -686,11 +684,11 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q, PC exten
 
         // Program instructions are generated in the same order as the registers are assigned, the postfix
         // ordering used for queries is not needed.
-        BreadthFirstSearch<ITerm, ITerm> outInSearch = new BreadthFirstSearch<>();
+        BreadthFirstSearch<T, T> outInSearch = new BreadthFirstSearch<>();
         outInSearch.reset();
-        outInSearch.addStartState(goal);
+        outInSearch.addStartState((T) goal);
 
-        Iterator<ITerm> treeWalker = allSolutions(outInSearch);
+        Iterator<T> treeWalker = allSolutions(outInSearch);
 
         // Skip the outermost functor.
         treeWalker.next();
@@ -703,13 +701,10 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q, PC exten
         int numOutermostArgs = goal.getArity();
 
         for (int j = 0; treeWalker.hasNext(); j++) {
-            ITerm nextTerm = treeWalker.next();
-
-            /*log.fine("nextTerm = " + nextTerm);*/
-
+            T nextTerm = treeWalker.next();
             // For each functor encountered: get_struc.
             if (nextTerm.isFunctor()) {
-                IFunctor nextFunctor = (IFunctor) nextTerm;
+                IFunctor<?> nextFunctor = (IFunctor<?>) nextTerm;
                 int allocation = (Integer) getSymbolTable().get(nextFunctor.getSymbolKey(), SYMKEY_ALLOCATION);
 
                 byte addrMode = (byte) ((allocation & 0xff00) >> 8);
@@ -730,7 +725,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q, PC exten
                 int numArgs = nextFunctor.getArity();
 
                 for (int i = 0; i < numArgs; i++) {
-                    ITerm nextArg = nextFunctor.getArgument(i);
+                    T nextArg = (T) nextFunctor.getArgument(i);
                     allocation = (Integer) getSymbolTable().get(nextArg.getSymbolKey(), SYMKEY_ALLOCATION);
                     addrMode = (byte) ((allocation & 0xff00) >> 8);
                     address = (byte) (allocation & 0xff);
@@ -771,7 +766,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q, PC exten
                     instructions.add(instruction);
                 }
             } else if (j < numOutermostArgs) {
-                ITerm nextVar = nextTerm;
+                T nextVar = nextTerm;
                 int allocation = (Integer) getSymbolTable().get(nextVar.getSymbolKey(), SYMKEY_ALLOCATION);
                 byte addrMode = (byte) ((allocation & 0xff00) >> 8);
                 byte address = (byte) (allocation & 0xff);
@@ -816,7 +811,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q, PC exten
      * @return A listing of the instructions for the clause body in the WAM instruction set.
      */
     public SizeableLinkedList<HiTalkWAMInstruction> compileBodyArguments(
-            IFunctor goal,
+            IFunctor<?> goal,
             boolean isFirstBody,
             HtFunctorName clauseName,
             int bodyNumber) throws Exception {
@@ -862,7 +857,7 @@ public abstract class BaseInstructionCompiler<T extends HtClause, P, Q, PC exten
          *
          * @return
          */
-        public void visit(HtVariable variable) {
+        public void visit(VariableTerm variable) {
             if (getSymbolTable().get(variable.getSymbolKey(), SYMKEY_ALLOCATION) == null) {
                 if (variable.isAnonymous()) {
                     //log.fine("Query variable " + variable + " is temporary.");

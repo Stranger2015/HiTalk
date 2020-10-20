@@ -1,6 +1,5 @@
 package org.ltc.hitalk.wam.compiler;
 
-import com.thesett.aima.search.Operator;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.term.*;
 import org.ltc.hitalk.wam.printer.IFunctorTraverser;
@@ -14,25 +13,24 @@ import java.util.stream.IntStream;
 import static java.util.Collections.emptyIterator;
 import static org.ltc.hitalk.core.BaseApp.appContext;
 import static org.ltc.hitalk.term.ListTerm.Kind.ARGS;
-import static org.ltc.hitalk.term.ListTerm.NIL;
 
 /**
  *
  */
-public class HtFunctor<T extends ITerm<T>> extends HtBaseTerm<T> implements IFunctor {
+public class HtFunctor<T extends ITerm<T>> extends HtBaseTerm<T> implements IFunctor<T> {
     protected int name;
 
     /**
      * view of arguments
      */
-    protected ListTerm args = NIL;
+    protected ListTerm<T> args = new ListTerm<T>(0);
 
     /**
      * @param name
      * @param name
      * @param args
      */
-    public HtFunctor(int hilogApply, ITerm name, ListTerm args) {
+    public HtFunctor(int hilogApply, T name, ListTerm<T> args) {
         this(args.addHead(name).addHead(hilogApply));
     }
 
@@ -40,16 +38,16 @@ public class HtFunctor<T extends ITerm<T>> extends HtBaseTerm<T> implements IFun
      * @param name
      */
     public HtFunctor(int name) {
-        this(name, NIL);
+        this(name, 0);
     }
 
-    public HtFunctor(HtFunctor functor, ITerm name, ListTerm args) {
-        this.args = new ListTerm(ARGS, (args.addHead(functor, name)));
+    public HtFunctor(T functor, T name, ListTerm<T> args) {
+        this.args = new ListTerm<>(ARGS, args.addHead(functor, name));
     }
 
-    public HtFunctor(int name, ListTerm args) {
+    public HtFunctor(int name, int arity) {
         this.name = name;
-        this.args = args;
+//        this.args = new ArrayList<T>(arity);
     }
 //
 //    public <C extends BodyCall.BodyCalls<C>> HtFunctor(IFunctor sym, List<BodyCall<C>> calls) {
@@ -59,6 +57,11 @@ public class HtFunctor<T extends ITerm<T>> extends HtBaseTerm<T> implements IFun
     public HtFunctor(HtFunctorName functorName) {
         name = appContext.getInterner().internFunctorName(functorName);
 
+    }
+
+    public HtFunctor(int f, T... list) {
+
+        this(f, list);
     }
 
     /**
@@ -80,7 +83,7 @@ public class HtFunctor<T extends ITerm<T>> extends HtBaseTerm<T> implements IFun
      * @return
      */
     @Override
-    public List<ITerm<?>> getArguments() {
+    public List<T> getArguments() {
         return args.getHeads();
     }
 
@@ -89,7 +92,7 @@ public class HtFunctor<T extends ITerm<T>> extends HtBaseTerm<T> implements IFun
      * @return
      */
     @Override
-    public ITerm<?> getArgument(int i) {
+    public T getArgument(int i) {
         return args.getHead(i + getHeadsOffset());
     }
 
@@ -129,8 +132,8 @@ public class HtFunctor<T extends ITerm<T>> extends HtBaseTerm<T> implements IFun
      * @return
      */
     @Override
-    public ITerm<?> getValue() {
-        return this;
+    public T getValue() {
+        return (T) this;
     }
 
     /**
@@ -154,7 +157,7 @@ public class HtFunctor<T extends ITerm<T>> extends HtBaseTerm<T> implements IFun
      * @param term The term to compare with this one for structural equality.
      * @return <tt>true</tt> if the two terms are structurally eqaul, <tt>false</tt> otherwise.
      */
-    public boolean structuralEquals(ITerm term) {
+    public boolean structuralEquals(ITerm<?> term) {
         ITerm comparator = term.getValue();
 
         if (this == comparator) {
@@ -238,30 +241,21 @@ public class HtFunctor<T extends ITerm<T>> extends HtBaseTerm<T> implements IFun
 //
 
     /**
-     * {@inheritDoc}
-     *
-     * @param reverse
-     */
-    public Iterator<Operator<HtVariable>> validOperators(boolean reverse) {
-        return null;
-    }
-
-    /**
      * Provides an iterator over the child terms, if there are any. Only functors are compound, and built across a list
      * of child arguments.
      *
      * @param reverse Set, if the children should be presented in reverse order.
      * @return The sub-terms of a compound term.
      */
-    public Iterator<HtVariable> getChildren(boolean reverse) {
+    public Iterator<T> getChildren(boolean reverse) {
         if (traverser instanceof IFunctorTraverser) {
             return ((IFunctorTraverser) traverser).traverse(this, reverse);
         } else if (args == null || args.size() == 0) {
             return emptyIterator();
         } else if (!reverse) {
-            List<HtVariable> argList = new ArrayList<>();
+            List<T> argList = new ArrayList<>();
             for (int i = args.getHeads().size() - 1; i >= 0; i--) {
-                argList.add((HtVariable) args.getHead(i));
+                argList.add(args.getHead(i));
             }
 
             return argList.iterator();
@@ -331,7 +325,7 @@ public class HtFunctor<T extends ITerm<T>> extends HtBaseTerm<T> implements IFun
             result.append("[ ");
 
             IntStream.range(0, args.size()).forEachOrdered(i -> {
-                ITerm nextArg = getArgument(i);
+                ITerm<T> nextArg = getArgument(i);
                 result.append((nextArg != null) ? nextArg.toString() : "<null>");
                 result.append((i < (args.size() - 1)) ? ", " : " ");
             });
@@ -341,14 +335,14 @@ public class HtFunctor<T extends ITerm<T>> extends HtBaseTerm<T> implements IFun
         return result.toString();
     }
 
-    public void setArgument(int i, ITerm term) {
+    public void setArgument(int i, T term) {
         args.getHeads().set(i + getHeadsOffset(), term);
     }
 
     /**
      * @param terms
      */
-    public void setArguments(List<ITerm> terms) {
+    public void setArguments(List<T> terms) {
         args.getHeads().clear();
         args.getHeads().addAll(terms);
     }

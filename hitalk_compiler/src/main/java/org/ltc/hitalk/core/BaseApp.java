@@ -6,7 +6,6 @@ import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.PredicateTable;
 import org.ltc.hitalk.compiler.VafInterner;
 import org.ltc.hitalk.compiler.bktables.*;
-import org.ltc.hitalk.compiler.bktables.error.ExecutionError;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.entities.HtPredicate;
 import org.ltc.hitalk.parser.*;
@@ -28,13 +27,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static java.io.FileDescriptor.*;
-import static org.ltc.hitalk.compiler.bktables.error.ExecutionError.Kind.EXISTENCE_ERROR;
 import static org.ltc.hitalk.core.Components.*;
 import static org.ltc.hitalk.core.PrologBuiltIns.CURRENT_OUTPUT;
 import static org.ltc.hitalk.term.io.HiTalkInputStream.defaultEncoding;
@@ -44,12 +39,12 @@ import static org.ltc.hitalk.term.io.HiTalkInputStream.defaultEncoding;
  */
 @SuppressWarnings("ALL")
 public abstract
-class BaseApp<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledPredicate, QC extends HiTalkWAMCompiledQuery>
+class BaseApp
         implements IApplication {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
     public final static AppContext appContext = new AppContext();
-    public static final List<HiTalkStream> streams = new ArrayList<>();
+//    public static final List<HiTalkStream> streams = new ArrayList<>();
 
     protected final AtomicBoolean initialized = new AtomicBoolean(false);
     protected final AtomicBoolean started = new AtomicBoolean(false);
@@ -62,8 +57,8 @@ class BaseApp<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledPredicate, Q
     protected ITermFactory termFactory;
     protected HtPrologParser parser;
     protected IOperatorTable optable;
-    protected ICompiler<T, P, Q, PC, QC> compiler;
-    protected PredicateTable<HtPredicate> predicateTable;
+    protected ICompiler compiler;
+//    protected PredicateTable<HtPredicate<?>> predicateTable;
     protected ISymbolTable<Integer, String, Object> symbolTable;
     protected IResolver<HtPredicate, HtClause> resolver;
     protected Language language;
@@ -80,13 +75,13 @@ class BaseApp<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledPredicate, Q
     public BaseApp() {
         appContext.setApp(this);
         try {
-            streams.add(new HiTalkInputStream(in, 256));//  "current_input"
-            streams.add(new HiTalkOutputStream(256, out));// "current_output"
-            streams.add(new HiTalkOutputStream(0, err));// "current_error";
+//            streams.add(new HiTalkInputStream(in, 256));//  "current_input"
+//            streams.add(new HiTalkOutputStream(256, out));// "current_output"
+//            streams.add(new HiTalkOutputStream(0, err));// "current_error";
 
         } catch (Exception ex) {
             ex.printStackTrace();
-            throw new ExecutionError(EXISTENCE_ERROR, null);
+//            throw new ExecutionError(EXISTENCE_ERROR, null);
         }
     }
 
@@ -101,30 +96,30 @@ class BaseApp<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledPredicate, Q
      * @param i
      * @return
      */
-    public HiTalkStream getStream(int i) {
-        return streams.get(i);
-    }
+//    public HiTalkStream getStream(int i) {
+//        return streams.get(i);
+//    }
 
     /**
      * @return
      */
-    public HiTalkStream currentInput() {
-        return getStream(0);
-    }
+//    public HiTalkStream currentInput() {
+//        return getStream(0);
+//    }
 
     /**
      * @return
      */
-    public HiTalkStream currentOutput() {
-        return getStream(1);
-    }
+//    public HiTalkStream currentOutput() {
+//        return getStream(1);
+//    }
 
     /**
      * @return
      */
-    public HiTalkStream currentError() {
-        return getStream(2);
-    }
+//    public HiTalkStream currentError() {
+//        return getStream(2);
+//    }
 
     /**
      * @return
@@ -194,17 +189,17 @@ class BaseApp<T extends HtClause, P, Q, PC extends HiTalkWAMCompiledPredicate, Q
      * @param stream
      * @return
      */
-    public HiTalkStream addStream(HiTalkStream stream) {
-        streams.add(stream);
-        return stream;
-    }
-
+//    public HiTalkStream addStream(HiTalkStream stream) {
+//        streams.add(stream);
+//        return stream;
+//    }
+//
     /**
      * @return
      */
-    public List<HiTalkStream> getStreams() {
-        return streams;
-    }
+//    public List<HiTalkStream> getStreams() {
+//        return streams;
+//    }
 
     /**
      * @return

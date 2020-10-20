@@ -14,8 +14,7 @@ public class Directive extends HtClause {
         super(null, def);
     }
 
-    public enum DirectiveKind {
-        //        CONDITIONAL_COMPILATION,
+    public enum  DirectiveKind {
         DK_IF(DirectiveKind::_if),
         DK_ELSE(DirectiveKind::_else),
         DK_ELIF(DirectiveKind::elif),

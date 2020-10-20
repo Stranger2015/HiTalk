@@ -1,13 +1,14 @@
 package org.ltc.hitalk.entities;
 
 import com.thesett.aima.logic.fol.TermTraverser;
-import com.thesett.aima.search.Operator;
 import com.thesett.common.util.StackQueue;
 import org.ltc.hitalk.compiler.IPredicateVisitor;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.interpreter.IPredicateTraverser;
-import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.term.*;
+import org.ltc.hitalk.term.HtBaseTerm;
+import org.ltc.hitalk.term.HtNonVar;
+import org.ltc.hitalk.term.ITerm;
+import org.ltc.hitalk.term.ITermVisitor;
 import org.ltc.hitalk.term.io.HtMethodDef;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
@@ -59,12 +60,11 @@ import java.util.stream.IntStream;
  * specified line (if applicable)
  */
 public
-class HtPredicate extends HtBaseTerm implements ITerm, IPropertyOwner {
-    protected List<HtClause> l;
+class HtPredicate<T extends ITerm<T>> extends HtBaseTerm<T> implements ITerm<T>, IPropertyOwner {
+    protected List<T> l;
     /**
      * The clauses that make up this predicate.
      */
-//    final protected HtPredicateDefinition l;
     final protected List<PropertyChangeListener> listeners = new ArrayList<>();
     private boolean builtIn;
 
@@ -83,7 +83,7 @@ class HtPredicate extends HtBaseTerm implements ITerm, IPropertyOwner {
     /**
      * {@inheritDoc}
      */
-    public ITerm getValue () {
+    public ITerm<T> getValue () {
         return this;
     }
 
@@ -109,11 +109,11 @@ class HtPredicate extends HtBaseTerm implements ITerm, IPropertyOwner {
      *
      * @return
      */
-    public Iterator<HtVariable> getChildren(boolean reverse) {
+    public Iterator<T> getChildren(boolean reverse) {
         if ((traverser instanceof IPredicateTraverser)) {
             return ((IPredicateTraverser) traverser).traverse(this, reverse);
         } else {
-            List<Operator<ITerm>> resultList = null;
+            List<T> resultList = null;
 
             if (!reverse) {
                 resultList = new LinkedList<>();//replace linked
@@ -135,9 +135,7 @@ class HtPredicate extends HtBaseTerm implements ITerm, IPropertyOwner {
     public void accept ( ITermVisitor visitor ) {
         if (visitor instanceof IPredicateVisitor) {
             ((IPredicateVisitor) visitor).visit(this);
-        } /*else {
-            this.accept(visitor);
-        }*/
+        }
     }
 //
 //    public List<ITerm> acceptTransformer ( ITermTransformer transformer ) {
@@ -171,14 +169,14 @@ class HtPredicate extends HtBaseTerm implements ITerm, IPropertyOwner {
     //    private final static int PROPS_LENGTH = 29;
     private HtProperty[] props;
 
-    public HtPredicate ( HtClause clause ) {
+    public HtPredicate ( T clause ) {
         this(Collections.singletonList(clause));
     }
 
     /**
      * Creates a predicate formed from a set of clauses.
      */
-    public HtPredicate ( List <HtClause> l, HtProperty... props ) {
+    public HtPredicate ( List <T> l, HtProperty... props ) {
         this.l = l;
         this.props = props;
     }
@@ -249,7 +247,7 @@ class HtPredicate extends HtBaseTerm implements ITerm, IPropertyOwner {
     /**
      * @return
      */
-    public List <HtClause> getClauses () {
+    public List <T> getClauses () {
         return l;
     }
 
@@ -261,7 +259,7 @@ class HtPredicate extends HtBaseTerm implements ITerm, IPropertyOwner {
         this.builtIn = builtIn;
     }
 
-    public HtClause get(int i) {
+    public T get(int i) {
         return l.get(i);
     }
 

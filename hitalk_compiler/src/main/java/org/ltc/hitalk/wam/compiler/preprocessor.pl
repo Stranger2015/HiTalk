@@ -1,2 +1,0 @@
-preprocess(TermIn, ListTermOut):-
-    true.

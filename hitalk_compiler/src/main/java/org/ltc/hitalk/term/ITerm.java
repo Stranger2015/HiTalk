@@ -85,10 +85,10 @@ import java.util.List;
  *
  * @author Rupert Smith
  */
-public interface ITerm<T extends Traversable<T>> extends ReTraversable<T>, Operator<T>, Traversable<T> {
+public interface ITerm<T extends ITerm<T>> extends ReTraversable<T>, Operator<T>, Traversable<T> {
 
 
-    ITerm[] EMPTY_TERM_ARRAY = new ITerm[0];
+    ITerm<?>[] EMPTY_TERM_ARRAY = new ITerm[0];
 
     /**
      * @return
@@ -264,7 +264,7 @@ public interface ITerm<T extends Traversable<T>> extends ReTraversable<T>, Opera
      */
     void accept(ITermVisitor visitor);
 
-    List<ITerm<T>> accept(FlattenTermVisitor visitor) throws Exception;
+    List<T> accept(FlattenTermVisitor<T> visitor) throws Exception;
 
     /**
      * Applies a term to term transformation function over the term tree, recursively from this point downwards. This is
@@ -274,7 +274,7 @@ public interface ITerm<T extends Traversable<T>> extends ReTraversable<T>, Opera
      * @param transformer The transformation function to apply.
      * @return The transformed term tree.
      */
-    List<ITerm<T>> acceptTransformer(ITermTransformer transformer);
+    List<T> acceptTransformer(ITermTransformer<T> transformer);
 
     /**
      * Pretty prints a term relative to the symbol namings provided by the specified interner.
@@ -297,7 +297,7 @@ public interface ITerm<T extends Traversable<T>> extends ReTraversable<T>, Opera
      * @param term The term to compare with this one for structural equality.
      * @return <tt>true</tt> if the two terms are structurally eqaul, <tt>false</tt> otherwise.
      */
-    boolean structuralEquals(ITerm<T> term);
+    boolean structuralEquals(ITerm<?> term);
 
     /**
      * @return

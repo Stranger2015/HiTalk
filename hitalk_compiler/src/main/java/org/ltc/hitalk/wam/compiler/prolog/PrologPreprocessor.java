@@ -20,7 +20,6 @@ import org.ltc.hitalk.core.IResolver;
 import org.ltc.hitalk.core.utils.ISymbolTable;
 import org.ltc.hitalk.parser.HtClause;
 import org.ltc.hitalk.parser.HtPrologParser;
-import org.ltc.hitalk.term.ITerm;
 import org.ltc.hitalk.wam.task.PreCompilerTask;
 
 import java.util.List;
@@ -55,7 +54,7 @@ public class PrologPreprocessor<T extends HtClause, TT extends PreCompilerTask<T
 //        super.compile(clause);
 //    }
 
-    public List<ITerm> expandTerm(ITerm term) throws Exception {
+    public List<Term> expandTerm(Term term) throws Exception {
         return super.expandTerm(term);
     }
 
@@ -63,7 +62,7 @@ public class PrologPreprocessor<T extends HtClause, TT extends PreCompilerTask<T
      * @param term
      * @return
      */
-    public List<ITerm> callTermExpansion(ITerm term) throws Exception {
+    public List<Term> callTermExpansion(Term term) throws Exception {
         return super.callTermExpansion(term);
     }
 
@@ -71,7 +70,7 @@ public class PrologPreprocessor<T extends HtClause, TT extends PreCompilerTask<T
      * @param goal
      * @return
      */
-    public List<ITerm> expandGoal(ITerm goal) {
+    public List<Term> expandGoal(Term goal) {
         return super.expandGoal(goal);
     }
 }

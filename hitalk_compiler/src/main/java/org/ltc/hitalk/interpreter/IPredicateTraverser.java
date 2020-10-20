@@ -7,7 +7,7 @@ import org.ltc.hitalk.term.ITerm;
 import java.util.Iterator;
 
 public
-interface IPredicateTraverser {
+interface IPredicateTraverser<T extends ITerm<T>> {
     /**
      * Traverses a predicate.
      *
@@ -16,5 +16,5 @@ interface IPredicateTraverser {
      *                  be a natural, left-to-right ordering.
      * @return An iterator over operators producing the traversed elements of the predicate.
      */
-    Iterator <Operator <ITerm>> traverse ( HtPredicate predicate, boolean reverse );
+    Iterator <Operator <T>> traverse ( HtPredicate<T> predicate, boolean reverse );
 }

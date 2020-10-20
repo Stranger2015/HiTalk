@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.ltc.hitalk.term.ListTerm.NIL;
+import static com.sun.tools.javac.code.Kinds.NIL;
 import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.REF;
 import static org.ltc.hitalk.wam.compiler.hitalk.HiTalkWAMInstruction.STR;
 
@@ -395,7 +395,7 @@ class HiTalkWAMResolvingMachine<P extends HiTalkWAMCompiledPredicate, Q extends 
                 /*log.fine("f = " + f);*/
 
                 // Create a new functor to hold the decoded data.
-                result = new HtFunctor(f, NIL);
+                result = new HtFunctor<>(f, NIL);
                 break;
             }
             case HiTalkWAMInstruction.LIS: {
@@ -403,12 +403,12 @@ class HiTalkWAMResolvingMachine<P extends HiTalkWAMCompiledPredicate, Q extends 
                 int f = internFunctorName(functorName);
                 // Fill in this functors name and arity and allocate storage space for its arguments.
                 int arity = functorName.getArity();
-                List<ITerm> list = IntStream.range(0, arity).mapToObj(i ->
+                List<?> list = IntStream.range(0, arity).mapToObj(i ->
                         decodeHeap(val + i, variableContext)).collect(Collectors.toList());
                 //                ITerm[] arguments = list.toArray(new ITerm[0]);
 //                 Loop over all of the functors arguments, recursively decoding them.
                 // Create a new functor to hold the decoded data.
-                result = new HtFunctor(f, new ListTerm(list));
+                result = new HtFunctor(f, new ListTerm<ITerm>((List<ITerm>) list));
                 break;
             }
             default:

@@ -110,7 +110,7 @@ class HiTalkWAMEngine<T extends HtMethod, P, Q,
                 compiler.endScope();
             } catch (HtSourceCodeException e) {
                 // There should not be any errors in the built in library, if there are then the prolog engine just
-                // isn't going to work, so report this as a bug.
+                // isn't going to work, so report this as a b]\ug.
                 throw new ExecutionError(PERMISSION_ERROR,
                         "Got an exception whilst loading the built-in library.",
                         e);

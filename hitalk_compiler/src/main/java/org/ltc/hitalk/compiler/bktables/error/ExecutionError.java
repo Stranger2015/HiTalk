@@ -30,9 +30,7 @@ class ExecutionError extends RuntimeException {
     public
     enum Kind {//todo resources??
         TYPE_ERROR("Type error"),
-        PERMISSION_ERROR("Permission error"),
-        EXISTENCE_ERROR("Existence error"),
-        DOMAIN_ERROR("Domain error"),
+         DOMAIN_ERROR("Domain error"),
         INSTANTIATION_ERROR("Instantiation error"),
         RESOURCE_ERROR("Resource error"),
         REPRESENTATION_ERROR("Representation error"),

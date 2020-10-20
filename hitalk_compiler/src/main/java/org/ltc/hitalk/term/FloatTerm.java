@@ -5,6 +5,7 @@ import com.thesett.aima.search.util.backtracking.Reversable;
 import org.ltc.hitalk.NumberTerm;
 import org.ltc.hitalk.compiler.IVafInterner;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -71,8 +72,8 @@ public class FloatTerm<T extends Traversable<T>> extends NumberTerm<T> implement
      * @return The transformed term tree.
      */
     @Override
-    public List<ITerm> acceptTransformer(ITermTransformer transformer) {
-        return null;
+    public List<T> acceptTransformer(ITermTransformer<T> transformer) {
+        return Collections.emptyList();
     }
 
     /**
@@ -86,7 +87,7 @@ public class FloatTerm<T extends Traversable<T>> extends NumberTerm<T> implement
      * @return A pretty printed string containing the term.
      */
     public String toString ( IVafInterner interner, boolean printVarName, boolean printBindings ) {
-        return null;
+        return ""+getClass();
     }
 
     /**
@@ -98,7 +99,7 @@ public class FloatTerm<T extends Traversable<T>> extends NumberTerm<T> implement
      * @param term The term to compare with this one for structural equality.
      * @return <tt>true</tt> if the two terms are structurally eqaul, <tt>false</tt> otherwise.
      */
-    public boolean structuralEquals ( ITerm term ) {
+    public boolean structuralEquals (ITerm<?> term ) {
         return false;
     }
 

@@ -1,13 +1,12 @@
 package org.ltc.hitalk.wam.compiler.hilog;
 
+
 import com.thesett.aima.logic.fol.TermTransformer;
 import com.thesett.common.util.doublemaps.SymbolTable;
 import com.thesett.common.util.doublemaps.SymbolTableImpl;
 import org.ltc.hitalk.compiler.IVafInterner;
 import org.ltc.hitalk.compiler.VafInterner;
 import org.ltc.hitalk.parser.HtClause;
-import org.ltc.hitalk.term.ITerm;
-import org.ltc.hitalk.term.ListTerm;
 import org.ltc.hitalk.wam.compiler.IFunctor;
 
 /**
@@ -33,7 +32,7 @@ class HiLogToPrologBiDiConverter<T extends HtClause, P, Q, PC, QC> {
     private boolean unify;
     private int applyF;
 
-    SymbolTable <Integer, String, Object> symbolTable = new SymbolTableImpl <>();
+    SymbolTable<Integer, String, Object> symbolTable = new SymbolTableImpl<>();
     IVafInterner interner = new VafInterner("", "");
 
 
@@ -50,6 +49,176 @@ class HiLogToPrologBiDiConverter<T extends HtClause, P, Q, PC, QC> {
 //        public
 //        Term transform ( Term prologTerm ) {
 //            if (prologTerm.isVar()) {
+//                Variable v = (Variable) prologTerm;
+//                if (v.isBound()) {
+//                    if (unify) {
+//                        return v.queryConversion();
+//                    }
+//                    else {
+//                        return v.getSubstitution();//fixme
+//                    }
+//                }
+//                else {
+//                    return v.getValue();
+//                }
+//            }
+//            else if (prologTerm.isConstant() || isProtected(prologTerm)) {
+//                return prologTerm;
+//            }
+//            if (isList(prologTerm)) {
+//                return mapList(transformer, (ListTerm) prologTerm);
+//            }
+//            if (isSpecialForm(prologTerm)) {
+//                return mapSpecialForm(transformer, prologTerm);
+//            }
+//            if (!prologTerm.isCompound()) {
+//                throw new ExecutionError(TYPE_ERROR, null);
+//            }
+//            if (hasHiLogApplyFunctorName(prologTerm, applyF)) {
+//                return prologTerm; //already converted
+//            }
+//            if (isFormula(prologTerm)) {
+//                return prologTerm;
+//            }
+//
+//            return prologTerm;
+//        }if (prologTerm.isVar()) {
+//                Variable v = (Variable) prologTerm;
+//                if (v.isBound()) {
+//                    if (unify) {
+//                        return v.queryConversion();
+//                    }
+//                    else {
+//                        return v.getSubstitution();//fixme
+//                    }
+//                }
+//                else {
+//                    return v.getValue();
+//                }
+//            }
+//            else if (prologTerm.isConstant() || isProtected(prologTerm)) {
+//                return prologTerm;
+//            }
+//            if (isList(prologTerm)) {
+//                return mapList(transformer, (ListTerm) prologTerm);
+//            }
+//            if (isSpecialForm(prologTerm)) {
+//                return mapSpecialForm(transformer, prologTerm);
+//            }
+//            if (!prologTerm.isCompound()) {
+//                throw new ExecutionError(TYPE_ERROR, null);
+//            }
+//            if (hasHiLogApplyFunctorName(prologTerm, applyF)) {
+//                return prologTerm; //already converted
+//            }
+//            if (isFormula(prologTerm)) {
+//                return prologTerm;
+//            }
+//
+//            return prologTerm;
+//        }if (prologTerm.isVar()) {
+//                Variable v = (Variable) prologTerm;
+//                if (v.isBound()) {
+//                    if (unify) {
+//                        return v.queryConversion();
+//                    }
+//                    else {
+//                        return v.getSubstitution();//fixme
+//                    }
+//                }
+//                else {
+//                    return v.getValue();
+//                }
+//            }
+//            else if (prologTerm.isConstant() || isProtected(prologTerm)) {
+//                return prologTerm;
+//            }
+//            if (isList(prologTerm)) {
+//                return mapList(transformer, (ListTerm) prologTerm);
+//            }
+//            if (isSpecialForm(prologTerm)) {
+//                return mapSpecialForm(transformer, prologTerm);
+//            }
+//            if (!prologTerm.isCompound()) {
+//                throw new ExecutionError(TYPE_ERROR, null);
+//            }
+//            if (hasHiLogApplyFunctorName(prologTerm, applyF)) {
+//                return prologTerm; //already converted
+//            }
+//            if (isFormula(prologTerm)) {
+//                return prologTerm;
+//            }
+//
+//            return prologTerm;
+//        }if (prologTerm.isVar()) {
+//                Variable v = (Variable) prologTerm;
+//                if (v.isBound()) {
+//                    if (unify) {
+//                        return v.queryConversion();
+//                    }
+//                    else {
+//                        return v.getSubstitution();//fixme
+//                    }
+//                }
+//                else {
+//                    return v.getValue();
+//                }
+//            }
+//            else if (prologTerm.isConstant() || isProtected(prologTerm)) {
+//                return prologTerm;
+//            }
+//            if (isList(prologTerm)) {
+//                return mapList(transformer, (ListTerm) prologTerm);
+//            }
+//            if (isSpecialForm(prologTerm)) {
+//                return mapSpecialForm(transformer, prologTerm);
+//            }
+//            if (!prologTerm.isCompound()) {
+//                throw new ExecutionError(TYPE_ERROR, null);
+//            }
+//            if (hasHiLogApplyFunctorName(prologTerm, applyF)) {
+//                return prologTerm; //already converted
+//            }
+//            if (isFormula(prologTerm)) {
+//                return prologTerm;
+//            }
+//
+//            return prologTerm;
+//        }if (prologTerm.isVar()) {
+//                Variable v = (Variable) prologTerm;
+//                if (v.isBound()) {
+//                    if (unify) {
+//                        return v.queryConversion();
+//                    }
+//                    else {
+//                        return v.getSubstitution();//fixme
+//                    }
+//                }
+//                else {
+//                    return v.getValue();
+//                }
+//            }
+//            else if (prologTerm.isConstant() || isProtected(prologTerm)) {
+//                return prologTerm;
+//            }
+//            if (isList(prologTerm)) {
+//                return mapList(transformer, (ListTerm) prologTerm);
+//            }
+//            if (isSpecialForm(prologTerm)) {
+//                return mapSpecialForm(transformer, prologTerm);
+//            }
+//            if (!prologTerm.isCompound()) {
+//                throw new ExecutionError(TYPE_ERROR, null);
+//            }
+//            if (hasHiLogApplyFunctorName(prologTerm, applyF)) {
+//                return prologTerm; //already converted
+//            }
+//            if (isFormula(prologTerm)) {
+//                return prologTerm;
+//            }
+//
+//            return prologTerm;
+//        }if (prologTerm.isVar()) {
 //                Variable v = (Variable) prologTerm;
 //                if (v.isBound()) {
 //                    if (unify) {
@@ -124,7 +293,7 @@ class HiLogToPrologBiDiConverter<T extends HtClause, P, Q, PC, QC> {
         return ((IFunctor) term).getName() == applyF;
     }
 
-    private ITerm mapList ( TermTransformer transformer, ListTerm termList ) {
+    private ITerm mapList (TermTransformer transformer, ListTerm termList ) {
         boolean mustExit = false;
         while (true) {
 

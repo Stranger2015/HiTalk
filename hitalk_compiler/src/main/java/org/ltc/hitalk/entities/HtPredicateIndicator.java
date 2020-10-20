@@ -204,7 +204,7 @@ class HtPredicateIndicator extends HtBaseTerm implements IFunctor {
      * @return <tt>true</tt> if the two terms are structurally eqaul, <tt>false</tt> otherwise.
      */
     @Override
-    public boolean structuralEquals(ITerm term) {
+    public boolean structuralEquals(ITerm<?> term) {
         return delegate.structuralEquals(term);
     }
 
